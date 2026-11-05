@@ -152,6 +152,11 @@ public static class AllocationPlanProjection
                 recommendationCode);
         }
 
+        if (TryRecommendationSalvoAbort(allocation, quantity, out var salvoReason, out var salvoCode))
+        {
+            return Reject(shooterId, weaponId, targetId, quantity, salvoReason, salvoCode);
+        }
+
         var key = new MagazineKey(shooterId, weaponId);
         remaining.TryGetValue(key, out var rounds);
         if (quantity <= 0 || quantity > rounds)
@@ -211,6 +216,35 @@ public static class AllocationPlanProjection
         }
 
         return disabled ?? failureReason;
+    }
+
+    /// <summary>
+    /// Validates the requested quantity against a matching recommendation's MaxSalvo.
+    /// ThreatAssessmentProjection only compares EngageContext.SalvoSize; the allocation
+    /// quantity is independent and must be checked here (Codex P2 on DRG-410).
+    /// </summary>
+    private static bool TryRecommendationSalvoAbort(
+        AllocationPlanAllocation allocation,
+        int quantity,
+        out FireAbortReason? reason,
+        out string? code)
+    {
+        reason = null;
+        code = null;
+        var recommendation = allocation.Recommendation;
+        if (recommendation is null || !MatchesAllocation(allocation, recommendation))
+        {
+            return false;
+        }
+
+        if (quantity <= recommendation.PolicyConstraints.MaxSalvo)
+        {
+            return false;
+        }
+
+        reason = FireAbortReason.WraSalvo;
+        code = AbortReasonCatalog.Doctrine.WRA_SALVO;
+        return true;
     }
 
     private static bool TryRecommendationAbort(

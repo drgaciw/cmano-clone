@@ -135,6 +135,39 @@ public sealed class AllocationPlanProjectionTests
     }
 
     [Test]
+    public void Matching_recommendation_rejects_quantity_above_max_salvo()
+    {
+        var recommendation = WeaponRecommendation.Empty with
+        {
+            ShooterUnitId = "s1",
+            WeaponId = Weapon,
+            TargetId = "t1",
+            ContactId = "t1",
+            Outcome = WeaponRecommendationOutcome.Feasible,
+            PolicyConstraints = new ThreatPolicyConstraints(
+                RoeLevel.WeaponsFree,
+                MaxSalvo: 2,
+                AutoEngageAuthorized: true,
+                ExpendAuthorized: true,
+                PolicyAllowsFire: true,
+                PolicyAbortCode: null),
+        };
+        var plan = AllocationPlanProjection.Project(Plan(
+            shooters: new[] { "s1" },
+            targets: new[] { "t1" },
+            allocations: new[] { Line("s1", "t1", quantity: 4, rounds: 8, recommendation: recommendation) },
+            magazines: new[] { new EmploymentLedgerMagazineFacts("s1", Weapon, 8, 1) }));
+
+        Assert.That(plan.Cells, Has.Count.EqualTo(1));
+        Assert.That(plan.Cells[0].CanFire, Is.False);
+        Assert.That(plan.Cells[0].AcceptedQuantity, Is.EqualTo(0));
+        Assert.That(plan.Cells[0].AbortReason, Is.EqualTo(FireAbortReason.WraSalvo));
+        Assert.That(plan.Cells[0].ReasonCode, Is.EqualTo(AbortReasonCatalog.Doctrine.WRA_SALVO));
+        Assert.That(plan.ShooterTotals[0].MagazineRemaining, Is.EqualTo(8));
+    }
+
+
+    [Test]
     public void Over_allocation_is_rejected_and_does_not_draw_the_magazine()
     {
         var plan = AllocationPlanProjection.Project(Plan(
