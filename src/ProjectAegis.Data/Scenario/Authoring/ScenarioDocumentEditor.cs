@@ -6,36 +6,63 @@ using System.Text;
 /// <summary>Mutable scenario document with optimistic concurrency (req 11 / ADR-008).</summary>
 public sealed class ScenarioDocumentEditor
 {
-    private ScenarioDocumentEditor(ScenarioMetadataDto metadata, List<ScenarioMissionDto> missions)
+    private ScenarioDocumentEditor(ScenarioDocumentDto snapshot, List<ScenarioMissionDto> missions)
     {
-        Metadata = metadata;
+        Metadata = snapshot.Metadata;
+        Features = snapshot.Features;
+        Sides = snapshot.Sides;
+        Orbat = snapshot.Orbat;
+        ReferencePoints = snapshot.ReferencePoints;
+        OperationsTimeline = snapshot.OperationsTimeline;
+        Events = snapshot.Events;
+        Variables = snapshot.Variables;
+        EditorState = snapshot.EditorState;
         Missions = missions;
     }
 
     public ScenarioMetadataDto Metadata { get; private set; }
+
+    public ScenarioFeaturesDto? Features { get; private set; }
+
+    public IReadOnlyList<ScenarioSideDto> Sides { get; private set; }
+
+    public ScenarioOrbatDto? Orbat { get; private set; }
+
+    public IReadOnlyList<ScenarioReferencePointDto> ReferencePoints { get; private set; }
+
+    public IReadOnlyList<ScenarioOperationsTimelineEntryDto> OperationsTimeline { get; private set; }
+
+    public IReadOnlyList<ScenarioEventDto> Events { get; private set; }
+
+    public IReadOnlyDictionary<string, System.Text.Json.JsonElement>? Variables { get; private set; }
+
+    public ScenarioEditorStateDto? EditorState { get; private set; }
 
     public List<ScenarioMissionDto> Missions { get; }
 
     public static ScenarioDocumentEditor Load(string path)
     {
         var dto = ScenarioDocumentJsonLoader.LoadFromFile(path);
-        return new ScenarioDocumentEditor(
-            dto.Metadata,
-            dto.Missions.ToList());
+        return new ScenarioDocumentEditor(dto, dto.Missions.ToList());
     }
 
     public static ScenarioDocumentEditor CreateNew(
         string? dbRef = "baltic_patrol",
         ulong seed = 42,
-        string? policyId = "baltic-patrol-catalog")
+        string? policyId = "baltic-patrol-catalog",
+        string title = "Untitled Scenario")
     {
         return new ScenarioDocumentEditor(
-            new ScenarioMetadataDto
+            new ScenarioDocumentDto
             {
-                DbRef = dbRef,
-                Seed = seed,
-                PolicyId = policyId,
-                EditVersion = 1,
+                Metadata = new ScenarioMetadataDto
+                {
+                    Title = title,
+                    DbRef = dbRef,
+                    Seed = seed,
+                    PolicyId = policyId,
+                    EditVersion = 1,
+                },
             },
             new List<ScenarioMissionDto>());
     }
@@ -44,7 +71,15 @@ public sealed class ScenarioDocumentEditor
         new()
         {
             Metadata = Metadata,
+            Features = Features,
+            Sides = Sides,
+            Orbat = Orbat,
+            ReferencePoints = ReferencePoints,
             Missions = Missions,
+            OperationsTimeline = OperationsTimeline,
+            Events = Events,
+            Variables = Variables,
+            EditorState = EditorState,
         };
 
     public string ComputeFileHash()
@@ -71,11 +106,18 @@ public sealed class ScenarioDocumentEditor
     {
         Metadata = new ScenarioMetadataDto
         {
+            Title = Metadata.Title,
+            Description = Metadata.Description,
+            Author = Metadata.Author,
+            SchemaVersion = Metadata.SchemaVersion,
             DbRef = Metadata.DbRef,
             DbSnapshotId = Metadata.DbSnapshotId,
             EditVersion = Metadata.EditVersion + 1,
             Seed = Metadata.Seed,
             PolicyId = Metadata.PolicyId,
+            UnitReadiness = Metadata.UnitReadiness,
+            MaxTechnologyLevel = Metadata.MaxTechnologyLevel,
+            NearFutureUnits = Metadata.NearFutureUnits,
         };
     }
 

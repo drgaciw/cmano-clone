@@ -2,6 +2,15 @@ namespace ProjectAegis.Data.Scenario.Authoring;
 
 public sealed class ScenarioMetadataDto
 {
+    public string Title { get; init; } = "Untitled Scenario";
+
+    public string Description { get; init; } = "";
+
+    public string Author { get; init; } = "";
+
+    /// <summary>Canonical schema version for migrations (distinct from editVersion).</summary>
+    public string SchemaVersion { get; init; } = "1.0.0";
+
     public string? DbRef { get; init; }
 
     public string? DbSnapshotId { get; init; }
