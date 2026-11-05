@@ -59,6 +59,39 @@ public sealed class AgentPerformanceAarProjectionTests
         Assert.That(AgentPerformanceAarProjection.Project(new DecisionLog()).Rows, Is.Empty);
     }
 
+
+    [Test]
+    public void Project_ExcludesInfrastructureDenialIds_AndCreditsOwningAgent()
+    {
+        var log = new DecisionLog();
+        log.Append(Intent("alpha", 1));
+        log.AppendControllerChange(new ControllerChangeRecord(
+            0, 1, new TargetId("u1"), "Human", "Agent:alpha", new AgentId("alpha")));
+        log.AppendPolicyDenial(new PolicyDenialRecord(
+            0, 2, 2, new AgentId(AgentPerformanceAarProjection.CommsGuardAgentId), new TargetId("u1"), 0,
+            FireAbortReason.CommsDenied, OrderKind.Engage));
+        log.AppendPolicyDenial(new PolicyDenialRecord(
+            0, 3, 3, new AgentId(AgentPerformanceAarProjection.CommsGridAgentId), new TargetId("u9"), 0,
+            FireAbortReason.OffGrid, OrderKind.Engage));
+
+        var rows = AgentPerformanceAarProjection.Project(log).Rows;
+
+        Assert.That(rows.Select(r => r.AgentId), Is.EqualTo(new[] { "alpha" }));
+        Assert.That(rows[0], Is.EqualTo(new AgentPerformanceRow("alpha", 1, 1, 0)));
+        Assert.That(rows.Any(r => r.AgentId is "comms-grid" or "comms-guard"), Is.False);
+    }
+
+    [Test]
+    public void Project_HumanOnlyInfrastructureDenial_ProducesNoAgentRow()
+    {
+        var log = new DecisionLog();
+        log.AppendPolicyDenial(new PolicyDenialRecord(
+            0, 1, 1, new AgentId(AgentPerformanceAarProjection.CommsGridAgentId), new TargetId("u1"), 0,
+            FireAbortReason.OffGrid, OrderKind.Move));
+
+        Assert.That(AgentPerformanceAarProjection.Project(log).Rows, Is.Empty);
+    }
+
     [Test]
     public void SourceFence_NoUnityOrMutatingRefs()
     {
