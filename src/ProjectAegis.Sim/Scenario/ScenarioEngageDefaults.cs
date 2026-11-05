@@ -5,6 +5,9 @@ using ProjectAegis.Sim.Engage;
 /// <summary>Scenario-level defaults for MVP engage priming (data/scenarios/*.policy.json).</summary>
 public sealed class ScenarioEngageDefaults
 {
+    /// <summary>Fallback used when a scenario does not explicitly identify its weapon family.</summary>
+    public const string UnknownWeaponFamilyId = "Unknown";
+
     public ScenarioEngageDefaults(
         double rangeMeters,
         double envelopeMinMeters,
@@ -22,7 +25,8 @@ public sealed class ScenarioEngageDefaults
         bool mountOnline = true,
         bool contactIdentified = true,
         bool combatDomainsEnabled = false,
-        int shotgunRoundsThreshold = 1)
+        int shotgunRoundsThreshold = 1,
+        string? weaponFamilyId = null)
     {
         RangeMeters = rangeMeters;
         EnvelopeMinMeters = envelopeMinMeters;
@@ -41,6 +45,9 @@ public sealed class ScenarioEngageDefaults
         ContactIdentified = contactIdentified;
         CombatDomainsEnabled = combatDomainsEnabled;
         ShotgunRoundsThreshold = Math.Max(0, shotgunRoundsThreshold);
+        WeaponFamilyId = string.IsNullOrWhiteSpace(weaponFamilyId)
+            ? UnknownWeaponFamilyId
+            : weaponFamilyId.Trim();
     }
 
     public double RangeMeters { get; }
@@ -80,6 +87,9 @@ public sealed class ScenarioEngageDefaults
     /// Shotgun band threshold (rounds remaining). 0 disables SHOTGUN (only WINCHESTER at empty).
     /// </summary>
     public int ShotgunRoundsThreshold { get; }
+
+    /// <summary>Explicit scenario-authored weapon family, or Unknown when omitted or blank.</summary>
+    public string WeaponFamilyId { get; }
 
     public EngageContext ToEngageContext(int roundsRemaining) =>
         new(
