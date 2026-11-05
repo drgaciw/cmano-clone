@@ -36,7 +36,7 @@ public static class AgentPerformanceAarProjection
     /// <summary>Synthetic agent id used by <c>FilterOffGridHumanOrders</c> (C3-01).</summary>
     public const string CommsGridAgentId = "comms-grid";
 
-    /// <summary>Synthetic agent id used by <c>SimulationSession</c> engage-phase comms block.</summary>
+    /// <summary>Synthetic agent id used when the engage-phase communications guard blocks an order.</summary>
     public const string CommsGuardAgentId = "comms-guard";
 
     public static AgentPerformanceSection Project(IReadOnlyOrderLog? log)
