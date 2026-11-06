@@ -16,8 +16,8 @@ public static class UnitDetailPanelBinder
                 "ENGAGE: —",
                 "ATTACK: —",
                 contactLine ?? "CONTACT: —",
-                Array.Empty<EngageAttackOptions.AttackOption>(),
-                "COMMS: —");
+                Array.Empty<EngageAttackOptions.AttackOption>()
+            );
         }
 
         return new UnitDetailPanelState(

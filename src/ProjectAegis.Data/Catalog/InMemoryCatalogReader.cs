@@ -1,4 +1,3 @@
-using System.Linq;
 
 namespace ProjectAegis.Data.Catalog;
 
@@ -293,6 +292,18 @@ public sealed class InMemoryCatalogReader : ICatalogReader
 
         latDeg = 0;
         lonDeg = 0;
+        return false;
+    }
+
+    public bool TryGetPlatformDomain(string platformId, out string domain)
+    {
+        if (_platforms.TryGetValue(platformId, out var entry) && !string.IsNullOrWhiteSpace(entry.Domain))
+        {
+            domain = entry.Domain;
+            return true;
+        }
+
+        domain = "";
         return false;
     }
 

@@ -48,10 +48,8 @@ public sealed class HindsightHttpMemoryClient : IHindsightMemoryClient, IDisposa
             [new RetainItemDto(content, context)],
             Async: true);
 
-        using var request = new HttpRequestMessage(HttpMethod.Post, path)
-        {
-            Content = JsonContent.Create(body, options: JsonOptions),
-        };
+        using var request = new HttpRequestMessage(HttpMethod.Post, path);
+        request.Content = JsonContent.Create(body, options: JsonOptions);
         ApplyAuth(request);
 
         using var response = await _http.SendAsync(request, cancellationToken).ConfigureAwait(false);
@@ -66,10 +64,8 @@ public sealed class HindsightHttpMemoryClient : IHindsightMemoryClient, IDisposa
         var path = $"/v1/default/banks/{Uri.EscapeDataString(bankId)}/reflect";
         var body = new ReflectRequestDto(query, Budget: "mid", IncludeFacts: true);
 
-        using var request = new HttpRequestMessage(HttpMethod.Post, path)
-        {
-            Content = JsonContent.Create(body, options: JsonOptions),
-        };
+        using var request = new HttpRequestMessage(HttpMethod.Post, path);
+        request.Content = JsonContent.Create(body, options: JsonOptions);
         ApplyAuth(request);
 
         using var response = await _http.SendAsync(request, cancellationToken).ConfigureAwait(false);

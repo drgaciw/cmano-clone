@@ -11,6 +11,30 @@
     margin-bottom: 4px;
 }
 
+.mission-list-subtitle {
+    -unity-font-style: bold;
+    color: rgb(180, 190, 205);
+    margin-top: 6px;
+    margin-bottom: 2px;
+}
+
+.mission-list-line {
+    color: rgb(190, 200, 215);
+    margin-bottom: 2px;
+}
+
 .mission-list-view {
     flex-grow: 1;
+    min-height: 80px;
+}
+
+.mission-list-package-view {
+    min-height: 56px;
+    max-height: 120px;
+    margin-bottom: 4px;
+}
+
+.mission-list-next {
+    color: rgb(170, 180, 195);
+    white-space: normal;
 }

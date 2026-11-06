@@ -1,9 +1,9 @@
 namespace ProjectAegis.Data.Platform;
 
 using System.Globalization;
-using ProjectAegis.Data.Catalog;
-using ProjectAegis.Data.Snapshots;
-using ProjectAegis.Data.WriteGate;
+using Catalog;
+using Snapshots;
+using WriteGate;
 
 /// <summary>
 /// Req-21 / ADR-011: pure, deterministic export of catalog rows to a <see cref="PlatformWorkbook"/>.

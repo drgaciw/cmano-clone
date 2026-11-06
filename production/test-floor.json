@@ -1,0 +1,7 @@
+{
+  "solutionMinPass": 1638,
+  "provenance": "Standing AGENTS.md invariant. Not a fresh 2026-09-18 measurement. A 2026-09-08 planning run recorded 3216 passing tests; that count is historical and is not the floor.",
+  "replayGoldenMin": 6,
+  "playModeSmokeMin": 20,
+  "balticV2Hash": "17144800277401907079"
+}

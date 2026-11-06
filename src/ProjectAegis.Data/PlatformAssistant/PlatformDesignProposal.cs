@@ -1,6 +1,6 @@
 namespace ProjectAegis.Data.PlatformAssistant;
 
-using ProjectAegis.Data.Catalog;
+using Catalog;
 
 /// <summary>Peer used as relative-scaling basis.</summary>
 public sealed record PlatformPeerScore(

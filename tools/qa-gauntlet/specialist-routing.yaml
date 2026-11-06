@@ -1,0 +1,98 @@
+# DRG-199: machine-readable /team-qa-gauntlet specialist routing.
+# Human runbooks stay in .claude/skills/. Do not invent LLM pass/fail here.
+# Informs later DRG-200 manifest / DRG-201 evidence ledger — do not implement those tickets here.
+version: 1
+coordinator: team-qa-gauntlet
+legacy_modes:
+  - full
+  - ladder
+  - ui
+  - ui-smoke
+  - forge
+  - calibrate
+  - stress
+modes:
+  mission-thread:
+    skill: qa-gauntlet-mission-thread
+    full_hook: "A1b when Mission-type row is T3+"
+    deterministic_inputs:
+      - run-id
+      - tier
+      - policy-dir
+      - roster.json
+    evidence_outputs:
+      - mission-thread-report.json
+    entry: "--mode mission-thread, or full/qa-gauntlet A1b when Mission-type >= T3"
+    exit:
+      pass: "each claimed thread has lane/window evidence; IDs in roster"
+      fail: "vocabulary-only intent -> qa-gauntlet-remediation scenario-data"
+      blocked: "missing roster/policies"
+    slice:
+      A: in-scope
+      B: out
+      C: out
+  agentic-resilience:
+    skill: qa-gauntlet-agentic-resilience
+    full_hook: "Phase D / Final AAR"
+    deterministic_inputs:
+      - GitNexus impact risk
+      - Passed
+      - hardGatesPass
+      - max-fix-attempts
+    evidence_outputs:
+      - agentic-resilience.json
+    entry: "--mode agentic-resilience, or full Phase D / Final AAR, or CRITICAL impact"
+    exit:
+      pass: "contract followed; script gate values unchanged"
+      fail: "LLM flipped a red script gate, or BLOCKED hidden"
+      blocked: "CRITICAL quarantine — do not edit"
+    slice:
+      A: in-scope
+      B: out
+      C: out
+  combat-ui:
+    skill: qa-gauntlet-combat-ui
+    full_hook: null
+    deterministic_inputs:
+      - run-id
+      - UnityAdapter.Tests Engage/Kill/CombatDomains filters
+      - ReplayGolden engage/kill/magazine/salvo
+      - CombatDomainValidator
+    evidence_outputs:
+      - combat-ui/dotnet-combat-ui.log
+      - combat-ui/dotnet-combat-domain.log
+    entry: "--mode combat-ui only (not auto-run from full; not --mode ui)"
+    exit:
+      pass: "both dotnet invocations 0 failures and Passed >= 1"
+      fail: "red tests -> qa-gauntlet-remediation (+ UCA if presentation)"
+      blocked: "missing Slice B chrome — hand to DRG-165-170, do not implement"
+    slice:
+      A: in-scope
+      B: out
+      C: out
+script_owned_gates:
+  - evaluate_run.py
+  - gauntlet_oracle_eval
+  - forge_scorecard.py
+  - gate_stress_proof.py
+presentation_defect_route: qa-gauntlet-remediation
+never_llm_override: true
+out_of_scope:
+  - DRG-200
+  - DRG-201
+  - DRG-165
+  - DRG-166
+  - DRG-167
+  - DRG-168
+  - DRG-169
+  - DRG-170
+  - CatalogWriteGate
+  - DelegationBridge.cs
+  - SimulationSession
+  - BalticReplayHarness
+allowed_path_prefixes:
+  - .claude/skills/qa-gauntlet
+  - .claude/skills/team-qa-gauntlet
+  - production/agentic/qa-skills-parallel-task-contract-2026-07-23.md
+  - tools/qa-gauntlet/specialist-routing.yaml
+  - tools/qa-gauntlet/test_specialist_routing.py

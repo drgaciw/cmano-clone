@@ -1,7 +1,7 @@
 namespace ProjectAegis.Delegation.UnityAdapter.Bridge;
 
-using ProjectAegis.Delegation.Core;
-using ProjectAegis.Delegation.Projection;
+using Core;
+using Projection;
 
 /// <summary>
 /// Headless Play Mode kinematic stub (CMD-38). Advances ORBAT icons from course/speed
@@ -63,7 +63,7 @@ public sealed class PlayModeKinematicMover
             }
 
             var pose = _poses[id];
-            if (pose.SpeedNmPerHour <= 0f || pose.NormalizedX is not float x || pose.NormalizedY is not float y)
+            if (pose.SpeedNmPerHour <= 0f || pose.NormalizedX is not { } x || pose.NormalizedY is not { } y)
             {
                 continue;
             }
@@ -96,8 +96,8 @@ public sealed class PlayModeKinematicMover
     public void PlotCourseAhead(string unitId)
     {
         if (!_poses.TryGetValue(unitId, out var pose)
-            || pose.NormalizedX is not float x
-            || pose.NormalizedY is not float y)
+            || pose.NormalizedX is not { } x
+            || pose.NormalizedY is not { } y)
         {
             return;
         }
@@ -132,7 +132,7 @@ public sealed class PlayModeKinematicMover
 
     private static UnitKinematicPose SteerToward(UnitKinematicPose pose, CourseWaypoint dest)
     {
-        if (pose.NormalizedX is not float x || pose.NormalizedY is not float y)
+        if (pose.NormalizedX is not { } x || pose.NormalizedY is not { } y)
         {
             return pose;
         }

@@ -1,6 +1,6 @@
 namespace ProjectAegis.Delegation.UnityAdapter.Tests.Baltic;
 
-using ProjectAegis.Data.Catalog;
+using Data.Catalog;
 using ProjectAegis.Delegation.UnityAdapter.Baltic;
 using NUnit.Framework;
 

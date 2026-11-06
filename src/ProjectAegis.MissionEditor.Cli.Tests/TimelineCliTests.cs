@@ -1,5 +1,4 @@
 using ProjectAegis.Data.Scenario.Authoring;
-using ProjectAegis.MissionEditor.Cli;
 using Xunit;
 
 namespace ProjectAegis.MissionEditor.Cli.Tests;

@@ -43,7 +43,7 @@ public sealed class PlatformWorkbookSwarmPeTests
         var workbook = Export(SampleWithSwarm());
         var swarms = workbook.FindSheet("Swarms");
         Assert.NotNull(swarms);
-        Assert.Equal(ExpectedSwarmsHeader, swarms!.Header);
+        Assert.Equal(ExpectedSwarmsHeader, swarms.Header);
         Assert.Equal(2, swarms.Rows.Count);
 
         var usn = swarms.Rows.Single(r => r[0] == CatalogSwarmPlatformDefaults.UsnCecSwarmPlatformId);
@@ -101,7 +101,7 @@ public sealed class PlatformWorkbookSwarmPeTests
 
             var swarms = exported.FindSheet("Swarms");
             Assert.NotNull(swarms);
-            Assert.NotEmpty(swarms!.Rows);
+            Assert.NotEmpty(swarms.Rows);
 
             var header = swarms.Header.ToList();
             var maxIdx = header.IndexOf("MaxDrones");

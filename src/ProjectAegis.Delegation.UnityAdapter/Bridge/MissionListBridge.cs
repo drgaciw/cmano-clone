@@ -1,6 +1,6 @@
 namespace ProjectAegis.Delegation.UnityAdapter.Bridge;
 
-using ProjectAegis.Delegation.Projection;
+using Projection;
 using ProjectAegis.Sim.Scenario;
 
 /// <summary>

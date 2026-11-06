@@ -1,6 +1,6 @@
 namespace ProjectAegis.Sim.Engage;
 
-using ProjectAegis.Sim.Glossary;
+using Glossary;
 
 /// <summary>Stable order-log codes for engagement aborts (doc 14 / order-log-replay).</summary>
 public static class EngagementAbortReasonCodes

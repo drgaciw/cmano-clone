@@ -5,7 +5,7 @@
 **ID**: BUG-missioncontacttargetclass-domain-filter-broken
 **Severity**: S2-Major (silent incorrect behavior — no error, no warning, a domain filter either does nothing or is permanently false; not a crash/data-corruption/CRITICAL-impact issue)
 **Priority**: P2
-**Status**: Open — quarantined, not fixed (GitNexus MCP tools were unavailable this session; per CLAUDE.md's "never edit a function/class without impact analysis first" this defect's fix surface — `MissionContactTargetClass`/`MissionContactTargetClassifier` — was not touched)
+**Status**: Fixed — 2026-08-27 (catalog `platform.domain` via `ICatalogReader.TryGetPlatformDomain`; `Subsurface` enum member; `ParseMissionContactTargetClass` throws on unknown values)
 **Reported**: 2026-07-28
 **Reporter**: QA Gauntlet run `gauntlet-20260727-1455`, Tier 5. Independently found and confirmed by **three separate `military-simulation-architect` agents** (drafting forge candidates `t5-c3`, `t5-c4`, and the tier-5 main-ladder scenarios) while designing `mission.triggers` conditions — each traced the actual runtime classification code before authoring a `targetClass` value, rather than assuming a schema field behaves as its name suggests.
 
@@ -95,6 +95,10 @@ This sharpens the actual defect: `Classify()` isn't malfunctioning in the abstra
 1. Any scenario author relying on `targetClass` to genuinely distinguish "this trigger should only escalate ROE on a submarine contact, not a surface one" is silently getting no such guarantee — every trigger in this corpus so far has only "worked" because each observer's `detection[]` array happened to contain exactly one entry.
 2. The `Air` case is worse: it doesn't degrade to "always matches," it degrades to "never matches," which is a much easier way to accidentally ship a scenario whose entire escalation branch is dead.
 3. Both gaps are silent — no exception, no log line, no validation error. `dotnet run ... scenario_validate` and the gauntlet policy schema checks used by this project do not catch this class of defect at all.
+
+## Resolution (2026-08-27)
+
+`MissionContactTargetClassifier` now resolves `platform.domain` through `ICatalogReader.TryGetPlatformDomain` (`air`/`aircraft` → `Air`, `subsurface`/`submarine` → `Subsurface`, else `Surface`). `MissionContactTargetClass.Subsurface` is a real enum member; `ParseMissionContactTargetClass` throws `InvalidDataException` on unknown `targetClass` strings instead of silently defaulting to `Any`. On catalog miss (null reader or unknown platform id), Baltic v3 goldens keep the legacy `ucav-*` → `Air` fallback; everything else → `Surface`. No id-substring token tables.
 
 ## Suggested fix (not implemented — quarantined pending GitNexus impact analysis)
 

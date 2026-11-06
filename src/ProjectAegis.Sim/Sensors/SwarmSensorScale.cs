@@ -8,7 +8,7 @@ public static class SwarmSensorScale
 {
     /// <summary>
     /// Default power on integrity fraction before multiplying Pd.
-    /// 1.0 = linear; <1 rewards depleted swarms slightly; >1 punishes depletion harder.
+    /// 1.0 = linear; &lt;1 rewards depleted swarms slightly; &gt;1 punishes depletion harder.
     /// </summary>
     public const double IntegrityPower = 1.0;
 

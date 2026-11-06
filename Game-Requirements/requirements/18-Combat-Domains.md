@@ -5,7 +5,7 @@
 **FR reverse-ref:** [FR-16](01-Project-Overview.md) — Multi-domain combat  
 **CMO basis:** Manual §4.1.1–2, §9.2.1–7, §9.3; systems/damage §3.3.11  
 **Related:** 14 Engagement, 15 Sensors, 16 Logistics, 13 Doctrine, 09–10 Near-future  
-**Tracker:** [implementation-tracker-2026-07-04.md](../implementation-tracker-2026-07-04.md) row 18 — **Partial+**  
+**Tracker:** [implementation-tracker.md](../implementation-tracker.md) row 18 — **Partial+**  
 **Architecture:** [ADR-009](../../docs/architecture/adr-009-combat-domain-validators.md) — combat domain validators & deterministic damage order  
 **GDD:** [combat-domains-damage.md](../../design/gdd/combat-domains-damage.md)
 
@@ -210,5 +210,5 @@ Evidence policy: check only with named types/tests/fixtures; unbuilt fidelity st
 
 ---
 
-**Implementation grade:** Partial+ — see [implementation-tracker-2026-07-04.md](../implementation-tracker-2026-07-04.md) row 18.  
+**Implementation grade:** Partial+ — see [implementation-tracker.md](../implementation-tracker.md) row 18.  
 Design Status remains **Draft** (Template B). Charter re-honesty: Wave 2 2026-07-08.

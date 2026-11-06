@@ -1,8 +1,8 @@
 namespace ProjectAegis.Delegation.Policy;
 
-using ProjectAegis.Delegation.Decision;
-using ProjectAegis.Delegation.Sim;
-using ProjectAegis.Delegation.Traits;
+using Decision;
+using Sim;
+using Traits;
 
 public interface IPolicy
 {

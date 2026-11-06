@@ -1,25 +1,25 @@
 namespace ProjectAegis.Delegation.Orchestration;
 
-using ProjectAegis.Delegation.Controllers;
-using ProjectAegis.Delegation.Core;
-using ProjectAegis.Delegation.Decision;
-using ProjectAegis.Delegation.Groups;
-using ProjectAegis.Delegation.Policy;
-using ProjectAegis.Delegation.Roe;
-using ProjectAegis.Delegation.Sim;
+using Controllers;
+using Core;
+using Decision;
+using Groups;
+using Policy;
+using Roe;
+using Sim;
 using ProjectAegis.Sim.Policy;
-using SimPolicy = ProjectAegis.Sim.Policy;
-using ProjectAegis.Delegation.Targets;
-using ProjectAegis.Delegation.Traits;
-using ProjectAegis.Delegation.Hindsight;
-using ProjectAegis.Delegation.Trust;
+using Targets;
+using Traits;
+using Hindsight;
+using Trust;
+using ProjectAegis.Sim.Comms;
 using ProjectAegis.Sim.Scenario;
 
 public sealed class DelegationOrchestrator
 {
     private readonly List<ICommandableTarget> _targets = new();
     private readonly AutonomyGate _autonomyGate;
-    private readonly SimPolicy.IPolicyEvaluator _policyEvaluator;
+    private readonly IPolicyEvaluator _policyEvaluator;
     private readonly PolicySnapshotRegistry _policySnapshots = new();
     private readonly OverrideService _overrideService = new();
     private readonly DetachRejoinService _detachRejoinService;
@@ -27,14 +27,14 @@ public sealed class DelegationOrchestrator
     private readonly PendingApprovalQueue _pendingApprovalQueue = new();
     private long _orderIdSequence = 1;
 
-    public DelegationOrchestrator(int globalSeed, SimPolicy.IPolicyEvaluator? policyEvaluator = null)
+    public DelegationOrchestrator(int globalSeed, IPolicyEvaluator? policyEvaluator = null)
         : this(globalSeed, policyEvaluator, hindsight: null)
     {
     }
 
     public DelegationOrchestrator(
         int globalSeed,
-        SimPolicy.IPolicyEvaluator? policyEvaluator,
+        IPolicyEvaluator? policyEvaluator,
         HindsightOptions? hindsight)
     {
         GlobalSeed = globalSeed;
@@ -54,13 +54,124 @@ public sealed class DelegationOrchestrator
     /// <summary>Optional Hindsight sidecar; null in CI/replay unless explicitly enabled.</summary>
     public HindsightIntegration? Hindsight { get; }
 
-    public SimPolicy.IPolicyEvaluator PolicyEvaluator => _policyEvaluator;
+    public IPolicyEvaluator PolicyEvaluator => _policyEvaluator;
 
     public EffectivePolicy ResolveEffectivePolicyForUnit(ulong unitId) => ResolvePolicyForUnit(unitId);
 
     public PolicySnapshotRegistry PolicySnapshots => _policySnapshots;
 
-    public ScenarioPolicyProfile? ScenarioPolicy { get; set; }
+    private ScenarioPolicyProfile? _scenarioPolicy;
+
+    /// <summary>
+    /// Scenario policy for this run. Assigning a different instance drops the cached
+    /// <see cref="CommsGrid"/> so a read that happened before the policy was set cannot stick null.
+    /// </summary>
+    public ScenarioPolicyProfile? ScenarioPolicy
+    {
+        get => _scenarioPolicy;
+        set
+        {
+            if (ReferenceEquals(_scenarioPolicy, value))
+            {
+                return;
+            }
+
+            _scenarioPolicy = value;
+            _commsGrid = null;
+            _commsGridResolved = false;
+        }
+    }
+
+    private CommsGridRegistry? _commsGrid;
+    private bool _commsGridResolved;
+
+    /// <summary>
+    /// C3-01 / DRG-390: Sim-authoritative per-unit comms-grid membership. Resolved lazily from
+    /// <see cref="ScenarioPolicy"/> <c>commsGrid</c> transitions; null = every unit on grid (legacy).
+    /// </summary>
+    public CommsGridRegistry? CommsGrid
+    {
+        get
+        {
+            if (!_commsGridResolved)
+            {
+                _commsGrid = CommsGridRegistry.TryCreate(ScenarioPolicy);
+                _commsGridResolved = true;
+            }
+
+            return _commsGrid;
+        }
+        set
+        {
+            _commsGrid = value;
+            _commsGridResolved = true;
+        }
+    }
+
+    /// <summary>Grid changes applied on the most recent advance (order-log / UI evidence).</summary>
+    public IReadOnlyList<CommsGridChange> LastCommsGridChanges { get; private set; } = Array.Empty<CommsGridChange>();
+
+    /// <summary>
+    /// C3-01 / DRG-390 command-façade check: advances the grid to <paramref name="simTick"/> and
+    /// returns <see cref="FireAbortReason.OffGrid"/> when the unit cannot accept new direct orders.
+    /// </summary>
+    public FireAbortReason? EvaluateOffGrid(string unitId, ulong simTick)
+    {
+        var grid = CommsGrid;
+        if (grid == null)
+        {
+            return null;
+        }
+
+        AdvanceCommsGrid(grid, simTick);
+        return OffGridOrderGate.Evaluate(grid, unitId);
+    }
+
+    private void AdvanceCommsGrid(CommsGridRegistry grid, ulong simTick)
+    {
+        var changes = grid.Advance(simTick);
+        if (changes.Count > 0)
+        {
+            LastCommsGridChanges = changes;
+        }
+    }
+
+    /// <summary>
+    /// Drops human orders whose issue tick falls in any off-grid interval, including one that
+    /// already ended, and logs a <see cref="FireAbortReason.OffGrid"/> policy denial for each.
+    /// Orders issued while the unit was on grid still execute.
+    /// </summary>
+    private IReadOnlyList<Order> FilterOffGridHumanOrders(TargetId unitId, IReadOnlyList<Order> drained, double simTime, ulong simTick)
+    {
+        var grid = CommsGrid;
+        if (grid == null || drained.Count == 0)
+        {
+            return drained;
+        }
+
+        var kept = new List<Order>(drained.Count);
+        foreach (var order in drained)
+        {
+            var issuedTick = (ulong)Math.Max(0, (long)order.SimTime);
+            if (!grid.WasIssuedWhileOffGrid(unitId.Value, issuedTick))
+            {
+                kept.Add(order);
+                continue;
+            }
+
+            DecisionLog.AppendPolicyDenial(new PolicyDenialRecord(
+                0,
+                simTime,
+                simTick,
+                new AgentId("comms-grid"),
+                unitId,
+                0,
+                FireAbortReason.OffGrid,
+                order.Kind));
+        }
+
+        return kept;
+    }
 
     /// <summary>
     /// When true, all human ingress paths are blocked (req 03 AvA observer attach).
@@ -203,6 +314,12 @@ public sealed class DelegationOrchestrator
     public bool TryTakeDirectControl(UnitTarget unit, double simTime)
     {
         if (AttachReplayViewer)
+        {
+            return false;
+        }
+
+        // C3-01 / DRG-390: an off-grid unit cannot be taken under direct control.
+        if (EvaluateOffGrid(unit.Id.Value, (ulong)Math.Max(0, (long)simTime)) != null)
         {
             return false;
         }
@@ -357,6 +474,10 @@ public sealed class DelegationOrchestrator
 
         var simTick = (ulong)Math.Max(0, (long)state.SimTime);
         var executed = new List<Order>();
+        if (CommsGrid is { } commsGrid)
+        {
+            AdvanceCommsGrid(commsGrid, simTick);
+        }
 
         // Drain any orders previously approved by the player (DRG-66).
         executed.AddRange(_pendingApprovalQueue.DrainApproved());
@@ -384,7 +505,7 @@ public sealed class DelegationOrchestrator
                     executed.AddRange(agent.DrainIssuedOrders(simTick));
                     break;
                 case HumanController human:
-                    executed.AddRange(human.DrainIssuedOrders(simTick));
+                    executed.AddRange(FilterOffGridHumanOrders(target.Id, human.DrainIssuedOrders(simTick), state.SimTime, simTick));
                     break;
             }
         }
@@ -403,6 +524,105 @@ public sealed class DelegationOrchestrator
         }
 
         agent.RebindTraits(traits);
+        return LoopPolicyVerdict.Allow();
+    }
+
+    /// <summary><see cref="PolicyUpdateRecord.Field"/> written by a successful <see cref="TryRebriefAgent"/>.</summary>
+    public const string RebriefPolicyField = "personality.rebrief";
+
+    /// <summary>
+    /// Denial cause when Assign Agent would replace a <see cref="HumanController"/> that still has queued orders.
+    /// </summary>
+    public const string PendingHumanOrdersCause = "pending-human-orders";
+
+    /// <summary>
+    /// W2-DEL-04 player Assign Agent: install <paramref name="agent"/> on a registered human-controlled (or
+    /// uncontrolled) target, capture its policy snapshot and log a <see cref="ControllerChangeRecord"/>.
+    /// Denied without mutation when a replay viewer is attached, the target is unregistered, an agent is
+    /// already active, a suspended agent awaits release of direct control, or the active human controller
+    /// still has pending orders (<see cref="PendingHumanOrdersCause"/>).
+    /// </summary>
+    public LoopPolicyVerdict TryAssignAgentController(
+        ICommandableTarget target,
+        AgentController agent,
+        bool isFriendly,
+        double simTime = 0)
+    {
+        if (AttachReplayViewer)
+        {
+            return LoopPolicyVerdict.Deny("Replay viewer attached; controller assignment is disabled.");
+        }
+
+        if (!ReferenceEquals(FindTarget(target.Id), target))
+        {
+            return LoopPolicyVerdict.Deny($"Target {target.Id.Value} is not registered.");
+        }
+
+        if (target.Slot.Active is AgentController)
+        {
+            return LoopPolicyVerdict.Deny($"Target {target.Id.Value} already has an agent controller.");
+        }
+
+        if (target.Slot.SuspendedAgent is not null)
+        {
+            return LoopPolicyVerdict.Deny(
+                $"Target {target.Id.Value} has a suspended agent; release direct control instead.");
+        }
+
+        if (target.Slot.Active is HumanController human && human.PendingOrderCount > 0)
+        {
+            return LoopPolicyVerdict.Deny(
+                $"Target {target.Id.Value} has pending human orders ({PendingHumanOrdersCause}); assign refused until the queue is clear.");
+        }
+
+        var previous = DescribeActiveController(target.Slot);
+        var simTick = (ulong)Math.Max(0, (long)simTime);
+        AssignAgentToTarget(agent, target, effectivePolicy: null, isFriendly, simTick);
+        DecisionLog.AppendControllerChange(new ControllerChangeRecord(
+            0, simTime, target.Id, previous, DescribeActiveController(target.Slot), agent.Id));
+        return LoopPolicyVerdict.Allow();
+    }
+
+    /// <summary>
+    /// W2-DEL-02 Rebrief Agent: swap the agent's personality preset when <see cref="LoopPolicyGate.CanRebriefAgent"/>
+    /// allows it, logging a <see cref="RebriefPolicyField"/> policy update and applying
+    /// <see cref="PersonalityCatalog.ResolveAttentionBudget"/>. A successful rebrief re-registers the new
+    /// personality with Hindsight when the sidecar is enabled. Denials leave the agent and log untouched.
+    /// </summary>
+    public LoopPolicyVerdict TryRebriefAgent(
+        AgentController agent,
+        PersonalityPreset preset,
+        double simTime = 0)
+    {
+        if (AttachReplayViewer)
+        {
+            return LoopPolicyVerdict.Deny("Replay viewer attached; rebrief is disabled.");
+        }
+
+        if (agent.Traits == preset.Traits && string.Equals(agent.PersonalitySlug, preset.Name, StringComparison.Ordinal))
+        {
+            return LoopPolicyVerdict.Deny($"Agent {agent.Id.Value} is already briefed as {preset.Name}.");
+        }
+
+        var verdict = LoopPolicyGate.CanRebriefAgent(ScenarioPolicy, Phase);
+        if (!verdict.Allowed)
+        {
+            return verdict;
+        }
+
+        var previous = agent.PersonalitySlug ?? "custom";
+        agent.RebindTraits(preset.Traits);
+        agent.SetPersonalitySlug(preset.Name);
+        agent.RebindAttentionBudget(PersonalityCatalog.ResolveAttentionBudget(preset));
+        Hindsight?.OrderLogHook.RegisterAgent(agent.Id, agent.PersonalitySlug);
+        DecisionLog.AppendPolicyUpdate(new PolicyUpdateRecord(
+            0,
+            simTime,
+            (ulong)Math.Max(0, (long)simTime),
+            agent.PolicySnapshotId,
+            RebriefPolicyField,
+            previous,
+            preset.Name));
         return LoopPolicyVerdict.Allow();
     }
 

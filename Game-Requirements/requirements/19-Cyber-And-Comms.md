@@ -5,7 +5,7 @@
 **FR reverse-ref:** [FR-17](01-Project-Overview.md) — Cyber and comms degradation  
 **CMO basis:** Manual §10.7 Comms Disruption & Cyber Attacks; links §9.2.6 EW  
 **Related:** 15 Sensors (datalink), 13 Doctrine, 04 Delegation, 09 Near-Future, 11 Events  
-**Tracker:** [implementation-tracker-2026-07-04.md](../implementation-tracker-2026-07-04.md) row 19 — **Partial**  
+**Tracker:** [implementation-tracker.md](../implementation-tracker.md) row 19 — **Partial**  
 **GDD:** [cyber-comms-degradation.md](../../design/gdd/cyber-comms-degradation.md)
 
 ## Purpose
@@ -211,5 +211,5 @@ Evidence policy: check only with named types/tests/fixtures.
 
 ---
 
-**Implementation grade:** Partial — see [implementation-tracker-2026-07-04.md](../implementation-tracker-2026-07-04.md) row 19.  
+**Implementation grade:** Partial — see [implementation-tracker.md](../implementation-tracker.md) row 19.  
 Design Status remains **Draft** (Template B). Charter re-honesty: Wave 2 2026-07-08.

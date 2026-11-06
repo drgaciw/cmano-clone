@@ -1,7 +1,9 @@
 // CMD-24 Air Operations panel — Phase A readiness + Phase N launch/abort UI (LOG-08).
 #if UNITY_5_3_OR_NEWER
+using System;
 using System.Collections.Generic;
 using ProjectAegis.Delegation.Projection;
+using ProjectAegis.Delegation.UnityAdapter.Presentation;
 using UnityEngine;
 using UnityEngine.UIElements;
 
@@ -13,6 +15,7 @@ namespace ProjectAegis.Unity.Runtime
     {
         private const string RootName = "air-ops-root";
         private const string HeaderName = "air-ops-header";
+        private const string ReadyLineName = "air-ops-ready-line";
         private const string EmptyName = "air-ops-empty";
         private const string ListName = "air-ops-list";
         private const string LaunchButtonName = "air-ops-launch";
@@ -26,12 +29,25 @@ namespace ProjectAegis.Unity.Runtime
 
         private UIDocument _document = null!;
         private Label? _headerLine;
+        private Label? _readyLine;
         private Label? _emptyLine;
         private Label? _statusLine;
         private ListView? _assetList;
         private Button? _launchButton;
         private Button? _abortButton;
         private AirOpsPresentation _presentation = AirOpsPresentation.Empty;
+        private AirOpsReadyAggregateLabels _readyLabels = new(
+            string.Empty,
+            string.Empty,
+            0,
+            0,
+            0,
+            string.Empty,
+            AirOpsReadyCueClasses.Unknown,
+            null,
+            "ao:empty",
+            true);
+        private string? _lastBindFingerprint;
         private bool _wired;
         private bool _handlersRegistered;
         private string? _lastStatus;
@@ -69,8 +85,9 @@ namespace ProjectAegis.Unity.Runtime
 
         private void OnEnable()
         {
+            _lastBindFingerprint = null;
             TryWireElements();
-            Refresh();
+            Refresh(force: true);
         }
 
         private void LateUpdate()
@@ -87,7 +104,7 @@ namespace ProjectAegis.Unity.Runtime
 
             // Prefer host-maintained list; rebuild from Session + OOB when needed.
             bridgeHost.RefreshAirOps();
-            Refresh();
+            Refresh(force: false);
         }
 
         private void TryWireElements()
@@ -100,6 +117,7 @@ namespace ProjectAegis.Unity.Runtime
 
             var panel = root.Q<VisualElement>(RootName) ?? root;
             _headerLine = panel.Q<Label>(HeaderName);
+            _readyLine = panel.Q<Label>(ReadyLineName);
             _emptyLine = panel.Q<Label>(EmptyName);
             _statusLine = panel.Q<Label>(StatusName);
             _assetList = panel.Q<ListView>(ListName);
@@ -180,7 +198,7 @@ namespace ProjectAegis.Unity.Runtime
             {
                 SetStatus(null);
                 bridgeHost.RefreshAirOps();
-                Refresh();
+                Refresh(force: false);
                 return;
             }
 
@@ -199,7 +217,7 @@ namespace ProjectAegis.Unity.Runtime
             {
                 SetStatus(null);
                 bridgeHost.RefreshAirOps();
-                Refresh();
+                Refresh(force: false);
                 return;
             }
 
@@ -210,10 +228,12 @@ namespace ProjectAegis.Unity.Runtime
         public void ApplyPresentation(AirOpsPresentation presentation)
         {
             _presentation = presentation ?? AirOpsPresentation.Empty;
+            _readyLabels = AirOpsReadyAggregateBinder.Bind(_presentation);
+            _lastBindFingerprint = _readyLabels.Fingerprint;
             ApplyPresentationToUi();
         }
 
-        private void Refresh()
+        private void Refresh(bool force)
         {
             if (!_wired || bridgeHost == null)
             {
@@ -223,7 +243,15 @@ namespace ProjectAegis.Unity.Runtime
             _presentation = AirOpsApplyState.Apply(
                 bridgeHost.LastAirOps,
                 bridgeHost.HasAirOpsReadinessData);
+            _readyLabels = AirOpsReadyAggregateBinder.Bind(_presentation);
+            if (!force
+                && string.Equals(_readyLabels.Fingerprint, _lastBindFingerprint, StringComparison.Ordinal))
+            {
+                UpdateActionButtons();
+                return;
+            }
 
+            _lastBindFingerprint = _readyLabels.Fingerprint;
             ApplyPresentationToUi();
 
             var root = _document.rootVisualElement?.Q(RootName);
@@ -237,7 +265,14 @@ namespace ProjectAegis.Unity.Runtime
         {
             if (_headerLine != null)
             {
-                _headerLine.text = _presentation.HeaderLine;
+                _headerLine.text = _readyLabels.HeaderLine;
+            }
+
+            if (_readyLine != null)
+            {
+                _readyLine.text = _readyLabels.ReadyLineText;
+                ApplyReadyAggregateCueClass(_readyLine, _readyLabels.CueClass);
+                _readyLine.tooltip = _readyLabels.DeclutterToken ?? _readyLabels.ReadySummaryLine;
             }
 
             if (_emptyLine != null)
@@ -314,6 +349,19 @@ namespace ProjectAegis.Unity.Runtime
             if (_statusLine != null)
             {
                 _statusLine.text = status ?? string.Empty;
+            }
+        }
+
+        private static void ApplyReadyAggregateCueClass(Label label, string cueClass)
+        {
+            foreach (var knownCue in AirOpsReadyCueClasses.All)
+            {
+                label.RemoveFromClassList(knownCue);
+            }
+
+            if (!string.IsNullOrEmpty(cueClass))
+            {
+                label.AddToClassList(cueClass);
             }
         }
     }

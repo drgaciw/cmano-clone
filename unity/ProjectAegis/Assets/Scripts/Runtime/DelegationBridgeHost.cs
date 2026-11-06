@@ -4,14 +4,21 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using ProjectAegis.Data.Catalog;
+using ProjectAegis.Delegation.C2Network;
 using ProjectAegis.Delegation.Controllers;
 using ProjectAegis.Delegation.Core;
 using ProjectAegis.Delegation.Input;
 using ProjectAegis.Delegation.Orchestration;
 using ProjectAegis.Delegation.Projection;
 using ProjectAegis.Delegation.UnityAdapter.Bridge;
+using ProjectAegis.Delegation.ThreatAssessment;
+using ProjectAegis.Delegation.UnityAdapter.CommandReview;
+using ProjectAegis.Delegation.C2Nodes;
 using ProjectAegis.Delegation.UnityAdapter.Presentation;
 using ProjectAegis.Delegation.Watch;
+using ProjectAegis.Sim.Engage;
+using ProjectAegis.Sim.Policy;
+using ProjectAegis.Sim.Scenario;
 using UnityEngine;
 
 namespace ProjectAegis.Unity.Runtime
@@ -79,8 +86,8 @@ namespace ProjectAegis.Unity.Runtime
             Array.Empty<MapCourseOverlayEntry>();
 
         /// <summary>
-        /// Track C presentation-only combat VFX (fire lines / impact markers) from DecisionLog outcomes.
-        /// Projected after <see cref="RunTick"/> — never inside DelegationBridge.
+        /// Track C presentation-only combat VFX from the same-tick combat-event snapshot.
+        /// Assigned in <see cref="RunTick"/> after <see cref="LastCombatFrame"/> is built, never inside DelegationBridge.
         /// </summary>
         public CombatVfxFrame LastCombatVfx { get; private set; } = CombatVfxFrame.Empty;
 
@@ -101,6 +108,102 @@ namespace ProjectAegis.Unity.Runtime
 
         /// <summary>Projected comms snapshot from the last <see cref="RunTick"/> refresh (CMD-32).</summary>
         public CommsStateSnapshot? LastCommsState { get; private set; }
+
+        /// <summary>Projected C2 network-health snapshot from the last <see cref="RunTick"/> refresh (DRG-190).</summary>
+        public C2NetworkHealthSnapshot? LastNetworkHealth { get; private set; }
+
+        /// <summary>Replay-stable fingerprint for <see cref="LastNetworkHealth"/> (tick-boundary cache).</summary>
+        public string? LastNetworkHealthFingerprint { get; private set; }
+
+        /// <summary>Read-only Slice A contact frame, rebuilt once after each simulation tick.</summary>
+        public SliceAContactFrame LastSliceAContacts { get; private set; } = SliceAContactFrame.Empty;
+
+        /// <summary>Shared combat-event, explanation and assessment frame for Slice B views.</summary>
+        public CombatPresentationFrame LastCombatFrame { get; private set; } = CombatPresentationFrame.Empty;
+
+        /// <summary>Presentation-only event navigation and captured map evidence.</summary>
+        public CommandReviewTimeline CommandTimeline { get; } = new();
+        /// <summary>Current advisory sections; all rows are built by engine-free presenters.</summary>
+        public IReadOnlyList<CommandReviewSection> LastCommandReviewSections { get; private set; } = Array.Empty<CommandReviewSection>();
+        private ProjectAegis.Delegation.UnityAdapter.CommandReview.StatusFrame? _commandStatus;
+        /// <summary>Current source-sequenced status changes available for related timeline navigation.</summary>
+        public IReadOnlyList<StatusCorrelationRow> CommandStatusHistory =>
+            _commandStatus?.Correlations ?? Array.Empty<StatusCorrelationRow>();
+        private bool _commandProblemsOnly;
+        private readonly List<CoordinationApprovedScope> _pendingGroupScopes = new();
+        /// <summary>Current selected-contact evidence; recommendations never enqueue orders.</summary>
+        public AdviceFrame? LastAdvice { get; private set; }
+        /// <summary>Current group responsibilities and authored coverage.</summary>
+        public CoordinationSnapshot LastCoordination { get; private set; } = CoordinationSnapshot.Empty;
+        /// <summary>Replay-stable mission-package / C2-node snapshot (DRG-189 presentation bind).</summary>
+        public MissionPackageSnapshot LastMissionPackage { get; private set; } = MissionPackageSnapshot.Empty;
+        /// <summary>Presentation clutter preference for authored coverage polygons.</summary>
+        public bool ShowCommandCoverage { get; set; } = true;
+        /// <summary>Most recent explicit read-only skill invocation.</summary>
+        public AdviceSkillResult? LastAdviceSkill { get; private set; }
+        /// <summary>Runs one read-only decision-support capability against current evidence.</summary>
+        public string InvokeAdviceSkill(string skillId)
+        {
+            if (CommandTimeline.IsInspecting) return "Return to live before requesting current advice.";
+            RefreshAdvice();
+            if (LastAdvice == null) return "Current evidence unavailable.";
+            LastAdviceSkill = AdviceSkillService.Invoke(skillId, LastAdvice);
+            return $"{skillId} | {LastAdvice.Availability} | {LastAdvice.Rationale} | {LastAdvice.Fallback}";
+        }
+        /// <summary>Submits deliberate human group intent through the command facade.</summary>
+        public string SubmitGroupDecision(string groupId, CoordinationDecision decision)
+        {
+            if (CommandTimeline.IsInspecting) return "Return to live before issuing a group decision.";
+            if (_pendingGroupScopes.Any(x => x.GroupId == groupId)) return "A group decision is already awaiting execution.";
+            var review = LastCoordination.Groups.FirstOrDefault(x => x.Coordination.GroupId == groupId);
+            var result = CoordinationCommandBridge.Submit(Bridge, _lastSnapshot, groupId, decision, review?.Intent, _pendingGroupScopes);
+            if (result.ApprovedScope != null) _pendingGroupScopes.Add(result.ApprovedScope);
+            return result.Accepted ? $"Queued {decision}: {string.Join(", ", result.AffectedUnitIds)}" : $"Prevented: {result.FailureReason}";
+        }
+        private void RefreshAdvice()
+        {
+            if (Bridge != null && _lastSnapshot != null)
+                LastAdvice = AdviceBridge.Build(Bridge, _lastSnapshot, LastSliceAContacts, SelectedContactId);
+            RefreshCommandReviewSections();
+        }
+        /// <summary>Changes presentation clutter without changing status facts.</summary>
+        public void SetCommandReviewProblemsOnly(bool value)
+        {
+            _commandProblemsOnly = value;
+            RefreshCommandReviewSections();
+        }
+        private void RefreshCommandReviewSections() => LastCommandReviewSections =
+            CommandReviewDashboard.Build(_commandStatus, LastAdvice, LastCoordination, _commandProblemsOnly);
+        /// <summary>Current or inspected combat frame; never changes the simulation clock.</summary>
+        public CombatPresentationFrame DisplayCombatFrame => CommandTimeline.IsInspecting ? CommandTimeline.DisplayFrame : LastCombatFrame;
+        /// <summary>Historical poses only while inspecting a timeline event.</summary>
+        public IReadOnlyList<MapSymbolEntry> DisplayCombatSymbols => CommandTimeline.IsInspecting ? CommandTimeline.DisplaySymbols : LastMapSymbols;
+        /// <summary>One inspection identity shared by map and explanation.</summary>
+        public string? DisplayCombatKey => CommandTimeline.IsInspecting ? CommandTimeline.SelectedKey : Presentation.CombatInspection.SelectedKey;
+        /// <summary>Inspects a ledger event without selecting a unit for orders.</summary>
+        public bool InspectTimelineEvent(ProjectAegis.Delegation.AfterAction.AfterActionLedgerEntry row) => CommandTimeline.Inspect(row);
+        /// <summary>Returns map and explanation to current state.</summary>
+        public void ReturnToLiveCombat()
+        {
+            CommandTimeline.ReturnToLive();
+            Presentation.CombatInspection.Select(null);
+        }
+        /// <summary>Selects a live combat leg from the map/history.</summary>
+        public void InspectLiveCombatEvent(string? key)
+        {
+            CommandTimeline.ReturnToLive();
+            InspectCombatEvent(key);
+        }
+        /// <summary>Builds detail for the same as-of frame used by the map.</summary>
+        public CombatDetailPresentation ProjectReviewCombatDetail() => CombatSelectionPresenter.Build(
+            DisplayCombatFrame, DisplayCombatKey, SelectedUnitId, SelectedContactId);
+
+        /// <summary>Inspect history without changing units selected for player commands.</summary>
+        public void InspectCombatEvent(string? key) => Presentation.CombatInspection.Select(key);
+
+        /// <summary>Read-only explanation for explicit history inspection or current unit/contact selection.</summary>
+        public CombatDetailPresentation ProjectCombatDetail() => CombatSelectionPresenter.Build(
+            LastCombatFrame, Presentation.CombatInspection.SelectedKey, SelectedUnitId, SelectedContactId);
 
         /// <summary>Sensor C2 contact list + EMCON / track indicators for HUD binding.</summary>
         public SensorC2Snapshot LastSensorC2 { get; private set; } =
@@ -337,8 +440,85 @@ namespace ProjectAegis.Unity.Runtime
                 return EngageExplain.Empty;
             }
 
-            var preview = Bridge.GetEngagePreviewForUnit(SelectedUnitId, _lastSnapshot);
+            var preview = ProjectSelectedEngagePreview();
             return EngageExplainProjection.Project(preview);
+        }
+
+        /// <summary>CMD-11 / DRG-266: live engage preview for weapon-panel DLZ binders.</summary>
+        public EngagePreview? ProjectSelectedEngagePreview()
+        {
+            if (_lastSnapshot == null || string.IsNullOrEmpty(SelectedUnitId))
+            {
+                return null;
+            }
+
+            return Bridge.GetEngagePreviewForUnit(SelectedUnitId, _lastSnapshot);
+        }
+
+        /// <summary>DRG-266: structured threat-range facts for contact-hover DLZ when supplied by runtime evidence.</summary>
+        public ThreatRangeAssessment? ProjectSelectedContactThreatRange()
+        {
+            if (_lastSnapshot == null || string.IsNullOrEmpty(SelectedContactId))
+            {
+                return null;
+            }
+
+            if (_lastSnapshot is IAdviceEvidenceSource source
+                && source.TryGetAdviceEvidence(SelectedContactId, out var evidence))
+            {
+                return evidence.ThreatAssessment?.Range;
+            }
+
+            return null;
+        }
+
+        /// <summary>DRG-259: WRA salvo remaining vs max for weapon-panel chrome (advisory only).</summary>
+        public WraSalvoRemainingState ProjectSelectedWraSalvoRemaining()
+        {
+            if (_lastSnapshot == null || string.IsNullOrEmpty(SelectedUnitId))
+            {
+                return WraSalvoRemainingState.Empty;
+            }
+
+            var policyProfile = Bridge.Orchestrator.ScenarioPolicy;
+            var policy = policyProfile?.ResolveUnitPolicy(SelectedUnitId, isFriendly: true).Effective
+                ?? EffectivePolicy.DefaultFree;
+            var ctx = BuildSelectedLiveEngageContext(SelectedUnitId);
+            return WraSalvoRemainingBinder.Bind(
+                SelectedUnitId,
+                in ctx,
+                policy,
+                ProjectSelectedEngagePreview());
+        }
+
+        /// <summary>
+        /// DRG-167: battle graphic for the displayed combat frame.
+        /// Projection read only — does not tick, enqueue, or write the order log.
+        /// </summary>
+        public BattleGraphicState ProjectBattleGraphic(
+            IReadOnlyList<MapSymbolEntry> symbols,
+            CombatZoomBand zoom = CombatZoomBand.Tactical,
+            string? selectedKey = null) =>
+            BattleGraphicBinder.Bind(DisplayCombatFrame, symbols, zoom, selectedKey);
+
+        /// <summary>Read-only live engage context mirror of <see cref="DelegationBridge.GetEngagePreviewForUnit"/> inputs.</summary>
+        private EngageContext BuildSelectedLiveEngageContext(string shooterUnitId)
+        {
+            var engageDefaults = Bridge.Orchestrator.ScenarioPolicy?.EngageDefaults
+                ?? ScenarioEngageDefaults.MvpFallback;
+            var ctx = engageDefaults.ToEngageContext(engageDefaults.DefaultMagazineRounds);
+            if (_lastSnapshot == null)
+            {
+                return ctx;
+            }
+
+            var airReady = Session?.UnitReadiness?.IsReadyForLaunch(shooterUnitId) ?? true;
+            return ctx with
+            {
+                HasFireControlTrack = _lastSnapshot.HasFireControlTrackOnPrimaryContact,
+                RadarEmconActive = _lastSnapshot.ObserverRadarEmconActive,
+                AirOperationsReady = airReady,
+            };
         }
 
         /// <summary>Interactive attack menu selection (req 14).</summary>
@@ -451,6 +631,7 @@ namespace ProjectAegis.Unity.Runtime
             var contacts = ContactPictureProjection.Project(Bridge.Orchestrator.DecisionLog);
             Presentation.SelectHostileContact(contactId, contacts);
             RefreshSelectionPresentation();
+            RefreshAdvice();
             // contacts do not drive platform graph
         }
 
@@ -460,8 +641,12 @@ namespace ProjectAegis.Unity.Runtime
         public DelegationTickResult RunTick(ISimWorldSnapshot snapshot, IOrderSink sink)
         {
             _lastSnapshot = snapshot;
-            var result = Bridge.Tick(snapshot, sink);
-            LastMessageLog = MessageLogBridge.ProjectFrom(Bridge.Orchestrator.DecisionLog);
+            var groupSink = new CoordinationOrderSink(Bridge.Registry, snapshot, sink, _pendingGroupScopes);
+            var result = Bridge.Tick(snapshot, groupSink);
+            _pendingGroupScopes.RemoveAll(x => groupSink.ConsumedScopeIds.Contains(x.ScopeId));
+            var expiredScopes = CoordinationScopeReconciler.FindInvalidOrExpired(Bridge, _pendingGroupScopes, CurrentSimTick);
+            _pendingGroupScopes.RemoveAll(x => expiredScopes.Contains(x.ScopeId));
+            LastMessageLog = MessageLogBridge.ProjectLive(Bridge);
             LastCombatDomainActivityTags = CombatDomainActivityTags.FromMessageLog(LastMessageLog);
             LastOobTree = OobTreeBridge.Build(snapshot, Bridge.Registry);
             Presentation.ApplyDefaultSelection(LastOobTree);
@@ -478,10 +663,6 @@ namespace ProjectAegis.Unity.Runtime
                 Bridge.Registry,
                 Bridge.Orchestrator.DecisionLog,
                 globalSeed);
-            LastCombatVfx = CombatVfxProjection.Project(
-                Bridge.Orchestrator.DecisionLog,
-                LastMapSymbols,
-                snapshot.SimTime);
             LastTopBar = C2TopBarProjection.Project(
                 snapshot.SimTime,
                 Bridge.Phase,
@@ -489,6 +670,29 @@ namespace ProjectAegis.Unity.Runtime
                 simulationModeLabel,
                 Bridge.Orchestrator.DecisionLog);
             LastCommsState = CommsStateProjection.Project(Bridge.Orchestrator.DecisionLog);
+            LastNetworkHealth = C2NetworkHealthBridge.Build(
+                Bridge.Orchestrator.DecisionLog,
+                Bridge.Registry,
+                snapshot,
+                CatalogReader,
+                CurrentSimTick);
+            LastNetworkHealthFingerprint = LastNetworkHealth == null
+                ? "c2net:empty"
+                : C2NetworkHealthFingerprint.Compute(LastNetworkHealth);
+            LastSliceAContacts = SliceAContactFrameBridge.Build(snapshot, Bridge, CatalogReader);
+            LastCombatFrame = CombatPresentationFrameBridge.Build(
+                Bridge.Orchestrator.DecisionLog, LastSliceAContacts, snapshot.SimTime);
+            LastCombatVfx = CombatVfxFrameBridge.Build(LastCombatFrame, LastMapSymbols);
+            CommandTimeline.Capture(LastCombatFrame, LastMapSymbols);
+            _commandStatus = ProjectAegis.Delegation.UnityAdapter.CommandReview.StatusFrameBridge.Build(Bridge, snapshot, LastSliceAContacts);
+            LastCoordination = CoordinationBridge.Build(Bridge, snapshot);
+            LastMissionPackage = MissionPackagePresentationSource.Project(
+                Bridge,
+                snapshot,
+                snapshot is ICoordinationFacts coordinationFacts
+                    ? coordinationFacts.Packages
+                    : Array.Empty<PackageDefinition>());
+            RefreshAdvice();
             // CMD-37: additive roster projection (no Tick body rewrite)
             LastAgentRoster = BuildAgentRosterFromRegistry();
             // CMD-24 Phase A: additive air-ops readiness projection

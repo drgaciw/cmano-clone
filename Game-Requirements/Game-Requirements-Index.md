@@ -1,23 +1,30 @@
 # Game Requirements - Master Index
 
-**Last Updated:** 2026-08-09
+**Last Updated:** 2026-09-30
 
-**Program note:** **Corpus maturity W0–W4 complete (2026-07-08)** — hub + drafts 13–21 honesty re-baselined; design: `docs/superpowers/specs/2026-07-08-requirements-corpus-maturity-design.md`. Scenario editor (req 11): **S81–S88 headless engineering complete on trunk**; active completion epic **`scenario-editor-completion`** (SE-W1 honesty → SE-W2 AC-8 → SE-W3 gate). Plan: `docs/superpowers/plans/2026-07-08-scenario-editor-completion-plan.md`. Status: `production/agentic/se-w0-status-truth-2026-07-08.md`. Post-MVP Requirements Program (Sprints 11–15) complete for docs 01–12 Template A. Doc 21 Platform Editor is first-class under Authoring.
+**Program note:** **Corpus maturity W0–W4 complete (2026-07-08)** — hub + drafts 13–21 honesty re-baselined; design: `docs/superpowers/specs/2026-07-08-requirements-corpus-maturity-design.md`. Historical review verdicts (2026-05-29 CONCERNS) were superseded by W0–W4 APPROVED reviews (2026-07-08). Scenario editor (req 11), ME Phase 2, and PE complete on trunk; active post-editor hygiene and forward continuous engineering. Live status pointers: [`docs/reports/`](../docs/reports/) latest sprint roadmap and [`production/qa/`](../production/qa/). Post-MVP Requirements Program (Sprints 11–15) complete for docs 01–12 Template A. Doc 21 Platform Editor is first-class under Authoring.
 
 ## Implementation
 
-- [Implementation tracker (MVP status 01–21)](implementation-tracker-2026-07-04.md) — **2026-07-04** (supersedes [2026-07-01](implementation-tracker-2026-07-01.md))
+- [Implementation tracker (frozen MVP 01–21; additive 22–27 evidence)](implementation-tracker.md) — **Stable Alias** (historical: [implementation-tracker-2026-07-04.md](implementation-tracker-2026-07-04.md))
 - [Root master index](../00-Master-Index.md) — redirects here + tracker
-- [Data population (CMAO DB)](Data-Population-CMAODB.md)
+- [Data population (CMAODB)](Data-Population-CMAODB.md)
 
 ## Traceability
+
+- [Requirements Traceability Matrix](../docs/architecture/requirements-traceability.md) — historical coverage plus current draft maturity, implementation/test mappings, and owner acceptance.
+- [2026-09-30 requirements and planning reconciliation](../docs/superpowers/specs/2026-09-30-requirements-planning-reconciliation.md) — proposed AME-6.11, RPL-29…31, LIB-05.1…3, and VER-07.3…6. Planning authorization does not imply feature delivery or owner acceptance.
+
+- [SYM-MIL-01 — Military Tactical symbology](drafts/2026-09-05-military-tactical-symbology.md) — Draft addition to REQ-20; NTDS / APP-6 / MIL-STD-2525 mapping and acceptance criteria.
+- [SYM-CIV-01 — Custom Civilian-Friendly gameplay symbology](drafts/2026-09-05-civilian-gameplay-symbology.md) — Draft addition to REQ-20; accessible alternate profile, with civilian-scope assumption recorded.
 
 - [Research → Requirements Traceability](research-traceability.md) — maps `docs/research/*.md` to requirement docs (May 29, 2026)
 - [CMO Manual Traceability Matrix](cmo-manual-traceability.md) — maps `docs/manual/` sections to requirement docs
 - [CMO Manual (HTML)](../docs/manual/index.html)
 - [Impact Analysis: Sim & C2 bundle (2026-05-29)](../docs/requirements/impact-sim-c2-requirements-2026-05-29.md) — GitNexus blast radius
-- [Design Review: Requirements 13–20 (2026-05-29)](reviews/requirements-13-20-design-review-2026-05-29.md) — **CONCERNS** verdict
-- [GitNexus Validation: Research → Requirements (2026-05-29)](reviews/research-gitnexus-validation-2026-05-29.md) — **CONCERNS**; code alignment for docs 01/04/06–10
+- [Design Review: Requirements 13–20 (2026-05-29)](reviews/requirements-13-20-design-review-2026-05-29.md) — Historical CONCERNS verdict (superseded 2026-07-08 by W0–W4 Approved)
+- [GitNexus Validation: Research → Requirements (2026-05-29)](reviews/research-gitnexus-validation-2026-05-29.md) — Historical CONCERNS; code alignment for docs 01/04/06–10 (superseded 2026-07-08)
+- [Audit Findings Register (2026-09-02)](reviews/audit-findings-2026-09-02.md) — Requirements audit findings & remediation register
 - [Systems Index](../design/gdd/systems-index.md) — decomposition for GDD authoring
 - [Master Architecture](../docs/architecture/architecture.md) — assemblies, tick pipeline, ADR index (2026-05-29)
 - [Policy GDD](../design/gdd/policy-roe-emcon-wra.md) — implements req 13
@@ -80,6 +87,18 @@ Docs **01, 04, 06, 07, 08, 09, 10** updated from `docs/research/*.md`. Full mapp
 | [20](requirements/20-Command-And-Control-UI.md) | Command & control UI | Draft |
 | [22](requirements/22-Drone-Swarm-Platforms.md) | Drone / UAS swarm platforms | Draft — H8 / FR-20 |
 
+## Additive post-MVP drafts (23–27)
+
+These documents remain **Draft**. Their code/test mappings show implemented subsets and planned criteria separately; document promotion and product acceptance require recorded review and an owner decision. The [live tracker](implementation-tracker.md#post-mvp-requirement-evidence-22-27) preserves S56 grades and exposes current evidence.
+
+| Doc | Title | Requirement IDs | Document / acceptance state |
+| --- | --- | --- | --- |
+| [23](drafts/23-Kill-Chain-Explainability.md) | Kill-chain explainability & targetability | KCX-01…07 | Draft; owner acceptance pending |
+| [24](drafts/24-Human-On-The-Loop-Authority.md) | Human-on-the-loop authority, approvals & recommendations | HOL-01…10 | Draft; owner acceptance pending; lethal Phase N opt-in remains deferred |
+| [25](drafts/25-C2-Nodes-Mission-Command.md) | C2 nodes, mission packages & mission command | C2N-01…04 | Draft; owner acceptance pending |
+| [26](drafts/26-Verification-CI-Gauntlet.md) | Verification, CI & gauntlet | VER-01…07 | Draft; VER-07.3…6 proposed; acceptance pending |
+| [27](drafts/27-Scenario-Library-Campaigns.md) | Scenario library & campaigns | LIB-01…05 | Draft; LIB-05.1…3 proposed; acceptance pending |
+
 ## Reading order (for design review)
 
 1. **12** Glossary → **13** Policy → **15** Sensors → **14** Engagement  
@@ -95,6 +114,7 @@ Docs **01, 04, 06, 07, 08, 09, 10** updated from `docs/research/*.md`. Full mapp
 - **H8 Drone Swarm Platforms (doc 22):** Phase A–C + PE residual **landed** (DRG-83 Done); Phase N SWARM-27…30 **post-release deferred** ([DRG-47](https://linear.app/drgamtd-workspace/issue/DRG-47) 2026-08-09)
 - **REQ-09/10 Phase N:** Owner decision recorded — no Phase N GDDs/runtime until product re-opens Phase N (`production/agentic/drg-47-phase-n-scoping-decision-2026-08-09.md`)
 - **Corpus maturity program closed** (W0–W4 complete 2026-07-08); no further corpus waves
-- **Scenario editor completion** (req 11): SE-W1 doc honesty + residual tools; SE-W2 Unity AC-8 productionize; SE-W3 gate — plan [2026-07-08-scenario-editor-completion-plan.md](../docs/superpowers/plans/2026-07-08-scenario-editor-completion-plan.md); roadmap [future-sprint-roadpmap-07042026.md](../docs/reports/future-sprint-roadpmap-07042026.md)
-- Run `/design-review` when mechanics change on **01, 04, 06–11, 13–22**
+- **Scenario editor completion** (req 11): S81–S88 scenario editor, ME Phase 2, and PE complete on trunk; post-editor hygiene and forward roadmap at [`docs/reports/future-sprint-roadpmap.md`](../docs/reports/future-sprint-roadpmap.md) (stable alias)
+- Review drafts **23–27** against their criterion-level mappings; complete draft review and owner acceptance independently of historical MVP grades.
+- Run `/design-review` when mechanics change on **01, 04, 06–11, 13–27**
 - Run `/military-requirements-impact` before DB schema for JADC2, C-UAS, hypersonic defense

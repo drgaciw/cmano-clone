@@ -9,8 +9,9 @@ description: >
   /qa-gauntlet, or asks for "QA gauntlet", "escalating complexity QA", "tiered
   scenario stress test", "autonomous sim QA loop", "batch sim defect remediation",
   or "gauntlet AAR". Companions: /qa-gauntlet-forge, /qa-gauntlet-stress,
-  /qa-gauntlet-remediation, /qa-gauntlet-calibrate, /qa-gauntlet-ui; team entry
-  /team-qa-gauntlet.
+  /qa-gauntlet-remediation, /qa-gauntlet-calibrate, /qa-gauntlet-ui,
+  /qa-gauntlet-mission-thread, /qa-gauntlet-agentic-resilience,
+  /qa-gauntlet-combat-ui; team entry /team-qa-gauntlet.
 argument-hint: "[--tiers N=5] [--scenarios-per-tier N=4] [--seeds 42,7,123] [--max-fix-attempts 3] [--resume <run-id>]"
 user-invocable: true
 allowed-tools: Read, Glob, Grep, Write, Edit, Bash, Task, AskUserQuestion
@@ -28,9 +29,11 @@ binding — especially GitNexus impact analysis before every symbol edit,
 **Team (avoid skill bloat):** multi-agent entry is `/team-qa-gauntlet`. Specialists:
 `/qa-gauntlet-forge` (variance), `/qa-gauntlet-stress` (orthogonal axes),
 `/qa-gauntlet-remediation` (Phase D + **UCA** on presentation Surfaces),
-`/qa-gauntlet-calibrate` (saboteur), `/qa-gauntlet-ui` (game UI Smoke/Pressure —
-does **not** alter this ladder contract). This file owns the ladder contract; details for
-stress/remediation/UI live in those skills — do not duplicate full runbooks here.
+`/qa-gauntlet-calibrate` (saboteur), `/qa-gauntlet-ui` (game UI Smoke/Pressure),
+`/qa-gauntlet-mission-thread` (T3+ concurrent-thread honesty),
+`/qa-gauntlet-agentic-resilience` (quarantine / hard-gate contract),
+`/qa-gauntlet-combat-ui` (engage/kill presentation — **not** Combat UX Slice B).
+This file owns the ladder contract; specialist runbooks live in those skills.
 
 **Variance companion:** invoke `/qa-gauntlet-forge` for self-improving scenario /
 platform / mission variance (Karpathy-style promote loop). Forge owns candidates,
@@ -192,6 +195,11 @@ with EMCON postures consistent with each platform's `CatalogEmcon` profile —
 plus a one-line intent + expected-outcome oracle per scenario (e.g. "Blue wins by
 HVU survival; Red fires ≤ X missiles under tight ROE").
 
+**A1b — Mission-thread honesty (T3+ required).** When the ladder **Mission type**
+row is T3 or higher, invoke `/qa-gauntlet-mission-thread --run-id <RUN_ID> --tier <N>`
+before A2. Vocabulary-only thread claims are `scenario-data` (do not duplicate the
+checklist here).
+
 **A2 — Validation.** Validate every generated scenario before running:
 
 - **Catalog resolution (oracle 0):** every entity, sensor, and weapon ID in the
@@ -295,7 +303,9 @@ Every failed oracle becomes a defect via `bug-triage`: `scenario-data`, `sim-cod
 
 ### Phase D — TDD remediation (max `--max-fix-attempts` per defect, default 3)
 
-**Dispatch `/qa-gauntlet-remediation`** for each defect (keeps this skill lean).
+**Dispatch `/qa-gauntlet-agentic-resilience`** for CRITICAL GitNexus / stalled Task /
+LLM-vs-script-gate conflicts (quarantine contract). Then
+**dispatch `/qa-gauntlet-remediation`** for each defect (keeps this skill lean).
 
 Summary contract:
 
@@ -352,6 +362,9 @@ After tier 5 (or an unrecoverable halt):
 
 - `/team-qa-gauntlet` — multi-agent orchestrator (preferred entry for full pressure team).
 - `/qa-gauntlet-ui` — game UI Smoke/Pressure (`--mode ui`); not part of this ladder contract.
+- `/qa-gauntlet-combat-ui` — engage/kill presentation (`--mode combat-ui`); not Slice B.
+- `/qa-gauntlet-mission-thread` — T3+ concurrent-thread honesty.
+- `/qa-gauntlet-agentic-resilience` — quarantine / never-LLM-override.
 - `/qa-gauntlet-forge` — variance companion; Hindsight bank `qa-gauntlet-forge`.
 - `/qa-gauntlet-stress` — orthogonal axes + proof gate.
 - `/qa-gauntlet-remediation` — Phase D TDD + UCA presentation gate.

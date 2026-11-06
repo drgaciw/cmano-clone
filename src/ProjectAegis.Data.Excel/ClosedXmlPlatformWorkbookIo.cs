@@ -1,7 +1,7 @@
 namespace ProjectAegis.Data.Excel;
 
 using ClosedXML.Excel;
-using ProjectAegis.Data.Platform;
+using Platform;
 
 /// <summary>
 /// Req-21 / ADR-011: production <see cref="IPlatformWorkbookIo"/> backed by ClosedXML, emitting real

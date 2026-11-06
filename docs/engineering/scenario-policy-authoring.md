@@ -195,7 +195,7 @@ appends the order-log row.
 | `personalityEditPolicy` | `Anytime`, `PlanningOnly`, `TieredRebrief` | Throws (empty → `Anytime`). |
 | `emcon.units.*.radar` | `Off`, `Passive`, `Active` | Throws. |
 | `telemetry.balanceTrials[].entityKind` | `BalanceEntityKind` values (e.g. `Platform`) | Throws. |
-| `mission.triggers[].targetClass` | `Any`, `Surface`, `Air` | **Falls back** to `Any`. |
+| `mission.triggers[].targetClass` | `Any`, `Surface`, `Air`, `Subsurface` | **Throws** `InvalidDataException` (empty → `Any`). |
 | `mission.triggers[].side` | `friendly`, `opposing` | **Falls back** to `friendly`. |
 
 A malformed enum in a *throwing* field fails the whole load with an `InvalidDataException` naming
@@ -216,7 +216,8 @@ Semantics (verified against the runtime):
 - A trigger fires **once**, on a contact transition from `Unknown → Detected` only.
 - It fires when `observerId` matches the transitioning observer **and** the contact's target
   class matches `targetClass` (`Any` matches everything; classification via
-  `MissionContactTargetClassifier`, which keys off the target id, e.g. `ucav*`).
+  `MissionContactTargetClassifier` + `ICatalogReader.TryGetPlatformDomain`, with `ucav*` fallback on
+  catalog miss for Baltic v3 goldens).
 - Triggers are evaluated in **`id` order** (`StringComparer.Ordinal`) for determinism; keep ids
   stable and sortable.
 - On firing it emits the trigger's `missionCode` + `roe` for the listed `side` / `unitIds`.

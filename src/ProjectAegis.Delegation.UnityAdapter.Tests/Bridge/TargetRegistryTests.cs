@@ -24,8 +24,8 @@ public sealed class TargetRegistryTests
 
         registry.RegisterUnit(new EntityKey(1), "u1");
 
-        Assert.Throws<InvalidOperationException>((Action)(() =>
-            registry.RegisterUnit(new EntityKey(2), "u1")));
+        Assert.Throws<InvalidOperationException>(() =>
+            registry.RegisterUnit(new EntityKey(2), "u1"));
     }
 
     [Test]
@@ -36,8 +36,8 @@ public sealed class TargetRegistryTests
 
         registry.RegisterGroup(new EntityKey(1), "g1");
 
-        Assert.Throws<InvalidOperationException>((Action)(() =>
-            registry.RegisterGroup(new EntityKey(2), "g1")));
+        Assert.Throws<InvalidOperationException>(() =>
+            registry.RegisterGroup(new EntityKey(2), "g1"));
     }
 
     [Test]
@@ -47,8 +47,8 @@ public sealed class TargetRegistryTests
         var registry = bridge.Registry;
 
         registry.RegisterUnit(new EntityKey(1), "u1");
-        Assert.Throws<InvalidOperationException>((Action)(() =>
-            registry.RegisterUnit(new EntityKey(2), "u1")));
+        Assert.Throws<InvalidOperationException>(() =>
+            registry.RegisterUnit(new EntityKey(2), "u1"));
 
         var memberIds = registry.CollectMemberIds();
         Assert.That(memberIds, Has.Count.EqualTo(1),

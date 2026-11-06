@@ -5,7 +5,7 @@
 **ID**: BUG-t2-escort-passive-emcon-claim-unimplemented
 **Severity**: S3-Minor (test-coverage integrity — the scenario passes, but does not test what its name and intent claim)
 **Priority**: P3 — backlog
-**Status**: Open
+**Status**: Fixed
 **Reported**: 2026-07-27
 **Reporter**: QA Gauntlet run `gauntlet-20260727-1455`, Tier 2. Found by the scenario architect while it was being cited as the reference implementation for passive-EMCON modelling — it checked the file rather than taking the citation on trust.
 
@@ -44,6 +44,25 @@ This is downstream of `production/qa/bugs/BUG-catalog-emcon-tables-empty.md` —
 Implement the stand-in it advertises: reduce `basePd` / `envMask` on the passive side's detection entries (the Tier 2 scenarios generated in this run use ~0.3–0.45, which produced clearly differentiated behaviour). Then regenerate its `gauntlet.expect` envelope per `tools/qa-gauntlet/README-expect-regen.md`, since detection changes will legitimately move kills/score.
 
 Worth a sweep of the other EMCON-flavoured corpus scenarios for the same gap — this was found by chance while using the file as a reference, not by a systematic check.
+
+## Resolution (2026-08-20)
+
+Implemented the advertised stand-in on `gauntlet-t2-escort-passive` only: blue detection
+trials now use `basePd`/`envMask` in the ~0.3–0.45 range. Distinct pairs went from
+`{(1.0, 1.0)}` to `{(0.3, 0.35), (0.35, 0.4), (0.4, 0.45)}`. There are no hostile
+observer trials in this file. Top-level `emcon.units` was already present (Passive on
+`k-22-gavle-ex-goteborg-class`, Active on `jas-39e-gripen-ng-2021`).
+
+T2 batch at ticks=10, seeds 42,7,123: numeric `gauntlet.expect` still matched observed
+rows (`allPassed: true`); fingerprint goldens for this scenario were re-blessed from
+that CSV. `gauntlet-t3-emcon-phases` / `gauntlet-t5-roe-change` left to other workers.
+
+**P2 re-bless (2026-08-27):** anchors for `gauntlet-t2-escort-passive|{7,42,123}` were
+re-derived via `tools/qa-gauntlet/evaluate_run.py bless` from green run
+`gauntlet-t2-escort-passive-pd-bless-20260827` (Demo batch ticks=10, seeds 42/7/123,
+`oracle-eval.json` allPassed, tier-2 `verdict.json` pass). Hashes unchanged vs prior
+hand-edit; `blessedFrom` now names this run instead of `gauntlet-winchester-full-20260801b`.
+Other anchor keys in `tools/qa-gauntlet/goldens/anchors.json` untouched.
 
 ## Related Issues
 - `production/qa/bugs/BUG-catalog-emcon-tables-empty.md` — the underlying data gap

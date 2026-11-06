@@ -1,7 +1,7 @@
 namespace ProjectAegis.MissionEditor.Cli;
 
 using System.Text.Json;
-using ProjectAegis.Data.Catalog;
+using Data.Catalog;
 
 /// <summary>S34-08 / DBI-4.5: read-only deterministic link catalog report.</summary>
 public static class CatalogLinkReportCommand

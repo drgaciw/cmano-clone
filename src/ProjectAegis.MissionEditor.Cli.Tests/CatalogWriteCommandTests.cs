@@ -1,7 +1,6 @@
 using System.Text.Json;
 using ProjectAegis.Data.Catalog;
 using ProjectAegis.Data.Import;
-using ProjectAegis.MissionEditor.Cli;
 using Xunit;
 
 namespace ProjectAegis.MissionEditor.Cli.Tests;
@@ -25,7 +24,7 @@ public sealed class CatalogWriteCommandTests
                 Assert.False(string.IsNullOrWhiteSpace(batchId));
 
                 using var approveOut = new StringWriter();
-                Assert.Equal(0, CatalogWriteApproveCommand.Run(dbPath, batchId!, approveOut));
+                Assert.Equal(0, CatalogWriteApproveCommand.Run(dbPath, batchId, approveOut));
                 var approveJson = approveOut.ToString();
                 Assert.Contains("\"ok\": true", approveJson);
                 Assert.Contains("\"snapshotId\":", approveJson);
@@ -70,7 +69,7 @@ public sealed class CatalogWriteCommandTests
                 using var approveOut = new StringWriter();
                 Assert.Equal(0, CatalogWriteApproveCommand.Run(
                     dbPath,
-                    batchId!,
+                    batchId,
                     approveOut,
                     releaseVersion: "cli-nightly-platform-s29-03"));
 

@@ -11,7 +11,7 @@ From the repository root:
 ./tools/Test-UnityPluginAssemblies.ps1   # verify all core + transitive DLLs present
 ```
 
-This publishes `ProjectAegis.Delegation.UnityAdapter` for **netstandard2.1** and copies **all** publish-output DLLs (Delegation, Sim, Data, SQLite, System.Text.Json, etc.). Do **not** copy `net8.0` build outputs into Unity — Unity 6.3 loads netstandard2.1 plugins only.
+This publishes `ProjectAegis.Delegation.UnityAdapter` for **netstandard2.1** and copies **all** publish-output DLLs (Delegation, Sim, Data, SQLite, System.Text.Json, etc.). Do **not** copy `net10.0` build outputs into Unity — Unity 6.3 loads netstandard2.1 plugins only.
 
 Or scaffold everything (folders, manifest, DLLs, runtime scripts):
 
@@ -26,7 +26,7 @@ dotnet build ProjectAegis.sln -c Release
 ./tools/unity/Invoke-ManualQaHeadlessGate.ps1
 ```
 
-Automated Unity compile + smoke scene (requires Unity 6000.3.14f1):
+Automated Unity compile + smoke scene (requires Unity 6000.3.22f1):
 
 ```powershell
 ./tools/unity/Invoke-DelegationSmokeSceneSetup.ps1

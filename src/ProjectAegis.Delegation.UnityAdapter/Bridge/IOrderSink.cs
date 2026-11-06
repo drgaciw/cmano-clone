@@ -1,6 +1,6 @@
 namespace ProjectAegis.Delegation.UnityAdapter.Bridge;
 
-using ProjectAegis.Delegation.Core;
+using Core;
 
 /// <summary>
 /// Applies delegation orders back into the sim (movement, engage, etc.).

@@ -34,14 +34,6 @@ public static class AlertSeverityMap
         // friendly launches too, and inbound-threat criticality is carried by KILL_CONFIRMED /
         // POLICY_DENIAL. Split-by-direction remains a possible future refinement.
         "WEAPON_LAUNCH" => AlertSeverity.Routine,
-        "MAGAZINE" => AlertSeverity.Routine,
-        "PLAYER_ORDER" => AlertSeverity.Routine,
-        "COMMS" => AlertSeverity.Routine,
-        "FUEL" => AlertSeverity.Routine,
-        "INTERCEPT_SUCCESS" => AlertSeverity.Routine,
-        "HIT" => AlertSeverity.Routine,
-        "MISS" => AlertSeverity.Routine,
-        "COMBAT" => AlertSeverity.Routine,
 
         _ => AlertSeverity.Routine,
     };

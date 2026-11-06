@@ -1,7 +1,7 @@
 namespace ProjectAegis.Delegation.Projection;
 
-using ProjectAegis.Delegation.Decision;
-using ProjectAegis.Delegation.Watch;
+using Decision;
+using Watch;
 
 /// <summary>
 /// CMD-39 (draft, Track A): headless apply path for the Unity attention toast host.

@@ -321,13 +321,13 @@ public sealed class CatalogBalanceDriftPipelineTests
                 }
 
                 cells[colIndex] = value;
-                return (IReadOnlyList<string>)cells;
+                return cells;
             }).ToArray();
 
             return sheet with { Rows = rows };
         }).ToArray();
 
-        return workbook with { Sheets = sheets };
+        return new PlatformWorkbook(sheets);
     }
 
     private static string CreateTempDbPath(string label) =>

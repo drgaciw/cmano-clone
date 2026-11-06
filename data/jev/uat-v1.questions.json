@@ -1,0 +1,42 @@
+{
+  "id": "uat-v1",
+  "model": "jev-1.13.0",
+  "description": "Off-tick advisory classifier for filtered Unity UAT evidence rows. Never overrides human PASS/FAIL.",
+  "thresholds": {
+    "choice_confidence_human_floor": 0.5,
+    "choice_note": "Choice confidence below 0.5 means human review; do not auto-tag.",
+    "noul_note": "Noul has no separate confidence field — the probability is the uncertainty. Do not apply the Choice floor to Noul.",
+    "score_note": "Use Score for rank/threshold only; do not treat interpolated score as a linear severity multiplier."
+  },
+  "questions": {
+    "failure_class": {
+      "type": "choice",
+      "instructions": "Given the filtered UAT evidence rows (id, pass/fail, one-line observation, policy id), what is the primary failure class for the failing or uncertain rows? Prefer `none` when all rows pass for expected reasons (including expected empty content).",
+      "criteria": {
+        "presentation": "C2 chrome / UI Toolkit host / layout / typography / feedback display defect.",
+        "scenario-content": "Policy or scenario content is missing or expected empty (e.g. no mission timeline on this policy).",
+        "sim-code": "Simulation, ROE, engagement, or classify FSM behavior looks wrong.",
+        "harness": "Unity MCP, Play Mode harness, evidence capture, or test setup defect.",
+        "none": "No defect; rows pass or failures are expected content.",
+        "other": "Does not fit the closed set above."
+      }
+    },
+    "severity": {
+      "type": "score",
+      "instructions": "How severe is the primary issue across this evidence packet for the current UAT slice?",
+      "criteria": [
+        "cosmetic — readable but ugly or minor polish; slice still usable",
+        "blocks this row — one acceptance row cannot pass; other rows may still proceed",
+        "blocks the slice — C2 or Baltic play-through cannot be signed off until fixed"
+      ]
+    },
+    "needs_code_change": {
+      "type": "noul",
+      "instructions": "Does this evidence indicate a product code change is required (presentation host or other in-repo code), as opposed to expected scenario content or harness-only issues?",
+      "criteria": {
+        "true": "A host or product code change is needed to turn a failed acceptance row into a pass.",
+        "false": "No code change; expected content, harness-only, or all rows already pass."
+      }
+    }
+  }
+}

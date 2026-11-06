@@ -420,7 +420,7 @@ reload are both disabled on enter-play-mode, so static state and scene state per
 plays. That makes stale-static bugs look like upgrade bugs; if the smoke pass behaves oddly,
 re-run it once from a fresh editor launch before blaming the version bump.
 
-Headless assemblies: `dotnet build ProjectAegis.sln` (SDK pinned 8.0.400,
+Headless assemblies: `dotnet build ProjectAegis.sln` (SDK pinned 10.0.403,
 `rollForward: latestMajor`; `Directory.Build.props` sets `ProduceReferenceAssembly=false`).
 The editor bump should not move this, so a failure here is a signal, not noise.
 

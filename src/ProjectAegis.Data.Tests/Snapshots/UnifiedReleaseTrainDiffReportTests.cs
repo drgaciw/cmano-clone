@@ -18,7 +18,7 @@ public sealed class UnifiedReleaseTrainDiffReportTests
 
         try
         {
-            SeedDomainRelease(dbPath, "nightly-sensor-s32-07-same", batchSuffix: "sensor-same");
+            SeedDomainRelease(dbPath, "nightly-sensor-s32-07-same");
             using (var store = new DbSnapshotStore(dbPath))
             {
                 store.RecordUnifiedRelease(
@@ -53,10 +53,10 @@ public sealed class UnifiedReleaseTrainDiffReportTests
 
         try
         {
-            var sensorFrom = SeedDomainRelease(dbPath, sensorFromVersion, batchSuffix: "sensor-from");
-            var platformFrom = SeedDomainRelease(dbPath, platformFromVersion, batchSuffix: "platform-from");
-            var sensorTo = SeedDomainRelease(dbPath, sensorToVersion, batchSuffix: "sensor-to", maxRecords: 12);
-            var weaponTo = SeedDomainRelease(dbPath, weaponToVersion, batchSuffix: "weapon-to");
+            var sensorFrom = SeedDomainRelease(dbPath, sensorFromVersion);
+            var platformFrom = SeedDomainRelease(dbPath, platformFromVersion);
+            var sensorTo = SeedDomainRelease(dbPath, sensorToVersion, maxRecords: 12);
+            var weaponTo = SeedDomainRelease(dbPath, weaponToVersion);
 
             using (var store = new DbSnapshotStore(dbPath))
             {
@@ -109,7 +109,7 @@ public sealed class UnifiedReleaseTrainDiffReportTests
 
         try
         {
-            var first = SeedDomainRelease(dbPath, firstVersion, batchSuffix: "sensor-reimport-a");
+            var first = SeedDomainRelease(dbPath, firstVersion);
             using (var store = new DbSnapshotStore(dbPath))
             {
                 store.RecordRelease(
@@ -136,7 +136,6 @@ public sealed class UnifiedReleaseTrainDiffReportTests
     private static CatalogSnapshotBinder.BindResult SeedDomainRelease(
         string dbPath,
         string releaseVersion,
-        string batchSuffix,
         int maxRecords = 6)
     {
         var markdown = CmoMarkdownImporter.ResolveMiniFixturePath();
@@ -146,7 +145,6 @@ public sealed class UnifiedReleaseTrainDiffReportTests
             maxRecords: maxRecords,
             chunkSize: 500,
             clock: new FixedCatalogClock(8000));
-        var batchId = $"{propose.Batches[0].BatchId}-{batchSuffix}";
 
         using (var gate = new CatalogWriteGate(dbPath, new FixedCatalogClock(8001)))
         {

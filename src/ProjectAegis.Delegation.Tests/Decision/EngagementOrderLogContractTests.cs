@@ -1,4 +1,3 @@
-using ProjectAegis.Delegation.Controllers;
 using ProjectAegis.Delegation.Core;
 using ProjectAegis.Delegation.Decision;
 using ProjectAegis.Delegation.Orchestration;
@@ -85,6 +84,25 @@ public sealed class EngagementOrderLogContractTests
             session.Orchestrator.DecisionLog.Engagements.Any(e =>
                 e.Launched && e.AbortReasonCode == EngagementAbortReasonCodes.Launched),
             Is.True);
+    }
+
+    [Test]
+    public void Session_stamps_authoritative_target_weapon_family_and_firing_solution()
+    {
+        var session = SimulationSession.BindMvpEngagement(
+            new DelegationOrchestrator(17),
+            new EngageContext(50_000, new WeaponEnvelope(1_000, 100_000), 2, true),
+            defaultMagazineRounds: 2,
+            weaponFamilyId: "Guided Weapon");
+        WireEngageAgent(session);
+        session.BeginExecution();
+        session.Tick(MvpObservedStates.EngageTick(0));
+
+        var engagement = session.Orchestrator.DecisionLog.Engagements.Single();
+        Assert.That(engagement.VictimTargetId?.Value, Is.EqualTo("hostile-1"));
+        Assert.That(engagement.WeaponFamilyId, Is.EqualTo("Guided Weapon"));
+        Assert.That(engagement.SalvoSize, Is.EqualTo(1));
+        Assert.That(engagement.HasFireControlTrack, Is.True);
     }
 
     private static void WireEngageAgent(SimulationSession session)

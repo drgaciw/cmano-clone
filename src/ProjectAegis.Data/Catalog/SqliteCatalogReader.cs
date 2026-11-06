@@ -1,8 +1,8 @@
 namespace ProjectAegis.Data.Catalog;
 
 using Microsoft.Data.Sqlite;
-using ProjectAegis.Data.Platform;
-using ProjectAegis.Data.Snapshots;
+using Platform;
+using Snapshots;
 
 /// <summary>SQLite-backed catalog reader; applies migrations on open.</summary>
 public sealed class SqliteCatalogReader : ICatalogReader, IDisposable
@@ -16,6 +16,7 @@ public sealed class SqliteCatalogReader : ICatalogReader, IDisposable
     private readonly SqliteConnection _connection;
     private CatalogSensorBinding[]? _cache;
     private Dictionary<string, CatalogPlatformEntry>? _platforms;
+    private Dictionary<string, string>? _platformDomains;
     private HashSet<string>? _snapshots;
     private bool? _hasPlatformTable;
     private CatalogMobility[]? _mobilityCache;
@@ -137,6 +138,18 @@ public sealed class SqliteCatalogReader : ICatalogReader, IDisposable
 
         latDeg = 0;
         lonDeg = 0;
+        return false;
+    }
+
+    public bool TryGetPlatformDomain(string platformId, out string domain)
+    {
+        EnsurePlatformsLoaded();
+        if (_platformDomains!.TryGetValue(platformId, out domain!))
+        {
+            return true;
+        }
+
+        domain = "";
         return false;
     }
 
@@ -495,7 +508,87 @@ public sealed class SqliteCatalogReader : ICatalogReader, IDisposable
             return true;
         }
 
+        if (file.Contains("018", StringComparison.Ordinal) && TableHasColumn("sensor", "radar_scan_type"))
+        {
+            return true;
+        }
+
+        // Data seed (not schema). platform_emcon already exists from 008; skip only when
+        // Visby published+staging sentinels exist AND every non-fixture platform with sensors
+        // already has a platform_emcon row (017 expands beyond the original T2 allowlist).
+        if (file.Contains("017", StringComparison.Ordinal) && HasGauntletT2EmconSeed())
+        {
+            return true;
+        }
+
         return false;
+    }
+
+    private bool HasGauntletT2EmconSeed()
+    {
+        if (!TableExists("platform_emcon") || !TableExists("catalog_staging_emcon"))
+        {
+            return false;
+        }
+
+        using var published = _connection.CreateCommand();
+        published.CommandText =
+            """
+            SELECT COUNT(*) FROM platform_emcon
+            WHERE platform_id = 'k-31-visby-2009'
+              AND condition = 'silent'
+              AND review_state = 'provisional'
+            """;
+        if (Convert.ToInt32(published.ExecuteScalar(), System.Globalization.CultureInfo.InvariantCulture) <= 0)
+        {
+            return false;
+        }
+
+        using var staging = _connection.CreateCommand();
+        staging.CommandText =
+            """
+            SELECT COUNT(*) FROM catalog_staging_emcon
+            WHERE batch_id = 'batch-emcon-gauntlet-t2-seed-017'
+              AND platform_id = 'k-31-visby-2009'
+              AND condition = 'silent'
+              AND review_state = 'provisional'
+            """;
+        if (Convert.ToInt32(staging.ExecuteScalar(), System.Globalization.CultureInfo.InvariantCulture) <= 0)
+        {
+            return false;
+        }
+
+        using var resolverAlias = _connection.CreateCommand();
+        resolverAlias.CommandText =
+            """
+            SELECT COUNT(*) FROM platform_emcon
+            WHERE platform_id = 'k-31-visby-2009'
+              AND condition = 'free'
+              AND emitter_id = 'radar-1'
+              AND review_state = 'provisional'
+            """;
+        if (Convert.ToInt32(resolverAlias.ExecuteScalar(), System.Globalization.CultureInfo.InvariantCulture) <= 0)
+        {
+            return false;
+        }
+
+        using var unseeded = _connection.CreateCommand();
+        unseeded.CommandText =
+            """
+            SELECT COUNT(*)
+            FROM (
+                SELECT p.platform_id
+                FROM platform p
+                INNER JOIN sensor s ON s.platform_id = p.platform_id
+                WHERE p.platform_id NOT IN (
+                    'u1','hostile-1','hostile-far','uas-swarm-generic','usn-uas-swarm-cec',
+                    'cmo-sensor-catalog','ucav-blue','ucav-red','usub-blue','usub-red')
+                  AND NOT EXISTS (
+                    SELECT 1 FROM platform_emcon e WHERE e.platform_id = p.platform_id)
+                GROUP BY p.platform_id
+            )
+            """;
+        return Convert.ToInt32(unseeded.ExecuteScalar(), System.Globalization.CultureInfo.InvariantCulture) == 0;
     }
 
     private bool TableExists(string table)
@@ -527,49 +620,46 @@ public sealed class SqliteCatalogReader : ICatalogReader, IDisposable
         using var cmd = _connection.CreateCommand();
         var hasProvenance = TableHasColumn("sensor", "value_tier");
         var hasModality = TableHasColumn("sensor", "modality");
-        cmd.CommandText = (hasProvenance, hasModality) switch
+        var hasEccm = TableHasColumn("sensor", "radar_scan_type");
+        var baseSelect = (hasProvenance, hasModality) switch
         {
             (true, true) =>
                 """
                 SELECT platform_id, sensor_id, base_pd, source_fact_id, confidence,
                        import_batch_id, source_file, review_state, trl_level,
                        value_tier, reviewer_id, revised_utc_ticks, citation_ref, modality
-                FROM sensor
-                ORDER BY platform_id ASC, sensor_id ASC
                 """,
             (true, false) =>
                 """
                 SELECT platform_id, sensor_id, base_pd, source_fact_id, confidence,
                        import_batch_id, source_file, review_state, trl_level,
                        value_tier, reviewer_id, revised_utc_ticks, citation_ref
-                FROM sensor
-                ORDER BY platform_id ASC, sensor_id ASC
                 """,
             (false, true) =>
                 """
                 SELECT platform_id, sensor_id, base_pd, source_fact_id, confidence,
                        import_batch_id, source_file, review_state, trl_level, modality
-                FROM sensor
-                ORDER BY platform_id ASC, sensor_id ASC
                 """,
             _ =>
                 """
                 SELECT platform_id, sensor_id, base_pd, source_fact_id, confidence,
                        import_batch_id, source_file, review_state, trl_level
-                FROM sensor
-                ORDER BY platform_id ASC, sensor_id ASC
                 """,
         };
+        var eccmSelect = hasEccm ? ", radar_scan_type, frequency_agile, radar_tech_generation" : string.Empty;
+        cmd.CommandText = baseSelect + eccmSelect + " FROM sensor ORDER BY platform_id ASC, sensor_id ASC";
         using var reader = cmd.ExecuteReader();
         var list = new List<CatalogSensorBinding>();
+        var eccmOrdinal = hasProvenance ? (hasModality ? 14 : 13) : (hasModality ? 10 : 9);
         while (reader.Read())
         {
+            CatalogSensorBinding binding;
             if (hasProvenance)
             {
                 var modality = hasModality
                     ? NormalizeModality(reader.IsDBNull(13) ? null : reader.GetString(13))
                     : CatalogSensorModalities.Radar;
-                list.Add(new CatalogSensorBinding(
+                binding = new CatalogSensorBinding(
                     reader.GetString(0),
                     reader.GetString(1),
                     reader.GetDouble(2),
@@ -583,14 +673,14 @@ public sealed class SqliteCatalogReader : ICatalogReader, IDisposable
                     reader.GetString(10),
                     reader.GetInt64(11),
                     reader.GetString(12),
-                    Modality: modality));
+                    Modality: modality);
             }
             else
             {
                 var modality = hasModality
                     ? NormalizeModality(reader.IsDBNull(9) ? null : reader.GetString(9))
                     : CatalogSensorModalities.Radar;
-                list.Add(new CatalogSensorBinding(
+                binding = new CatalogSensorBinding(
                     reader.GetString(0),
                     reader.GetString(1),
                     reader.GetDouble(2),
@@ -600,8 +690,20 @@ public sealed class SqliteCatalogReader : ICatalogReader, IDisposable
                     reader.GetString(6),
                     reader.GetString(7),
                     reader.GetInt32(8),
-                    Modality: modality));
+                    Modality: modality);
             }
+
+            if (hasEccm)
+            {
+                binding = binding with
+                {
+                    RadarScanType = reader.IsDBNull(eccmOrdinal) ? CatalogRadarScanTypes.Unspecified : reader.GetString(eccmOrdinal),
+                    FrequencyAgile = !reader.IsDBNull(eccmOrdinal + 1) && reader.GetInt64(eccmOrdinal + 1) != 0,
+                    RadarTechGeneration = reader.IsDBNull(eccmOrdinal + 2) ? 0 : reader.GetInt32(eccmOrdinal + 2),
+                };
+            }
+
+            list.Add(binding);
         }
 
         return list.ToArray();
@@ -672,11 +774,18 @@ public sealed class SqliteCatalogReader : ICatalogReader, IDisposable
         }
 
         _platforms = new Dictionary<string, CatalogPlatformEntry>(StringComparer.Ordinal);
+        _platformDomains = new Dictionary<string, string>(StringComparer.Ordinal);
         if (PlatformTableExists())
         {
+            var hasDomain = MigrationColumnExists("platform", "domain");
             using var cmd = _connection.CreateCommand();
-            cmd.CommandText =
+            cmd.CommandText = hasDomain
+                ? """
+                SELECT platform_id, lat_deg, lon_deg, combat_radius_nm, domain
+                FROM platform
+                ORDER BY platform_id ASC, snapshot_id ASC
                 """
+                : """
                 SELECT platform_id, lat_deg, lon_deg, combat_radius_nm
                 FROM platform
                 ORDER BY platform_id ASC, snapshot_id ASC
@@ -692,6 +801,10 @@ public sealed class SqliteCatalogReader : ICatalogReader, IDisposable
                         reader.GetDouble(1),
                         reader.GetDouble(2),
                         reader.GetDouble(3));
+                    if (hasDomain)
+                    {
+                        _platformDomains[id] = reader.GetString(4);
+                    }
                 }
             }
         }
@@ -701,6 +814,10 @@ public sealed class SqliteCatalogReader : ICatalogReader, IDisposable
             foreach (var platform in CatalogValidationDefaults.BalticPlatforms())
             {
                 _platforms[platform.PlatformId] = platform;
+                if (!string.IsNullOrEmpty(platform.Domain))
+                {
+                    _platformDomains[platform.PlatformId] = platform.Domain;
+                }
             }
         }
     }

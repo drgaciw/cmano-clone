@@ -27,7 +27,7 @@ public sealed class DoctrineInheritanceValidateTests
         var path = ResolveFixture("doctrine-inheritance.json");
         Assert.NotNull(path);
 
-        var scenario = ScenarioDocumentJsonLoader.LoadFromFile(path!);
+        var scenario = ScenarioDocumentJsonLoader.LoadFromFile(path);
         var catalog = InMemoryCatalogReader.BalticPatrolFixture();
         var report = Engine.Validate(scenario, catalog, Config);
 
@@ -157,7 +157,7 @@ public sealed class DoctrineInheritanceValidateTests
         // Given/When: use fixture (complete data/ version) which exercises side(parent)->mission(child)
         var path = ResolveFixture("doctrine-inheritance.json");
         Assert.NotNull(path);
-        var scenario = ScenarioDocumentJsonLoader.LoadFromFile(path!);
+        var scenario = ScenarioDocumentJsonLoader.LoadFromFile(path);
         var report = Engine.Validate(scenario, InMemoryCatalogReader.BalticPatrolFixture(), Config);
 
         // Then: all DOCTRINE_RESOLVED are Info (not errors); data carries parent/child provenance
