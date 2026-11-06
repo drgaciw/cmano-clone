@@ -10,4 +10,6 @@ public enum WatchPauseReason : byte
     HostileOrUnknownContact = 1,
     OwnSideLossOrDamage = 2,
     ExplicitPlayer = 3,
+    OrderProposal = 4,
+    PendingApproval = 4,
 }

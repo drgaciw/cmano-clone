@@ -170,6 +170,10 @@ namespace ProjectAegis.Unity.Runtime
             if (_reasonLabel != null)
             {
                 _reasonLabel.text = _last.ReasonPlain;
+                if (!string.IsNullOrEmpty(_last.NextActionPlain))
+                {
+                    _reasonLabel.text += $"\nNext: {_last.NextActionPlain}";
+                }
             }
 
             if (_authorityLabel != null)
