@@ -53,7 +53,6 @@ public sealed class PolicyEvaluator : IPolicyEvaluator
         {
             RoeLevel.HoldFire => PolicyVerdict.Deny(FireAbortReason.RoeHoldFire),
             RoeLevel.WeaponsTight => PolicyVerdict.Deny(FireAbortReason.WeaponsTight),
-            RoeLevel.WeaponsFree => PolicyVerdict.Allow(),
             _ => PolicyVerdict.Allow(),
         };
 

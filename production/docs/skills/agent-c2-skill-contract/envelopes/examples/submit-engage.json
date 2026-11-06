@@ -1,0 +1,59 @@
+{
+  "lane": "submit",
+  "skillId": "c2.skill.submit",
+  "invocationId": "inv-submit-001",
+  "proposalId": "prop-001",
+  "simTick": 13,
+  "simTime": 13.0,
+  "scenarioId": "baltic-patrol",
+  "seed": 42,
+  "inputs": {
+    "proposalId": "prop-001",
+    "entityKey": 1
+  },
+  "evidence": [
+    {
+      "kind": "unit",
+      "id": "ffg-1",
+      "sequenceId": null,
+      "projectionType": null,
+      "field": null
+    }
+  ],
+  "assumptions": [
+    "Proposal prop-001 is approved and unexpired",
+    "Unit ffg-1 is under HumanController"
+  ],
+  "rationale": "Operator approved weaponsRelease on prop-001; enqueue engage through the player command path.",
+  "output": {
+    "enqueued": true,
+    "orderKind": "Engage",
+    "failureReason": null
+  },
+  "commandId": "engage",
+  "requiredApproval": "weaponsRelease",
+  "authorityBasis": {
+    "policySnapshotId": "policy-baltic-default",
+    "policyUnavailable": false,
+    "roe": "WEAPONS_TIGHT",
+    "emcon": "radar-active",
+    "trackSource": "organic",
+    "fireControlSatisfied": true,
+    "engagementAuthorizationImplied": false
+  },
+  "playerOverride": {
+    "path": "C2PlayerCommandBridge.TryIssue",
+    "commandId": "hold",
+    "controllerRequirement": "HumanController",
+    "rejectLeavesNoMutation": false
+  },
+  "replayProvenance": {
+    "skillId": "c2.skill.submit",
+    "invocationId": "inv-submit-001",
+    "simTick": 13,
+    "simTime": 13.0,
+    "orderLogFingerprintBefore": "PlayerOrder|...",
+    "sequenceIdOnSubmit": 201,
+    "submitted": true
+  }
+}

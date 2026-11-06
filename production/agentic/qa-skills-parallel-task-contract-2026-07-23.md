@@ -41,3 +41,15 @@ Orchestrator skill frontmatter stays `model: sonnet`.
 ## Script-first (gauntlet/forge)
 
 Prefer `gauntlet_oracle_eval` and `python3 tools/qa-gauntlet/forge_scorecard.py` over LLM reinterpretation. Class `oracle` → expect-regen runbook only (no hand-edit envelopes).
+
+## `/team-qa-gauntlet` specialist modes (DRG-199)
+
+Coordinator only — runbooks live in the named skills. Do not dual-write Combat UX Slice B (DRG-165–170).
+
+| `--mode` | Skill |
+|----------|--------|
+| `full` | ladder + forge hooks; **mission-thread** if T3+; **agentic-resilience** on Phase D/AAR; stress when claimed |
+| `mission-thread` | `/qa-gauntlet-mission-thread` |
+| `agentic-resilience` | `/qa-gauntlet-agentic-resilience` |
+| `combat-ui` | `/qa-gauntlet-combat-ui` (not `/qa-gauntlet-ui`, not Slice B) |
+| `ui` / `ui-smoke` | `/qa-gauntlet-ui` |

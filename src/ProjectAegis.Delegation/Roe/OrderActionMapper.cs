@@ -1,6 +1,6 @@
 namespace ProjectAegis.Delegation.Roe;
 
-using ProjectAegis.Delegation.Core;
+using Core;
 using ProjectAegis.Sim.Policy;
 
 public static class OrderActionMapper
@@ -24,7 +24,6 @@ public static class OrderActionMapper
         {
             OrderKind.Engage => ActionKind.FireGuided,
             OrderKind.SetEwPosture => ActionKind.Jam,
-            OrderKind.Move or OrderKind.Hold or OrderKind.ReturnToBase => ActionKind.Observe,
             _ => ActionKind.Observe,
         };
 }

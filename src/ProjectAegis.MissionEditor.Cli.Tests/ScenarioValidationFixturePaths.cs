@@ -13,7 +13,7 @@ internal static class ScenarioValidationFixturePaths
             $"Required fixture '{fileName}' not found. Walked up from '{AppContext.BaseDirectory}' " +
             $"looking for assets/data/scenarios/validation/{fileName}. " +
             "Ensure the test project copies validation assets to output or run from repo root.");
-        return path!;
+        return path;
     }
 
     internal static string? TryResolve(string fileName)

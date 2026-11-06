@@ -1,21 +1,18 @@
 namespace ProjectAegis.Delegation.UnityAdapter.Baltic;
 
-using ProjectAegis.Delegation.Comms;
-using ProjectAegis.Delegation.Controllers;
-using ProjectAegis.Delegation.Decision;
-using ProjectAegis.Delegation.Core;
-using ProjectAegis.Delegation.Orchestration;
-using ProjectAegis.Delegation.Policy;
-using ProjectAegis.Delegation.Sim;
-using ProjectAegis.Delegation.Targets;
-using ProjectAegis.Delegation.Traits;
-using ProjectAegis.Delegation.UnityAdapter.Bridge;
-using ProjectAegis.Data.Catalog;
-using ProjectAegis.Data.Scenario;
+using Comms;
+using Decision;
+using Core;
+using Orchestration;
+using Policy;
+using Sim;
+using Traits;
+using Bridge;
+using Data.Catalog;
 
-using ProjectAegis.Delegation.Mission;
-using ProjectAegis.Delegation.Projection;
-using ProjectAegis.Delegation.Replay;
+using Mission;
+using Projection;
+using Replay;
 using ProjectAegis.Sim.Catalog;
 using ProjectAegis.Sim.Core;
 using ProjectAegis.Sim.Engage;
@@ -151,21 +148,23 @@ public static class BalticReplayHarness
                 profile.UnitRadarEmcon,
                 profile.Jammers,
                 profile.ContactLifecycle,
-                catalogReader);
+                catalogReader,
+                DetectionEnvironmentFactory.Build(profile, catalogReader));
             if (profile.DatalinkDoctrine.IsSharingEnabled)
             {
                 var datalinkDoctrine = DatalinkShareLagResolver.Resolve(profile.DatalinkDoctrine, catalogReader);
                 datalinkMerger = new DatalinkSidePictureMerger(datalinkDoctrine, detectionTrials);
             }
         }
-        else if (profile?.ContactSeeds.Count > 0)
+
+        if (profile?.ContactSeeds.Count > 0)
         {
             scheduleSim = new ScenarioContactSimulator(profile.ContactSeeds, profile.UnitRadarEmcon);
         }
 
         var missionRuntime = profile != null ? MissionRuntimeFactory.TryCreate(profile.MissionTimeline) : null;
         var contactTriggerRuntime = profile != null
-            ? MissionContactTriggerRuntimeFactory.TryCreate(profile.MissionTimeline)
+            ? MissionContactTriggerRuntimeFactory.TryCreate(profile.MissionTimeline, catalogReader)
             : null;
         var sideMaxSalvo = profile?.FriendlyDefault.MaxSalvo ?? EffectivePolicy.DefaultFree.MaxSalvo;
         var checkpointStore = new ReplayCheckpointStore();
@@ -378,9 +377,9 @@ public static class BalticReplayHarness
                     CommsTrackStaleness.StaleThresholdDivisor(bridge.CurrentCommsState, profile.CommsDisplay));
             }
 
-            var transitions = pdSim != null
+            IReadOnlyList<ContactTransition> transitions = pdSim != null
                 ? pdSim.Tick(simTick, harness.SimTime)
-                : scheduleSim?.Tick(simTick, harness.SimTime) ?? Array.Empty<ContactTransition>();
+                : Array.Empty<ContactTransition>();
             if (datalinkMerger != null)
             {
                 var shared = datalinkMerger.Merge(
@@ -396,6 +395,25 @@ public static class BalticReplayHarness
                     merged.AddRange(transitions);
                     merged.AddRange(shared);
                     transitions = merged.ToArray();
+                }
+            }
+
+            if (scheduleSim != null)
+            {
+                var scheduled = scheduleSim.Tick(simTick, harness.SimTime);
+                if (scheduled.Count > 0)
+                {
+                    if (transitions.Count == 0)
+                    {
+                        transitions = scheduled;
+                    }
+                    else
+                    {
+                        var merged = new List<ContactTransition>(transitions.Count + scheduled.Count);
+                        merged.AddRange(transitions);
+                        merged.AddRange(scheduled);
+                        transitions = merged.ToArray();
+                    }
                 }
             }
 
@@ -672,7 +690,7 @@ public static class BalticReplayHarness
         int startEntityKey,
         SimulationSession? session)
     {
-        var dto = ProjectAegis.Data.Scenario.ScenarioPolicyJsonCatalog.TryGetJson(scenarioPolicyId);
+        var dto = Data.Scenario.ScenarioPolicyJsonCatalog.TryGetJson(scenarioPolicyId);
         var units = dto?.Gauntlet?.Units;
         if (units == null || units.Count == 0)
         {

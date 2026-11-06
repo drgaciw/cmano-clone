@@ -15,4 +15,16 @@ public sealed class BalticReplayHarnessContactTests
         Assert.That(a.Fingerprint, Does.Contain("ContactChange|"));
         Assert.That(a.Fingerprint, Does.Contain("|Unknown|Detected"));
     }
+
+    [Test]
+    public void Detection_plus_contacts_emits_scripted_appearAtTick_contact_change()
+    {
+        const string policyId = "baltic-patrol-scripted-contact";
+        var result = BalticReplayHarness.Run(42, policyId, ticks: 3);
+
+        Assert.That(result.Fingerprint, Does.Contain("|c1|hostile-1|"));
+        Assert.That(
+            result.Fingerprint,
+            Does.Contain("|2|u1|c-scripted-1|hostile-reinforce-1|Unknown|Detected"));
+    }
 }

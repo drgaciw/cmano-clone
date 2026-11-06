@@ -1,6 +1,6 @@
 namespace ProjectAegis.Sim.Sensors;
 
-using ProjectAegis.Sim.Scenario;
+using Scenario;
 
 /// <summary>
 /// Bounded datalink side-picture merge (TR-sensor-004): peers on the same side receive
@@ -412,7 +412,7 @@ public sealed class DatalinkSidePictureMerger
         {
             var observers = map[sides[i]];
             observers.Sort(StringComparer.Ordinal);
-            result[i] = new SideObservers(sides[i], observers.ToArray());
+            result[i] = new SideObservers(observers.ToArray());
         }
 
         return result;
@@ -504,13 +504,10 @@ public sealed class DatalinkSidePictureMerger
 
     private sealed class SideObservers
     {
-        public SideObservers(string side, string[] observers)
+        public SideObservers(string[] observers)
         {
-            Side = side;
             Observers = observers;
         }
-
-        public string Side { get; }
 
         public string[] Observers { get; }
     }

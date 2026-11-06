@@ -3,7 +3,7 @@ namespace ProjectAegis.Data.Scenario.Authoring;
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using ProjectAegis.Data.Catalog;
+using Catalog;
 
 public static class ScenarioDbMigrationPreview
 {

@@ -42,7 +42,7 @@ PY
 
 echo
 echo "Next:"
-echo "  1. Open Unity Editor on $UNITY_PROJECT (6000.3.14f1)"
+echo "  1. Open Unity Editor on $UNITY_PROJECT (6000.3.22f1)"
 echo "  2. Confirm Window > AI Game Developer shows Custom / $HOST"
 echo "  3. curl -sS -o /dev/null -w '%{http_code}\\n' --max-time 5 $HOST"
 echo "  4. Restart Cursor MCP if ai-game-developer was already loaded"

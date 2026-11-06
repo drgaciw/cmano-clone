@@ -1,0 +1,924 @@
+using System.Globalization;
+using System.Text;
+using System.Text.Json;
+using System.Text.Json.Serialization;
+using ProjectAegis.Data.Catalog;
+using ProjectAegis.Delegation.Controllers;
+using ProjectAegis.Delegation.Core;
+using ProjectAegis.Delegation.Decision;
+using ProjectAegis.Delegation.Orchestration;
+using ProjectAegis.Delegation.Projection;
+using ProjectAegis.Delegation.SensorToShooter;
+using ProjectAegis.Delegation.Skills;
+using ProjectAegis.Delegation.TargetabilityAccept;
+using ProjectAegis.Delegation.Targets;
+using ProjectAegis.Sim.Policy;
+using ProjectAegis.Sim.Scenario;
+using ObservedState = ProjectAegis.Delegation.Sim.ObservedState;
+
+namespace ProjectAegis.Delegation.Tests.TargetabilityAccept;
+
+/// <summary>Where the Slice A harness sources the order log it projects (DRG-183 / DRG-350).</summary>
+public enum SliceATargetabilityComposition
+{
+    /// <summary>Fresh <see cref="DecisionLog"/> holding only fixture-authored contact rows (DRG-183 pin).</summary>
+    FixtureLog = 0,
+
+    /// <summary>
+    /// Production headless composition (DRG-350 / DRG-414): <see cref="SimulationSession.BindMvpEngagementForScenario"/>
+    /// over a <see cref="DelegationOrchestrator"/> with the fixture scenario policy, ticked through the
+    /// evaluation tick. The order log is the orchestrator's. Fire-control, shooter/magazine rounds, and
+    /// authority come from the session's read-only seams, not from fixture-rebuilt sources.
+    /// </summary>
+    ProductionSession = 1,
+}
+
+/// <summary>
+/// DRG-183: one Find → Fix → Track → Target path and its acceptance verdict.
+/// Read-only. The harness never appends an engagement, player order, magazine change, or ordnance row.
+/// </summary>
+public sealed record SliceATargetabilityPathEvidence(
+    string PathId,
+    string Kind,
+    string ContactId,
+    string TargetId,
+    KillChainPhase Phase,
+    string Loss,
+    string PhasesVisited,
+    bool TechnicallyTargetable,
+    bool ProvenancePresent,
+    ContactProvenanceFreshness Freshness,
+    ulong AgeTicks,
+    string QualityState,
+    string Confidence,
+    string SourceRef,
+    string Roe,
+    string RoeLabel,
+    bool EngageAllowedByRoe,
+    string AuthorityDisposition,
+    string AuthorityReasonCode,
+    string PendingApproval,
+    string EngageVerbDisposition,
+    string EngageVerbReason,
+    TargetabilityAcceptDisposition Disposition,
+    string WithheldCauseCode,
+    bool ChainComplete,
+    string ChainCauseLabel,
+    int ContactChangeCount,
+    int EngagementCount,
+    int EngagementOutcomeCount,
+    int PlayerOrderCount,
+    int MagazineChangeCount,
+    int OrdnanceStateChangeCount,
+    string Explanation,
+    string AcceptFingerprint,
+    string KillChainFingerprint);
+
+/// <summary>
+/// DRG-183: replay-stable Slice A exit evidence for a scenario that stops at targetability.
+/// </summary>
+public sealed record SliceATargetabilityAcceptanceEvidence(
+    string ScenarioId,
+    string StoryId,
+    string ReplayScope,
+    ulong EvaluationSimTick,
+    int EngagementCount,
+    int EngagementOutcomeCount,
+    int PlayerOrderCount,
+    int MagazineChangeCount,
+    int OrdnanceStateChangeCount,
+    int ContactChangeCount,
+    IReadOnlyList<SliceATargetabilityPathEvidence> Paths,
+    string AcceptanceFingerprint);
+
+/// <summary>
+/// DRG-183: executed evidence plus the fingerprint pinned in the scenario fixture.
+/// </summary>
+public sealed record SliceATargetabilityAcceptanceRun(
+    SliceATargetabilityAcceptanceEvidence Evidence,
+    string PinnedAcceptanceFingerprint);
+
+/// <summary>
+/// DRG-183: loads the Slice A targetability scenario fixture and projects Find through Target
+/// without firing a weapon. Headless only: contact rows in, acceptance snapshot out.
+/// No engagement, magazine, ordnance, or player-order rows are appended.
+/// </summary>
+public static class SliceATargetabilityAcceptanceHarness
+{
+    public const string FixtureRelativePath =
+        "src/ProjectAegis.Delegation.Tests/TargetabilityAccept/Fixtures/slice-a-targetability-scenario.json";
+
+    private static readonly JsonSerializerOptions JsonOptions = new()
+    {
+        PropertyNamingPolicy = JsonNamingPolicy.CamelCase,
+        PropertyNameCaseInsensitive = true,
+        ReadCommentHandling = JsonCommentHandling.Disallow,
+        AllowTrailingCommas = false,
+        NumberHandling = JsonNumberHandling.Strict,
+    };
+
+    /// <summary>Global seed for the production session composition.</summary>
+    public const int ProductionSessionSeed = 183;
+
+    /// <summary>Run the checked-in Slice A scenario from the repository root.</summary>
+    public static SliceATargetabilityAcceptanceRun Run() => Run(SliceATargetabilityComposition.FixtureLog);
+
+    /// <summary>Run the checked-in Slice A scenario through <paramref name="composition"/>.</summary>
+    public static SliceATargetabilityAcceptanceRun Run(SliceATargetabilityComposition composition) =>
+        Run(DefaultFixturePath(), composition);
+
+    /// <summary>Run the scenario fixture at <paramref name="fixturePath"/>.</summary>
+    public static SliceATargetabilityAcceptanceRun Run(string fixturePath) =>
+        Run(fixturePath, SliceATargetabilityComposition.FixtureLog);
+
+    /// <summary>Run the scenario fixture at <paramref name="fixturePath"/> through <paramref name="composition"/>.</summary>
+    public static SliceATargetabilityAcceptanceRun Run(string fixturePath, SliceATargetabilityComposition composition)
+    {
+        if (string.IsNullOrWhiteSpace(fixturePath))
+        {
+            throw new ArgumentException("A scenario fixture path is required.", nameof(fixturePath));
+        }
+
+        var document = Load(fixturePath);
+        var evidence = Execute(document, composition, configure: null);
+        return new SliceATargetabilityAcceptanceRun(evidence, document.AcceptanceFingerprint);
+    }
+
+    /// <summary>
+    /// DRG-414: run the production composition and let <paramref name="configure"/> register the shooter
+    /// and any production ledger or policy state before the tick loop. The verdict is projected from
+    /// the session seams.
+    /// </summary>
+    public static SliceATargetabilityAcceptanceRun RunProduction(
+        Action<SimulationSession, UnitTarget> configure)
+    {
+        if (configure is null)
+        {
+            throw new ArgumentNullException(nameof(configure));
+        }
+
+        var document = Load(DefaultFixturePath());
+        var evidence = Execute(document, SliceATargetabilityComposition.ProductionSession, configure);
+        return new SliceATargetabilityAcceptanceRun(evidence, document.AcceptanceFingerprint);
+    }
+
+    /// <summary>
+    /// Drive one fixture path through the production session composition with a caller-wired shooter
+    /// and return the orchestrator's authoritative log. Lets tests prove the same path does record fire
+    /// when the shooter is an engaging agent.
+    /// </summary>
+    public static DecisionLog DriveProductionSession(
+        string pathId,
+        Action<SimulationSession, UnitTarget> wireShooter)
+    {
+        if (wireShooter is null)
+        {
+            throw new ArgumentNullException(nameof(wireShooter));
+        }
+
+        var document = Load(DefaultFixturePath());
+        var path = document.Paths.Find(p => string.Equals(p.PathId, pathId, StringComparison.Ordinal))
+            ?? throw new ArgumentException($"Fixture has no path '{pathId}'.", nameof(pathId));
+        return BuildProductionSessionLog(document, path, InMemoryCatalogReader.BalticPatrolFixture(), wireShooter).Log;
+    }
+
+    private static string DefaultFixturePath()
+    {
+        var root = FindRepoRoot()
+            ?? throw new InvalidOperationException("ProjectAegis.sln was not found above the test base directory.");
+        return Path.Combine(root, FixtureRelativePath);
+    }
+
+    private static SliceAScenarioFile Load(string fixturePath)
+    {
+        var json = File.ReadAllText(fixturePath);
+        var document = JsonSerializer.Deserialize<SliceAScenarioFile>(json, JsonOptions)
+            ?? throw new InvalidOperationException($"Scenario fixture '{fixturePath}' deserialized to null.");
+        Validate(document, fixturePath);
+        return document;
+    }
+
+    private static void Validate(SliceAScenarioFile document, string fixturePath)
+    {
+        Require(document.ScenarioId, nameof(document.ScenarioId), fixturePath);
+        if (!string.Equals(document.StoryId, "DRG-183", StringComparison.Ordinal))
+        {
+            throw new InvalidOperationException(
+                $"Scenario fixture '{fixturePath}' storyId must be DRG-183.");
+        }
+
+        if (!string.Equals(document.ReplayScope, "slice-a-exit-gate-off-baltic-v2-hash", StringComparison.Ordinal))
+        {
+            throw new InvalidOperationException(
+                $"Scenario fixture '{fixturePath}' replayScope must stay off the Baltic v2 hash.");
+        }
+
+        if (!string.Equals(document.Catalog, "baltic-patrol", StringComparison.Ordinal))
+        {
+            throw new InvalidOperationException(
+                $"Scenario fixture '{fixturePath}' catalog must be baltic-patrol.");
+        }
+
+        Require(document.ObserverId, nameof(document.ObserverId), fixturePath);
+        Require(document.ShooterUnitId, nameof(document.ShooterUnitId), fixturePath);
+        if (document.WeaponRounds < 1)
+        {
+            throw new InvalidOperationException(
+                $"Scenario fixture '{fixturePath}' weaponRounds must be a positive read-only candidate count.");
+        }
+
+        if (string.IsNullOrWhiteSpace(document.AcceptanceFingerprint))
+        {
+            throw new InvalidOperationException(
+                $"Scenario fixture '{fixturePath}' is missing acceptanceFingerprint.");
+        }
+
+        if (document.Paths is null || document.Paths.Count < 2)
+        {
+            throw new InvalidOperationException(
+                $"Scenario fixture '{fixturePath}' must include a valid path and an approval-required path.");
+        }
+    }
+
+    private static SliceATargetabilityAcceptanceEvidence Execute(
+        SliceAScenarioFile document,
+        SliceATargetabilityComposition composition,
+        Action<SimulationSession, UnitTarget>? configure)
+    {
+        var catalog = InMemoryCatalogReader.BalticPatrolFixture();
+        var paths = new SliceATargetabilityPathEvidence[document.Paths.Count];
+        var engagements = 0;
+        var outcomes = 0;
+        var playerOrders = 0;
+        var magazines = 0;
+        var ordnance = 0;
+        var contacts = 0;
+        for (var i = 0; i < document.Paths.Count; i++)
+        {
+            paths[i] = ProjectPath(document, document.Paths[i], catalog, composition, configure);
+            engagements += paths[i].EngagementCount;
+            outcomes += paths[i].EngagementOutcomeCount;
+            playerOrders += paths[i].PlayerOrderCount;
+            magazines += paths[i].MagazineChangeCount;
+            ordnance += paths[i].OrdnanceStateChangeCount;
+            contacts += paths[i].ContactChangeCount;
+        }
+
+        var fingerprint = ComposeAcceptanceFingerprint(
+            document,
+            engagements,
+            outcomes,
+            playerOrders,
+            magazines,
+            ordnance,
+            contacts,
+            paths);
+        return new SliceATargetabilityAcceptanceEvidence(
+            document.ScenarioId,
+            document.StoryId,
+            document.ReplayScope,
+            document.EvaluationSimTick,
+            engagements,
+            outcomes,
+            playerOrders,
+            magazines,
+            ordnance,
+            contacts,
+            paths,
+            fingerprint);
+    }
+
+    private static SliceATargetabilityPathEvidence ProjectPath(
+        SliceAScenarioFile document,
+        SliceAScenarioPathFile path,
+        ICatalogReader catalog,
+        SliceATargetabilityComposition composition,
+        Action<SimulationSession, UnitTarget>? configure)
+    {
+        if (composition == SliceATargetabilityComposition.ProductionSession)
+        {
+            var produced = BuildProductionSessionLog(
+                document,
+                path,
+                catalog,
+                configure ?? WireHumanShooter);
+            return ProjectProductionLog(document, path, catalog, produced.Log, produced.Session);
+        }
+
+        return ProjectLog(document, path, catalog, BuildFixtureLog(document, path));
+    }
+
+    private static void ValidatePath(SliceAScenarioPathFile path)
+    {
+        Require(path.PathId, nameof(path.PathId), path.PathId);
+        if (path.Kind is not ("Valid" or "ApprovalRequired"))
+        {
+            throw new InvalidOperationException(
+                $"Path '{path.PathId}' kind '{path.Kind}' must be Valid or ApprovalRequired.");
+        }
+
+        Require(path.ContactId, nameof(path.ContactId), path.PathId);
+        Require(path.TargetId, nameof(path.TargetId), path.PathId);
+        if (path.Steps is null || path.Steps.Count == 0)
+        {
+            throw new InvalidOperationException($"Path '{path.PathId}' has no contact steps.");
+        }
+
+        if (path.Authority is null)
+        {
+            throw new InvalidOperationException($"Path '{path.PathId}' has no authority block.");
+        }
+
+        for (var i = 0; i < path.Steps.Count; i++)
+        {
+            var step = path.Steps[i];
+            if (step.SequenceId == 0)
+            {
+                throw new InvalidOperationException(
+                    $"Path '{path.PathId}' step {i} must set a non-zero sequenceId.");
+            }
+
+            Require(step.PreviousState, nameof(step.PreviousState), path.PathId);
+            Require(step.NewState, nameof(step.NewState), path.PathId);
+        }
+    }
+
+    private static DecisionLog BuildFixtureLog(SliceAScenarioFile document, SliceAScenarioPathFile path)
+    {
+        ValidatePath(path);
+        var log = new DecisionLog();
+        for (var i = 0; i < path.Steps!.Count; i++)
+        {
+            var step = path.Steps[i];
+            log.Append(OrderLogEntryFactories.FromContactChange(ToContactChange(document, path, step, step.SequenceId), step.SequenceId));
+        }
+
+        return log;
+    }
+
+    /// <summary>Log plus the session whose read-only seams feed the production verdict (DRG-414).</summary>
+    private readonly record struct ProductionComposition(DecisionLog Log, SimulationSession Session);
+
+    /// <summary>
+    /// Production headless composition: scenario-bound orchestrator + MVP engagement session, ticked
+    /// from 0 through the evaluation tick. Each fixture contact step lands in the authoritative log at
+    /// its sim tick (sequence assigned by the log), and the observed state reports the contact and
+    /// fire-control track the same way the sim would. Returns the orchestrator's own log and the session.
+    /// </summary>
+    private static ProductionComposition BuildProductionSessionLog(
+        SliceAScenarioFile document,
+        SliceAScenarioPathFile path,
+        ICatalogReader catalog,
+        Action<SimulationSession, UnitTarget> wireShooter)
+    {
+        ValidatePath(path);
+        var profile = ScenarioPolicyRepository.TryGet(document.Catalog)
+            ?? throw new InvalidOperationException($"Scenario policy '{document.Catalog}' is not registered.");
+        var orchestrator = new DelegationOrchestrator(ProductionSessionSeed) { ScenarioPolicy = profile };
+        var session = SimulationSession.BindMvpEngagementForScenario(orchestrator, document.Catalog, catalog);
+        var shooterId = new TargetId(document.ShooterUnitId);
+        var shooter = new UnitTarget(shooterId);
+        wireShooter(session, shooter);
+        session.BeginExecution();
+
+        var hostile = new TargetId(path.TargetId);
+        var fireControlIds = new HashSet<string>(path.FireControlContactIds ?? [], StringComparer.Ordinal);
+        var memberAlive = new Dictionary<TargetId, bool> { [shooterId] = true };
+        var detected = false;
+        for (ulong tick = 0; tick <= document.EvaluationSimTick; tick++)
+        {
+            for (var i = 0; i < path.Steps!.Count; i++)
+            {
+                var step = path.Steps[i];
+                if (step.SimTick != tick)
+                {
+                    continue;
+                }
+
+                orchestrator.DecisionLog.AppendContactChange(ToContactChange(document, path, step, 0));
+                detected = !string.Equals(step.NewState, "Unknown", StringComparison.Ordinal);
+            }
+
+            var state = new ObservedState(
+                tick,
+                detected ? 1 : 0,
+                0,
+                memberAlive,
+                HasFireControlTrack: detected && fireControlIds.Contains(path.ContactId),
+                PrimaryHostileContactId: detected ? hostile : null);
+            if (!session.Tick(state))
+            {
+                throw new InvalidOperationException("Production session did not leave Planning.");
+            }
+        }
+
+        return new ProductionComposition(orchestrator.DecisionLog, session);
+    }
+
+    private static void WireHumanShooter(SimulationSession session, UnitTarget shooter)
+    {
+        shooter.Slot.SetActive(new HumanController());
+        session.Orchestrator.Register(shooter);
+    }
+
+    private static ContactChangeRecord ToContactChange(
+        SliceAScenarioFile document,
+        SliceAScenarioPathFile path,
+        SliceAStepFile step,
+        ulong sequenceId) =>
+        new(
+            sequenceId,
+            step.SimTime,
+            step.SimTick,
+            document.ObserverId,
+            path.ContactId,
+            path.TargetId,
+            step.PreviousState,
+            step.NewState);
+
+    private static SliceATargetabilityPathEvidence ProjectLog(
+        SliceAScenarioFile document,
+        SliceAScenarioPathFile path,
+        ICatalogReader catalog,
+        DecisionLog log)
+    {
+        var fireControl = new FixtureFireControl(path.TargetId, path.FireControlContactIds);
+        var shooters = new FixtureShooterSource(
+            path.TargetId,
+            new SensorToShooterShooterCandidate(
+                document.ShooterUnitId,
+                ScenarioEngageDefaults.MvpFallback,
+                document.WeaponRounds));
+        return ProjectPrepared(document, path, catalog, log, fireControl, shooters, BuildAuthority(path));
+    }
+
+    /// <summary>
+    /// DRG-414: production verdict. Fire-control, magazine rounds, and authority are read from the
+    /// session after the tick. Fixture fire-control ids, weapon rounds, and the authority block are not used.
+    /// </summary>
+    private static SliceATargetabilityPathEvidence ProjectProductionLog(
+        SliceAScenarioFile document,
+        SliceAScenarioPathFile path,
+        ICatalogReader catalog,
+        DecisionLog log,
+        SimulationSession session)
+    {
+        var fireControl = new SessionFireControl(session, document.ShooterUnitId);
+        var shooters = new SessionShooterSource(session, document.ShooterUnitId, path.TargetId);
+        var authority = session.ReadAuthoritySnapshot(path.ContactId, path.TargetId, document.ShooterUnitId);
+        return ProjectPrepared(document, path, catalog, log, fireControl, shooters, authority);
+    }
+
+    private static SliceATargetabilityPathEvidence ProjectPrepared(
+        SliceAScenarioFile document,
+        SliceAScenarioPathFile path,
+        ICatalogReader catalog,
+        DecisionLog log,
+        IKillChainFireControlSource fireControl,
+        ISensorToShooterShooterSource shooters,
+        C2AuthorityProjectionContext authorityContext)
+    {
+        var accept = TargetabilityAcceptProjection.Project(
+            log,
+            document.EvaluationSimTick,
+            authorityContext,
+            fireControl,
+            shooters,
+            catalog);
+        var killChain = KillChainContactStateProjection.Project(
+            log,
+            document.EvaluationSimTick,
+            fireControl);
+
+        if (accept.Contacts.Count != 1)
+        {
+            throw new InvalidOperationException(
+                $"Path '{path.PathId}' projected {accept.Contacts.Count} acceptance rows.");
+        }
+
+        if (killChain.Contacts.Count != 1)
+        {
+            throw new InvalidOperationException(
+                $"Path '{path.PathId}' projected {killChain.Contacts.Count} kill-chain rows.");
+        }
+
+        var row = accept.Contacts[0];
+        var contact = killChain.Contacts[0];
+        var provenance = row.Provenance;
+        var engage = FindEngage(row.Authority);
+        var phases = FormatPhases(killChain);
+        var explanation = FormatExplanation(contact, phases, row, engage);
+        return new SliceATargetabilityPathEvidence(
+            path.PathId,
+            path.Kind,
+            row.ContactId,
+            row.TargetId,
+            contact.Phase,
+            contact.Loss.ToString(),
+            phases,
+            contact.Targetable,
+            provenance is not null,
+            provenance?.Freshness ?? ContactProvenanceFreshness.Stale,
+            provenance?.AgeTicks ?? ulong.MaxValue,
+            provenance is null ? "missing" : provenance.QualityState.ToString(),
+            provenance is null ? "missing" : provenance.Confidence.ToString(),
+            provenance?.Source.SourceRef ?? string.Empty,
+            row.Authority.Roe.Roe.ToString(),
+            row.Authority.Roe.RoeLabel,
+            row.Authority.Roe.EngageAllowedByRoe,
+            row.Authority.Targeting.Disposition.ToString(),
+            row.Authority.Targeting.ReasonCode ?? string.Empty,
+            row.Authority.Targeting.PendingApproval?.ToString() ?? string.Empty,
+            engage.Disposition.ToString(),
+            engage.ReasonCode ?? string.Empty,
+            row.Disposition,
+            row.WithheldCauseCode,
+            row.SensorToShooter is { IsComplete: true },
+            row.SensorToShooter?.PrimaryCauseLabel ?? "missing",
+            log.ContactChanges.Count,
+            log.Engagements.Count,
+            log.EngagementOutcomes.Count,
+            log.PlayerOrders.Count,
+            log.MagazineChanges.Count,
+            log.OrdnanceStateChanges.Count,
+            explanation,
+            TargetabilityAcceptFingerprint.Compute(accept),
+            KillChainContactStateProjection.ComputeFingerprint(killChain));
+    }
+
+    private static C2AuthorityProjectionContext BuildAuthority(SliceAScenarioPathFile path)
+    {
+        var authority = path.Authority!;
+        var commandId = string.IsNullOrEmpty(authority.CommandId) ? null : authority.CommandId;
+        return new C2AuthorityProjectionContext(
+            ParseEnum<RoeLevel>(authority.Roe, path.PathId, nameof(authority.Roe)),
+            ParseEnum<SkillLane>(authority.Lane, path.PathId, nameof(authority.Lane)),
+            ParseEnum<RequiredApproval>(authority.RequiredApproval, path.PathId, nameof(authority.RequiredApproval)),
+            ParseEnum<TrackSource>(authority.TrackSource, path.PathId, nameof(authority.TrackSource)),
+            authority.FireControlSatisfied,
+            commandId,
+            authority.HumanControlled);
+    }
+
+    private static C2AuthorityActionState FindEngage(C2AuthorityProjection authority)
+    {
+        for (var i = 0; i < authority.Actions.Count; i++)
+        {
+            var action = authority.Actions[i];
+            if (action.Action == C2AuthorityActionKind.Engage)
+            {
+                return action;
+            }
+        }
+
+        throw new InvalidOperationException("Authority projection did not include an Engage verb.");
+    }
+
+    private static string FormatPhases(KillChainContactSnapshot snapshot)
+    {
+        var seen = new List<string>(4);
+        for (var i = 0; i < snapshot.Transitions.Count; i++)
+        {
+            var kind = snapshot.Transitions[i].Kind;
+            if (kind is not (
+                KillChainTransitionKind.Find
+                or KillChainTransitionKind.Fix
+                or KillChainTransitionKind.Track
+                or KillChainTransitionKind.Target))
+            {
+                continue;
+            }
+
+            var label = kind.ToString();
+            if (!seen.Contains(label))
+            {
+                seen.Add(label);
+            }
+        }
+
+        return string.Join('>', seen);
+    }
+
+    private static string FormatExplanation(
+        KillChainContactState contact,
+        string phases,
+        TargetabilityAcceptContactRow row,
+        C2AuthorityActionState engage)
+    {
+        var provenance = row.Provenance;
+        var builder = new StringBuilder();
+        builder.Append("phase=").Append(contact.Phase.ToString());
+        builder.Append(";loss=").Append(contact.Loss.ToString());
+        builder.Append(";phases=").Append(phases);
+        builder.Append(";targetable=").Append(contact.Targetable ? '1' : '0');
+        if (provenance is null)
+        {
+            builder.Append(";provenance=missing");
+        }
+        else
+        {
+            builder.Append(";provenance=").Append(provenance.Source.SourceRef);
+            builder.Append(";observer=").Append(provenance.Source.ObserverId);
+            builder.Append(";confidence=").Append(provenance.Confidence.ToString());
+            builder.Append(";freshness=").Append(provenance.Freshness.ToString());
+            builder.Append(";ageTicks=").Append(provenance.AgeTicks.ToString(CultureInfo.InvariantCulture));
+            builder.Append(";quality=").Append(provenance.QualityState.ToString());
+            builder.Append(";lifecycle=").Append(provenance.LastKnown.LifecycleState);
+        }
+
+        builder.Append(";roe=").Append(row.Authority.Roe.Roe.ToString());
+        builder.Append(";roeLabel=").Append(row.Authority.Roe.RoeLabel);
+        builder.Append(";engageAllowed=").Append(row.Authority.Roe.EngageAllowedByRoe ? '1' : '0');
+        builder.Append(";authority=").Append(row.Authority.Targeting.Disposition.ToString());
+        builder.Append(";authorityReason=").Append(row.Authority.Targeting.ReasonCode ?? string.Empty);
+        builder.Append(";pending=").Append(row.Authority.Targeting.PendingApproval?.ToString() ?? string.Empty);
+        builder.Append(";engageVerb=").Append(engage.Disposition.ToString());
+        builder.Append(";engageVerbReason=").Append(engage.ReasonCode ?? string.Empty);
+        builder.Append(";disposition=").Append(row.Disposition.ToString());
+        builder.Append(";cause=").Append(row.WithheldCauseCode);
+        builder.Append(";chain=").Append(row.SensorToShooter is { IsComplete: true } ? "complete" : "broken");
+        builder.Append(";chainCause=").Append(row.SensorToShooter?.PrimaryCauseLabel ?? "missing");
+        return builder.ToString();
+    }
+
+    private static string ComposeAcceptanceFingerprint(
+        SliceAScenarioFile document,
+        int engagements,
+        int outcomes,
+        int playerOrders,
+        int magazines,
+        int ordnance,
+        int contacts,
+        IReadOnlyList<SliceATargetabilityPathEvidence> paths)
+    {
+        var builder = new StringBuilder();
+        builder.Append("sla:id=").Append(document.ScenarioId);
+        builder.Append("|story=").Append(document.StoryId);
+        builder.Append("|scope=").Append(document.ReplayScope);
+        builder.Append("|tick=").Append(document.EvaluationSimTick.ToString(CultureInfo.InvariantCulture));
+        builder.Append("|engage=").Append(engagements.ToString(CultureInfo.InvariantCulture));
+        builder.Append("|outcomes=").Append(outcomes.ToString(CultureInfo.InvariantCulture));
+        builder.Append("|orders=").Append(playerOrders.ToString(CultureInfo.InvariantCulture));
+        builder.Append("|mag=").Append(magazines.ToString(CultureInfo.InvariantCulture));
+        builder.Append("|ordnance=").Append(ordnance.ToString(CultureInfo.InvariantCulture));
+        builder.Append("|contacts=").Append(contacts.ToString(CultureInfo.InvariantCulture));
+        builder.Append("|n=").Append(paths.Count.ToString(CultureInfo.InvariantCulture));
+        for (var i = 0; i < paths.Count; i++)
+        {
+            var path = paths[i];
+            builder.Append("|path=").Append(path.PathId);
+            builder.Append(";kind=").Append(path.Kind);
+            builder.Append(";contact=").Append(path.ContactId);
+            builder.Append(";target=").Append(path.TargetId);
+            builder.Append(";phase=").Append(path.Phase.ToString());
+            builder.Append(";loss=").Append(path.Loss);
+            builder.Append(";visited=").Append(path.PhasesVisited);
+            builder.Append(";tech=").Append(path.TechnicallyTargetable ? '1' : '0');
+            builder.Append(";prov=").Append(path.ProvenancePresent ? '1' : '0');
+            builder.Append(";fresh=").Append(path.Freshness.ToString());
+            builder.Append(";age=").Append(path.AgeTicks.ToString(CultureInfo.InvariantCulture));
+            builder.Append(";quality=").Append(path.QualityState);
+            builder.Append(";confidence=").Append(path.Confidence);
+            builder.Append(";source=").Append(path.SourceRef);
+            builder.Append(";roe=").Append(path.Roe);
+            builder.Append(";roeLabel=").Append(path.RoeLabel);
+            builder.Append(";roeEngage=").Append(path.EngageAllowedByRoe ? '1' : '0');
+            builder.Append(";authority=").Append(path.AuthorityDisposition);
+            builder.Append(";authorityReason=").Append(path.AuthorityReasonCode);
+            builder.Append(";pending=").Append(path.PendingApproval);
+            builder.Append(";engageVerb=").Append(path.EngageVerbDisposition);
+            builder.Append(";engageVerbReason=").Append(path.EngageVerbReason);
+            builder.Append(";disposition=").Append(path.Disposition.ToString());
+            builder.Append(";cause=").Append(path.WithheldCauseCode);
+            builder.Append(";chain=").Append(path.ChainComplete ? '1' : '0');
+            builder.Append(";chainCause=").Append(path.ChainCauseLabel);
+            builder.Append(";log=").Append(path.ContactChangeCount.ToString(CultureInfo.InvariantCulture));
+            builder.Append('/').Append(path.EngagementCount.ToString(CultureInfo.InvariantCulture));
+            builder.Append('/').Append(path.EngagementOutcomeCount.ToString(CultureInfo.InvariantCulture));
+            builder.Append('/').Append(path.PlayerOrderCount.ToString(CultureInfo.InvariantCulture));
+            builder.Append('/').Append(path.MagazineChangeCount.ToString(CultureInfo.InvariantCulture));
+            builder.Append('/').Append(path.OrdnanceStateChangeCount.ToString(CultureInfo.InvariantCulture));
+            builder.Append(";explain=").Append(path.Explanation);
+            builder.Append(";tac=").Append(path.AcceptFingerprint);
+            builder.Append(";kc=").Append(path.KillChainFingerprint);
+        }
+
+        return builder.ToString();
+    }
+
+    private static TEnum ParseEnum<TEnum>(string? value, string pathId, string field)
+        where TEnum : struct, Enum
+    {
+        if (value is not null && Enum.TryParse<TEnum>(value, ignoreCase: false, out var parsed))
+        {
+            return parsed;
+        }
+
+        throw new InvalidOperationException($"Path '{pathId}' field '{field}' value '{value}' is not a {typeof(TEnum).Name}.");
+    }
+
+    private static void Require(string? value, string field, string owner)
+    {
+        if (string.IsNullOrWhiteSpace(value))
+        {
+            throw new InvalidOperationException($"Scenario field '{field}' is required ({owner}).");
+        }
+    }
+
+    private static string? FindRepoRoot()
+    {
+        var dir = AppContext.BaseDirectory;
+        for (var i = 0; i < 10; i++)
+        {
+            if (File.Exists(Path.Combine(dir, "ProjectAegis.sln")))
+            {
+                return dir;
+            }
+
+            dir = Directory.GetParent(dir)?.FullName ?? dir;
+        }
+
+        return null;
+    }
+
+    /// <summary>Adapts <see cref="SimulationSession.HasFireControlTrack"/> to the kill-chain source.</summary>
+    private sealed class SessionFireControl : IKillChainFireControlSource
+    {
+        private readonly SimulationSession _session;
+        private readonly string _shooterUnitId;
+
+        public SessionFireControl(SimulationSession session, string shooterUnitId)
+        {
+            _session = session;
+            _shooterUnitId = shooterUnitId;
+        }
+
+        public bool HasFireControlTrack(string contactId, string targetId) =>
+            _session.HasFireControlTrack(contactId, targetId, _shooterUnitId);
+    }
+
+    /// <summary>
+    /// Adapts registered magazine rounds. A missing ledger entry stays zero and is not the fixture weapon count.
+    /// </summary>
+    private sealed class SessionShooterSource : ISensorToShooterShooterSource
+    {
+        private readonly SimulationSession _session;
+        private readonly string _shooterUnitId;
+        private readonly string _targetId;
+
+        public SessionShooterSource(SimulationSession session, string shooterUnitId, string targetId)
+        {
+            _session = session;
+            _shooterUnitId = shooterUnitId;
+            _targetId = targetId;
+        }
+
+        public IReadOnlyList<SensorToShooterShooterCandidate> GetCandidatesForTarget(string targetId)
+        {
+            if (!string.Equals(targetId, _targetId, StringComparison.Ordinal))
+            {
+                return [];
+            }
+
+            var rounds = _session.TryGetRegisteredMagazineRounds(_shooterUnitId, mountId: 0, out var tracked)
+                ? tracked
+                : 0;
+            var defaults = _session.Orchestrator.ScenarioPolicy?.EngageDefaults
+                ?? ScenarioEngageDefaults.MvpFallback;
+            return
+            [
+                new SensorToShooterShooterCandidate(_shooterUnitId, defaults, rounds),
+            ];
+        }
+    }
+
+    private sealed class FixtureFireControl : IKillChainFireControlSource
+    {
+        private readonly string _targetId;
+        private readonly HashSet<string> _contactIds;
+
+        public FixtureFireControl(string targetId, IReadOnlyList<string>? contactIds)
+        {
+            _targetId = targetId;
+            _contactIds = new HashSet<string>(contactIds ?? [], StringComparer.Ordinal);
+        }
+
+        public bool HasFireControlTrack(string contactId, string targetId) =>
+            string.Equals(targetId, _targetId, StringComparison.Ordinal)
+            && _contactIds.Contains(contactId);
+    }
+
+    private sealed class FixtureShooterSource : ISensorToShooterShooterSource
+    {
+        private readonly string _targetId;
+        private readonly SensorToShooterShooterCandidate[] _candidates;
+
+        public FixtureShooterSource(string targetId, params SensorToShooterShooterCandidate[] candidates)
+        {
+            _targetId = targetId;
+            _candidates = candidates;
+        }
+
+        public IReadOnlyList<SensorToShooterShooterCandidate> GetCandidatesForTarget(string targetId) =>
+            string.Equals(targetId, _targetId, StringComparison.Ordinal)
+                ? _candidates
+                : [];
+    }
+
+    private sealed class SliceAScenarioFile
+    {
+        public string ScenarioId { get; init; } = string.Empty;
+
+        public string StoryId { get; init; } = string.Empty;
+
+        public string ReplayScope { get; init; } = string.Empty;
+
+        public ulong EvaluationSimTick { get; init; }
+
+        public string ObserverId { get; init; } = string.Empty;
+
+        public string ShooterUnitId { get; init; } = string.Empty;
+
+        public int WeaponRounds { get; init; }
+
+        public string Catalog { get; init; } = string.Empty;
+
+        public string AcceptanceFingerprint { get; init; } = string.Empty;
+
+        public List<SliceAScenarioPathFile> Paths { get; init; } = [];
+    }
+
+    private sealed class SliceAScenarioPathFile
+    {
+        [JsonConstructor]
+        public SliceAScenarioPathFile(
+            IReadOnlyList<string>? fireControlContactIds,
+            SliceAAuthorityFile? authority,
+            IReadOnlyList<SliceAStepFile>? steps)
+        {
+            FireControlContactIds = fireControlContactIds;
+            Authority = authority;
+            Steps = steps;
+        }
+
+        public string PathId { get; init; } = string.Empty;
+
+        public string Kind { get; init; } = string.Empty;
+
+        public string ContactId { get; init; } = string.Empty;
+
+        public string TargetId { get; init; } = string.Empty;
+
+        public IReadOnlyList<string>? FireControlContactIds { get; }
+
+        public SliceAAuthorityFile? Authority { get; }
+
+        public IReadOnlyList<SliceAStepFile>? Steps { get; }
+    }
+
+    private sealed class SliceAAuthorityFile
+    {
+        [JsonConstructor]
+        public SliceAAuthorityFile(bool fireControlSatisfied, string? commandId, bool humanControlled)
+        {
+            FireControlSatisfied = fireControlSatisfied;
+            CommandId = commandId;
+            HumanControlled = humanControlled;
+        }
+
+        public string Roe { get; init; } = string.Empty;
+
+        public string Lane { get; init; } = string.Empty;
+
+        public string RequiredApproval { get; init; } = string.Empty;
+
+        public string TrackSource { get; init; } = string.Empty;
+
+        public bool FireControlSatisfied { get; }
+
+        public string? CommandId { get; }
+
+        public bool HumanControlled { get; }
+    }
+
+    private sealed class SliceAStepFile
+    {
+        [JsonConstructor]
+        public SliceAStepFile(ulong sequenceId, double simTime, ulong simTick)
+        {
+            SequenceId = sequenceId;
+            SimTime = simTime;
+            SimTick = simTick;
+        }
+
+        public ulong SequenceId { get; }
+
+        public double SimTime { get; }
+
+        public ulong SimTick { get; }
+
+        public string PreviousState { get; init; } = string.Empty;
+
+        public string NewState { get; init; } = string.Empty;
+    }
+}

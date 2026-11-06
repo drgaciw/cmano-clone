@@ -62,7 +62,7 @@ public sealed class NoDynamicExecutionGateTests
         var path = ResolveRepoFile(relativeSegments);
         Assert.True(path != null, $"Could not locate project file at repo-relative path '{string.Join('/', relativeSegments)}' by walking up from {AppContext.BaseDirectory}.");
 
-        var xml = XDocument.Load(path!);
+        var xml = XDocument.Load(path);
         var packageReferenceIncludes = xml
             .Descendants("PackageReference")
             .Select(el => el.Attribute("Include")?.Value ?? string.Empty)
@@ -95,7 +95,7 @@ public sealed class NoDynamicExecutionGateTests
         var path = ResolveRepoFile(relativeSegments);
         Assert.True(path != null, $"Could not locate source file at repo-relative path '{string.Join('/', relativeSegments)}' by walking up from {AppContext.BaseDirectory}.");
 
-        var source = File.ReadAllText(path!);
+        var source = File.ReadAllText(path);
 
         foreach (var forbidden in ForbiddenSourceSubstrings)
         {

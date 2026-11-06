@@ -232,4 +232,4 @@ Revisit when internal pipeline stability, moderation policy, and legal sign-off 
 **Status:** Locked
 
 ---
-**Implementation grade:** Partial+ — see [implementation-tracker-2026-07-04.md](../implementation-tracker-2026-07-04.md) row 05. Design Status remains **Locked**. Charter re-honesty: Wave 1 2026-07-08.
+**Implementation grade:** Partial+ — see [implementation-tracker.md](../implementation-tracker.md) row 05. Design Status remains **Locked**. Charter re-honesty: Wave 1 2026-07-08.

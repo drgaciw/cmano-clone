@@ -113,6 +113,7 @@ public sealed class DelegationBridge
         TraitVector defaultTraits,
         AutonomyLevel agentAutonomy = AutonomyLevel.FullAutonomous)
     {
+        Registry.ClearFriendlyMeshMembers();
         SimulationModeConfigurator.Apply(
             Orchestrator,
             mode,
@@ -120,6 +121,10 @@ public sealed class DelegationBridge
             opposing,
             defaultTraits,
             agentAutonomy);
+        foreach (var target in friendly)
+        {
+            Registry.MarkFriendlyMeshMember(target.Id);
+        }
     }
 
     public DelegationTickResult Tick(ISimWorldSnapshot snapshot, IOrderSink sink)

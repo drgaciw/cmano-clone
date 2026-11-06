@@ -1,6 +1,6 @@
 namespace ProjectAegis.Sim.Engage;
 
-using ProjectAegis.Sim.Swarm;
+using Swarm;
 
 /// <summary>Forwards engagement integrity losses to <see cref="SwarmController"/> authorized API.</summary>
 public sealed class SwarmControllerIntegritySink : ISwarmIntegrityDamageSink

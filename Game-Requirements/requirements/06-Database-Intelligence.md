@@ -206,12 +206,12 @@ Posture: **propose, not auto-merge.** Agents function as research assistants and
 ## Technical Considerations
 
 - Built on a structured database (SQLite for development, scalable solution for production)
-- Uses Unity DOTS-friendly data formats for fast simulation access (BlobAssets built **outside** Data assembly)
+- Uses cache-friendly, allocation-free data formats for fast simulation access (DTO/array batches built **outside** Data assembly)
 - Implements a clear API so other agents can safely read/write data
 - Strong emphasis on data provenance and audit logging
 - **Assembly boundary:** [ADR-006](../../docs/architecture/adr-006-data-layer-boundary.md) — `ProjectAegis.Data` is engine-free; catalog mutations only via `IWriteGate`; snapshots immutable; Sim/Delegation consume read-only DTOs
 
-**P0 layout:** `data/catalog/aegis-catalog.dev.sqlite` (gitignored; seed via `CatalogSeedBootstrap` / CI). Runtime export: read-only DTO batches from SQLite; BlobAssets built in Unity layer, not in Data assembly.
+**P0 layout:** `data/catalog/aegis-catalog.dev.sqlite` (gitignored; seed via `CatalogSeedBootstrap` / CI). Runtime export: read-only DTO batches from SQLite; runtime structures built in consumer layer, not in Data assembly.
 
 ## Future Extensibility
 
@@ -381,4 +381,4 @@ Human approval is **mandatory** for P0 (locks legacy open question #1). Doc 05 a
 **Status:** Locked (Sprint 14)
 
 ---
-**Implementation grade:** Partial — see [implementation-tracker-2026-07-04.md](../implementation-tracker-2026-07-04.md) row 06. Design Status remains **Locked**. Charter re-honesty: Wave 1 2026-07-08.
+**Implementation grade:** Partial — see [implementation-tracker.md](../implementation-tracker.md) row 06. Design Status remains **Locked**. Charter re-honesty: Wave 1 2026-07-08.

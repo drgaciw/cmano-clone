@@ -1,7 +1,7 @@
 # 02 - Core Gameplay Loop
 
 **Last Updated:** 2026-07-08  
-**Related:** [01](01-Project-Overview.md), [03](03-Simulation-Modes.md), [04](04-Agent-Delegation.md), 11, 13, 14, 15, 16, 17, 19, 20 · [implementation tracker 2026-07-04](../implementation-tracker-2026-07-04.md)  
+**Related:** [01](01-Project-Overview.md), [03](03-Simulation-Modes.md), [04](04-Agent-Delegation.md), 11, 13, 14, 15, 16, 17, 19, 20 · [implementation tracker 2026-07-04](../implementation-tracker.md)  
 **Status:** Locked  
 **Locked spec:** [2026-05-30-core-gameplay-loop-decisions-design.md](../../docs/superpowers/specs/2026-05-30-core-gameplay-loop-decisions-design.md)
 
@@ -168,4 +168,4 @@ Mission editor (req 11) is the preferred authoring surface; exported scenarios m
 
 ---
 
-**Implementation grade:** Partial — see [implementation-tracker-2026-07-04.md](../implementation-tracker-2026-07-04.md) row 02. Design Status remains **Locked**. Charter re-honesty: Wave 1 2026-07-08.
+**Implementation grade:** Partial — see [implementation-tracker.md](../implementation-tracker.md) row 02. Design Status remains **Locked**. Charter re-honesty: Wave 1 2026-07-08.

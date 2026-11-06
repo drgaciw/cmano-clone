@@ -100,3 +100,4 @@ Priors: live-unity-replay 5/6; role-refresh 4/6; `calibration-2026-07-28*`.
 
 - `/team-qa-gauntlet` — multi-agent entry
 - `/qa-gauntlet` — ladder owner
+- `/qa-gauntlet-agentic-resilience` — dirty-tree / CRITICAL stop (not saboteur)

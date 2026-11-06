@@ -74,3 +74,11 @@ Logistics promote must state `config-only / unproven`.
 - Downgrade `weapons` to presence-only check.
 - Claim `logistics` proven.
 - Silent EW without detection targets (raise, do not derive inert scenarios).
+
+## See also
+
+- `/team-qa-gauntlet --mode stress`
+- `/qa-gauntlet-forge` — `stress-*` recipes
+- `/qa-gauntlet-mission-thread` — concurrent threads (not an axis)
+- `/qa-gauntlet-agentic-resilience` — quarantine contract (not an axis)
+- `/qa-gauntlet-combat-ui` — combat presentation (not an axis)

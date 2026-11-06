@@ -1,6 +1,6 @@
 namespace ProjectAegis.Data.Scenario.Authoring;
 
-using ProjectAegis.Data.Validation;
+using Validation;
 
 /// <summary>
 /// File-backed authoring session: dirty flag, path, and command bus.

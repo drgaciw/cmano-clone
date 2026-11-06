@@ -14,8 +14,8 @@ public static class DetectionWorldHash
                 roll.Trial.TargetId);
             x ^= entity;
             x ^= roll.Detected ? 0x9e37_79b9_7f4a_7c15UL : 0;
-            x ^= (ulong)(uint)(roll.Pd * 10_000);
-            x ^= (ulong)(uint)(roll.Draw * 10_000);
+            x ^= (uint)(roll.Pd * 10_000);
+            x ^= (uint)(roll.Draw * 10_000);
         }
 
         x ^= (ulong)rolls.Count << 32;

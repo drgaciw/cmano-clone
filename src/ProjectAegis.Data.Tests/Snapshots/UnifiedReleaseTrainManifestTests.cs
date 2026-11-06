@@ -24,8 +24,8 @@ public sealed class UnifiedReleaseTrainManifestTests
 
         try
         {
-            SeedDomainRelease(dbPath, "nightly-sensor-s32-02", batchSuffix: "sensor");
-            SeedDomainRelease(dbPath, "nightly-platform-s32-02", batchSuffix: "platform");
+            SeedDomainRelease(dbPath, "nightly-sensor-s32-02");
+            SeedDomainRelease(dbPath, "nightly-platform-s32-02");
 
             UnifiedReleaseTrainManifest first;
             UnifiedReleaseTrainManifest second;
@@ -90,7 +90,7 @@ public sealed class UnifiedReleaseTrainManifestTests
 
         try
         {
-            SeedDomainRelease(dbPath, "nightly-sensor-s32-02-dbref", batchSuffix: "sensor-dbref");
+            SeedDomainRelease(dbPath, "nightly-sensor-s32-02-dbref");
             using (var store = new DbSnapshotStore(dbPath))
             {
                 store.RecordUnifiedRelease(
@@ -148,7 +148,7 @@ public sealed class UnifiedReleaseTrainManifestTests
 
         try
         {
-            SeedDomainRelease(dbPath, "nightly-sensor-s32-02-tlbranch", batchSuffix: "sensor-tlbranch");
+            SeedDomainRelease(dbPath, "nightly-sensor-s32-02-tlbranch");
             using (var store = new DbSnapshotStore(dbPath))
             {
                 store.RecordUnifiedRelease(
@@ -178,7 +178,7 @@ public sealed class UnifiedReleaseTrainManifestTests
 
         try
         {
-            var bind = SeedDomainRelease(dbPath, "nightly-sensor-s32-02-export", batchSuffix: "sensor-export");
+            var bind = SeedDomainRelease(dbPath, "nightly-sensor-s32-02-export");
             using (var store = new DbSnapshotStore(dbPath))
             {
                 store.RecordUnifiedRelease(
@@ -216,8 +216,8 @@ public sealed class UnifiedReleaseTrainManifestTests
 
         try
         {
-            SeedDomainRelease(dbPath, "nightly-sensor-baltic-v2-0622", batchSuffix: "sensor-v2");
-            SeedDomainRelease(dbPath, "nightly-platform-baltic-v2-0622", batchSuffix: "platform-v2");
+            SeedDomainRelease(dbPath, "nightly-sensor-baltic-v2-0622");
+            SeedDomainRelease(dbPath, "nightly-platform-baltic-v2-0622");
 
             UnifiedReleaseTrainManifest first;
             UnifiedReleaseTrainManifest second;
@@ -267,7 +267,7 @@ public sealed class UnifiedReleaseTrainManifestTests
 
         try
         {
-            SeedDomainRelease(dbPath, "nightly-sensor-baltic-v2-patrol", batchSuffix: "sensor-v2-notes");
+            SeedDomainRelease(dbPath, "nightly-sensor-baltic-v2-patrol");
 
             UnifiedReleaseTrainManifest manifest;
             using (var store = new DbSnapshotStore(dbPath))
@@ -315,8 +315,7 @@ public sealed class UnifiedReleaseTrainManifestTests
 
     private static CatalogSnapshotBinder.BindResult SeedDomainRelease(
         string dbPath,
-        string releaseVersion,
-        string batchSuffix)
+        string releaseVersion)
     {
         var markdown = CmoMarkdownImporter.ResolveMiniFixturePath();
         var propose = CmoMarkdownImportProposer.ProposeFromMarkdown(
@@ -325,7 +324,6 @@ public sealed class UnifiedReleaseTrainManifestTests
             maxRecords: 6,
             chunkSize: 500,
             clock: new FixedCatalogClock(8000));
-        var batchId = $"{propose.Batches[0].BatchId}-{batchSuffix}";
 
         using (var gate = new CatalogWriteGate(dbPath, new FixedCatalogClock(8001)))
         {

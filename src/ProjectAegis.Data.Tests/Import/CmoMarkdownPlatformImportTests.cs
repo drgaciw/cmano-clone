@@ -222,14 +222,14 @@ public sealed class CmoMarkdownPlatformImportTests
                     SELECT COUNT(*) FROM platform
                     WHERE platform_id IN ('u1', 'hostile-1', 'hostile-far')
                     """;
-                Assert.Equal(3, Convert.ToInt32(platformCmd.ExecuteScalar(), System.Globalization.CultureInfo.InvariantCulture));
+                Assert.Equal(3, Convert.ToInt32(platformCmd.ExecuteScalar(), CultureInfo.InvariantCulture));
             }
 
             using (var mountCmd = connection.CreateCommand())
             {
                 mountCmd.CommandText = "SELECT COUNT(*) FROM platform_mount";
                 // Seed (gun-76, vls-fwd) + 4 CMO Baltic fixture mounts.
-                Assert.Equal(6, Convert.ToInt32(mountCmd.ExecuteScalar(), System.Globalization.CultureInfo.InvariantCulture));
+                Assert.Equal(6, Convert.ToInt32(mountCmd.ExecuteScalar(), CultureInfo.InvariantCulture));
             }
         }
         finally

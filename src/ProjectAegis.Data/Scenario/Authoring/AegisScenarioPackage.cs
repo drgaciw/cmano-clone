@@ -4,7 +4,7 @@ using System.IO.Compression;
 using System.Text.Json;
 
 /// <summary>ZIP package for *.aegis-scenario (GDD §3.2: manifest + scenario.json).</summary>
-public static class AegisScenarioPackage
+public static partial class AegisScenarioPackage
 {
     public const string ScenarioEntryName = "scenario.json";
     public const string ManifestEntryName = "manifest.json";

@@ -106,7 +106,7 @@ Mirrors the host loop in `PlayModeSmokeHarnessTests.cs`.
 
 ## S19-01 check 1 — batch Play Mode console gate (Unity Editor)
 
-When Unity **6000.3.14f1** is installed locally:
+When Unity **6000.3.22f1** is installed locally:
 
 ```powershell
 pwsh tools/unity/Invoke-C2PlayModeSignoffBatch.ps1 -Scenario comms

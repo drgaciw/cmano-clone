@@ -1,6 +1,6 @@
 namespace ProjectAegis.Delegation.Sim;
 
-using ProjectAegis.Delegation.Core;
+using Core;
 using ProjectAegis.Sim.Swarm;
 
 /// <summary>SWARM-23: agent/player request to issue a swarm intent through Delegation.</summary>

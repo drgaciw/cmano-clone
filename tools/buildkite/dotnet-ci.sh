@@ -1,17 +1,21 @@
 #!/usr/bin/env bash
 # Mirrors .github/workflows/dotnet-reusable.yml and tools/verify-ci-local.ps1
-# Policy: production/qa/sprint-35-ci-hygiene-2026-06-19.md (S35-15)
-# Day-1 baseline (Release @ trunk): >=1204 solution tests (S35-01 floor 1193; current sln count)
-# Closeout target >=1204; ReplayGolden 6/6; PlayModeSmoke 17/17
+# Current solution test floor and standing invariants are governed by AGENTS.md §Hard Invariants (baseline floor >=1638 / 0 failures).
+# ReplayGolden 6/6; PlayModeSmoke >=20/20; hash 17144800277401907079 preserved
 # PowerShell parity: pwsh -File tools/verify-ci-local.ps1
-# S67 update: §7 gates alignment per release-train-scope-boundary-2026-06-24.md (build 0e, test >=1232/0f, replay 6/6, C2 18/18, GitNexus pre, hash check, bridge ZERO)
 # verification-before: RUN+READ pattern logged; cite boundary on every gate run
 set -euo pipefail
 
 repo_root="$(cd "$(dirname "${BASH_SOURCE[0]}")/../.." && pwd)"
 cd "$repo_root"
 
-# Re-apply bootstrap PATH so test hosts that spawn `dotnet`/`node` subprocesses inherit SDK 8.
+floor_file="$repo_root/production/test-floor.json"
+if [[ -f "$floor_file" ]]; then
+  floor_min="$(sed -n 's/.*"solutionMinPass"[[:space:]]*:[[:space:]]*\([0-9][0-9]*\).*/\1/p' "$floor_file" | head -n 1)"
+  echo "=== test floor solutionMinPass=${floor_min:-missing} source=$floor_file ==="
+fi
+
+# Re-apply bootstrap PATH so test hosts that spawn `dotnet`/`node` subprocesses inherit the SDK.
 # shellcheck source=agent-bootstrap-dotnet.sh
 source "$repo_root/tools/buildkite/agent-bootstrap-dotnet.sh"
 
@@ -52,7 +56,9 @@ dotnet build ProjectAegis.sln -c Release --no-restore
 bash "$repo_root/tools/copy-delegation-assemblies.sh"
 
 set +e
-dotnet test ProjectAegis.sln -c Release --no-build -v minimal
+# Keep wall-clock UI budgets from competing with other test assemblies for CPU.
+# All projects and assertions still run; only project scheduling is serialized.
+dotnet test ProjectAegis.sln -c Release --no-build -v minimal -m:1
 test_exit=$?
 set -e
 if [[ $test_exit -ne 0 ]]; then

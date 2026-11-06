@@ -3,11 +3,14 @@ name: team-qa-gauntlet
 description: >
   Orchestrate the QA Gauntlet pressure-test team without bloating a single skill.
   Routes to specialist skills: qa-gauntlet (ladder run), qa-gauntlet-ui (game UI
-  Smoke/Pressure), qa-gauntlet-forge (variance), qa-gauntlet-calibrate (saboteur),
+  Smoke/Pressure), qa-gauntlet-combat-ui (engage/kill presentation),
+  qa-gauntlet-mission-thread (concurrent-thread honesty),
+  qa-gauntlet-agentic-resilience (quarantine / hard-gate contract),
+  qa-gauntlet-forge (variance), qa-gauntlet-calibrate (saboteur),
   qa-gauntlet-stress (orthogonal axes), qa-gauntlet-remediation (Phase D TDD + UCA).
   Use when the user runs /team-qa-gauntlet, or asks for "gauntlet team",
   "pressure-test team", "gauntlet UI", or multi-agent gauntlet dispatch.
-argument-hint: "[--run-id <id>] [--mode full|ladder|ui|ui-smoke|forge|calibrate|stress] [--tiers N]"
+argument-hint: "[--run-id <id>] [--mode full|ladder|ui|ui-smoke|combat-ui|mission-thread|agentic-resilience|forge|calibrate|stress] [--tiers N]"
 user-invocable: true
 allowed-tools: Read, Glob, Grep, Write, Edit, Bash, Task, AskUserQuestion
 ---
@@ -26,6 +29,9 @@ in the specialist `SKILL.md` files under `.claude/skills/`.
 |--------------|------|
 | **`/qa-gauntlet`** | Ladder Phase 0–E, batch driver, oracle gates, AAR handoff |
 | **`/qa-gauntlet-ui`** | Game UI Smoke/Pressure: PlayMode+C2 filters, ReplayGolden, C2 signoffs ×5 |
+| **`/qa-gauntlet-combat-ui`** | Combat-presentation gates (Engage/Kill/CombatDomains). **Not** Slice B |
+| **`/qa-gauntlet-mission-thread`** | T3+ concurrent mission-thread honesty (not vocabulary-only intent) |
+| **`/qa-gauntlet-agentic-resilience`** | CRITICAL quarantine, retries, BLOCKED, never-LLM-override |
 | **`/qa-gauntlet-forge`** | Variance, recipes, promote, Hindsight bank `qa-gauntlet-forge` |
 | **`/qa-gauntlet-calibrate`** | Saboteur mutants, kill-rate matrix |
 | **`/qa-gauntlet-stress`** | Orthogonal axes `weapons` / `ew` / `logistics`, proof gate |
@@ -35,9 +41,12 @@ in the specialist `SKILL.md` files under `.claude/skills/`.
 
 | `--mode` | Dispatch |
 |----------|----------|
-| `full` (default) | `qa-gauntlet` with required forge hooks + stress when claimed |
+| `full` (default) | `qa-gauntlet` + required forge hooks + **agentic-resilience** on Phase D/AAR; **mission-thread** when Mission-type row is T3+; stress when claimed. Do **not** auto-run combat-ui or C2 ui |
 | `ladder` | `qa-gauntlet` only |
 | `ui` / `ui-smoke` | **`qa-gauntlet-ui` only** (do not rewrite or run ladder prose) |
+| `combat-ui` | **`qa-gauntlet-combat-ui` only** — not Slice B, not C2 signoffs |
+| `mission-thread` | **`qa-gauntlet-mission-thread` only** |
+| `agentic-resilience` | **`qa-gauntlet-agentic-resilience` only** |
 | `forge` | `qa-gauntlet-forge` phases only |
 | `calibrate` | `qa-gauntlet-calibrate` |
 | `stress` | `qa-gauntlet-stress` plan → derive → proof gate |
@@ -57,6 +66,31 @@ Hard package lives in **`/qa-gauntlet-ui`** — invoke that skill and follow it 
 **Manual UAT → `/team-qa`** (and `/smoke-check`). UI mode must not invent a second
 human QA loop.
 
+### `--mode combat-ui`
+
+Invoke **`/qa-gauntlet-combat-ui`**. Headless Engage/Kill/CombatDomains filters only.
+Do **not** implement Combat UX Slice B (DRG-165–170). Do **not** run C2 Play Mode ×5.
+
+### `--mode mission-thread`
+
+Invoke **`/qa-gauntlet-mission-thread`** against `tier-N` policies (T3+). Vocabulary-only
+thread claims are **FAIL** → remediation class `scenario-data`.
+
+### `--mode agentic-resilience`
+
+Invoke **`/qa-gauntlet-agentic-resilience`**. Quarantine CRITICAL GitNexus; never let an
+LLM override `Passed=false` / `hardGatesPass=false`.
+
+### Slice A/B/C (coordinator)
+
+| Role | Slice A | Slice B | Slice C |
+|------|---------|---------|---------|
+| mission-thread | Concurrent kill-chain lanes | Out | Out |
+| agentic-resilience | Fail-closed agent contract | Out | Out |
+| combat-ui | Replay/engage presentation gates | Out (DRG-165–170) | Out |
+
+Each specialist SKILL.md owns inputs, evidence paths, and entry/exit. This file only routes.
+
 ## Parallel contract
 
 Follow `production/agentic/qa-skills-parallel-task-contract-2026-07-23.md`:
@@ -75,6 +109,8 @@ Follow `production/agentic/qa-skills-parallel-task-contract-2026-07-23.md`:
 - Catalog IDs from roster/DB only; no CatalogWriteGate mutations without EXTEND-ONLY path.
 - Graphite for branch/PR; GitNexus `impact` before every symbol edit; `detect_changes()` before commit.
 - Script-first hard gates — LLM never overrides `Passed=false` / `hardGatesPass=false`.
+- Machine-readable route table: `tools/qa-gauntlet/specialist-routing.yaml` (DRG-199).
+  Informs later DRG-200 / DRG-201 — do not implement those tickets here.
 
 ## Presentation defects → UCA
 
@@ -90,13 +126,17 @@ See AGENTS.md Unity / C# architecture skill section.
 
 - Specialist skills invoked by name; no duplicate full ladder prose in this file.
 - `--mode ui` ⇒ AAR under `production/qa/gauntlet/<RUN_ID>/` per `/qa-gauntlet-ui`.
+- `--mode combat-ui` ⇒ `/qa-gauntlet-combat-ui` (not Slice B).
+- `--mode full` T3+ ⇒ `/qa-gauntlet-mission-thread`; Phase D ⇒ `/qa-gauntlet-agentic-resilience`.
 - AAR cites latest calibrate report when forge/ladder ran.
 - Stress claimed ⇒ `qa-gauntlet-stress` proof gate evidence attached.
 - UI track never claims manual UAT complete.
 
 ## See also
 
-- `/qa-gauntlet`, `/qa-gauntlet-ui`, `/qa-gauntlet-forge`, `/qa-gauntlet-calibrate`
+- `/qa-gauntlet`, `/qa-gauntlet-ui`, `/qa-gauntlet-combat-ui`
+- `/qa-gauntlet-mission-thread`, `/qa-gauntlet-agentic-resilience`
+- `/qa-gauntlet-forge`, `/qa-gauntlet-calibrate`
 - `/qa-gauntlet-stress`, `/qa-gauntlet-remediation`
 - `/team-qa` — human sprint package / **manual UAT**
 - `/smoke-check` — sprint smoke hand-off

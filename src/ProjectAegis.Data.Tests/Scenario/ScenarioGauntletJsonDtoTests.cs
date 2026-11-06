@@ -68,10 +68,10 @@ public sealed class ScenarioGauntletJsonDtoTests
     {
         var dto = JsonSerializer.Deserialize<ScenarioPolicyJsonDto>(FullGauntletPolicy, Options);
         Assert.NotNull(dto);
-        var g = dto!.Gauntlet;
+        var g = dto.Gauntlet;
         Assert.NotNull(g);
 
-        Assert.Equal("patrol", g!.Intent);
+        Assert.Equal("patrol", g.Intent);
         Assert.Equal("blue wins", g.Oracle);
         Assert.Equal(["k-31-visby-2009"], g.CatalogRefs);
         Assert.Equal("run-1", g.RunId);

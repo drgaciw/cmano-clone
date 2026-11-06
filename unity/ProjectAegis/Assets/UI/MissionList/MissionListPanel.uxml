@@ -2,5 +2,13 @@
     <ui:VisualElement name="mission-list-root" class="mission-list-panel">
         <ui:Label text="MISSIONS" class="mission-list-title" />
         <ui:ListView name="mission-list" class="mission-list-view" selection-type="None" />
+        <ui:Label text="MISSION PACKAGE / C2 NODES" class="mission-list-subtitle" />
+        <ui:Label name="mp-active-package-line" text="Active package: —" class="mission-list-line" />
+        <ui:Label name="mp-summary-line" text="Packages: 0 · Elements: 0" class="mission-list-line" />
+        <ui:Label text="PACKAGES" class="mission-list-subtitle" />
+        <ui:ListView name="mp-package-list" class="mission-list-package-view" selection-type="None" />
+        <ui:Label text="C2 ELEMENTS" class="mission-list-subtitle" />
+        <ui:ListView name="mp-element-list" class="mission-list-package-view" selection-type="None" />
+        <ui:Label name="mp-next-action-line" text="Select a unit to inspect composable C2 nodes." class="mission-list-next" />
     </ui:VisualElement>
 </ui:UXML>

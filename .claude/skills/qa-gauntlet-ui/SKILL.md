@@ -180,6 +180,7 @@ Also write `manifest.yaml` with `track: game-ui`, gate exits, and `remediation_r
 ## See also
 
 - `/team-qa-gauntlet` — orchestrator (`--mode ui` / `ui-smoke`)
+- `/qa-gauntlet-combat-ui` — engage/kill presentation (`--mode combat-ui`); not Slice B
 - `/qa-gauntlet-remediation` — Phase D + UCA
 - `/qa-gauntlet` — headless sim ladder (separate)
 - `/team-qa`, `/smoke-check` — **manual UAT / sprint smoke**

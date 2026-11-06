@@ -2,7 +2,7 @@ namespace ProjectAegis.Delegation.Projection;
 
 /// <summary>
 /// Presentation-only icon sliding between authoritative tick poses (CMD-38 / ADR-010).
-/// Does not write sim state; wall-clock <paramref name="t"/> must not feed the order log.
+/// Does not write sim state; wall-clock <c>t</c> must not feed the order log.
 /// </summary>
 public static class MapSymbolPresentationLerp
 {
@@ -57,7 +57,7 @@ public static class MapSymbolPresentationLerp
 
     private static double? MixNullable(double? a, double? b, float t)
     {
-        if (a is double av && b is double bv)
+        if (a is { } av && b is { } bv)
         {
             return av + ((bv - av) * t);
         }

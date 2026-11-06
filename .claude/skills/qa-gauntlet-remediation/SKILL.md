@@ -65,5 +65,7 @@ Disjoint impact only; worktrees under `.worktrees/`; **serial merge** + re-verif
 ## See also
 
 - `/qa-gauntlet-ui` — proactive UI Smoke/Pressure gates; failures dispatch here.
+- `/qa-gauntlet-combat-ui` — combat-presentation gates; failures dispatch here.
+- `/qa-gauntlet-agentic-resilience` — CRITICAL quarantine / never-LLM-override.
 - `/team-qa-gauntlet --mode ui` — team entry for the UI track.
 - `/team-qa` — manual UAT (not remediation).

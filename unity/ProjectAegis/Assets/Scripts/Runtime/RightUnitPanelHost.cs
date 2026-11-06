@@ -2,6 +2,7 @@
 #if UNITY_5_3_OR_NEWER
 using System.Collections.Generic;
 using ProjectAegis.Delegation.Projection;
+using ProjectAegis.Delegation.UnityAdapter.Presentation;
 using UnityEngine;
 using UnityEngine.UIElements;
 
@@ -19,6 +20,8 @@ namespace ProjectAegis.Unity.Runtime
         private const string EmconName = "emcon-line";
         private const string DoctrineName = "doctrine-line";
         private const string FuelName = "fuel-line";
+        private const string DlzName = "dlz-line";
+        private const string WraSalvoName = "wra-salvo-line";
         private const string EngageName = "engage-line";
         private const string AttackOptionsName = "attack-options-line";
         private const string ContactName = "contact-line";
@@ -44,16 +47,41 @@ namespace ProjectAegis.Unity.Runtime
         private Label? _emconLine;
         private Label? _doctrineLine;
         private Label? _fuelLine;
+        private Label? _dlzLine;
+        private Label? _wraSalvoLine;
         private Label? _engageLine;
         private Label? _attackOptionsLine;
         private readonly Dictionary<string, Button> _attackButtons = new();
+        private readonly Dictionary<string, VisualElement> _weaponRows = new();
         private Label? _contactLine;
         private bool _wired;
         private bool _attackHandlersRegistered;
+        private string? _commandFeedback;
+        private string? _feedbackUnitId;
+        private string? _feedbackBaseAttackOptionsLine;
+        private string? _attackOptionsDisplay;
         private UnitDetailPresentation _presentation = UnitDetailPresentation.Empty;
+        private UnitDetailFuelBandPresentation _fuelBandPresentation = new("FUEL: —", null, FuelBandCueClasses.Unknown, null);
+        private DlzLiveSurfaceState _dlzSurface = DlzLiveSurfaceState.Empty;
+        private WraSalvoRemainingState _wraSalvoSurface = WraSalvoRemainingState.Empty;
+        private AttackOptionsPreviewState _attackPreview = AttackOptionsPreviewState.Empty;
+        private WeaponAbortTooltipState _weaponAbort = WeaponAbortTooltipState.Empty;
+        private readonly RightUnitCombatDetailCache _combatDetailCache = new();
 
         /// <summary>Last applied unit-detail presentation (S107 apply-state).</summary>
         public UnitDetailPresentation LastPresentation => _presentation;
+
+        /// <summary>Last applied weapon-panel DLZ row (DRG-266).</summary>
+        public DlzLiveSurfaceState LastDlzSurface => _dlzSurface;
+
+        /// <summary>Last applied weapon-panel WRA salvo row (DRG-259).</summary>
+        public WraSalvoRemainingState LastWraSalvoSurface => _wraSalvoSurface;
+
+        /// <summary>Last applied attack-options preview (DRG-262). Presentation only.</summary>
+        public AttackOptionsPreviewState LastAttackOptionsPreview => _attackPreview;
+
+        /// <summary>Last applied weapon-abort tooltip (DRG-258). Presentation only.</summary>
+        public WeaponAbortTooltipState LastWeaponAbortTooltip => _weaponAbort;
 
         private void Reset()
         {
@@ -117,13 +145,22 @@ namespace ProjectAegis.Unity.Runtime
             _emconLine = panel.Q<Label>(EmconName);
             _doctrineLine = panel.Q<Label>(DoctrineName);
             _fuelLine = panel.Q<Label>(FuelName);
+            _dlzLine = panel.Q<Label>(DlzName);
+            _wraSalvoLine = panel.Q<Label>(WraSalvoName);
             _engageLine = panel.Q<Label>(EngageName);
             _attackOptionsLine = panel.Q<Label>(AttackOptionsName);
+            if (_attackOptionsLine != null)
+            {
+                _attackOptionsLine.style.whiteSpace = WhiteSpace.Normal;
+            }
             _contactLine = panel.Q<Label>(ContactName);
             _attackButtons.Clear();
+            _weaponRows.Clear();
             RegisterAttackButton(panel.Q<Button>("attack-fire-single"), "fire-single");
             RegisterAttackButton(panel.Q<Button>("attack-fire-salvo"), "fire-salvo");
             RegisterAttackButton(panel.Q<Button>("attack-hold-fire"), "hold-fire");
+            RegisterWeaponRow(panel.Q<VisualElement>(WeaponAbortTooltipBinder.FireSingleRowName), WeaponAbortTooltipBinder.FireSingleOptionId);
+            RegisterWeaponRow(panel.Q<VisualElement>(WeaponAbortTooltipBinder.FireSalvoRowName), WeaponAbortTooltipBinder.FireSalvoOptionId);
             _wired = _unitIdLine != null && _statusLine != null && _magazineLine != null &&
                      _emconLine != null && _doctrineLine != null;
 
@@ -145,21 +182,43 @@ namespace ProjectAegis.Unity.Runtime
             _attackButtons[optionId] = button;
         }
 
+        private void RegisterWeaponRow(VisualElement? row, string optionId)
+        {
+            if (row == null)
+            {
+                return;
+            }
+
+            row.focusable = true;
+            _weaponRows[optionId] = row;
+        }
+
         /// <summary>Apply panel state via shipped binder + apply-state path (S107).</summary>
         public void ApplyPanelState(UnitDetailPanelState? state)
         {
             _presentation = UnitDetailApplyState.Apply(state);
+            _attackPreview = AttackOptionsPreviewBinder.Bind(state?.AttackMenu);
+            _weaponAbort = WeaponAbortTooltipState.Empty;
             ApplyPresentationToLabels();
 
             // Mirror Refresh(): without this, direct-apply callers keep whatever
             // fire/hold buttons the previous bridge Refresh() left displayed and
             // enabled. A null/empty menu correctly hides them.
-            RefreshAttackMenuButtons(
-                state?.AttackMenu ?? System.Array.Empty<EngageAttackOptions.AttackOption>());
+            RefreshAttackMenuButtons();
         }
 
         private void Refresh()
         {
+            var selectedUnitId = bridgeHost == null ? null : bridgeHost.SelectedUnitId;
+            if (_commandFeedback != null &&
+                !string.Equals(_feedbackUnitId, selectedUnitId, System.StringComparison.Ordinal))
+            {
+                _commandFeedback = null;
+                _feedbackUnitId = null;
+                _feedbackBaseAttackOptionsLine = null;
+                _attackOptionsDisplay = null;
+            }
+
             if (!_wired || bridgeHost == null)
             {
                 return;
@@ -169,8 +228,38 @@ namespace ProjectAegis.Unity.Runtime
                 bridgeHost.LastUnitDetail,
                 bridgeHost.Presentation.ResolveContactLine());
             _presentation = UnitDetailApplyState.Apply(state);
+            _attackPreview = AttackOptionsPreviewBinder.Bind(state.AttackMenu);
+            var engagePreview = bridgeHost.ProjectSelectedEngagePreview();
+            _dlzSurface = DlzLiveSurfaceBinder.BindFromEngagePreview(engagePreview);
+            // Selected-unit scope, not the combat-history inspection key (DRG-352).
+            // DRG-407: reuse combat detail and the engage explanation while the
+            // preview, combat content, unit, and contact are unchanged.
+            var combatFrame = bridgeHost.LastCombatFrame;
+            var selectedContactId = bridgeHost.SelectedContactId;
+            if (!_combatDetailCache.TryGet(
+                    engagePreview,
+                    combatFrame,
+                    selectedUnitId,
+                    selectedContactId,
+                    out var cachedCombat))
+            {
+                var explain = EngageExplainProjection.Project(engagePreview);
+                var detail = WeaponAbortTooltipBinder.ScopeCombatDetail(
+                    combatFrame, selectedUnitId, selectedContactId);
+                cachedCombat = _combatDetailCache.Remember(
+                    engagePreview,
+                    combatFrame,
+                    selectedUnitId,
+                    selectedContactId,
+                    explain,
+                    detail,
+                    WeaponAbortTooltipBinder.Bind(explain, detail));
+            }
+
+            _weaponAbort = cachedCombat.Tooltip;
+            _wraSalvoSurface = bridgeHost.ProjectSelectedWraSalvoRemaining();
             ApplyPresentationToLabels();
-            RefreshAttackMenuButtons(state.AttackMenu);
+            RefreshAttackMenuButtons();
 
             var root = _document.rootVisualElement?.Q(RootName);
             if (root != null)
@@ -214,7 +303,24 @@ namespace ProjectAegis.Unity.Runtime
 
             if (_fuelLine != null)
             {
-                _fuelLine.text = _presentation.FuelLine;
+                _fuelBandPresentation = UnitDetailFuelBandBinder.Bind(_presentation);
+                _fuelLine.text = string.IsNullOrEmpty(_fuelBandPresentation.DeclutterToken)
+                    ? _fuelBandPresentation.FuelLineText
+                    : $"{_fuelBandPresentation.FuelLineText} {_fuelBandPresentation.DeclutterToken}";
+                ApplyFuelBandCueClass(_fuelLine, _fuelBandPresentation.CueClass);
+            }
+
+            foreach (var row in DlzLiveSurfacePanelBinder.BindRows(_dlzSurface))
+            {
+                ApplyDlzSurfaceRow(_dlzLine, row.Text, row.CueClass);
+            }
+
+            foreach (var row in WraSalvoRemainingPanelBinder.BindRows(_wraSalvoSurface))
+            {
+                var wraSalvoText = string.IsNullOrEmpty(_wraSalvoSurface.DeclutterToken)
+                    ? row.Text
+                    : $"{row.Text} {_wraSalvoSurface.DeclutterToken}";
+                ApplyWraSalvoSurfaceRow(_wraSalvoLine, wraSalvoText, row.CueClass);
             }
 
             if (_engageLine != null)
@@ -224,7 +330,25 @@ namespace ProjectAegis.Unity.Runtime
 
             if (_attackOptionsLine != null)
             {
-                _attackOptionsLine.text = _presentation.AttackOptionsLine;
+                ApplyAttackOptionsCue(_attackOptionsLine, _attackPreview.CueClass);
+                var previewLine = _attackPreview.PreviewLine;
+                if (string.IsNullOrEmpty(_commandFeedback))
+                {
+                    _attackOptionsDisplay = previewLine;
+                }
+                else if (!string.Equals(
+                             _feedbackBaseAttackOptionsLine,
+                             previewLine,
+                             System.StringComparison.Ordinal))
+                {
+                    _feedbackBaseAttackOptionsLine = previewLine;
+                    _attackOptionsDisplay = $"{previewLine}\n{_commandFeedback}";
+                }
+
+                if (!string.Equals(_attackOptionsLine.text, _attackOptionsDisplay, System.StringComparison.Ordinal))
+                {
+                    _attackOptionsLine.text = _attackOptionsDisplay;
+                }
             }
 
             if (_contactLine != null)
@@ -233,23 +357,55 @@ namespace ProjectAegis.Unity.Runtime
             }
         }
 
-        private void RefreshAttackMenuButtons(IReadOnlyList<EngageAttackOptions.AttackOption> menu)
+        private void RefreshAttackMenuButtons()
         {
             foreach (var (optionId, button) in _attackButtons)
             {
-                var option = AttackMenuPanelBinder.FindOption(menu, optionId);
-                if (option == null)
+                var row = AttackOptionsPreviewBinder.FindRow(_attackPreview, optionId);
+                if (row == null)
                 {
                     button.style.display = DisplayStyle.None;
+                    ApplyWeaponRowChrome(optionId, visible: false, tooltip: null, denied: false);
                     continue;
                 }
 
                 button.style.display = DisplayStyle.Flex;
-                button.text = option.Label;
-                button.SetEnabled(option.Enabled);
-                button.tooltip = option.Enabled
-                    ? option.Label
-                    : option.DisabledReason ?? "Blocked";
+                var salvoBlocked = optionId == "fire-salvo" && _wraSalvoSurface.IsExhausted;
+                var enabled = row.Enabled && !salvoBlocked;
+                string text;
+                string tooltip;
+                if (!row.Enabled)
+                {
+                    text = row.ButtonText;
+                    tooltip = row.AbortReason ?? AttackOptionsPreviewBinder.MissingAbortToken;
+                }
+                else if (salvoBlocked)
+                {
+                    var reason = _wraSalvoSurface.AbortReasonCode ?? "WRA salvo exhausted";
+                    text = $"{row.Label} — {reason}";
+                    tooltip = reason;
+                }
+                else
+                {
+                    text = row.Label;
+                    tooltip = row.Label;
+                }
+
+                if (!enabled
+                    && WeaponAbortTooltipBinder.AppliesTo(optionId)
+                    && _weaponAbort.IsDenied
+                    && !string.IsNullOrEmpty(_weaponAbort.TooltipText))
+                {
+                    tooltip = _weaponAbort.TooltipText;
+                }
+
+                button.text = text;
+                button.tooltip = tooltip;
+                button.SetEnabled(enabled);
+                ApplyWeaponRowChrome(optionId, visible: true, tooltip, denied: !enabled && _weaponAbort.IsDenied);
+                ApplyAttackOptionsCue(
+                    button,
+                    enabled ? AttackOptionsCueClasses.Ready : AttackOptionsCueClasses.Blocked);
             }
         }
 
@@ -266,19 +422,144 @@ namespace ProjectAegis.Unity.Runtime
                 button.clicked += () => OnAttackOptionClicked(capturedId);
             }
 
-            _attackHandlersRegistered = true;
+            if (_attackButtons.Count > 0)
+            {
+                _attackHandlersRegistered = true;
+            }
         }
 
         private void OnAttackOptionClicked(string optionId)
         {
             if (bridgeHost == null)
             {
+                SetCommandFeedback(optionId, false, "NO_BRIDGE");
                 return;
             }
 
-            if (bridgeHost.TrySelectAttackOption(optionId, out _))
+            var queued = bridgeHost.TrySelectAttackOption(optionId, out var failureReason);
+            SetCommandFeedback(optionId, queued, failureReason);
+            Refresh();
+        }
+
+        private void SetCommandFeedback(string optionId, bool queued, string? failureReason)
+        {
+            _feedbackUnitId = bridgeHost == null ? null : bridgeHost.SelectedUnitId;
+            if (queued)
             {
-                Refresh();
+                _commandFeedback = $"QUEUED: {ResolveAttackOptionLabel(optionId)}";
+            }
+            else
+            {
+                var reason = string.IsNullOrEmpty(failureReason) ? "ISSUE_FAILED" : failureReason;
+                _commandFeedback = $"DENIED: {DescribeFailure(reason)} ({reason})";
+            }
+
+            _feedbackBaseAttackOptionsLine = null;
+            ApplyPresentationToLabels();
+        }
+
+        private string ResolveAttackOptionLabel(string optionId)
+        {
+            var row = AttackOptionsPreviewBinder.FindRow(_attackPreview, optionId);
+            if (row != null)
+            {
+                return row.Label;
+            }
+
+            return optionId switch
+            {
+                "fire-single" => "Fire 1 round",
+                "fire-salvo" => "Fire salvo",
+                "hold-fire" => "Hold fire",
+                _ => optionId,
+            };
+        }
+
+        private void ApplyWeaponRowChrome(string optionId, bool visible, string? tooltip, bool denied)
+        {
+            if (!_weaponRows.TryGetValue(optionId, out var weaponRow) || weaponRow == null)
+            {
+                return;
+            }
+
+            weaponRow.style.display = visible ? DisplayStyle.Flex : DisplayStyle.None;
+            // Disabled buttons are not pickable. The row keeps hover and focus for the abort tooltip.
+            weaponRow.tooltip = tooltip;
+            weaponRow.focusable = true;
+            if (denied)
+            {
+                weaponRow.AddToClassList(WeaponAbortTooltipBinder.DeniedRowClass);
+            }
+            else
+            {
+                weaponRow.RemoveFromClassList(WeaponAbortTooltipBinder.DeniedRowClass);
+            }
+        }
+
+        private static void ApplyAttackOptionsCue(VisualElement element, string cueClass)
+        {
+            foreach (var knownCue in AttackOptionsCueClasses.All)
+            {
+                element.RemoveFromClassList(knownCue);
+            }
+
+            if (!string.IsNullOrEmpty(cueClass))
+            {
+                element.AddToClassList(cueClass);
+            }
+        }
+
+        private static string DescribeFailure(string reason)
+        {
+            if (reason == "UNKNOWN_OPTION") return "Unknown command";
+            if (reason == "NO_SELECTION") return "No unit selected";
+            if (reason == "UNKNOWN_UNIT") return "Unknown unit";
+            if (reason == "NO_BRIDGE") return "Command service unavailable";
+            if (reason == "ISSUE_FAILED") return "Command was not queued";
+
+            var words = reason.Replace('_', ' ').ToLowerInvariant();
+            return words.Length == 0 ? "Command blocked" : char.ToUpperInvariant(words[0]) + words.Substring(1);
+        }
+
+        private static void ApplyFuelBandCueClass(Label label, string cueClass)
+        {
+            foreach (var knownCue in FuelBandCueClasses.All)
+            {
+                label.RemoveFromClassList(knownCue);
+            }
+
+            if (!string.IsNullOrEmpty(cueClass))
+            {
+                label.AddToClassList(cueClass);
+            }
+        }
+
+        private static void ApplyDlzSurfaceRow(Label? label, string text, string cueClass)
+        {
+            ApplyCueSurfaceRow(label, text, cueClass, DlzCueClasses.All);
+        }
+
+        private static void ApplyWraSalvoSurfaceRow(Label? label, string text, string cueClass)
+        {
+            ApplyCueSurfaceRow(label, text, cueClass, WraSalvoCueClasses.All);
+        }
+
+        private static void ApplyCueSurfaceRow(Label? label, string text, string cueClass, IReadOnlyList<string> knownCues)
+        {
+            if (label == null)
+            {
+                return;
+            }
+
+            label.text = text;
+            foreach (var knownCue in knownCues)
+            {
+                label.RemoveFromClassList(knownCue);
+            }
+
+            if (!string.IsNullOrEmpty(cueClass))
+            {
+                label.AddToClassList(cueClass);
             }
         }
     }

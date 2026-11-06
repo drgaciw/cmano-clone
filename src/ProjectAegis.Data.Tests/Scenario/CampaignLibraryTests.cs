@@ -63,7 +63,7 @@ public sealed class CampaignLibraryTests
 
         var reloaded = CampaignDocumentJsonLoader.LoadFromJson(json);
         Assert.NotNull(reloaded);
-        Assert.Equal(doc.CampaignId, reloaded!.CampaignId);
+        Assert.Equal(doc.CampaignId, reloaded.CampaignId);
         Assert.Equal(2, reloaded.Members.Count);
         Assert.Equal("alpha", reloaded.Members[0].ScenarioId);
         Assert.True(reloaded.Members[0].Completed);
@@ -128,7 +128,7 @@ public sealed class CampaignLibraryTests
 
         var baltic = entries.FirstOrDefault(e => e.CampaignId == "baltic-patrol-campaign");
         Assert.NotNull(baltic);
-        Assert.Equal("Baltic Patrol Campaign", baltic!.Title);
+        Assert.Equal("Baltic Patrol Campaign", baltic.Title);
         Assert.Equal(3, baltic.MemberCount);
         Assert.Equal(0, baltic.CompletedCount);
         Assert.Equal("baltic-patrol", baltic.NextScenarioId);

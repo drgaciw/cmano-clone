@@ -2,7 +2,6 @@ using ProjectAegis.Data.Catalog;
 using ProjectAegis.Sim.Core;
 using ProjectAegis.Sim.Policy;
 using ProjectAegis.Sim.Swarm;
-using ProjectAegis.Sim.Swarm.Expend;
 using Xunit;
 
 namespace ProjectAegis.Sim.Tests.Swarm.Expend;

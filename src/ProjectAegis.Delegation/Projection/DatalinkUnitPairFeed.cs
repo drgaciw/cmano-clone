@@ -1,7 +1,7 @@
 namespace ProjectAegis.Delegation.Projection;
 
-using ProjectAegis.Data.Catalog;
-using ProjectAegis.Delegation.Comms;
+using Data.Catalog;
+using Comms;
 
 /// <summary>
 /// Builds unit-pair datalink mesh edges from friendly OOB ids + catalog links (CMD-32 feed).
@@ -62,7 +62,7 @@ public static class DatalinkUnitPairFeed
     }
 
     /// <summary>
-    /// Convenience: build mesh then project via <see cref="DatalinkPictureProjection.Project"/>.
+    /// Convenience: build mesh then project via <see cref="DatalinkPictureProjection"/>.<c>Project</c>.
     /// When <paramref name="commsSnapshot"/> is present, edge status reflects live comms projection
     /// (Nominal→Up, Degraded→Degraded, Denied→Down). Without snapshot data, status defaults to
     /// <see cref="DatalinkPictureProjection.StatusUp"/>. Empty mesh or catalog links yield empty edges.

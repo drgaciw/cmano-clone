@@ -5,7 +5,7 @@
 **FR reverse-ref:** [FR-11](01-Project-Overview.md) — Doctrine, ROE, EMCON, WRA  
 **CMO basis:** Manual §3.3.12–16, §4.5.6–8, §6.3.8–9; parity with CMO side/unit/mission doctrine UI  
 **Related:** 04 Agent Delegation, 11 Mission Editor, 14 Engagement, 12 Terms Glossary  
-**Tracker:** [implementation-tracker-2026-07-04.md](../implementation-tracker-2026-07-04.md) row 13 — **Partial**
+**Tracker:** [implementation-tracker.md](../implementation-tracker.md) row 13 — **Partial**
 
 ## Purpose
 
@@ -205,5 +205,5 @@ FireAbortReason (enum + metadata)
 
 ---
 
-**Implementation grade:** Partial — see [implementation-tracker-2026-07-04.md](../implementation-tracker-2026-07-04.md) row 13.
+**Implementation grade:** Partial — see [implementation-tracker.md](../implementation-tracker.md) row 13.
 Design Status remains **Draft** (Template B). Charter re-honesty: Wave 2 2026-07-08.
