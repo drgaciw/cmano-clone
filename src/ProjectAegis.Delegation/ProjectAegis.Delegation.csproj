@@ -14,4 +14,7 @@
     <PackageReference Include="System.Net.Http.Json" Version="10.0.11" />
     <PackageReference Include="System.Text.Json" Version="10.0.11" />
   </ItemGroup>
+  <ItemGroup>
+    <EmbeddedResource Include="../../data/scenarios/baltic-escort.mission.json" LogicalName="ProjectAegis.BalticEscortMission.json" />
+  </ItemGroup>
 </Project>

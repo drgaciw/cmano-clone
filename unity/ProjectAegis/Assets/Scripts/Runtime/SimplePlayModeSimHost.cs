@@ -1,10 +1,13 @@
 // Play-mode smoke harness: stub snapshot + sink for DelegationBridge (no ECS required).
 // Seeds a minimal ORBAT + order-log rows so C2 panels (OOB, Unit Detail, Message Log) bind live data.
 #if UNITY_5_3_OR_NEWER
+using System;
 using System.Collections.Generic;
 using ProjectAegis.Delegation.Core;
 using ProjectAegis.Delegation.Decision;
+using ProjectAegis.Delegation.Orchestration;
 using ProjectAegis.Delegation.UnityAdapter.Bridge;
+using ProjectAegis.Delegation.UnityAdapter.Gameplay;
 using UnityEngine;
 
 namespace ProjectAegis.Unity.Runtime
@@ -32,6 +35,9 @@ namespace ProjectAegis.Unity.Runtime
         private readonly List<(EntityKey Entity, Order Order)> _applied = new();
         private readonly PlayModeKinematicMover _kinematics = new();
         private bool _orbatSeeded;
+        private FixedStepFrameRunner? _frameRunner;
+        private Func<bool> _canStep = null!;
+        private Action _runStep = null!;
 
         // S36-05: frame budget capture support (Unity specialist). Accumulates deltaTime for mean/p95 measurement in PlayMode / Editor host.
         private readonly List<double> _frameTimes = new();
@@ -67,6 +73,14 @@ namespace ProjectAegis.Unity.Runtime
             if (bridgeHost?.Bridge == null)
             {
                 return;
+            }
+
+            _frameRunner = new FixedStepFrameRunner(simTimeStep);
+            _canStep = CanStep;
+            _runStep = RunStep;
+            if (bridgeHost.Session != null)
+            {
+                bridgeHost.Session.ExternallyScheduledSteps = true;
             }
 
             if (seedSmokeOrbatOnStart)
@@ -132,28 +146,27 @@ namespace ProjectAegis.Unity.Runtime
                 _frameTimes.Add(Time.deltaTime * 1000.0); // ms
             }
 
-            if (bridgeHost.Session != null && bridgeHost.Session.IsSimPaused)
-            {
-                return;
-            }
+            _frameRunner?.Advance(
+                Time.unscaledDeltaTime,
+                bridgeHost.Session?.TimeAccelerationFactor ?? 1,
+                _canStep,
+                _runStep);
+        }
 
-            var factor = 1;
-            if (bridgeHost.Session != null)
-            {
-                var accel = bridgeHost.Session.TimeAccelerationFactor;
-                factor = accel < 1 ? 1 : (accel > 8 ? 8 : accel);
-            }
+        private bool CanStep() =>
+            bridgeHost != null && bridgeHost.Bridge != null
+            && bridgeHost.Phase == SimulationPhase.Executing
+            && (bridgeHost.Session == null || !bridgeHost.Session.IsSimPaused);
 
-            for (var step = 0; step < factor; step++)
-            {
-                _applied.Clear();
-                _simTime += simTimeStep;
-                _kinematics.Advance(simTimeStep);
-                bridgeHost.RunTick(this, this);
-                PlayModeSmokeOrbatSeeder.AdvanceDecisionLog(
-                    bridgeHost.Bridge.Orchestrator.DecisionLog,
-                    _simTime);
-            }
+        private void RunStep()
+        {
+            _applied.Clear();
+            _simTime += simTimeStep;
+            _kinematics.Advance(simTimeStep);
+            bridgeHost.RunTick(this, this);
+            PlayModeSmokeOrbatSeeder.AdvanceDecisionLog(
+                bridgeHost.Bridge.Orchestrator.DecisionLog,
+                _simTime);
         }
 
         /// <summary>S36-05: expose captured frame times for measurement doc / test (mean/p95 in ms). Call after N frames.</summary>

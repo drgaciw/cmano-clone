@@ -170,6 +170,51 @@ namespace ProjectAegis.Unity.Runtime
         }
 
         /// <summary>
+        /// Bind an engine-free player mission. The mission remains the only owner of stepping;
+        /// this host publishes its snapshots to the existing C2 presentation surfaces.
+        /// </summary>
+        public void BindExternalSession(DelegationBridge bridge, int seed)
+        {
+            Bridge = bridge ?? throw new ArgumentNullException(nameof(bridge));
+            globalSeed = seed;
+            CatalogReader = Bridge.Session?.CatalogReader;
+            _lastSnapshot = null;
+            Presentation.SelectFriendlyUnit("u1");
+            LastMissionList = MissionListBridge.ProjectFrom(Bridge.Orchestrator.ScenarioPolicy?.MissionTimeline);
+        }
+
+        /// <summary>
+        /// Refresh an already-stepped world without ticking it a second time. Mission score
+        /// is objective-based; legacy kill/denial tallies remain confined to smoke fixtures.
+        /// </summary>
+        public void RefreshExternalPresentation(
+            ISimWorldSnapshot snapshot, int missionScore, double remainingSeconds, string missionStatus,
+            IReadOnlyList<MapSymbolEntry>? knownSymbols = null,
+            IReadOnlyList<MessageLogLine>? observedMessages = null)
+        {
+            RefreshPresentation(snapshot);
+            // The legacy combined order log contains both sides' decisions. Player mission
+            // views publish only their explicitly scoped picture and observable messages.
+            LastMapSymbols = knownSymbols ?? Array.Empty<MapSymbolEntry>();
+            LastOobTree = LastOobTree.Where(unit => LastMapSymbols.Any(symbol =>
+                symbol.Affiliation == "Friendly" && symbol.SymbolId == unit.UnitId)).ToArray();
+            LastMessageLog = observedMessages ?? Array.Empty<MessageLogLine>();
+            LastCombatDomainActivityTags = CombatDomainActivityTags.FromMessageLog(LastMessageLog);
+            LastCombatVfx = CombatVfxFrame.Empty;
+            LastSensorC2 = LastSensorC2 with
+            {
+                Contacts = LastSensorC2.Contacts.Where(contact =>
+                    contact.TargetId == snapshot.PrimaryHostileContactId?.Value).ToArray(),
+            };
+            LastTopBar = LastTopBar with
+            {
+                ScoreLabel = $"MISSION SCORE: {missionScore}",
+                PhaseLabel = missionStatus,
+                RemainingDurationLabel = $"REMAIN {TimeSpan.FromSeconds(Math.Max(0, remainingSeconds)):mm\\:ss}",
+            };
+        }
+
+        /// <summary>
         /// CMD-23: toggle message-log body collapse and capture into the in-memory prefs bag.
         /// </summary>
         public void ToggleMessageLogCollapsed()
@@ -474,8 +519,14 @@ namespace ProjectAegis.Unity.Runtime
         /// </summary>
         public DelegationTickResult RunTick(ISimWorldSnapshot snapshot, IOrderSink sink)
         {
-            _lastSnapshot = snapshot;
             var result = Bridge.Tick(snapshot, sink);
+            RefreshPresentation(snapshot);
+            return result;
+        }
+
+        private void RefreshPresentation(ISimWorldSnapshot snapshot)
+        {
+            _lastSnapshot = snapshot;
             LastMessageLog = MessageLogBridge.ProjectFrom(Bridge.Orchestrator.DecisionLog);
             LastCombatDomainActivityTags = CombatDomainActivityTags.FromMessageLog(LastMessageLog);
             LastOobTree = OobTreeBridge.Build(snapshot, Bridge.Registry);
@@ -513,7 +564,6 @@ namespace ProjectAegis.Unity.Runtime
             // CMD-24 Wave4: magazine + deck/hangar feeds (no Tick body rewrite)
             RefreshMagazineLoadout();
             RefreshDeckHangar();
-            return result;
         }
 
         /// <summary>

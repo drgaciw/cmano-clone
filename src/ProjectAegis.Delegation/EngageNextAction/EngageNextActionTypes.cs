@@ -11,6 +11,30 @@ public static class EngageNextActionCodes
 
     /// <summary>Rules-of-engagement or weapons-release gate — seek player or C2 approval.</summary>
     public const string Approval = "APPROVAL";
+
+    /// <summary>Acquire a current fire-control-quality track before attempting release.</summary>
+    public const string AcquireTrack = "ACQUIRE_TRACK";
+
+    /// <summary>Review the exposure tradeoff before enabling the required radar.</summary>
+    public const string ReviewEmissions = "REVIEW_EMISSIONS";
+
+    /// <summary>Move to an eligible firing position or choose an appropriate weapon.</summary>
+    public const string Reposition = "REPOSITION";
+
+    /// <summary>Restore command communications or use an authorized local plan.</summary>
+    public const string RestoreComms = "RESTORE_COMMS";
+
+    /// <summary>Restore the mount or choose a ready shooter.</summary>
+    public const string RepairMount = "REPAIR_MOUNT";
+
+    /// <summary>Wait for launch readiness or select a ready platform.</summary>
+    public const string WaitForReadiness = "WAIT_FOR_READINESS";
+
+    /// <summary>Verify contact identity using independent observations.</summary>
+    public const string VerifyContact = "VERIFY_CONTACT";
+
+    /// <summary>Assess previous effects and review the authorized salvo limit.</summary>
+    public const string ReviewSalvo = "REVIEW_SALVO";
 }
 
 /// <summary>

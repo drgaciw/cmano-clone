@@ -216,6 +216,12 @@ public sealed class SimulationSession
 
     public int TimeAccelerationFactor => Sim.Clock.AccelerationFactor;
 
+    /// <summary>
+    /// When true, a fixed-step host schedules accelerated steps and each session tick
+    /// advances exactly one simulation step. False preserves legacy harness scheduling.
+    /// </summary>
+    public bool ExternallyScheduledSteps { get; set; }
+
     public void SetTimeAccelerationFactor(int factor) => Sim.Clock.SetAccelerationFactor(factor);
 
     public void BeginExecution() => Orchestrator.BeginExecution();
@@ -329,7 +335,7 @@ public sealed class SimulationSession
         SurfaceRoePolicyDeniedEngagements(state, simTick);
         ApplyCatalogDamageHotTick(state, queued);
 
-        var extraSteps = Math.Max(0, Sim.Clock.AccelerationFactor - 1);
+        var extraSteps = ExternallyScheduledSteps ? 0 : Math.Max(0, Sim.Clock.AccelerationFactor - 1);
         for (var i = 0; i < extraSteps; i++)
         {
             Sim.TickOnce(mode);
@@ -660,6 +666,19 @@ public sealed class SimulationSession
 
     public Func<string, ulong, bool>? IsContactSpoofed { get; set; }
 
+    /// <summary>
+    /// Optional authoritative world range for each shooter and its current engagement
+    /// target. No callback preserves the scenario template. Invalid ranges deny fire.
+    /// </summary>
+    public Func<string, double>? ResolveEngagementRangeMeters { get; set; }
+
+    /// <summary>
+    /// Optional trusted simulation-world provider for shooter-specific geometry and
+    /// sensor facts. Downstream ROE, liveness and magazine gates remain authoritative.
+    /// Null preserves legacy scenario context; invalid returned ranges deny fire.
+    /// </summary>
+    public Func<string, EngageContext, EngageContext>? ResolveEngagementContext { get; set; }
+
     private void PrimeEngageWorld(in EngageRequest request, ObservedState state, string shooterUnitId)
     {
         if (EngageWorld == null)
@@ -697,9 +716,12 @@ public sealed class SimulationSession
             var bingoBlocked = FuelTimeline?.IsBingo(shooterUnitId) ?? false;
             var shotgunThreshold = Orchestrator.ScenarioPolicy?.EngageDefaults?.ShotgunRoundsThreshold
                 ?? template.ShotgunRoundsThreshold;
+            var range = ResolveEngagementRangeMeters?.Invoke(shooterUnitId) ?? template.RangeMeters;
+            var validRange = !double.IsNaN(range) && !double.IsInfinity(range) && range >= 0;
             var primed = template with
             {
-                HasFireControlTrack = state.HasFireControlTrack,
+                RangeMeters = validRange ? range : double.MaxValue,
+                HasFireControlTrack = state.HasFireControlTrack && validRange,
                 RadarEmconActive = radarActive,
                 AirOperationsReady = airReady,
                 CatalogDamageWithdrawBlocked = damageWithdrawBlocked,
@@ -708,6 +730,15 @@ public sealed class SimulationSession
                 SalvoSize = Math.Max(1, salvo),
                 ShotgunRoundsThreshold = Math.Max(0, shotgunThreshold),
             };
+            if (ResolveEngagementContext is not null)
+            {
+                primed = ResolveEngagementContext(shooterUnitId, primed);
+                if (double.IsNaN(primed.RangeMeters) || double.IsInfinity(primed.RangeMeters) || primed.RangeMeters < 0)
+                {
+                    primed = primed with { RangeMeters = double.MaxValue, HasFireControlTrack = false };
+                }
+            }
+
             EngageWorld.Set(request, primed);
         }
         else if (!EngageWorld.TryGetContext(request, out _))

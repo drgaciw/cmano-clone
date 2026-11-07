@@ -17,6 +17,11 @@ public sealed class WatchAutoPauseGate
     /// <summary>Master toggle for auto-pause evaluation. Defaults to true.</summary>
     public bool AutoPauseEnabled { get; set; } = true;
 
+    /// <summary>Player interruption preference. All preserves classic pause behavior.</summary>
+    public WatchInterruptionMode InterruptionMode { get; set; } = WatchInterruptionMode.All;
+
+    private bool InterruptionsEnabled => AutoPauseEnabled && InterruptionMode != WatchInterruptionMode.Manual;
+
     /// <summary>Alias for <see cref="AutoPauseEnabled"/>.</summary>
     public bool IsAutoPauseEnabled
     {
@@ -36,7 +41,7 @@ public sealed class WatchAutoPauseGate
     /// </summary>
     public bool ShouldAutoPause(WatchAttentionEvent evt)
     {
-        if (!AutoPauseEnabled)
+        if (!InterruptionsEnabled)
         {
             return false;
         }
@@ -48,6 +53,11 @@ public sealed class WatchAutoPauseGate
         }
 
         if (!evt.IsPauseClass)
+        {
+            return false;
+        }
+
+        if (InterruptionMode == WatchInterruptionMode.CriticalOnly && evt.Priority != WatchAttentionPriority.Critical)
         {
             return false;
         }
@@ -69,7 +79,7 @@ public sealed class WatchAutoPauseGate
     /// </summary>
     public bool ShouldAutoPause(PendingApprovalQueue? queue)
     {
-        if (!AutoPauseEnabled || queue is null || !queue.HasPendingProposals)
+        if (!InterruptionsEnabled || queue is null || !queue.HasPendingProposals)
         {
             return false;
         }
@@ -84,7 +94,7 @@ public sealed class WatchAutoPauseGate
     /// </summary>
     public bool ShouldAutoPause(PendingApprovalEntry? entry)
     {
-        if (!AutoPauseEnabled || entry is null)
+        if (!InterruptionsEnabled || entry is null)
         {
             return false;
         }
@@ -99,7 +109,7 @@ public sealed class WatchAutoPauseGate
     /// </summary>
     public bool ShouldAutoPause(Order? order)
     {
-        if (!AutoPauseEnabled || order is null)
+        if (!InterruptionsEnabled || order is null)
         {
             return false;
         }
