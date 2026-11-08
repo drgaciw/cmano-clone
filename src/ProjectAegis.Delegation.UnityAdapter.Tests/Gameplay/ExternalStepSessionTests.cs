@@ -1,12 +1,13 @@
 namespace ProjectAegis.Delegation.UnityAdapter.Tests.Gameplay;
 
-using ProjectAegis.Delegation.Core;
-using ProjectAegis.Delegation.Decision;
-using ProjectAegis.Delegation.Orchestration;
-using ProjectAegis.Delegation.Policy;
-using ProjectAegis.Delegation.Sim;
-using ProjectAegis.Delegation.Targets;
-using ProjectAegis.Delegation.Traits;
+using Core;
+using Decision;
+using Orchestration;
+using Policy;
+using Sim;
+using Targets;
+using Traits;
+using Watch;
 using ProjectAegis.Sim.Engage;
 using ProjectAegis.Sim.Policy;
 using NUnit.Framework;
@@ -105,6 +106,33 @@ public sealed class ExternalStepSessionTests
 
         Assert.That(session.Orchestrator.DecisionLog.Engagements.Count(e => e.Launched), Is.EqualTo(4));
         Assert.That(session.Orchestrator.DecisionLog.MagazineChanges.Sum(change => change.Delta), Is.EqualTo(-4));
+    }
+
+    [Test]
+    public void Approval_queued_during_tick_pauses_only_after_engagement_and_clock_advance()
+    {
+        var session = CreateArmedSession();
+        session.ExternallyScheduledSteps = true;
+        var assisted = new UnitTarget(new TargetId("u2"));
+        var officer = session.Orchestrator.CreateAgent(
+            new AgentId("approval-officer"), PersonalityCatalog.All[0].Traits,
+            AutonomyLevel.Assisted, policy: new EngagePolicy());
+        session.Orchestrator.AssignAgentToTarget(officer, assisted, EffectivePolicy.DefaultFree);
+        session.Orchestrator.Register(assisted);
+
+        var tickBefore = session.Sim.Clock.SimTick;
+        Assert.That(session.Tick(State()), Is.True);
+
+        Assert.That(session.Sim.Clock.SimTick, Is.EqualTo(tickBefore + 1));
+        Assert.That(session.Orchestrator.DecisionLog.Engagements.Any(e => e.Launched), Is.True);
+        Assert.That(session.Orchestrator.PendingApprovalQueue.Count, Is.EqualTo(1));
+        Assert.That(session.IsSimPaused, Is.True);
+        Assert.That(session.LastWatchPauseReason, Is.EqualTo(WatchPauseReason.OrderProposal));
+        Assert.That(session.TryResumeSim(), Is.False);
+        Assert.That(session.Orchestrator.PendingApprovalQueue.TryReject(
+            session.Orchestrator.PendingApprovalQueue.Pending[0].Order.Id), Is.True);
+        Assert.That(session.TryResumeSim(), Is.True);
+        Assert.That(session.IsSimPaused, Is.False);
     }
 
     private static SimulationSession CreateArmedSession(double rangeMeters = 5_000)

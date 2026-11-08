@@ -168,15 +168,31 @@ public sealed class SimulationSession
         return true;
     }
 
+    /// <summary>
+    /// True while <see cref="RunExecutingTick"/> is inside <c>Orchestrator.Tick</c>.
+    /// An approval queued there must not pause the clock until that step finishes.
+    /// </summary>
+    private bool _deferApprovalAutoPause;
+
+    private bool _approvalPauseAfterTick;
+
     private void WireApprovalQueueAutoPause()
     {
         WatchPauseGate.PendingApprovalQueue = Orchestrator.PendingApprovalQueue;
         Orchestrator.PendingApprovalQueue.OnOrderEnqueued = entry =>
         {
-            if (ExternallyScheduledSteps && WatchPauseGate.ShouldAutoPause(entry))
+            if (!ExternallyScheduledSteps || !WatchPauseGate.ShouldAutoPause(entry))
             {
-                PauseSim();
+                return;
             }
+
+            if (_deferApprovalAutoPause)
+            {
+                _approvalPauseAfterTick = true;
+                return;
+            }
+
+            PauseSim();
         };
     }
 
@@ -277,7 +293,17 @@ public sealed class SimulationSession
     private void RunExecutingTick(ObservedState state, bool headlessOverride)
     {
         RecordObservedFireControl(in state);
-        Orchestrator.Tick(state);
+        _approvalPauseAfterTick = false;
+        _deferApprovalAutoPause = true;
+        try
+        {
+            Orchestrator.Tick(state);
+        }
+        finally
+        {
+            _deferApprovalAutoPause = false;
+        }
+
         var simTick = (ulong)Math.Max(0, (long)state.SimTime);
         ReportCommsGridPositions(simTick);
 
@@ -364,6 +390,10 @@ public sealed class SimulationSession
         }
 
         AdvanceLogisticsFsms(state);
+        if (_approvalPauseAfterTick)
+        {
+            PauseSim();
+        }
     }
 
     private void AdvanceLogisticsFsms(ObservedState state)
