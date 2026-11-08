@@ -1,7 +1,6 @@
 namespace ProjectAegis.Delegation.Orchestration;
 
 using Core;
-using ProjectAegis.Delegation.Watch;
 
 /// <summary>
 /// DRG-66: session-local queue for orders that have been gated to <see cref="GateResult.QueueForApproval"/>.
@@ -23,8 +22,6 @@ public sealed class PendingApprovalQueue
     public int Count => _pending.Count;
     /// <summary>Whether any approvals are pending.</summary>
     public bool HasPendingProposals => _pending.Count > 0;
-    /// <summary>Optional advisory auto-pause gate.</summary>
-    public WatchAutoPauseGate? AutoPauseGate { get; set; }
     /// <summary>Callback after a new proposal enters the queue.</summary>
     public Action<PendingApprovalEntry>? OnOrderEnqueued { get; set; }
 
@@ -44,7 +41,6 @@ public sealed class PendingApprovalQueue
 
         var entry = new PendingApprovalEntry(order);
         _pending.Add(entry);
-        AutoPauseGate?.ShouldAutoPause(this);
         OnOrderEnqueued?.Invoke(entry);
     }
 

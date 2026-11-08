@@ -1,7 +1,7 @@
 namespace ProjectAegis.Delegation.Watch;
 
-using ProjectAegis.Delegation.Core;
-using ProjectAegis.Delegation.Orchestration;
+using Core;
+using Orchestration;
 
 /// <summary>
 /// S115-03 / AEGIS-301: decides whether a newly enqueued pause-class event or pending approval

@@ -1,6 +1,6 @@
 namespace ProjectAegis.Delegation.Projection;
 
-using ProjectAegis.Delegation.Watch;
+using Watch;
 
 /// <summary>A presentation-only group retaining individual event ids for acknowledgement and camera focus.</summary>
 public sealed record WatchAttentionGroup(

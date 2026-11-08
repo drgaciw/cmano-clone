@@ -1,10 +1,10 @@
 namespace ProjectAegis.Delegation.Gameplay;
 
-using ProjectAegis.Delegation.Core;
-using ProjectAegis.Delegation.Decision;
-using ProjectAegis.Delegation.Policy;
-using ProjectAegis.Delegation.Sim;
-using ProjectAegis.Delegation.Traits;
+using Core;
+using Decision;
+using Policy;
+using Sim;
+using Traits;
 
 /// <summary>Authoritative facts available to the escort policy, scoped to its own side.</summary>
 public readonly record struct EscortPolicyFacts(bool CanEngage, bool TargetAlive, int RoundsRemaining, int ReserveRounds);

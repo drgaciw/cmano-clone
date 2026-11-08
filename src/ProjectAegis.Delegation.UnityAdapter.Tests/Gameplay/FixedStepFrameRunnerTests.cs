@@ -53,17 +53,17 @@ public sealed class FixedStepFrameRunnerTests
     {
         var runner = new FixedStepFrameRunner(0.1);
         var ticks = 0;
-        var running = true;
-        var advanced = runner.Advance(1, 8, () => running, () =>
+        var running = new[] { true };
+        var advanced = runner.Advance(1, 8, () => running[0], () =>
         {
             ticks++;
-            running = false;
+            running[0] = false;
         });
         Assert.That(advanced, Is.EqualTo(1));
-        Assert.That(runner.Advance(60, 8, () => running, () => ticks++), Is.Zero);
-        running = true;
-        Assert.That(runner.Advance(0, 1, () => running, () => ticks++), Is.Zero);
-        Assert.That(runner.Advance(0.1, 1, () => running, () => ticks++), Is.EqualTo(1));
+        Assert.That(runner.Advance(60, 8, () => running[0], () => ticks++), Is.Zero);
+        running[0] = true;
+        Assert.That(runner.Advance(0, 1, () => running[0], () => ticks++), Is.Zero);
+        Assert.That(runner.Advance(0.1, 1, () => running[0], () => ticks++), Is.EqualTo(1));
         Assert.That(ticks, Is.EqualTo(2));
     }
 
@@ -85,7 +85,10 @@ public sealed class FixedStepFrameRunnerTests
     public void Invalid_elapsed_time_is_rejected(double elapsed)
     {
         var runner = new FixedStepFrameRunner();
-        Assert.Throws<ArgumentOutOfRangeException>((Action)(() => runner.Advance(elapsed, 1, () => true, () => { })));
+        Assert.Throws<ArgumentOutOfRangeException>(() =>
+        {
+            _ = runner.Advance(elapsed, 1, () => true, () => { });
+        });
     }
 
     [TestCase(0)]
@@ -93,15 +96,27 @@ public sealed class FixedStepFrameRunnerTests
     [TestCase(double.NaN)]
     [TestCase(double.PositiveInfinity)]
     public void Invalid_fixed_delta_is_rejected(double fixedDelta) =>
-        Assert.Throws<ArgumentOutOfRangeException>((Action)(() => new FixedStepFrameRunner(fixedDelta)));
+        Assert.Throws<ArgumentOutOfRangeException>(() =>
+        {
+            _ = new FixedStepFrameRunner(fixedDelta);
+        });
 
     [Test]
     public void Invalid_callbacks_and_frame_budget_are_rejected()
     {
-        Assert.Throws<ArgumentOutOfRangeException>((Action)(() => new FixedStepFrameRunner(maxStepsPerFrame: 0)));
+        Assert.Throws<ArgumentOutOfRangeException>(() =>
+        {
+            _ = new FixedStepFrameRunner(maxStepsPerFrame: 0);
+        });
         var runner = new FixedStepFrameRunner();
-        Assert.Throws<ArgumentNullException>((Action)(() => runner.Advance(0, 1, null!, () => { })));
-        Assert.Throws<ArgumentNullException>((Action)(() => runner.Advance(0, 1, () => true, null!)));
+        Assert.Throws<ArgumentNullException>(() =>
+        {
+            _ = runner.Advance(0, 1, null!, () => { });
+        });
+        Assert.Throws<ArgumentNullException>(() =>
+        {
+            _ = runner.Advance(0, 1, () => true, null!);
+        });
     }
 
     [TestCase(0, 1)]
