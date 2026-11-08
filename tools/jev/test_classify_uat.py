@@ -3,8 +3,11 @@
 
 from __future__ import annotations
 
+import http.server
 import json
 import sys
+import threading
+import time
 from pathlib import Path
 from unittest.mock import MagicMock
 
@@ -23,6 +26,7 @@ from classify_uat import (  # noqa: E402
     ApiRoute,
     UatEvidencePacket,
     UatRow,
+    UrllibTransport,
     build_systemone_request,
     classify_or_degrade,
     load_evidence_packet,
@@ -453,9 +457,6 @@ def test_classify_typesafe_posts_to_typesafe_systemone(
 
 
 def _serve(handler_body):
-    import http.server
-    import threading
-
     class _H(http.server.BaseHTTPRequestHandler):
         def do_POST(self):  # noqa: N802
             self.rfile.read(int(self.headers.get("Content-Length", 0)))
@@ -472,9 +473,6 @@ def _serve(handler_body):
 
 def test_urllib_transport_enforces_overall_deadline_on_slow_body():
     """Each chunk arrives inside the socket timeout, but the total exceeds it."""
-    import time
-
-    from classify_uat import UrllibTransport
 
     def slow_drip(h):
         h.send_response(200)
@@ -500,8 +498,6 @@ def test_urllib_transport_enforces_overall_deadline_on_slow_body():
 
 
 def test_urllib_transport_returns_fast_response():
-    from classify_uat import UrllibTransport
-
     def ok(h):
         body = b'{"ok": true}'
         h.send_response(200)

@@ -18,6 +18,7 @@ import urllib.request
 from dataclasses import dataclass
 from pathlib import Path
 from typing import Any, Mapping, Protocol
+from urllib.parse import quote
 
 TYPESAFE_MODEL_ID = "jev-1.13.0"
 OPENROUTER_MODEL_ID = "typesafe/jev-1.13"
@@ -313,8 +314,6 @@ def resolve_route(provider: str = "auto") -> ApiRoute | None:
     token = _env_value("CLOUDFLARE_API_TOKEN")
     account = _env_value("CLOUDFLARE_ACCOUNT_ID")
     if token and account and provider in ("auto", "cloudflare"):
-        from urllib.parse import quote
-
         return ApiRoute(
             provider="cloudflare",
             url=f"https://api.cloudflare.com/client/v4/accounts/{quote(account, safe='')}/ai/run",
