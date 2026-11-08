@@ -1,10 +1,9 @@
 namespace ProjectAegis.Data.Snapshots;
 
-using System.Globalization;
 using System.Security.Cryptography;
 using System.Text;
 using System.Text.Json;
-using ProjectAegis.Data.Catalog;
+using Catalog;
 
 /// <summary>
 /// S32-02 / S65-03 (Baltic v2 corpus hardening): curator drop manifest consolidating S31 per-domain <c>releaseVersion</c> rows

@@ -2,8 +2,7 @@ namespace ProjectAegis.Data.Catalog;
 
 using System.Text.Json;
 using Microsoft.Data.Sqlite;
-using ProjectAegis.Data.Import;
-using ProjectAegis.Data.WriteGate;
+using WriteGate;
 
 /// <summary>
 /// S32-03 curator triage for quarantined ship/facility/submarine mount/loadout child rows.
@@ -11,11 +10,6 @@ using ProjectAegis.Data.WriteGate;
 /// </summary>
 public static class MountLoadoutQuarantineTriage
 {
-    private static readonly JsonSerializerOptions JsonOptions = new()
-    {
-        PropertyNameCaseInsensitive = true,
-    };
-
     public static MountLoadoutQuarantineTriageResult Run(
         string databasePath,
         bool dryRun = true,

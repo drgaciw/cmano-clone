@@ -1,7 +1,7 @@
 namespace ProjectAegis.Sim.Catalog;
 
 using ProjectAegis.Data.Catalog;
-using ProjectAegis.Sim.Scenario;
+using Scenario;
 
 /// <summary>
 /// Req-21 Phase B: applies committed platform damage to catalog-resolved withdraw/readiness trials.

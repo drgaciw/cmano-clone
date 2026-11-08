@@ -2,7 +2,6 @@ using System.Text.Json;
 using ProjectAegis.Data.Catalog;
 using ProjectAegis.Data.Platform;
 using ProjectAegis.Delegation.Projection;
-using ProjectAegis.MissionEditor.Cli;
 using Xunit;
 
 namespace ProjectAegis.MissionEditor.Cli.Tests;

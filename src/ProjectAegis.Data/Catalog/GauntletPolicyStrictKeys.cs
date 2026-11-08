@@ -2,7 +2,7 @@ namespace ProjectAegis.Data.Catalog;
 
 using System.Reflection;
 using System.Text.Json;
-using ProjectAegis.Data.Scenario.Policy;
+using Scenario.Policy;
 
 /// <summary>
 /// Strict unknown-key validation for the qa-gauntlet policy block.
@@ -33,7 +33,6 @@ public static class GauntletPolicyStrictKeys
     public static GauntletStrictKeyReport Check(string policyJson)
     {
         var errors = new List<string>();
-        var warnings = new List<string>();
         try
         {
             using var doc = JsonDocument.Parse(policyJson);
@@ -41,7 +40,7 @@ public static class GauntletPolicyStrictKeys
                 || !doc.RootElement.TryGetProperty("gauntlet", out var gauntlet)
                 || gauntlet.ValueKind != JsonValueKind.Object)
             {
-                return new GauntletStrictKeyReport(errors, warnings);
+                return new GauntletStrictKeyReport(errors, Array.Empty<string>());
             }
 
             foreach (var prop in gauntlet.EnumerateObject())
@@ -91,7 +90,7 @@ public static class GauntletPolicyStrictKeys
             // Invalid JSON is surfaced by the evaluator; strict keys stay silent.
         }
 
-        return new GauntletStrictKeyReport(errors, warnings);
+        return new GauntletStrictKeyReport(errors, Array.Empty<string>());
     }
 
     private static HashSet<string> DeriveCamelCaseKeys(Type dtoType)

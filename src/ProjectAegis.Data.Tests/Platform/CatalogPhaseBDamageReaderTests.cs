@@ -89,7 +89,7 @@ public sealed class CatalogPhaseBDamageReaderTests
         Assert.NotNull(platforms);
         Assert.Equal(
             ["PlatformId", "LatDeg", "LonDeg", "CombatRadiusNm", "MaxHp", "WithdrawThresholdPct", "CriticalFlags"],
-            platforms!.Header);
+            platforms.Header);
         Assert.Single(platforms.Rows);
         Assert.Equal("u1", platforms.Rows[0][0]);
         Assert.Equal("100", platforms.Rows[0][4]);
@@ -121,7 +121,7 @@ public sealed class CatalogPhaseBDamageReaderTests
     {
         var meta = Export(PlatformCatalogExportData.Empty).FindSheet(PlatformWorkbookHash.MetaSheetName);
         Assert.NotNull(meta);
-        Assert.Contains(meta!.Rows, row => row.Count >= 2
+        Assert.Contains(meta.Rows, row => row.Count >= 2
             && string.Equals(row[0], "SchemaVersion", StringComparison.Ordinal)
             && string.Equals(row[1], "010", StringComparison.Ordinal));
     }

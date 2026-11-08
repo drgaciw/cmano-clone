@@ -239,7 +239,7 @@ public sealed class CatalogPhaseBValidationTests
                 ? sheet with { Header = header }
                 : sheet).ToArray();
 
-        return workbook with { Sheets = sheets };
+        return new PlatformWorkbook(sheets);
     }
 
     private static PlatformWorkbook WithSheetCell(
@@ -273,13 +273,13 @@ public sealed class CatalogPhaseBValidationTests
                 }
 
                 cells[colIndex] = value;
-                return (IReadOnlyList<string>)cells;
+                return cells;
             }).ToArray();
 
             return sheet with { Rows = rows };
         }).ToArray();
 
-        return workbook with { Sheets = sheets };
+        return new PlatformWorkbook(sheets);
     }
 
     private sealed class FakeWriteGate : IWriteGate

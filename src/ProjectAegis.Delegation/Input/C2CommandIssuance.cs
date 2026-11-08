@@ -1,6 +1,6 @@
 namespace ProjectAegis.Delegation.Input;
 
-using ProjectAegis.Delegation.Core;
+using Core;
 
 /// <summary>
 /// Pure validation + command-id → <see cref="OrderKind"/> mapping for player C2 issuance (CMD-31).

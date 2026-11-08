@@ -1,6 +1,6 @@
 namespace ProjectAegis.Delegation.EscalationGate;
 
-using ProjectAegis.Delegation.Skills;
+using Skills;
 using ProjectAegis.Sim.Policy;
 
 /// <summary>
@@ -30,6 +30,25 @@ public static class EscalationGateProjection
     }
 
     return new EscalationGateSnapshot(new[] { row }, IsOrder: false);
+  }
+
+  /// <summary>
+  /// Projects a gate row from an already-resolved authority projection (DRG-182 presentation bind).
+  /// Does not re-run <see cref="C2AuthorityProjector"/> — preserves ledger truth from upstream facts.
+  /// </summary>
+  public static EscalationGateSnapshot ProjectFromAuthority(
+      string contactOrOrderId,
+      C2AuthorityProjection authority)
+  {
+    if (string.IsNullOrWhiteSpace(contactOrOrderId))
+    {
+      return EscalationGateSnapshot.Empty;
+    }
+
+    var row = ResolveGateRow(contactOrOrderId, authority);
+    return row is null
+        ? EscalationGateSnapshot.Empty
+        : new EscalationGateSnapshot(new[] { row }, IsOrder: false);
   }
 
   /// <summary>

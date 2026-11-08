@@ -1,6 +1,6 @@
 namespace ProjectAegis.Delegation.Decision;
 
-using ProjectAegis.Delegation.Core;
+using Core;
 
 /// <summary>ADR-003 / GDD order-log-replay: canonical <see cref="OrderLogEntryKind.AgentDecision"/> payload.</summary>
 public sealed record AgentDecisionPayload(

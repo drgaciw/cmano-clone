@@ -1,6 +1,6 @@
 namespace ProjectAegis.Sim.Scenario;
 
-using ProjectAegis.Sim.Engage;
+using Engage;
 
 /// <summary>Scenario-level defaults for MVP engage priming (data/scenarios/*.policy.json).</summary>
 public sealed class ScenarioEngageDefaults

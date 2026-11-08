@@ -1,7 +1,7 @@
 namespace ProjectAegis.Data.Scenario;
 
-using ProjectAegis.Data.Catalog;
-using ProjectAegis.Data.Validation;
+using Catalog;
+using Validation;
 
 /// <summary>
 /// Enumerates scenario documents under a directory for the scenario library browse list (CMD-27).

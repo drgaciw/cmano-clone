@@ -1,6 +1,5 @@
 namespace ProjectAegis.Data.Catalog;
 
-using System.Globalization;
 using System.Security.Cryptography;
 using System.Text;
 

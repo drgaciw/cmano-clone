@@ -218,6 +218,11 @@ Headless contract in `ProjectAegis.Delegation.Skills` (no enqueue):
 | `AuthorityBasis` / `PlayerOverride` / `ReplayProvenance` / `EvidencePointer` | AGC-03 / AGC-04 fields |
 | `SkillEnvelopeValidator` | Pure gate. Resolves command ids via `C2CommandIssuance`. Does not call `C2PlayerCommandBridge.TryIssue`. |
 
+> **Production callers (DRG-406, 2026-11-01):** the full `SkillEnvelopeValidator.Validate` (propose/submit lanes)
+> has **no production caller yet**. Only tests call it. It will be wired into the future `ISkillSubmit` story.
+> The read-lane overload `ValidateRead(envelope, descriptor)` *is* called in production by
+> `AdviceSkillService.Invoke`, which rejects any advisory envelope that names a command or leaves the Read lane.
+
 Filter: `FullyQualifiedName~ProjectAegis.Delegation.Tests.Skills`
 
 Enqueue / host submit remains a later story. Keep three APIs, not one god method:

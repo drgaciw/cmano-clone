@@ -1,7 +1,6 @@
 namespace ProjectAegis.Data.PlatformAssistant;
 
-using ProjectAegis.Data.Catalog;
-using ProjectAegis.Data.Platform;
+using Platform;
 
 /// <summary>catalog-grounding skill — rank peers from a live export snapshot.</summary>
 public static class PlatformPeerScorer

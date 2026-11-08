@@ -81,15 +81,15 @@ public sealed class PlatformWorkbookPhaseBSheetTests
         Assert.NotNull(emcon);
         Assert.NotNull(swarms);
 
-        Assert.Equal(ExpectedMobilityHeader, mobility!.Header);
-        Assert.Equal(ExpectedSignaturesHeader, signatures!.Header);
-        Assert.Equal(ExpectedEmconHeader, emcon!.Header);
-        Assert.Equal(ExpectedSwarmsHeader, swarms!.Header);
+        Assert.Equal(ExpectedMobilityHeader, mobility.Header);
+        Assert.Equal(ExpectedSignaturesHeader, signatures.Header);
+        Assert.Equal(ExpectedEmconHeader, emcon.Header);
+        Assert.Equal(ExpectedSwarmsHeader, swarms.Header);
 
         Assert.Empty(mobility.Rows);
         Assert.Empty(signatures.Rows);
         Assert.Empty(emcon.Rows);
-        Assert.Empty(swarms!.Rows);
+        Assert.Empty(swarms.Rows);
     }
 
     [Fact]
@@ -140,7 +140,7 @@ public sealed class PlatformWorkbookPhaseBSheetTests
     {
         var meta = Export(PlatformCatalogExportData.Empty).FindSheet(PlatformWorkbookHash.MetaSheetName);
         Assert.NotNull(meta);
-        Assert.Contains(meta!.Rows, row => row.Count >= 2
+        Assert.Contains(meta.Rows, row => row.Count >= 2
             && string.Equals(row[0], "SchemaVersion", StringComparison.Ordinal)
             && string.Equals(row[1], "010", StringComparison.Ordinal));
     }

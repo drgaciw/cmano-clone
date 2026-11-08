@@ -123,7 +123,7 @@ public static class MapSymbolLodClusterer
     /// <summary>Prefer lat/lon grid when both present; else normalized x/y in [0,1].</summary>
     private static (int Gx, int Gy) ResolveGridCell(MapSymbolEntry symbol, int gridDivisions)
     {
-        if (symbol.Latitude is double lat && symbol.Longitude is double lon)
+        if (symbol.Latitude is { } lat && symbol.Longitude is { } lon)
         {
             var nx = (float)((lon + 180.0) / 360.0);
             var ny = (float)((lat + 90.0) / 180.0);
@@ -171,7 +171,7 @@ public static class MapSymbolLodClusterer
         for (var i = 0; i < members.Count; i++)
         {
             var m = members[i];
-            if (m.Latitude is double lat && m.Longitude is double lon)
+            if (m.Latitude is { } lat && m.Longitude is { } lon)
             {
                 slat += lat;
                 slon += lon;

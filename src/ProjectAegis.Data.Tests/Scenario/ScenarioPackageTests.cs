@@ -85,7 +85,7 @@ public sealed class ScenarioPackageTests
         Assert.Contains("baltic-patrol", ids);
         var dto = ScenarioPolicyJsonCatalog.TryGetJson("restricted-engagement");
         Assert.NotNull(dto);
-        Assert.Equal("restricted-engagement", dto!.Id);
+        Assert.Equal("restricted-engagement", dto.Id);
     }
 
     private static string? ResolveFixture(string fileName)

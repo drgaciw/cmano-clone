@@ -8,7 +8,7 @@ namespace ProjectAegis.Delegation.UnityAdapter.Tests.Bridge;
 /// <summary>
 /// CMD-36: expanded headless wall-clock bench for the richer C2 panel bind path
 /// (map apply + unit/contact detail apply + agent roster + tactical envelopes + message log).
-/// Req 20 budget: p95 and max < 100 ms (n=20 after warmup). Unity Profiler deferred to Editor.
+/// Req 20 budget: p95 and max &lt; 100 ms (n=20 after warmup). Unity Profiler deferred to Editor.
 /// </summary>
 [TestFixture]
 public sealed class C2PanelPerfBenchTests

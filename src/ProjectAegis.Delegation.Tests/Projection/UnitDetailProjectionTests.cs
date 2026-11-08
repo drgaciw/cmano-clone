@@ -2,7 +2,6 @@ using ProjectAegis.Delegation.Comms;
 using ProjectAegis.Delegation.Core;
 using ProjectAegis.Delegation.Decision;
 using ProjectAegis.Delegation.Projection;
-using ProjectAegis.Sim.Engage;
 using ProjectAegis.Sim.Policy;
 using ProjectAegis.Sim.Scenario;
 using NUnit.Framework;
@@ -29,7 +28,7 @@ public sealed class UnitDetailProjectionTests
             policy,
             simTimeSeconds: 100);
 
-        Assert.That(detail!.MagazineLabel, Does.Contain("Δ-1"));
+        Assert.That(detail.MagazineLabel, Does.Contain("Δ-1"));
         Assert.That(detail.EmconLabel, Does.Contain("ACTIVE"));
         Assert.That(detail.DoctrineLabel, Does.Contain("WeaponsFree"));
         Assert.That(detail.AttackOptionsLabel, Does.StartWith("ATTACK:"));
@@ -48,7 +47,7 @@ public sealed class UnitDetailProjectionTests
             new DecisionLog(),
             policy,
             simTimeSeconds: 15);
-        Assert.That(detail!.FuelLabel, Does.Contain("JOKER"));
+        Assert.That(detail.FuelLabel, Does.Contain("JOKER"));
     }
 
     [Test]
@@ -78,7 +77,7 @@ public sealed class UnitDetailProjectionTests
             null,
             simTimeSeconds: 0);
 
-        Assert.That(detail!.StatusLabel, Is.EqualTo(UnitCommsDisplay.UnknownOutOfComms));
+        Assert.That(detail.StatusLabel, Is.EqualTo(UnitCommsDisplay.UnknownOutOfComms));
         Assert.That(detail.CommsLabel, Is.EqualTo("COMMS: DENIED"));
     }
 
@@ -96,7 +95,7 @@ public sealed class UnitDetailProjectionTests
             null,
             simTimeSeconds: 0);
 
-        Assert.That(detail!.StatusLabel, Is.EqualTo(UnitCommsDisplay.OperationalCommsDegraded));
+        Assert.That(detail.StatusLabel, Is.EqualTo(UnitCommsDisplay.OperationalCommsDegraded));
         Assert.That(detail.CommsLabel, Is.EqualTo("COMMS: DEGRADED"));
     }
 
@@ -114,7 +113,7 @@ public sealed class UnitDetailProjectionTests
             null,
             simTimeSeconds: 0);
 
-        Assert.That(detail!.StatusLabel, Is.EqualTo(UnitCommsDisplay.Destroyed));
+        Assert.That(detail.StatusLabel, Is.EqualTo(UnitCommsDisplay.Destroyed));
         Assert.That(detail.CommsLabel, Is.EqualTo("COMMS: DENIED"));
     }
 }

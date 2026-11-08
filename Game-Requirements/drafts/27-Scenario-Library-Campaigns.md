@@ -1,11 +1,13 @@
 # 27 - Scenario Library, Campaigns & Package Loading
 
-**Last Updated:** 2026-09-02
+**Review / acceptance state (2026-09-30):** Draft maturity retained; formal document promotion and criterion-level owner acceptance are pending. Implementation/test mappings below identify subsets, not complete product signoff. Live evidence: [tracker](../implementation-tracker.md#post-mvp-requirement-evidence-22-27) and [RTM](../../docs/architecture/requirements-traceability.md).
+
+**Last Updated:** 2026-09-30 (additive evidence reconciliation)
 **Status:** Draft — remediation baseline (remedies B-13, addresses D-10 / AME-2.1 package loader residual & CMD-27 / CMD-27.12)
-**FR reverse-ref:** [FR-09](01-Project-Overview.md) — Scenario/mission editor & [FR-02](01-Project-Overview.md) — Core loop / scenario selection
+**FR reverse-ref:** [FR-09](../requirements/01-Project-Overview.md) — Scenario/mission editor & [FR-02](../requirements/01-Project-Overview.md) — Core loop / scenario selection
 **Author basis:** Codebase review of `ProjectAegis.Data.Scenario` (`ScenarioPackageLoader`, `ScenarioPackage`, `ScenarioLibraryProjection`, `ScenarioLibraryLister`), `ProjectAegis.Data.Scenario.Campaign` (`CampaignDocument`, `CampaignScenarioMember`, `CampaignLibraryEntry`, `CampaignLibraryReasons`, `CampaignProgress`, `CampaignDocumentJsonLoader`, `CampaignDocumentJsonWriter`, `CampaignLibraryProjection`, `CampaignLibraryLister`), `ProjectAegis.Delegation.Projection` (`ScenarioLibraryApplyState`, `CampaignLibraryApplyState`), and Unity runtime host `ScenarioLibraryPanelHost.cs` (`CMD-27.12` / `CMD-27`); ADR-008, ADR-011, ADR-013, ADR-015, ADR-017; requirements 01, 02, 06, 11, 20.
-**Related:** [01-Project-Overview.md](01-Project-Overview.md) · [02-Core-Gameplay-Loop.md](02-Core-Gameplay-Loop.md) · [06-Database-Intelligence.md](06-Database-Intelligence.md) · [11-Agentic-Mission-Editor.md](11-Agentic-Mission-Editor.md) · [20-Command-And-Control-UI.md](20-Command-And-Control-UI.md) · [21-Platform-Editor.md](21-Platform-Editor.md)
-**Decision record:** [ADR-008 Mission-Editor Validation Engine (Accepted)](../../docs/architecture/adr-008-mission-editor-validation-engine.md) · [ADR-011 Scenario Package Format & Database Binding (Accepted)](../../docs/architecture/adr-011-scenario-package-format-and-db-binding.md) · [ADR-013 CMO Scenario Import Policy (Proposed)](../../docs/architecture/adr-013-cmo-scenario-import-policy.md) · [ADR-015 Agent-Authored Scenario Transparency (Proposed)](../../docs/architecture/adr-015-agent-authored-scenario-transparency.md) · [ADR-017 Editor Topology: Client vs Scenario Lab (Proposed)](../../docs/architecture/adr-017-editor-topology-client-vs-scenario-lab.md)
+**Related:** [01-Project-Overview.md](../requirements/01-Project-Overview.md) · [02-Core-Gameplay-Loop.md](../requirements/02-Core-Gameplay-Loop.md) · [06-Database-Intelligence.md](../requirements/06-Database-Intelligence.md) · [11-Agentic-Mission-Editor.md](../requirements/11-Agentic-Mission-Editor.md) · [20-Command-And-Control-UI.md](../requirements/20-Command-And-Control-UI.md) · [21-Platform-Editor.md](../requirements/21-Platform-Editor.md)
+**Decision record:** [ADR-008 Mission-Editor Validation Engine (Accepted)](../../docs/architecture/adr-008-mission-editor-validation-engine.md) · [ADR-011 Platform Editor Excel Round-trip (Accepted)](../../docs/architecture/adr-011-platform-editor-excel-roundtrip.md) · [ADR-013 CMO Scenario Import Policy (Proposed)](../../docs/architecture/adr-013-cmo-scenario-import-policy.md) · [ADR-015 Agent-Authored Scenario Transparency (Proposed)](../../docs/architecture/adr-015-agent-authored-scenario-transparency.md) · [ADR-017 Editor Topology: Client vs Scenario Lab (Proposed)](../../docs/architecture/adr-017-editor-topology-client-vs-scenario-lab.md)
 
 ---
 
@@ -36,6 +38,8 @@ The implementation spans three layers:
    - `ScenarioLibraryPanelHost`: UI Toolkit MonoBehaviour host binding scenario and campaign list views, zero-state previews, availability badges, and load dispatchers.
 
 ---
+
+**Decision clarification (2026-09-30):** ADR-011 governs Excel-primary Platform Editor authoring; it does not accept a scenario ZIP/media package format. Advanced package/media decisions remain design backlog scope under H5.
 
 ## Functional Requirements
 
@@ -86,6 +90,16 @@ The implementation spans three layers:
 ---
 
 ## Data Contracts & Schemas
+
+### Proposed LIB-05: Presentation content failure isolation (H5 — 2026-09-30)
+
+**Status:** proposed; inventory/ADR and a bounded content pilot precede implementation. Extend [DRG-331](https://linear.app/drgamtd-workspace/issue/DRG-331); the local pilot/failure-isolation child is [DRG-347](https://linear.app/drgamtd-workspace/issue/DRG-347). No content loader, compatibility resolver, or fallback implementation is claimed by this amendment.
+
+- **LIB-05.1** Missing, delayed, corrupt, or version-mismatched presentation assets shall select a documented fallback with a visible diagnostic. The pilot shall define a compatibility manifest, cancellation/timeout behavior, and fallback for its chosen content class before delivery.
+- **LIB-05.2** Content loading, fallback selection, and presentation timing shall not change authoritative simulation state, orders, RNG state, or replay fingerprints for identical simulation inputs. Authoritative catalog/scenario/policy load failures retain their domain validation gates; presentation fallback shall never bypass those gates.
+- **LIB-05.3** Acceptance shall inject each failure mode and compare authoritative state and order-log fingerprints to the baseline run at equivalent simulation ticks. Tests shall show the documented fallback and diagnostic, with performance measured against the agreed pilot budget. Asset availability shall not determine simulation tick progression.
+
+**Boundary:** presentation reads snapshots/projections and sends player intent through approved command façades under [ADR-010 §2–3](../../docs/architecture/adr-010-headless-first-command-driven-ui.md), [ADR-007](../../docs/architecture/adr-007-c2-map-presentation.md), and [ADR-001](../../docs/architecture/adr-001-sim-assembly-boundary.md). Compatibility, fallback, and measured-budget decisions remain H5 design gates. See [requirements reconciliation](../../docs/superpowers/specs/2026-09-30-requirements-planning-reconciliation.md).
 
 ### Campaign Document JSON (`*.campaign.json`)
 

@@ -1,6 +1,24 @@
 # Project Aegis — Project Dashboard
 
-Living dashboard. Latest archive: [dashboard-snapshots/2026-07-13-pm.md](dashboard-snapshots/2026-07-13-pm.md) · [HTML](dashboard-snapshots/2026-07-13-pm.html).
+Living dashboard. Latest scoped follow-up: [Decisions and critical-path review, 2026-10-01](dashboard-snapshots/2026-10-01-planning-next-steps.md), following [Planning reconciliation, 2026-09-30](dashboard-snapshots/2026-09-30-planning-reconciliation.md). Latest full-project archive remains [2026-07-13-pm.md](dashboard-snapshots/2026-07-13-pm.md) · [HTML](dashboard-snapshots/2026-07-13-pm.html).
+
+**2026-10-01 follow-up:** [Graphite draft #690](https://app.graphite.com/github/pr/drgaciw/cmano-clone/690) publishes the reconciliation; stacked [draft #691](https://app.graphite.com/github/pr/drgaciw/cmano-clone/691) records the decision and reviews. ADR-017 accepts shared core / in-client v1 / optional later Scenario Lab; the [H4 scope draft](../../production/scenario-editor-phase2-gui-scope-boundary-2026-10-01.md) and three horizon reviews are prepared for repository review. H4 has 20 unresolved findings; H5 asynchronous loading and H6 interactive restore remain unproven. Exact SDK **8.0.400**, source `1902dc12` plus scoped planning delta: Debug/Release **3,425 passed**, smoke **25/25**, replay **6/6**, builds **0 warnings/errors**. This does not replace criterion-specific QA or owner acceptance. G1 #662 needs traceability corrections; current entry/fixture wiring remains incomplete and Unity `:8080` is down. Notion recovered and both pages now carry verified public review links; the detailed mirror was rejected by automatic approval review and remains local.
+
+**Current program — 2026-09-30:** [S122–S127 rebaseline](future-sprint-roadmap-09302026.md), with G1/graph/entry/editor evidence outstanding and DRG-208 owner acceptance pending at `1902dc12`. Original sprint date windows are forecasts. S123's Must load is corrected to **4.0d** including its owner walk. The [mandatory QA plan](../../production/qa/qa-plan-sprint-122-127-rebaseline-2026-09-30.md) is authored; its tests and sign-off are separate pending gates. Document maturity, delivery and acceptance are tracked independently in [machine status](../../production/sprint-status-s122-s127.yaml).
+
+**Follow-on planning:** H4 bounded edit/validate/save/export/play with runtime-support disclosure; H5 local presentation-content pilot; H6 deterministic save/resume first, with multiplayer a separate later decision. Existing intake epics are extended; implementation is gated and unscheduled. WYSIWYG Platform Editor remains undecided; ADR-011 Excel-primary unchanged. Stage stays Release; Launch deferred.
+
+**Live planning record:** [Notion reconciliation page](https://app.notion.com/p/3ebf7cb4e4df81cd80b7ff559888a0bd) links the requirements, decision lanes and new backlog children to this dated roadmap.
+
+**Evidence limit:** Prior review passed 3,352 solution / 26 proxy smoke / six canonical replay and a zero-warning single-worker build using SDK 8.0.425 on local dirty HEAD `4190fb1`. This is historical local-checkout evidence, not exact-SDK compliance, Editor coverage or acceptance of reported remote target `1902dc12`. GitNexus path/index ambiguity remains open. The material below is dated history, not current status or a new full-project inventory audit.
+
+**Fresh local checks, 2026-09-30:** final solution **3,352 passed, zero failed/skipped**, smoke **26/26**, canonical replay **6/6**, build **zero warnings/errors**. The [current snapshot](dashboard-snapshots/2026-09-30-planning-reconciliation.md) records source-input identity and the RTM historical-header correction followed by full rerun. These local results remain separate from sprint-specific QA/Editor and owner acceptance.
+
+---
+
+## Historical dashboard updates
+
+**2026-09-08:** Slice G planning is tracked by [DRG-233](https://linear.app/drgamtd-workspace/issue/DRG-233), with G1-G3 in DRG-234 through DRG-236. See the [dated roadmap](future-sprint-roadmap-09082026.md) for dependencies and evidence limits. Fresh checks passed: 3,216 solution tests, 24 proxy smoke and six canonical replay tests; build 0 warnings/errors. Slice C owner acceptance and GitNexus recovery remain open. The July dashboard content below is preserved as historical context and was not re-audited by this scoped update.
 
 **Note:** Requested `2026-07-10-pm.md` was not present on disk (latest prior archive: [2026-07-09-am.md](2026-07-09-am.md)). This file is the **latest PM dashboard snapshot** after post-editor hygiene (S89–S92), S93 asset wave, and max-variance **QA gauntlet** smoke.
 
