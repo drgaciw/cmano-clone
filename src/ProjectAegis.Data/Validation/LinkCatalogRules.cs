@@ -1,7 +1,7 @@
 namespace ProjectAegis.Data.Validation;
 
-using ProjectAegis.Data.Agents;
-using ProjectAegis.Data.Catalog;
+using Agents;
+using Catalog;
 
 /// <summary>Req-21 / DBI-3.1 detect-only link catalog integrity rules.</summary>
 public static class LinkCatalogRules

@@ -1,6 +1,6 @@
 namespace ProjectAegis.Delegation.Sim;
 
-using ProjectAegis.Delegation.Core;
+using Core;
 using ProjectAegis.Sim.Swarm;
 
 /// <summary>Result of <see cref="SwarmAgentIntentIssuer.TryIssue"/> with actor attribution.</summary>

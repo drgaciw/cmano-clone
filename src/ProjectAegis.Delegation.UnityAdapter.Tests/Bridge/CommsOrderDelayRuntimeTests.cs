@@ -1,7 +1,6 @@
 using ProjectAegis.Delegation.Comms;
 using ProjectAegis.Delegation.Controllers;
 using ProjectAegis.Delegation.Core;
-using ProjectAegis.Delegation.Sim;
 using ProjectAegis.Delegation.UnityAdapter.Bridge;
 using NUnit.Framework;
 

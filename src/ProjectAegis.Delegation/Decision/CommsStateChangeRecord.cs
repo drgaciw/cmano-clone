@@ -1,6 +1,6 @@
 namespace ProjectAegis.Delegation.Decision;
 
-using ProjectAegis.Delegation.Comms;
+using Comms;
 
 /// <summary>Order-log comms transition (doc 19 / cyber-comms GDD).</summary>
 public sealed record CommsStateChangeRecord(

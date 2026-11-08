@@ -1,9 +1,9 @@
 namespace ProjectAegis.MissionEditor.Cli;
 
 using System.Text.Json;
-using ProjectAegis.Data.Excel;
-using ProjectAegis.Data.Platform;
-using ProjectAegis.Data.WriteGate;
+using Data.Excel;
+using Data.Platform;
+using Data.WriteGate;
 
 /// <summary>
 /// S22-02 / S23-01: platform_import_xlsx verb (pattern from CatalogImportMarkdownCommand).
@@ -89,6 +89,9 @@ public static class PlatformImportXlsxCommand
                 swarmBatchId = result.SwarmBatchId,
                 requiresHumanApproval = result.Plan.RequiresHumanApproval,
                 notes = result.Notes,
+                quarantineCount = result.QuarantineEntries.Count,
+                contractDriftCount = result.Plan.ContractDrift.Count,
+                dropCounts = result.DropCounts,
                 nextStep = "catalog_write_approve --db <path> --batch <batchId>",
             };
 

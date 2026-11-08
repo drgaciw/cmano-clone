@@ -1,9 +1,9 @@
 namespace ProjectAegis.Delegation.TargetabilityAccept;
 
 using System.Text;
-using ProjectAegis.Delegation.Projection;
-using ProjectAegis.Delegation.SensorToShooter;
-using ProjectAegis.Delegation.Skills;
+using Projection;
+using SensorToShooter;
+using Skills;
 
 /// <summary>Replay-stable canonical fingerprint for targetability acceptance snapshots (DRG-219).</summary>
 public static class TargetabilityAcceptFingerprint

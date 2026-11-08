@@ -1,6 +1,6 @@
 namespace ProjectAegis.Data.Platform;
 
-using ProjectAegis.Data.Catalog;
+using Catalog;
 
 /// <summary>
 /// Req-21 Phase A/B: the catalog rows an exporter turns into a workbook. Decoupled from

@@ -5,7 +5,7 @@ using ProjectAegis.Delegation.Core;
 using ProjectAegis.Delegation.Decision;
 using ProjectAegis.Delegation.Groups;
 using ProjectAegis.Delegation.Orchestration;
-using ProjectAegis.Delegation.Policy;
+using Policy;
 using ProjectAegis.Delegation.Targets;
 using ProjectAegis.Delegation.Traits;
 using NUnit.Framework;

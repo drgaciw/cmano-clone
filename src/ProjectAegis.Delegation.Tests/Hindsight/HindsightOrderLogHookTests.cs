@@ -49,6 +49,39 @@ public sealed class HindsightOrderLogHookTests
         Assert.That(sink.RetainCalls[0].Content, Does.Contain("Chose Move"));
     }
 
+    [Test]
+    public void RegisterAgent_overwrites_personality_so_later_decisions_use_the_new_bank()
+    {
+        var sink = new RecordingHindsightMemoryClient();
+        var hook = new HindsightOrderLogHook(sink);
+        var agentId = new AgentId("a1");
+        hook.RegisterAgent(agentId, "Aggressive");
+        hook.RegisterAgent(agentId, "Cautious");
+
+        Assert.That(hook.TryGetRegisteredPersonality(agentId, out var slug), Is.True);
+        Assert.That(slug, Is.EqualTo("Cautious"));
+
+        hook.OnAppended(new OrderLogEntry(
+            1,
+            OrderLogEntryKind.AgentDecision,
+            1.0,
+            new AgentDecisionPayload(
+                1,
+                1.0,
+                agentId,
+                new TargetId("t1"),
+                AutonomyLevel.Assisted,
+                OrderKind.Hold,
+                [new ScoredIntent(OrderKind.Hold, 1, RiskLevel.Low)],
+                "hold",
+                1,
+                10,
+                0.1)));
+
+        Assert.That(sink.RetainCalls, Has.Count.EqualTo(1));
+        Assert.That(sink.RetainCalls[0].BankId, Is.EqualTo(HindsightBankIds.AgentDecision("Cautious", "a1")));
+    }
+
     private sealed class RecordingHindsightMemoryClient : IHindsightMemoryClient
     {
         public List<(string BankId, string Content)> RetainCalls { get; } = new();

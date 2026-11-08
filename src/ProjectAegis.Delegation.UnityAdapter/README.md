@@ -110,6 +110,7 @@ mutate the sim or the order log, so a Unity panel can call them each frame safel
 | `MissionListBridge.ProjectFrom(timeline)` | `IReadOnlyList<MissionListEntry>` | Mission list from the scenario mission timeline. |
 | `SensorC2Bridge.Build(snapshot, log)` | `SensorC2Snapshot` | Sensor C2 HUD view model. |
 | `UnitDetailBridge.BuildPrimary/BuildSelected(...)` | `UnitDetailEntry?` | Unit detail panel (default or selected unit). |
+| `SliceAContactFrameBridge.Build(snapshot, bridge, catalog?, shooters?)` | `SliceAContactFrame` | Combat-UX Slice A read model: kill-chain contact picture, provenance, per-contact C2 authority, and the read-only sensor→shooter chains (`SensorToShooterProjection`, DRG-207). |
 
 ### Selection state — `C2PresentationController`
 
@@ -152,6 +153,36 @@ layer consumes are defined in the core assembly — see
 `DelegationBridgeHost` in `unity/ProjectAegis/`, so GitNexus can trace host → adapter edges). It
 exposes the last-projected OOB tree, map symbols, sensor C2, top bar, and unit detail, plus
 `SelectUnit` / `SelectContact` and the graph-surfacing fields.
+
+### Slice A contact frame — sensor→shooter kill chain
+
+`SliceAContactFrameBridge.Build(snapshot, bridge, catalog?, shooters?)` composes the Combat-UX
+**Slice A** read model once per tick. `DelegationBridgeHost` caches the result as `LastSliceAContacts`
+*after* `Bridge.Tick(...)` returns (see `RunTick`), so the composition stays off the
+`DelegationBridge.Tick` hot path. The immutable `SliceAContactFrame` carries the kill-chain contact
+snapshot, contact provenance, the contact picture, per-contact C2 authority, and — the load-bearing
+part — the read-only **sensor→shooter chains** (`Chains`, a `SensorToShooterSnapshot`).
+
+Those chains come from `SensorToShooterProjection.Project(...)` in the core assembly
+([`ProjectAegis.Delegation/SensorToShooter/`](../ProjectAegis.Delegation/SensorToShooter/), DRG-207).
+For each contact it decomposes the kill chain into four ordered links —
+**sensor → track → targetability → eligible-shooter** — and names a `SensorToShooterBreakCause` on the
+*first* broken link (downstream links inherit an upstream break); a chain `IsComplete` only when all
+four are linked. The projection is replay-stable: `ComputeFingerprint` emits a canonical,
+ordinal / invariant-culture string, so identical inputs yield an identical fingerprint.
+
+**Eligibility fails closed.** `ISimWorldSnapshot` carries no per-shooter side, geometry, or commitment
+facts, so without an authoritative `ISensorToShooterShooterSource` the frame sets
+`EligibilityAvailable = false` and shooter verdicts are withheld — never fabricated from scenario
+defaults or historical engage contexts. When a live source is supplied it is wrapped in an internal
+`LiveCandidateGuard` that drops candidates that are dead, unregistered, not launch-ready, or whose
+live magazine ledger reports zero rounds; a *missing* ledger entry is not permission to seed rounds
+from configuration.
+
+A `COMPLETE` chain reports **technical eligibility only — not weapons-release authority** (ADR-010
+§2–3, ADR-007, ADR-001). Downstream presentation bridges consume `LastSliceAContacts` read-only —
+e.g. `CombatPresentationFrameBridge.Build(...)` (the combat strip) and the command-review
+`StatusFrameBridge` — exactly like every other feed above; none of them mutate the sim or order log.
 
 ---
 

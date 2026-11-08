@@ -144,7 +144,7 @@ Headless **Play Mode smoke** already runs in the Buildkite .NET step without a U
 
 Full Editor batchmode (EditMode / PlayMode in the Unity project) needs:
 
-1. GitHub secrets: `UNITY_LICENSE` (or `UNITY_EMAIL` + `UNITY_PASSWORD` per [game-ci](https://game.ci/))
+1. GitHub secrets: `UNITY_LICENSE`, `UNITY_EMAIL`, and `UNITY_PASSWORD` for the configured Personal-license workflow; see [GameCI license setup and limitations](gameci-license.md).
 2. Run **Actions → Unity CI (manual) → Run workflow**
 
 See [unity/ProjectAegis/PLAYMODE-SMOKE.md](../../unity/ProjectAegis/PLAYMODE-SMOKE.md) for Editor setup.

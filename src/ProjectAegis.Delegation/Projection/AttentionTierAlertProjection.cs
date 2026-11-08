@@ -1,6 +1,6 @@
 namespace ProjectAegis.Delegation.Projection;
 
-using ProjectAegis.Delegation.Attention;
+using Attention;
 
 /// <summary>
 /// S109-03 / AGD-13: emit attributable alerts only when an agent's named attention tier

@@ -1,5 +1,4 @@
 using ProjectAegis.Data.Scenario.Authoring;
-using ProjectAegis.MissionEditor.Cli;
 using System.Text.Json;
 using Xunit;
 

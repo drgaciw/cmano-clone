@@ -9,6 +9,38 @@ namespace ProjectAegis.Delegation.UnityAdapter.Tests.Presentation;
 
 public sealed class CombatMapIntegrationTests
 {
+    [TestCase("Hit")]
+    [TestCase("Kill")]
+    public void Transient_vfx_resolves_contact_aliases_at_the_frame_time(string outcome)
+    {
+        var contacts = new[] { new ContactPictureEntry("contact-7", "target-2", "shooter", "Identified", 2, 2) };
+        var symbols = MapPictureProjection.Project(new[] { new OobTreeEntry("shooter", true) }, contacts, 7);
+        var events = new CombatEventSnapshot(new[] {
+            new CombatEvent(CombatEventPhase.TerminalOutcome, "shooter", "target-2", "Gun", outcome, 1, 2, 2, "terminal") });
+        var frame = CombatPresentationFrame.Empty with
+        {
+            Events = events,
+            Contacts = SliceAContactFrame.Empty with { Contacts = contacts },
+            SimTime = 3,
+        };
+
+        var vfx = CombatVfxFrameBridge.Build(frame, symbols);
+        var targetPose = symbols.Single(s => s.SymbolId == "contact-7");
+        Assert.That(vfx.FireLines, Has.Count.EqualTo(1));
+        Assert.That(vfx.ImpactMarkers, Has.Count.EqualTo(1));
+        Assert.That(vfx.FireLines[0].ToX, Is.EqualTo(targetPose.NormalizedX));
+        Assert.That(vfx.FireLines[0].ToY, Is.EqualTo(targetPose.NormalizedY));
+        Assert.That(vfx.ImpactMarkers[0].X, Is.EqualTo(targetPose.NormalizedX));
+        Assert.That(vfx.ImpactMarkers[0].Y, Is.EqualTo(targetPose.NormalizedY));
+        Assert.That(vfx.ImpactMarkers[0].TargetUnitId, Is.EqualTo("target-2"));
+        Assert.That(symbols.Any(s => s.SymbolId == "target-2"), Is.False);
+
+        var expired = CombatVfxFrameBridge.Build(frame with { SimTime = 9 }, symbols);
+        Assert.That(expired, Is.EqualTo(CombatVfxFrame.Empty));
+        var unmapped = CombatVfxFrameBridge.Build(frame with { Contacts = SliceAContactFrame.Empty }, symbols);
+        Assert.That(unmapped, Is.EqualTo(CombatVfxFrame.Empty));
+    }
+
     [Test]
     public void Real_map_contact_identity_resolves_to_target_without_changing_symbol_picture()
     {

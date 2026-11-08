@@ -1,6 +1,6 @@
 namespace ProjectAegis.Delegation.Controllers;
 
-using ProjectAegis.Delegation.Core;
+using Core;
 
 public interface IController
 {

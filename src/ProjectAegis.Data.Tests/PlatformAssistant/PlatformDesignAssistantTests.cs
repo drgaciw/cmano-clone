@@ -237,7 +237,7 @@ public sealed class PlatformDesignAssistantTests
 
         var platforms = book.FindSheet("Platforms");
         Assert.NotNull(platforms);
-        Assert.Contains(platforms!.Rows, r => r.Count > 0 && r[0] == proposal.Binding.PlatformId);
+        Assert.Contains(platforms.Rows, r => r.Count > 0 && r[0] == proposal.Binding.PlatformId);
     }
 
     private static string CreateTempDbPath(string label) =>

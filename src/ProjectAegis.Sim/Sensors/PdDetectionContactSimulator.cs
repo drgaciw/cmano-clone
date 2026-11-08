@@ -1,9 +1,9 @@
 namespace ProjectAegis.Sim.Sensors;
 
 using ProjectAegis.Data.Catalog;
-using ProjectAegis.Sim.Core;
-using ProjectAegis.Sim.Policy;
-using ProjectAegis.Sim.Scenario;
+using Core;
+using Policy;
+using Scenario;
 
 /// <summary>Pd-driven contact appearances (replaces schedule seeds when detection trials present).</summary>
 public sealed class PdDetectionContactSimulator
@@ -14,6 +14,8 @@ public sealed class PdDetectionContactSimulator
     private readonly IReadOnlyDictionary<string, EmconState>? _unitRadarEmcon;
     private readonly ICatalogReader? _catalog;
     private readonly IReadOnlyList<ScenarioJammer> _jammers;
+    private readonly DetectionEnvironment? _environment;
+    private readonly List<DetectionLosBlock> _lastLosBlocks = new();
     // P2 allocation follow-up (S37-09): SortedSet for deterministic ordinal iteration without per-tick OrderBy/alloc.
     // Iteration order identical to previous explicit OrderBy; HashSet elsewhere unchanged.
     private readonly SortedSet<string> _detectedContacts = new(StringComparer.Ordinal);
@@ -34,9 +36,11 @@ public sealed class PdDetectionContactSimulator
         IReadOnlyDictionary<string, EmconState>? unitRadarEmcon = null,
         IReadOnlyList<ScenarioJammer>? jammers = null,
         ScenarioContactLifecycle? contactLifecycle = null,
-        ICatalogReader? catalog = null)
+        ICatalogReader? catalog = null,
+        DetectionEnvironment? environment = null)
     {
         _seed = seed;
+        _environment = environment is { IsEmpty: false } ? environment : null;
         _unitRadarEmcon = unitRadarEmcon;
         _catalog = catalog;
         _jammers = jammers ?? Array.Empty<ScenarioJammer>();
@@ -56,6 +60,9 @@ public sealed class PdDetectionContactSimulator
 
     public ulong LastDetectionHash { get; private set; }
 
+    /// <summary>ENV-02 / DRG-379: trials skipped on the most recent tick because LOS was blocked.</summary>
+    public IReadOnlyList<DetectionLosBlock> LastLosBlocks => _lastLosBlocks;
+
     public void SetCommsStaleThresholdDivisor(int divisor) =>
         _commsStaleThresholdDivisor = Math.Max(1, divisor);
 
@@ -72,6 +79,7 @@ public sealed class PdDetectionContactSimulator
 
     public IReadOnlyList<ContactTransition> Tick(ulong simTick, double simTime)
     {
+        _lastLosBlocks.Clear();
         var rolls = DeterministicDetectionLoop.RollTick(
             _seed,
             simTick,
@@ -80,7 +88,9 @@ public sealed class PdDetectionContactSimulator
             _detectedContacts,
             _jammers,
             catalog: _catalog,
-            trialsPreSorted: true);
+            trialsPreSorted: true,
+            environment: _environment,
+            losBlocks: _lastLosBlocks);
         LastDetectionHash = DetectionWorldHash.MixTick(LastDetectionHash, rolls);
 
         var transitions = new List<ContactTransition>();
@@ -104,7 +114,6 @@ public sealed class PdDetectionContactSimulator
                 if (_tracks.TryGetValue(roll.Trial.ContactId, out var existing))
                 {
                     existing.MissedTicks = 0;
-                    existing.LastSeenTick = simTick;
                 }
 
                 continue;
@@ -255,8 +264,6 @@ public sealed class PdDetectionContactSimulator
     private sealed class ContactTrack(ulong firstSeenTick)
     {
         public ulong FirstSeenTick { get; } = firstSeenTick;
-
-        public ulong LastSeenTick { get; set; } = firstSeenTick;
 
         public int MissedTicks { get; set; }
 

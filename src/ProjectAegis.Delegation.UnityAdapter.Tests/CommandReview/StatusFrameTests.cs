@@ -1,7 +1,6 @@
 using NUnit.Framework;
 using ProjectAegis.Delegation.Comms;
 using ProjectAegis.Delegation.Core;
-using ProjectAegis.Delegation.Decision;
 using ProjectAegis.Delegation.Projection;
 using ProjectAegis.Delegation.UnityAdapter.Bridge;
 using ProjectAegis.Delegation.UnityAdapter.CommandReview;
@@ -25,9 +24,9 @@ public sealed class StatusFrameTests
                     new("Identified", "h1", 4, 4.5), true,
                     ContactProvenanceQualityState.Stale | ContactProvenanceQualityState.SilentComms),
             }),
-            ProjectAegis.Delegation.SensorToShooter.SensorToShooterSnapshot.Empty,
+            SensorToShooter.SensorToShooterSnapshot.Empty,
             Array.Empty<ContactPictureEntry>(),
-            new Dictionary<string, ProjectAegis.Delegation.Skills.C2AuthorityProjection>());
+            new Dictionary<string, Skills.C2AuthorityProjection>());
 
         var frame = StatusFrameBridge.Build(bridge, new KnownSnapshot(), contacts);
 
@@ -40,7 +39,7 @@ public sealed class StatusFrameTests
         Assert.That(frame.Emissions.Single(e => e.UnitId == "u1").KnownEmitters, Is.EqualTo(new[] { "radar-a" }));
         Assert.That(frame.ElectronicWarfare.Single(e => e.UnitId == "u1").State, Is.EqualTo(StatusKnowledge.Nominal));
         Assert.That(frame.PlatformDegradation!.Units.Single(u => u.UnitId == "u1").ActiveDegradeCodes,
-            Does.Contain(ProjectAegis.Delegation.PlatformDegrade.PlatformDegradeCode.Sensor));
+            Does.Contain(PlatformDegrade.PlatformDegradeCode.Sensor));
     }
 
     [Test]
@@ -78,29 +77,61 @@ public sealed class StatusFrameTests
         Assert.That(frame.Units, Has.Count.EqualTo(2), "display filtering must not alter semantic facts");
     }
 
+    [Test]
+    public void Emissions_fallback_keeps_comms_denial_scoped_to_its_unit()
+    {
+        var bridge = BridgeWith("u1", "u2", "u3");
+        bridge.Orchestrator.DecisionLog.AppendCommsStateChange(new(0, 7, 7, "u2", CommsState.Degraded, CommsState.Nominal, "restored"));
+        bridge.Orchestrator.DecisionLog.AppendCommsStateChange(new(0, 8, 8, "u1", CommsState.Nominal, CommsState.Denied, "jammed"));
+        bridge.Orchestrator.DecisionLog.AppendCommsStateChange(new(0, 11, 11, "u2", CommsState.Nominal, CommsState.Denied, "future"));
+
+        var frame = StatusFrameBridge.Build(bridge, new BareSnapshot(10), SliceAContactFrame.Empty);
+
+        Assert.That(frame.Emissions.Single(e => e.UnitId == "u1").Detail, Does.Contain("COMMS_DENIED"));
+        Assert.That(frame.Emissions.Single(e => e.UnitId == "u2").Detail, Does.Not.Contain("COMMS_DENIED"));
+        Assert.That(frame.Emissions.Single(e => e.UnitId == "u3").Detail, Does.Not.Contain("COMMS_DENIED"));
+        Assert.That(frame.Emissions.All(e => e.State == StatusKnowledge.Unknown), Is.True);
+    }
+
+    [Test]
+    public void Zero_hp_platform_is_offline_and_remains_visible_in_problem_rows()
+    {
+        var bridge = BridgeWith("u1");
+        bridge.Orchestrator.DecisionLog.AppendPlatformDamageChange(new(0, 9, 9, new TargetId("u1"), 40, 0, "hit", 3));
+
+        var frame = StatusFrameBridge.Build(bridge, new KnownSnapshot(), SliceAContactFrame.Empty);
+        var unit = frame.Units.Single();
+
+        Assert.That(unit.Platform.State, Is.EqualTo(StatusKnowledge.Offline));
+        Assert.That(unit.Platform.SourceSimTime, Is.EqualTo(9));
+        Assert.That(unit.Recovery.State, Is.EqualTo(StatusKnowledge.Unknown));
+        Assert.That(StatusPresenter.Build(frame, StatusDisplayFilter.ProblemsOnly).UnitRows.Single().Text,
+            Does.Contain("PLATFORM OFFLINE"));
+    }
+
     [TestCase(double.NaN)]
     [TestCase(double.PositiveInfinity)]
     [TestCase(-1)]
     public void Invalid_snapshot_time_is_rejected(double time)
     {
-        Assert.Throws<ArgumentOutOfRangeException>((Action)(() =>
-            StatusFrameBridge.Build(BridgeWith("u1"), new BareSnapshot(time), SliceAContactFrame.Empty)));
+        Assert.Throws<ArgumentOutOfRangeException>(() =>
+            StatusFrameBridge.Build(BridgeWith("u1"), new BareSnapshot(time), SliceAContactFrame.Empty));
     }
 
     [Test]
     public void Future_contact_frame_is_rejected_even_when_integer_tick_matches()
     {
         var contacts = SliceAContactFrame.Empty with { SimTick = 5, SimTime = 5.9 };
-        Assert.Throws<ArgumentException>((Action)(() =>
-            StatusFrameBridge.Build(BridgeWith("u1"), new BareSnapshot(5.1), contacts)));
+        Assert.Throws<ArgumentException>(() =>
+            StatusFrameBridge.Build(BridgeWith("u1"), new BareSnapshot(5.1), contacts));
     }
 
     [Test]
     public void Invalid_contact_frame_time_is_rejected()
     {
         var contacts = SliceAContactFrame.Empty with { SimTime = double.NaN };
-        Assert.Throws<ArgumentException>((Action)(() =>
-            StatusFrameBridge.Build(BridgeWith("u1"), new BareSnapshot(5), contacts)));
+        Assert.Throws<ArgumentException>(() =>
+            StatusFrameBridge.Build(BridgeWith("u1"), new BareSnapshot(5), contacts));
     }
 
     [Test]
@@ -120,19 +151,19 @@ public sealed class StatusFrameTests
     [Test]
     public void Mismatched_unit_and_sensor_identity_are_rejected()
     {
-        Assert.Throws<InvalidOperationException>((Action)(() => StatusFrameBridge.Build(
-            BridgeWith("u1"), new InvalidIdentitySnapshot(unitMismatch: true), SliceAContactFrame.Empty)));
-        Assert.Throws<InvalidOperationException>((Action)(() => StatusFrameBridge.Build(
-            BridgeWith("u1"), new InvalidIdentitySnapshot(sensorMismatch: true), SliceAContactFrame.Empty)));
+        Assert.Throws<InvalidOperationException>(() => StatusFrameBridge.Build(
+            BridgeWith("u1"), new InvalidIdentitySnapshot(unitMismatch: true), SliceAContactFrame.Empty));
+        Assert.Throws<InvalidOperationException>(() => StatusFrameBridge.Build(
+            BridgeWith("u1"), new InvalidIdentitySnapshot(sensorMismatch: true), SliceAContactFrame.Empty));
     }
 
     [Test]
     public void Future_source_fact_is_rejected()
     {
-        Assert.Throws<InvalidOperationException>((Action)(() => StatusFrameBridge.Build(
-            BridgeWith("u1"), new InvalidIdentitySnapshot(futureFact: true), SliceAContactFrame.Empty)));
-        Assert.Throws<InvalidOperationException>((Action)(() => StatusFrameBridge.Build(
-            BridgeWith("u1"), new InvalidIdentitySnapshot(futureSensor: true), SliceAContactFrame.Empty)));
+        Assert.Throws<InvalidOperationException>(() => StatusFrameBridge.Build(
+            BridgeWith("u1"), new InvalidIdentitySnapshot(futureFact: true), SliceAContactFrame.Empty));
+        Assert.Throws<InvalidOperationException>(() => StatusFrameBridge.Build(
+            BridgeWith("u1"), new InvalidIdentitySnapshot(futureSensor: true), SliceAContactFrame.Empty));
     }
 
     private static DelegationBridge BridgeWith(params string[] ids)

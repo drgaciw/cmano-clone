@@ -1,7 +1,7 @@
 namespace ProjectAegis.Delegation.Logistics;
 
-using ProjectAegis.Delegation.Core;
-using ProjectAegis.Delegation.Decision;
+using Core;
+using Decision;
 using ProjectAegis.Sim.Logistics;
 using ProjectAegis.Sim.Scenario;
 

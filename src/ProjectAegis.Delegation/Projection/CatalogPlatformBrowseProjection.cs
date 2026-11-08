@@ -1,7 +1,7 @@
 namespace ProjectAegis.Delegation.Projection;
 
-using ProjectAegis.Data.Catalog;
-using ProjectAegis.Data.Platform;
+using Data.Catalog;
+using Data.Platform;
 
 /// <summary>ADR-011 Phase C spike: read-only platform browse rows (no write-gate bypass).</summary>
 public sealed record CatalogPlatformBrowseRow(
@@ -161,7 +161,7 @@ public static class CatalogPlatformBrowseProjection
             .GroupBy(d => d.PlatformId, StringComparer.Ordinal)
             .ToDictionary(
                 g => g.Key,
-                g => "Human|Agent|Mixed",
+                static _ => "Human|Agent|Mixed",
                 StringComparer.Ordinal);
 
     /// <summary>Req 15/19: ECCM / catalog onboard flags for EW (read-model from sensor bindings + platform).</summary>

@@ -1,6 +1,6 @@
 namespace ProjectAegis.Data.Scenario;
 
-using ProjectAegis.Data.Scenario.Authoring;
+using Authoring;
 
 /// <summary>Loads <see cref="ScenarioPackage"/> from canonical scenario JSON documents.</summary>
 public static class ScenarioPackageLoader

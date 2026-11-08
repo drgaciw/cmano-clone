@@ -1,7 +1,7 @@
 namespace ProjectAegis.Delegation.Orchestration;
 
-using ProjectAegis.Delegation.Controllers;
-using ProjectAegis.Delegation.Targets;
+using Controllers;
+using Targets;
 
 public sealed class OverrideService
 {

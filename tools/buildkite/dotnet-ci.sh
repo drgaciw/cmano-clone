@@ -9,7 +9,13 @@ set -euo pipefail
 repo_root="$(cd "$(dirname "${BASH_SOURCE[0]}")/../.." && pwd)"
 cd "$repo_root"
 
-# Re-apply bootstrap PATH so test hosts that spawn `dotnet`/`node` subprocesses inherit SDK 8.
+floor_file="$repo_root/production/test-floor.json"
+if [[ -f "$floor_file" ]]; then
+  floor_min="$(sed -n 's/.*"solutionMinPass"[[:space:]]*:[[:space:]]*\([0-9][0-9]*\).*/\1/p' "$floor_file" | head -n 1)"
+  echo "=== test floor solutionMinPass=${floor_min:-missing} source=$floor_file ==="
+fi
+
+# Re-apply bootstrap PATH so test hosts that spawn `dotnet`/`node` subprocesses inherit the SDK.
 # shellcheck source=agent-bootstrap-dotnet.sh
 source "$repo_root/tools/buildkite/agent-bootstrap-dotnet.sh"
 
@@ -50,7 +56,9 @@ dotnet build ProjectAegis.sln -c Release --no-restore
 bash "$repo_root/tools/copy-delegation-assemblies.sh"
 
 set +e
-dotnet test ProjectAegis.sln -c Release --no-build -v minimal
+# Keep wall-clock UI budgets from competing with other test assemblies for CPU.
+# All projects and assertions still run; only project scheduling is serialized.
+dotnet test ProjectAegis.sln -c Release --no-build -v minimal -m:1
 test_exit=$?
 set -e
 if [[ $test_exit -ne 0 ]]; then

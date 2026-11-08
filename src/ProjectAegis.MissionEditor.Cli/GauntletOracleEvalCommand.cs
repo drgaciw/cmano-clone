@@ -3,7 +3,7 @@ namespace ProjectAegis.MissionEditor.Cli;
 using System.Globalization;
 using System.Text;
 using System.Text.Json;
-using ProjectAegis.Data.Catalog;
+using Data.Catalog;
 
 /// <summary>
 /// Headless CLI verb <c>gauntlet_oracle_eval</c> — post-batch oracle evaluation via

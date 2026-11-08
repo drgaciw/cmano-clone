@@ -1,6 +1,6 @@
 namespace ProjectAegis.MissionEditor.Cli.Tests;
 
-using ProjectAegis.MissionEditor.Cli;
+using Cli;
 using Xunit;
 
 public sealed class ScenarioValidateCliTests

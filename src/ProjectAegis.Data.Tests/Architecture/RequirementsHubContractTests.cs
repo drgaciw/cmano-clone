@@ -14,7 +14,7 @@ public sealed class RequirementsHubContractTests
     {
         var hubPath = ResolveRepoFile("Game-Requirements", "requirements", "01-Project-Overview.md");
         Assert.True(hubPath != null, "Could not locate 01-Project-Overview.md");
-        var hub = File.ReadAllText(hubPath!);
+        var hub = File.ReadAllText(hubPath);
 
         for (var i = 1; i <= 20; i++)
         {

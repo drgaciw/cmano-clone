@@ -1,8 +1,8 @@
 namespace ProjectAegis.MissionEditor.Cli;
 
 using System.Text.Json;
-using ProjectAegis.Data.Catalog;
-using ProjectAegis.Data.Import;
+using Data.Catalog;
+using Data.Import;
 
 /// <summary>Phase 2 CLI — propose CMO markdown (sensor / weapon / platform) through the catalog write gate.</summary>
 public static class CatalogImportMarkdownCommand

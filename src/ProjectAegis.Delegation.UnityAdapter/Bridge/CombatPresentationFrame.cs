@@ -14,6 +14,45 @@ public sealed record CombatPresentationFrame(
     /// <summary>No combat facts received.</summary>
     public static CombatPresentationFrame Empty { get; } = new(
         CombatEventSnapshot.Empty, SliceAContactFrame.Empty, BdaAssessSnapshot.Empty, 0);
+
+    /// <summary>
+    /// Latest track/allocation fact for a shooter and correlation.
+    /// Presentation read only — does not mutate the frame or the order log.
+    /// </summary>
+    public CombatEngagementExplanation? FindTrackAllocation(ulong correlationId, string shooterId) =>
+        FindTrackAllocation(Explanations, correlationId, shooterId);
+
+    /// <summary>
+    /// Latest matching explanation. A later row with the same shooter and correlation replaces an earlier one.
+    /// </summary>
+    public static CombatEngagementExplanation? FindTrackAllocation(
+        IReadOnlyList<CombatEngagementExplanation>? explanations,
+        ulong correlationId,
+        string shooterId)
+    {
+        if (shooterId is null)
+        {
+            throw new ArgumentNullException(nameof(shooterId));
+        }
+
+        if (explanations is null)
+        {
+            return null;
+        }
+
+        CombatEngagementExplanation? found = null;
+        for (var i = 0; i < explanations.Count; i++)
+        {
+            var row = explanations[i];
+            if (row.CorrelationId == correlationId
+                && string.Equals(row.ShooterId, shooterId, StringComparison.Ordinal))
+            {
+                found = row;
+            }
+        }
+
+        return found;
+    }
 }
 
 /// <summary>Known firing solution and salvo at execution; absent values stay unknown.</summary>
@@ -37,15 +76,17 @@ public static class CombatPresentationFrameBridge
             foreach (var entry in log.ChronologicalEntries())
                 if (entry.SimTime <= simTime) bounded.Append(entry);
         }
-        var explanations = bounded.Engagements.Select(e => new CombatEngagementExplanation(
-            e.SequenceId, e.ShooterTargetId.Value,
-            e.VictimTargetId?.Value ?? CombatEventLogProjection.UnknownTargetId,
-            e.HasFireControlTrack, e.SalvoSize)).ToArray();
-        return new CombatPresentationFrame(CombatEventLogProjection.Build(bounded, simTime),
-            contacts.SimTime > simTime || contacts.SimTick > simTime || contacts.Contacts.Any(c => c.LastSimTime > simTime)
-                || contacts.KillChain.Contacts.Any(c => c.LastSimTime > simTime)
-                || contacts.KillChain.Transitions.Any(c => c.SimTime > simTime)
-                ? SliceAContactFrame.Empty : contacts,
+        // Reject the entire cached frame before attaching its facts when seeking behind its evidence.
+        var currentContacts = contacts.SimTime > simTime || contacts.SimTick > simTime
+            || contacts.Contacts.Any(c => c.LastSimTime > simTime)
+            || contacts.KillChain.Contacts.Any(c => c.LastSimTime > simTime)
+            || contacts.KillChain.Transitions.Any(c => c.SimTime > simTime)
+                ? SliceAContactFrame.Empty : contacts;
+        var events = CombatEventLogProjection.Build(bounded, simTime, currentContacts.Targetability);
+        var explanations = events.Execution.Select(f => new CombatEngagementExplanation(
+            f.CorrelationId, f.ShooterId, f.TargetId, f.HasFireControlTrack, f.SalvoSize)).ToArray();
+        return new CombatPresentationFrame(events,
+            currentContacts,
             BdaAssessProjection.Project(bounded, (ulong)simTime), simTime)
         { Explanations = Array.AsReadOnly(explanations) };
     }

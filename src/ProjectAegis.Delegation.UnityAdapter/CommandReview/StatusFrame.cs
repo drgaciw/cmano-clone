@@ -1,11 +1,11 @@
 namespace ProjectAegis.Delegation.UnityAdapter.CommandReview;
 
-using ProjectAegis.Delegation.Comms;
-using ProjectAegis.Delegation.Decision;
-using ProjectAegis.Delegation.EmconPosture;
-using ProjectAegis.Delegation.PlatformDegrade;
-using ProjectAegis.Delegation.Projection;
-using ProjectAegis.Delegation.UnityAdapter.Bridge;
+using Comms;
+using Decision;
+using EmconPosture;
+using PlatformDegrade;
+using Projection;
+using Bridge;
 using ProjectAegis.Sim.Policy;
 
 /// <summary>Explicit knowledge state for a status fact. Unknown is never treated as healthy.</summary>
@@ -106,7 +106,8 @@ public static class StatusFrameBridge
                 ? new StatusFact(ready.IsReadyForLaunch(id) ? StatusKnowledge.Nominal : StatusKnowledge.Offline,
                     ready.IsReadyForLaunch(id) ? "readiness: READY" : "readiness: NOT READY") : supplied.Readiness;
             var platform = damage == null ? supplied.Platform : new StatusFact(
-                damage.DamageLevel > 0 || damage.NewHpPct < 100 ? StatusKnowledge.Degraded : StatusKnowledge.Nominal,
+                damage.NewHpPct <= 0 ? StatusKnowledge.Offline
+                    : damage.DamageLevel > 0 || damage.NewHpPct < 100 ? StatusKnowledge.Degraded : StatusKnowledge.Nominal,
                 $"platform: HP {damage.NewHpPct:0.#}% / damage level {damage.DamageLevel}", damage.SequenceId, damage.SimTime);
             var commsFact = comms == null ? supplied.Comms : new StatusFact(
                 comms.NewState == CommsState.Denied ? StatusKnowledge.Offline : comms.NewState == CommsState.Degraded ? StatusKnowledge.Degraded : StatusKnowledge.Nominal,
@@ -128,7 +129,7 @@ public static class StatusFrameBridge
             else
             {
                 var input = EmconPostureProjection.BuildInput(id, bridge.Orchestrator.ScenarioPolicy,
-                    CurrentCommsState(log, snapshot.SimTime));
+                    CurrentCommsState(log, id, snapshot.SimTime));
                 var posture = EmconPostureProjection.Project(input);
                 emissionRows.Add(new(id, StatusKnowledge.Unknown, posture.EmconLevel,
                     Array.Empty<string>(), $"EMISSIONS: UNKNOWN; policy {posture.StatusLine}"));
@@ -180,8 +181,9 @@ public static class StatusFrameBridge
         unit.Sensors.State != StatusKnowledge.Unknown && unit.Mounts.State != StatusKnowledge.Unknown
         && unit.Comms.State != StatusKnowledge.Unknown && unit.Mobility.State != StatusKnowledge.Unknown;
 
-    private static CommsState CurrentCommsState(DecisionLog log, double simTime) => log.CommsStateChanges
-        .Where(x => x.SimTime <= simTime).OrderBy(x => x.SequenceId).LastOrDefault()?.NewState ?? CommsState.Nominal;
+    private static CommsState CurrentCommsState(DecisionLog log, string unitId, double simTime) => log.CommsStateChanges
+        .Where(x => x.NodeId == unitId && x.SimTime <= simTime)
+        .OrderBy(x => x.SequenceId).LastOrDefault()?.NewState ?? CommsState.Nominal;
 
     private static PlatformDegradeUnitInput ToPlatformDegradeInput(StatusUnitRow unit) => new(
         unit.UnitId,
