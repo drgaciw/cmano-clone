@@ -3,7 +3,6 @@ namespace ProjectAegis.Delegation.UnityAdapter.Bridge;
 using Core;
 using Decision;
 using Projection;
-using Roe;
 using ProjectAegis.Sim.Scenario;
 
 /// <summary>
@@ -156,11 +155,11 @@ public static class UnitDetailBridge
         var unitId = unitIdOverride ?? entry.UnitId;
         var liveMenu = bridge.GetAttackMenuOptions(unitId, snapshot);
         entry = entry with { AttackMenu = liveMenu };
-        if (bridge.Orchestrator.ScenarioPolicy != null)
+        // AssignHuman does not capture a snapshot, and ResolveEffectivePolicyForUnit
+        // then returns DefaultFree. Keep the scenario doctrine until a snapshot exists.
+        if (bridge.Orchestrator.PolicySnapshots.TryGet(new TargetId(unitId), out var bound))
         {
-            var bound = bridge.Orchestrator.ResolveEffectivePolicyForUnit(
-                OrderActionMapper.TargetIdToUlong(new TargetId(unitId)));
-            entry = entry with { DoctrineLabel = $"DOCTRINE: {bound.Roe}" };
+            entry = entry with { DoctrineLabel = $"DOCTRINE: {bound.Effective.Roe}" };
         }
 
         return entry;

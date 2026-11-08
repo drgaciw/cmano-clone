@@ -5,6 +5,7 @@ using Core;
 using Decision;
 using ProjectAegis.Delegation.UnityAdapter.Baltic;
 using ProjectAegis.Delegation.UnityAdapter.Bridge;
+using ProjectAegis.Sim.Policy;
 using NUnit.Framework;
 
 /// <summary>
@@ -95,5 +96,36 @@ public sealed class UnitDetailBridgeTests
         var log = new DecisionLog();
         Assert.Throws<ArgumentNullException>(() =>
             UnitDetailBridge.BuildSelected(new TargetId("u1"), null!, log, null));
+    }
+
+    [Test]
+    public void BuildPrimary_human_unit_without_policy_snapshot_keeps_scenario_doctrine()
+    {
+        var bridge = new DelegationBridge(42, mvpEngagement: false, scenarioPolicyId: "baltic-patrol-mission-roe");
+        var unit = bridge.Registry.RegisterUnit(new EntityKey(1), "u1");
+        bridge.BeginExecution();
+        var snapshot = new SimWorldSnapshotStub(contactCount: 1, hasFireControlTrackOnPrimaryContact: true);
+
+        var detail = UnitDetailBridge.BuildPrimary(snapshot, bridge);
+
+        Assert.That(bridge.Orchestrator.PolicySnapshots.TryGet(unit.TargetId, out _), Is.False);
+        Assert.That(detail?.DoctrineLabel, Is.EqualTo("DOCTRINE: WeaponsTight (mission)"));
+    }
+
+    [Test]
+    public void BuildPrimary_bound_policy_snapshot_replaces_scenario_doctrine_label()
+    {
+        var bridge = new DelegationBridge(42, mvpEngagement: false, scenarioPolicyId: "baltic-patrol-mission-roe");
+        var unit = bridge.Registry.RegisterUnit(new EntityKey(1), "u1");
+        bridge.Orchestrator.PolicySnapshots.Capture(
+            unit.TargetId,
+            new EffectivePolicy(RoeLevel.HoldFire),
+            capturedAtSimTick: 0);
+        bridge.BeginExecution();
+        var snapshot = new SimWorldSnapshotStub(contactCount: 1, hasFireControlTrackOnPrimaryContact: true);
+
+        var detail = UnitDetailBridge.BuildPrimary(snapshot, bridge);
+
+        Assert.That(detail?.DoctrineLabel, Is.EqualTo("DOCTRINE: HoldFire"));
     }
 }
