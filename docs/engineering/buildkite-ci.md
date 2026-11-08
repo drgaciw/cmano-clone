@@ -319,11 +319,11 @@ Checklist:
 |---------|-----|
 | Pipeline not found | Confirm `.buildkite/pipeline.yml` on default branch; re-save pipeline “read from repo” setting |
 | Graphite optimizer always runs full CI | Token missing/wrong in Buildkite env; step is skipped when unset; optimizer fails open when present |
-| First build slow on hosted agents | Expected: live gate `agent-dotnet-ci.sh` downloads .NET SDK 8.0.400 on cold agents; NuGet restore is cold (native `cache:` not enabled) |
+| First build slow on hosted agents | Expected: live gate `agent-dotnet-ci.sh` downloads .NET SDK 10.0.403 on cold agents; NuGet restore is cold (native `cache:` not enabled) |
 | Build fails in ~3s with no step logs | Classic **pipeline upload rejection**. Most often invalid YAML attributes (historically `cache:` with `key`/`{{ checksum }}`, or native `cache:` when volumes are not enabled on the cluster). Diff against `main`'s `.buildkite/pipeline.yml` and remove unsupported fields |
 | `CmoCatalogExportTests` fails with `node` not found | Checked-in golden at `tools/cmano-db-crawler/fixtures/sensor-mini-export.golden.json` (copied to test output); live `node` export is optional |
 | Build fails ~1m with no `:hammer:` log | Graphite optimizer on **main** pipeline can `pipeline upload --replace` with empty steps; merge branch `.buildkite/pipeline.yml` to `main` or disable `GRAPHITE_CI_OPTIMIZER_TOKEN` until then |
-| Agent has dotnet 6/7 on PATH | `agent-bootstrap-dotnet.sh` installs 8.0.400 when major &lt; 8 |
+| Agent SDK does not satisfy `global.json` | `agent-bootstrap-dotnet.sh` installs 10.0.403 when `dotnet --version` cannot resolve the pin (`rollForward: latestMajor`) |
 | Required check name mismatch | Copy exact context from GitHub PR checks tab after first build |
 | Gitleaks false positive | Add allowlist in `.gitleaks.toml` if needed (not present today) |
 

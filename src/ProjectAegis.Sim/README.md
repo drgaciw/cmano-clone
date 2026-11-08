@@ -2,7 +2,7 @@
 
 Pure C# **simulation core** — the deterministic tick pipeline, sensors/detection, engagement
 resolution, and policy evaluation that sit behind the delegation framework. No `UnityEngine`
-reference (targets `net8.0;netstandard2.1`, depends only on `ProjectAegis.Data`), so every
+reference (targets `net10.0;netstandard2.1`, depends only on `ProjectAegis.Data`), so every
 subsystem is exercised headless with `dotnet test`.
 
 > **Determinism is the load-bearing invariant.** Everything here must be a pure function of

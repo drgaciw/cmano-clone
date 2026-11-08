@@ -1,6 +1,6 @@
 # ReSharper command-line analysis
 
-Run the configured solution inspection from the repository root with SDK 8.0.400
+Run the configured solution inspection from the repository root with SDK 10.0.403
 and ReSharper Command Line Tools 2026.2.1:
 
 ```powershell
@@ -15,7 +15,7 @@ fresh SARIF plus invocation metadata under ignored `artifacts/resharper/`.
 If the system SDK rolls forward, select an isolated SDK installation:
 
 ```powershell
-.\tools\resharper\inspect.ps1 -DotnetPath "$HOME/.dotnet-8.0.400/dotnet.exe" -Check
+.\tools\resharper\inspect.ps1 -DotnetPath "$HOME/.dotnet-10.0.403/dotnet.exe" -Check
 ```
 
 `JETBRAINS_RESHARPER_CLT_HOME` (process, then user environment) or `PATH` locates

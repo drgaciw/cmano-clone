@@ -217,7 +217,7 @@ All CI and headless verification runs must record complete execution provenance 
 - **Performance & Headless Execution:** The full gauntlet verification suite (T1–T5) must be capable of executing in headless CLI environments under 1000×+ time compression.
 - **Fail-Closed Safety:** All evaluation tools must default to failing on missing fields, unexpected keys, empty datasets, or unknown error states.
 - **No Floating-Point Nondeterminism:** Scoring and metric calculations across platforms and architectures must use standardized string formatting (`CultureInfo.InvariantCulture`) and deterministic float comparisons.
-- **Toolchain Alignment:** All CI and local test harnesses must standardize on .NET SDK 8.0.400 as specified in `global.json`.
+- **Toolchain Alignment:** All CI and local test harnesses must standardize on .NET SDK 10.0.403 as specified in `global.json`.
 
 ---
 

@@ -12,11 +12,13 @@ import argparse
 import json
 import os
 import sys
+import threading
 import urllib.error
 import urllib.request
 from dataclasses import dataclass
 from pathlib import Path
 from typing import Any, Mapping, Protocol
+from urllib.parse import quote
 
 TYPESAFE_MODEL_ID = "jev-1.13.0"
 OPENROUTER_MODEL_ID = "typesafe/jev-1.13"
@@ -73,6 +75,40 @@ class UrllibTransport:
     """Minimal POST transport with a hard timeout (seconds)."""
 
     def post(
+        self,
+        url: str,
+        *,
+        headers: Mapping[str, str],
+        json_body: Mapping[str, Any],
+        timeout: float,
+    ) -> Any:
+        """POST and return a response object, bounded by an overall deadline.
+
+        ``urlopen(timeout=...)`` only bounds individual socket operations, so a
+        slow-drip ``resp.read()`` could exceed the budget. The whole request
+        (connect, send, read) runs in a daemon worker joined with ``timeout``;
+        if it has not finished, ``TimeoutError`` is raised and callers degrade.
+        """
+        result: dict[str, Any] = {}
+
+        def _worker() -> None:
+            try:
+                result["value"] = self._post_blocking(
+                    url, headers=headers, json_body=json_body, timeout=timeout
+                )
+            except BaseException as exc:  # surfaced to caller below
+                result["error"] = exc
+
+        worker = threading.Thread(target=_worker, name="jev-uat-post", daemon=True)
+        worker.start()
+        worker.join(timeout)
+        if worker.is_alive():
+            raise TimeoutError(f"System One request exceeded {timeout:.3f}s overall budget")
+        if "error" in result:
+            raise result["error"]
+        return result["value"]
+
+    def _post_blocking(
         self,
         url: str,
         *,
@@ -278,8 +314,6 @@ def resolve_route(provider: str = "auto") -> ApiRoute | None:
     token = _env_value("CLOUDFLARE_API_TOKEN")
     account = _env_value("CLOUDFLARE_ACCOUNT_ID")
     if token and account and provider in ("auto", "cloudflare"):
-        from urllib.parse import quote
-
         return ApiRoute(
             provider="cloudflare",
             url=f"https://api.cloudflare.com/client/v4/accounts/{quote(account, safe='')}/ai/run",

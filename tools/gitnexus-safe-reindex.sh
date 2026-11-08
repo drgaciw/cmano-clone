@@ -1,8 +1,9 @@
 #!/usr/bin/env bash
-# DRG-323 guard — safe GitNexus reindex.
-# Stops gitnexus MCP servers (which can hold .gitnexus/lbug open), runs
-# `analyze --force --skip-agents-md --skip-skills`, reports unexpected file changes,
-# and post-checks the index. Exits non-zero on a bad index.
+# DRG-323 / DRG-404 guard — safe GitNexus reindex.
+# Stops gitnexus MCP servers (which can hold .gitnexus/lbug open), runs a full
+# `analyze --force --embeddings --skip-agents-md --skip-skills` (never incremental,
+# never --drop-embeddings), reports unexpected file changes, and post-checks the
+# index including a non-zero embedding count. Exits non-zero on a bad index.
 set -euo pipefail
 
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
@@ -83,8 +84,10 @@ if [[ ${SKIP_ANALYZE} -eq 0 ]]; then
   if pgrep -f 'gitnexus.*mcp' >/dev/null 2>&1; then
     die "gitnexus mcp still running after kill" 2
   fi
-  # --force: incremental analyze was observed to corrupt Method/File/Property IDs (DRG-323) even with no MCP running.
-  ARGS=(analyze --force --skip-agents-md --skip-skills)
+  # Full rebuild only. Incremental analyze corrupted Method/File/Property IDs (DRG-323)
+  # even with no MCP running. --force does not generate embeddings on a cold index
+  # (count 0); --embeddings does. Never --watch and never --drop-embeddings.
+  ARGS=(analyze --force --embeddings --skip-agents-md --skip-skills)
   [[ -n "${NAME}" ]] && ARGS+=(--name "${NAME}" --allow-duplicate-name)
   gn "${ARGS[@]}" || ANALYZE_FAILED=1
   if pgrep -f 'gitnexus.*mcp' >/dev/null 2>&1; then
@@ -115,14 +118,50 @@ print(int(m[-1].strip("| ").split(" | ")[0]))' || die "index query failed" 3; }
 META_COMMIT="$(python3 -c 'import json;print(json.load(open(".gitnexus/meta.json"))["lastCommit"])')" || die "invalid index metadata" 3
 META_NODES="$(python3 -c 'import json;print(json.load(open(".gitnexus/meta.json"))["stats"]["nodes"])')" || die "invalid index metadata" 3
 META_EDGES="$(python3 -c 'import json;print(json.load(open(".gitnexus/meta.json"))["stats"]["edges"])')" || die "invalid index metadata" 3
+META_EMB="$(python3 -c 'import json
+d=json.load(open(".gitnexus/meta.json"))
+value=(d.get("stats") or {}).get("embeddings", 0)
+print(int(0 if value is None else value))')" || die "invalid index metadata" 3
+VECTOR_STATUS="$(python3 -c 'import json
+d=json.load(open(".gitnexus/meta.json"))
+vs=(d.get("capabilities") or {}).get("vectorSearch")
+if isinstance(vs, dict):
+    print(vs.get("status") or "unavailable")
+elif isinstance(vs, str) and vs:
+    print(vs)
+else:
+    print("unavailable")')" || die "invalid index metadata" 3
 HEAD_SHA="$(git rev-parse HEAD)"
 G_NODES="$(cy 'MATCH (n) RETURN count(n) AS c')"
 G_EDGES="$(cy 'MATCH ()-[r]->() RETURN count(r) AS c')"
-echo "indexed=${META_COMMIT:0:8} head=${HEAD_SHA:0:8} nodes meta/graph=${META_NODES}/${G_NODES} edges meta/graph=${META_EDGES}/${G_EDGES}"
+G_EMB="$(cy 'MATCH (e:CodeEmbedding) RETURN count(e) AS cnt')"
+echo "indexed=${META_COMMIT:0:8} head=${HEAD_SHA:0:8} nodes meta/graph=${META_NODES}/${G_NODES} edges meta/graph=${META_EDGES}/${G_EDGES} embeddings meta/graph=${META_EMB}/${G_EMB} vectorSearch=${VECTOR_STATUS}"
 
 [[ "${META_COMMIT}" == "${HEAD_SHA}" ]] || { echo "FAIL: indexed commit != HEAD" >&2; FAIL=1; }
 [[ "${META_NODES}" == "${G_NODES}" ]] || { echo "FAIL: node count metadata != graph" >&2; FAIL=1; }
 [[ "${META_EDGES}" == "${G_EDGES}" ]] || { echo "FAIL: edge count metadata != graph" >&2; FAIL=1; }
+[[ "${META_EMB}" == "${G_EMB}" ]] || { echo "FAIL: embedding count metadata != graph" >&2; FAIL=1; }
+[[ "${META_EMB}" -gt 0 ]] || { echo "FAIL: embeddings count is 0 (hybrid vector leg inactive)" >&2; FAIL=1; }
+case "${VECTOR_STATUS}" in
+  vector-index|exact-scan) ;;
+  *) echo "FAIL: vector search unavailable (${VECTOR_STATUS})" >&2; FAIL=1 ;;
+esac
+if [[ -f .gitnexus/gitnexus.json ]]; then
+  GJ_EMB="$(python3 -c 'import json
+d=json.load(open(".gitnexus/gitnexus.json"))
+value=(d.get("stats") or {}).get("embeddings", 0)
+print(int(0 if value is None else value))')" || die "invalid index metadata" 3
+  GJ_STATUS="$(python3 -c 'import json
+d=json.load(open(".gitnexus/gitnexus.json"))
+vs=(d.get("capabilities") or {}).get("vectorSearch")
+if isinstance(vs, dict):
+    print(vs.get("status") or "unavailable")
+elif isinstance(vs, str) and vs:
+    print(vs)
+else:
+    print("unavailable")')" || die "invalid index metadata" 3
+  [[ "${GJ_EMB}" == "${META_EMB}" && "${GJ_STATUS}" == "${VECTOR_STATUS}" ]] || { echo "FAIL: gitnexus.json embeddings disagree with meta.json" >&2; FAIL=1; }
+fi
 
 for L in Class Method File Property; do
   BAD="$(cy "MATCH (n:${L}) WHERE NOT n.id STARTS WITH '${L}:' RETURN count(n) AS c")"

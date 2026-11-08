@@ -174,6 +174,32 @@ flag set.
 
 ---
 
+## Adjacent cue lane (DRG-271)
+
+[`ContactCueProjection`](../../src/ProjectAegis.Delegation/Projection/ContactCueProjection.cs) is a
+separate headless read-model. It calls `ContactProvenanceProjection` for staleness, confidence, sim
+age, and the comms-quality flags, then adds three facts the provenance row does not carry:
+
+- **Information origin** — `Unknown`, `Organic`, or `Datalink`. Unknown is not treated as organic.
+  Conflicting facts for one contact fail closed to Unknown.
+- **Positional claim** — `Unknown` (null coordinates), labeled `FixtureOnly`, or `LastReportedHeld`.
+  Unknown is not a coordinate of zero. No radius or ellipse is derived from High/Medium/Low identity
+  confidence (that detail stays with DRG-411). A sample that merely *flags* the DRG-417 production
+  feed is labeled `fixture-only:production-feed-unavailable` until that feed is wired. During comms
+  loss, samples newer than the loss tick are dropped; a held pre-loss fix is not a fresh fix.
+- **Per-unit order disposition** — `Queued` is the only genuinely pending command. `Delayed` comes
+  from a player order whose execute tick is still ahead. `Rejected` comes from a matching policy
+  denial. `Executed` comes from a launched engagement on an Engage order, or from an explicit
+  terminal fact when the log has no completion row. `Expired` is recognized only from an explicit
+  terminal fact — the order log has no expiry row, and age does not invent one.
+
+`Select(snapshot, contactId, unitId)` is a pure query. It returns only that contact and that unit.
+A miss is null. The projection keeps no static selection.
+
+Icon and badge rendering is follow-up UI work. The cue types have no icon, color, badge, or ellipse
+fields. The cue fingerprint (`cue:empty` / `cue:c=<n>;u=<m>|…`) is not a `SimWorldHash` and does not
+change the Baltic v2 hash `17144800277401907079`.
+
 ## Tests that pin this doc
 
 All green as of writing (DRG-206) — 12 NUnit cases in the core Delegation test assembly (headless
@@ -182,6 +208,7 @@ All green as of writing (DRG-206) — 12 NUnit cases in the core Delegation test
 | Test file | Covers |
 |-----------|--------|
 | [`ContactProvenanceProjectionTests.cs`](../../src/ProjectAegis.Delegation.Tests/Projection/ContactProvenanceProjectionTests.cs) | An empty log yielding `Empty` + `cp:empty`; a fresh track publishing source / `Medium` confidence / `Fresh` / zero age / last-known; a stale track naming the `Stale` quality flag + `AgeTicks`; `Denied` comms setting `OutOfCommsUnknown` + `SilentComms`; a `CatalogMiss` named when the target is absent from the reader; a **cloned instance** resolving via its orbat `platformId` and **not** catalog-missing; an orbat map whose platform is still missing from the catalog re-flagging `CatalogMiss`; a bare instance id with no orbat map still catalog-missing; degraded comms accelerating staleness via the `DegradedStaleThresholdDivisor` (tipping a would-be-fresh contact to `Stale` + `SilentComms` while `OutOfCommsUnknown` stays false); the replay-stable fingerprint for identical inputs and the `ContactId` ordinal sort (both direct-list and unordered-picture); and the ADR-010 reflection guard that the provenance DTOs expose no `selection` / `hover` / `camera` / `visible` / `visibility` / `selected` property. |
+| [`ContactCueProjectionTests.cs`](../../src/ProjectAegis.Delegation.Tests/Projection/ContactCueProjectionTests.cs) | DRG-271 cue lane: stale and datalink facts reused from provenance; confidence, freshness, comms, and position kept independent; unknown position and unknown sim-age distinct from zero; sim-tick age under pause, acceleration, and replay; no fresh fix during comms loss; fixture geometry labeled; no ellipse from identity confidence; queued orders distinct from delayed, rejected, expired, and executed; selection changes do not keep another contact or unit. |
 
 Run just this fixture:
 

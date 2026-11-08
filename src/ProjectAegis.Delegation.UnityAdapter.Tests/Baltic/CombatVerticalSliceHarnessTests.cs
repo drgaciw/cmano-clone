@@ -105,6 +105,31 @@ public sealed class CombatVerticalSliceHarnessTests
         Assert.That(slice.Frame.Events.Events, Is.EqualTo(slice.Events.Events));
         Assert.That(slice.Frame.Events.Execution, Is.EqualTo(slice.Events.Execution));
         Assert.That(slice.Events.Targetability, Is.Not.Empty, "Slice A facts are consumed, not rebuilt");
+        Assert.That(slice.Frame.Events.Targetability, Is.Not.Empty,
+            "the presentation frame carries the same Slice A facts");
+        Assert.That(slice.Frame.Events.Targetability, Is.EqualTo(slice.Events.Targetability));
+    }
+
+    [Test]
+    public void Commanded_slice_carries_targetability_on_the_presentation_frame()
+    {
+        var slice = CombatVerticalSliceHarness.Run();
+
+        Assert.That(slice.Frame.Contacts.Targetability.Contacts, Is.Not.Empty);
+        Assert.That(
+            slice.Frame.Contacts.Targetability.Contacts.Select(row => (row.ContactId, row.TargetId, row.Disposition)),
+            Is.EquivalentTo(slice.TargetabilityAccept.Contacts.Select(row =>
+                (row.ContactId, row.TargetId, row.Disposition))));
+        Assert.That(slice.Frame.Events.Targetability, Is.Not.Empty);
+        foreach (var leg in slice.Legs)
+        {
+            Assert.That(leg.Targetability, Is.Not.Null, leg.ShooterId);
+            var framed = slice.Frame.Events.Targetability.Single(fact =>
+                fact.ContactId == leg.Targetability!.ContactId
+                && fact.TargetId == leg.TargetId
+                && fact.ShooterId == leg.Targetability.ShooterId);
+            Assert.That(framed, Is.EqualTo(leg.Targetability), leg.ShooterId);
+        }
     }
 
     [Test]

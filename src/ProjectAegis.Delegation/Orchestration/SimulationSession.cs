@@ -18,6 +18,20 @@ using ProjectAegis.Sim.Sensors;
 using ProjectAegis.Sim.Telemetry;
 using ProjectAegis.Sim.Time;
 using Logistics;
+using Skills;
+
+/// <summary>
+/// DRG-417: read-only source of unit positions for the comms-grid position feed. Implementations
+/// must not mutate sim state; <see cref="SimulationSession"/> only reads from it.
+/// </summary>
+public interface IUnitPositionSource
+{
+    /// <summary>Returns true and the unit's current position when known.</summary>
+    bool TryGetPosition(string unitId, out double latitudeDeg, out double longitudeDeg);
+
+    /// <summary>Unit ids this source can report.</summary>
+    IReadOnlyCollection<string> UnitIds { get; }
+}
 
 /// <summary>Headless/interactive session: delegation tick then sim engagement phase.</summary>
 public sealed class SimulationSession
@@ -242,8 +256,10 @@ public sealed class SimulationSession
 
     private void RunExecutingTick(ObservedState state, bool headlessOverride)
     {
+        RecordObservedFireControl(in state);
         Orchestrator.Tick(state);
         var simTick = (ulong)Math.Max(0, (long)state.SimTime);
+        ReportCommsGridPositions(simTick);
 
         if (Sim.Clock.IsPaused && !headlessOverride)
         {
@@ -633,6 +649,30 @@ public sealed class SimulationSession
         set => Orchestrator.CommsGrid = value;
     }
 
+    /// <summary>
+    /// DRG-417: optional read-only position source. When set together with <see cref="CommsGrid"/>,
+    /// each executing tick reports positions to the registry in unit-id ordinal order. Null = no-op.
+    /// </summary>
+    public IUnitPositionSource? PositionSource { get; set; }
+
+    private void ReportCommsGridPositions(ulong simTick)
+    {
+        if (PositionSource is not { } source || CommsGrid is not { } grid)
+        {
+            return;
+        }
+
+        var ids = source.UnitIds.ToArray();
+        Array.Sort(ids, StringComparer.Ordinal);
+        foreach (var id in ids)
+        {
+            if (source.TryGetPosition(id, out var lat, out var lon))
+            {
+                grid.ReportPosition(id, simTick, lat, lon);
+            }
+        }
+    }
+
     /// <inheritdoc cref="DelegationOrchestrator.EvaluateOffGrid"/>
     public FireAbortReason? EvaluateOffGrid(string unitId, ulong simTick) =>
         Orchestrator.EvaluateOffGrid(unitId, simTick);
@@ -675,6 +715,142 @@ public sealed class SimulationSession
     public int? NextEngageSalvoOverride { get; set; }
 
     public Func<string, ulong, bool>? IsContactSpoofed { get; set; }
+
+    private readonly Dictionary<string, bool> _observedFireControlByTarget = new(StringComparer.Ordinal);
+    private bool _hasObservedFireControl;
+    private bool _lastObservedFireControlTrack = true;
+
+    private void RecordObservedFireControl(in ObservedState state)
+    {
+        _hasObservedFireControl = true;
+        _lastObservedFireControlTrack = state.HasFireControlTrack;
+        if (state.PrimaryHostileContactId is { } primary && !string.IsNullOrEmpty(primary.Value))
+        {
+            _observedFireControlByTarget[primary.Value] = state.HasFireControlTrack;
+        }
+        else if (!state.HasFireControlTrack)
+        {
+            _observedFireControlByTarget.Clear();
+        }
+    }
+
+    /// <summary>
+    /// DRG-414: read-only fire-control fact for a contact already on the authoritative log.
+    /// Reflects the latest observed fire-control state from session ticks as well as any primed
+    /// engage-world context or bound <see cref="DefaultEngageContext"/> flag. This method does
+    /// not mutate session state and does not read fixture lists.
+    /// </summary>
+    public bool HasFireControlTrack(string contactId, string targetId, string shooterUnitId)
+    {
+        if (string.IsNullOrEmpty(contactId) || string.IsNullOrEmpty(targetId))
+        {
+            return false;
+        }
+
+        if (!DecisionLogContainsContact(contactId, targetId))
+        {
+            return false;
+        }
+
+        var observedTrack = _observedFireControlByTarget.TryGetValue(targetId, out var targetObserved)
+            ? targetObserved
+            : (!_hasObservedFireControl || _lastObservedFireControlTrack);
+        if (!observedTrack)
+        {
+            return false;
+        }
+
+        if (EngageWorld != null
+            && !string.IsNullOrEmpty(shooterUnitId)
+            && EngageWorld.TryGetContext(FireControlRequest(shooterUnitId, targetId), out var primed))
+        {
+            return primed.HasFireControlTrack;
+        }
+
+        return DefaultEngageContext?.HasFireControlTrack ?? false;
+    }
+
+    /// <summary>
+    /// DRG-414: tracked magazine rounds for a shooter mount.
+    /// Returns false when the ledger has no entry. A missing entry is not
+    /// <see cref="DefaultMagazineRounds"/> and <paramref name="rounds"/> is zero.
+    /// </summary>
+    public bool TryGetRegisteredMagazineRounds(string shooterUnitId, ulong mountId, out int rounds)
+    {
+        rounds = 0;
+        if (Magazines == null || string.IsNullOrEmpty(shooterUnitId))
+        {
+            return false;
+        }
+
+        return Magazines.TryGetRounds(
+            OrderActionMapper.TargetIdToUlong(new TargetId(shooterUnitId)),
+            mountId,
+            out rounds);
+    }
+
+    /// <summary>
+    /// DRG-414: policy/authority snapshot for one shooter and contact.
+    /// ROE comes from a captured <see cref="PolicySnapshot"/> when one exists, otherwise
+    /// from scenario policy for the unit. <see cref="EffectivePolicy"/> does not store skill
+    /// lane, required approval, track source, or command id, so those stay at the production
+    /// read-lane defaults (Read, None, Organic, no command). Fire-control satisfaction is
+    /// <see cref="HasFireControlTrack"/>.
+    /// </summary>
+    public C2AuthorityProjectionContext ReadAuthoritySnapshot(
+        string contactId,
+        string targetId,
+        string shooterUnitId)
+    {
+        return new C2AuthorityProjectionContext(
+            ResolveShooterRoe(shooterUnitId),
+            SkillLane.Read,
+            RequiredApproval.None,
+            TrackSource.Organic,
+            HasFireControlTrack(contactId, targetId, shooterUnitId),
+            CommandId: null,
+            HumanControlled: true);
+    }
+
+    private RoeLevel ResolveShooterRoe(string shooterUnitId)
+    {
+        if (string.IsNullOrEmpty(shooterUnitId))
+        {
+            return EffectivePolicy.DefaultFree.Roe;
+        }
+
+        var shooter = new TargetId(shooterUnitId);
+        if (Orchestrator.PolicySnapshots.TryGet(shooter, out var snapshot))
+        {
+            return snapshot.Effective.Roe;
+        }
+
+        var friendly = !BalticV3SideRegistry.IsRedForceUnit(shooterUnitId);
+        return Orchestrator.ResolveScenarioPolicyForTarget(shooter, friendly).Roe;
+    }
+
+    private bool DecisionLogContainsContact(string contactId, string targetId)
+    {
+        var changes = Orchestrator.DecisionLog.ContactChanges;
+        for (var i = 0; i < changes.Count; i++)
+        {
+            var change = changes[i];
+            if (string.Equals(change.ContactId, contactId, StringComparison.Ordinal)
+                && string.Equals(change.TargetId, targetId, StringComparison.Ordinal))
+            {
+                return true;
+            }
+        }
+
+        return false;
+    }
+
+    private static EngageRequest FireControlRequest(string shooterUnitId, string targetId) =>
+        new(
+            OrderActionMapper.TargetIdToUlong(new TargetId(shooterUnitId)),
+            OrderActionMapper.TargetIdToUlong(new TargetId(targetId)),
+            MountId: 0,
+            SimTick: 0);
 
     private void PrimeEngageWorld(in EngageRequest request, ObservedState state, string shooterUnitId)
     {
