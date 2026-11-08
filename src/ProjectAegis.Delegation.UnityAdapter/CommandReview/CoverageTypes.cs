@@ -33,7 +33,7 @@ public enum CoverageStatus
 
 /// <summary>
 /// Coverage result derived only from an explicit <see cref="CoverageFact"/>.
-/// Geometry is reserved for future authoritative spatial facts and is always null here.
+/// Geometry is present only when supplied by an authored, source-labelled spatial fact.
 /// </summary>
 public sealed record CoverageAssessment(
     CoverageStatus Status,

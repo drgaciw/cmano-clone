@@ -1,11 +1,11 @@
 namespace ProjectAegis.Delegation.UnityAdapter.CommandReview;
 
-using ProjectAegis.Delegation.C2Nodes;
-using ProjectAegis.Delegation.Core;
-using ProjectAegis.Delegation.MissionIntent;
-using ProjectAegis.Delegation.Targets;
-using ProjectAegis.Delegation.TaskGroupCoord;
-using ProjectAegis.Delegation.UnityAdapter.Bridge;
+using C2Nodes;
+using Core;
+using MissionIntent;
+using Targets;
+using TaskGroupCoord;
+using Bridge;
 
 /// <summary>
 /// Builds task-group coordination state from the registered runtime, snapshot, and optional
@@ -212,7 +212,8 @@ public static class CoordinationBridge
             status,
             fact.CoverageId,
             fact.Label,
-            Geometry: IsUsableGeometry(fact.Geometry) ? fact.Geometry : null,
+            Geometry: IsUsableGeometry(fact.Geometry)
+                ? new CoverageAreaGeometry(Array.AsReadOnly(fact.Geometry!.Boundary.ToArray()), fact.Geometry.SourceRef) : null,
             ReasonCode: status == CoverageStatus.Gap ? "CONTRIBUTOR_UNAVAILABLE" : null);
     }
 
@@ -226,8 +227,8 @@ public static class CoordinationBridge
             && p.NormalizedX is >= 0 and <= 1
             && p.NormalizedY is >= 0 and <= 1);
 
-    private static ProjectAegis.Delegation.Decision.DecisionLog BoundLogAt(
-        ProjectAegis.Delegation.Decision.DecisionLog source,
+    private static Decision.DecisionLog BoundLogAt(
+        Decision.DecisionLog source,
         double simTime)
     {
         var entries = source.ChronologicalEntries();
@@ -236,7 +237,7 @@ public static class CoordinationBridge
             return source;
         }
 
-        var bounded = new ProjectAegis.Delegation.Decision.DecisionLog();
+        var bounded = new Decision.DecisionLog();
         foreach (var entry in entries)
         {
             if (entry.SimTime <= simTime)

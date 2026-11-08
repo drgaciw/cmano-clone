@@ -1,6 +1,6 @@
 namespace ProjectAegis.Delegation.Decision;
 
-using ProjectAegis.Delegation.Core;
+using Core;
 
 /// <summary>Order-log platform HP% transition from bounded catalog hot-tick damage apply.</summary>
 public sealed record PlatformDamageChangeRecord(

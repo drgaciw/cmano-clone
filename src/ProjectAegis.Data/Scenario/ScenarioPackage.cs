@@ -1,7 +1,7 @@
 namespace ProjectAegis.Data.Scenario;
 
-using ProjectAegis.Data.Catalog;
-using ProjectAegis.Data.Scenario.Authoring;
+using Catalog;
+using Authoring;
 
 /// <summary>Runtime scenario manifest: policy id + catalog snapshot binding (doc 06 / doc 11 P0).</summary>
 public sealed class ScenarioPackage

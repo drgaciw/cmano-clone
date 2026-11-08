@@ -25,7 +25,7 @@ public static class SwarmTierLimits
 
     public static bool TryParse(string value, out SwarmTier tier)
     {
-        if (Enum.TryParse<SwarmTier>(value, ignoreCase: true, out tier))
+        if (Enum.TryParse(value, ignoreCase: true, out tier))
         {
             return true;
         }

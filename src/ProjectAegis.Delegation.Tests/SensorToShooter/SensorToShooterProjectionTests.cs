@@ -4,7 +4,6 @@ using ProjectAegis.Delegation.Decision;
 using ProjectAegis.Delegation.Projection;
 using ProjectAegis.Delegation.SensorToShooter;
 using ProjectAegis.Sim.Catalog;
-using ProjectAegis.Sim.Core;
 using ProjectAegis.Sim.Scenario;
 using NUnit.Framework;
 
@@ -57,7 +56,7 @@ public sealed class SensorToShooterProjectionTests
         var log = new DecisionLog();
         log.AppendContactChange(Change(1, "c1", "hostile-1", "Unknown", "Classified"));
 
-        var staleTick = 1UL + (ulong)KillChainContactStateProjection.DefaultStaleThresholdTicks + 1;
+        var staleTick = 1UL + KillChainContactStateProjection.DefaultStaleThresholdTicks + 1;
         var shooters = new FixedShooterSource(
             new SensorToShooterShooterCandidate(
                 "u1",

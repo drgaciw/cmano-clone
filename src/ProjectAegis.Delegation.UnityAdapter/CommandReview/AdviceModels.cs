@@ -1,8 +1,8 @@
 namespace ProjectAegis.Delegation.UnityAdapter.CommandReview;
 
-using ProjectAegis.Delegation.ResourceRank;
-using ProjectAegis.Delegation.Skills;
-using ProjectAegis.Delegation.ThreatAssessment;
+using ResourceRank;
+using Skills;
+using ThreatAssessment;
 
 /// <summary>Availability of a tick-bound advisory read model.</summary>
 public enum AdviceAvailability { Available, EvidenceUnavailable, Stale, ModelUnavailable }
@@ -52,4 +52,3 @@ public sealed record AdviceFrame(
 
 /// <summary>Callable skill response containing the shared skill envelope and scoped read model.</summary>
 public sealed record AdviceSkillResult(SkillEnvelope Skill, AdviceFrame Advice);
-

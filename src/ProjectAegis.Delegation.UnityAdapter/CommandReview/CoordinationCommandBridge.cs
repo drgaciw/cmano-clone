@@ -1,10 +1,10 @@
 namespace ProjectAegis.Delegation.UnityAdapter.CommandReview;
 
-using ProjectAegis.Delegation.Controllers;
-using ProjectAegis.Delegation.Core;
-using ProjectAegis.Delegation.MissionIntent;
-using ProjectAegis.Delegation.Targets;
-using ProjectAegis.Delegation.UnityAdapter.Bridge;
+using Controllers;
+using Core;
+using MissionIntent;
+using Targets;
+using Bridge;
 
 /// <summary>Closed set of deliberate human task-group decisions exposed by command review.</summary>
 public enum CoordinationDecision
@@ -138,7 +138,6 @@ public static class CoordinationCommandBridge
         {
             CoordinationDecision.Hold => "hold",
             CoordinationDecision.Withdraw => "rtb",
-            CoordinationDecision.Reattack => "engage",
             _ => string.Empty,
         };
         if (!C2PlayerCommandBridge.TryIssue(

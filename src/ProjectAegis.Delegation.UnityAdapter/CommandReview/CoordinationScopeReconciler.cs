@@ -1,8 +1,8 @@
 namespace ProjectAegis.Delegation.UnityAdapter.CommandReview;
 
-using ProjectAegis.Delegation.Controllers;
-using ProjectAegis.Delegation.Targets;
-using ProjectAegis.Delegation.UnityAdapter.Bridge;
+using Controllers;
+using Targets;
+using Bridge;
 
 /// <summary>Finds pending coordination scopes that can no longer produce a valid group effect.</summary>
 public static class CoordinationScopeReconciler

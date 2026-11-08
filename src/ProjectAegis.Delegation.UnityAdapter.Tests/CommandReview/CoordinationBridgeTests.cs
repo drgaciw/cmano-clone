@@ -1,11 +1,10 @@
 namespace ProjectAegis.Delegation.UnityAdapter.Tests.CommandReview;
 
-using ProjectAegis.Delegation.C2Nodes;
-using ProjectAegis.Delegation.Comms;
-using ProjectAegis.Delegation.Controllers;
-using ProjectAegis.Delegation.Core;
-using ProjectAegis.Delegation.Decision;
-using ProjectAegis.Delegation.MissionIntent;
+using C2Nodes;
+using Comms;
+using Core;
+using Decision;
+using MissionIntent;
 using ProjectAegis.Delegation.UnityAdapter.Bridge;
 using ProjectAegis.Delegation.UnityAdapter.CommandReview;
 using NUnit.Framework;

@@ -56,11 +56,6 @@ public sealed class SpeculativeHonestyPinsTests
 
             foreach (var type in types)
             {
-                if (type.Name is null)
-                {
-                    continue;
-                }
-
                 foreach (var forbidden in ForbiddenTypeNames)
                 {
                     if (string.Equals(type.Name, forbidden, StringComparison.Ordinal))

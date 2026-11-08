@@ -1,6 +1,6 @@
 namespace ProjectAegis.Delegation.Projection;
 
-using ProjectAegis.Delegation.Decision;
+using Decision;
 
 /// <summary>Combines order-log contact picture with per-tick sim snapshot fields for C2 presentation.</summary>
 public static class SensorC2Projection

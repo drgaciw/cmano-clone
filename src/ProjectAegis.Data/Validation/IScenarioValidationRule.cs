@@ -1,7 +1,7 @@
 namespace ProjectAegis.Data.Validation;
 
-using ProjectAegis.Data.Catalog;
-using ProjectAegis.Data.Scenario.Authoring;
+using Catalog;
+using Scenario.Authoring;
 
 public interface IScenarioValidationRule
 {

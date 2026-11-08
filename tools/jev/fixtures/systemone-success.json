@@ -1,0 +1,41 @@
+{
+  "model": "jev-1.13.0",
+  "answers": {
+    "failure_class": {
+      "type": "choice",
+      "choice": "presentation",
+      "probabilities": {
+        "presentation": 0.72,
+        "scenario-content": 0.08,
+        "sim-code": 0.05,
+        "harness": 0.03,
+        "none": 0.02,
+        "other": 0.1
+      },
+      "confidence": 0.61
+    },
+    "severity": {
+      "type": "score",
+      "score": 1.1,
+      "legend": {
+        "0": "cosmetic",
+        "1": "blocks this row",
+        "2": "blocks the slice"
+      },
+      "probabilities": {
+        "0": 0.1,
+        "1": 0.7,
+        "2": 0.2
+      },
+      "confidence": 0.55
+    },
+    "needs_code_change": {
+      "type": "noul",
+      "noul": 0.81
+    }
+  },
+  "usage": {
+    "input_tokens": 412,
+    "output_tokens": 48
+  }
+}

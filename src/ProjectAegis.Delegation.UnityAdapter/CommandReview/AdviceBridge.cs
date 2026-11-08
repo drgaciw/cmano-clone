@@ -1,10 +1,10 @@
 namespace ProjectAegis.Delegation.UnityAdapter.CommandReview;
 
-using ProjectAegis.Delegation.Projection;
-using ProjectAegis.Delegation.ResourceRank;
-using ProjectAegis.Delegation.SensorToShooter;
-using ProjectAegis.Delegation.Skills;
-using ProjectAegis.Delegation.UnityAdapter.Bridge;
+using Projection;
+using ResourceRank;
+using SensorToShooter;
+using Skills;
+using Bridge;
 
 /// <summary>Builds tick-bound advisory facts without advancing or mutating simulation state.</summary>
 public static class AdviceBridge
@@ -19,8 +19,9 @@ public static class AdviceBridge
         if (contacts is null) throw new ArgumentNullException(nameof(contacts));
         var contactId = selectedContactId ?? string.Empty;
         AdviceEvidenceSource? supplied = null;
-        if (snapshot is IAdviceEvidenceSource source && contactId.Length > 0)
-            source.TryGetAdviceEvidence(contactId, out supplied!);
+        if (snapshot is IAdviceEvidenceSource source && contactId.Length > 0
+            && source.TryGetAdviceEvidence(contactId, out var candidate)) supplied = candidate;
+        supplied ??= AdviceRuntimeEvidenceBridge.Build(bridge, snapshot, contacts, contactId);
         return BuildCore(bridge, snapshot, contacts, supplied, contactId);
     }
 
@@ -44,6 +45,8 @@ public static class AdviceBridge
         var contact = contacts.Contacts.FirstOrDefault(c => string.Equals(c.ContactId, contactId, StringComparison.Ordinal));
         if (contact is null)
             return AdviceFrame.Unavailable(tick, snapshot.SimTime, AdviceAvailability.EvidenceUnavailable, "select a current contact and refresh evidence", contactId);
+        if (!double.IsFinite(contact.LastSimTime) || contact.LastSimTime < 0 || contact.LastSimTime > simTime)
+            return AdviceFrame.Unavailable(tick, snapshot.SimTime, AdviceAvailability.Stale, "refresh future-dated contact evidence", contactId);
         if (supplied is not null && (!string.Equals(supplied.ContactId, contactId, StringComparison.Ordinal)
             || !double.IsFinite(supplied.SimTime) || supplied.SimTime < 0 || supplied.SimTime != simTime))
             return AdviceFrame.Unavailable(tick, snapshot.SimTime, AdviceAvailability.Stale, "refresh advisory evidence before review", contactId);
@@ -105,4 +108,3 @@ public static class AdviceBridge
             supplied?.MissionPackageFacts ?? [], authority, "manual review of cited current facts", false, false);
     }
 }
-

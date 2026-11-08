@@ -1,8 +1,6 @@
-using ProjectAegis.Delegation.Controllers;
 using ProjectAegis.Delegation.Core;
 using ProjectAegis.Delegation.Decision;
 using ProjectAegis.Delegation.Orchestration;
-using ProjectAegis.Delegation.Policy;
 using NUnit.Framework;
 
 namespace ProjectAegis.Delegation.Tests.Decision;
@@ -43,7 +41,7 @@ public sealed class IOrderLogContractTests
         Assert.That(entries, Has.Count.EqualTo(1));
         Assert.That(entries[0].Kind, Is.EqualTo(OrderLogEntryKind.AgentDecision));
         Assert.That(entries[0].Payload, Is.TypeOf<AgentDecisionPayload>());
-        var payload = (AgentDecisionPayload)entries[0].Payload!;
+        var payload = (AgentDecisionPayload)entries[0].Payload;
         Assert.That(payload.SimTick, Is.EqualTo(1ul));
         Assert.That(payload.ChosenOrderKind, Is.EqualTo(record.ChosenKind));
         Assert.That(payload.ToDecisionRecord() with { SimTick = 1 }, Is.EqualTo(record with { SimTick = 1 }));

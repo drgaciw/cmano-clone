@@ -1,6 +1,6 @@
 namespace ProjectAegis.Data.Catalog;
 
-using ProjectAegis.Data.Platform;
+using Platform;
 
 /// <summary>
 /// S30-02: read-only per-tier export slice over <see cref="PlatformCatalogExportData"/>.

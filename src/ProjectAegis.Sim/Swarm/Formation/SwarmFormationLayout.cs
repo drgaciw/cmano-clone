@@ -49,7 +49,7 @@ public static class SwarmFormationLayout
     private static IReadOnlyList<(double DxDeg, double DyDeg)> Cloud(int droneCount, ulong seed)
     {
         var result = new (double DxDeg, double DyDeg)[droneCount];
-        var state = MixSeed(seed, (ulong)(uint)droneCount);
+        var state = MixSeed(seed, (uint)droneCount);
         for (var i = 0; i < droneCount; i++)
         {
             state = Lcg(state);
@@ -89,7 +89,7 @@ public static class SwarmFormationLayout
         var startAngle = hostBearingRad ?? 0.0;
         var biasLat = 0.0;
         var biasLon = 0.0;
-        if (hostBearingRad is double bearing)
+        if (hostBearingRad is { } bearing)
         {
             var bias = DefaultOrbitRadiusDeg * OrbitHostBiasFraction;
             biasLat = bias * Math.Cos(bearing);

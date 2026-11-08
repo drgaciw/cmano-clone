@@ -1,6 +1,6 @@
 namespace ProjectAegis.Delegation.Projection;
 
-using ProjectAegis.Delegation.Decision;
+using Decision;
 
 /// <summary>
 /// DRG-179: projects order-log contact (and BDA) rows into deterministic Find / Fix / Track /

@@ -1,6 +1,6 @@
 namespace ProjectAegis.Data.Catalog;
 
-using ProjectAegis.Data.Platform;
+using Platform;
 
 public interface ICatalogReader
 {

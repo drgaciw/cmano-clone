@@ -1,6 +1,6 @@
 namespace ProjectAegis.Delegation.Input;
 
-using ProjectAegis.Delegation.Core;
+using Core;
 
 /// <summary>Agent directive action kinds (CMD-37).</summary>
 public enum AgentDirectiveAction

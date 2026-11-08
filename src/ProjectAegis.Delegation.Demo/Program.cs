@@ -1,4 +1,4 @@
-using ProjectAegis.Delegation.Projection;
+using ProjectAegis.Delegation.Demo;
 using ProjectAegis.Delegation.UnityAdapter.Baltic;
 
 static void PrintUsage()
@@ -8,6 +8,7 @@ static void PrintUsage()
     Console.WriteLine("  Single: dotnet run --project src/ProjectAegis.Delegation.Demo -- [--seed N] [--scenario ID] [--ticks N] [--no-engage] [--csv]");
     Console.WriteLine("  Batch:  dotnet run --project src/ProjectAegis.Delegation.Demo -- --batch [--scenarios a,b] [--seeds 42,7] [--ticks N] [--csv-out path.csv]");
     Console.WriteLine("          --batch --all-scenarios  (every policy under data/scenarios)");
+    Console.WriteLine("          --batch --experiment path.experiment.json [--csv-out path.csv]");
 }
 
 static int RunSingle(int seed, string scenario, int ticks, bool engage, bool printCsv)
@@ -60,59 +61,22 @@ static int RunBatch(
     return 0;
 }
 
-var seed = 42;
-var scenario = "baltic-patrol";
-var ticks = 4;
-var engage = true;
-var printCsv = false;
-var batch = false;
-var allScenarios = false;
-var scenarios = new List<string> { "baltic-patrol", "baltic-patrol-comms", "baltic-patrol-classify" };
-var seeds = new List<int> { 42 };
-string? csvOut = null;
-
-for (var i = 0; i < args.Length; i++)
+static int Dispatch(DemoInvocation invocation)
 {
-    switch (args[i])
+    switch (invocation.Mode)
     {
-        case "--help" or "-h":
-            PrintUsage();
-            return 0;
-        case "--seed" when i + 1 < args.Length:
-            seed = int.Parse(args[++i], System.Globalization.CultureInfo.InvariantCulture);
-            break;
-        case "--scenario" when i + 1 < args.Length:
-            scenario = args[++i];
-            break;
-        case "--ticks" when i + 1 < args.Length:
-            ticks = int.Parse(args[++i], System.Globalization.CultureInfo.InvariantCulture);
-            break;
-        case "--no-engage":
-            engage = false;
-            break;
-        case "--csv":
-            printCsv = true;
-            break;
-        case "--batch":
-            batch = true;
-            break;
-        case "--all-scenarios":
-            allScenarios = true;
-            break;
-        case "--scenarios" when i + 1 < args.Length:
-            scenarios = args[++i].Split(',', StringSplitOptions.RemoveEmptyEntries | StringSplitOptions.TrimEntries).ToList();
-            break;
-        case "--seeds" when i + 1 < args.Length:
-            seeds = args[++i]
-                .Split(',', StringSplitOptions.RemoveEmptyEntries | StringSplitOptions.TrimEntries)
-                .Select(s => int.Parse(s, System.Globalization.CultureInfo.InvariantCulture))
-                .ToList();
-            break;
-        case "--csv-out" when i + 1 < args.Length:
-            csvOut = args[++i];
-            break;
+        case DemoMode.ExperimentBatch:
+            var definition = ExperimentDefinitionLoader.LoadFile(invocation.ExperimentPath!);
+            return ExperimentSeedGridBatch.Execute(definition, invocation.CsvOut);
+        case DemoMode.Batch:
+            var runScenarios = invocation.AllScenarios
+                ? BalticBatchRunner.DiscoverScenarioIds()
+                : invocation.Scenarios;
+            return RunBatch(runScenarios, invocation.Seeds, invocation.Ticks, invocation.Engage, invocation.CsvOut);
+        case DemoMode.Single:
+            return RunSingle(invocation.Seed, invocation.Scenario, invocation.Ticks, invocation.Engage, invocation.PrintCsv);
         default:
-            Console.Error.WriteLine($"Unknown argument: {args[i]}");
+            Console.Error.WriteLine("Unknown demo mode.");
             PrintUsage();
             return 2;
     }
@@ -120,15 +84,22 @@ for (var i = 0; i < args.Length; i++)
 
 try
 {
-    if (batch)
+    switch (DemoCommandLine.Parse(args))
     {
-        var runScenarios = allScenarios
-            ? BalticBatchRunner.DiscoverScenarioIds()
-            : scenarios;
-        return RunBatch(runScenarios, seeds, ticks, engage, csvOut);
+        case { Kind: DemoParseKind.Help }:
+            PrintUsage();
+            return 0;
+        case { Kind: DemoParseKind.Error, Error: var error }:
+            Console.Error.WriteLine(error);
+            PrintUsage();
+            return 2;
+        case { Kind: DemoParseKind.Ok, Invocation: { } invocation }:
+            return Dispatch(invocation);
+        default:
+            Console.Error.WriteLine("Could not parse arguments.");
+            PrintUsage();
+            return 2;
     }
-
-    return RunSingle(seed, scenario, ticks, engage, printCsv);
 }
 catch (Exception ex)
 {

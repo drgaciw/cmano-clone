@@ -1,7 +1,7 @@
 namespace ProjectAegis.MissionEditor.Cli;
 
 using System.Text.Json;
-using ProjectAegis.Data.Catalog;
+using Data.Catalog;
 
 public static class CatalogEntityMapCommand
 {

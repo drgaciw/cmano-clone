@@ -383,7 +383,7 @@ public sealed class PlatformWorkbookPhaseBImportTests
     {
         var sheet = workbook.FindSheet("Platforms");
         Assert.NotNull(sheet);
-        var platformCol = Array.IndexOf(sheet!.Header.ToArray(), "PlatformId");
+        var platformCol = Array.IndexOf(sheet.Header.ToArray(), "PlatformId");
         Assert.True(platformCol >= 0);
 
         var rowIndex = -1;
@@ -432,13 +432,13 @@ public sealed class PlatformWorkbookPhaseBImportTests
                 }
 
                 cells[colIndex] = value;
-                return (IReadOnlyList<string>)cells;
+                return cells;
             }).ToArray();
 
             return sheet with { Rows = rows };
         }).ToArray();
 
-        return workbook with { Sheets = sheets };
+        return new PlatformWorkbook(sheets);
     }
 
     private static void SeedPlatform(string dbPath, string platformId)

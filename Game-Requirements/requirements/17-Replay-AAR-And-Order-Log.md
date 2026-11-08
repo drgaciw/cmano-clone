@@ -1,6 +1,6 @@
 # 17 - Replay, AAR, and Order Log
 
-**Last Updated:** 2026-07-08  
+**Last Updated:** 2026-09-30 (additive proposal; historical MVP grades preserved)
 **Status:** Draft — ready for design review  
 **FR reverse-ref:** [FR-15](01-Project-Overview.md) — Replay, order log, AAR  
 **CMO basis:** Manual §6.3.11 Recorder, §6.3.12 Message Log, §6.3.13 Losses, §6.3.14 Scoring; §9.2.10 losses note  
@@ -85,7 +85,7 @@ hashChain: "sha256-prev+this"  # optional P1 for tamper-evident exports
 ### Recording
 
 - **RPL-05 — Auto-record.** Record order log for scenario runs used in golden / batch paths; optional disable for perf tests.
-- **RPL-06 — Store bundle.** Scenario file hash / policy id, DB version where bound, build id, seed, order log, periodic world-state checkpoints via `ReplayCheckpointStore` (configurable interval).
+- **RPL-06 — Store bundle.** Scenario file hash / policy id, DB version where bound, build id, seed, order log, periodic verification checkpoints via `ReplayCheckpointStore` (configurable interval). **Implementation limit:** `ReplayCheckpoint` stores tick, world hash, log fingerprint, and last sequence ID; it does not serialize restorable world/session state.
 
 ### Playback
 
@@ -97,7 +97,7 @@ hashChain: "sha256-prev+this"  # optional P1 for tamper-evident exports
 
 ### Determinism gate
 
-- **RPL-12 — Divergent re-sim FAIL.** Re-sim from checkpoint + log through divergent tick → FAIL build. **Met** via ReplayGolden suite.
+- **RPL-12 — Divergent re-sim FAIL.** Golden re-simulation from scenario inputs shall fail on divergent fingerprints. **Met** for the existing ReplayGolden comparison; arbitrary restore from a checkpoint is **not evidenced** by this suite. Verification hashes alone cannot resume a session (proposed RPL-29…31).
 - **RPL-13 — CI golden.** CI runs golden scenario comparison; Baltic v2 production fingerprint **`17144800277401907079`** must remain preserved unless an ADR explicitly changes it. **Met** (ReplayGolden **6/6**).
 
 ## Message Log
@@ -128,6 +128,16 @@ hashChain: "sha256-prev+this"  # optional P1 for tamper-evident exports
 - **RPL-26 — Per-agent stats.** Intents/decisions proposed vs executed vs denied vs overridden — **Partial** via order-log enumeration.
 - **RPL-27 — Replay compare.** Compare two replays with same scenario, different seeds or agent assignments — residual product UI; headless re-run **met**.
 - **RPL-28 — Balance consumer (P1).** Balance Agent consumes batch metrics (doc 11) — residual product wiring.
+
+## Proposed save/resume contract (H6 — 2026-09-30)
+
+**Status:** proposed requirements; implementation and product acceptance pending H6 feasibility, scope decision, and ADR ([DRG-328](https://linear.app/drgamtd-workspace/issue/DRG-328), [DRG-330](https://linear.app/drgamtd-workspace/issue/DRG-330), [DRG-329](https://linear.app/drgamtd-workspace/issue/DRG-329)). Contract/schema backlog: [DRG-348](https://linear.app/drgamtd-workspace/issue/DRG-348); implementation slice: [DRG-349](https://linear.app/drgamtd-workspace/issue/DRG-349), dependent on DRG-348. These clauses add a contract independent of replay verification; no shipped save/resume or multiplayer behavior is claimed.
+
+- **RPL-29 — Deterministic resume.** For an identical build, scenario, catalog, policy set, and subsequent ordered inputs, uninterrupted and saved/resumed runs shall produce identical authoritative state and order-log fingerprints at each compared future tick. The save contract shall account for RNG state, tick/sequence, pending commands/events, mission/delegation runtime state, engagements, resources, and every other authority-bearing subsystem; the feasibility inventory determines the complete schema.
+- **RPL-30 — Explicit compatibility.** A save shall record schema/version, build identity, scenario identity/hash, catalog identity/hash, and policy identities/hashes. The loader shall validate these before replacement of the active session. Cross-build migration and multiplayer synchronization require separate approved contracts; they are outside this initial same-build requirement.
+- **RPL-31 — Non-mutating failure.** Corrupt, incomplete, unsupported-version, or mismatched saves shall return a stable diagnostic and leave the existing active session state, command queue, RNG, and order log unchanged. A successful restore commits only after complete validation in an isolated candidate session.
+
+**Required acceptance:** differential uninterrupted/resumed runs at multiple interruption points, including queued events/orders and in-flight engagements; same subsequent inputs; matching future state/log hashes; corrupt and identity-mismatch load attempts against a live session with before/after equality. Test mappings are planned; existing ReplayGolden tests do not fulfill this contract. Planning and evidence rules: [requirements reconciliation](../../docs/superpowers/specs/2026-09-30-requirements-planning-reconciliation.md), [VER-07](../drafts/26-Verification-CI-Gauntlet.md#7-provenance--artifact-traceability-ver-07).
 
 ## Non-Functional Requirements
 
@@ -176,7 +186,7 @@ Corrected headless-first order (Wave 2 re-honesty — **not** scrub-first):
 | Order log core | `DecisionLog` : `IOrderLog`; `OrderLogEntry`, `OrderLogEntryKind`, `OrderLogEntryFactories` (`ProjectAegis.Delegation` · `Decision/`) | **Shipped** | Append-only; kinds include `AgentDecision`, `PlayerOrder`, `PolicyDenial`, `Engagement`, … |
 | Agent decision payload | `AgentDecisionPayload`, `DecisionRecord` | **Shipped** | Prefer **`AgentDecision`** naming in docs; intent language maps to this kind |
 | Fingerprint / golden | `OrderLogReplayFingerprint`, `DecisionLog.ComputeFingerprint` (`Replay/`) | **Shipped** | ReplayGolden **6/6**; hash **`17144800277401907079`** |
-| Checkpoints | `ReplayCheckpointStore`, `ReplayCheckpoint` (`Replay/`) | **Shipped** | Used by `BalticReplayHarness` |
+| Checkpoints | `ReplayCheckpointStore`, `ReplayCheckpoint` (`Replay/`) | **Shipped verification hashes** | Used by `BalticReplayHarness`; no restorable session payload |
 | Message log projection | `MessageLogProjection`, `MessageLogLine`, `MessageLogBridge` (`Projection/`, UnityAdapter `Bridge/`) | **Shipped** (projection); UI residual | Headless project-from-log |
 | Losses / scoring | `LossesScoringProjection`, `LossesScoringCsvExporter`, `LossesScoringSnapshot` (`Projection/`) | **Shipped** | `BalticBatchRunner` CSV path |
 | Live filter | `PlayerInfoFilter`, `DelegationOrchestrator.GetLiveOrderLogView()` | **Shipped** | HUD/message filter without mutating stored log |

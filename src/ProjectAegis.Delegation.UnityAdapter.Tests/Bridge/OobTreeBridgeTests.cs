@@ -1,8 +1,7 @@
 namespace ProjectAegis.Delegation.UnityAdapter.Tests.Bridge;
 
 using System;
-using ProjectAegis.Delegation.Core;
-using ProjectAegis.Delegation.Projection;
+using Projection;
 using ProjectAegis.Delegation.UnityAdapter.Bridge;
 using NUnit.Framework;
 
@@ -50,15 +49,15 @@ public sealed class OobTreeBridgeTests
     public void Build_null_snapshot_throws()
     {
         var bridge = new DelegationBridge(42, mvpEngagement: false);
-        Assert.Throws<ArgumentNullException>((Action)(() =>
-            OobTreeBridge.Build(null!, bridge.Registry)));
+        Assert.Throws<ArgumentNullException>(() =>
+            OobTreeBridge.Build(null!, bridge.Registry));
     }
 
     [Test]
     public void Build_null_registry_throws()
     {
         var snapshot = new SimWorldSnapshotStub();
-        Assert.Throws<ArgumentNullException>((Action)(() =>
-            OobTreeBridge.Build(snapshot, null!)));
+        Assert.Throws<ArgumentNullException>(() =>
+            OobTreeBridge.Build(snapshot, null!));
     }
 }

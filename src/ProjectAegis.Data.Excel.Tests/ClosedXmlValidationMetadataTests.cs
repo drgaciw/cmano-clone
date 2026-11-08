@@ -1,6 +1,5 @@
 using ClosedXML.Excel;
 using ProjectAegis.Data.Catalog;
-using ProjectAegis.Data.Excel;
 using ProjectAegis.Data.Platform;
 using ProjectAegis.Data.WriteGate;
 using Xunit;
@@ -174,7 +173,7 @@ public sealed class ClosedXmlValidationMetadataTests
     {
         var validation = cell.GetDataValidation();
         Assert.NotNull(validation);
-        Assert.Equal(XLAllowedValues.List, validation!.AllowedValues);
+        Assert.Equal(XLAllowedValues.List, validation.AllowedValues);
         Assert.True(validation.InCellDropdown);
 
         var listFormula = validation.Value ?? string.Empty;

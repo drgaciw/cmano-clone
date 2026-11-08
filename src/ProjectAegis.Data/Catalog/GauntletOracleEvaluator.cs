@@ -75,32 +75,32 @@ public static class GauntletOracleEvaluator
                 failures.Add($"{prefix}: side expected '{expect.Side}' got '{row.Side}'");
             }
 
-            if (expect.MinKills is int minKills && row.Kills < minKills)
+            if (expect.MinKills is { } minKills && row.Kills < minKills)
             {
                 failures.Add($"{prefix}: kills {row.Kills} < min {minKills}");
             }
 
-            if (expect.MaxMissilesFired is int maxMissiles && row.MissilesFired > maxMissiles)
+            if (expect.MaxMissilesFired is { } maxMissiles && row.MissilesFired > maxMissiles)
             {
                 failures.Add($"{prefix}: missilesFired {row.MissilesFired} > max {maxMissiles}");
             }
 
-            if (expect.MinDenials is int minDenials && row.Denials < minDenials)
+            if (expect.MinDenials is { } minDenials && row.Denials < minDenials)
             {
                 failures.Add($"{prefix}: denials {row.Denials} < min {minDenials}");
             }
 
-            if (expect.MaxDenials is int maxDenials && row.Denials > maxDenials)
+            if (expect.MaxDenials is { } maxDenials && row.Denials > maxDenials)
             {
                 failures.Add($"{prefix}: denials {row.Denials} > max {maxDenials}");
             }
 
-            if (expect.MinScore is double minScore && row.Score < minScore)
+            if (expect.MinScore is { } minScore && row.Score < minScore)
             {
                 failures.Add($"{prefix}: score {row.Score} < min {minScore}");
             }
 
-            if (expect.MaxScore is double maxScore && row.Score > maxScore)
+            if (expect.MaxScore is { } maxScore && row.Score > maxScore)
             {
                 failures.Add($"{prefix}: score {row.Score} > max {maxScore}");
             }

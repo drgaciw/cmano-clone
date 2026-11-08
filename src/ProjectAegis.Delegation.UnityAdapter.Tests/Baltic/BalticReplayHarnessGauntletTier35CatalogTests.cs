@@ -1,5 +1,4 @@
 using ProjectAegis.Data.Catalog;
-using ProjectAegis.Data.Import;
 using ProjectAegis.Delegation.UnityAdapter.Baltic;
 using ProjectAegis.Sim.Scenario;
 using NUnit.Framework;
@@ -115,7 +114,7 @@ public sealed class BalticReplayHarnessGauntletTier35CatalogTests
                      "gauntlet-t5-cascade", "gauntlet-t5-dynamic-obj", "gauntlet-t5-roe-change",
                  }).Distinct())
         {
-            var dto = ProjectAegis.Data.Scenario.ScenarioPolicyJsonCatalog.TryGetJson(sid);
+            var dto = Data.Scenario.ScenarioPolicyJsonCatalog.TryGetJson(sid);
             Assert.That(dto?.Gauntlet?.Units, Is.Not.Null.And.Not.Empty, sid);
             var hasBlue = false;
             var hasRed = false;

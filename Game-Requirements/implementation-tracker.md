@@ -3,7 +3,7 @@
 > **Historical Snapshot Note:** This file serves as the canonical stable alias for the implementation tracker. The historical baseline snapshot from 2026-07-04 is preserved in [`implementation-tracker-2026-07-04.md`](implementation-tracker-2026-07-04.md).
 
 **Base:** `origin/main`  
-**Last Updated:** 2026-09-02 (Audit Remediation W1-HUB)  
+**Last Updated:** 2026-09-30 (additive planning reconciliation; frozen MVP grades preserved)
 **Historical Snapshots:** [2026-07-04](implementation-tracker-2026-07-04.md) | [2026-07-01](implementation-tracker-2026-07-01.md) | [2026-06-30](implementation-tracker-2026-06-30.md) | [2026-06-04 (S56 evidence)](implementation-tracker-2026-06-04.md)  
 **Index:** [Game-Requirements-Index.md](Game-Requirements-Index.md) | [00-Master-Index.md](../00-Master-Index.md)  
 **Live Status Pointers:** Latest sprint reports under [`docs/reports/`](../docs/reports/) and QA closeouts under [`production/qa/`](../production/qa/).
@@ -102,6 +102,30 @@ For live graph metrics and symbol index details, see `.gitnexus/meta.json`.
 | 19 | Cyber & Comms | **Partial** | v3 comms policies; doc honesty Wave 2 2026-07-08 | JADC2 node damage |
 | 20 | Command & Control UI | **Partial** | S78 v3 picker + bands; doc honesty Wave 2 2026-07-08 | C2 UX polish |
 | 21 | Platform Editor | **MVP-done / Partial+ (S56)** | S77 v3 Excel slices; doc honesty Wave 3 2026-07-08 | Platform Editor polish |
+
+## Post-MVP requirement evidence (22-27)
+
+This table is additive to the frozen S56 rows. **Document maturity**, **implementation evidence**, **test evidence**, and **owner acceptance** are independent. Test links below identify source-level candidate coverage; they do not certify that every document criterion is met, record a new run, or grant product acceptance. The coordinating verification record supplies run-specific SHA/build/local delta/input identity under [VER-07](drafts/26-Verification-CI-Gauntlet.md#7-provenance--artifact-traceability-ver-07).
+
+| Req / document | Document maturity | Implementation evidence / residual | Test evidence mapping | Owner acceptance |
+| --- | --- | --- | --- | --- |
+| [22 — Drone swarm](requirements/22-Drone-Swarm-Platforms.md) | Draft; existing phase decision retained | DRG-83 Phase A–C landing recorded in index; SWARM-27…30 Phase N deferred by DRG-47 | Existing doc 22 acceptance mappings; no new phase evidence asserted here | Existing Phase N deferral retained; no new acceptance decision |
+| [23 — KCX](drafts/23-Kill-Chain-Explainability.md) | Draft; formal promotion pending | `ContactProvenanceProjection`, `SensorToShooterProjection`, `TrackCustodyProjection`, `TargetabilityAcceptProjection`; headless/projection subsets; full criterion/UX acceptance still requires evidence | [SensorToShooterProjectionTests](../src/ProjectAegis.Delegation.Tests/SensorToShooter/SensorToShooterProjectionTests.cs), [ContactProvenanceProjectionTests](../src/ProjectAegis.Delegation.Tests/Projection/ContactProvenanceProjectionTests.cs), [TrackCustodyProjectionTests](../src/ProjectAegis.Delegation.Tests/TrackCustody/TrackCustodyProjectionTests.cs), [TargetabilityAcceptProjectionTests](../src/ProjectAegis.Delegation.Tests/TargetabilityAccept/TargetabilityAcceptProjectionTests.cs) | Pending; Combat UX entry evidence/owner gate [DRG-208](https://linear.app/drgamtd-workspace/issue/DRG-208) |
+| [24 — HOL](drafts/24-Human-On-The-Loop-Authority.md) | Draft; formal promotion pending | `PendingApprovalQueue`, `C2AuthorityProjector`; headless queue/projection subsets; lethal-autonomy Phase N remains deferred | [PendingApprovalQueueTests](../src/ProjectAegis.Delegation.Tests/Orchestration/PendingApprovalQueueTests.cs), [C2AuthorityProjectorTests](../src/ProjectAegis.Delegation.Tests/Skills/C2AuthorityProjectorTests.cs), [C2AuthorityPresentationTests](../src/ProjectAegis.Delegation.UnityAdapter.Tests/Presentation/C2AuthorityPresentationTests.cs) | Pending; headless delivery does not imply owner/UI acceptance |
+| [25 — C2N](drafts/25-C2-Nodes-Mission-Command.md) | Draft; formal promotion pending | `MissionPackageProjection`, `C2NetworkHealthProjector`, `MissionIntentProjection`; headless deterministic DTO/projection subsets | [MissionPackageProjectionTests](../src/ProjectAegis.Delegation.Tests/C2Nodes/MissionPackageProjectionTests.cs), [C2NetworkHealthProjectorTests](../src/ProjectAegis.Delegation.Tests/C2Network/C2NetworkHealthProjectorTests.cs), [MissionIntentProjectionTests](../src/ProjectAegis.Delegation.Tests/MissionIntent/MissionIntentProjectionTests.cs) | Pending; criterion-level owner decision required |
+| [26 — VER](drafts/26-Verification-CI-Gauntlet.md) | Draft; VER-07.3…6 proposed | Existing gauntlet/oracle/provenance spine; complete criterion-level acceptance schema/validator is backlog work | [GauntletOracleEvaluatorTests](../src/ProjectAegis.Data.Tests/Catalog/GauntletOracleEvaluatorTests.cs), [GauntletOracleEvalCommandTests](../src/ProjectAegis.MissionEditor.Cli.Tests/GauntletOracleEvalCommandTests.cs); VER-07.3…6 tests planned | Pending; green engineering checks do not accept product |
+| [27 — LIB](drafts/27-Scenario-Library-Campaigns.md) | Draft; LIB-05.1…3 proposed | `ScenarioPackageLoader`, `ScenarioLibraryProjection`, `CampaignLibraryProjection`; advanced ZIP/media mounting residual; presentation loader/fallback pilot pending H5 | [ScenarioPackageTests](../src/ProjectAegis.Data.Tests/Scenario/ScenarioPackageTests.cs), [ScenarioLibraryProjectionTests](../src/ProjectAegis.Data.Tests/Scenario/ScenarioLibraryProjectionTests.cs), [CampaignLibraryTests](../src/ProjectAegis.Data.Tests/Scenario/CampaignLibraryTests.cs); LIB-05 tests planned | Pending; no H5 implementation or acceptance claimed |
+
+### Proposed forward requirements (2026-09-30)
+
+| Clause | Implementation | Test evidence | Owner acceptance / entry gate |
+| --- | --- | --- | --- |
+| [AME-6.11](requirements/11-Agentic-Mission-Editor.md) — authoring capability disclosure | Proposed; [DRG-345](https://linear.app/drgamtd-workspace/issue/DRG-345) / [DRG-346](https://linear.app/drgamtd-workspace/issue/DRG-346); H4 / DRG-333 / G3 | Planned supported/unsupported-role Save, Export/Play, CLI/GUI parity matrix | Pending; H4 scope and editor boundary decisions |
+| [RPL-29…31](requirements/17-Replay-AAR-And-Order-Log.md#proposed-saveresume-contract-h6--2026-09-30) — deterministic save/resume | Proposed; [DRG-348](https://linear.app/drgamtd-workspace/issue/DRG-348) contract → [DRG-349](https://linear.app/drgamtd-workspace/issue/DRG-349) slice; existing checkpoints contain verification hashes | Planned differential runs and non-mutating corrupt/mismatch load tests | Pending; H6 feasibility, product scope, and ADR |
+| [LIB-05.1…3](drafts/27-Scenario-Library-Campaigns.md) — presentation failure isolation | Proposed; H5 inventory/ADR → [DRG-347](https://linear.app/drgamtd-workspace/issue/DRG-347) bounded local pilot | Planned fault-injection, state/log equality, fallback and budget evidence | Pending; H5 decisions |
+| [VER-07.3…6](drafts/26-Verification-CI-Gauntlet.md) — revision-bound evidence | Proposed additive schema/validator | Planned provenance completeness, mismatch/stale rejection, explicit owner action | Pending; reuse DRG-201/234/244 |
+
+See [reconciliation spec](../docs/superpowers/specs/2026-09-30-requirements-planning-reconciliation.md) for normative acceptance requirements and implementation order.
 
 ## Related
 

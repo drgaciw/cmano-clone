@@ -8,6 +8,7 @@ using ProjectAegis.Delegation.Core;
 using ProjectAegis.Delegation.Orchestration;
 using ProjectAegis.Delegation.Projection;
 using ProjectAegis.Delegation.UnityAdapter.Bridge;
+using ProjectAegis.Delegation.UnityAdapter.Presentation;
 using ProjectAegis.Sim.Scenario;
 using UnityEngine;
 using UnityEngine.UIElements;
@@ -69,7 +70,14 @@ namespace ProjectAegis.Unity.Runtime
         private MapSymbolPool? _symbolPool;
         private MapCanvasOverlayRenderer? _overlayRenderer;
         private MapCanvasCourseOverlayRenderer? _courseOverlayRenderer;
+        private MapCanvasTransientEffectsRenderer? _transientEffects;
         private CombatMapView? _combatView;
+        private CommandReviewView? _commandReviewView;
+        private CoverageMapView? _coverageView;
+        private bool _dirtyCoverage;
+        private bool _dirtyInspecting;
+        private CombatPresentationFrame? _dirtyReviewFrame;
+        private object? _dirtyReviewSections;
         private string? _dirtyCombatKey;
         private bool _refreshedOnce;
         private IReadOnlyList<MapSymbolEntry>? _dirtySymbolsRef;
@@ -84,6 +92,11 @@ namespace ProjectAegis.Unity.Runtime
         private bool _dirtyShowPanel;
         private int _dirtyLayerVisibleCount = -1;
         private CommsState _dirtyCommsState = CommsState.Nominal;
+        private long _appliedRosterStamp;
+        private bool _badgesApplied;
+        private IReadOnlyList<AgentRosterEntry>? _appliedRoster;
+        private IReadOnlyDictionary<string, ControllerBadgeBinding> _badgeBindings =
+            new Dictionary<string, ControllerBadgeBinding>(StringComparer.Ordinal);
 
         private IC2PresentationFeed? PresentationFeed => bridgeHost;
 
@@ -143,6 +156,13 @@ namespace ProjectAegis.Unity.Runtime
             Refresh();
         }
 
+        private void OnDestroy()
+        {
+            _commandReviewView?.Dispose();
+            _coverageView?.Dispose();
+            _combatView?.Dispose();
+        }
+
         private void LateUpdate()
         {
             if (!showPanel || bridgeHost == null)
@@ -182,10 +202,17 @@ namespace ProjectAegis.Unity.Runtime
                 _courseOverlayRenderer = _canvas != null
                     ? new MapCanvasCourseOverlayRenderer(_canvas)
                     : null;
+                _transientEffects = _canvas != null
+                    ? new MapCanvasTransientEffectsRenderer(_canvas)
+                    : null;
                 _combatView?.Dispose();
                 _combatView = _canvas != null
-                    ? new CombatMapView(_canvas, _rootPanel, key => bridgeHost.InspectCombatEvent(key))
+                    ? new CombatMapView(_canvas, _rootPanel, key => bridgeHost.InspectLiveCombatEvent(key))
                     : null;
+                _commandReviewView?.Dispose();
+                _commandReviewView = new CommandReviewView(_rootPanel, bridgeHost);
+                _coverageView?.Dispose();
+                _coverageView = _canvas != null ? new CoverageMapView(_canvas) : null;
                 _symbolPool = _canvas != null ? new MapSymbolPool(_canvas) : null;
                 _refreshedOnce = false;
             }
@@ -207,8 +234,14 @@ namespace ProjectAegis.Unity.Runtime
             }
 
             // Dirty-flag: skip the whole rebind/rebuild while nothing that affects the map changed.
+            // Controller badges use a roster stamp so a fresh LastAgentRoster list does not rebuild the map.
             if (!IsDirty())
             {
+                if (ControllerRosterChanged())
+                {
+                    ApplyControllerBadges();
+                }
+
                 return;
             }
 
@@ -216,7 +249,8 @@ namespace ProjectAegis.Unity.Runtime
             var commsDisplay = bridgeHost.Bridge.Orchestrator.ScenarioPolicy?.CommsDisplay
                 ?? ScenarioCommsDisplaySettings.Default;
             var atlas = ResolveAtlasCatalog();
-            var symbols = ResolveDisplaySymbols(PresentationFeed.LastMapSymbols);
+            var symbols = bridgeHost.CommandTimeline.IsInspecting ? bridgeHost.DisplayCombatSymbols
+                : ResolveDisplaySymbols(PresentationFeed.LastMapSymbols);
             _panelState = MapPanelBinder.Bind(
                 symbols,
                 bridgeHost.ScenarioPolicyId,
@@ -227,9 +261,12 @@ namespace ProjectAegis.Unity.Runtime
                 atlas);
             _theaterLabel!.text = $"THEATER: {_panelState.TheaterLabel}";
             _symbolPool!.Sync(_panelState.Symbols, OnSymbolClicked);
+            ApplyControllerBadges();
             ApplyOverlayCounts(comms);
             ApplyCourseOverlays();
             ApplyTransientCombatVfx();
+            _commandReviewView?.Bind();
+            _coverageView?.Bind(bridgeHost.LastCoordination, bridgeHost.ShowCommandCoverage && !bridgeHost.CommandTimeline.IsInspecting);
             ApplyLayerStackHud();
             ApplyPlanningChrome();
             _rootPanel!.style.display = showPanel ? DisplayStyle.Flex : DisplayStyle.None;
@@ -243,6 +280,15 @@ namespace ProjectAegis.Unity.Runtime
         /// </summary>
         private void ApplyOverlayCounts(CommsStateSnapshot? commsSnapshot)
         {
+            if (bridgeHost != null && bridgeHost.CommandTimeline.IsInspecting)
+            {
+                LastEnvelopeRingCount = LastDatalinkEdgeCount = LastDoctrineOverlayCount = 0;
+                if (_envelopeRingCountLabel != null) _envelopeRingCountLabel.text = "ENVELOPES: historical evidence unavailable";
+                if (_datalinkEdgeCountLabel != null) _datalinkEdgeCountLabel.text = "DATALINKS: historical evidence unavailable";
+                if (_doctrineOverlayCountLabel != null) _doctrineOverlayCountLabel.text = "DOCTRINE: historical evidence unavailable";
+                ApplyCanvasOverlays(Array.Empty<EnvelopeRingEntry>(), Array.Empty<DatalinkEdgeEntry>());
+                return;
+            }
             var catalog = bridgeHost != null ? bridgeHost.CatalogReader : null;
             var selectedUnitId = PresentationFeed?.SelectedUnitId;
             var catalogPlatformId = MapEnvelopePlatformResolver.Resolve(catalog, selectedUnitId);
@@ -314,7 +360,7 @@ namespace ProjectAegis.Unity.Runtime
         /// </summary>
         private void ApplyCourseOverlays()
         {
-            var courses = bridgeHost != null
+            var courses = bridgeHost != null && !bridgeHost.CommandTimeline.IsInspecting
                 ? bridgeHost.LastMapCourses
                 : Array.Empty<MapCourseOverlayEntry>();
             LastCourseOverlayCount = courses?.Count ?? 0;
@@ -329,10 +375,15 @@ namespace ProjectAegis.Unity.Runtime
         private void ApplyTransientCombatVfx()
         {
             if (bridgeHost == null) return;
-            _combatView?.Bind(bridgeHost.LastCombatFrame, bridgeHost.LastMapSymbols,
-                bridgeHost.Presentation.CombatInspection.SelectedKey);
-            LastCombatVfxFireLineCount = _combatView?.EffectCount ?? 0;
-            LastCombatVfxImpactCount = 0; // Outcomes are labeled on the same correlated effect.
+            _combatView?.Bind(bridgeHost.DisplayCombatFrame, bridgeHost.DisplayCombatSymbols,
+                bridgeHost.DisplayCombatKey);
+            // DRG-403 / Codex: do not overlay live VFX on historical inspection view.
+            var vfx = bridgeHost.CommandTimeline.IsInspecting
+                ? CombatVfxFrame.Empty
+                : bridgeHost.LastCombatVfx;
+            _transientEffects?.Sync(vfx);
+            LastCombatVfxFireLineCount = _transientEffects?.FireLineCount ?? 0;
+            LastCombatVfxImpactCount = _transientEffects?.ImpactMarkerCount ?? 0;
         }
 
         /// <summary>
@@ -446,6 +497,90 @@ namespace ProjectAegis.Unity.Runtime
             return ids;
         }
 
+        /// <summary>
+        /// Live roster while commanding. Timeline frames do not retain controller slots, so an
+        /// inspected event with no as-of roster hides badges instead of painting the current one.
+        /// </summary>
+        private IReadOnlyList<AgentRosterEntry>? BadgeRoster() =>
+            ControllerBadgeBinder.RosterForBadges(
+                bridgeHost.CommandTimeline.IsInspecting,
+                bridgeHost.LastAgentRoster,
+                asOfRoster: null);
+
+        /// <summary>
+        /// Presentation-only controller badges (DRG-374). Reapplied after symbol sync because the
+        /// symbol pool clears children when a row changes. The roster stamp is not an IsDirty input.
+        /// </summary>
+        private void ApplyControllerBadges()
+        {
+            if (_canvas == null || bridgeHost == null)
+            {
+                return;
+            }
+
+            var roster = BadgeRoster();
+            if (ControllerBadgeBinder.NeedsRebind(_badgesApplied, _appliedRosterStamp, _appliedRoster, roster))
+            {
+                _badgeBindings = ControllerBadgeBinder.BindRoster(roster);
+                _appliedRosterStamp = ControllerBadgeBinder.RosterStamp(roster);
+                _appliedRoster = roster;
+                _badgesApplied = true;
+            }
+
+            for (var i = 0; i < _canvas.childCount; i++)
+            {
+                var child = _canvas[i];
+                if (!child.ClassListContains("map-symbol") || child.userData is not string symbolId)
+                {
+                    continue;
+                }
+
+                var elementName = ControllerBadgeBinder.ElementName(symbolId);
+                var existing = child.Q<Label>(elementName);
+                if (!ControllerBadgeBinder.TryBindMapSymbol(
+                        symbolId,
+                        StyleClassForSymbol(symbolId),
+                        _badgeBindings,
+                        out var binding)
+                    || binding is not { Visible: true })
+                {
+                    existing?.RemoveFromHierarchy();
+                    continue;
+                }
+
+                if (existing == null)
+                {
+                    existing = new Label { name = elementName, pickingMode = PickingMode.Ignore };
+                    child.Add(existing);
+                }
+
+                existing.text = binding.ShortText;
+                existing.tooltip = binding.Tooltip;
+                existing.ClearClassList();
+                existing.AddToClassList(ControllerBadgeBinder.MapBadgeClass);
+                existing.AddToClassList(binding.ColorClass);
+                existing.AddToClassList(binding.ShapeClass);
+            }
+        }
+
+        private bool ControllerRosterChanged() =>
+            bridgeHost != null
+            && ControllerBadgeBinder.NeedsRebind(_badgesApplied, _appliedRosterStamp, _appliedRoster, BadgeRoster());
+
+        private string? StyleClassForSymbol(string symbolId)
+        {
+            var symbols = _panelState.Symbols;
+            for (var i = 0; i < symbols.Count; i++)
+            {
+                if (string.Equals(symbols[i].SymbolId, symbolId, StringComparison.Ordinal))
+                {
+                    return symbols[i].StyleClass;
+                }
+            }
+
+            return null;
+        }
+
         private bool IsDirty()
         {
             var feed = PresentationFeed;
@@ -459,6 +594,10 @@ namespace ProjectAegis.Unity.Runtime
                 || !ReferenceEquals(feed.LastMapSymbols, _dirtySymbolsRef)
                 || !ReferenceEquals(bridgeHost.LastMapCourses, _dirtyCoursesRef)
                 || !ReferenceEquals(bridgeHost.LastCombatVfx, _dirtyCombatVfxRef)
+                || !ReferenceEquals(bridgeHost.DisplayCombatFrame, _dirtyReviewFrame)
+                || !ReferenceEquals(bridgeHost.LastCommandReviewSections, _dirtyReviewSections)
+                || bridgeHost.ShowCommandCoverage != _dirtyCoverage
+                || bridgeHost.CommandTimeline.IsInspecting != _dirtyInspecting
                 || bridgeHost.Presentation.CombatInspection.SelectedKey != _dirtyCombatKey
                 || feed.SelectedUnitId != _dirtySelectedUnit
                 || feed.SelectedContactId != _dirtySelectedContact
@@ -474,6 +613,10 @@ namespace ProjectAegis.Unity.Runtime
             _dirtySymbolsRef = feed?.LastMapSymbols;
             _dirtyCoursesRef = bridgeHost?.LastMapCourses;
             _dirtyCombatVfxRef = bridgeHost?.LastCombatVfx;
+            _dirtyReviewFrame = bridgeHost == null ? null : bridgeHost.DisplayCombatFrame;
+            _dirtyReviewSections = bridgeHost == null ? null : bridgeHost.LastCommandReviewSections;
+            _dirtyCoverage = bridgeHost != null && bridgeHost.ShowCommandCoverage;
+            _dirtyInspecting = bridgeHost != null && bridgeHost.CommandTimeline.IsInspecting;
             _dirtyCombatKey = bridgeHost == null ? null : bridgeHost.Presentation.CombatInspection.SelectedKey;
             _dirtySelectedUnit = feed?.SelectedUnitId;
             _dirtySelectedContact = feed?.SelectedContactId;

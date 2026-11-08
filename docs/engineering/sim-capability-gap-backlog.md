@@ -1,12 +1,13 @@
 # Simulation Capability Gap Backlog
 
 **Created:** 2026-07-27
+**Planning refresh:** 2026-09-30 — selected GAP-01/GAP-09 and save/resume findings corroborated against local HEAD `4190fb1b49cd15775b6b995b7c245d73828cd7a2` plus existing dirty changes. The July sweep and catalog row counts below remain historical; no fresh database population audit or exhaustive capability sweep is claimed.
 **Origin:** QA Gauntlet run `gauntlet-20260727-1455`. While expanding gauntlet scenario variability, a systematic sweep established which milsim capabilities the simulation actually models. This document records the ones it does **not**, so they are scheduled deliberately rather than rediscovered each time someone tries to write a scenario that needs them.
 **Companion:** [`docs/superpowers/specs/2026-07-27-gauntlet-variability-design.md`](../superpowers/specs/2026-07-27-gauntlet-variability-design.md) — the variability work that *was* achievable within current engine capability.
 
 ## How to read this
 
-Every item was verified by source sweep across `src/**/*.cs` (excluding test assemblies), not assumed. Each is classified:
+The original July items were verified by source sweep across `src/**/*.cs` (excluding test assemblies). The September refresh is limited to the rows named above. Each is classified:
 
 | Class | Meaning |
 |---|---|
@@ -29,6 +30,7 @@ These are the traps. A scenario author can select them, validation passes, and n
 - **Consequence:** `mission_add_support --role Tanker` produces a valid scenario in which no aircraft is refuelled, no endurance is extended, and no early-warning coverage is provided. The mission is inert.
 - **Why it matters for QA:** the gauntlet cannot test "refuelling missions" — requested during this session and declined for exactly this reason. The nearest honest substitute is the `logistics` block (fuel burn + joker/bingo), which models fuel *pressure* but never fuel *transfer*.
 - **Suggested resolution:** either implement support-mission behaviour in the sim, or make the authoring layer reject/flag roles that have no runtime effect so the gap is visible at authoring time rather than discovered downstream.
+- **September 30 planning disposition:** proposed [AME-6.11](../../Game-Requirements/requirements/11-Agentic-Mission-Editor.md) and [DRG-345](https://linear.app/drgamtd-workspace/issue/DRG-345) add backend-specific capability findings before Export/Play while preserving draft Save. General EW/jamming behavior elsewhere is not proof that the authored EW support role is executed. Runtime support-role implementation is not included in this disclosure slice.
 
 ### GAP-02 — `missionCode` is free-form and never acted upon
 
@@ -86,6 +88,7 @@ These are the traps. A scenario author can select them, validation passes, and n
 - **Current behaviour:** engagements resolve within the tick they are launched — `Apply` → `ApplyInterceptOnHit` → `ApplyKillOnHit` execute in sequence inside `MvpEngagementResolver.Resolve`.
 - **What it would affect:** in-flight engagement of incoming weapons, shoot-look-shoot doctrine, salvo timing and layered defence, and the tactical meaning of range (long shots currently cost no time).
 - **Assessment:** probably the single highest-leverage absence for combat realism, and correspondingly invasive — it changes engagement from an instantaneous resolution to a multi-tick lifecycle, with direct determinism and replay-golden consequences.
+- **September 30 scope clarification:** presentation `InFlight` states and animated tracks do not supply authoritative weapon kinematics. The [Weapons design refresh](https://linear.app/drgamtd-workspace/issue/DRG-344) documents this boundary. New kinematics work requires a separate scope/ADR and replay-impact decision; this artifact reconciliation does not schedule or implement it.
 
 ### GAP-10 — Carrier / amphibious / deck operations
 
@@ -113,6 +116,12 @@ These are the traps. A scenario author can select them, validation passes, and n
 ---
 
 ## Suggested prioritisation
+
+### September 30 gated planning additions
+
+- **Save/resume:** `ReplayCheckpointStore` retains tick/hash/log metadata, not complete restorable session state. Proposed [RPL-29–31](../../Game-Requirements/requirements/17-Replay-AAR-And-Order-Log.md) map to [DRG-348](https://linear.app/drgamtd-workspace/issue/DRG-348) state/compatibility contract, then [DRG-349](https://linear.app/drgamtd-workspace/issue/DRG-349) same-build/catalog deterministic resume slice. Product details, state feasibility and ADR gates remain open; multiplayer is a separate later scope.
+- **Presentation content:** proposed [LIB-05.1–3](../../Game-Requirements/drafts/27-Scenario-Library-Campaigns.md) and [DRG-347](https://linear.app/drgamtd-workspace/issue/DRG-347) require local asset loading failure isolation and unchanged authoritative replay/order evidence. This is presentation work, not a simulation capability.
+- Current planning order, dependencies and acceptance boundaries live in the [September 30 roadmap](../reports/future-sprint-roadmap-09302026.md) and [requirements reconciliation](../superpowers/specs/2026-09-30-requirements-planning-reconciliation.md). The realism prioritization below remains the historical July recommendation.
 
 Ordered by *QA value per unit of engine work*, not by realism ambition:
 

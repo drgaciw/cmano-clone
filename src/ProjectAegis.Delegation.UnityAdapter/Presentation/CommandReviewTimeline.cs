@@ -76,7 +76,8 @@ public sealed class CommandReviewTimeline
         var laterInTick = _ledger.Entries.Skip(end + 1).Any(e => e.SimTime == row.SimTime);
         var evidence = _history.LastOrDefault(e => laterInTick ? e.Time < row.SimTime : e.Time <= row.SimTime);
         var events = _live.Events.Events.Where(e => e.SimTime <= _live.SimTime).Take(end + 1).ToArray();
-        var keys = new HashSet<string>(events.Select(CombatMapPresenter.KeyFor), StringComparer.Ordinal);
+        var keys = new HashSet<string>(events.Where(e => e.Phase == CombatEventPhase.Firing
+            || e.Phase == CombatEventPhase.AuthorizationRefused).Select(CombatMapPresenter.KeyFor), StringComparer.Ordinal);
         DisplayFrame = new CombatPresentationFrame(new CombatEventSnapshot(events),
             evidence?.Contacts ?? SliceAContactFrame.Empty, evidence?.Assessments ?? BdaAssessSnapshot.Empty, row.SimTime)
         {
@@ -101,4 +102,3 @@ public sealed class CommandReviewTimeline
         StatusLine = "LIVE";
     }
 }
-

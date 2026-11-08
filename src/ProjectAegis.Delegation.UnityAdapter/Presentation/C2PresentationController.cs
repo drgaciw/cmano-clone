@@ -1,5 +1,3 @@
-using System.Collections.Generic;
-using System.Linq;
 using ProjectAegis.Data.Catalog;
 using ProjectAegis.Delegation.Core;
 using ProjectAegis.Delegation.Projection;

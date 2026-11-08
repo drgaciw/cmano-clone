@@ -32,6 +32,15 @@ public sealed class ScenarioPolicyJsonDto
 
     public List<ScenarioJammerJsonDto>? Jammers { get; set; }
 
+    /// <summary>ENV-02 / DRG-379: authored observer → target LOS geometry (radar horizon + terrain mask).</summary>
+    public List<ScenarioLineOfSightJsonDto>? LineOfSight { get; set; }
+
+    /// <summary>EW-01 / DRG-386: scenario-level radar ECCM profiles keyed by sensor id (override catalog).</summary>
+    public List<ScenarioRadarEccmJsonDto>? RadarEccm { get; set; }
+
+    /// <summary>C3-01 / DRG-390: per-unit comms-grid membership transitions.</summary>
+    public List<ScenarioCommsGridJsonDto>? CommsGrid { get; set; }
+
     public ScenarioContactLifecycleJsonDto? ContactLifecycle { get; set; }
 
     public ScenarioReplayJsonDto? Replay { get; set; }
@@ -340,6 +349,53 @@ public sealed class ScenarioJammerJsonDto
     public ulong ActiveFromTick { get; set; }
 
     public string? ObserverId { get; set; }
+
+    /// <summary>EW-01 / DRG-386: jammer technology generation (0 = unspecified).</summary>
+    public int TechGeneration { get; set; }
+}
+
+public sealed class ScenarioTerrainSampleJsonDto
+{
+    public double DistanceMeters { get; set; }
+
+    public double ElevationMslMeters { get; set; }
+}
+
+public sealed class ScenarioLineOfSightJsonDto
+{
+    public string ObserverId { get; set; } = "";
+
+    public string TargetId { get; set; } = "";
+
+    public double ObserverHeightMslMeters { get; set; }
+
+    public double TargetHeightMslMeters { get; set; }
+
+    public double RangeMeters { get; set; }
+
+    public List<ScenarioTerrainSampleJsonDto>? Terrain { get; set; }
+}
+
+public sealed class ScenarioRadarEccmJsonDto
+{
+    public string SensorId { get; set; } = "";
+
+    public string? ScanType { get; set; }
+
+    public bool FrequencyAgile { get; set; }
+
+    public int TechGeneration { get; set; }
+}
+
+public sealed class ScenarioCommsGridJsonDto
+{
+    public ulong AtTick { get; set; }
+
+    public string UnitId { get; set; } = "";
+
+    public string Membership { get; set; } = "OffGrid";
+
+    public string? Reason { get; set; }
 }
 
 public sealed class ScenarioCatalogDetectionJsonDto

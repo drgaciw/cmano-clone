@@ -1,8 +1,8 @@
 namespace ProjectAegis.Delegation.UnityAdapter.CommandReview;
 
-using ProjectAegis.Delegation.Core;
-using ProjectAegis.Delegation.Targets;
-using ProjectAegis.Delegation.UnityAdapter.Bridge;
+using Core;
+using Targets;
+using Bridge;
 
 /// <summary>
 /// Downstream order-sink adapter that expands a verified group-targeted order to current live
@@ -58,7 +58,7 @@ public sealed class CoordinationOrderSink : IOrderSink
 
         if (!_registry.TryGetBinding(entity, out var binding)
             || binding.Target is not GroupTarget group
-            || group.Slot.Active is not ProjectAegis.Delegation.Controllers.HumanController)
+            || group.Slot.Active is not Controllers.HumanController)
         {
             return;
         }

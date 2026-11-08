@@ -1,6 +1,6 @@
 namespace ProjectAegis.Delegation.UnityAdapter.Baltic;
 
-using ProjectAegis.Delegation.Projection;
+using Projection;
 using ProjectAegis.Sim.Scenario;
 
 /// <summary>Headless multi-scenario / multi-seed batch for agent-vs-agent CSV export (GDD agentic-infrastructure).</summary>

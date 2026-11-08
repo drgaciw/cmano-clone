@@ -1,7 +1,7 @@
 namespace ProjectAegis.Data.Validation;
 
-using ProjectAegis.Data.Agents;
-using ProjectAegis.Data.Catalog;
+using Agents;
+using Catalog;
 
 /// <summary>DBI-3.5 bounded detect-only kill-chain impossibility rules (R1–R4).</summary>
 public static class KillChainRules
