@@ -1,4 +1,3 @@
-using ProjectAegis.Sim.Core;
 using ProjectAegis.Sim.Engage;
 using ProjectAegis.Sim.Glossary;
 using Xunit;

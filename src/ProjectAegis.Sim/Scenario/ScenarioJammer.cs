@@ -1,8 +1,9 @@
 namespace ProjectAegis.Sim.Scenario;
 
-/// <summary>Scenario noise jammer affecting detection Pd (TR-sensor-003 MVP).</summary>
+/// <summary>Scenario noise jammer. <paramref name="TechGeneration"/> 0 = unspecified (no ECCM matrix adjustment).</summary>
 public sealed record ScenarioJammer(
     string TargetId,
     double JamStrength,
     ulong ActiveFromTick = 0,
-    string? ObserverId = null);
+    string? ObserverId = null,
+    int TechGeneration = 0);

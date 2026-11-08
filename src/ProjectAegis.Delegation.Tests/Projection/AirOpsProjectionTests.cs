@@ -87,7 +87,7 @@ public sealed class AirOpsProjectionTests
         Assert.That(AirOpsProjection.Project(
             Array.Empty<(string, bool, string?, string?)>()), Is.Empty);
         Assert.That(AirOpsProjection.Project(
-            (IReadOnlyList<(string, bool, string?, string?)>)null!), Is.Empty);
+            null!), Is.Empty);
         Assert.That(AirOpsProjection.Project(
             Array.Empty<string>(), _ => true), Is.Empty);
     }
@@ -95,12 +95,11 @@ public sealed class AirOpsProjectionTests
     [Test]
     public void Aggregate_counts_ready_and_formats_summary()
     {
-        var entries = AirOpsProjection.Project(new (string, bool, string?, string?)[]
-        {
+        var entries = AirOpsProjection.Project([
             ("a", true, "F", "H1"),
             ("b", false, "F", "H1"),
             ("c", true, "H", "H2"),
-        });
+        ]);
 
         var agg = AirOpsProjection.Aggregate(entries);
 
@@ -121,11 +120,10 @@ public sealed class AirOpsProjectionTests
     [Test]
     public void ApplyState_formats_lines_and_header_with_aggregate()
     {
-        var entries = AirOpsProjection.Project(new (string, bool, string?, string?)[]
-        {
+        var entries = AirOpsProjection.Project([
             ("air-1", true, "Fighter", "CVN-1"),
             ("air-2", false, "Strike", "CVN-1"),
-        });
+        ]);
 
         var presentation = AirOpsApplyState.Apply(entries);
 

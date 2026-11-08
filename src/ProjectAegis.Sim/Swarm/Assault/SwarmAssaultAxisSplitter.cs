@@ -1,6 +1,6 @@
 namespace ProjectAegis.Sim.Swarm.Assault;
 
-using ProjectAegis.Sim.Swarm;
+using Swarm;
 
 /// <summary>
 /// SWARM-17 / DRG-106: pure deterministic multi-axis auto-split planner for Assault mode.
@@ -22,7 +22,7 @@ public static class SwarmAssaultAxisSplitter
     /// Plans axis allocations for a swarm assault.
     /// </summary>
     /// <param name="droneCount">Living logical mass to allocate (shares sum exactly to this when >0).</param>
-    /// <param name="axisCount">Requested axis count K (effective K reduced when droneCount < K).</param>
+    /// <param name="axisCount">Requested axis count K (effective K reduced when droneCount &lt; K).</param>
     /// <param name="mode">Operational mode; split only when <see cref="SwarmOperationalMode.Assault"/>.</param>
     /// <param name="seed">Determinism seed (same inputs always produce the same plan).</param>
     /// <param name="doctrineAllowSplit">Doctrine gate; false forces single-axis / no split.</param>
@@ -137,7 +137,7 @@ public static class SwarmAssaultAxisSplitter
             order[i] = i;
         }
 
-        var state = MixSeed(seed, (ulong)(uint)axisCount);
+        var state = MixSeed(seed, (uint)axisCount);
         for (var i = axisCount - 1; i > 0; i--)
         {
             state = NextUInt64(state);

@@ -10,7 +10,7 @@ public static class SeededRng
         ulong simTick,
         int drawIndex)
     {
-        ulong hash = Mix(seed.Value, (ulong)domain, entityId, simTick, (ulong)(uint)drawIndex);
+        ulong hash = Mix(seed.Value, (ulong)domain, entityId, simTick, (uint)drawIndex);
         return (hash & 0xFFFF_FFFF) / (double)uint.MaxValue;
     }
 

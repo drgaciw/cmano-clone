@@ -1,6 +1,6 @@
 namespace ProjectAegis.Sim.Core;
 
-using ProjectAegis.Sim.Time;
+using Time;
 
 /// <summary>MVP tick runner: advances clock and placeholder world hash until subsystems wire in.</summary>
 public sealed class SimTickRunner : ISimTickRunner

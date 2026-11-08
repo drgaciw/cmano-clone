@@ -1,7 +1,6 @@
 namespace ProjectAegis.Delegation.Projection;
 
-using System.Globalization;
-using ProjectAegis.Data.Catalog;
+using Data.Catalog;
 
 /// <summary>ADR-011 Phase H: read-only link catalog list lines for platform catalog viewer.</summary>
 public static class PlatformLinkListProjection

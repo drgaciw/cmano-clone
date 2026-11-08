@@ -1,6 +1,6 @@
 namespace ProjectAegis.Data.Scenario.Authoring;
 
-using ProjectAegis.Data.Validation;
+using Validation;
 
 /// <summary>
 /// Serializes scenario mutations through optimistic concurrency, undo capture, commit, and optional save.
@@ -218,6 +218,16 @@ public sealed class ScenarioEditCommandBus
                 ErrorMessage = ex.Message,
                 EditVersion = ex.CurrentEditVersion,
                 FileHash = ex.FileHash,
+            };
+        }
+        catch (ScenarioLatLonException ex)
+        {
+            return new ScenarioMutationResult
+            {
+                Ok = false,
+                ErrorCode = ex.Code,
+                ErrorMessage = ex.Message,
+                EditVersion = editor.Metadata.EditVersion,
             };
         }
         catch (InvalidOperationException ex)

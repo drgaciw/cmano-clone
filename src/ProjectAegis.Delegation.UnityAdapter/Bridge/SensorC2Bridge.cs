@@ -1,7 +1,7 @@
 namespace ProjectAegis.Delegation.UnityAdapter.Bridge;
 
-using ProjectAegis.Delegation.Decision;
-using ProjectAegis.Delegation.Projection;
+using Decision;
+using Projection;
 
 /// <summary>
 /// Headless/Unity facade: sensor C2 HUD snapshot + panel bind from world snapshot + decision log.

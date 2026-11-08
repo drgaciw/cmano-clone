@@ -1,7 +1,7 @@
 namespace ProjectAegis.Delegation.Projection;
 
-using ProjectAegis.Delegation.Attention;
-using ProjectAegis.Delegation.Sim;
+using Attention;
+using Sim;
 
 /// <summary>
 /// S109-04 / AGD-14: advisory forecast of post-assignment attention before commit.

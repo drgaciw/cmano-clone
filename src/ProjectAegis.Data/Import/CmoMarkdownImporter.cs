@@ -2,7 +2,7 @@ namespace ProjectAegis.Data.Import;
 
 using System.Globalization;
 using System.Text.RegularExpressions;
-using ProjectAegis.Data.Catalog;
+using Catalog;
 
 /// <summary>
 /// Parses CMO markdown (cmano-db.com export) into catalog bindings (DATA-5 P0 + S22-04 platform/weapon/mount).
@@ -542,7 +542,7 @@ public static class CmoMarkdownImporter
         bool mapBalticIds = false)
     {
         var mounts = new List<CatalogMount>();
-        string? title = null;
+        string? title;
         string? platformId = null;
         bool inWeaponsSection;
 
@@ -812,7 +812,7 @@ public static class CmoMarkdownImporter
         bool mapBalticIds = false)
     {
         var loadouts = new List<CatalogLoadout>();
-        string? title = null;
+        string? title;
         string? platformId = null;
 
         void FlushPlatform()
@@ -855,7 +855,7 @@ public static class CmoMarkdownImporter
                     break;
                 }
 
-                continue;
+
             }
         }
 
@@ -896,17 +896,15 @@ public static class CmoMarkdownImporter
     {
         var approved = new List<CatalogMagazineEntry>();
         var quarantined = new List<CmoMarkdownFittingQuarantineEntry>();
-        string? title = null;
+        string? title;
         string? platformId = null;
         bool inWeaponsSection;
-        var mountIds = new HashSet<string>(StringComparer.Ordinal);
 
         void FlushPlatform()
         {
             title = null;
             platformId = null;
             inWeaponsSection = false;
-            mountIds.Clear();
         }
 
         inWeaponsSection = false;
@@ -950,7 +948,6 @@ public static class CmoMarkdownImporter
             var weaponName = weaponMatch.Groups[1].Value.Trim();
             var weaponType = weaponMatch.Groups[2].Value.Trim();
             var mountId = SlugWeaponMountId(weaponName);
-            mountIds.Add(mountId);
 
             var weaponId = ResolveWeaponId(weaponName, weaponLookup);
             if (weaponId is null)

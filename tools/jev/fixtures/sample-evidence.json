@@ -1,0 +1,20 @@
+{
+  "policy_id": "baltic-patrol-classify",
+  "rows": [
+    {
+      "id": "UAT-START",
+      "result": "pass",
+      "observation": "Play Mode entered twice; pause/1x/2x ok; no new NRE."
+    },
+    {
+      "id": "UAT-TYPE",
+      "result": "fail",
+      "observation": "OOB labels appear a few pixels tall in Game view capture."
+    },
+    {
+      "id": "UAT-MISSION",
+      "result": "pass",
+      "observation": "Empty mission list expected: policy has no mission timeline."
+    }
+  ]
+}

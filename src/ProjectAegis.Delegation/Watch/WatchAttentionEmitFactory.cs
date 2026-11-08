@@ -50,7 +50,6 @@ public static class WatchAttentionEmitFactory
 
         // Hostile (catalog red / synthetic) or unclassified non-blue → pause-class.
         var isHostile = HostileContactFilter.IsEngageableHostileTarget(subject);
-        var isUnknownTrack = !isHostile; // non-own, non-hostile engageable ⇒ unknown/neutral track
 
         var priority = isHostile
             ? WatchAttentionPriority.Critical

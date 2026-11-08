@@ -1,6 +1,6 @@
 namespace ProjectAegis.Delegation.Decision;
 
-using ProjectAegis.Delegation.Core;
+using Core;
 using ProjectAegis.Sim.Policy;
 
 /// <summary>Order-log policy denial entry (doc 17 / ADR-003 MVP).</summary>

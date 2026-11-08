@@ -12,7 +12,7 @@ public sealed class ScenarioPolicyRepositoryTests
         ScenarioPolicyRepository.EnsureDefaultJsonLoaded();
         var profile = ScenarioPolicyRepository.TryGet("restricted-engagement");
         Assert.NotNull(profile);
-        Assert.Equal(RoeLevel.WeaponsFree, profile!.ResolveForUnit("f1", isFriendly: true).Roe);
+        Assert.Equal(RoeLevel.WeaponsFree, profile.ResolveForUnit("f1", isFriendly: true).Roe);
     }
 
     [Fact]
@@ -21,6 +21,6 @@ public sealed class ScenarioPolicyRepositoryTests
         ScenarioPolicyRepository.EnsureDefaultJsonLoaded();
         var profile = ScenarioPolicyRepository.TryGet("baltic-patrol");
         Assert.NotNull(profile);
-        Assert.Equal(RoeLevel.WeaponsFree, profile!.ResolveForUnit("any", isFriendly: true).Roe);
+        Assert.Equal(RoeLevel.WeaponsFree, profile.ResolveForUnit("any", isFriendly: true).Roe);
     }
 }

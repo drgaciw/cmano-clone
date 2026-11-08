@@ -36,7 +36,7 @@ public sealed class PlatformWorkbookImporterTests
         new PlatformWorkbookExporter().Export(data, snapshotId, new FixedCatalogClock(0));
 
     private static PlatformWorkbookImporter ImporterFor(PlatformCatalogExportData source) =>
-        new(id => string.Equals(id, SnapshotId, System.StringComparison.Ordinal) ? source : null, new FixedCatalogClock(0));
+        new(id => string.Equals(id, SnapshotId, StringComparison.Ordinal) ? source : null, new FixedCatalogClock(0));
 
     [Fact]
     public void Plan_unedited_round_trip_has_no_changes()
@@ -109,7 +109,7 @@ public sealed class PlatformWorkbookImporterTests
         var editedData = BaseData() with { Mounts = new[] { new CatalogMount("u1", "vls-fwd", "vls", 360.0, 40) } };
         var gate = new FakeWriteGate();
 
-        var result = ImporterFor(source).Stage(Export(editedData), gate, "human", "drgamtd");
+        _ = ImporterFor(source).Stage(Export(editedData), gate, "human", "drgamtd");
 
         Assert.Empty(gate.SensorProposals);                       // no sensor changes
         Assert.NotEmpty(gate.MountProposals);                     // mount changes are now supported

@@ -1,8 +1,8 @@
 namespace ProjectAegis.MissionEditor.Cli;
 
-using ProjectAegis.Data.Catalog;
-using ProjectAegis.Data.Scenario.Authoring;
-using ProjectAegis.Data.Validation;
+using Data.Catalog;
+using Data.Scenario.Authoring;
+using Data.Validation;
 
 public static class ScenarioValidateCommand
 {
@@ -49,7 +49,7 @@ public static class ScenarioValidateCommand
         }
         else
         {
-            var tlBranch = ProjectAegis.Data.Scenario.ScenarioPackage.ResolveTlBranch(meta);
+            var tlBranch = Data.Scenario.ScenarioPackage.ResolveTlBranch(meta);
             if (sqlite.TryResolveSnapshotForTlBranch(tlBranch, out _, out _))
             {
                 return sqlite;

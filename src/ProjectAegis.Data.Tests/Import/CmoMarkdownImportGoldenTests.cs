@@ -1,7 +1,6 @@
 using Microsoft.Data.Sqlite;
 using ProjectAegis.Data.Catalog;
 using ProjectAegis.Data.Import;
-using ProjectAegis.Data.Snapshots;
 using ProjectAegis.Data.WriteGate;
 using Xunit;
 

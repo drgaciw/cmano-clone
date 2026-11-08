@@ -1,7 +1,7 @@
 namespace ProjectAegis.Sim.Scenario;
 
 using ProjectAegis.Data.Catalog;
-using ProjectAegis.Sim.Catalog;
+using Catalog;
 
 /// <summary>Builds sorted withdraw/readiness trials from scenario JSON and/or catalog platform damage.</summary>
 public static class WithdrawReadinessTrialResolver

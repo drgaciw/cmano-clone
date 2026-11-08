@@ -53,7 +53,7 @@ public sealed class ContactProvenanceProjectionTests
 
         var snapshot = ContactProvenanceProjection.Project(
             log,
-            currentSimTick: 1UL + (ulong)ContactProvenanceProjection.DefaultStaleThresholdTicks + 1);
+            currentSimTick: 1UL + ContactProvenanceProjection.DefaultStaleThresholdTicks + 1);
 
         Assert.That(snapshot.Contacts[0].Freshness, Is.EqualTo(ContactProvenanceFreshness.Stale));
         Assert.That(snapshot.Contacts[0].AgeTicks, Is.EqualTo((ulong)ContactProvenanceProjection.DefaultStaleThresholdTicks + 1));

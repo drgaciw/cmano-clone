@@ -1,6 +1,6 @@
 namespace ProjectAegis.Delegation.Roe;
 
-using ProjectAegis.Delegation.Core;
+using Core;
 
 public sealed class PassthroughRoeFilter : IRoeFilter
 {

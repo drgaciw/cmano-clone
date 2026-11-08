@@ -1,7 +1,7 @@
 namespace ProjectAegis.Delegation.Tests.Orchestration;
 
 using ProjectAegis.Delegation.Orchestration;
-using ProjectAegis.Delegation.Tests.Helpers;
+using Helpers;
 using ProjectAegis.Delegation.Watch;
 using ProjectAegis.Sim.Engage;
 using NUnit.Framework;

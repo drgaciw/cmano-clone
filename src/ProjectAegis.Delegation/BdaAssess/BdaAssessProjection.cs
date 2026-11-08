@@ -2,8 +2,8 @@ namespace ProjectAegis.Delegation.BdaAssess;
 
 using System.Globalization;
 using System.Text;
-using ProjectAegis.Delegation.Decision;
-using ProjectAegis.Delegation.Projection;
+using Decision;
+using Projection;
 using ProjectAegis.Sim.Catalog;
 using ProjectAegis.Sim.Engage;
 

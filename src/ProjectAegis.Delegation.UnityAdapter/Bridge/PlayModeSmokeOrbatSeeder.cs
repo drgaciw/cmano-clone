@@ -1,8 +1,8 @@
 namespace ProjectAegis.Delegation.UnityAdapter.Bridge;
 
-using ProjectAegis.Delegation.Core;
-using ProjectAegis.Delegation.Decision;
-using ProjectAegis.Delegation.Traits;
+using Core;
+using Decision;
+using Traits;
 
 /// <summary>
 /// Shared smoke-ORBAT seed for play-mode C2 panels (OOB, Unit Detail, Message Log).
