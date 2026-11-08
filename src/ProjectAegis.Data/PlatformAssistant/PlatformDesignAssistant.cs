@@ -1,7 +1,7 @@
 namespace ProjectAegis.Data.PlatformAssistant;
 
-using ProjectAegis.Data.Catalog;
-using ProjectAegis.Data.WriteGate;
+using Catalog;
+using WriteGate;
 
 /// <summary>
 /// Platform Design Assistant (proposal agent). Grounds on <see cref="ICatalogReader"/>,

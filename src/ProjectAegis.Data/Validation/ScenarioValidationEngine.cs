@@ -1,8 +1,8 @@
 namespace ProjectAegis.Data.Validation;
 
-using ProjectAegis.Data.Catalog;
-using ProjectAegis.Data.Scenario.Authoring;
-using ProjectAegis.Data.Validation.Rules;
+using Catalog;
+using Scenario.Authoring;
+using Rules;
 
 /// <summary>Deterministic v1 validation pipeline (ADR-008). S84 additive: includes EventGraphComplexityRule (ADR-016) for AC-7/11/16 tracks. Cites: scenario-editor-scope-boundary-2026-07-04.md, sprint-84-event-debugger.md, qa-plan-scenario-editor-2026-07-01.md.</summary>
 public sealed class ScenarioValidationEngine : IScenarioValidationEngine
@@ -29,6 +29,8 @@ public sealed class ScenarioValidationEngine : IScenarioValidationEngine
         ValidationRules.EventGraphComplexityRule(scenario, config, findings); // ADR-016 S84: soft warnings + hard 32-cond cap (never blocks on soft)
         // ME-W2: pure event static analysis as warnings (export honesty; does not block at Error floor)
         findings.AddRange(EventStaticAnalyzer.Analyze(scenario));
+        // DRG-345 / AME-6.11: roles the Play backend does not execute block Export/Play (Save is ungated).
+        findings.AddRange(MissionRoleCapabilityManifest.EvaluateFindings(scenario));
         return ValidationReport.FromFindings(findings);
     }
 }

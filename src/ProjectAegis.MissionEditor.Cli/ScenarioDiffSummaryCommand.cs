@@ -1,6 +1,6 @@
 namespace ProjectAegis.MissionEditor.Cli;
 
-using ProjectAegis.Data.Scenario.Authoring;
+using Data.Scenario.Authoring;
 
 /// <summary>
 /// Headless MCP/CLI verb <c>scenario_diff_summary</c> — read-only AME-7.3 semantic diff

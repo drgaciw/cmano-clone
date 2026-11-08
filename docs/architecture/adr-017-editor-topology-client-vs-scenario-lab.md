@@ -2,7 +2,7 @@
 
 ## Status
 
-**Proposed**
+**Accepted — 2026-10-01**
 
 ## Date
 
@@ -10,7 +10,7 @@
 
 ## Last Verified
 
-2026-07-01
+2026-10-01 — topology decision against source base `1902dc1299678ea17f75014406fd9c616e5576bd`; implementation and visual acceptance remain separate.
 
 ## Decision Makers
 
@@ -18,7 +18,7 @@ Enterprise architect (DRGAMTD); milsim architecture review. **Resolution owner: 
 
 ## Summary
 
-The editor requirement asks whether authoring runs only inside the game client or also as a standalone "Scenario Lab" desktop app sharing the core library. This ADR proposes a **headless-first shared core** (`ProjectAegis.Data` + CLI/MCP, per ADR-010) as the single system of record, with the in-client Unity editor as the v1 surface and a possible standalone Scenario Lab as an **optional later front-end onto the same core — never a fork**.
+The editor requirement asks whether authoring runs only inside the game client or also as a standalone "Scenario Lab" desktop app sharing the core library. This ADR adopts a **headless-first shared core** (`ProjectAegis.Data` + CLI/MCP, per ADR-010) as the single system of record, with the in-client Unity editor as the v1 surface and a possible standalone Scenario Lab as an **optional later front-end onto the same core — never a fork**.
 
 ## Engine Compatibility
 
@@ -37,7 +37,7 @@ The editor requirement asks whether authoring runs only inside the game client o
 |-------|-------|
 | **Depends On** | [ADR-010 Headless-First Command-Driven UI](adr-010-headless-first-command-driven-ui.md); [ADR-006 Data Layer Boundary](adr-006-data-layer-boundary.md) |
 | **Enables** | An optional standalone Scenario Lab front-end reusing the same core |
-| **Blocks** | Any "Scenario Lab" desktop-app epic — until this topology is Accepted |
+| **Blocks** | A Scenario Lab epic still requires a separate product scope and resourcing decision; topology is now Accepted |
 | **Ordering Note** | The shared core and MCP/CLI ship first; UI front-ends (in-client, then optionally standalone) layer on top |
 
 ## Context
@@ -66,12 +66,16 @@ The GDD already treats headless and UI as **the same code path with different fr
 
 ## Decision
 
-**Proposed.** Adopt a headless-first, shared-core topology, subject to Technical Director sign-off:
+**Accepted.** Adopt a headless-first, shared-core topology:
 
 1. **Shared core is the system of record.** `ProjectAegis.Data` (engine-free, ADR-006) plus the CLI/MCP command layer (ADR-010) own the canonical `*.aegis-scenario` file, validation, and all mutations. This is where authoring "lives".
 2. **In-client Unity editor is the v1 surface.** Edit mode (GDD §3.1) is a thin front-end over the core — it emits canonical objects, holds only derived-only `editorState` (§3.3), and adds no authoritative state.
 3. **Standalone "Scenario Lab" is an optional later front-end onto the SAME core — not a fork.** If product demand justifies a desktop authoring app, it reuses the identical engine-free core and MCP/CLI; it is a UI shell, not a second editor. No duplicate validation, schema, or mutation logic.
 4. **No topology that violates the invariant.** Any front-end (in-client or standalone) that would hold private state read by sim/validation is rejected (GDD §3.3).
+
+### Decision provenance — 2026-10-01
+
+The human user authorized the recommended ADR-017 direction with “proceed with these recommended next steps.” This records that product/topology decision under [DRG-334](https://linear.app/drgamtd-workspace/issue/DRG-334); it does not assert a separate review meeting or completed implementation. The recommendation was to accept shared core, in-client v1, and optional later Scenario Lab without a fork. The [H4 review](../../production/agentic/h4-phase2-gui-ux-review-2026-10-01.md) corroborates current authoring surfaces and gives DRG-333/345/346 a bounded first slice. A standalone application still needs a separate scope and resourcing decision. Platform editing remains Excel-primary under ADR-011. No owner Play Mode acceptance is supplied by this decision.
 
 ### Architecture
 
@@ -147,7 +151,7 @@ No migration in v1 — the shared core + in-client + headless topology is the in
 
 ## Validation Criteria
 
-- [ ] Technical Director records an accept/reject decision by 2026-10-01.
+- [x] Topology decision recorded on 2026-10-01 from the human authorization above; repository review/integration remains a separate delivery gate.
 - [ ] All authoring mutations/validation live in engine-free `ProjectAegis.Data` behind CLI/MCP (ADR-006 boundary test passes).
 - [ ] v1 authors via both in-client Edit mode and headless MCP/CLI (AC-5, AC-8).
 - [ ] Any Scenario Lab prototype reuses the same core with zero duplicated validation/schema logic.

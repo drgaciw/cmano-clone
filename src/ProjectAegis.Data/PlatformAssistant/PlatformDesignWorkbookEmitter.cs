@@ -1,8 +1,8 @@
 namespace ProjectAegis.Data.PlatformAssistant;
 
 using System.Globalization;
-using ProjectAegis.Data.Platform;
-using ProjectAegis.Data.WriteGate;
+using Platform;
+using WriteGate;
 
 /// <summary>
 /// workbook-emit skill — pure function that appends proposal rows onto an exported workbook

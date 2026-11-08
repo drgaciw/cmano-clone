@@ -1,7 +1,6 @@
 using System.Reflection;
 using Microsoft.Data.Sqlite;
 using ProjectAegis.Data.Catalog;
-using ProjectAegis.Data.Platform;
 using ProjectAegis.Delegation.UnityAdapter.Bridge;
 using NUnit.Framework;
 

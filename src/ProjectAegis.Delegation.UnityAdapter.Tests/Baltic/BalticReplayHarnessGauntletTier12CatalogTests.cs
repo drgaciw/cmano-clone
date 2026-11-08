@@ -1,5 +1,4 @@
 using ProjectAegis.Data.Catalog;
-using ProjectAegis.Data.Import;
 using ProjectAegis.Delegation.UnityAdapter.Baltic;
 using ProjectAegis.Sim.Scenario;
 using NUnit.Framework;
@@ -109,7 +108,6 @@ public sealed class BalticReplayHarnessGauntletTier12CatalogTests
         var tokens = SplitFingerprint(result.Fingerprint);
 
         var blueLaunches = 0;
-        var redLaunches = 0;
         for (var i = 0; i < tokens.Count; i++)
         {
             var e = tokens[i];
@@ -134,7 +132,6 @@ public sealed class BalticReplayHarnessGauntletTier12CatalogTests
             }
             else if (IsCatalogRed(shooter))
             {
-                redLaunches++;
                 Assert.That(IsCatalogBlue(victim!), Is.True,
                     $"red-on-blue required (no red-on-red): shooter={shooter} victim={victim}");
             }
@@ -219,7 +216,7 @@ public sealed class BalticReplayHarnessGauntletTier12CatalogTests
 
         foreach (var sid in Tier1Ids.Concat(Tier2Ids))
         {
-            var dto = ProjectAegis.Data.Scenario.ScenarioPolicyJsonCatalog.TryGetJson(sid);
+            var dto = Data.Scenario.ScenarioPolicyJsonCatalog.TryGetJson(sid);
             Assert.That(dto, Is.Not.Null, sid);
             Assert.That(dto!.Gauntlet, Is.Not.Null, sid);
             Assert.That(dto.Gauntlet!.Units, Is.Not.Null.And.Not.Empty, $"{sid} needs gauntlet.units");

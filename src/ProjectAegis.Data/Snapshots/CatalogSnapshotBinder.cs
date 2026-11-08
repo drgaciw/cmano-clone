@@ -1,7 +1,7 @@
 namespace ProjectAegis.Data.Snapshots;
 
-using ProjectAegis.Data.Catalog;
-using ProjectAegis.Data.WriteGate;
+using Catalog;
+using WriteGate;
 
 /// <summary>Records catalog snapshot hash + release row after write-gate approve (P2-3).</summary>
 public static class CatalogSnapshotBinder

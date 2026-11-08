@@ -29,16 +29,31 @@ public static class CatalogJsonImporter
         return dto.Sensors
             .OrderBy(s => s.PlatformId, StringComparer.Ordinal)
             .ThenBy(s => s.SensorId, StringComparer.Ordinal)
-            .Select(s => new CatalogSensorBinding(
-                s.PlatformId,
-                s.SensorId,
-                s.BasePd,
-                s.SourceFactId,
-                s.Confidence,
-                batchId,
-                sourceFile,
-                NormalizeReviewState(s.ReviewState),
-                Math.Clamp(s.TrlLevel <= 0 ? 9 : s.TrlLevel, 1, 9)))
+            .Select(s =>
+            {
+                var binding = new CatalogSensorBinding(
+                    s.PlatformId,
+                    s.SensorId,
+                    s.BasePd,
+                    s.SourceFactId,
+                    s.Confidence,
+                    batchId,
+                    sourceFile,
+                    NormalizeReviewState(s.ReviewState),
+                    Math.Clamp(s.TrlLevel <= 0 ? 9 : s.TrlLevel, 1, 9))
+                {
+                    RadarScanType = s.RadarScanType ?? CatalogRadarScanTypes.Unspecified,
+                    FrequencyAgile = s.FrequencyAgile,
+                    RadarTechGeneration = s.RadarTechGeneration,
+                };
+                var eccmErrors = CatalogRadarScanTypes.Validate(binding);
+                if (eccmErrors.Count > 0)
+                {
+                    throw new InvalidDataException(string.Join("; ", eccmErrors));
+                }
+
+                return binding;
+            })
             .ToArray();
     }
 
@@ -62,8 +77,10 @@ public static class CatalogJsonImporter
             cmd.CommandText =
                 """
                 INSERT OR REPLACE INTO sensor (platform_id, sensor_id, base_pd, source_fact_id, confidence,
-                    import_batch_id, source_file, review_state, trl_level)
-                VALUES ($platform, $sensor, $basePd, $source, $confidence, $batch, $file, $review, $trl)
+                    import_batch_id, source_file, review_state, trl_level,
+                    radar_scan_type, frequency_agile, radar_tech_generation)
+                VALUES ($platform, $sensor, $basePd, $source, $confidence, $batch, $file, $review, $trl,
+                    $scanType, $agile, $techGen)
                 """;
             cmd.Parameters.AddWithValue("$platform", sensor.PlatformId);
             cmd.Parameters.AddWithValue("$sensor", sensor.SensorId);
@@ -74,6 +91,9 @@ public static class CatalogJsonImporter
             cmd.Parameters.AddWithValue("$file", sensor.SourceFile);
             cmd.Parameters.AddWithValue("$review", sensor.ReviewState);
             cmd.Parameters.AddWithValue("$trl", sensor.TrlLevel);
+            cmd.Parameters.AddWithValue("$scanType", sensor.RadarScanType);
+            cmd.Parameters.AddWithValue("$agile", sensor.FrequencyAgile ? 1 : 0);
+            cmd.Parameters.AddWithValue("$techGen", sensor.RadarTechGeneration);
             cmd.ExecuteNonQuery();
         }
 
@@ -157,6 +177,15 @@ public static class CatalogJsonImporter
 
     internal sealed class CatalogSensorRowDto
     {
+        /// <summary>EW-01 / DRG-386 optional ECCM fields bind through the constructor (get-only).</summary>
+        [JsonConstructor]
+        public CatalogSensorRowDto(string? radarScanType = null, bool frequencyAgile = false, int radarTechGeneration = 0)
+        {
+            RadarScanType = radarScanType;
+            FrequencyAgile = frequencyAgile;
+            RadarTechGeneration = radarTechGeneration;
+        }
+
         public string PlatformId { get; init; } = "";
 
         public string SensorId { get; init; } = "";
@@ -170,5 +199,12 @@ public static class CatalogJsonImporter
         public string? ReviewState { get; init; }
 
         public int TrlLevel { get; init; } = 9;
+
+        /// <summary>EW-01 / DRG-386: Mechanical | Pesa | Aesa (optional).</summary>
+        public string? RadarScanType { get; }
+
+        public bool FrequencyAgile { get; }
+
+        public int RadarTechGeneration { get; }
     }
 }

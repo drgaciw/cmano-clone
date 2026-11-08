@@ -1,7 +1,7 @@
 namespace ProjectAegis.Delegation.UnityAdapter.Authoring;
 
 using ProjectAegis.Data.Scenario.Authoring;
-using ProjectAegis.Data.Validation;
+using Data.Validation;
 
 /// <summary>
 /// Headless façade over <see cref="ScenarioEditCommandBus.RefreshFindings"/> for live

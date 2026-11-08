@@ -34,7 +34,7 @@ public static class SwarmRegenEvaluator
             return false;
         }
 
-        if (rangeDeg is not double range || range > maxRangeDeg || range < 0)
+        if (rangeDeg is not { } range || range > maxRangeDeg || range < 0)
         {
             return false;
         }

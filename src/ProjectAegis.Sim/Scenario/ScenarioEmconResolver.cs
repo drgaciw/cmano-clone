@@ -1,8 +1,8 @@
 namespace ProjectAegis.Sim.Scenario;
 
 using ProjectAegis.Data.Catalog;
-using ProjectAegis.Sim.Catalog;
-using ProjectAegis.Sim.Policy;
+using Catalog;
+using Policy;
 
 public static class ScenarioEmconResolver
 {

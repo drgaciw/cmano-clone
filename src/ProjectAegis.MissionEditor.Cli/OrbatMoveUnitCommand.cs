@@ -1,6 +1,6 @@
 namespace ProjectAegis.MissionEditor.Cli;
 
-using ProjectAegis.Data.Scenario.Authoring;
+using Data.Scenario.Authoring;
 
 /// <summary>
 /// Headless MCP/CLI verb <c>orbat_move_unit</c> — move an existing ORBAT unit.
@@ -55,6 +55,10 @@ public static class OrbatMoveUnitCommand
                 ex.Code,
                 ex.Message,
                 new { currentEditVersion = ex.CurrentEditVersion, fileHash = ex.FileHash });
+        }
+        catch (ScenarioLatLonException ex)
+        {
+            return McpToolResult.WriteError(output, ex.Code, ex.Message);
         }
         catch (InvalidOperationException ex)
         {

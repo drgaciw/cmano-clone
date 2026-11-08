@@ -1,6 +1,6 @@
 namespace ProjectAegis.Delegation.UnityAdapter.Tests.Baltic;
 
-using ProjectAegis.Delegation.Comms;
+using Comms;
 using ProjectAegis.Delegation.UnityAdapter.Baltic;
 using ProjectAegis.Sim.Scenario;
 using NUnit.Framework;

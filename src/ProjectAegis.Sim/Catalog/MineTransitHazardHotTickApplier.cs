@@ -1,8 +1,8 @@
 namespace ProjectAegis.Sim.Catalog;
 
 using ProjectAegis.Data.Catalog;
-using ProjectAegis.Sim.Core;
-using ProjectAegis.Sim.Scenario;
+using Core;
+using Scenario;
 
 /// <summary>
 /// ADR-009 bounded mine transit hazard hot-tick — seeded placement + deterministic hazard rolls.

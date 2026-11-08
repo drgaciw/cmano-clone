@@ -1,7 +1,7 @@
 namespace ProjectAegis.Delegation.UnityAdapter.Bridge;
 
-using ProjectAegis.Delegation.Decision;
-using ProjectAegis.Delegation.Projection;
+using Decision;
+using Projection;
 
 /// <summary>
 /// DRG-179: headless C2 façade for kill-chain contact-state.

@@ -1,6 +1,6 @@
 namespace ProjectAegis.Delegation.EmconPosture;
 
-using ProjectAegis.Delegation.Comms;
+using Comms;
 using ProjectAegis.Sim.Policy;
 
 /// <summary>Read-only facts for headless EMCON/emissions posture projection (DRG-221).</summary>

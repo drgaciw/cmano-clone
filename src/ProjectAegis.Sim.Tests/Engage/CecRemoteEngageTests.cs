@@ -51,7 +51,7 @@ public sealed class CecRemoteEngageTests
         Assert.True(CecRemoteEngageGate.TryResolveRemoteEligibility(
             mesh, Blue, "shooter", Target, out var track));
         Assert.NotNull(track);
-        Assert.True(track!.FireControlQuality);
+        Assert.True(track.FireControlQuality);
         Assert.NotEqual("shooter", track.PrimaryContributorUnitId);
 
         var world = new DictionaryEngageWorldQuery();

@@ -50,10 +50,8 @@ public static class PlatformCatalogDetailProjection
             "RESILIENCE: —",
             "WITHDRAW: —",
             "FLAGS: —",
-            "SPEED: —",
-            "MOUNTS: —",
-            "SENSORS: —",
-            "ID: —");
+            "SPEED: —"
+        );
 
     /// <summary>Scenario placement coords — demoted per Req 21 (class editor ≠ doc 11 placement).</summary>
     private static string FormatScenarioCoord(string name, double? value)

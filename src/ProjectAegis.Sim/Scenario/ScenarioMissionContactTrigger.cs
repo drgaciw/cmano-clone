@@ -1,6 +1,6 @@
 namespace ProjectAegis.Sim.Scenario;
 
-using ProjectAegis.Sim.Policy;
+using Policy;
 
 public enum MissionContactPolicySide
 {

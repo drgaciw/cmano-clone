@@ -1,10 +1,10 @@
 namespace ProjectAegis.Delegation.TrackCustody;
 
-using ProjectAegis.Data.Catalog;
-using ProjectAegis.Data.Scenario.Authoring;
-using ProjectAegis.Delegation.Comms;
-using ProjectAegis.Delegation.Decision;
-using ProjectAegis.Delegation.Projection;
+using Data.Catalog;
+using Data.Scenario.Authoring;
+using Comms;
+using Decision;
+using Projection;
 using ProjectAegis.Sim.Scenario;
 
 /// <summary>

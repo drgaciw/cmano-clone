@@ -1,6 +1,6 @@
 namespace ProjectAegis.Delegation.Sim;
 
-using ProjectAegis.Delegation.Core;
+using Core;
 using ProjectAegis.Sim.Swarm;
 
 /// <summary>SWARM-23: order-log style attribution payload for agent/player swarm intents.</summary>

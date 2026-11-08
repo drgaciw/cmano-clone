@@ -1,7 +1,7 @@
 namespace ProjectAegis.Delegation.Projection;
 
-using ProjectAegis.Data.Catalog;
-using ProjectAegis.Data.Platform;
+using Data.Catalog;
+using Data.Platform;
 
 /// <summary>ADR-011 Phase G: read-only comms fittings for a single platform browse selection.</summary>
 public static class CatalogPlatformCommsProjection

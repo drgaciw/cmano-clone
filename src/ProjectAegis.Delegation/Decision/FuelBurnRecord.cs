@@ -1,8 +1,8 @@
 namespace ProjectAegis.Delegation.Decision;
 
-using ProjectAegis.Delegation.Core;
+using Core;
 
-/// <summary>Per-tick fuel burn delta when <see cref="ScenarioLogisticsSettings.LogTickBurn"/> is enabled.</summary>
+/// <summary>Per-tick fuel burn delta when <see cref="ProjectAegis.Sim.Scenario.ScenarioLogisticsSettings.LogTickBurn"/> is enabled.</summary>
 public sealed record FuelBurnRecord(
     ulong SequenceId,
     double SimTime,

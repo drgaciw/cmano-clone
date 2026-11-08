@@ -1,0 +1,12 @@
+{
+  "description": "Synthetic six-trial headless Combat UX Slice B acceptance fixture. Test evidence only; not a production catalog or OSINT claim.",
+  "synthetic": true,
+  "legs": [
+    { "shooterId": "blue-missile-go", "targetId": "red-missile-go", "weaponFamilyId": "Missile", "permitted": true,  "distanceMeters": 50000, "minRangeMeters": 1000, "maxRangeMeters": 100000, "roundsRemaining": 4, "salvoSize": 2, "hasFireControlTrack": true,  "shooterX": 0.10, "shooterY": 0.20, "targetX": 0.70, "targetY": 0.20 },
+    { "shooterId": "blue-missile-no", "targetId": "red-missile-no", "weaponFamilyId": "Missile", "permitted": false, "distanceMeters": 50000, "minRangeMeters": 1000, "maxRangeMeters": 100000, "roundsRemaining": 4, "salvoSize": 2, "hasFireControlTrack": false, "shooterX": 0.10, "shooterY": 0.30, "targetX": 0.70, "targetY": 0.30 },
+    { "shooterId": "blue-gun-go", "targetId": "red-gun-go", "weaponFamilyId": "Gun", "permitted": true,  "distanceMeters": 8000, "minRangeMeters": 0, "maxRangeMeters": 16000, "roundsRemaining": 20, "salvoSize": 1, "hasFireControlTrack": true,  "shooterX": 0.10, "shooterY": 0.40, "targetX": 0.70, "targetY": 0.40 },
+    { "shooterId": "blue-gun-no", "targetId": "red-gun-no", "weaponFamilyId": "Gun", "permitted": false, "distanceMeters": 24000, "minRangeMeters": 0, "maxRangeMeters": 16000, "roundsRemaining": 20, "salvoSize": 1, "hasFireControlTrack": true,  "shooterX": 0.10, "shooterY": 0.50, "targetX": 0.70, "targetY": 0.50 },
+    { "shooterId": "blue-laser-go", "targetId": "red-laser-go", "weaponFamilyId": "Laser", "permitted": true,  "distanceMeters": 3000, "minRangeMeters": 0, "maxRangeMeters": 5000, "roundsRemaining": 10, "salvoSize": 1, "hasFireControlTrack": true,  "shooterX": 0.10, "shooterY": 0.60, "targetX": 0.70, "targetY": 0.60 },
+    { "shooterId": "blue-laser-no", "targetId": "red-laser-no", "weaponFamilyId": "Laser", "permitted": false, "distanceMeters": 3000, "minRangeMeters": 0, "maxRangeMeters": 5000, "roundsRemaining": 10, "salvoSize": 1, "hasFireControlTrack": false, "shooterX": 0.10, "shooterY": 0.70, "targetX": 0.70, "targetY": 0.70 }
+  ]
+}

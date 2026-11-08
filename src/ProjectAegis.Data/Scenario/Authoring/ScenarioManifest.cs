@@ -1,7 +1,7 @@
 namespace ProjectAegis.Data.Scenario.Authoring;
 
 using System.Text.Json;
-using ProjectAegis.Data.Validation;
+using Validation;
 
 /// <summary>
 /// Produces "Scenario manifest" for publishing/provenance track 5/5 per req 11.

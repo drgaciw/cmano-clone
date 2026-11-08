@@ -1,14 +1,14 @@
 namespace ProjectAegis.Delegation.Orchestration;
 
-using ProjectAegis.Delegation.Comms;
-using ProjectAegis.Delegation.Core;
-using ProjectAegis.Delegation.Decision;
-using ProjectAegis.Delegation.Projection;
-using ProjectAegis.Delegation.Roe;
-using ProjectAegis.Delegation.Sim;
-using ProjectAegis.Delegation.Watch;
-using ProjectAegis.Data.Catalog;
+using Core;
+using Decision;
+using Projection;
+using Roe;
+using Sim;
+using Watch;
+using Data.Catalog;
 using ProjectAegis.Sim.Catalog;
+using ProjectAegis.Sim.Comms;
 using ProjectAegis.Sim.Core;
 using ProjectAegis.Sim.Engage;
 using ProjectAegis.Sim.Policy;
@@ -17,7 +17,21 @@ using ProjectAegis.Sim.Scenario;
 using ProjectAegis.Sim.Sensors;
 using ProjectAegis.Sim.Telemetry;
 using ProjectAegis.Sim.Time;
-using ProjectAegis.Delegation.Logistics;
+using Logistics;
+using Skills;
+
+/// <summary>
+/// DRG-417: read-only source of unit positions for the comms-grid position feed. Implementations
+/// must not mutate sim state; <see cref="SimulationSession"/> only reads from it.
+/// </summary>
+public interface IUnitPositionSource
+{
+    /// <summary>Returns true and the unit's current position when known.</summary>
+    bool TryGetPosition(string unitId, out double latitudeDeg, out double longitudeDeg);
+
+    /// <summary>Unit ids this source can report.</summary>
+    IReadOnlyCollection<string> UnitIds { get; }
+}
 
 /// <summary>Headless/interactive session: delegation tick then sim engagement phase.</summary>
 public sealed class SimulationSession
@@ -42,7 +56,8 @@ public sealed class SimulationSession
         DelegationOrchestrator orchestrator,
         EngageContext defaultEngageContext,
         int defaultMagazineRounds = 2,
-        ICatalogReader? catalogReader = null)
+        ICatalogReader? catalogReader = null,
+        string weaponFamilyId = "Unknown")
     {
         var seed = SimSeed.FromScenario((ulong)orchestrator.GlobalSeed);
         var world = new DictionaryEngageWorldQuery();
@@ -71,6 +86,8 @@ public sealed class SimulationSession
             DefaultEngageContext = defaultEngageContext,
             DefaultMagazineRounds = defaultMagazineRounds,
             CatalogReader = catalogReader,
+            CombatWeaponFamilyId = string.IsNullOrWhiteSpace(weaponFamilyId) || weaponFamilyId == "Unknown"
+                ? engageDefaults.WeaponFamilyId : weaponFamilyId,
             BalanceDriftConsumer = new BalanceDriftAdvisoryConsumer(orchestrator.ScenarioPolicy?.BalanceTelemetry),
             CatalogDamageHotTickTracker = CatalogDamageHotTickTracker.TryCreate(
                 orchestrator.ScenarioPolicy,
@@ -87,7 +104,8 @@ public sealed class SimulationSession
         DelegationOrchestrator orchestrator,
         string? scenarioPolicyId,
         ICatalogReader? catalog = null,
-        string weaponId = CatalogWeaponIds.MvpDefault)
+        string weaponId = CatalogWeaponIds.MvpDefault,
+        string weaponFamilyId = "Unknown")
     {
         var profile = string.IsNullOrWhiteSpace(scenarioPolicyId)
             ? null
@@ -98,7 +116,18 @@ public sealed class SimulationSession
         engage = CatalogEngageEnvelope.Apply(engage, catalog, weaponId);
         var rounds = profile?.EngageDefaults?.DefaultMagazineRounds
             ?? ScenarioEngageDefaults.MvpFallback.DefaultMagazineRounds;
-        return BindMvpEngagement(orchestrator, engage, rounds, catalog);
+        var session = BindMvpEngagement(
+            orchestrator,
+            engage,
+            rounds,
+            catalog,
+            weaponFamilyId);
+        // This overload explicitly selected a profile; unrelated orchestrator metadata is not
+        // evidence of the weapon family used by that profile's engagement envelope.
+        session.CombatWeaponFamilyId = string.IsNullOrWhiteSpace(weaponFamilyId) || weaponFamilyId == "Unknown"
+            ? profile?.EngageDefaults?.WeaponFamilyId ?? ScenarioEngageDefaults.UnknownWeaponFamilyId
+            : weaponFamilyId;
+        return session;
     }
 
     public SimulationPhase Phase => Orchestrator.Phase;
@@ -227,8 +256,10 @@ public sealed class SimulationSession
 
     private void RunExecutingTick(ObservedState state, bool headlessOverride)
     {
+        RecordObservedFireControl(in state);
         Orchestrator.Tick(state);
         var simTick = (ulong)Math.Max(0, (long)state.SimTime);
+        ReportCommsGridPositions(simTick);
 
         if (Sim.Clock.IsPaused && !headlessOverride)
         {
@@ -411,6 +442,7 @@ public sealed class SimulationSession
 
         foreach (var shooter in deniedShooters)
         {
+            var victim = ResolveEngageVictim(shooter, state);
             Orchestrator.OrderLog.Append(OrderLogEntryFactories.FromEngagement(new EngagementRecord(
                 SequenceId: 0,
                 state.SimTime,
@@ -418,7 +450,9 @@ public sealed class SimulationSession
                 shooter,
                 EngagementId: 0,
                 Launched: false,
-                EngagementAbortReasonCodes.ToLogCode(EngagementAbortReason.WeaponsTight))));
+                EngagementAbortReasonCodes.ToLogCode(EngagementAbortReason.WeaponsTight),
+                VictimTargetId: victim,
+                WeaponFamilyId: CombatWeaponFamilyId)));
         }
     }
 
@@ -441,7 +475,7 @@ public sealed class SimulationSession
                 continue;
             }
 
-            var (order, victim) = queued[i];
+            var (_, victim) = queued[i];
             outcomes.Add(new CatalogDamageHotTickApplier.OutcomeApply(
                 victim.Value,
                 results[i].EngagementId,
@@ -506,6 +540,14 @@ public sealed class SimulationSession
             if (i < results.Count)
             {
                 var result = results[i];
+                var salvoSize = 1;
+                bool? hasFireControlTrack = null;
+                if (EngageWorld != null && i < processed.Count &&
+                    EngageWorld.TryGetContext(processed[i], out var engagementContext))
+                {
+                    salvoSize = Math.Max(1, engagementContext.SalvoSize);
+                    hasFireControlTrack = engagementContext.HasFireControlTrack;
+                }
                 var code = result.Launched
                     ? EngagementAbortReasonCodes.Launched
                     : EngagementAbortReasonCodes.ToLogCode(result.AbortReason);
@@ -516,17 +558,14 @@ public sealed class SimulationSession
                     order.Target,
                     result.EngagementId,
                     result.Launched,
-                    code)));
+                    code,
+                    VictimTargetId: victim,
+                    WeaponFamilyId: CombatWeaponFamilyId,
+                    SalvoSize: salvoSize,
+                    HasFireControlTrack: hasFireControlTrack)));
 
                 if (result.Launched)
                 {
-                    var salvoSize = 1;
-                    if (EngageWorld != null && i < processed.Count &&
-                        EngageWorld.TryGetContext(processed[i], out var ctx))
-                    {
-                        salvoSize = Math.Max(1, ctx.SalvoSize);
-                    }
-
                     Orchestrator.OrderLog.Append(OrderLogEntryFactories.FromMagazineChange(new MagazineChangeRecord(
                         SequenceId: 0,
                         state.SimTime,
@@ -570,7 +609,9 @@ public sealed class SimulationSession
                     order.Target,
                     EngagementId: 0,
                     Launched: false,
-                    EngagementAbortReasonCodes.NoResult)));
+                    EngagementAbortReasonCodes.NoResult,
+                    VictimTargetId: victim,
+                    WeaponFamilyId: CombatWeaponFamilyId)));
             }
         }
     }
@@ -601,6 +642,41 @@ public sealed class SimulationSession
 
     public FuelTimelineTracker? FuelTimeline { get; set; }
 
+    /// <summary>C3-01 / DRG-390: shortcut to <see cref="DelegationOrchestrator.CommsGrid"/>.</summary>
+    public CommsGridRegistry? CommsGrid
+    {
+        get => Orchestrator.CommsGrid;
+        set => Orchestrator.CommsGrid = value;
+    }
+
+    /// <summary>
+    /// DRG-417: optional read-only position source. When set together with <see cref="CommsGrid"/>,
+    /// each executing tick reports positions to the registry in unit-id ordinal order. Null = no-op.
+    /// </summary>
+    public IUnitPositionSource? PositionSource { get; set; }
+
+    private void ReportCommsGridPositions(ulong simTick)
+    {
+        if (PositionSource is not { } source || CommsGrid is not { } grid)
+        {
+            return;
+        }
+
+        var ids = source.UnitIds.ToArray();
+        Array.Sort(ids, StringComparer.Ordinal);
+        foreach (var id in ids)
+        {
+            if (source.TryGetPosition(id, out var lat, out var lon))
+            {
+                grid.ReportPosition(id, simTick, lat, lon);
+            }
+        }
+    }
+
+    /// <inheritdoc cref="DelegationOrchestrator.EvaluateOffGrid"/>
+    public FireAbortReason? EvaluateOffGrid(string unitId, ulong simTick) =>
+        Orchestrator.EvaluateOffGrid(unitId, simTick);
+
     public MagazineLedger? Magazines { get; init; }
 
     private readonly Dictionary<string, string> _lastOrdnanceBand = new(StringComparer.Ordinal);
@@ -614,6 +690,9 @@ public sealed class SimulationSession
     public int? DefaultMagazineRounds { get; init; }
 
     public ICatalogReader? CatalogReader { get; init; }
+
+    /// <summary>Catalog-derived weapon family stamped onto authoritative engagement log rows.</summary>
+    public string CombatWeaponFamilyId { get; set; } = "Unknown";
 
     public UnitReadinessMap? UnitReadiness { get; set; }
 
@@ -636,6 +715,142 @@ public sealed class SimulationSession
     public int? NextEngageSalvoOverride { get; set; }
 
     public Func<string, ulong, bool>? IsContactSpoofed { get; set; }
+
+    private readonly Dictionary<string, bool> _observedFireControlByTarget = new(StringComparer.Ordinal);
+    private bool _hasObservedFireControl;
+    private bool _lastObservedFireControlTrack = true;
+
+    private void RecordObservedFireControl(in ObservedState state)
+    {
+        _hasObservedFireControl = true;
+        _lastObservedFireControlTrack = state.HasFireControlTrack;
+        if (state.PrimaryHostileContactId is { } primary && !string.IsNullOrEmpty(primary.Value))
+        {
+            _observedFireControlByTarget[primary.Value] = state.HasFireControlTrack;
+        }
+        else if (!state.HasFireControlTrack)
+        {
+            _observedFireControlByTarget.Clear();
+        }
+    }
+
+    /// <summary>
+    /// DRG-414: read-only fire-control fact for a contact already on the authoritative log.
+    /// Reflects the latest observed fire-control state from session ticks as well as any primed
+    /// engage-world context or bound <see cref="DefaultEngageContext"/> flag. This method does
+    /// not mutate session state and does not read fixture lists.
+    /// </summary>
+    public bool HasFireControlTrack(string contactId, string targetId, string shooterUnitId)
+    {
+        if (string.IsNullOrEmpty(contactId) || string.IsNullOrEmpty(targetId))
+        {
+            return false;
+        }
+
+        if (!DecisionLogContainsContact(contactId, targetId))
+        {
+            return false;
+        }
+
+        var observedTrack = _observedFireControlByTarget.TryGetValue(targetId, out var targetObserved)
+            ? targetObserved
+            : (!_hasObservedFireControl || _lastObservedFireControlTrack);
+        if (!observedTrack)
+        {
+            return false;
+        }
+
+        if (EngageWorld != null
+            && !string.IsNullOrEmpty(shooterUnitId)
+            && EngageWorld.TryGetContext(FireControlRequest(shooterUnitId, targetId), out var primed))
+        {
+            return primed.HasFireControlTrack;
+        }
+
+        return DefaultEngageContext?.HasFireControlTrack ?? false;
+    }
+
+    /// <summary>
+    /// DRG-414: tracked magazine rounds for a shooter mount.
+    /// Returns false when the ledger has no entry. A missing entry is not
+    /// <see cref="DefaultMagazineRounds"/> and <paramref name="rounds"/> is zero.
+    /// </summary>
+    public bool TryGetRegisteredMagazineRounds(string shooterUnitId, ulong mountId, out int rounds)
+    {
+        rounds = 0;
+        if (Magazines == null || string.IsNullOrEmpty(shooterUnitId))
+        {
+            return false;
+        }
+
+        return Magazines.TryGetRounds(
+            OrderActionMapper.TargetIdToUlong(new TargetId(shooterUnitId)),
+            mountId,
+            out rounds);
+    }
+
+    /// <summary>
+    /// DRG-414: policy/authority snapshot for one shooter and contact.
+    /// ROE comes from a captured <see cref="PolicySnapshot"/> when one exists, otherwise
+    /// from scenario policy for the unit. <see cref="EffectivePolicy"/> does not store skill
+    /// lane, required approval, track source, or command id, so those stay at the production
+    /// read-lane defaults (Read, None, Organic, no command). Fire-control satisfaction is
+    /// <see cref="HasFireControlTrack"/>.
+    /// </summary>
+    public C2AuthorityProjectionContext ReadAuthoritySnapshot(
+        string contactId,
+        string targetId,
+        string shooterUnitId)
+    {
+        return new C2AuthorityProjectionContext(
+            ResolveShooterRoe(shooterUnitId),
+            SkillLane.Read,
+            RequiredApproval.None,
+            TrackSource.Organic,
+            HasFireControlTrack(contactId, targetId, shooterUnitId),
+            CommandId: null,
+            HumanControlled: true);
+    }
+
+    private RoeLevel ResolveShooterRoe(string shooterUnitId)
+    {
+        if (string.IsNullOrEmpty(shooterUnitId))
+        {
+            return EffectivePolicy.DefaultFree.Roe;
+        }
+
+        var shooter = new TargetId(shooterUnitId);
+        if (Orchestrator.PolicySnapshots.TryGet(shooter, out var snapshot))
+        {
+            return snapshot.Effective.Roe;
+        }
+
+        var friendly = !BalticV3SideRegistry.IsRedForceUnit(shooterUnitId);
+        return Orchestrator.ResolveScenarioPolicyForTarget(shooter, friendly).Roe;
+    }
+
+    private bool DecisionLogContainsContact(string contactId, string targetId)
+    {
+        var changes = Orchestrator.DecisionLog.ContactChanges;
+        for (var i = 0; i < changes.Count; i++)
+        {
+            var change = changes[i];
+            if (string.Equals(change.ContactId, contactId, StringComparison.Ordinal)
+                && string.Equals(change.TargetId, targetId, StringComparison.Ordinal))
+            {
+                return true;
+            }
+        }
+
+        return false;
+    }
+
+    private static EngageRequest FireControlRequest(string shooterUnitId, string targetId) =>
+        new(
+            OrderActionMapper.TargetIdToUlong(new TargetId(shooterUnitId)),
+            OrderActionMapper.TargetIdToUlong(new TargetId(targetId)),
+            MountId: 0,
+            SimTick: 0);
 
     private void PrimeEngageWorld(in EngageRequest request, ObservedState state, string shooterUnitId)
     {
@@ -704,7 +919,7 @@ public sealed class SimulationSession
                 fallbackRounds,
                 out _);
 
-            if (DefaultMagazineRounds is int policyRounds && policyRounds > 0)
+            if (DefaultMagazineRounds is { } policyRounds && policyRounds > 0)
             {
                 var have = Magazines.GetRounds(request.ShooterUnitId, request.MountId);
                 if (have > policyRounds)
@@ -754,8 +969,11 @@ public sealed class SimulationSession
     }
 
     private static TargetId ResolveEngageVictim(Order order, ObservedState state)
+        => ResolveEngageVictim(order.Target, state);
+
+    private static TargetId ResolveEngageVictim(TargetId shooter, ObservedState state)
     {
-        if (BalticV3SideRegistry.IsRedForceUnit(order.Target.Value))
+        if (BalticV3SideRegistry.IsRedForceUnit(shooter.Value))
         {
             var blue = state.PrimaryBlueForceContactId
                 ?? (BalticV3SideRegistry.GetDefaultBlueUnitId() is { } bid
@@ -765,7 +983,7 @@ public sealed class SimulationSession
         }
 
         if (state.PreferredHostileByShooter != null
-            && state.PreferredHostileByShooter.TryGetValue(order.Target.Value, out var preferred)
+            && state.PreferredHostileByShooter.TryGetValue(shooter.Value, out var preferred)
             && !string.IsNullOrWhiteSpace(preferred))
         {
             return new TargetId(preferred);
@@ -776,4 +994,5 @@ public sealed class SimulationSession
                 ? new TargetId(rid)
                 : new TargetId("hostile-1"));
     }
+
 }

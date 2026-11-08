@@ -22,7 +22,7 @@ description: "Use when the user wants to rename, extract, split, move, or restru
 4. Plan update order: interfaces → implementations → callers → tests
 ```
 
-> If "Index is stale" → run `node .gitnexus/run.cjs analyze` in terminal.
+> If "Index is stale" → reindex in terminal: prefer `tools/gitnexus-safe-reindex.sh` (clean `main` checkout) over a bare `node .gitnexus/run.cjs analyze` — an incremental analyze can silently corrupt the index (empty method names / garbage node IDs, DRG-323). If you must use the CLI directly, pass `analyze --force`. Details: `docs/engineering/gitnexus-index-health.md`.
 
 ## Checklists
 

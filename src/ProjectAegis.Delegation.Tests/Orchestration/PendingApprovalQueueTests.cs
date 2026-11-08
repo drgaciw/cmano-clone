@@ -1,9 +1,7 @@
 namespace ProjectAegis.Delegation.Tests.Orchestration;
 
-using ProjectAegis.Delegation.Controllers;
 using ProjectAegis.Delegation.Core;
 using ProjectAegis.Delegation.Orchestration;
-using ProjectAegis.Delegation.Roe;
 using ProjectAegis.Delegation.Sim;
 using ProjectAegis.Delegation.Targets;
 using ProjectAegis.Delegation.Traits;
@@ -136,12 +134,8 @@ public sealed class PendingApprovalQueueTests
         // Manual autonomy: orders should queue, not execute
         Assert.That(orchestrator.PendingApprovals, Is.Not.Empty,
             "Manual autonomy should route orders to the approval queue");
-        // Executed orders should not include agent-decided orders (only previously approved ones)
-        foreach (var executed in orchestrator.ExecutedOrders)
-        {
-            // Any executed order must have come via approval (the queue should empty after approval),
-            // so if pending is non-empty, nothing executed yet.
-        }
+        Assert.That(orchestrator.ExecutedOrders, Is.Empty,
+            "No agent-decided order should execute before manual approval");
     }
 
     [Test]

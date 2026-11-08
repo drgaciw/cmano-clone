@@ -1,5 +1,4 @@
 using ProjectAegis.Data.Scenario.Authoring;
-using ProjectAegis.MissionEditor.Cli;
 using Xunit;
 
 namespace ProjectAegis.MissionEditor.Cli.Tests;
@@ -106,6 +105,21 @@ public sealed class McpMissionToolCliTests
     }
 
     [Fact]
+    public void adjudication_diff_null_snapshots_report_the_correct_parameter()
+    {
+        var workspace = new AdjudicationWorkspace(ScenarioDocumentEditor.CreateNew());
+        var snapshot = workspace.Snapshot("turn-0");
+
+        var beforeError = Assert.Throws<ArgumentNullException>(() =>
+            workspace.ComputeDiff(null!, snapshot, "reason"));
+        var afterError = Assert.Throws<ArgumentNullException>(() =>
+            workspace.ComputeDiff(snapshot, null!, "reason"));
+
+        Assert.Equal("before", beforeError.ParamName);
+        Assert.Equal("after", afterError.ParamName);
+    }
+
+    [Fact]
     public void umpire_adjudication_workspace_pure_verifbefore_real_from_editor()
     {
         // Track 3/5: Umpire and adjudication workspace (first-class) + AC3
@@ -186,7 +200,6 @@ public sealed class McpMissionToolCliTests
         {
             ScenarioDocumentEditor.CreateNew().Save(path);
 
-            using (var writer = new StringWriter())
             {
                 // run real via editor methods that now delegate to ws (produces keywords)
                 var editor = ScenarioDocumentEditor.Load(path);
@@ -194,6 +207,7 @@ public sealed class McpMissionToolCliTests
                 var d1 = editor.ComputeBeforeAfterDiff("b", "a", "test-reason");
                 var a1 = editor.LogAudit("test", "with reason here", "umpire");
                 var g1 = editor.ApplyRoleGuard("umpire");
+                Assert.Equal("ok", g1);
                 var f1 = editor.FreezeStepInjectResume("freeze,step,inject,resume");
                 Assert.Contains("umpire and adjudication workspace", s1);
                 Assert.Contains("before/after diffs", d1);

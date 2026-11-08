@@ -1,0 +1,59 @@
+{
+  "metadata": {
+    "dbRef": "baltic_patrol",
+    "tlBranch": "TL-0",
+    "seed": 42,
+    "policyId": "baltic-patrol-catalog"
+  },
+  "missions": [
+    {
+      "id": "support-tanker",
+      "type": "Support",
+      "supportRole": "Tanker",
+      "assignedUnitIds": ["u1"],
+      "patrolZone": [
+        { "lat": 57.0, "lon": 20.0 },
+        { "lat": 57.1, "lon": 20.1 },
+        { "lat": 57.2, "lon": 20.0 }
+      ],
+      "stationGeometry": [
+        { "lat": 57.0, "lon": 20.0 },
+        { "lat": 57.1, "lon": 20.1 },
+        { "lat": 57.2, "lon": 20.0 }
+      ]
+    },
+    {
+      "id": "patrol-1",
+      "type": "Patrol",
+      "assignedUnitIds": ["u1"],
+      "patrolZone": [
+        { "lat": 57.0, "lon": 20.0 },
+        { "lat": 57.1, "lon": 20.1 },
+        { "lat": 57.2, "lon": 20.2 }
+      ]
+    },
+    {
+      "id": "support-aew",
+      "type": "Support",
+      "supportRole": "AEW",
+      "assignedUnitIds": ["u1"]
+    },
+    {
+      "id": "support-ew",
+      "type": "Support",
+      "supportRole": "EW",
+      "assignedUnitIds": ["u1"]
+    },
+    {
+      "id": "ferry-1",
+      "type": "Ferry",
+      "assignedUnitIds": ["u1"],
+      "ferryDestinationBaseId": "u1"
+    },
+    {
+      "id": "escort-1",
+      "type": "Escort",
+      "assignedUnitIds": ["u1"]
+    }
+  ]
+}

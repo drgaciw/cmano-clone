@@ -1,6 +1,6 @@
 namespace ProjectAegis.Delegation.Skills;
 
-using ProjectAegis.Delegation.Input;
+using Input;
 
 /// <summary>
 /// DRG-196 contract gate. Pure validation — does not call
@@ -54,9 +54,37 @@ public static class SkillEnvelopeValidator
         {
             SkillLane.Read => ValidateRead(envelope),
             SkillLane.Propose => ValidatePropose(envelope, descriptor),
-            SkillLane.Submit => Fail(ReasonLaneNotAllowed),
             _ => Fail(ReasonLaneNotAllowed),
         };
+    }
+
+    /// <summary>
+    /// DRG-406 read-lane guard for skills described outside <see cref="SkillCatalog"/>
+    /// (for example the advisory catalog). Checks the id, the lane, and that no command is named.
+    /// </summary>
+    public static SkillEnvelopeValidation ValidateRead(SkillEnvelope envelope, SkillDescriptor descriptor)
+    {
+        if (envelope is null)
+        {
+            throw new ArgumentNullException(nameof(envelope));
+        }
+
+        if (descriptor is null)
+        {
+            throw new ArgumentNullException(nameof(descriptor));
+        }
+
+        if (!string.Equals(envelope.SkillId, descriptor.SkillId, StringComparison.Ordinal))
+        {
+            return Fail(ReasonUnknownSkill);
+        }
+
+        if (envelope.Lane != SkillLane.Read || !ContainsLane(descriptor, SkillLane.Read))
+        {
+            return Fail(ReasonLaneNotAllowed);
+        }
+
+        return ValidateRead(envelope);
     }
 
     private static SkillEnvelopeValidation ValidateRead(SkillEnvelope envelope)

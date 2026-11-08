@@ -1,6 +1,6 @@
 namespace ProjectAegis.Delegation.Projection;
 
-using ProjectAegis.Data.Scenario.Campaign;
+using Data.Scenario.Campaign;
 
 /// <summary>
 /// Headless apply path for campaign library presentation (CMD-27.12).
