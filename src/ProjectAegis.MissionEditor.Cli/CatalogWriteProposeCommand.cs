@@ -1,8 +1,8 @@
 namespace ProjectAegis.MissionEditor.Cli;
 
 using System.Text.Json;
-using ProjectAegis.Data.Catalog;
-using ProjectAegis.Data.WriteGate;
+using Data.Catalog;
+using Data.WriteGate;
 
 public static class CatalogWriteProposeCommand
 {

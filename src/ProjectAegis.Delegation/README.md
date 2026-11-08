@@ -4,7 +4,7 @@ Engine-agnostic C# library implementing the **Agent Delegation Framework** — t
 turns an observed world state into gated, logged orders for every unit and group in a
 scenario. The player commands theater-level forces and delegates tactical decisions to
 autonomous agents; this assembly is where that delegation actually happens. It has no
-`UnityEngine` reference (targets `net8.0`, depends only on `ProjectAegis.Sim` /
+`UnityEngine` reference (targets `net10.0;netstandard2.1`, depends only on `ProjectAegis.Sim` /
 `ProjectAegis.Data`), so the whole pipeline runs headless under `dotnet test`.
 
 > **Determinism is the load-bearing invariant.** Given the same `(scenario, seed)`, a run must

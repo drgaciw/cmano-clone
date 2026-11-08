@@ -7,6 +7,11 @@
         </ui:VisualElement>
         <ui:ListView name="oob-list" class="c2-drawer-list" selection-type="None" />
         <ui:ListView name="mission-list" class="c2-drawer-list c2-drawer-list--hidden" selection-type="None" />
+        <ui:VisualElement name="contact-chrome-row" class="c2-drawer-contact-chrome c2-drawer-list--hidden">
+            <ui:DropdownField name="contact-sort-dropdown" label="SORT" class="c2-drawer-contact-chrome-field" />
+            <ui:DropdownField name="contact-filter-dropdown" label="FILTER" class="c2-drawer-contact-chrome-field" />
+            <ui:TextField name="contact-text-filter" label="FIND" class="c2-drawer-contact-chrome-field" />
+        </ui:VisualElement>
         <ui:ListView name="contact-list" class="c2-drawer-list c2-drawer-list--hidden" selection-type="None" />
     </ui:VisualElement>
 </ui:UXML>

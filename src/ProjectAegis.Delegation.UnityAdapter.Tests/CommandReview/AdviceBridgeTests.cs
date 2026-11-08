@@ -29,6 +29,7 @@ public sealed class AdviceBridgeTests
             Assert.That(result.HardConstraints, Does.Contain("advisory-only:no-authority-or-order"));
             Assert.That(result.ResourceCommitments, Has.Some.Contains("committed elsewhere: 1"));
             Assert.That(result.Alternatives, Has.Some.Contains("scores effect="));
+            Assert.That(result.Alternatives, Has.Some.StartsWith("preferred:s1/w1:"));
             Assert.That(result.PolicyConstraints, Has.Some.StartsWith("range:"));
             Assert.That(result.IsWeaponsReleaseAuthorization, Is.False);
             Assert.That(result.IsFireOrder, Is.False);
@@ -155,7 +156,27 @@ public sealed class AdviceBridgeTests
         ]
     };
 
-    private sealed class Snapshot(double time, AdviceEvidenceSource? advice = null) : ISimWorldSnapshot, IAdviceEvidenceSource
+    [Test]
+    public void Current_frame_cannot_launder_a_future_contact_report()
+    {
+        var frame = SliceAContactFrame.Empty with { SimTick = 3, SimTime = 3,
+            Contacts = [new ContactPictureEntry("c1", "t1", "obs", "Tracked", 4, 4)] };
+        var result = AdviceBridge.Build(new DelegationBridge(1), new Snapshot(3), frame);
+        Assert.That(result.Availability, Is.EqualTo(AdviceAvailability.Stale));
+        Assert.That(result.Confidence, Is.Null);
+    }
+
+    [Test]
+    public void Provider_declining_evidence_cannot_supply_a_recommendation_through_out_value()
+    {
+        var frame = SliceAContactFrame.Empty with { SimTick = 3, SimTime = 3, Contacts = [new ContactPictureEntry("c1", "t1", "obs", "Tracked", 3, 3)] };
+        var source = new AdviceEvidenceSource("c1", 3, Recommendation(), Ranking(), []);
+        var result = AdviceBridge.Build(new DelegationBridge(1), new Snapshot(3, source, false), frame);
+        Assert.That(result.Confidence, Is.Null);
+        Assert.That(result.Alternatives, Has.None.Contains("s1/w1"));
+    }
+
+    private sealed class Snapshot(double time, AdviceEvidenceSource? advice = null, bool available = true) : ISimWorldSnapshot, IAdviceEvidenceSource
     {
         public double SimTime => time; public int ContactCount => 1; public int ActiveEngagementCount => 0;
         public bool IsMemberAlive(TargetId memberId) => true; public TargetId? PrimaryHostileContactId => new("t1");
@@ -163,7 +184,7 @@ public sealed class AdviceBridgeTests
         public bool TryGetAdviceEvidence(string contactId, out AdviceEvidenceSource evidence)
         {
             evidence = advice!;
-            return advice is not null;
+            return available && advice is not null;
         }
     }
 }

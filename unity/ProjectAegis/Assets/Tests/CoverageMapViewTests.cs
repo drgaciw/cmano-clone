@@ -29,7 +29,7 @@ namespace ProjectAegis.Unity.Tests
             var canvas = new VisualElement();
             var view = new CoverageMapView(canvas);
             var invalid = new CoverageAssessment(CoverageStatus.Gap, "bad", "Bad",
-                new CoverageAreaGeometry([new(double.NaN, 0), new(1.1, 0), new(0, 1)], ""), "BAD");
+                new CoverageAreaGeometry(new[] { new CoverageAreaPoint(double.NaN, 0), new CoverageAreaPoint(1.1, 0), new CoverageAreaPoint(0, 1) }, ""), "BAD");
 
             view.Bind(Snapshot(invalid), true);
 
@@ -48,7 +48,7 @@ namespace ProjectAegis.Unity.Tests
                 .Select(i => Effect(Assessment(i % 2 == 0 ? CoverageStatus.Covered : CoverageStatus.Gap, i)))
                 .ToArray();
 
-            view.Bind(new CoordinationSnapshot([new CoordinationGroupSnapshot(null!, null!, effects, [])]), true);
+            view.Bind(new CoordinationSnapshot(new[] { new CoordinationGroupSnapshot(null!, null!, effects, Array.Empty<CoordinationGap>()) }), true);
 
             Assert.That(view.PolygonCount, Is.EqualTo(CoverageMapView.MaxPolygons));
             Assert.That(view.StatusText, Does.Contain("TRUNCATED polygons 7"));
@@ -72,14 +72,28 @@ namespace ProjectAegis.Unity.Tests
         }
 
         private static CoordinationSnapshot Snapshot(CoverageAssessment coverage) =>
-            new([new CoordinationGroupSnapshot(null!, null!, [Effect(coverage)], [])]);
+            new(new[] { new CoordinationGroupSnapshot(null!, null!, new[] { Effect(coverage) }, Array.Empty<CoordinationGap>()) });
+
+        [Test]
+        public void Oversized_boundary_is_omitted_with_explicit_segment_budget_disclosure()
+        {
+            var points = Enumerable.Range(0, 600).Select(i => new CoverageAreaPoint(
+                .5 + .4 * Math.Cos(i * Math.PI / 300), .5 + .4 * Math.Sin(i * Math.PI / 300))).ToArray();
+            var assessment = new CoverageAssessment(CoverageStatus.Gap, "large", "Large sector",
+                new CoverageAreaGeometry(points, "fixture:large-sector"), "LOST");
+            using var view = new CoverageMapView(new VisualElement());
+            view.Bind(Snapshot(assessment), true);
+            Assert.That(view.PolygonCount, Is.Zero);
+            Assert.That(view.SegmentCount, Is.Zero);
+            Assert.That(view.StatusText, Does.Contain("TRUNCATED segments"));
+        }
 
         private static CoordinationEffect Effect(CoverageAssessment coverage) =>
             new("g1", "u1", coverage.CoverageId, null, CoordinationEffectState.Available, coverage);
 
         private static CoverageAssessment Assessment(CoverageStatus status, int id = 1) => new(
             status, $"sector-{id}", $"Sector {id}",
-            new CoverageAreaGeometry([new(0.1, 0.1), new(0.9, 0.1), new(0.5, 0.8)], $"scenario:coverage/{id}"),
+            new CoverageAreaGeometry(new[] { new CoverageAreaPoint(0.1, 0.1), new CoverageAreaPoint(0.9, 0.1), new CoverageAreaPoint(0.5, 0.8) }, $"scenario:coverage/{id}"),
             status == CoverageStatus.Gap ? "CONTRIBUTOR_UNAVAILABLE" : null);
     }
 }

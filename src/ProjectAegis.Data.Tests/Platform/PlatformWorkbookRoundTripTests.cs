@@ -96,9 +96,9 @@ public sealed class PlatformWorkbookRoundTripTests
         var meta = workbook.FindSheet(PlatformWorkbookHash.MetaSheetName);
         Assert.NotNull(meta);
 
-        Assert.Equal(SnapshotId, MetaValue(meta!, "SourceSnapshotId"));
-        Assert.Equal(PlatformWorkbookExporter.SchemaVersion, MetaValue(meta!, "SchemaVersion"));
-        Assert.Equal(PlatformWorkbookHash.Compute(workbook), MetaValue(meta!, "WorkbookHash"));
+        Assert.Equal(SnapshotId, MetaValue(meta, "SourceSnapshotId"));
+        Assert.Equal(PlatformWorkbookExporter.SchemaVersion, MetaValue(meta, "SchemaVersion"));
+        Assert.Equal(PlatformWorkbookHash.Compute(workbook), MetaValue(meta, "WorkbookHash"));
     }
 
     [Fact]
@@ -156,7 +156,7 @@ public sealed class PlatformWorkbookRoundTripTests
     {
         foreach (var row in meta.Rows)
         {
-            if (row.Count >= 2 && string.Equals(row[0], key, System.StringComparison.Ordinal))
+            if (row.Count >= 2 && string.Equals(row[0], key, StringComparison.Ordinal))
             {
                 return row[1];
             }
@@ -184,7 +184,7 @@ public sealed class PlatformWorkbookRoundTripTests
     {
         var sheet = workbook.FindSheet(sheetName);
         Assert.NotNull(sheet);
-        return sheet!.Rows
+        return sheet.Rows
             .Select(row => string.Join('\t', columns.Select(i => row[i])))
             .ToArray();
     }

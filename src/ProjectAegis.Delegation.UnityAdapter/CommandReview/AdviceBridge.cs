@@ -19,8 +19,9 @@ public static class AdviceBridge
         if (contacts is null) throw new ArgumentNullException(nameof(contacts));
         var contactId = selectedContactId ?? string.Empty;
         AdviceEvidenceSource? supplied = null;
-        if (snapshot is IAdviceEvidenceSource source && contactId.Length > 0)
-            source.TryGetAdviceEvidence(contactId, out supplied!);
+        if (snapshot is IAdviceEvidenceSource source && contactId.Length > 0
+            && source.TryGetAdviceEvidence(contactId, out var candidate)) supplied = candidate;
+        supplied ??= AdviceRuntimeEvidenceBridge.Build(bridge, snapshot, contacts, contactId);
         return BuildCore(bridge, snapshot, contacts, supplied, contactId);
     }
 
@@ -44,6 +45,8 @@ public static class AdviceBridge
         var contact = contacts.Contacts.FirstOrDefault(c => string.Equals(c.ContactId, contactId, StringComparison.Ordinal));
         if (contact is null)
             return AdviceFrame.Unavailable(tick, snapshot.SimTime, AdviceAvailability.EvidenceUnavailable, "select a current contact and refresh evidence", contactId);
+        if (!double.IsFinite(contact.LastSimTime) || contact.LastSimTime < 0 || contact.LastSimTime > simTime)
+            return AdviceFrame.Unavailable(tick, snapshot.SimTime, AdviceAvailability.Stale, "refresh future-dated contact evidence", contactId);
         if (supplied is not null && (!string.Equals(supplied.ContactId, contactId, StringComparison.Ordinal)
             || !double.IsFinite(supplied.SimTime) || supplied.SimTime < 0 || supplied.SimTime != simTime))
             return AdviceFrame.Unavailable(tick, snapshot.SimTime, AdviceAvailability.Stale, "refresh advisory evidence before review", contactId);
@@ -86,7 +89,7 @@ public static class AdviceBridge
             var line = $"{candidate.ShooterUnitId}/{candidate.WeaponId}: {candidate.ReasonPlain}";
             var scores = candidate.Scores;
             var scored = $"{line} | scores effect={scores.ExpectedEffect:0.###}, time={scores.Time:0.###}, availability={scores.Availability:0.###}, commitment={scores.Commitment:0.###}, conservation={scores.Conservation:0.###}, total={scores.Total:0.###}";
-            if (candidate.Disposition != ResourceRankDisposition.Preferred) alternatives.Add($"{candidate.Disposition.ToString().ToLowerInvariant()}:{scored}");
+            alternatives.Add($"{candidate.Disposition.ToString().ToLowerInvariant()}:{scored}");
             if (candidate.Disposition == ResourceRankDisposition.Excluded) commitments.Add(line);
         }
         if (supplied?.ThreatAssessment is not null)

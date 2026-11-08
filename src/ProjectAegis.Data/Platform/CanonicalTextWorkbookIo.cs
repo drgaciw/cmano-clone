@@ -7,7 +7,7 @@ using System.Text;
 /// Serializes a workbook to a deterministic text form using ASCII control delimiters (no spreadsheet
 /// library). It exists so the round-trip contract and golden tests can run in CI without ClosedXML, and
 /// it doubles as the executable spec the production .xlsx adapter must satisfy:
-/// <c>Read(Write(wb))</c> must reconstruct <paramref name="workbook"/> exactly.
+/// <c>Read(Write(wb))</c> must reconstruct <c>workbook</c> exactly.
 /// </summary>
 public sealed class CanonicalTextWorkbookIo : IPlatformWorkbookIo
 {

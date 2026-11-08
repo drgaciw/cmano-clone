@@ -4,7 +4,7 @@ using System.Linq;
 using ProjectAegis.Delegation.Attention;
 using ProjectAegis.Delegation.Core;
 using ProjectAegis.Delegation.Decision;
-using ProjectAegis.Delegation.Policy;
+using Policy;
 using ProjectAegis.Delegation.Sim;
 using ProjectAegis.Delegation.Traits;
 using NUnit.Framework;

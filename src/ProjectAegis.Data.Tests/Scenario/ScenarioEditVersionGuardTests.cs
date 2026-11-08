@@ -16,7 +16,7 @@ public sealed class ScenarioEditVersionGuardTests
     {
         var conflict = ScenarioEditVersionGuard.TryCheck(2, 5, "abc123");
         Assert.NotNull(conflict);
-        Assert.Equal("CONFLICT", conflict!.Code);
+        Assert.Equal("CONFLICT", conflict.Code);
         Assert.Equal(5, conflict.CurrentEditVersion);
         Assert.Equal("abc123", conflict.FileHash);
     }

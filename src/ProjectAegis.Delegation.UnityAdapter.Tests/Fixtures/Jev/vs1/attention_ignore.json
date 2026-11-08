@@ -1,0 +1,47 @@
+{
+  "schema": "aegis.jev.state.v0",
+  "fixtureId": "vs1-attention-ignore",
+  "expectedAttentionLevel": "ignore",
+  "unitId": "u-fixture-02",
+  "contactId": "c-fixture-friendly-distant",
+  "taskGroupId": "tg-fixture-bravo",
+  "roe": {
+    "weaponsFree": false,
+    "weaponsTight": true,
+    "holdFire": false,
+    "excludeCivilian": true
+  },
+  "wraRemaining": {
+    "missile": 6,
+    "gun": 200,
+    "laser": 3
+  },
+  "contact": {
+    "classHint": "friendly",
+    "rangeNm": 42.0,
+    "bearingDeg": 210,
+    "closing": false,
+    "iff": "friendly",
+    "speedKts": 12,
+    "altitudeFt": 0
+  },
+  "ownship": {
+    "posture": "patrol",
+    "damageState": "nominal",
+    "sensorsUp": true
+  },
+  "playerInfoModel": {
+    "selectedUnitId": "u-fixture-02",
+    "cameraFocusId": "u-fixture-02"
+  },
+  "personalityEditPolicy": "read_only_assist",
+  "skillAvailability": {
+    "jevDecide": true,
+    "lastOkAt": "2026-09-22T10:00:00-05:00"
+  },
+  "flags": {
+    "urgencyHint": "calm",
+    "roeConflict": false,
+    "playerLookingElsewhere": false
+  }
+}

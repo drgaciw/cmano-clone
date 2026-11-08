@@ -16,7 +16,7 @@ public sealed class Wave4Doc11MechanicalPinsTests
     {
         var path = ResolveRepoFile("Game-Requirements", "requirements", Doc11FileName);
         Assert.True(path != null, $"Could not locate {Doc11FileName}");
-        var text = File.ReadAllText(path!);
+        var text = File.ReadAllText(path);
 
         Assert.Contains("FR-09", text, StringComparison.Ordinal);
         Assert.True(
@@ -30,7 +30,7 @@ public sealed class Wave4Doc11MechanicalPinsTests
     {
         var path = ResolveRepoFile("Game-Requirements", "requirements", Doc11FileName);
         Assert.True(path != null, $"Could not locate {Doc11FileName}");
-        var text = File.ReadAllText(path!);
+        var text = File.ReadAllText(path);
 
         Assert.Contains("17-Replay-AAR-And-Order-Log.md", text, StringComparison.Ordinal);
         Assert.DoesNotContain("17-Replay-And-Order-Log.md", text, StringComparison.Ordinal);
@@ -45,7 +45,7 @@ public sealed class Wave4Doc11MechanicalPinsTests
     {
         var path = ResolveRepoFile("Game-Requirements", "requirements", Doc11FileName);
         Assert.True(path != null, $"Could not locate {Doc11FileName}");
-        var text = File.ReadAllText(path!);
+        var text = File.ReadAllText(path);
 
         var mapIdx = text.IndexOf("## Implementation Mapping", StringComparison.Ordinal);
         Assert.True(mapIdx >= 0, "Implementation Mapping heading missing");
@@ -57,8 +57,8 @@ public sealed class Wave4Doc11MechanicalPinsTests
             .Split('\n')
             .FirstOrDefault(l => l.Contains("scenario-document.schema.json", StringComparison.Ordinal));
         Assert.True(schemaLine != null, "Implementation Mapping row for scenario-document.schema.json not found");
-        Assert.Contains("Shipped", schemaLine!, StringComparison.Ordinal);
-        Assert.DoesNotContain("New (data workstream)", schemaLine!, StringComparison.Ordinal);
+        Assert.Contains("Shipped", schemaLine, StringComparison.Ordinal);
+        Assert.DoesNotContain("New (data workstream)", schemaLine, StringComparison.Ordinal);
 
         var schemaPath = ResolveRepoFile("data", "scenarios", "scenario-document.schema.json");
         Assert.True(

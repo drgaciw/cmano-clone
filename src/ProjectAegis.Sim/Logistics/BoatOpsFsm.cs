@@ -120,9 +120,6 @@ public static class BoatOpsFsm
                 BoatOpsPhase.Returning or BoatOpsPhase.Alongside or BoatOpsPhase.Recovering =>
                     new BoatOpsFsmResult(false, state, ReasonRecoveryInProgress),
                 BoatOpsPhase.Stranded => new BoatOpsFsmResult(false, state, ReasonStranded),
-                BoatOpsPhase.Stowed or BoatOpsPhase.Prepping or BoatOpsPhase.Launching
-                    or BoatOpsPhase.Maintenance =>
-                    new BoatOpsFsmResult(false, state, ReasonNotWaterborne),
                 _ => new BoatOpsFsmResult(false, state, ReasonNotWaterborne),
             };
         }
@@ -245,7 +242,6 @@ public static class BoatOpsFsm
             if (timer > remaining)
             {
                 timer -= remaining;
-                remaining = 0;
                 break;
             }
 
@@ -291,7 +287,6 @@ public static class BoatOpsFsm
             if (timer > remaining)
             {
                 timer -= remaining;
-                remaining = 0;
                 break;
             }
 

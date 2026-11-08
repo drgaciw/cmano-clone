@@ -1,6 +1,6 @@
 namespace ProjectAegis.Delegation.Hindsight;
 
-using ProjectAegis.Delegation.Decision;
+using Decision;
 
 public interface IHindsightOrderLogHook
 {

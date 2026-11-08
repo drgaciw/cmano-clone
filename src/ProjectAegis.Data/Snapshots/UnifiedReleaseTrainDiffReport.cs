@@ -1,6 +1,6 @@
 namespace ProjectAegis.Data.Snapshots;
 
-using ProjectAegis.Data.Catalog;
+using Catalog;
 
 /// <summary>S32-07 / S65-03 (Baltic v2 corpus hardening): deterministic read-only diff between two <c>ReleaseVersion</c> values.
 /// Supports v2 corpus release versions and domain hashes in diff rows (e.g. baltic-v2-* named drops).

@@ -5,7 +5,7 @@
 **ID**: BUG-catalog-report-databasepath-misreport
 **Severity**: S3-Minor
 **Priority**: P3-Backlog
-**Status**: Open
+**Status**: Fixed
 **Reported**: 2026-07-06
 **Reporter**: gameplay-qa-agent (qa-loop-10-cli-integration)
 
@@ -44,6 +44,7 @@
 - **New regression test**: `ProjectAegis.MissionEditor.Cli.Tests.CatalogKillChainReportCommandTests.KillChain_reported_database_path_reflects_actual_source_when_input_path_missing` (`src/ProjectAegis.MissionEditor.Cli.Tests/CatalogKillChainReportCommandTests.cs`)
   - Before fix (red): `Assert.NotEqual(missingPath, reportedPath)` failed — `Assert.NotEqual() Failure: Strings are equal` — both were `/tmp/aegis-cli-kc-missing-<guid>.db`.
   - After fix (green): test passes; `reportedPath` now equals `CatalogReaderFactory.ResolveBalticPatrolDatabasePath()`.
+- **Coverage (worker4)**: same missing-`--db` assertion added for `CatalogLinkReportCommandTests.LinkReport_reported_database_path_reflects_actual_source_when_input_path_missing` and `CatalogDependencyGraphCommandTests.DependencyGraph_reported_database_path_reflects_actual_source_when_input_path_missing`. TDD red on the pre-`0b88597c` `databasePath ?? ResolveBalticPatrolDatabasePath()` payload (`Assert.NotEqual() Failure: Strings are equal`); green after restoring `OpenReader(..., out resolvedDatabasePath)`.
 - **Fix**: `OpenReader` in all three commands now takes an `out string resolvedDatabasePath` parameter and the `Run` methods use that value (instead of re-deriving it) when building the JSON payload's `databasePath` field.
 
 ## Related Issues
@@ -53,3 +54,4 @@
 - Impact/blast-radius check (GitNexus MCP not reachable from this isolated worktree sandbox; did a manual Grep-based caller check instead): the only callers of `CatalogKillChainReportCommand.Run`, `CatalogLinkReportCommand.Run`, and `CatalogDependencyGraphCommand.Run` are `Program.cs` (thin CLI dispatch, passes the same `db`/`Console.Out` args straight through) and each command's own test file. No other production code inspects or depends on the `databasePath` field's value, and no existing test asserted a specific `databasePath` value, so this fix is **LOW risk**.
 - Fixed all three commands together (not just the one with the new failing test) because they share the exact same duplicated-fallback-logic bug, verified by manual code comparison against the correctly-implemented `CatalogIntelligenceRunCommand`; leaving two of three fixed and one broken would have been an inconsistent, confusing half-fix.
 - `CatalogReleaseDiffCommand` does not have this bug — it requires an explicit non-empty `databasePath` (no fallback resolution) and echoes it as-is, so there's no fallback-vs-reported mismatch possible there.
+- worker4 (2026-08-20): Production OpenReader out-param fix already on `origin/main` (`0b88597c`). GitNexus LadybugDB was locked by a concurrent analyze; grep callers of the three `Run` methods remain `Program.cs` (thin `--db` dispatch) plus each command's test file — **LOW risk**. Did not touch DelegationBridge / CatalogWriteGate / SimulationSession, EMCON tables, or catalog SQLite files.

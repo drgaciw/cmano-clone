@@ -1,9 +1,9 @@
 namespace ProjectAegis.Data.Scenario;
 
 using System.Text.Json;
-using ProjectAegis.Data.Catalog;
-using ProjectAegis.Data.Scenario.Authoring;
-using ProjectAegis.Data.Validation;
+using Catalog;
+using Authoring;
+using Validation;
 
 /// <summary>
 /// Projects a scenario document / path into a <see cref="ScenarioLibraryEntry"/> with

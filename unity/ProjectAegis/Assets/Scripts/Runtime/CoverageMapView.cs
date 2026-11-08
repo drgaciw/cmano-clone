@@ -51,6 +51,7 @@ namespace ProjectAegis.Unity.Runtime
         /// <summary>Binds a current projection. Passing false hides all coverage while history is shown.</summary>
         public void Bind(CoordinationSnapshot snapshot, bool visible)
         {
+            if (ReferenceEquals(_snapshot, snapshot) && _visible == visible) return;
             _snapshot = snapshot ?? CoordinationSnapshot.Empty;
             _visible = visible;
             _layer.style.display = visible ? DisplayStyle.Flex : DisplayStyle.None;
@@ -107,7 +108,7 @@ namespace ProjectAegis.Unity.Runtime
                 }
             }
 
-            _status.text = $"Coverage: {PolygonCount} polygons | {SegmentCount} segments" +
+            _status.text = (PolygonCount == 0 ? "Coverage: no usable authored spatial evidence" : $"Coverage: {PolygonCount} polygons | {SegmentCount} segments") +
                 (invalid > 0 ? $" | INVALID {invalid} (finite [0..1] coordinates and source required)" : string.Empty) +
                 (truncatedPolygons > 0 ? $" | TRUNCATED polygons {truncatedPolygons} (cap {MaxPolygons})" : string.Empty) +
                 (truncatedSegments ? $" | TRUNCATED segments (cap {MaxSegments})" : string.Empty) +

@@ -1,7 +1,7 @@
 namespace ProjectAegis.Delegation.Projection;
 
-using ProjectAegis.Data.Scenario.Authoring;
-using ProjectAegis.Data.Validation;
+using Data.Scenario.Authoring;
+using Data.Validation;
 
 /// <summary>
 /// Headless binder for the live-edit findings panel (CMD-35).

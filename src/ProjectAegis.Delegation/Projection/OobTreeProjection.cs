@@ -1,6 +1,6 @@
 namespace ProjectAegis.Delegation.Projection;
 
-using ProjectAegis.Delegation.Core;
+using Core;
 
 /// <summary>Builds sorted OOB rows from registered member targets and per-tick alive state.</summary>
 public static class OobTreeProjection

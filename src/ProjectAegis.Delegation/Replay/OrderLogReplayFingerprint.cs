@@ -2,7 +2,7 @@ namespace ProjectAegis.Delegation.Replay;
 
 using System.Security.Cryptography;
 using System.Text;
-using ProjectAegis.Delegation.Decision;
+using Decision;
 
 /// <summary>SHA-256 over canonical order-log text (order-log-replay GDD § Formulas).</summary>
 public static class OrderLogReplayFingerprint

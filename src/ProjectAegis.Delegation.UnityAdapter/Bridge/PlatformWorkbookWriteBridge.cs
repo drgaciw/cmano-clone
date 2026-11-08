@@ -1,8 +1,8 @@
 namespace ProjectAegis.Delegation.UnityAdapter.Bridge;
 
-using ProjectAegis.Data.Catalog;
-using ProjectAegis.Data.Platform;
-using ProjectAegis.Data.WriteGate;
+using Data.Catalog;
+using Data.Platform;
+using Data.WriteGate;
 
 /// <summary>
 /// ADR-011 Phase D: headless Unity/CLI bridge for platform workbook propose→approve.

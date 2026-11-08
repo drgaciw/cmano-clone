@@ -1,5 +1,4 @@
 using ProjectAegis.Delegation.UnityAdapter.Baltic;
-using ProjectAegis.Sim.Engage;
 using ProjectAegis.Sim.Glossary;
 using NUnit.Framework;
 

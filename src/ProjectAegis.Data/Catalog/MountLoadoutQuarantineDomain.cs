@@ -24,7 +24,6 @@ public static class MountLoadoutQuarantineDomain
         {
             "subsurface" => Submarine,
             "land" => Facility,
-            "surface" => Platform,
             _ => Platform,
         };
 

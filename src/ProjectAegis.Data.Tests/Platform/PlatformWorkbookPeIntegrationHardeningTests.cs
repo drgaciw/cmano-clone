@@ -205,9 +205,9 @@ public sealed class PlatformWorkbookPeIntegrationHardeningTests
             var meta = roundTripped.FindSheet(PlatformWorkbookHash.MetaSheetName);
             Assert.NotNull(meta);
 
-            Assert.Equal(SnapshotId, MetaValue(meta!, "SourceSnapshotId"));
-            Assert.Equal(PlatformWorkbookExporter.SchemaVersion, MetaValue(meta!, "SchemaVersion"));
-            Assert.Equal(expectedHash, MetaValue(meta!, "WorkbookHash"));
+            Assert.Equal(SnapshotId, MetaValue(meta, "SourceSnapshotId"));
+            Assert.Equal(PlatformWorkbookExporter.SchemaVersion, MetaValue(meta, "SchemaVersion"));
+            Assert.Equal(expectedHash, MetaValue(meta, "WorkbookHash"));
             Assert.Equal(expectedHash, PlatformWorkbookHash.Compute(roundTripped));
             Assert.True(PlatformWorkbookDiff.IsEmpty(original, roundTripped));
         }
@@ -335,7 +335,7 @@ public sealed class PlatformWorkbookPeIntegrationHardeningTests
 
             var sensors = roundTripped.FindSheet("Sensors");
             Assert.NotNull(sensors);
-            var reviewCol = Array.IndexOf(sensors!.Header.ToArray(), "ReviewState");
+            var reviewCol = Array.IndexOf(sensors.Header.ToArray(), "ReviewState");
             var sensorIdCol = Array.IndexOf(sensors.Header.ToArray(), "SensorId");
             Assert.True(reviewCol >= 0 && sensorIdCol >= 0);
 

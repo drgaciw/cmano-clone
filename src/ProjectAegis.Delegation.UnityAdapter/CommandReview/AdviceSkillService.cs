@@ -34,11 +34,17 @@ public static class AdviceSkillService
     public static AdviceSkillResult Invoke(string skillId, AdviceFrame advice)
     {
         if (advice is null) throw new ArgumentNullException(nameof(advice));
-        if (!AdviceSkillCatalog.TryGet(skillId, out _)) throw new ArgumentOutOfRangeException(nameof(skillId), skillId, "Unknown advisory skill.");
+        if (!AdviceSkillCatalog.TryGet(skillId, out var descriptor)) throw new ArgumentOutOfRangeException(nameof(skillId), skillId, "Unknown advisory skill.");
         var invocation = $"{skillId}:{advice.SimTick}:{advice.SimTime.ToString("R", CultureInfo.InvariantCulture)}:{advice.ContactId}";
         var envelope = new SkillEnvelope(SkillLane.Read, skillId, invocation, null, advice.SimTick, advice.SimTime,
             null, null, null, RequiredApproval.None, advice.Evidence, advice.Assumptions, advice.Rationale, null, null,
             new ReplayProvenance(skillId, invocation, advice.SimTick, advice.SimTime, null, null, false));
+        var validation = SkillEnvelopeValidator.ValidateRead(envelope, descriptor);
+        if (!validation.Ok)
+        {
+            throw new InvalidOperationException($"Advisory skill envelope rejected: {validation.FailureReason}");
+        }
+
         return new AdviceSkillResult(envelope, advice);
     }
 }

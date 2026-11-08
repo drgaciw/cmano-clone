@@ -100,6 +100,16 @@ namespace ProjectAegis.Unity.Editor
                 bridge,
                 "Assets/UI/ContactDetail/ContactDetailPanel.uxml",
                 "Assets/UI/ContactDetail/ContactDetailPanel.uss");
+            CreatePanelHost<SensorToShooterPanelHost>(
+                "SensorToShooter",
+                bridge,
+                "Assets/UI/SensorToShooter/SensorToShooterPanel.uxml",
+                "Assets/UI/SensorToShooter/SensorToShooterPanel.uss");
+            CreatePanelHost<MissionPackagePanelHost>(
+                "MissionPackage",
+                bridge,
+                "Assets/UI/MissionPackage/MissionPackagePanel.uxml",
+                "Assets/UI/MissionPackage/MissionPackagePanel.uss");
             CreatePanelHost<AgentRosterPanelHost>(
                 "AgentRoster",
                 bridge,
@@ -163,6 +173,11 @@ namespace ProjectAegis.Unity.Editor
                 bridge,
                 "Assets/UI/EngageExplain/EngageExplainPanel.uxml",
                 "Assets/UI/EngageExplain/EngageExplainPanel.uss");
+            CreatePanelHost<AuthorityRoePanelHost>(
+                "AuthorityRoe",
+                bridge,
+                "Assets/UI/AuthorityRoe/AuthorityRoePanel.uxml",
+                "Assets/UI/AuthorityRoe/AuthorityRoePanel.uss");
             CreatePanelHost<AxisControlPanelHost>(
                 "AxisControl",
                 bridge,
@@ -358,6 +373,16 @@ namespace ProjectAegis.Unity.Editor
                 bridge,
                 "Assets/UI/ContactDetail/ContactDetailPanel.uxml",
                 "Assets/UI/ContactDetail/ContactDetailPanel.uss");
+            added += EnsurePanelHostIfMissing<SensorToShooterPanelHost>(
+                "SensorToShooter",
+                bridge,
+                "Assets/UI/SensorToShooter/SensorToShooterPanel.uxml",
+                "Assets/UI/SensorToShooter/SensorToShooterPanel.uss");
+            added += EnsurePanelHostIfMissing<MissionPackagePanelHost>(
+                "MissionPackage",
+                bridge,
+                "Assets/UI/MissionPackage/MissionPackagePanel.uxml",
+                "Assets/UI/MissionPackage/MissionPackagePanel.uss");
             added += EnsurePanelHostIfMissing<AgentRosterPanelHost>(
                 "AgentRoster",
                 bridge,
@@ -420,6 +445,11 @@ namespace ProjectAegis.Unity.Editor
                 bridge,
                 "Assets/UI/EngageExplain/EngageExplainPanel.uxml",
                 "Assets/UI/EngageExplain/EngageExplainPanel.uss");
+            added += EnsurePanelHostIfMissing<AuthorityRoePanelHost>(
+                "AuthorityRoe",
+                bridge,
+                "Assets/UI/AuthorityRoe/AuthorityRoePanel.uxml",
+                "Assets/UI/AuthorityRoe/AuthorityRoePanel.uss");
             added += EnsurePanelHostIfMissing<AxisControlPanelHost>(
                 "AxisControl",
                 bridge,

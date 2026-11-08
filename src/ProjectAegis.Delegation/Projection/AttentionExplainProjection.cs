@@ -1,7 +1,7 @@
 namespace ProjectAegis.Delegation.Projection;
 
-using ProjectAegis.Delegation.Attention;
-using ProjectAegis.Delegation.Decision;
+using Attention;
+using Decision;
 
 /// <summary>
 /// S109-05 / AGD-20: decision-time attention as an attributable explain reason.

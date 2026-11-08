@@ -1,7 +1,7 @@
 namespace ProjectAegis.Delegation.Projection;
 
-using ProjectAegis.Delegation.Comms;
-using ProjectAegis.Delegation.Decision;
+using Comms;
+using Decision;
 
 public sealed record CommsStateSnapshot(
     CommsState State,

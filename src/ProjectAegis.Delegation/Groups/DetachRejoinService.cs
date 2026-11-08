@@ -1,8 +1,8 @@
 namespace ProjectAegis.Delegation.Groups;
 
-using ProjectAegis.Delegation.Controllers;
-using ProjectAegis.Delegation.Orchestration;
-using ProjectAegis.Delegation.Targets;
+using Controllers;
+using Orchestration;
+using Targets;
 
 public sealed class DetachRejoinService
 {

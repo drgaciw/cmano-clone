@@ -185,7 +185,7 @@ public sealed class KillChainContactStateProjectionTests
         Assert.That(snapshot.Transitions.Select(t => t.Kind), Does.Contain(KillChainTransitionKind.Degraded));
         var degraded = snapshot.Transitions.Single(t => t.Kind == KillChainTransitionKind.Degraded);
         Assert.That(degraded.Loss, Is.EqualTo(KillChainLossKind.Stale));
-        Assert.That(degraded.SimTick, Is.EqualTo(1UL + (ulong)KillChainContactStateProjection.DefaultStaleThresholdTicks + 1));
+        Assert.That(degraded.SimTick, Is.EqualTo(1UL + KillChainContactStateProjection.DefaultStaleThresholdTicks + 1));
     }
 
     [Test]
@@ -309,15 +309,15 @@ public sealed class KillChainContactStateProjectionTests
         var log = new DecisionLog();
         log.AppendContactChange(Change(1, "c1", "hostile-1", "Unknown", "Classified"));
 
-        var staleTick = 1UL + (ulong)KillChainContactStateProjection.DefaultStaleThresholdTicks + 1;
-        var dropTick = 1UL + (ulong)KillChainContactStateProjection.DefaultDropThresholdTicks + 1;
+        var staleTick = 1UL + KillChainContactStateProjection.DefaultStaleThresholdTicks + 1;
+        var dropTick = 1UL + KillChainContactStateProjection.DefaultDropThresholdTicks + 1;
 
         var stale = KillChainContactStateProjection.Project(log, currentSimTick: staleTick);
         Assert.That(stale.Contacts[0].Loss, Is.EqualTo(KillChainLossKind.Stale));
 
         var atDropBoundary = KillChainContactStateProjection.Project(
             log,
-            currentSimTick: 1UL + (ulong)KillChainContactStateProjection.DefaultDropThresholdTicks);
+            currentSimTick: 1UL + KillChainContactStateProjection.DefaultDropThresholdTicks);
         Assert.That(atDropBoundary.Contacts[0].Loss, Is.EqualTo(KillChainLossKind.Stale));
 
         var dropped = KillChainContactStateProjection.Project(log, currentSimTick: dropTick);

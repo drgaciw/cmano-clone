@@ -1,4 +1,3 @@
-using ProjectAegis.Data.Catalog;
 using ProjectAegis.Delegation.Projection;
 using ProjectAegis.Delegation.UnityAdapter.Presentation;
 using NUnit.Framework;

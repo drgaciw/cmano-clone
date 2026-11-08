@@ -1,6 +1,6 @@
 namespace ProjectAegis.Data.Scenario;
 
-using ProjectAegis.Data.Scenario.Authoring;
+using Authoring;
 
 /// <summary>Builds readiness dictionaries from scenario metadata for harness/CLI.</summary>
 public static class UnitReadinessMapFactory
