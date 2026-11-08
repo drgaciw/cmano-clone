@@ -23,8 +23,8 @@ public sealed class ScenarioDocumentEditor
     private ScenarioOrbatDto? _orbat;
     private IReadOnlyList<ScenarioReferencePointDto> _referencePoints = Array.Empty<ScenarioReferencePointDto>();
     private IReadOnlyList<ScenarioOperationTimelineEntryDto> _operationsTimeline = Array.Empty<ScenarioOperationTimelineEntryDto>();
-    private Dictionary<string, string>? _variables;
-    private Dictionary<string, System.Text.Json.JsonElement>? _editorState;
+    private Dictionary<string, System.Text.Json.JsonElement>? _variables;
+    private ScenarioEditorStateDto? _editorState;
 
     /// <summary>Minimal event ids support for AC4 / event trace tools.</summary>
     public List<string> EventIds { get; } = new List<string>();
@@ -130,11 +130,13 @@ public sealed class ScenarioDocumentEditor
     public static ScenarioDocumentEditor CreateNew(
         string? dbRef = "baltic_patrol",
         ulong seed = 42,
-        string? policyId = "baltic-patrol-catalog")
+        string? policyId = "baltic-patrol-catalog",
+        string title = "Untitled Scenario")
     {
         return new ScenarioDocumentEditor(
             new ScenarioMetadataDto
             {
+                Title = title,
                 DbRef = dbRef,
                 TlBranch = CatalogTlTier.Default,
                 Seed = seed,
@@ -183,6 +185,10 @@ public sealed class ScenarioDocumentEditor
     {
         Metadata = new ScenarioMetadataDto
         {
+            Title = Metadata.Title,
+            Description = Metadata.Description,
+            Author = Metadata.Author,
+            SchemaVersion = Metadata.SchemaVersion,
             DbRef = Metadata.DbRef,
             DbSnapshotId = Metadata.DbSnapshotId,
             TlBranch = Metadata.TlBranch,
@@ -366,8 +372,11 @@ public sealed class ScenarioDocumentEditor
             OperationsTimeline = dto.OperationsTimeline
                 .Select(e => new ScenarioOperationTimelineEntryDto
                 {
+                    Id = e.Id,
                     MissionId = e.MissionId,
                     ActivateAtTick = e.ActivateAtTick,
+                    SimTick = e.SimTick,
+                    Action = e.Action,
                 })
                 .ToArray(),
             Events = dto.Events?.Select(DeepCopyEvent).ToList(),
@@ -648,6 +657,9 @@ public sealed class ScenarioDocumentEditor
             PlatformId = existing.PlatformId,
             Lat = existing.Lat,
             Lon = existing.Lon,
+            PlatformDbId = existing.PlatformDbId,
+            BaseId = existing.BaseId,
+            GroupId = existing.GroupId,
             ParentUnitId = existing.ParentUnitId,
             RoeOverride = existing.RoeOverride,
             EmconOverride = existing.EmconOverride,
@@ -659,7 +671,9 @@ public sealed class ScenarioDocumentEditor
         _orbat = new ScenarioOrbatDto
         {
             Units = units,
+            Groups = _orbat?.Groups,
             Bases = _orbat?.Bases ?? Array.Empty<ScenarioOrbatBaseDto>(),
+            Cargo = _orbat?.Cargo,
         };
     }
 
@@ -706,8 +720,11 @@ public sealed class ScenarioDocumentEditor
             Id = unit.Id.Trim(),
             SideId = unit.SideId.Trim(),
             PlatformId = unit.PlatformId.Trim(),
+            PlatformDbId = unit.PlatformDbId,
             Lat = unit.Lat,
             Lon = unit.Lon,
+            BaseId = unit.BaseId,
+            GroupId = unit.GroupId,
             ParentUnitId = unit.ParentUnitId,
             RoeOverride = unit.RoeOverride,
             EmconOverride = unit.EmconOverride,
@@ -728,7 +745,9 @@ public sealed class ScenarioDocumentEditor
         _orbat = new ScenarioOrbatDto
         {
             Units = units,
+            Groups = _orbat?.Groups,
             Bases = _orbat?.Bases ?? Array.Empty<ScenarioOrbatBaseDto>(),
+            Cargo = _orbat?.Cargo,
         };
     }
 
@@ -759,8 +778,11 @@ public sealed class ScenarioDocumentEditor
             Id = u.Id,
             SideId = u.SideId,
             PlatformId = u.PlatformId,
+            PlatformDbId = u.PlatformDbId,
             Lat = lat,
             Lon = lon,
+            BaseId = u.BaseId,
+            GroupId = u.GroupId,
             ParentUnitId = u.ParentUnitId,
             RoeOverride = u.RoeOverride,
             EmconOverride = u.EmconOverride,
@@ -772,7 +794,9 @@ public sealed class ScenarioDocumentEditor
         _orbat = new ScenarioOrbatDto
         {
             Units = units,
+            Groups = _orbat?.Groups,
             Bases = _orbat?.Bases ?? Array.Empty<ScenarioOrbatBaseDto>(),
+            Cargo = _orbat?.Cargo,
         };
     }
 
@@ -804,8 +828,11 @@ public sealed class ScenarioDocumentEditor
             Id = newUnitId,
             SideId = src.SideId,
             PlatformId = src.PlatformId,
+            PlatformDbId = src.PlatformDbId,
             Lat = lat,
             Lon = lon,
+            BaseId = src.BaseId,
+            GroupId = src.GroupId,
             ParentUnitId = src.ParentUnitId,
             RoeOverride = src.RoeOverride,
             EmconOverride = src.EmconOverride,
@@ -817,7 +844,9 @@ public sealed class ScenarioDocumentEditor
         _orbat = new ScenarioOrbatDto
         {
             Units = units,
+            Groups = _orbat?.Groups,
             Bases = _orbat?.Bases ?? Array.Empty<ScenarioOrbatBaseDto>(),
+            Cargo = _orbat?.Cargo,
         };
     }
 
@@ -901,8 +930,11 @@ public sealed class ScenarioDocumentEditor
         var list = _operationsTimeline.ToList();
         var copy = new ScenarioOperationTimelineEntryDto
         {
+            Id = entry.Id,
             MissionId = entry.MissionId,
             ActivateAtTick = entry.ActivateAtTick,
+            SimTick = entry.SimTick,
+            Action = entry.Action,
         };
         var idx = list.FindIndex(e =>
             string.Equals(e.MissionId, copy.MissionId, StringComparison.OrdinalIgnoreCase));
@@ -1036,10 +1068,12 @@ public sealed class ScenarioDocumentEditor
         {
             Id = evt.Id,
             TriggerType = evt.TriggerType,
+            Priority = evt.Priority,
             Conditions = (evt.Conditions ?? Array.Empty<ScenarioEventConditionDto>())
                 .Select(c => new ScenarioEventConditionDto
                 {
                     Type = c.Type,
+                    TargetId = c.TargetId,
                     UnitId = c.UnitId,
                     ZoneId = c.ZoneId,
                     Result = c.Result,
@@ -1049,6 +1083,7 @@ public sealed class ScenarioDocumentEditor
                 .Select(a => new ScenarioEventActionDto
                 {
                     Type = a.Type,
+                    TargetId = a.TargetId,
                     UnitId = a.UnitId,
                     Lat = a.Lat,
                     Lon = a.Lon,
@@ -1209,6 +1244,9 @@ public sealed class ScenarioDocumentEditor
             Name = side.Name,
             DefaultRoe = side.DefaultRoe,
             DefaultEmcon = side.DefaultEmcon,
+            Briefing = side.Briefing,
+            DoctrineDefaultId = side.DoctrineDefaultId,
+            Score = side.Score,
             Postures = (side.Postures ?? Array.Empty<string>()).ToArray(),
         };
 

@@ -58,8 +58,8 @@ public sealed class ScenarioDocumentJsonLoaderUnknownPropertyTests
                 }
                 """);
             var document = ScenarioDocumentJsonLoader.LoadFromFile(path, strict: true);
-            Assert.Equal("first", document.Variables!["A"]);
-            Assert.Equal("second", document.Variables["a"]);
+            Assert.Equal("first", document.Variables!["A"].GetString());
+            Assert.Equal("second", document.Variables["a"].GetString());
         }
         finally
         {

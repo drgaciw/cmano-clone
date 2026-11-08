@@ -1,5 +1,8 @@
 namespace ProjectAegis.Data.Scenario.Authoring;
 
+using System.Text.Json;
+using System.Text.Json.Serialization;
+
 /// <summary>Non-authoritative editor UI state (GDD §3.2 / AC-9 derived-only).</summary>
 public sealed class ScenarioEditorStateDto
 {
@@ -10,13 +13,72 @@ public sealed class ScenarioEditorStateDto
     public double CameraZoom { get; init; } = 1.0;
 
     public bool LayersVisible { get; init; } = true;
+
+    /// <summary>Per-layer visibility from the canonical scenario schema. Null when unset.</summary>
+    [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
+    public IReadOnlyDictionary<string, bool>? LayerVisibility { get; init; }
+
+    /// <summary>
+    /// Free-form editorState object (camera, layers, unitZonePresence).
+    /// When this bag is non-empty, canonical JSON writes these keys and skips the structured camera fields.
+    /// </summary>
+    [JsonIgnore]
+    public Dictionary<string, JsonElement> Entries { get; init; } = new(StringComparer.Ordinal);
+
+    /// <summary>Returns whether the free-form bag contains <paramref name="key"/>.</summary>
+    public bool ContainsKey(string key) => Entries.ContainsKey(key);
+
+    /// <summary>Reads a free-form editorState value by key.</summary>
+    public bool TryGetValue(string key, out JsonElement value) => Entries.TryGetValue(key, out value);
+
+    /// <summary>Writes either the free-form bag or the structured camera fields.</summary>
+    public void WriteCanonical(Utf8JsonWriter writer)
+    {
+        writer.WriteStartObject();
+        if (Entries.Count > 0)
+        {
+            foreach (var key in Entries.Keys.OrderBy(k => k, StringComparer.Ordinal))
+            {
+                writer.WritePropertyName(key);
+                Entries[key].WriteTo(writer);
+            }
+        }
+        else
+        {
+            writer.WriteNumber("cameraLat", CameraLat);
+            writer.WriteNumber("cameraLon", CameraLon);
+            writer.WriteNumber("cameraZoom", CameraZoom);
+            writer.WriteBoolean("layersVisible", LayersVisible);
+            if (LayerVisibility is { Count: > 0 })
+            {
+                writer.WritePropertyName("layerVisibility");
+                writer.WriteStartObject();
+                foreach (var key in LayerVisibility.Keys.OrderBy(k => k, StringComparer.Ordinal))
+                {
+                    writer.WriteBoolean(key, LayerVisibility[key]);
+                }
+
+                writer.WriteEndObject();
+            }
+        }
+
+        writer.WriteEndObject();
+    }
+
+    /// <summary>Adapts the host's dictionary editorState onto the canonical DTO.</summary>
+    public static implicit operator ScenarioEditorStateDto(Dictionary<string, JsonElement> entries) =>
+        new()
+        {
+            Entries = entries,
+        };
 }
 
+/// <summary>Non-sim authoring sections of canonical scenario.json (GDD §3.2).</summary>
 public sealed class ScenarioFeaturesDto
 {
     public bool RealismMagazines { get; init; } = true;
 
-    public int MaxTimeCompression { get; init; } = 256;
+    public double MaxTimeCompression { get; init; } = 256;
 }
 
 public sealed class ScenarioSideDto
@@ -29,6 +91,18 @@ public sealed class ScenarioSideDto
 
     public string? DefaultEmcon { get; init; }
 
+    /// <summary>Side briefing text from the canonical scenario schema. Null when unset.</summary>
+    [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
+    public string? Briefing { get; init; }
+
+    /// <summary>Default doctrine id from the canonical scenario schema. Null when unset.</summary>
+    [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
+    public string? DoctrineDefaultId { get; init; }
+
+    /// <summary>Side score. Zero is omitted from JSON.</summary>
+    [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingDefault)]
+    public int Score { get; init; }
+
     public IReadOnlyList<string> Postures { get; init; } = Array.Empty<string>();
 }
 
@@ -36,7 +110,15 @@ public sealed class ScenarioOrbatDto
 {
     public IReadOnlyList<ScenarioOrbatUnitDto> Units { get; init; } = Array.Empty<ScenarioOrbatUnitDto>();
 
+    /// <summary>ORBAT groups. Null when the document does not carry a groups section.</summary>
+    [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
+    public IReadOnlyList<ScenarioOrbatGroupDto>? Groups { get; init; }
+
     public IReadOnlyList<ScenarioOrbatBaseDto> Bases { get; init; } = Array.Empty<ScenarioOrbatBaseDto>();
+
+    /// <summary>ORBAT cargo rows. Null when the document does not carry cargo.</summary>
+    [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
+    public IReadOnlyList<ScenarioOrbatCargoDto>? Cargo { get; init; }
 }
 
 public sealed class ScenarioOrbatUnitDto
@@ -47,9 +129,21 @@ public sealed class ScenarioOrbatUnitDto
 
     public string PlatformId { get; init; } = "";
 
+    /// <summary>Catalog platform id from the canonical scenario schema. Null when unset.</summary>
+    [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
+    public string? PlatformDbId { get; init; }
+
     public double Lat { get; init; }
 
     public double Lon { get; init; }
+
+    /// <summary>Home base id. Null when unset.</summary>
+    [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
+    public string? BaseId { get; init; }
+
+    /// <summary>ORBAT group id. Null when unset.</summary>
+    [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
+    public string? GroupId { get; init; }
 
     public string? ParentUnitId { get; init; }
 
@@ -82,6 +176,15 @@ public sealed class ScenarioOrbatUnitDto
     public string? Mode { get; init; }
 }
 
+public sealed class ScenarioOrbatGroupDto
+{
+    public string Id { get; init; } = "";
+
+    public string SideId { get; init; } = "";
+
+    public IReadOnlyList<string> UnitIds { get; init; } = Array.Empty<string>();
+}
+
 public sealed class ScenarioOrbatBaseDto
 {
     public string Id { get; init; } = "";
@@ -91,6 +194,15 @@ public sealed class ScenarioOrbatBaseDto
     public double Lat { get; init; }
 
     public double Lon { get; init; }
+}
+
+public sealed class ScenarioOrbatCargoDto
+{
+    public string Id { get; init; } = "";
+
+    public string UnitId { get; init; } = "";
+
+    public string CargoType { get; init; } = "";
 }
 
 public sealed class ScenarioReferencePointDto
@@ -106,7 +218,19 @@ public sealed class ScenarioReferencePointDto
 
 public sealed class ScenarioOperationTimelineEntryDto
 {
+    /// <summary>Optional entry id from the canonical scenario schema. Null when unset.</summary>
+    [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
+    public string? Id { get; init; }
+
     public string MissionId { get; init; } = "";
 
     public int ActivateAtTick { get; init; }
+
+    /// <summary>Sim tick alias from the canonical scenario schema. Zero is omitted.</summary>
+    [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingDefault)]
+    public int SimTick { get; init; }
+
+    /// <summary>Timeline action from the canonical scenario schema. Null when unset.</summary>
+    [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
+    public string? Action { get; init; }
 }
