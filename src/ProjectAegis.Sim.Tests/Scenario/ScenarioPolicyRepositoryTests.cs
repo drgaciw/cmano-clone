@@ -1,5 +1,3 @@
-using System;
-using System.IO;
 using ProjectAegis.Sim.Policy;
 using ProjectAegis.Sim.Scenario;
 using Xunit;
