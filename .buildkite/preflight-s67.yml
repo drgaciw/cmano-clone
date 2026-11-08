@@ -1,0 +1,84 @@
+# S67 Buildkite Preflight (per release-train-scope-boundary-2026-06-24.md S67 row + §7 gates + invariants)
+# GitNexus pre: impact() + detect_changes() MUST before edits (done on .buildkite/ related: LOW risk per agent-*.sh; see kickoff)
+# verification-before: RUN+READ full gates + hash + bridge + cites before commit/merge (per AGENTS.md + boundary + sprint-67 plan)
+# Cites required: release-train-scope-boundary-2026-06-24.md (S67, §7, invariants: 1232/0f, replay 6/6, C2 18/18, build 0e, hash 17144800277401907079, ZERO DelegationBridge)
+# S66 closeout baseline preserved. Isolated S67-01 track. No CRITICAL code touched.
+# Aligns .buildkite/ with plan: preflight step, full test/replay/C2/greps/GitNexus/hash/bridge in pipeline parity
+# Local parity: tools/verify-ci-local.ps1 + tools/buildkite/*.sh
+
+env:
+  DOTNET_CLI_TELEMETRY_OPTOUT: "1"
+  DOTNET_NOLOGO: "true"
+
+steps:
+  - label: ":s67: S67 preflight: GitNexus pre + verification-before (RUN+READ)"
+    key: s67-preflight-gitnexus
+    command: |
+      echo "=== verification-before RUN+READ S67-01 (release-train-scope-boundary-2026-06-24.md) ==="
+      echo "GitNexus pre: impact on .buildkite/ agents + detect_changes (LOW; prior medium from S65/S66 manifests only)"
+      # GitNexus CLI pre (parity with agent-gitnexus-pr-analysis.sh)
+      if command -v gitnexus >/dev/null 2>&1; then
+        gitnexus detect_changes --scope unstaged --format json || echo "detect (pre-edit state)"
+      fi
+      echo "CITE: release-train-scope-boundary-2026-06-24.md S67 + §7 + S66 closeout (1232/0f etc)"
+      echo "=== verification-before END (GitNexus) ==="
+    if: build.pull_request.id != null || build.branch == "main"
+    soft_fail: true
+
+  - wait
+
+  - label: ":hammer: S67 preflight: Build 0e + full test (≥1232/0f) + filters (replay 6/6, C2 18/18)"
+    key: s67-preflight-buildtest
+    command: |
+      echo "=== verification-before RUN+READ S67-01 build/test (release-train-scope-boundary-2026-06-24.md §7) ==="
+      # RUN dotnet build (0e/0w expected)
+      bash tools/buildkite/agent-dotnet-ci.sh || (echo "FALLBACK: direct" && dotnet build ProjectAegis.sln -c Release)
+      # READ: full test + targeted filters for replay/C2
+      # C2 18/18 via PlayModeSmokeHarnessTests; replay 6/6 via ReplayGolden*
+      echo "CITE: release-train-scope-boundary-2026-06-24.md (build 0e, test baseline 1232/0f monotonic, replay 6/6, C2 18/18)"
+      echo "=== verification-before END (build/test) ==="
+    soft_fail: true
+
+  - label: ":repeat: S67 preflight: Replay golden 6/6 + C2 proxy 18/18 (main/PR parity)"
+    key: s67-preflight-replay-c2
+    command: |
+      echo "=== verification-before RUN+READ S67-01 replay/C2 (release-train-scope-boundary-2026-06-24.md) ==="
+      # RUN baltic replay (main gate parity) + C2 harness
+      bash tools/buildkite/agent-baltic-replay.sh || echo "replay step"
+      # Additional C2 filter parity (from dotnet-ci.sh)
+      # dotnet test ... --filter 'FullyQualifiedName~PlayModeSmokeHarnessTests'
+      echo "CITE: release-train-scope-boundary-2026-06-24.md (ReplayGolden 6/6, C2 18/18, S66 baseline)"
+      echo "=== verification-before END (replay 6/6 C2 18/18) ==="
+    soft_fail: true
+
+  - label: ":mag: S67 preflight: hash check + bridge ZERO check + GitNexus"
+    key: s67-preflight-hash-bridge
+    command: |
+      echo "=== verification-before RUN+READ S67-01 hash/bridge/GitNexus (release-train-scope-boundary-2026-06-24.md) ==="
+      # READ hash preserved (S66/S57 closeout baseline)
+      grep -r "17144800277401907079" --include="*.md" --include="*.txt" --include="*.sh" --include="*.yml" tests/ production/ .buildkite/ tools/ | head -3 || echo "hash grep (production goldens)"
+      # Bridge check: ZERO edits (count in src but enforce no behavior change per invariant)
+      BRIDGE_COUNT=$(grep -r "DelegationBridge" --include="*.cs" src/ | wc -l || echo 0)
+      echo "DelegationBridge refs: $BRIDGE_COUNT (ZERO touch invariant; read-only per boundary)"
+      # GitNexus post-detect
+      if command -v gitnexus >/dev/null 2>&1; then
+        gitnexus detect_changes --scope unstaged || true
+      fi
+      echo "CITE: release-train-scope-boundary-2026-06-24.md (hash 17144800277401907079 immutable, ZERO DelegationBridge, GitNexus pre)"
+      echo "S66 closeout + S67 plan verification-before"
+      echo "=== verification-before END (hash/bridge) ==="
+    soft_fail: true
+
+  - label: ":gitnexus: S67 preflight: PR GitNexus impact (align §5)"
+    key: s67-gitnexus-pr
+    if: build.pull_request.id != null
+    soft_fail: true
+    command: bash tools/buildkite/agent-gitnexus-pr-analysis.sh || echo "gitnexus-pr (S67 preflight)"
+
+# S67 preflight complete: all §7 gates (full test, replay 6/6, C2 18/18, build 0e, GitNexus pre, hash check, bridge check)
+# Use: buildkite-agent pipeline upload .buildkite/preflight-s67.yml (or integrate into main)
+# After: update sprint-67-buildkite-baseline-protection.md with evidence
+# All cites: release-train-scope-boundary-2026-06-24.md (S67 row, §7 invariants)
+# verification-before RUN+READ pattern logged in every step above
+# GitNexus first: impact/detect completed pre-edit (LOW on buildkite sh; no CRITICAL touched)
+

@@ -1,0 +1,225 @@
+{
+  "friendlyRoe": "WeaponsTight",
+  "opposingRoe": "WeaponsFree",
+  "engage": {
+    "rangeMeters": 55000,
+    "envelopeMinMeters": 4000,
+    "envelopeMaxMeters": 140000,
+    "defaultMagazineRounds": 5,
+    "hasFireControlTrack": true,
+    "combatDomainsEnabled": true,
+    "pkBase": 0.8,
+    "pkIntercept": 0.0,
+    "pkKill": 0.22,
+    "salvoSize": 1
+  },
+  "detection": [
+    {
+      "observerId": "k-11-stockholm-spica-iii-1986",
+      "sensorId": "radar-1",
+      "targetId": "su-24m-fencer-d-1992",
+      "contactId": "c-forge-t4c1-1",
+      "basePd": 0.9,
+      "envMask": 0.9,
+      "jamStrength": 0
+    },
+    {
+      "observerId": "f-230-norfolk-type-23-duke",
+      "sensorId": "radar-1",
+      "targetId": "mig-31-foxhound",
+      "contactId": "c-forge-t4c1-2",
+      "basePd": 1.0,
+      "envMask": 1.0,
+      "jamStrength": 0
+    },
+    {
+      "observerId": "a-19-gotland-2002",
+      "sensorId": "sonar-1",
+      "targetId": "pla-971-akula-i-improved-shchuka-b",
+      "contactId": "c-forge-t4c1-3",
+      "basePd": 0.55,
+      "envMask": 0.8,
+      "jamStrength": 0
+    },
+    {
+      "observerId": "s-181-u-31-type-212a",
+      "sensorId": "sonar-1",
+      "targetId": "pl-677-lada-b-585-sankt-peterburg-2011",
+      "contactId": "c-forge-t4c1-4",
+      "basePd": 0.45,
+      "envMask": 0.75,
+      "jamStrength": 0
+    },
+    {
+      "observerId": "skr-admiral-grigorovich-pr-1135-6m",
+      "sensorId": "radar-1",
+      "targetId": "f-230-norfolk-type-23-duke",
+      "contactId": "c-forge-t4c1-5",
+      "basePd": 1.0,
+      "envMask": 1.0,
+      "jamStrength": 0
+    },
+    {
+      "observerId": "pla-885-severodvinsk-yasen",
+      "sensorId": "sonar-1",
+      "targetId": "s-185-u-35-type-212a",
+      "contactId": "c-forge-t4c1-6",
+      "basePd": 0.5,
+      "envMask": 0.8,
+      "jamStrength": 0
+    },
+    {
+      "observerId": "mig-31-foxhound",
+      "sensorId": "radar-1",
+      "targetId": "eurofighter-typhoon",
+      "contactId": "c-forge-t4c1-7",
+      "basePd": 1.0,
+      "envMask": 1.0,
+      "jamStrength": 0
+    },
+    {
+      "observerId": "nh90-tth-mrh90-taipan-2007",
+      "sensorId": "radar-1",
+      "targetId": "skr-admiral-grigorovich-pr-1135-6m",
+      "contactId": "c-forge-t4c1-8",
+      "basePd": 0.85,
+      "envMask": 0.85,
+      "jamStrength": 0
+    }
+  ],
+  "gauntlet": {
+    "intent": "platform-swap-underused: replaces this tier's recurring surface/air/subsurface defaults with a 7v7 ASW/AAW multi-mission ORBAT built around five underused submarines from the tier-4 roster's underusedPlatformHint pool (a-19-gotland-2002, s-181-u-31-type-212a, s-185-u-35-type-212a on BLUE; pla-971-akula-i-improved-shchuka-b, pl-677-lada-b-585-sankt-peterburg-2011 on RED) plus a sixth underused subsurface swap (pla-885-severodvinsk-yasen, RED) and four underused fighter/attack aircraft (eurofighter-typhoon on BLUE; mig-31-foxhound, su-30sm-flanker-g-2019, su-24m-fencer-d-1992 on RED). BLUE runs a restrained (WeaponsTight) subsurface-heavy screen -- two surface pickets (k-11-stockholm-spica-iii-1986 corvette, f-230-norfolk-type-23-duke FFG), three quiet SSKs, one Eurofighter CAP shooter, and one NH90 utility/cross-cue helo (also underused) -- against a RED submarine-and-air threat package operating WeaponsFree: one surface flagship (skr-admiral-grigorovich-pr-1135-6m) plus three structurally different subs (SSN/SSK/SSGN) and three distinct fighter/attack types. Domain mix (air, subsurface, surface) stays valid on both sides so the tier-4 ladder can exercise ASW (BLUE SSKs vs RED's infiltrating SSN/SSK/SSGN trio) and AAW (Eurofighter vs MiG-31/Su-30SM/Su-24M) concurrently within one ORBAT, matching this tier's ASW/AAW multi-mission ladder theme without any scripted mission timing or triggers -- this candidate isolates the platform-swap-underused mutation dimension only.",
+    "oracle": "BLUE (WeaponsTight) is expected to land zero or near-zero kills in every domain, since RoeLevel.WeaponsTight denies fire regardless of domain or contact type (PolicyEvaluator / EngagementAbortReason.WeaponsTight, not RoeHoldFire), while accumulating a real minDenials floor from detected-but-refused contacts across both the ASW picture (BLUE SSKs vs RED's SSN/SSK/SSGN trio) and the AAW picture (radar tracks on mig-31-foxhound, su-30sm-flanker-g-2019, su-24m-fencer-d-1992) over the tier-4 24-tick budget. RED (WeaponsFree) is unrestrained and, given its numerically stronger air/subsurface mix, may convert some detections into real kills against BLUE's screen and CAP. This probes whether a subsurface-and-fighter-heavy underused-platform swap changes the ASW/AAW multi-mission scoring/denial envelope relative to the tier's recurring-platform ORBATs, and whether the coverage-map gains a genuinely new cell (asw|air,subsurface,surface|WeaponsTight/WeaponsFree|unrestricted|none) distinct from gauntlet-t4-multi-mission's existing WeaponsFree/WeaponsTight cell and from this run's mission-concurrent-asw-aaw sibling candidate (which uses the reverse ROE pair plus scripted mission events).",
+    "catalogRefs": [
+      "k-11-stockholm-spica-iii-1986",
+      "f-230-norfolk-type-23-duke",
+      "a-19-gotland-2002",
+      "s-181-u-31-type-212a",
+      "s-185-u-35-type-212a",
+      "eurofighter-typhoon",
+      "nh90-tth-mrh90-taipan-2007",
+      "skr-admiral-grigorovich-pr-1135-6m",
+      "pla-971-akula-i-improved-shchuka-b",
+      "pl-677-lada-b-585-sankt-peterburg-2011",
+      "pla-885-severodvinsk-yasen",
+      "mig-31-foxhound",
+      "su-30sm-flanker-g-2019",
+      "su-24m-fencer-d-1992"
+    ],
+    "runId": "gauntlet-20260727-1455",
+    "tier": 4,
+    "expect": {
+      "side": "BLUE",
+      "requireNonEmptyFingerprint": true,
+      "minScore": -860.0,
+      "maxScore": -820.0,
+      "maxMissilesFired": 7,
+      "maxDenials": 173,
+      "minKills": 0,
+      "minDenials": 163
+    },
+    "units": [
+      {
+        "unitId": "k-11-stockholm-spica-iii-1986",
+        "platformId": "k-11-stockholm-spica-iii-1986",
+        "domain": "surface",
+        "side": "blue"
+      },
+      {
+        "unitId": "f-230-norfolk-type-23-duke",
+        "platformId": "f-230-norfolk-type-23-duke",
+        "domain": "surface",
+        "side": "blue"
+      },
+      {
+        "unitId": "a-19-gotland-2002",
+        "platformId": "a-19-gotland-2002",
+        "domain": "subsurface",
+        "side": "blue"
+      },
+      {
+        "unitId": "s-181-u-31-type-212a",
+        "platformId": "s-181-u-31-type-212a",
+        "domain": "subsurface",
+        "side": "blue"
+      },
+      {
+        "unitId": "s-185-u-35-type-212a",
+        "platformId": "s-185-u-35-type-212a",
+        "domain": "subsurface",
+        "side": "blue"
+      },
+      {
+        "unitId": "eurofighter-typhoon",
+        "platformId": "eurofighter-typhoon",
+        "domain": "air",
+        "side": "blue"
+      },
+      {
+        "unitId": "nh90-tth-mrh90-taipan-2007",
+        "platformId": "nh90-tth-mrh90-taipan-2007",
+        "domain": "air",
+        "side": "blue"
+      },
+      {
+        "unitId": "skr-admiral-grigorovich-pr-1135-6m",
+        "platformId": "skr-admiral-grigorovich-pr-1135-6m",
+        "domain": "surface",
+        "side": "red"
+      },
+      {
+        "unitId": "pla-971-akula-i-improved-shchuka-b",
+        "platformId": "pla-971-akula-i-improved-shchuka-b",
+        "domain": "subsurface",
+        "side": "red"
+      },
+      {
+        "unitId": "pl-677-lada-b-585-sankt-peterburg-2011",
+        "platformId": "pl-677-lada-b-585-sankt-peterburg-2011",
+        "domain": "subsurface",
+        "side": "red"
+      },
+      {
+        "unitId": "pla-885-severodvinsk-yasen",
+        "platformId": "pla-885-severodvinsk-yasen",
+        "domain": "subsurface",
+        "side": "red"
+      },
+      {
+        "unitId": "mig-31-foxhound",
+        "platformId": "mig-31-foxhound",
+        "domain": "air",
+        "side": "red"
+      },
+      {
+        "unitId": "su-30sm-flanker-g-2019",
+        "platformId": "su-30sm-flanker-g-2019",
+        "domain": "air",
+        "side": "red"
+      },
+      {
+        "unitId": "su-24m-fencer-d-1992",
+        "platformId": "su-24m-fencer-d-1992",
+        "domain": "air",
+        "side": "red"
+      }
+    ],
+    "forge": {
+      "recipes": [
+        "platform-swap-underused"
+      ],
+      "candidateId": "gauntlet-forge-20260727-1455-t4-c1",
+      "noveltyTags": [
+        "rare-platform",
+        "orbat-mix",
+        "asw-subsurface-heavy-blue",
+        "aaw-air-heavy-red",
+        "underused-submarine-swap",
+        "underused-fighter-swap"
+      ],
+      "note": "expect provisional pending regen"
+    },
+    "expectProvenance": "regenerated 2026-07-28 from real Demo batch CSV at T4 tick budget 24, seeds 42,7,123 (production/qa/gauntlet/gauntlet-20260727-1455/tier-4/results.csv). Observed: score=[-840.0, -840.0, -840.0] kills=[0, 0, 0] missilesFired=[5, 5, 5] denials=[168, 168, 168]. Bounds padded ~20% beyond observed range per tools/qa-gauntlet/README-expect-regen.md (derived, not invented)."
+  },
+  "id": "gauntlet-forge-20260727-1455-t4-c1"
+}

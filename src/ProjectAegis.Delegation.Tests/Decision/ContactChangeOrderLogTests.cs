@@ -37,6 +37,25 @@ public sealed class ContactChangeOrderLogTests
         Assert.That(a, Is.EqualTo(b));
     }
 
+    [Test]
+    public void Datalink_shared_contact_row_appears_in_fingerprint_with_stable_fields()
+    {
+        var log = new DecisionLog();
+        log.AppendContactChange(new ContactChangeRecord(
+            0,
+            1.0,
+            1,
+            "u2",
+            "dl-hostile-1",
+            "hostile-1",
+            "Unknown",
+            "Detected"));
+
+        var fingerprint = log.ComputeFingerprint();
+        Assert.That(fingerprint, Does.Contain("ContactChange|"));
+        Assert.That(fingerprint, Does.Contain("|u2|dl-hostile-1|hostile-1|Unknown|Detected"));
+    }
+
     private static string FingerprintForContactAppend()
     {
         var log = new DecisionLog();

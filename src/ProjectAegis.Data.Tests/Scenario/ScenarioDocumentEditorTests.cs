@@ -51,6 +51,50 @@ public sealed class ScenarioDocumentEditorTests
     }
 
     [Fact]
+    public void Rollback_known_snapshot_restores_captured_document()
+    {
+        var editor = ScenarioDocumentEditor.CreateNew();
+        editor.AddPatrolMission(
+            "patrol-before",
+            ["u1"],
+            [new ScenarioWaypointDto { Lat = 57.0, Lon = 20.0 }]);
+        editor.CommitMutation();
+        var expectedHash = editor.ComputeFileHash();
+        var (snapshotId, _) = editor.CreateSnapshotForRollback("test");
+
+        editor.AddPatrolMission(
+            "patrol-after",
+            ["u2"],
+            [new ScenarioWaypointDto { Lat = 58.0, Lon = 21.0 }]);
+        editor.CommitMutation();
+
+        var result = editor.RollbackToSnapshot(snapshotId);
+
+        Assert.Contains($"restored {snapshotId}", result, StringComparison.Ordinal);
+        Assert.Equal(expectedHash, editor.ComputeFileHash());
+        Assert.Single(editor.Missions);
+        Assert.Equal("patrol-before", editor.Missions[0].Id);
+    }
+
+    [Fact]
+    public void Rollback_unknown_snapshot_reports_failure_without_mutating_document()
+    {
+        var editor = ScenarioDocumentEditor.CreateNew();
+        editor.AddPatrolMission(
+            "patrol-1",
+            ["u1"],
+            [new ScenarioWaypointDto { Lat = 57.0, Lon = 20.0 }]);
+        editor.CommitMutation();
+        var beforeHash = editor.ComputeFileHash();
+
+        var result = editor.RollbackToSnapshot("missing-snapshot");
+
+        Assert.Contains("not found", result, StringComparison.OrdinalIgnoreCase);
+        Assert.Equal(beforeHash, editor.ComputeFileHash());
+        Assert.Single(editor.Missions);
+    }
+
+    [Fact]
     public void Update_and_delete_mission_round_trip()
     {
         var path = Path.Combine(Path.GetTempPath(), $"aegis-scenario-{Guid.NewGuid():N}.json");

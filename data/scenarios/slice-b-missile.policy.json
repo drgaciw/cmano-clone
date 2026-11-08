@@ -1,0 +1,17 @@
+{
+  "id": "slice-b-missile",
+  "friendlyRoe": "WeaponsFree",
+  "opposingRoe": "WeaponsTight",
+  "engage": {
+    "weaponFamilyId": "Missile",
+    "rangeMeters": 45000,
+    "envelopeMinMeters": 5000,
+    "envelopeMaxMeters": 120000,
+    "defaultMagazineRounds": 4,
+    "hasFireControlTrack": true,
+    "pkBase": 0.85,
+    "pkIntercept": 0.0,
+    "pkKill": 1.0,
+    "salvoSize": 1
+  }
+}

@@ -1,0 +1,39 @@
+  Determining projects to restore...
+  Restored /tmp/cmano-clone/.worktrees/saboteur-05-contact-lifecycle-skip/src/ProjectAegis.Delegation.UnityAdapter.Tests/ProjectAegis.Delegation.UnityAdapter.Tests.csproj (in 341 ms).
+  Restored /tmp/cmano-clone/.worktrees/saboteur-05-contact-lifecycle-skip/src/ProjectAegis.Delegation.Tests/ProjectAegis.Delegation.Tests.csproj (in 341 ms).
+  Restored /tmp/cmano-clone/.worktrees/saboteur-05-contact-lifecycle-skip/src/ProjectAegis.Delegation.Demo/ProjectAegis.Delegation.Demo.csproj (in 2 ms).
+  Restored /tmp/cmano-clone/.worktrees/saboteur-05-contact-lifecycle-skip/src/ProjectAegis.Data/ProjectAegis.Data.csproj (in 14 ms).
+  Restored /tmp/cmano-clone/.worktrees/saboteur-05-contact-lifecycle-skip/src/ProjectAegis.Data.Excel/ProjectAegis.Data.Excel.csproj (in 2 ms).
+  Restored /tmp/cmano-clone/.worktrees/saboteur-05-contact-lifecycle-skip/src/ProjectAegis.Data.Tests/ProjectAegis.Data.Tests.csproj (in 17 ms).
+  Restored /tmp/cmano-clone/.worktrees/saboteur-05-contact-lifecycle-skip/src/ProjectAegis.Data.Excel.Tests/ProjectAegis.Data.Excel.Tests.csproj (in 3 ms).
+  Restored /tmp/cmano-clone/.worktrees/saboteur-05-contact-lifecycle-skip/src/ProjectAegis.Sim/ProjectAegis.Sim.csproj (in 3 ms).
+  Restored /tmp/cmano-clone/.worktrees/saboteur-05-contact-lifecycle-skip/src/ProjectAegis.Sim.Tests/ProjectAegis.Sim.Tests.csproj (in 3 ms).
+  Restored /tmp/cmano-clone/.worktrees/saboteur-05-contact-lifecycle-skip/src/ProjectAegis.Sim.Benchmark/ProjectAegis.Sim.Benchmark.csproj (in 2 ms).
+  Restored /tmp/cmano-clone/.worktrees/saboteur-05-contact-lifecycle-skip/src/ProjectAegis.MissionEditor.Cli/ProjectAegis.MissionEditor.Cli.csproj (in 2 ms).
+  Restored /tmp/cmano-clone/.worktrees/saboteur-05-contact-lifecycle-skip/src/ProjectAegis.MissionEditor.Cli.Tests/ProjectAegis.MissionEditor.Cli.Tests.csproj (in 3 ms).
+  Restored /tmp/cmano-clone/.worktrees/saboteur-05-contact-lifecycle-skip/src/ProjectAegis.Delegation/ProjectAegis.Delegation.csproj (in 4 ms).
+  Restored /tmp/cmano-clone/.worktrees/saboteur-05-contact-lifecycle-skip/src/ProjectAegis.Delegation.UnityAdapter/ProjectAegis.Delegation.UnityAdapter.csproj (in 3 ms).
+  ProjectAegis.Data -> /tmp/cmano-clone/.worktrees/saboteur-05-contact-lifecycle-skip/src/ProjectAegis.Data/bin/Debug/netstandard2.1/ProjectAegis.Data.dll
+  ProjectAegis.Data -> /tmp/cmano-clone/.worktrees/saboteur-05-contact-lifecycle-skip/src/ProjectAegis.Data/bin/Debug/net8.0/ProjectAegis.Data.dll
+  ProjectAegis.Sim -> /tmp/cmano-clone/.worktrees/saboteur-05-contact-lifecycle-skip/src/ProjectAegis.Sim/bin/Debug/net8.0/ProjectAegis.Sim.dll
+  ProjectAegis.Data.Excel -> /tmp/cmano-clone/.worktrees/saboteur-05-contact-lifecycle-skip/src/ProjectAegis.Data.Excel/bin/Debug/net8.0/ProjectAegis.Data.Excel.dll
+  ProjectAegis.Delegation -> /tmp/cmano-clone/.worktrees/saboteur-05-contact-lifecycle-skip/src/ProjectAegis.Delegation/bin/Debug/net8.0/ProjectAegis.Delegation.dll
+  ProjectAegis.Sim.Benchmark -> /tmp/cmano-clone/.worktrees/saboteur-05-contact-lifecycle-skip/src/ProjectAegis.Sim.Benchmark/bin/Debug/net8.0/ProjectAegis.Sim.Benchmark.dll
+  ProjectAegis.Sim -> /tmp/cmano-clone/.worktrees/saboteur-05-contact-lifecycle-skip/src/ProjectAegis.Sim/bin/Debug/netstandard2.1/ProjectAegis.Sim.dll
+  ProjectAegis.Data.Excel.Tests -> /tmp/cmano-clone/.worktrees/saboteur-05-contact-lifecycle-skip/src/ProjectAegis.Data.Excel.Tests/bin/Debug/net8.0/ProjectAegis.Data.Excel.Tests.dll
+  ProjectAegis.Data.Tests -> /tmp/cmano-clone/.worktrees/saboteur-05-contact-lifecycle-skip/src/ProjectAegis.Data.Tests/bin/Debug/net8.0/ProjectAegis.Data.Tests.dll
+  ProjectAegis.Delegation.UnityAdapter -> /tmp/cmano-clone/.worktrees/saboteur-05-contact-lifecycle-skip/src/ProjectAegis.Delegation.UnityAdapter/bin/Debug/net8.0/ProjectAegis.Delegation.UnityAdapter.dll
+  ProjectAegis.Delegation -> /tmp/cmano-clone/.worktrees/saboteur-05-contact-lifecycle-skip/src/ProjectAegis.Delegation/bin/Debug/netstandard2.1/ProjectAegis.Delegation.dll
+  ProjectAegis.Delegation.Tests -> /tmp/cmano-clone/.worktrees/saboteur-05-contact-lifecycle-skip/src/ProjectAegis.Delegation.Tests/bin/Debug/net8.0/ProjectAegis.Delegation.Tests.dll
+  ProjectAegis.Delegation.Demo -> /tmp/cmano-clone/.worktrees/saboteur-05-contact-lifecycle-skip/src/ProjectAegis.Delegation.Demo/bin/Debug/net8.0/ProjectAegis.Delegation.Demo.dll
+  ProjectAegis.Sim.Tests -> /tmp/cmano-clone/.worktrees/saboteur-05-contact-lifecycle-skip/src/ProjectAegis.Sim.Tests/bin/Debug/net8.0/ProjectAegis.Sim.Tests.dll
+  ProjectAegis.MissionEditor.Cli -> /tmp/cmano-clone/.worktrees/saboteur-05-contact-lifecycle-skip/src/ProjectAegis.MissionEditor.Cli/bin/Debug/net8.0/ProjectAegis.MissionEditor.Cli.dll
+  ProjectAegis.Delegation.UnityAdapter -> /tmp/cmano-clone/.worktrees/saboteur-05-contact-lifecycle-skip/src/ProjectAegis.Delegation.UnityAdapter/bin/Debug/netstandard2.1/ProjectAegis.Delegation.UnityAdapter.dll
+  ProjectAegis.MissionEditor.Cli.Tests -> /tmp/cmano-clone/.worktrees/saboteur-05-contact-lifecycle-skip/src/ProjectAegis.MissionEditor.Cli.Tests/bin/Debug/net8.0/ProjectAegis.MissionEditor.Cli.Tests.dll
+  ProjectAegis.Delegation.UnityAdapter.Tests -> /tmp/cmano-clone/.worktrees/saboteur-05-contact-lifecycle-skip/src/ProjectAegis.Delegation.UnityAdapter.Tests/bin/Debug/net8.0/ProjectAegis.Delegation.UnityAdapter.Tests.dll
+
+Build succeeded.
+    0 Warning(s)
+    0 Error(s)
+
+Time Elapsed 00:00:16.21

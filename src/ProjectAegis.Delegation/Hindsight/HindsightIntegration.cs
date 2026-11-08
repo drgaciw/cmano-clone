@@ -39,8 +39,9 @@ public sealed class HindsightIntegration
         return new HindsightIntegration(hook, finalizer, client);
     }
 
+    /// <summary>ADR-019: takes the read-only order-log view — AAR must not mutate the log.</summary>
     public void OnScenarioFinalized(
-        Decision.DecisionLog log,
+        Decision.IReadOnlyOrderLog log,
         IReadOnlyList<Trust.TrustSignal> trustSignals,
         bool missionSucceeded,
         double objectivesMetRatio) =>

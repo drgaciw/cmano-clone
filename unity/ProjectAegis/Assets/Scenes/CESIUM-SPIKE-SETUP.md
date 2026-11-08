@@ -13,3 +13,11 @@
 ## Rollback
 
 Delete this scene and remove `com.cesium.unity` from `Packages/manifest.json`. Headless CI unchanged.
+
+## Wave 4 ion visual gate
+
+1. Set token via env `CESIUM_ION_TOKEN` / `ProjectAegis_CesiumIonToken` or Inspector on `CesiumGlobeHost` — **NEVER commit** the token.
+2. Build scene: **Project Aegis → Build CesiumSpike Scene** (adds `GlobeTileStreamingHost`; does not write token).
+3. Play Mode: status `GLOBE TILES · ACTIVE` with token+package, else honest `INACTIVE · NO_ION_TOKEN` / `PACKAGE_MISSING`.
+4. Full runbook + screenshot path: `docs/engineering/cesium-ion-visual-gate-2026-08-01.md`.
+

@@ -1,0 +1,8 @@
+<ui:UXML xmlns:ui="UnityEngine.UIElements" editor-extension-mode="False">
+    <ui:VisualElement name="magazine-loadout-root" class="magazine-loadout-panel">
+        <ui:Label name="magazine-loadout-header" text="MAGAZINE  ·  OK 0  LOW 0  EMPTY 0  ·  0 mounts" class="magazine-loadout-title" />
+        <ui:Label name="magazine-loadout-empty" text="" class="magazine-loadout-empty" />
+        <ui:ListView name="magazine-loadout-list" class="magazine-loadout-list" selection-type="None" />
+        <ui:Label name="magazine-loadout-feasibility" text="" class="magazine-loadout-feasibility" />
+    </ui:VisualElement>
+</ui:UXML>

@@ -1,0 +1,25 @@
+{
+  "id": "baltic-patrol-balance-drift",
+  "friendlyRoe": "WeaponsFree",
+  "opposingRoe": "WeaponsFree",
+  "engage": {
+    "rangeMeters": 45000,
+    "envelopeMinMeters": 5000,
+    "envelopeMaxMeters": 120000,
+    "defaultMagazineRounds": 4,
+    "hasFireControlTrack": true
+  },
+  "telemetry": {
+    "enableBalanceDrift": true,
+    "minimumSampleRuns": 100,
+    "winRateDriftThreshold": 0.08,
+    "defaultExpectedWinRate": 0.5,
+    "balanceTrials": [
+      {
+        "entityId": "u1",
+        "entityKind": "Platform",
+        "expectedWinRate": 0.5
+      }
+    ]
+  }
+}

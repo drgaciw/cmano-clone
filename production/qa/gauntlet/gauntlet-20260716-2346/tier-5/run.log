@@ -1,0 +1,34 @@
+=== TIER 5 ticks=40 ===
+Wrote 12 rows to production/qa/gauntlet/gauntlet-20260716-2346/tier-5/results.csv
+BATCH_EXIT=0
+{
+  "ok": true,
+  "scenarios": [
+    {
+      "scenario": "gauntlet-t5-cascade",
+      "passed": true,
+      "failures": [],
+      "rows": 3
+    },
+    {
+      "scenario": "gauntlet-t5-dynamic-obj",
+      "passed": true,
+      "failures": [],
+      "rows": 3
+    },
+    {
+      "scenario": "gauntlet-t5-roe-change",
+      "passed": true,
+      "failures": [],
+      "rows": 3
+    },
+    {
+      "scenario": "gauntlet-t5-theater",
+      "passed": true,
+      "failures": [],
+      "rows": 3
+    }
+  ],
+  "allPassed": true
+}
+ORACLE_EXIT=0

@@ -1,0 +1,40 @@
+{
+  "metadata": {
+    "title": "Tier 1 Patrol 01 — Baltic Frigate Sweep",
+    "description": "Single patrol, 1 surface unit per side, weapons free both sides, unrestricted EMCON, survive 6 ticks. Baltic Sea grid, northern approach sector.",
+    "author": "qa-gauntlet",
+    "schemaVersion": 1,
+    "dbRef": "baltic_patrol",
+    "seed": 42,
+    "policyId": "qa-tier1-patrol-01",
+    "tlBranch": "TL-0",
+    "maxTechnologyLevel": 0,
+    "sideRoe": "WeaponsFree"
+  },
+  "missions": [
+    {
+      "id": "blue-patrol-01",
+      "type": "Patrol",
+      "assignedUnitIds": ["u1"],
+      "targetIds": [],
+      "patrolZone": [
+        { "lat": 57.0, "lon": 20.0 },
+        { "lat": 57.3, "lon": 20.5 },
+        { "lat": 57.1, "lon": 21.0 }
+      ],
+      "roeOverride": "WeaponsFree"
+    },
+    {
+      "id": "red-patrol-01",
+      "type": "Patrol",
+      "assignedUnitIds": ["hostile-1"],
+      "targetIds": [],
+      "patrolZone": [
+        { "lat": 58.5, "lon": 21.0 },
+        { "lat": 58.2, "lon": 21.5 },
+        { "lat": 58.7, "lon": 22.0 }
+      ],
+      "roeOverride": "WeaponsFree"
+    }
+  ]
+}

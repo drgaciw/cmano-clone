@@ -1,0 +1,112 @@
+{
+  "id": "gauntlet-joint-orbat-smoke",
+  "friendlyRoe": "WeaponsFree",
+  "opposingRoe": "WeaponsTight",
+  "engage": {
+    "rangeMeters": 45000,
+    "envelopeMinMeters": 5000,
+    "envelopeMaxMeters": 120000,
+    "defaultMagazineRounds": 4,
+    "hasFireControlTrack": true,
+    "combatDomainsEnabled": true,
+    "pkBase": 0.85,
+    "pkIntercept": 0.0,
+    "pkKill": 0.2,
+    "salvoSize": 1
+  },
+  "detection": [
+    {
+      "observerId": "k-31-visby-2009",
+      "sensorId": "radar-1",
+      "targetId": "em-sovremenny-i-pr-956-sarych",
+      "contactId": "c-surface",
+      "basePd": 1.0,
+      "envMask": 1.0,
+      "jamStrength": 0
+    },
+    {
+      "observerId": "jas-39c-gripen-2005",
+      "sensorId": "radar-1",
+      "targetId": "mpk-steregushchiy-pr-20380-2018",
+      "contactId": "c-air",
+      "basePd": 1.0,
+      "envMask": 1.0,
+      "jamStrength": 0
+    },
+    {
+      "observerId": "a-19-gotland-2022",
+      "sensorId": "sonar-1",
+      "targetId": "mrk-buyan-pr-21630-buyan-2007",
+      "contactId": "c-sub",
+      "basePd": 1.0,
+      "envMask": 1.0,
+      "jamStrength": 0,
+      "requiresActiveRadar": false
+    }
+  ],
+  "gauntlet": {
+    "intent": "Multi-domain engage default: Visby\u2192Sovremenny, Gripen\u2192Steregushchiy, Gotland\u2192Buyan (distinct reds; concurrent True|Launched)",
+    "oracle": "Air and sub catalog blues True|Launched at paired catalog reds; CATALOG_UNIT+MAGAZINE_SEED all domains",
+    "expect": {
+      "side": "BLUE",
+      "requireNonEmptyFingerprint": true,
+      "minKills": 1,
+      "maxMissilesFired": 11,
+      "maxDenials": 12,
+      "minScore": 0,
+      "maxScore": 300,
+      "minDenials": 8,
+      "requireTrueLaunchedShooters": [
+        "jas-39c-gripen-2005",
+        "a-19-gotland-2022"
+      ]
+    },
+    "catalogRefs": [
+      "a-19-gotland-2022",
+      "em-sovremenny-i-pr-956-sarych",
+      "jas-39c-gripen-2005",
+      "k-31-visby-2009",
+      "mpk-steregushchiy-pr-20380-2018",
+      "mrk-buyan-pr-21630-buyan-2007"
+    ],
+    "units": [
+      {
+        "unitId": "k-31-visby-2009",
+        "platformId": "k-31-visby-2009",
+        "domain": "surface",
+        "side": "blue"
+      },
+      {
+        "unitId": "jas-39c-gripen-2005",
+        "platformId": "jas-39c-gripen-2005",
+        "domain": "air",
+        "side": "blue"
+      },
+      {
+        "unitId": "a-19-gotland-2022",
+        "platformId": "a-19-gotland-2022",
+        "domain": "subsurface",
+        "side": "blue"
+      },
+      {
+        "unitId": "em-sovremenny-i-pr-956-sarych",
+        "platformId": "em-sovremenny-i-pr-956-sarych",
+        "domain": "surface",
+        "side": "red"
+      },
+      {
+        "unitId": "mpk-steregushchiy-pr-20380-2018",
+        "platformId": "mpk-steregushchiy-pr-20380-2018",
+        "domain": "surface",
+        "side": "red"
+      },
+      {
+        "unitId": "mrk-buyan-pr-21630-buyan-2007",
+        "platformId": "mrk-buyan-pr-21630-buyan-2007",
+        "domain": "surface",
+        "side": "red"
+      }
+    ],
+    "runId": "gauntlet-t3t5-catalog-red"
+  }
+}

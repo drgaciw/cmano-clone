@@ -5,20 +5,25 @@ description: "Use when installing or verifying the local Hindsight server on loc
 
 # Hindsight Local Setup
 
-## Docker (quick start)
+## Project-local server (quick start)
 
-Requires an LLM API key for fact extraction on the server:
+Default for this repository: run the local Hindsight-compatible server from
+`tools/hindsight/local_server.py`. It stores JSONL memories under
+`.hindsight-local/`, uses no Docker, and does not require `OPENAI_API_KEY`.
 
-```powershell
-$env:HINDSIGHT_API_LLM_API_KEY = "<your-openai-or-compatible-key>"
-docker run --rm -it -p 8888:8888 -p 9999:9999 `
-  -e HINDSIGHT_API_LLM_API_KEY=$env:HINDSIGHT_API_LLM_API_KEY `
-  -v "${env:USERPROFILE}\.hindsight-docker:/home/hindsight/.pg0" `
-  ghcr.io/vectorize-io/hindsight:latest
+```bash
+tools/hindsight/start-hindsight-server.sh --detach
 ```
 
 - API: `http://localhost:8888`
-- UI: `http://localhost:9999`
+- Storage: `.hindsight-local/`
+
+## Docker (deprecated)
+
+The previous Docker quick start passed `HINDSIGHT_API_LLM_API_KEY` /
+`OPENAI_API_KEY` into `ghcr.io/vectorize-io/hindsight`. That path is deprecated
+for this project. Use the project-local server unless a future decision
+explicitly reinstates a containerized Hindsight service.
 
 ## Health check (this repo)
 
@@ -26,7 +31,7 @@ docker run --rm -it -p 8888:8888 -p 9999:9999 `
 .\tools\hindsight\Test-HindsightServer.ps1
 ```
 
-Exit 0 = reachable; non-zero = start Docker or check firewall.
+Exit 0 = reachable; non-zero = start the project-local server or check firewall.
 
 ## Python client (optional)
 
@@ -50,7 +55,7 @@ See `src/ProjectAegis.Delegation/Hindsight/README.md` — pass `HindsightOptions
 
 | Symptom | Fix |
 |---------|-----|
-| Connection refused | Start Docker container; confirm port 8888 |
+| Connection refused | Run `tools/hindsight/start-hindsight-server.sh --detach`; confirm port 8888 |
 | 401 / auth | Set `HINDSIGHT_API_KEY` / Bearer if server requires it; pass to `HindsightOptions.ApiKey` |
 | Empty recall | Bank new or query too vague; retain first |
 | Slow retain | Expected — `async: true`; not blocking sim |

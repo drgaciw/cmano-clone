@@ -7,7 +7,8 @@
     "envelopeMinMeters": 5000,
     "envelopeMaxMeters": 120000,
     "defaultMagazineRounds": 4,
-    "hasFireControlTrack": true
+    "hasFireControlTrack": true,
+    "combatDomainsEnabled": true
   },
   "replay": {
     "checkpointIntervalTicks": 2

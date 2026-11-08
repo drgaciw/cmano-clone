@@ -1,8 +1,8 @@
 namespace ProjectAegis.Sim.Engage;
 
-using ProjectAegis.Sim.Core;
-using ProjectAegis.Sim.Policy;
-using ProjectAegis.Sim.Scenario;
+using Core;
+using Policy;
+using Scenario;
 
 /// <summary>MVP resolver: policy, fire-control track, envelope/DLZ, magazine consumption, combat outcome.</summary>
 public sealed class MvpEngagementResolver : IEngagementResolver
@@ -14,7 +14,21 @@ public sealed class MvpEngagementResolver : IEngagementResolver
     private readonly Func<ulong, EffectivePolicy>? _resolvePolicy;
     private readonly KilledTargetRegistry _killedTargets;
     private readonly ScenarioSpeculativeSettings _speculative;
+    private readonly bool _combatDomainsEnabled;
+    private readonly DomainValidatorRegistry _domainValidators;
+    private readonly ISwarmIntegrityDamageSink? _swarmIntegritySink;
+    private readonly Func<ulong, string>? _resolveTargetUnitId;
     private ulong _nextEngagementId = 1;
+
+    /// <summary>
+    /// Opaque non-zero PolicySnapshotId used for policy contexts this resolver builds itself
+    /// from its own <see cref="_resolvePolicy"/> callback. Never registered in, or looked up
+    /// from, any PolicySnapshotRegistry — its sole purpose is to signal to
+    /// <see cref="IPolicyEvaluator"/> implementations (like <see cref="PolicyEvaluator"/>) that
+    /// the accompanying <see cref="PolicyContext.Effective"/> value is already resolved and
+    /// must be trusted rather than re-resolved internally.
+    /// </summary>
+    private const ulong ResolvedPolicySnapshotMarker = 1;
 
     public MvpEngagementResolver(
         IEngageWorldQuery world,
@@ -23,7 +37,11 @@ public sealed class MvpEngagementResolver : IEngagementResolver
         Func<ulong, EffectivePolicy>? resolvePolicy = null,
         SimSeed? seed = null,
         KilledTargetRegistry? killedTargets = null,
-        ScenarioSpeculativeSettings? speculative = null)
+        ScenarioSpeculativeSettings? speculative = null,
+        bool combatDomainsEnabled = false,
+        DomainValidatorRegistry? domainValidators = null,
+        ISwarmIntegrityDamageSink? swarmIntegritySink = null,
+        Func<ulong, string>? resolveTargetUnitId = null)
     {
         _seed = seed ?? SimSeed.FromScenario(0);
         _world = world;
@@ -32,6 +50,10 @@ public sealed class MvpEngagementResolver : IEngagementResolver
         _resolvePolicy = resolvePolicy;
         _killedTargets = killedTargets ?? new KilledTargetRegistry();
         _speculative = speculative ?? ScenarioSpeculativeSettings.CampaignDefault;
+        _combatDomainsEnabled = combatDomainsEnabled;
+        _domainValidators = domainValidators ?? DomainValidatorRegistry.MvpStubs;
+        _swarmIntegritySink = swarmIntegritySink;
+        _resolveTargetUnitId = resolveTargetUnitId;
     }
 
     public MagazineLedger Magazines => _magazines;
@@ -40,6 +62,15 @@ public sealed class MvpEngagementResolver : IEngagementResolver
 
     public EngageResult Resolve(in EngageRequest request)
     {
+        // A destroyed unit cannot shoot. This mirrors the TargetDestroyed gate below and must
+        // stay ahead of every other check — most importantly ahead of magazine consumption, so
+        // a dead shooter never burns rounds. Without it, a unit killed at tick N kept launching
+        // engagements at tick N+1 (BUG-engagement-resolver-shooter-liveness).
+        if (request.ShooterUnitId != 0 && _killedTargets.IsKilled(request.ShooterUnitId))
+        {
+            return EngageResult.Aborted(EngagementAbortReason.ShooterDestroyed);
+        }
+
         if (request.TargetId != 0 && _killedTargets.IsKilled(request.TargetId))
         {
             return EngageResult.Aborted(EngagementAbortReason.TargetDestroyed);
@@ -60,9 +91,18 @@ public sealed class MvpEngagementResolver : IEngagementResolver
         {
             var effective = _resolvePolicy?.Invoke(request.ShooterUnitId) ?? EffectivePolicy.DefaultFree;
             var salvoSize = Math.Max(1, ctx.SalvoSize);
+
+            // PolicySnapshotId must be non-zero here: PolicyEvaluator.Evaluate treats 0 as
+            // "no snapshot resolved yet, re-resolve via my own internal resolvePolicy delegate"
+            // (see PolicySnapshotRegistry/RoePolicyAdapter, which legitimately rely on that
+            // sentinel). This resolver already resolved the live per-unit policy above via its
+            // own `_resolvePolicy` callback, so `effective` must be trusted as-is instead of
+            // being silently discarded in favor of whatever fallback the injected evaluator
+            // happens to carry — otherwise a unit's own ROE (e.g. HoldFire) can be ignored
+            // whenever it differs from the evaluator's unrelated default.
             var policyCtx = new PolicyContext(
                 request.ShooterUnitId,
-                0,
+                ResolvedPolicySnapshotMarker,
                 request.SimTick,
                 effective,
                 salvoSize);
@@ -74,9 +114,43 @@ public sealed class MvpEngagementResolver : IEngagementResolver
             }
         }
 
+        if (_combatDomainsEnabled)
+        {
+            var domainResult = _domainValidators.Validate(ctx.CombatDomain, in ctx);
+            if (!domainResult.Allowed)
+            {
+                return EngageResult.Aborted(MapDomainDenial(domainResult.AbortReason!.Value));
+            }
+        }
+
         if (!ctx.AirOperationsReady)
         {
             return EngageResult.Aborted(EngagementAbortReason.AirNotReady);
+        }
+
+        var damageWithdrawAbort = CatalogDamageWithdrawEngageGate.Evaluate(in ctx);
+        if (damageWithdrawAbort != null)
+        {
+            return EngageResult.Aborted(damageWithdrawAbort.Value);
+        }
+
+        var bingoAbort = LogisticsBingoEngageGate.Evaluate(in ctx);
+        if (bingoAbort != null)
+        {
+            return EngageResult.Aborted(bingoAbort.Value);
+        }
+
+        // Ledger is authoritative once seeded (including tracked-empty → 0 for Winchester).
+        // Unseeded mounts fall back to EngageContext.RoundsRemaining so Shotgun/Winchester
+        // do not treat never-seeded keys as empty.
+        var liveRounds = _magazines.TryGetRounds(request.ShooterUnitId, request.MountId, out var tracked)
+            ? tracked
+            : ctx.RoundsRemaining;
+
+        var shotgunAbort = LogisticsShotgunEngageGate.Evaluate(in ctx, liveRounds);
+        if (shotgunAbort != null)
+        {
+            return EngageResult.Aborted(shotgunAbort.Value);
         }
 
         if (ctx.TrackSpoofed)
@@ -89,9 +163,40 @@ public sealed class MvpEngagementResolver : IEngagementResolver
             return EngageResult.Aborted(EngagementAbortReason.EmconOff);
         }
 
-        if (!ctx.HasFireControlTrack)
+        // SWARM-31 / B6b: remote engage-on-remote-data (CEC composite) may satisfy FC
+        // when organic track is absent. Mesh loss aborts with explicit reason.
+        var remoteAbort = CecRemoteEngageGate.Evaluate(
+            ctx.HasFireControlTrack,
+            ctx.UsesRemoteCecTrack,
+            ctx.ShooterCecCapable,
+            ctx.CecRemoteFireControlEligible);
+        if (remoteAbort != null)
         {
+            return EngageResult.Aborted(remoteAbort.Value);
+        }
+
+        var hasFc = CecRemoteEngageGate.HasUsableFireControl(
+            ctx.HasFireControlTrack,
+            ctx.UsesRemoteCecTrack,
+            ctx.ShooterCecCapable,
+            ctx.CecRemoteFireControlEligible);
+        if (!hasFc)
+        {
+            // Prefer explicit remote abort when the shot was tagged as remote CEC.
+            if (ctx.UsesRemoteCecTrack)
+            {
+                return EngageResult.Aborted(EngagementAbortReason.CecRemoteTrackUnavailable);
+            }
+
             return EngageResult.Aborted(EngagementAbortReason.NoFireControlTrack);
+        }
+
+        // Winchester hard-deny after doctrine sensors/EMCON/FC — replaces pre-launch MagazineEmpty
+        // when the ledger is tracked-empty (load-bearing WINCHESTER_ORDNANCE for saboteur 09).
+        var winchesterAbort = LogisticsWinchesterEngageGate.Evaluate(liveRounds);
+        if (winchesterAbort != null)
+        {
+            return EngageResult.Aborted(winchesterAbort.Value);
         }
 
         if (ctx.RoundsRemaining <= 0 && _magazines.GetRounds(request.ShooterUnitId, request.MountId) <= 0)
@@ -127,9 +232,33 @@ public sealed class MvpEngagementResolver : IEngagementResolver
         }
 
         var launch = EngageResult.Launch(_nextEngagementId++);
-        var afterHit = CombatOutcomeResolver.Apply(_seed, request, launch, ctx.PkBase);
+        // SWARM-04: scale offensive Pk by living shooter integrity when context marks a swarm shooter.
+        var pkBase = ctx.PkBase;
+        if (ctx.ShooterMaxDrones > 0)
+        {
+            pkBase = SwarmOffensiveEffect.Scale(pkBase, ctx.ShooterDroneCount, ctx.ShooterMaxDrones);
+        }
+
+        var afterHit = CombatOutcomeResolver.Apply(_seed, request, launch, pkBase);
         var afterIntercept = CombatOutcomeResolver.ApplyInterceptOnHit(_seed, request, afterHit, ctx.PkIntercept);
-        return CombatOutcomeResolver.ApplyKillOnHit(_seed, request, afterIntercept, ctx.PkKill);
+        var finalResult = CombatOutcomeResolver.ApplyKillOnHit(_seed, request, afterIntercept, ctx.PkKill);
+
+        // SWARM-08: on Hit/Kill against a swarm target, reduce aggregate integrity via authorized sink.
+        if (_swarmIntegritySink is not null &&
+            ctx.TargetMaxDrones > 0 &&
+            finalResult.OutcomeCode is EngagementOutcomeCodes.Hit or EngagementOutcomeCodes.Kill)
+        {
+            var targetKey = _resolveTargetUnitId?.Invoke(request.TargetId)
+                ?? request.TargetId.ToString(System.Globalization.CultureInfo.InvariantCulture);
+            SwarmEngagementIntegrityApplier.TryApplyFromEngageContext(
+                _swarmIntegritySink,
+                targetKey,
+                in ctx,
+                request.SimTick,
+                simTime: request.SimTick);
+        }
+
+        return finalResult;
     }
 
     private static EngagementAbortReason MapPolicyDenial(FireAbortReason reason) =>
@@ -138,8 +267,23 @@ public sealed class MvpEngagementResolver : IEngagementResolver
             FireAbortReason.RoeHoldFire => EngagementAbortReason.RoeHoldFire,
             FireAbortReason.WeaponsTight => EngagementAbortReason.WeaponsTight,
             FireAbortReason.WraSalvo => EngagementAbortReason.WraSalvo,
+            FireAbortReason.WraRange => EngagementAbortReason.OutOfEnvelope,
             FireAbortReason.EmconOff => EngagementAbortReason.EmconOff,
             FireAbortReason.NoFireControlTrack => EngagementAbortReason.NoFireControlTrack,
             _ => EngagementAbortReason.RoeHoldFire,
+        };
+
+    private static EngagementAbortReason MapDomainDenial(FireAbortReason reason) =>
+        reason switch
+        {
+            FireAbortReason.NoFireControlTrack => EngagementAbortReason.NoFireControlTrack,
+            FireAbortReason.EmconOff => EngagementAbortReason.EmconOff,
+            FireAbortReason.AirAspectBlock => EngagementAbortReason.AirAspectBlock,
+            FireAbortReason.SurfaceAspectBlock => EngagementAbortReason.SurfaceAspectBlock,
+            FireAbortReason.SubsurfaceAspectBlock => EngagementAbortReason.SubsurfaceAspectBlock,
+            FireAbortReason.LandAspectBlock => EngagementAbortReason.LandAspectBlock,
+            FireAbortReason.MineAspectBlock => EngagementAbortReason.MineAspectBlock,
+            FireAbortReason.FacilityAspectBlock => EngagementAbortReason.FacilityAspectBlock,
+            _ => EngagementAbortReason.DomainNoSolution,
         };
 }

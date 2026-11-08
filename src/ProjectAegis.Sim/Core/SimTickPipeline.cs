@@ -1,8 +1,8 @@
 namespace ProjectAegis.Sim.Core;
 
-using ProjectAegis.Sim.Engage;
-using ProjectAegis.Sim.Sensors;
-using ProjectAegis.Sim.Time;
+using Engage;
+using Sensors;
+using Time;
 
 /// <summary>ADR-004 tick runner with engagement phase (step 8) wired.</summary>
 public sealed class SimTickPipeline : ISimTickRunner
@@ -33,9 +33,28 @@ public sealed class SimTickPipeline : ISimTickRunner
 
     public void EnqueueEngagement(in EngageRequest request) => _pending.Add(request);
 
+    /// <summary>
+    /// Runs one or more full pipeline ticks (including engagement per step).
+    /// When paused and mode is not HeadlessBatch, no-op. HeadlessBatch overrides pause for CI/batch.
+    /// Accelerated advances <see cref="SimClock.AccelerationFactor"/> full steps; each step runs engagement.
+    /// </summary>
     public void TickOnce(TimeCompressionMode mode)
     {
-        _core.TickOnce(mode);
+        if (Clock.IsPaused && mode != TimeCompressionMode.HeadlessBatch)
+        {
+            return;
+        }
+
+        var steps = mode == TimeCompressionMode.Accelerated ? Clock.AccelerationFactor : 1;
+        for (var i = 0; i < steps; i++)
+        {
+            RunOnePipelineStep();
+        }
+    }
+
+    private void RunOnePipelineStep()
+    {
+        _core.AdvanceOneStep();
         _lastResults.Clear();
         _lastProcessed.Clear();
         _lastProcessed.AddRange(_pending);
@@ -81,12 +100,11 @@ public sealed class SimTickPipeline : ISimTickRunner
             {
                 outcomeMix = SimWorldHash.MixLayer(
                     outcomeMix,
-                    SimWorldHash.Fold(r.EngagementId ^ (ulong)r.OutcomeCode[0]),
+                    SimWorldHash.Fold(r.EngagementId ^ r.OutcomeCode[0]),
                     SimWorldHash.LayerCombatOutcome);
             }
         }
 
         return SimWorldHash.MixLayer(engageIds, outcomeMix, SimWorldHash.LayerEngage);
     }
-
 }

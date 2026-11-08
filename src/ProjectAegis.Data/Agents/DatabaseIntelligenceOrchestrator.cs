@@ -1,10 +1,22 @@
 namespace ProjectAegis.Data.Agents;
 
-using ProjectAegis.Data.Catalog;
+using Catalog;
 
-/// <summary>Req-06 pipeline: retrieval skipped (P0) → entity resolution → rules → consistency → diff.</summary>
+/// <summary>
+/// Req-06 / DBI-8.1 pipeline: retrieval skipped (P0) → entity resolution → rules (incl. kill-chain) → consistency → diff.
+/// Agent order is stable and tested — <see cref="PipelineAgentOrder"/>.
+/// </summary>
 public sealed class DatabaseIntelligenceOrchestrator
 {
+    /// <summary>Stable orchestrator step ordering for CI documentation and regression tests.</summary>
+    public static readonly string[] PipelineAgentOrder =
+    [
+        "entity_resolution",
+        "rules_validation",
+        "consistency_normalization",
+        "diff_proposal",
+    ];
+
     private readonly IDatabaseIntelligenceAgent[] _agents;
 
     public DatabaseIntelligenceOrchestrator(IDatabaseIntelligenceAgent[]? agents = null)
@@ -37,7 +49,7 @@ public sealed class DatabaseIntelligenceOrchestrator
     {
         var catalog = CatalogReaderFactory.TryCreateBalticPatrolReader()
             ?? InMemoryCatalogReader.BalticPatrolFixture();
-        var dbPath = catalog is SqliteCatalogReader sqlite
+        var dbPath = catalog is SqliteCatalogReader
             ? CatalogReaderFactory.ResolveBalticPatrolDatabasePath()
             : null;
         if (catalog is IDisposable disposable)

@@ -1,7 +1,8 @@
 namespace ProjectAegis.Sim.Scenario;
 
-using ProjectAegis.Sim.Engage;
-using ProjectAegis.Sim.Policy;
+using Engage;
+using Policy;
+using Sensors;
 
 /// <summary>Mission/scenario-level ROE defaults (doc 11 / policy GDD inheritance root).</summary>
 public sealed class ScenarioPolicyProfile
@@ -32,7 +33,12 @@ public sealed class ScenarioPolicyProfile
         IReadOnlyList<string>? missionUnitIds = null,
         ScenarioSpeculativeSettings? speculative = null,
         IReadOnlyDictionary<string, bool>? unitReadiness = null,
-        IReadOnlyList<ScenarioSpoofTransition>? spoofTransitions = null)
+        IReadOnlyList<ScenarioSpoofTransition>? spoofTransitions = null,
+        IReadOnlyList<ScenarioWithdrawReadinessTrial>? withdrawReadinessTrials = null,
+        IReadOnlyList<ScenarioCatalogWithdrawTarget>? catalogWithdrawTargets = null,
+        ScenarioBalanceTelemetrySettings? balanceTelemetry = null,
+        ScenarioDatalinkDoctrine? datalinkDoctrine = null,
+        ScenarioMineHazardSettings? mineHazard = null)
     {
         FriendlyDefault = friendlyDefault;
         OpposingDefault = opposingDefault ?? EffectivePolicy.DefaultFree;
@@ -61,9 +67,25 @@ public sealed class ScenarioPolicyProfile
         Speculative = speculative ?? ScenarioSpeculativeSettings.CampaignDefault;
         UnitReadiness = unitReadiness ?? new Dictionary<string, bool>();
         SpoofTransitions = spoofTransitions ?? Array.Empty<ScenarioSpoofTransition>();
+        WithdrawReadinessTrials = withdrawReadinessTrials ?? Array.Empty<ScenarioWithdrawReadinessTrial>();
+        CatalogWithdrawTargets = catalogWithdrawTargets ?? Array.Empty<ScenarioCatalogWithdrawTarget>();
+        BalanceTelemetry = balanceTelemetry ?? ScenarioBalanceTelemetrySettings.Disabled;
+        DatalinkDoctrine = datalinkDoctrine ?? ScenarioDatalinkDoctrine.Default;
+        MineHazard = mineHazard;
     }
 
     public string Id { get; init; } = "";
+
+    /// <summary>ENV-02 / DRG-379: authored LOS geometry; empty = no LOS gating (legacy).</summary>
+    public IReadOnlyList<ScenarioLosGeometry> LineOfSight { get; init; } = Array.Empty<ScenarioLosGeometry>();
+
+    /// <summary>EW-01 / DRG-386: scenario radar ECCM profiles by sensor id (override catalog attributes).</summary>
+    public IReadOnlyDictionary<string, RadarEccmProfile> RadarEccm { get; init; } =
+        new Dictionary<string, RadarEccmProfile>();
+
+    /// <summary>C3-01 / DRG-390: per-unit comms-grid transitions; empty = every unit always on grid.</summary>
+    public IReadOnlyList<ScenarioCommsGridTransition> CommsGridTransitions { get; init; } =
+        Array.Empty<ScenarioCommsGridTransition>();
 
     public EffectivePolicy FriendlyDefault { get; }
 
@@ -117,6 +139,20 @@ public sealed class ScenarioPolicyProfile
 
     /// <summary>Timed spoofed contact activations (req 19).</summary>
     public IReadOnlyList<ScenarioSpoofTransition> SpoofTransitions { get; }
+
+    public IReadOnlyList<ScenarioWithdrawReadinessTrial> WithdrawReadinessTrials { get; }
+
+    /// <summary>Trials resolved via <see cref="WithdrawReadinessTrialResolver"/> when <see cref="WithdrawReadinessTrials"/> is empty.</summary>
+    public IReadOnlyList<ScenarioCatalogWithdrawTarget> CatalogWithdrawTargets { get; }
+
+    /// <summary>Balance drift telemetry advisory settings (DBI-5; default disabled).</summary>
+    public ScenarioBalanceTelemetrySettings BalanceTelemetry { get; }
+
+    /// <summary>TR-sensor-004 bounded side-picture sharing (default organic-only / no sharing).</summary>
+    public ScenarioDatalinkDoctrine DatalinkDoctrine { get; }
+
+    /// <summary>ADR-009 bounded mine transit hazard zone + seeded placement (S32-08).</summary>
+    public ScenarioMineHazardSettings? MineHazard { get; }
 
     public EngageContext ResolveEngageContext()
     {

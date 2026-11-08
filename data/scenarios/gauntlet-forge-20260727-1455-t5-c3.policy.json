@@ -1,0 +1,312 @@
+{
+  "id": "gauntlet-forge-20260727-1455-t5-c3",
+  "friendlyRoe": "WeaponsTight",
+  "opposingRoe": "WeaponsFree",
+  "engage": {
+    "rangeMeters": 45000,
+    "envelopeMinMeters": 5000,
+    "envelopeMaxMeters": 120000,
+    "defaultMagazineRounds": 8,
+    "hasFireControlTrack": true,
+    "combatDomainsEnabled": true,
+    "pkBase": 0.85,
+    "pkIntercept": 0.0,
+    "pkKill": 0.2,
+    "salvoSize": 2
+  },
+  "detection": [
+    {
+      "observerId": "f-219-sachsen-type-f124-2006",
+      "sensorId": "radar-1",
+      "targetId": "skr-admiral-grigorovich-pr-1135-6m",
+      "contactId": "c-t5c3-1",
+      "basePd": 1.0,
+      "envMask": 1.0,
+      "jamStrength": 0
+    },
+    {
+      "observerId": "skr-admiral-sergey-gorshkov-pr-2235-0",
+      "sensorId": "radar-1",
+      "targetId": "f-310-fridtjof-nansen",
+      "contactId": "c-t5c3-2",
+      "basePd": 1.0,
+      "envMask": 1.0,
+      "jamStrength": 0
+    },
+    {
+      "observerId": "p-960-skjold",
+      "sensorId": "radar-1",
+      "targetId": "pk-368-vasily-bykov-pr-22160",
+      "contactId": "c-t5c3-3",
+      "basePd": 1.0,
+      "envMask": 1.0,
+      "jamStrength": 0
+    },
+    {
+      "observerId": "jas-39e-gripen-ng-2021",
+      "sensorId": "radar-1",
+      "targetId": "su-35s-flanker-m-2023",
+      "contactId": "c-t5c3-4",
+      "basePd": 1.0,
+      "envMask": 1.0,
+      "jamStrength": 0
+    },
+    {
+      "observerId": "ssn-774-virginia-blk-i-ii",
+      "sensorId": "passive-sonar-1",
+      "targetId": "pla-885-severodvinsk-yasen",
+      "contactId": "c-t5c3-5",
+      "basePd": 0.8,
+      "envMask": 1.0,
+      "jamStrength": 0,
+      "requiresActiveRadar": false
+    },
+    {
+      "observerId": "ka-27m-helix-a",
+      "sensorId": "sonar-dipping-1",
+      "targetId": "pl-877-kilo-paltus-1992",
+      "contactId": "c-t5c3-6",
+      "basePd": 0.75,
+      "envMask": 1.0,
+      "jamStrength": 0,
+      "requiresActiveRadar": false
+    },
+    {
+      "observerId": "f-16c-blk-52iq-falcon-2015",
+      "sensorId": "radar-1",
+      "targetId": "su-57-felon",
+      "contactId": "c-t5c3-7",
+      "basePd": 0.25,
+      "envMask": 0.5,
+      "jamStrength": 0,
+      "requiresActiveRadar": true
+    }
+  ],
+  "mission": {
+    "fireOrder": [
+      "mission-start",
+      "multi-domain-window",
+      "theater-culmination"
+    ],
+    "events": [
+      {
+        "id": "mission-start",
+        "fireAtTick": 0,
+        "kind": "MissionTransition",
+        "code": "Execution"
+      },
+      {
+        "id": "multi-domain-window",
+        "fireAtTick": 10,
+        "kind": "EventFired",
+        "code": "multi_domain_theater_open"
+      },
+      {
+        "id": "theater-culmination",
+        "fireAtTick": 30,
+        "kind": "EventFired",
+        "code": "theater_culmination"
+      }
+    ],
+    "triggers": [
+      {
+        "id": "dca-su57-detect-roe-escalation",
+        "observerId": "f-16c-blk-52iq-falcon-2015",
+        "targetClass": "Surface",
+        "side": "friendly",
+        "missionCode": "DCA",
+        "roe": "WeaponsFree",
+        "unitIds": [
+          "f-16c-blk-52iq-falcon-2015",
+          "jas-39e-gripen-ng-2021"
+        ]
+      }
+    ]
+  },
+  "gauntlet": {
+    "intent": "roe-mid-mission-change (T5 theme recipe, tierMin 5, newly eligible): a multi-domain theater op where BLUE's air arm genuinely CHANGES ROE partway through the 40-tick run, not merely starts asymmetric like gauntlet-forge-20260727-1455-t2-c3 (orbat-asymmetric-ratio, static WeaponsTight-vs-WeaponsFree for the whole run) or gauntlet-20260727-1455-t3-s1 (whose asw-contact-roe/strike-contact-roe triggers are gated on basePd=1.0 detections that resolve at SimTick=0, so they fire immediately rather than mid-mission despite being nominally 'triggers'). Force mix: BLUE 9 units (4 surface FFG/corvette + 3 air [2 fighters f-16c-blk-52iq-falcon-2015/jas-39e-gripen-ng-2021, 1 ASW helo ka-27m-helix-a] + 2 subsurface [SSN, SSK]) vs RED 10 units, air-heavy per the tier's dense-red joint mix (3 surface + 5 air incl. su-57-felon fifth-gen + tu-160-blackjack strategic bomber + 2 subsurface). BLUE starts side-wide WeaponsTight; RED is WeaponsFree throughout. All BLUE units except f-16c/jas-39e stay WeaponsTight for the entire run (static asymmetry, as in t2-c3/t3-s1) -- the NOVEL part is that f-16c-blk-52iq-falcon-2015 and jas-39e-gripen-ng-2021 alone escalate to WeaponsFree via mission.triggers['dca-su57-detect-roe-escalation'] partway through, once f-16c's own detection trial against su-57-felon (contact c-t5c3-7) actually transitions Unknown->Detected -- the same real, engine-consumed mechanism confirmed working in t3/t4 (an existing detection[] contact's state change fires the trigger; no contacts[].appearAtTick scripted appearance is used or relied on, consistent with BUG-scenario-contacts-shadowed-by-detection.md's finding that contacts[] is silently dead whenever detection[] is non-empty, true here). The su-57-felon trial is deliberately given a LOW effective Pd (basePd 0.25 x envMask 0.5 = 0.125, vs 1.0/0.8/0.75 for every other detection entry in this file) so the Unknown->Detected transition is a genuine seed-dependent stochastic event spread across the 40-tick window (expected first-success around tick ~7-8 at Pd=0.125, per-tick independent Bernoulli roll in DeterministicDetectionLoop.RollTick) rather than resolving at tick 0-2 the way every other prior-tier ROE trigger in this corpus has. This is the first candidate in the corpus to intentionally engineer detection-timing variance specifically so the ROE change lands mid-run instead of at mission start; the exact tick is not scripted and will differ by seed (42/7/123) -- confirming the actual per-seed fire tick requires a real batch run, hence expect below is provisional. IMPORTANT CONFIRMED SCHEMA CAVEAT (found while drafting, not previously flagged in this corpus): MissionContactTargetClass (src/ProjectAegis.Sim/Scenario/MissionContactTargetClass.cs) only defines Any/Surface/Air, and Classify() treats every targetId as Surface UNLESS it literally starts with the string 'ucav' (Air requires that literal prefix -- it is NOT domain-aware). ScenarioPolicyJsonLoader.ParseMissionContactTargetClass silently falls back to Any via a failed Enum.TryParse for any unrecognized string. This means the 'Subsurface' targetClass used by t3-s1's asw-contact-roe trigger AND by the sibling candidate gauntlet-forge-20260727-1455-t5-c2's reinforcement-pressure-roe-escalation trigger never actually gates on subsurface-ness at all -- it silently parses to Any (matches every target) and both those triggers have been firing on ANY qualifying Unknown->Detected transition from their observer, not specifically a subsurface one. This candidate deliberately uses targetClass:'Surface' for the su-57-felon (an aircraft) trigger -- NOT 'Air', which would silently NEVER match since su-57-felon does not start with 'ucav' and would repeat the exact class of silent-gap failure documented in BUG-scenario-contacts-shadowed-by-detection.md. 'Surface' was chosen here specifically because it is the classifier's true 'matches everything non-ucav' branch, not because su-57-felon is a surface unit. Downstream consequence probed: jas-39e-gripen-ng-2021 already carries a live pd=1.0 fire-control track on su-35s-flanker-m-2023 (contact c-t5c3-4) from tick 0, but cannot engage it while WeaponsTight -- a real observed-but-refused engagement (same denial pattern as t2-c3), accumulating denials for however many ticks precede the trigger. Once the trigger fires, both f-16c and jas-39e escalate to WeaponsFree and should be able to start converting held/future tracks (including f-16c's own su-57-felon track, the same contact that caused the escalation) into probabilistic kills for the remainder of the run -- testing whether the oracle/scoring correctly reflects a genuine two-phase per-unit ROE regime within a single scenario, not just a static asymmetric baseline. This candidate has NOT been executed in a real batch run.",
+    "oracle": "EXPECTED, NOT YET CONFIRMED (no batch execution performed for this candidate). Fingerprint must be non-empty and contain CATALOG_UNIT:<id>:surface / :air / :subsurface tokens for all 19 units (BLUE+RED, all three domains). A ContactChange Unknown->Detected entry for contact c-t5c3-7 (observer f-16c-blk-52iq-falcon-2015, target su-57-felon) is expected at some SimTick > 0 (seed-dependent, driven by the deliberately low 0.125 effective Pd -- NOT guaranteed at tick 0/1, and not guaranteed to occur at all within 40 ticks for every seed, since Pd=0.125 per-tick gives roughly an 18% chance the contact is still undetected after 15 ticks). When/if that transition occurs, a PolicyUpdate/MissionTransition pair keyed on trigger id 'dca-su57-detect-roe-escalation' / missionCode 'DCA' is expected, applying WeaponsFree to exactly f-16c-blk-52iq-falcon-2015 and jas-39e-gripen-ng-2021 (all other 7 BLUE units remain WeaponsTight for the full run). Prior to that tick, expect WEAPONSTIGHT-coded denials attributable to jas-39e's live track on su-35s-flanker-m-2023 (c-t5c3-4); after that tick, expect the possibility of BLUE air-domain kills from f-16c (vs su-57-felon) and/or jas-39e (vs su-35s-flanker-m-2023) that would not have been possible under the side-default WeaponsTight. If the su-57-felon detection never resolves within the 40-tick budget for a given seed, expect that seed to look identical to a static-WeaponsTight-for-BLUE-air run (denial-dominated, no BLUE air kills) -- this is the single largest source of expected cross-seed variance and must be confirmed by execution, not assumed.",
+    "catalogRefs": [
+      "f-219-sachsen-type-f124-2006",
+      "f-310-fridtjof-nansen",
+      "f-230-norfolk-type-23-duke",
+      "p-960-skjold",
+      "f-16c-blk-52iq-falcon-2015",
+      "jas-39e-gripen-ng-2021",
+      "ka-27m-helix-a",
+      "ssn-774-virginia-blk-i-ii",
+      "s-120-papanikolis-type-214hn",
+      "skr-admiral-grigorovich-pr-1135-6m",
+      "skr-admiral-sergey-gorshkov-pr-2235-0",
+      "pk-368-vasily-bykov-pr-22160",
+      "su-57-felon",
+      "su-35s-flanker-m-2023",
+      "su-34-fullback-2014",
+      "mig-31-foxhound",
+      "tu-160-blackjack",
+      "pla-885-severodvinsk-yasen",
+      "pl-877-kilo-paltus-1992"
+    ],
+    "domains": [
+      "surface",
+      "air",
+      "subsurface"
+    ],
+    "runId": "gauntlet-20260727-1455",
+    "tier": 5,
+    "dimensionsClaimed": [
+      "roe-mid-mission-change",
+      "detection-gated-roe-trigger-delayed-not-tick0",
+      "low-pd-stochastic-trigger-timing",
+      "per-unit-roe-escalation-subset",
+      "combat-domain-surface",
+      "combat-domain-air",
+      "combat-domain-subsurface",
+      "dense-asymmetric-red-joint-mix",
+      "targetclass-classifier-quirk-documented"
+    ],
+    "units": [
+      {
+        "unitId": "f-219-sachsen-type-f124-2006",
+        "platformId": "f-219-sachsen-type-f124-2006",
+        "domain": "surface",
+        "side": "blue"
+      },
+      {
+        "unitId": "f-310-fridtjof-nansen",
+        "platformId": "f-310-fridtjof-nansen",
+        "domain": "surface",
+        "side": "blue"
+      },
+      {
+        "unitId": "f-230-norfolk-type-23-duke",
+        "platformId": "f-230-norfolk-type-23-duke",
+        "domain": "surface",
+        "side": "blue"
+      },
+      {
+        "unitId": "p-960-skjold",
+        "platformId": "p-960-skjold",
+        "domain": "surface",
+        "side": "blue"
+      },
+      {
+        "unitId": "f-16c-blk-52iq-falcon-2015",
+        "platformId": "f-16c-blk-52iq-falcon-2015",
+        "domain": "air",
+        "side": "blue"
+      },
+      {
+        "unitId": "jas-39e-gripen-ng-2021",
+        "platformId": "jas-39e-gripen-ng-2021",
+        "domain": "air",
+        "side": "blue"
+      },
+      {
+        "unitId": "ka-27m-helix-a",
+        "platformId": "ka-27m-helix-a",
+        "domain": "air",
+        "side": "blue"
+      },
+      {
+        "unitId": "ssn-774-virginia-blk-i-ii",
+        "platformId": "ssn-774-virginia-blk-i-ii",
+        "domain": "subsurface",
+        "side": "blue"
+      },
+      {
+        "unitId": "s-120-papanikolis-type-214hn",
+        "platformId": "s-120-papanikolis-type-214hn",
+        "domain": "subsurface",
+        "side": "blue"
+      },
+      {
+        "unitId": "skr-admiral-grigorovich-pr-1135-6m",
+        "platformId": "skr-admiral-grigorovich-pr-1135-6m",
+        "domain": "surface",
+        "side": "red"
+      },
+      {
+        "unitId": "skr-admiral-sergey-gorshkov-pr-2235-0",
+        "platformId": "skr-admiral-sergey-gorshkov-pr-2235-0",
+        "domain": "surface",
+        "side": "red"
+      },
+      {
+        "unitId": "pk-368-vasily-bykov-pr-22160",
+        "platformId": "pk-368-vasily-bykov-pr-22160",
+        "domain": "surface",
+        "side": "red"
+      },
+      {
+        "unitId": "su-57-felon",
+        "platformId": "su-57-felon",
+        "domain": "air",
+        "side": "red"
+      },
+      {
+        "unitId": "su-35s-flanker-m-2023",
+        "platformId": "su-35s-flanker-m-2023",
+        "domain": "air",
+        "side": "red"
+      },
+      {
+        "unitId": "su-34-fullback-2014",
+        "platformId": "su-34-fullback-2014",
+        "domain": "air",
+        "side": "red"
+      },
+      {
+        "unitId": "mig-31-foxhound",
+        "platformId": "mig-31-foxhound",
+        "domain": "air",
+        "side": "red"
+      },
+      {
+        "unitId": "tu-160-blackjack",
+        "platformId": "tu-160-blackjack",
+        "domain": "air",
+        "side": "red"
+      },
+      {
+        "unitId": "pla-885-severodvinsk-yasen",
+        "platformId": "pla-885-severodvinsk-yasen",
+        "domain": "subsurface",
+        "side": "red"
+      },
+      {
+        "unitId": "pl-877-kilo-paltus-1992",
+        "platformId": "pl-877-kilo-paltus-1992",
+        "domain": "subsurface",
+        "side": "red"
+      }
+    ],
+    "expect": {
+      "side": "BLUE",
+      "requireNonEmptyFingerprint": true,
+      "minKills": 0,
+      "maxMissilesFired": 29,
+      "minDenials": 277,
+      "maxDenials": 297,
+      "minScore": -1510.0,
+      "maxScore": -1170.0
+    },
+    "expectProvenance": "regenerated 2026-07-28 from real Demo batch CSV at T5 tick budget 40, seeds 42,7,123 (production/qa/gauntlet/gauntlet-20260727-1455/tier-5/results.csv). Observed: score=[-1310.0, -1220.0, -1460.0] kills=[1, 2, 0] missilesFired=[20, 12, 24] denials=[282, 284, 292]. Bounds padded ~20% beyond observed range per tools/qa-gauntlet/README-expect-regen.md (derived, not invented).",
+    "forge": {
+      "recipes": [
+        "roe-mid-mission-change"
+      ],
+      "candidateId": "gauntlet-forge-20260727-1455-t5-c3",
+      "noveltyTags": [
+        "roe-change",
+        "mid-mission-escalation",
+        "detection-gated-roe-trigger-delayed",
+        "low-pd-stochastic-trigger-timing",
+        "per-unit-roe-subset-escalation",
+        "targetclass-classifier-quirk-avoided",
+        "contacts-gap-avoided"
+      ],
+      "note": "expect provisional pending regen"
+    }
+  }
+}

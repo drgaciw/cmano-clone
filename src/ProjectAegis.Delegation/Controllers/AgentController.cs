@@ -1,15 +1,15 @@
 namespace ProjectAegis.Delegation.Controllers;
 
-using ProjectAegis.Delegation.Attention;
-using ProjectAegis.Delegation.Core;
-using ProjectAegis.Delegation.Decision;
-using ProjectAegis.Delegation.Orchestration;
-using ProjectAegis.Delegation.Policy;
-using ProjectAegis.Delegation.Roe;
-using ProjectAegis.Delegation.Sim;
+using Attention;
+using Core;
+using Decision;
+using Orchestration;
+using Policy;
+using Roe;
+using Sim;
 using ProjectAegis.Sim.Policy;
-using ProjectAegis.Delegation.Traits;
-using ProjectAegis.Delegation.Trust;
+using Traits;
+using Trust;
 
 public sealed class AgentController : IController
 {
@@ -44,7 +44,7 @@ public sealed class AgentController : IController
 
     public IPolicy Policy { get; }
 
-    public double AttentionBudget { get; }
+    public double AttentionBudget { get; private set; }
 
     public AgentExperienceBlob Experience { get; }
 
@@ -79,6 +79,9 @@ public sealed class AgentController : IController
 
     public void RebindTraits(TraitVector traits) => _traits = traits;
 
+    /// <summary>Apply a new attention budget without rebuilding the controller (rebrief).</summary>
+    public void RebindAttentionBudget(double attentionBudget) => AttentionBudget = attentionBudget;
+
     public IReadOnlyList<Order> DrainIssuedOrders(ulong currentSimTick)
     {
         _ = currentSimTick;
@@ -98,7 +101,8 @@ public sealed class AgentController : IController
         int memberCount,
         ref long orderIdSequence,
         AutonomyGate gate,
-        DecisionLog log)
+        DecisionLog log,
+        PendingApprovalQueue? pendingQueue = null)
     {
         if (state.SimTime < _nextDecisionSimTime)
         {
@@ -155,6 +159,10 @@ public sealed class AgentController : IController
         if (gateResult.ExecuteNow)
         {
             _issued.Add(order);
+        }
+        else if (gateResult.QueueForApproval && pendingQueue != null)
+        {
+            pendingQueue.Enqueue(order);
         }
     }
 }

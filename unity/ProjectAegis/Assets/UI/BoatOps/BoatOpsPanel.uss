@@ -1,0 +1,50 @@
+/* Boat Operations panel (CMD-25 / LOG-09…11 launch/recover/abort). */
+
+.boat-ops-panel {
+    flex-grow: 1;
+    min-width: 280px;
+    max-width: 420px;
+    padding: 6px;
+    background-color: rgba(12, 22, 30, 0.92);
+    border-width: 1px;
+    border-color: rgb(50, 90, 110);
+}
+
+.boat-ops-title {
+    -unity-font-style: bold;
+    color: rgb(170, 210, 220);
+    margin-bottom: 4px;
+    font-size: 12px;
+}
+
+.boat-ops-empty {
+    color: rgb(240, 180, 80);
+    font-size: 11px;
+    min-height: 14px;
+    margin-bottom: 4px;
+}
+
+.boat-ops-list {
+    flex-grow: 1;
+    min-height: 80px;
+    max-height: 240px;
+}
+
+.boat-ops-actions {
+    flex-direction: row;
+    margin-top: 6px;
+}
+
+.boat-ops-btn {
+    flex-grow: 1;
+    margin-right: 4px;
+    font-size: 11px;
+    min-height: 22px;
+}
+
+.boat-ops-status {
+    color: rgb(200, 160, 90);
+    font-size: 10px;
+    min-height: 12px;
+    margin-top: 4px;
+}

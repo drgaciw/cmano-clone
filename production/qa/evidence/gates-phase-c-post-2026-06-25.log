@@ -1,0 +1,21 @@
+=== Gates Phase C post 2026-06-25T16:48:19-05:00 ===
+    0 Error(s)
+
+Time Elapsed 00:00:06.37
+
+Passed!  - Failed:     0, Passed:   247, Skipped:     0, Total:   247, Duration: 497 ms - ProjectAegis.Delegation.Tests.dll (net8.0)
+
+Passed!  - Failed:     0, Passed:     5, Skipped:     0, Total:     5, Duration: 94 ms - ProjectAegis.Data.Excel.Tests.dll (net8.0)
+
+Passed!  - Failed:     0, Passed:   252, Skipped:     0, Total:   252, Duration: 1 s - ProjectAegis.Delegation.UnityAdapter.Tests.dll (net8.0)
+
+Passed!  - Failed:     0, Passed:   406, Skipped:     0, Total:   406, Duration: 3 s - ProjectAegis.Data.Tests.dll (net8.0)
+A total of 1 test files matched the specified pattern.
+
+Passed!  - Failed:     0, Passed:     6, Skipped:     0, Total:     6, Duration: 181 ms - ProjectAegis.Delegation.UnityAdapter.Tests.dll (net8.0)
+A total of 1 test files matched the specified pattern.
+
+Passed!  - Failed:     0, Passed:    18, Skipped:     0, Total:    18, Duration: 263 ms - ProjectAegis.Delegation.UnityAdapter.Tests.dll (net8.0)
+tests/regression/replay-golden-baltic-v2-mission-event-2026-06-22.txt:WORLD_HASH=17144800277401907079
+tests/regression/replay-golden-baltic-v2-mission-event-2026-06-22.txt:REPLAY_CHECKPOINT=4:17144800277401907079:17
+0

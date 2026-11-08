@@ -1,0 +1,238 @@
+{
+  "id": "gauntlet-20260727-1455-t3-s1",
+  "friendlyRoe": "WeaponsTight",
+  "opposingRoe": "WeaponsFree",
+  "engage": {
+    "rangeMeters": 45000,
+    "envelopeMinMeters": 5000,
+    "envelopeMaxMeters": 120000,
+    "defaultMagazineRounds": 6,
+    "hasFireControlTrack": true,
+    "combatDomainsEnabled": true,
+    "pkBase": 0.85,
+    "pkIntercept": 0.0,
+    "pkKill": 0.2,
+    "salvoSize": 2
+  },
+  "emcon": {
+    "units": {
+      "ssn-774-virginia-blk-i-ii": {
+        "radar": "Passive"
+      }
+    }
+  },
+  "detection": [
+    {
+      "observerId": "ssn-774-virginia-blk-i-ii",
+      "sensorId": "passive-sonar-1",
+      "targetId": "pla-885-severodvinsk-yasen",
+      "contactId": "c-s1-1",
+      "basePd": 0.8,
+      "envMask": 1.0,
+      "jamStrength": 0,
+      "requiresActiveRadar": false
+    },
+    {
+      "observerId": "ka-27m-helix-a",
+      "sensorId": "sonar-dipping-1",
+      "targetId": "pla-885-severodvinsk-yasen",
+      "contactId": "c-s1-2",
+      "basePd": 0.75,
+      "envMask": 1.0,
+      "jamStrength": 0,
+      "requiresActiveRadar": false
+    },
+    {
+      "observerId": "f-219-sachsen-type-f124-2006",
+      "sensorId": "radar-1",
+      "targetId": "skr-admiral-grigorovich-pr-1135-6m",
+      "contactId": "c-s1-3",
+      "basePd": 1.0,
+      "envMask": 1.0,
+      "jamStrength": 0
+    },
+    {
+      "observerId": "k-11-stockholm-spica-iii-1986",
+      "sensorId": "radar-1",
+      "targetId": "mrk-buyan-pr-21630-buyan-2007",
+      "contactId": "c-s1-4",
+      "basePd": 1.0,
+      "envMask": 1.0,
+      "jamStrength": 0
+    },
+    {
+      "observerId": "f-16c-blk-52iq-falcon-2015",
+      "sensorId": "radar-1",
+      "targetId": "mig-29-fulcrum-c-1999",
+      "contactId": "c-s1-5",
+      "basePd": 1.0,
+      "envMask": 1.0,
+      "jamStrength": 0
+    }
+  ],
+  "mission": {
+    "fireOrder": [
+      "mission-start",
+      "strike-window",
+      "escort-window"
+    ],
+    "events": [
+      {
+        "id": "mission-start",
+        "fireAtTick": 0,
+        "kind": "MissionTransition",
+        "code": "Execution"
+      },
+      {
+        "id": "strike-window",
+        "fireAtTick": 4,
+        "kind": "EventFired",
+        "code": "strike_tasking_open"
+      },
+      {
+        "id": "escort-window",
+        "fireAtTick": 8,
+        "kind": "EventFired",
+        "code": "escort_screen_active"
+      }
+    ],
+    "triggers": [
+      {
+        "id": "asw-contact-roe",
+        "observerId": "ssn-774-virginia-blk-i-ii",
+        "targetClass": "Subsurface",
+        "side": "friendly",
+        "missionCode": "ASW",
+        "roe": "WeaponsFree",
+        "unitIds": [
+          "ssn-774-virginia-blk-i-ii"
+        ]
+      },
+      {
+        "id": "strike-contact-roe",
+        "observerId": "f-219-sachsen-type-f124-2006",
+        "targetClass": "Surface",
+        "side": "friendly",
+        "missionCode": "ASuW",
+        "roe": "WeaponsFree",
+        "unitIds": [
+          "f-219-sachsen-type-f124-2006",
+          "f-310-fridtjof-nansen",
+          "k-11-stockholm-spica-iii-1986"
+        ]
+      }
+    ]
+  },
+  "gauntlet": {
+    "intent": "T3 escort+strike: blue screens HVU f-219-sachsen-type-f124-2006 (escort) while tasked to destroy designated red target skr-admiral-grigorovich-pr-1135-6m (strike). ASW subsurface pairing ssn-774-virginia-blk-i-ii vs pla-885-severodvinsk-yasen (plus ka-27m-helix-a dipping-sonar cross-cue) proves subsurface domain tagging. ssn-774-virginia-blk-i-ii stays radar Passive and is also the ASW shooter on the subsurface contact trigger, forcing an engage-side EMCON gate.",
+    "oracle": "Fingerprint must contain CATALOG_UNIT:pla-885-severodvinsk-yasen:subsurface and CATALOG_UNIT:ssn-774-virginia-blk-i-ii:subsurface (plus :air / :surface tokens for the other units), and must contain EMCON_OFF from ssn-774-virginia-blk-i-ii's engagement attempt while Passive.",
+    "catalogRefs": [
+      "f-219-sachsen-type-f124-2006",
+      "f-310-fridtjof-nansen",
+      "k-11-stockholm-spica-iii-1986",
+      "f-16c-blk-52iq-falcon-2015",
+      "ka-27m-helix-a",
+      "ssn-774-virginia-blk-i-ii",
+      "skr-admiral-grigorovich-pr-1135-6m",
+      "skr-admiral-sergey-gorshkov-pr-2235-0",
+      "mrk-buyan-pr-21630-buyan-2007",
+      "mig-29-fulcrum-c-1999",
+      "su-27sm-sm3-flanker-j-2013",
+      "pla-885-severodvinsk-yasen"
+    ],
+    "dimensionsClaimed": [
+      "combat-domain-subsurface",
+      "combat-domain-air",
+      "combat-domain-surface",
+      "emcon-engage-gate",
+      "escort-strike-combined",
+      "roe-id-required",
+      "timed-event-chain"
+    ],
+    "units": [
+      {
+        "unitId": "f-219-sachsen-type-f124-2006",
+        "platformId": "f-219-sachsen-type-f124-2006",
+        "domain": "surface",
+        "side": "blue"
+      },
+      {
+        "unitId": "f-310-fridtjof-nansen",
+        "platformId": "f-310-fridtjof-nansen",
+        "domain": "surface",
+        "side": "blue"
+      },
+      {
+        "unitId": "k-11-stockholm-spica-iii-1986",
+        "platformId": "k-11-stockholm-spica-iii-1986",
+        "domain": "surface",
+        "side": "blue"
+      },
+      {
+        "unitId": "f-16c-blk-52iq-falcon-2015",
+        "platformId": "f-16c-blk-52iq-falcon-2015",
+        "domain": "air",
+        "side": "blue"
+      },
+      {
+        "unitId": "ka-27m-helix-a",
+        "platformId": "ka-27m-helix-a",
+        "domain": "air",
+        "side": "blue"
+      },
+      {
+        "unitId": "ssn-774-virginia-blk-i-ii",
+        "platformId": "ssn-774-virginia-blk-i-ii",
+        "domain": "subsurface",
+        "side": "blue"
+      },
+      {
+        "unitId": "skr-admiral-grigorovich-pr-1135-6m",
+        "platformId": "skr-admiral-grigorovich-pr-1135-6m",
+        "domain": "surface",
+        "side": "red"
+      },
+      {
+        "unitId": "skr-admiral-sergey-gorshkov-pr-2235-0",
+        "platformId": "skr-admiral-sergey-gorshkov-pr-2235-0",
+        "domain": "surface",
+        "side": "red"
+      },
+      {
+        "unitId": "mrk-buyan-pr-21630-buyan-2007",
+        "platformId": "mrk-buyan-pr-21630-buyan-2007",
+        "domain": "surface",
+        "side": "red"
+      },
+      {
+        "unitId": "mig-29-fulcrum-c-1999",
+        "platformId": "mig-29-fulcrum-c-1999",
+        "domain": "air",
+        "side": "red"
+      },
+      {
+        "unitId": "su-27sm-sm3-flanker-j-2013",
+        "platformId": "su-27sm-sm3-flanker-j-2013",
+        "domain": "air",
+        "side": "red"
+      },
+      {
+        "unitId": "pla-885-severodvinsk-yasen",
+        "platformId": "pla-885-severodvinsk-yasen",
+        "domain": "subsurface",
+        "side": "red"
+      }
+    ],
+    "expect": {
+      "side": "BLUE",
+      "minKills": 1,
+      "maxMissilesFired": 29,
+      "minDenials": 16,
+      "maxDenials": 47,
+      "minScore": -165.0,
+      "maxScore": 240.0,
+      "requireNonEmptyFingerprint": true
+    },
+    "expectProvenance": "regenerated 2026-07-27 from real Demo batch CSV at T3 tick budget 16, seeds 42,7,123, after the s5/control activeFromTick fix. Per tools/qa-gauntlet/README-expect-regen.md \u2014 derived, not invented."
+  }
+}

@@ -1,0 +1,50 @@
+{
+  "ok": true,
+  "scenarios": [
+    {
+      "scenario": "gauntlet-t2-escort-a",
+      "passed": true,
+      "failures": [],
+      "warnings": [],
+      "rows": 3
+    },
+    {
+      "scenario": "gauntlet-t2-escort-passive",
+      "passed": true,
+      "failures": [],
+      "warnings": [
+        "gauntlet.emcon: legacy stand-in key ignored by the engine \u2014 real EMCON is the top-level \u0022emcon\u0022 block (BUG-gauntlet-emcon-dimension-not-exercised)"
+      ],
+      "rows": 3
+    },
+    {
+      "scenario": "gauntlet-t2-ordnance-shotgun-winchester",
+      "passed": true,
+      "failures": [],
+      "warnings": [],
+      "rows": 3
+    },
+    {
+      "scenario": "gauntlet-t2-strike-a",
+      "passed": true,
+      "failures": [],
+      "warnings": [],
+      "rows": 3
+    },
+    {
+      "scenario": "gauntlet-t2-strike-event",
+      "passed": true,
+      "failures": [],
+      "warnings": [],
+      "rows": 3
+    },
+    {
+      "scenario": "gauntlet-t2-strike-salvo-boundary",
+      "passed": true,
+      "failures": [],
+      "warnings": [],
+      "rows": 3
+    }
+  ],
+  "allPassed": true
+}

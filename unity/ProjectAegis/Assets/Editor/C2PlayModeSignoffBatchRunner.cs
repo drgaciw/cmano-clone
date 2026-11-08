@@ -2,6 +2,7 @@
 using System;
 using System.Collections.Generic;
 using System.IO;
+using ProjectAegis.Delegation.UnityAdapter.Console;
 using ProjectAegis.Unity.Runtime;
 using UnityEditor;
 using UnityEditor.SceneManagement;
@@ -15,6 +16,15 @@ namespace ProjectAegis.Unity.Editor
     /// Survives Enter Play Mode domain reload via SessionState + InitializeOnLoad.
     /// Entry: -executeMethod ProjectAegis.Unity.Editor.C2PlayModeSignoffBatchRunner.RunBatch
     /// Classify: -executeMethod ProjectAegis.Unity.Editor.C2PlayModeSignoffBatchRunner.RunClassifyBatch
+    /// Doctrine: -executeMethod ProjectAegis.Unity.Editor.C2PlayModeSignoffBatchRunner.RunDoctrineBatch
+    /// Import: -executeMethod ProjectAegis.Unity.Editor.C2PlayModeSignoffBatchRunner.RunImportBatch
+    /// Begin execution: -executeMethod ProjectAegis.Unity.Editor.C2PlayModeSignoffBatchRunner.RunBeginExecutionBatch
+    ///
+    /// Human Editor residual (Wave 5 UI maturity): after batch check 1 is green, walk
+    /// production/qa/playmode-signoff-checklist-wave5-2026-08-01.md (order toolbar, Air/Boat ops,
+    /// magazine, scenario library, layers HUD, C2Menu toggles, top bar, collapse, optional CesiumSpike).
+    /// Rebuild scene via DelegationSmokeSceneBuilder; Ensure UI Maturity Hosts before Play.
+    /// Stack land: production/agentic/stack-land-ui-maturity-prs-382-385-2026-08-01.md
     /// </summary>
     [InitializeOnLoad]
     public static class C2PlayModeSignoffBatchRunner
@@ -49,6 +59,12 @@ namespace ProjectAegis.Unity.Editor
         public static void RunBatch() => BeginRun("baltic-patrol-comms");
 
         public static void RunClassifyBatch() => BeginRun("baltic-patrol-classify");
+
+        public static void RunDoctrineBatch() => BeginRun("baltic-patrol-mission-roe");
+
+        public static void RunImportBatch() => BeginRun("baltic-patrol-classify");
+
+        public static void RunBeginExecutionBatch() => BeginRun("baltic-patrol-classify");
 
         private static void BeginRun(string scenarioPolicyId)
         {
@@ -218,33 +234,7 @@ namespace ProjectAegis.Unity.Editor
         }
 
         private static bool IsIgnorableBatchNoise(string condition, string stackTrace)
-        {
-            if (string.IsNullOrWhiteSpace(condition))
-            {
-                return true;
-            }
-
-            if (condition.Contains("Mesh Deformation Systems disabled", StringComparison.Ordinal)
-                || condition.Contains("No SRP present", StringComparison.Ordinal)
-                || condition.Contains("McpManagerClientHub", StringComparison.Ordinal)
-                || condition.Contains("Connection not available and auto-reconnect disabled", StringComparison.Ordinal)
-                || condition.Contains("Start Indexing on Editor startup", StringComparison.Ordinal))
-            {
-                return true;
-            }
-
-            if (!string.IsNullOrWhiteSpace(stackTrace))
-            {
-                if (stackTrace.Contains("UnityEditor.Search", StringComparison.Ordinal)
-                    || stackTrace.Contains("com.IvanMurzak.Unity.MCP", StringComparison.Ordinal)
-                    || stackTrace.Contains("UnityEditor.Search.SearchInit", StringComparison.Ordinal))
-                {
-                    return true;
-                }
-            }
-
-            return false;
-        }
+            => ConsoleNoiseClassifier.IsIgnorableForConsoleGate(condition, stackTrace);
 
         private static void RecordError(string message)
         {

@@ -1,0 +1,50 @@
+# QA Gauntlet manifest
+run_id: gauntlet-20260720-2000
+mode: shipped-policy-ladder-10x
+created_utc: 2026-07-21T01:03:37Z
+git_sha: 7caae00bd94ace8fed530b76c3088532158179dd
+branch: feat/s107-epic-a-panel-runtime-depth
+seeds: [42, 7, 123]
+max_fix_attempts: 3
+baseline_suite_floor: 1638
+tiers:
+  1:
+    ticks: 6
+    scenarios:
+      - gauntlet-t1-patrol-a
+      - gauntlet-t1-patrol-b
+      - gauntlet-t1-patrol-c
+      - gauntlet-t1-patrol-d
+  2:
+    ticks: 10
+    scenarios:
+      - gauntlet-t2-escort-a
+      - gauntlet-t2-escort-passive
+      - gauntlet-t2-strike-a
+      - gauntlet-t2-strike-event
+  3:
+    ticks: 16
+    scenarios:
+      - gauntlet-t3-escort-strike
+      - gauntlet-t3-emcon-phases
+      - gauntlet-t3-id-roe
+      - gauntlet-t3-event-chain
+  4:
+    ticks: 24
+    scenarios:
+      - gauntlet-t4-multi-mission
+      - gauntlet-t4-weighted
+      - gauntlet-t4-asymm-roe
+      - gauntlet-t4-random-inject
+  5:
+    ticks: 40
+    scenarios:
+      - gauntlet-t5-cascade
+      - gauntlet-t5-theater
+      - gauntlet-t5-dynamic-obj
+      - gauntlet-t5-roe-change
+extra:
+  ticks: 12
+  scenarios:
+    - gauntlet-joint-orbat-smoke
+    - gauntlet-multidomain-shooters

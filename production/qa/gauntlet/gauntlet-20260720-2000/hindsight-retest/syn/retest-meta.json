@@ -1,0 +1,16 @@
+{
+  "ok": true,
+  "defect": {
+    "id": "GAUNTLET-SYN-T12-001",
+    "status": "closed",
+    "class": "scenario-data",
+    "title": "Tiers 1\u20132 synthetic u1/hostile combat path",
+    "scenarioId": "gauntlet-t1-patrol-b",
+    "seed": 42,
+    "ticks": 6,
+    "policyPath": "data/scenarios/gauntlet-t1-patrol-b.policy.json",
+    "priorFailureMode": "CATALOG_UNIT:u1:",
+    "fixSummary": "Catalog Visby/Sovremenny units + side registry",
+    "closedUtc": "2026-07-13T20:00:00Z"
+  }
+}

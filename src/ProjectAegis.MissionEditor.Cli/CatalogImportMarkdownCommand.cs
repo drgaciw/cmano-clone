@@ -1,9 +1,10 @@
 namespace ProjectAegis.MissionEditor.Cli;
 
 using System.Text.Json;
-using ProjectAegis.Data.Import;
+using Data.Catalog;
+using Data.Import;
 
-/// <summary>Phase 2 CLI — propose CMO sensor markdown through the catalog write gate.</summary>
+/// <summary>Phase 2 CLI — propose CMO markdown (sensor / weapon / platform) through the catalog write gate.</summary>
 public static class CatalogImportMarkdownCommand
 {
     private static readonly JsonSerializerOptions JsonOptions = new()
@@ -18,15 +19,52 @@ public static class CatalogImportMarkdownCommand
         int? maxRecords,
         int chunkSize,
         TextWriter output,
-        string? reportOutPath = null)
+        string? reportOutPath = null,
+        CmoMarkdownImportEntity entity = CmoMarkdownImportEntity.Sensor,
+        bool mapBalticPlatformIds = false,
+        string? weaponMarkdownPath = null)
     {
-        var result = CmoMarkdownImportProposer.ProposeFromMarkdown(
-            databasePath,
-            markdownPath,
-            maxRecords,
-            chunkSize);
+        // S31-11 completeness fix: corpus-appropriate domain fallback for records whose Type
+        // field doesn't match any InferDomain keyword (was hardcoded "surface" for every entity,
+        // e.g. 100% of facility.md and 63% of aircraft.md defaulted to the wrong domain).
+        var defaultDomain = entity switch
+        {
+            CmoMarkdownImportEntity.Aircraft => "air",
+            CmoMarkdownImportEntity.Submarine => "subsurface",
+            CmoMarkdownImportEntity.Facility => "land",
+            CmoMarkdownImportEntity.GroundUnit => "land",
+            _ => "surface",
+        };
 
-        var payload = BuildPayload(result);
+        var resolvedWeaponPath = ResolveWeaponMarkdownPath(entity, weaponMarkdownPath);
+
+        var result = entity switch
+        {
+            CmoMarkdownImportEntity.Weapon => CmoMarkdownImportProposer.ProposeWeaponsFromMarkdown(
+                databasePath,
+                markdownPath,
+                maxRecords,
+                chunkSize),
+            CmoMarkdownImportEntity.Platform or
+            CmoMarkdownImportEntity.Aircraft or
+            CmoMarkdownImportEntity.Submarine or
+            CmoMarkdownImportEntity.Facility or
+            CmoMarkdownImportEntity.GroundUnit => CmoMarkdownImportProposer.ProposePlatformsFromMarkdown(
+                databasePath,
+                markdownPath,
+                mapBalticPlatformIds,
+                weaponMarkdownPath: resolvedWeaponPath,
+                maxRecords: maxRecords,
+                chunkSize: chunkSize,
+                defaultDomain: defaultDomain),
+            _ => CmoMarkdownImportProposer.ProposeFromMarkdown(
+                databasePath,
+                markdownPath,
+                maxRecords,
+                chunkSize),
+        };
+
+        var payload = BuildPayload(result, entity);
         var json = JsonSerializer.Serialize(payload, JsonOptions);
         output.WriteLine(json);
 
@@ -38,11 +76,12 @@ public static class CatalogImportMarkdownCommand
         return 0;
     }
 
-    internal static object BuildPayload(CmoMarkdownImportResult result)
+    internal static object BuildPayload(CmoMarkdownImportResult result, CmoMarkdownImportEntity entity = CmoMarkdownImportEntity.Sensor)
     {
         var payload = new Dictionary<string, object?>
         {
             ["ok"] = true,
+            ["entity"] = entity.ToString().ToLowerInvariant(),
             ["parsedCount"] = result.ParsedCount,
             ["approvedCount"] = result.ApprovedCount,
             ["quarantinedCount"] = result.QuarantinedCount,
@@ -66,4 +105,51 @@ public static class CatalogImportMarkdownCommand
 
         return payload;
     }
+
+    public static CmoMarkdownImportEntity ParseEntity(string? raw)
+    {
+        if (string.IsNullOrWhiteSpace(raw))
+        {
+            return CmoMarkdownImportEntity.Sensor;
+        }
+
+        return raw.Trim().ToLowerInvariant() switch
+        {
+            "weapon" or "weapons" => CmoMarkdownImportEntity.Weapon,
+            "platform" or "platforms" => CmoMarkdownImportEntity.Platform,
+            "aircraft" or "aircrafts" => CmoMarkdownImportEntity.Aircraft,
+            "submarine" or "submarines" => CmoMarkdownImportEntity.Submarine,
+            "facility" or "facilities" => CmoMarkdownImportEntity.Facility,
+            "ground-unit" or "ground-units" or "groundunit" => CmoMarkdownImportEntity.GroundUnit,
+            "sensor" or "sensors" => CmoMarkdownImportEntity.Sensor,
+            _ => throw new ArgumentException(
+                $"Unknown --entity '{raw}'. Use sensor, weapon, platform, aircraft, submarine, facility, or ground-unit."),
+        };
+    }
+
+    public static string? ResolveWeaponMarkdownPath(
+        CmoMarkdownImportEntity entity,
+        string? weaponMarkdownPath)
+    {
+        if (!IsPlatformFamilyEntity(entity))
+        {
+            return null;
+        }
+
+        if (!string.IsNullOrWhiteSpace(weaponMarkdownPath))
+        {
+            return weaponMarkdownPath;
+        }
+
+        var defaultPath = CatalogJsonImporter.ResolveRepoRelative(
+            Path.Combine("docs", "reference", "cmano-db", "weapon.md"));
+        return File.Exists(defaultPath) ? defaultPath : null;
+    }
+
+    internal static bool IsPlatformFamilyEntity(CmoMarkdownImportEntity entity) =>
+        entity is CmoMarkdownImportEntity.Platform
+            or CmoMarkdownImportEntity.Aircraft
+            or CmoMarkdownImportEntity.Submarine
+            or CmoMarkdownImportEntity.Facility
+            or CmoMarkdownImportEntity.GroundUnit;
 }

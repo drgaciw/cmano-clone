@@ -1,6 +1,6 @@
 ---
 name: ecs-data-optimization
-description: "Design DOTS/ECS runtime data exports from ProjectAegis.Data for Unity 6.3 LTS: Burst-compatible blittable structs, cache-efficient SoA/AoS layout, BlobAssets, NativeContainers, and no per-tick SQLite reads."
+description: "Design runtime data exports from ProjectAegis.Data for Unity 6.3 LTS / headless sim: cache-efficient SoA/AoS layout, NativeContainers/blittable structs where applicable, and no per-tick SQLite reads (note: ADR-005 DOTS/ECS superseded 2026-07-07)."
 argument-hint: "[system|data-model|snapshot]"
 user-invocable: true
 allowed-tools: Read, Glob, Grep, Bash, Task, AskUserQuestion
@@ -11,7 +11,7 @@ agent: sim-data-specialist
 # ECS Data Optimization
 
 Use this skill to design or review the runtime data shape exported from SQLite and
-consumed by `ProjectAegis.Sim` or Unity DOTS/ECS.
+consumed by `ProjectAegis.Sim` or Unity presentation (note: ADR-005 DOTS/ECS world state was superseded 2026-07-07 in favor of managed pure C# headless sim).
 
 ## Phase 1: Load Architecture and Engine Context
 

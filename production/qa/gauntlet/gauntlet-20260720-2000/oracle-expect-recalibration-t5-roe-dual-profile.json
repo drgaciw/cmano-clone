@@ -1,0 +1,66 @@
+{
+  "defectId": "GAUNTLET-ORACLE-T5-ROE-001",
+  "class": "oracle",
+  "title": "t5-roe-change CI ticks=10 expect broke ladder T5@40",
+  "rootCause": "e0f59a6 recalibrated gauntlet.expect for CI ticks=10, violating tier-tick discipline (ladder authority is T5@40).",
+  "fix": {
+    "dualProfile": "gauntlet.expect = ladder (tier ticks); gauntlet.expectCi = CI smoke; CLI --profile ci",
+    "ladderExpect": {
+      "minDenials": 78,
+      "maxDenials": 82,
+      "minScore": -350,
+      "maxScore": -150
+    },
+    "expectCi": {
+      "minDenials": 14,
+      "maxDenials": 28,
+      "minScore": 50,
+      "maxScore": 170
+    },
+    "fingerprintGatesPreserved": [
+      "CommsStateChange",
+      "Degraded"
+    ]
+  },
+  "observedLadderT40": {
+    "seeds": [
+      42,
+      7,
+      123
+    ],
+    "denials": [
+      80,
+      80,
+      80
+    ],
+    "scores": [
+      -200,
+      -300,
+      -300
+    ],
+    "kills": [
+      2,
+      1,
+      1
+    ],
+    "missiles": [
+      4,
+      10,
+      8
+    ]
+  },
+  "observedCiT10Seed42": {
+    "denials": 20,
+    "score": 100,
+    "kills": 2,
+    "missiles": 4
+  },
+  "tests": [
+    "GauntletOracleEvaluatorTests dual-profile trio (+3)",
+    "postfix suite 1782/0f"
+  ],
+  "x10": {
+    "pass": 10,
+    "fail": 0
+  }
+}

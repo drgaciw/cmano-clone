@@ -1,0 +1,318 @@
+{
+  "id": "gauntlet-20260727-1455-t5-s2",
+  "friendlyRoe": "WeaponsTight",
+  "opposingRoe": "WeaponsFree",
+  "engage": {
+    "rangeMeters": 47000,
+    "envelopeMinMeters": 4500,
+    "envelopeMaxMeters": 125000,
+    "defaultMagazineRounds": 5,
+    "hasFireControlTrack": true,
+    "combatDomainsEnabled": true,
+    "pkBase": 0.82,
+    "pkIntercept": 0.0,
+    "pkKill": 0.2,
+    "salvoSize": 1
+  },
+  "detection": [
+    {
+      "observerId": "ka-27m-helix-a",
+      "sensorId": "sonar-dipping-1",
+      "targetId": "pl-877-kilo-paltus-1992",
+      "contactId": "c-s2-1",
+      "basePd": 0.55,
+      "envMask": 1.0,
+      "jamStrength": 0,
+      "requiresActiveRadar": false
+    },
+    {
+      "observerId": "ssn-774-virginia-blk-i-ii",
+      "sensorId": "passive-sonar-1",
+      "targetId": "pla-971-akula-i-improved-shchuka-b",
+      "contactId": "c-s2-2",
+      "basePd": 0.5,
+      "envMask": 1.0,
+      "jamStrength": 0,
+      "requiresActiveRadar": false
+    },
+    {
+      "observerId": "s-185-u-35-type-212a",
+      "sensorId": "passive-sonar-1",
+      "targetId": "pl-877-kilo-paltus-1992",
+      "contactId": "c-s2-3",
+      "basePd": 0.45,
+      "envMask": 1.0,
+      "jamStrength": 0,
+      "requiresActiveRadar": false
+    },
+    {
+      "observerId": "eurofighter-typhoon",
+      "sensorId": "radar-1",
+      "targetId": "su-33-flanker-d",
+      "contactId": "c-s2-4",
+      "basePd": 0.6,
+      "envMask": 1.0,
+      "jamStrength": 0
+    },
+    {
+      "observerId": "f-230-norfolk-type-23-duke",
+      "sensorId": "radar-1",
+      "targetId": "mig-31-foxhound",
+      "contactId": "c-s2-5",
+      "basePd": 0.65,
+      "envMask": 1.0,
+      "jamStrength": 0
+    },
+    {
+      "observerId": "nh90-tth-mrh90-taipan-2007",
+      "sensorId": "radar-1",
+      "targetId": "su-33-flanker-d",
+      "contactId": "c-s2-6",
+      "basePd": 0.5,
+      "envMask": 0.9,
+      "jamStrength": 0
+    },
+    {
+      "observerId": "p-960-skjold",
+      "sensorId": "radar-1",
+      "targetId": "pk-368-vasily-bykov-pr-22160",
+      "contactId": "c-s2-7",
+      "basePd": 0.7,
+      "envMask": 1.0,
+      "jamStrength": 0
+    },
+    {
+      "observerId": "skr-admiral-sergey-gorshkov-pr-2235-0",
+      "sensorId": "radar-1",
+      "targetId": "f-230-norfolk-type-23-duke",
+      "contactId": "c-s2-8",
+      "basePd": 1.0,
+      "envMask": 1.0,
+      "jamStrength": 0
+    },
+    {
+      "observerId": "pk-368-vasily-bykov-pr-22160",
+      "sensorId": "radar-1",
+      "targetId": "p-960-skjold",
+      "contactId": "c-s2-9",
+      "basePd": 1.0,
+      "envMask": 1.0,
+      "jamStrength": 0
+    },
+    {
+      "observerId": "mig-31-foxhound",
+      "sensorId": "radar-1",
+      "targetId": "eurofighter-typhoon",
+      "contactId": "c-s2-10",
+      "basePd": 1.0,
+      "envMask": 1.0,
+      "jamStrength": 0
+    }
+  ],
+  "jammers": [
+    {
+      "targetId": "pl-877-kilo-paltus-1992",
+      "jamStrength": 0.3,
+      "activeFromTick": 10,
+      "observerId": "ka-27m-helix-a"
+    },
+    {
+      "targetId": "su-33-flanker-d",
+      "jamStrength": 0.4,
+      "activeFromTick": 20,
+      "observerId": "eurofighter-typhoon"
+    },
+    {
+      "targetId": "f-230-norfolk-type-23-duke",
+      "jamStrength": 0.5,
+      "activeFromTick": 30,
+      "observerId": "skr-admiral-sergey-gorshkov-pr-2235-0"
+    }
+  ],
+  "mission": {
+    "fireOrder": [
+      "mission-start",
+      "sensor-degradation-inject-1",
+      "comms-loss-inject",
+      "reinforcement-pressure-inject"
+    ],
+    "events": [
+      {
+        "id": "mission-start",
+        "fireAtTick": 0,
+        "kind": "MissionTransition",
+        "code": "Execution"
+      },
+      {
+        "id": "sensor-degradation-inject-1",
+        "fireAtTick": 10,
+        "kind": "EventFired",
+        "code": "sensor_degradation_inject_designated_1"
+      },
+      {
+        "id": "comms-loss-inject",
+        "fireAtTick": 20,
+        "kind": "EventFired",
+        "code": "comms_loss_inject_designated"
+      },
+      {
+        "id": "reinforcement-pressure-inject",
+        "fireAtTick": 30,
+        "kind": "EventFired",
+        "code": "reinforcement_pressure_inject_designated"
+      }
+    ],
+    "triggers": [
+      {
+        "id": "asw-branch-select",
+        "observerId": "ka-27m-helix-a",
+        "targetClass": "Any",
+        "side": "friendly",
+        "missionCode": "ASW",
+        "roe": "WeaponsFree",
+        "unitIds": [
+          "ka-27m-helix-a",
+          "ssn-774-virginia-blk-i-ii",
+          "s-185-u-35-type-212a"
+        ]
+      },
+      {
+        "id": "aaw-branch-select",
+        "observerId": "eurofighter-typhoon",
+        "targetClass": "Any",
+        "side": "friendly",
+        "missionCode": "AAW",
+        "roe": "WeaponsFree",
+        "unitIds": [
+          "eurofighter-typhoon",
+          "f-230-norfolk-type-23-duke",
+          "nh90-tth-mrh90-taipan-2007"
+        ]
+      }
+    ]
+  },
+  "gauntlet": {
+    "intent": "T5 main-ladder #2: CONDITIONAL/DYNAMIC OBJECTIVE (primary dimension) modeled as a genuine branching objective-selector, honestly (per forge recipe victory-trigger-conditional's naming, not yet landed at drafting time -- see forge/candidates note below). BLUE starts friendlyRoe=WeaponsTight fleet-wide. Two independent mission.triggers -- asw-branch-select (observer ka-27m-helix-a) and aaw-branch-select (observer eurofighter-typhoon) -- each unlock a different 3-unit group to WeaponsFree on that observer's own first Unknown->Detected contact transition (c-s2-1, basePd=0.55; c-s2-4, basePd=0.6 respectively). Because PdDetectionContactSimulator rolls detection via seeded per-tick RNG (SeededRng.UnitFloat keyed on seed+tick+draw index -- src/ProjectAegis.Sim/Sensors/DeterministicDetectionLoop.cs) against these sub-1.0 basePd values, WHICH branch actually resolves first (or whether both, or neither, resolve inside the 40-tick budget) is genuinely seed-dependent, not scripted to a fixed tick -- this is the honest mechanism behind the 'objective changes on trigger' claim: the branch selector is real and data-driven, not a fixed narrative fork. p-960-skjold has NO covering trigger and remains WeaponsTight-denied for the entire 40-tick run (its c-s2-7 surface contact on pk-368-vasily-bykov-pr-22160 can never convert to an engagement), the same 'persistent uncovered-denial floor' pattern established in gauntlet-20260727-1455-t4-s2. DISCLOSED SCHEMA CONSTRAINT (targetClass): both triggers use targetClass:'Any', not 'Subsurface'/'Air'/'Surface', for a load-bearing reason found while authoring this tier: MissionContactTargetClass (src/ProjectAegis.Sim/Scenario/MissionContactTargetClass.cs) only has Any/Surface/Air members, and MissionContactTargetClassifier.Classify(targetId) returns Air ONLY when targetId literally starts with the ordinal-cased prefix 'ucav' -- true of none of this corpus's real catalog platform ids -- so a trigger declared with targetClass:'Air' against any real named platform would silently NEVER fire (Classify always falls through to Surface for non-'ucav' ids). Separately, 'Subsurface' (used as a targetClass literal in gauntlet-20260727-1455-t4-s2/-t4-s3) is not a valid enum member at all; ScenarioPolicyJsonLoader.ParseMissionContactTargetClass falls back silently to Any on any unparseable string, meaning those prior scenarios' 'Subsurface' triggers were ALREADY functioning as unconditional Any-matches, not domain-restricted matches -- they happened to still behave correctly only because each covered observer had exactly one configured detection target. This scenario declares 'Any' explicitly instead of relying on that silent fallback, and achieves genuine domain-specificity the honest way: each trigger's observer (ka-27m-helix-a, eurofighter-typhoon) is configured with only one relevant-domain detection target apiece. SECONDARY DIMENSION -- CASCADING ADVERSARIAL INJECTS: 3 staggered jammers (ticks 10/20/30, jamStrength 0.3/0.4/0.5) each paired with a mission.events EventFired marker at the same tick (sensor_degradation_inject_designated_1, comms_loss_inject_designated, reinforcement_pressure_inject_designated). Per the required-mechanism list for this run, 'comms loss' and 'reinforcement pressure' are modeled here as jamStrength/EventFired-marker proxies, NOT via the scenario's separate real (but out-of-scope-for-this-batch) `comms[]` schema block -- disclosed rather than implied as a literal comms-network state change. contacts[] is not used anywhere in this policy (see BUG-scenario-contacts-shadowed-by-detection.md).",
+    "oracle": "All three EventFired codes (sensor_degradation_inject_designated_1 @10, comms_loss_inject_designated @20, reinforcement_pressure_inject_designated @30) must appear in the fingerprint regardless of seed -- these are pure tick-scheduled mission.events, not contact-dependent. Which of asw-branch-select / aaw-branch-select fires first (or at all, inside 40 ticks) is expected to vary by seed given both observers' sub-1.0 basePd detection trials; no requireFingerprintSubstrings assertion is made about trigger firing order or trigger ids themselves, only about the deterministic event markers. p-960-skjold is expected to accumulate WeaponsTight denials for the full 40-tick run regardless of seed (no covering trigger exists for its group). RED (WeaponsFree throughout) is expected to convert some of its own high-Pd detections (c-s2-8, c-s2-9, c-s2-10) into kills against BLUE, but only BLUE is scored (expect.side=BLUE).",
+    "catalogRefs": [
+      "ka-27m-helix-a",
+      "eurofighter-typhoon",
+      "nh90-tth-mrh90-taipan-2007",
+      "f-230-norfolk-type-23-duke",
+      "p-960-skjold",
+      "ssn-774-virginia-blk-i-ii",
+      "s-185-u-35-type-212a",
+      "pl-877-kilo-paltus-1992",
+      "pla-971-akula-i-improved-shchuka-b",
+      "su-33-flanker-d",
+      "mig-31-foxhound",
+      "skr-admiral-sergey-gorshkov-pr-2235-0",
+      "pk-368-vasily-bykov-pr-22160"
+    ],
+    "dimensionsClaimed": [
+      "victory-objective-conditional-trigger-selector",
+      "roe-contact-escalation",
+      "roe-asymmetric-uncovered-denial-floor",
+      "cascading-adversarial-injects-jammer-event",
+      "combat-domain-air",
+      "combat-domain-subsurface",
+      "combat-domain-surface"
+    ],
+    "units": [
+      {
+        "unitId": "ka-27m-helix-a",
+        "platformId": "ka-27m-helix-a",
+        "domain": "air",
+        "side": "blue"
+      },
+      {
+        "unitId": "eurofighter-typhoon",
+        "platformId": "eurofighter-typhoon",
+        "domain": "air",
+        "side": "blue"
+      },
+      {
+        "unitId": "nh90-tth-mrh90-taipan-2007",
+        "platformId": "nh90-tth-mrh90-taipan-2007",
+        "domain": "air",
+        "side": "blue"
+      },
+      {
+        "unitId": "f-230-norfolk-type-23-duke",
+        "platformId": "f-230-norfolk-type-23-duke",
+        "domain": "surface",
+        "side": "blue"
+      },
+      {
+        "unitId": "p-960-skjold",
+        "platformId": "p-960-skjold",
+        "domain": "surface",
+        "side": "blue"
+      },
+      {
+        "unitId": "ssn-774-virginia-blk-i-ii",
+        "platformId": "ssn-774-virginia-blk-i-ii",
+        "domain": "subsurface",
+        "side": "blue"
+      },
+      {
+        "unitId": "s-185-u-35-type-212a",
+        "platformId": "s-185-u-35-type-212a",
+        "domain": "subsurface",
+        "side": "blue"
+      },
+      {
+        "unitId": "pl-877-kilo-paltus-1992",
+        "platformId": "pl-877-kilo-paltus-1992",
+        "domain": "subsurface",
+        "side": "red"
+      },
+      {
+        "unitId": "pla-971-akula-i-improved-shchuka-b",
+        "platformId": "pla-971-akula-i-improved-shchuka-b",
+        "domain": "subsurface",
+        "side": "red"
+      },
+      {
+        "unitId": "su-33-flanker-d",
+        "platformId": "su-33-flanker-d",
+        "domain": "air",
+        "side": "red"
+      },
+      {
+        "unitId": "mig-31-foxhound",
+        "platformId": "mig-31-foxhound",
+        "domain": "air",
+        "side": "red"
+      },
+      {
+        "unitId": "skr-admiral-sergey-gorshkov-pr-2235-0",
+        "platformId": "skr-admiral-sergey-gorshkov-pr-2235-0",
+        "domain": "surface",
+        "side": "red"
+      },
+      {
+        "unitId": "pk-368-vasily-bykov-pr-22160",
+        "platformId": "pk-368-vasily-bykov-pr-22160",
+        "domain": "surface",
+        "side": "red"
+      }
+    ],
+    "expect": {
+      "side": "BLUE",
+      "requireNonEmptyFingerprint": true,
+      "requireFingerprintSubstrings": [
+        "sensor_degradation_inject_designated_1",
+        "comms_loss_inject_designated",
+        "reinforcement_pressure_inject_designated"
+      ],
+      "minKills": 1,
+      "maxMissilesFired": 22,
+      "minDenials": 35,
+      "maxDenials": 45,
+      "minScore": -160.0,
+      "maxScore": 260.0
+    },
+    "expectProvenance": "regenerated 2026-07-28 from real Demo batch CSV at T5 tick budget 40, seeds 42,7,123 (production/qa/gauntlet/gauntlet-20260727-1455/tier-5/results.csv). Observed: score=[200.0, 0.0, -100.0] kills=[4, 2, 1] missilesFired=[12, 15, 18] denials=[40, 40, 40]. Bounds padded ~20% beyond observed range per tools/qa-gauntlet/README-expect-regen.md (derived, not invented)."
+  }
+}

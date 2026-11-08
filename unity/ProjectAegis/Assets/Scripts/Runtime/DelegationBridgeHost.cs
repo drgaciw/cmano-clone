@@ -3,11 +3,22 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using ProjectAegis.Data.Catalog;
+using ProjectAegis.Delegation.C2Network;
+using ProjectAegis.Delegation.Controllers;
 using ProjectAegis.Delegation.Core;
+using ProjectAegis.Delegation.Input;
 using ProjectAegis.Delegation.Orchestration;
 using ProjectAegis.Delegation.Projection;
 using ProjectAegis.Delegation.UnityAdapter.Bridge;
+using ProjectAegis.Delegation.ThreatAssessment;
+using ProjectAegis.Delegation.UnityAdapter.CommandReview;
+using ProjectAegis.Delegation.C2Nodes;
 using ProjectAegis.Delegation.UnityAdapter.Presentation;
+using ProjectAegis.Delegation.Watch;
+using ProjectAegis.Sim.Engage;
+using ProjectAegis.Sim.Policy;
+using ProjectAegis.Sim.Scenario;
 using UnityEngine;
 
 namespace ProjectAegis.Unity.Runtime
@@ -27,6 +38,7 @@ namespace ProjectAegis.Unity.Runtime
         // - Consumers (future scene builders / conditional map hosts) read UseGlobeMap to activate CesiumGlobe* vs MapPlaceholderPanelHost.
         // - Default=false keeps Phase A Toolkit map as vertical slice default. Flag is presentation-only; zero impact on RunTick, selection (C2PresentationController), or sim determinism.
         // - GitNexus impact: LOW (0 upstream). See DelegationBridgeHost.UseGlobeMap + Cesium* (presentation layer only).
+        // - S24-08: DelegationSmoke.unity keeps useGlobeMap=false (CI-safe); CesiumSpike.unity is the Editor polish scene per CESIUM-SPIKE-SETUP.md.
         [SerializeField] private string timeCompressionLabel = "1x";
         [SerializeField] private string simulationModeLabel = "Mixed";
 
@@ -51,6 +63,12 @@ namespace ProjectAegis.Unity.Runtime
         /// <summary>Full AAR message log (all projected categories) for doc-20 bottom strip.</summary>
         public IReadOnlyList<MessageLogLine> LastMessageLog { get; private set; } = Array.Empty<MessageLogLine>();
 
+        /// <summary>
+        /// Domain keys with recent combat activity for ASSET-021 hot-tick HUD (headless binder input).
+        /// Derived from message-log combat categories — no sim hot-path coupling.
+        /// </summary>
+        public IReadOnlyList<string> LastCombatDomainActivityTags { get; private set; } = Array.Empty<string>();
+
         /// <summary>OOB unit rows for doc-20 left drawer.</summary>
         public IReadOnlyList<OobTreeEntry> LastOobTree { get; private set; } = Array.Empty<OobTreeEntry>();
 
@@ -60,18 +78,183 @@ namespace ProjectAegis.Unity.Runtime
         /// <summary>Primary friendly unit detail for doc-20 right panel.</summary>
         public UnitDetailEntry? LastUnitDetail { get; private set; }
 
-        /// <summary>Tactical map symbols (placeholder layout).</summary>
+        /// <summary>Tactical map symbols (placeholder layout, pose-aware when snapshot publishes kinematics).</summary>
         public IReadOnlyList<MapSymbolEntry> LastMapSymbols { get; private set; } = Array.Empty<MapSymbolEntry>();
 
-        /// <summary>Top bar labels (time, phase, score).</summary>
+        /// <summary>CMD-38 plotted-course polylines (presentation-only; not Track C VFX).</summary>
+        public IReadOnlyList<MapCourseOverlayEntry> LastMapCourses { get; private set; } =
+            Array.Empty<MapCourseOverlayEntry>();
+
+        /// <summary>
+        /// Track C presentation-only combat VFX from the same-tick combat-event snapshot.
+        /// Assigned in <see cref="RunTick"/> after <see cref="LastCombatFrame"/> is built, never inside DelegationBridge.
+        /// </summary>
+        public CombatVfxFrame LastCombatVfx { get; private set; } = CombatVfxFrame.Empty;
+
+        /// <summary>Top bar labels (time, phase, score, CMD-22 Zulu/local/remain).</summary>
         public C2TopBarState LastTopBar { get; private set; } =
-            new("SIM 00:00:00", "PHASE: Planning", "TIME: 1x", "MODE: —", "COMMS: NOMINAL", "SCORE: 0");
+            new("SIM 00:00:00", "PHASE: Planning", "TIME: 1x", "MODE: —", "COMMS: NOMINAL", "SCORE: 0",
+                "ZULU 00:00:00", "LOCAL 00:00:00", "REMAIN —");
+
+        /// <summary>CMD-39 toast bind (watch pause-class + attention-tier Critical/Notable).</summary>
+        public AttentionToastPresentation LastAttentionToast { get; private set; } =
+            AttentionToastPresentation.Empty;
+
+        /// <summary>Live compression chrome from the session clock (ADR-010; not a second authority).</summary>
+        public string LiveCompressionLabel =>
+            C2ClockCommand.FormatCompressionLabel(
+                Session?.IsSimPaused ?? false,
+                Session?.TimeAccelerationFactor ?? 1);
+
+        /// <summary>Projected comms snapshot from the last <see cref="RunTick"/> refresh (CMD-32).</summary>
+        public CommsStateSnapshot? LastCommsState { get; private set; }
+
+        /// <summary>Projected C2 network-health snapshot from the last <see cref="RunTick"/> refresh (DRG-190).</summary>
+        public C2NetworkHealthSnapshot? LastNetworkHealth { get; private set; }
+
+        /// <summary>Replay-stable fingerprint for <see cref="LastNetworkHealth"/> (tick-boundary cache).</summary>
+        public string? LastNetworkHealthFingerprint { get; private set; }
+
+        /// <summary>Read-only Slice A contact frame, rebuilt once after each simulation tick.</summary>
+        public SliceAContactFrame LastSliceAContacts { get; private set; } = SliceAContactFrame.Empty;
+
+        /// <summary>Shared combat-event, explanation and assessment frame for Slice B views.</summary>
+        public CombatPresentationFrame LastCombatFrame { get; private set; } = CombatPresentationFrame.Empty;
+
+        /// <summary>Presentation-only event navigation and captured map evidence.</summary>
+        public CommandReviewTimeline CommandTimeline { get; } = new();
+        /// <summary>Current advisory sections; all rows are built by engine-free presenters.</summary>
+        public IReadOnlyList<CommandReviewSection> LastCommandReviewSections { get; private set; } = Array.Empty<CommandReviewSection>();
+        private ProjectAegis.Delegation.UnityAdapter.CommandReview.StatusFrame? _commandStatus;
+        /// <summary>Current source-sequenced status changes available for related timeline navigation.</summary>
+        public IReadOnlyList<StatusCorrelationRow> CommandStatusHistory =>
+            _commandStatus?.Correlations ?? Array.Empty<StatusCorrelationRow>();
+        private bool _commandProblemsOnly;
+        private readonly List<CoordinationApprovedScope> _pendingGroupScopes = new();
+        /// <summary>Current selected-contact evidence; recommendations never enqueue orders.</summary>
+        public AdviceFrame? LastAdvice { get; private set; }
+        /// <summary>Current group responsibilities and authored coverage.</summary>
+        public CoordinationSnapshot LastCoordination { get; private set; } = CoordinationSnapshot.Empty;
+        /// <summary>Replay-stable mission-package / C2-node snapshot (DRG-189 presentation bind).</summary>
+        public MissionPackageSnapshot LastMissionPackage { get; private set; } = MissionPackageSnapshot.Empty;
+        /// <summary>Presentation clutter preference for authored coverage polygons.</summary>
+        public bool ShowCommandCoverage { get; set; } = true;
+        /// <summary>Most recent explicit read-only skill invocation.</summary>
+        public AdviceSkillResult? LastAdviceSkill { get; private set; }
+        /// <summary>Runs one read-only decision-support capability against current evidence.</summary>
+        public string InvokeAdviceSkill(string skillId)
+        {
+            if (CommandTimeline.IsInspecting) return "Return to live before requesting current advice.";
+            RefreshAdvice();
+            if (LastAdvice == null) return "Current evidence unavailable.";
+            LastAdviceSkill = AdviceSkillService.Invoke(skillId, LastAdvice);
+            return $"{skillId} | {LastAdvice.Availability} | {LastAdvice.Rationale} | {LastAdvice.Fallback}";
+        }
+        /// <summary>Submits deliberate human group intent through the command facade.</summary>
+        public string SubmitGroupDecision(string groupId, CoordinationDecision decision)
+        {
+            if (CommandTimeline.IsInspecting) return "Return to live before issuing a group decision.";
+            if (_pendingGroupScopes.Any(x => x.GroupId == groupId)) return "A group decision is already awaiting execution.";
+            var review = LastCoordination.Groups.FirstOrDefault(x => x.Coordination.GroupId == groupId);
+            var result = CoordinationCommandBridge.Submit(Bridge, _lastSnapshot, groupId, decision, review?.Intent, _pendingGroupScopes);
+            if (result.ApprovedScope != null) _pendingGroupScopes.Add(result.ApprovedScope);
+            return result.Accepted ? $"Queued {decision}: {string.Join(", ", result.AffectedUnitIds)}" : $"Prevented: {result.FailureReason}";
+        }
+        private void RefreshAdvice()
+        {
+            if (Bridge != null && _lastSnapshot != null)
+                LastAdvice = AdviceBridge.Build(Bridge, _lastSnapshot, LastSliceAContacts, SelectedContactId);
+            RefreshCommandReviewSections();
+        }
+        /// <summary>Changes presentation clutter without changing status facts.</summary>
+        public void SetCommandReviewProblemsOnly(bool value)
+        {
+            _commandProblemsOnly = value;
+            RefreshCommandReviewSections();
+        }
+        private void RefreshCommandReviewSections() => LastCommandReviewSections =
+            CommandReviewDashboard.Build(_commandStatus, LastAdvice, LastCoordination, _commandProblemsOnly);
+        /// <summary>Current or inspected combat frame; never changes the simulation clock.</summary>
+        public CombatPresentationFrame DisplayCombatFrame => CommandTimeline.IsInspecting ? CommandTimeline.DisplayFrame : LastCombatFrame;
+        /// <summary>Historical poses only while inspecting a timeline event.</summary>
+        public IReadOnlyList<MapSymbolEntry> DisplayCombatSymbols => CommandTimeline.IsInspecting ? CommandTimeline.DisplaySymbols : LastMapSymbols;
+        /// <summary>One inspection identity shared by map and explanation.</summary>
+        public string? DisplayCombatKey => CommandTimeline.IsInspecting ? CommandTimeline.SelectedKey : Presentation.CombatInspection.SelectedKey;
+        /// <summary>Inspects a ledger event without selecting a unit for orders.</summary>
+        public bool InspectTimelineEvent(ProjectAegis.Delegation.AfterAction.AfterActionLedgerEntry row) => CommandTimeline.Inspect(row);
+        /// <summary>Returns map and explanation to current state.</summary>
+        public void ReturnToLiveCombat()
+        {
+            CommandTimeline.ReturnToLive();
+            Presentation.CombatInspection.Select(null);
+        }
+        /// <summary>Selects a live combat leg from the map/history.</summary>
+        public void InspectLiveCombatEvent(string? key)
+        {
+            CommandTimeline.ReturnToLive();
+            InspectCombatEvent(key);
+        }
+        /// <summary>Builds detail for the same as-of frame used by the map.</summary>
+        public CombatDetailPresentation ProjectReviewCombatDetail() => CombatSelectionPresenter.Build(
+            DisplayCombatFrame, DisplayCombatKey, SelectedUnitId, SelectedContactId);
+
+        /// <summary>Inspect history without changing units selected for player commands.</summary>
+        public void InspectCombatEvent(string? key) => Presentation.CombatInspection.Select(key);
+
+        /// <summary>Read-only explanation for explicit history inspection or current unit/contact selection.</summary>
+        public CombatDetailPresentation ProjectCombatDetail() => CombatSelectionPresenter.Build(
+            LastCombatFrame, Presentation.CombatInspection.SelectedKey, SelectedUnitId, SelectedContactId);
 
         /// <summary>Sensor C2 contact list + EMCON / track indicators for HUD binding.</summary>
         public SensorC2Snapshot LastSensorC2 { get; private set; } =
             new(Array.Empty<ContactPictureEntry>(), 0, true, false, null, 0);
 
+        // S37-04: C2 graph surfacing (dependency viewer/panel/highlights/bind) — read-only catalog projections only
+        public IReadOnlyList<string> LastGraphHighlightIds { get; private set; } = Array.Empty<string>();
+        public string? LastGraphLinkChainDisplay { get; private set; }
+
+        // S37-04/05: catalog for graph/FK surfacing + overlay ranges/links (injected read-only; no bridge writes)
+        public ICatalogReader? CatalogReader { get; set; }
+
+        /// <summary>CMD-37 agent roster rows (presentation projection from registry controllers).</summary>
+        public IReadOnlyList<AgentRosterEntry> LastAgentRoster { get; private set; } = Array.Empty<AgentRosterEntry>();
+
+        /// <summary>CMD-24 Phase A air-ops readiness rows (from Session.UnitReadiness + OOB).</summary>
+        public IReadOnlyList<AirOpsEntry> LastAirOps { get; private set; } = Array.Empty<AirOpsEntry>();
+
+        /// <summary>True when Session.UnitReadiness is present (false → honest NO READINESS DATA).</summary>
+        public bool HasAirOpsReadinessData { get; private set; }
+
+        /// <summary>CMD-25 Boat Ops rows (from Session.BoatOps FSM ledger when present).</summary>
+        public IReadOnlyList<BoatOpsEntry> LastBoatOps { get; private set; } = Array.Empty<BoatOpsEntry>();
+
+        /// <summary>True when Session.BoatOps is present (false → honest NO BOAT OPS DATA).</summary>
+        public bool HasBoatOpsData { get; private set; }
+
+        /// <summary>CMD-24 magazine loadout rows (from Session.Magazines snapshot when present).</summary>
+        public IReadOnlyList<MagazineLoadoutEntry> LastMagazineLoadout { get; private set; } = Array.Empty<MagazineLoadoutEntry>();
+
+        /// <summary>True when Session.Magazines is present (false → honest NO MAGAZINE DATA).</summary>
+        public bool HasMagazineLoadoutData { get; private set; }
+
+        /// <summary>CMD-24 deck/hangar capacity rows (inject via SetDeckHangarFeed; no session source yet).</summary>
+        public IReadOnlyList<DeckHangarCapacityEntry> LastDeckHangar { get; private set; } = Array.Empty<DeckHangarCapacityEntry>();
+
+        /// <summary>True when a deck/hangar capacity feed has been bound (false → honest NO CAPACITY DATA).</summary>
+        public bool HasDeckHangarData { get; private set; }
+
+        /// <summary>
+        /// CMD-23 UI-local chrome collapse flags (message log + left drawer).
+        /// Not DecisionLog; persisted only via in-memory <see cref="C2ChromePrefsStore"/>.
+        /// </summary>
+        public C2ChromeCollapseState ChromeCollapse { get; private set; } = C2ChromeCollapseState.Expanded;
+
+        private readonly C2ChromePrefsStore _chromePrefs = new();
+        private readonly AttentionToastBinder _attentionToast = new();
         private ISimWorldSnapshot? _lastSnapshot;
+
+        /// <summary>Latest live simulation tick for presentation staleness calculations.</summary>
+        public ulong CurrentSimTick => (ulong)Math.Max(0, (long)(_lastSnapshot?.SimTime ?? 0));
 
         private void Awake()
         {
@@ -79,10 +262,264 @@ namespace ProjectAegis.Unity.Runtime
                 globalSeed,
                 mvpEngagement: enableMvpEngagement,
                 scenarioPolicyId: scenarioPolicyId);
+            // Presentation-only bind (DRG-162): overlay hosts need catalog links/ranges.
+            // Prefer the session catalog when MVP engage is on; otherwise the same factory the bridge uses.
+            CatalogReader ??= Bridge.Session?.CatalogReader
+                ?? CatalogReaderFactory.TryCreateBalticPatrolReader()
+                ?? InMemoryCatalogReader.BalticPatrolFixture();
             LastMissionList = MissionListBridge.ProjectFrom(Bridge.Orchestrator.ScenarioPolicy?.MissionTimeline);
+            // Restore UI-local chrome collapse bag (in-memory; no DecisionLog / file I/O).
+            ChromeCollapse = _chromePrefs.Restore(C2ChromeCollapseState.Expanded);
         }
 
+        /// <summary>
+        /// CMD-23: toggle message-log body collapse and capture into the in-memory prefs bag.
+        /// </summary>
+        public void ToggleMessageLogCollapsed()
+        {
+            ChromeCollapse = ChromeCollapse.ToggleMessageLog();
+            _chromePrefs.Capture(ChromeCollapse);
+        }
+
+        /// <summary>
+        /// CMD-23: toggle left-drawer body collapse and capture into the in-memory prefs bag.
+        /// </summary>
+        public void ToggleLeftDrawerCollapsed()
+        {
+            ChromeCollapse = ChromeCollapse.ToggleLeftDrawer();
+            _chromePrefs.Capture(ChromeCollapse);
+        }
+
+        /// <summary>
+        /// CMD-23: replace chrome collapse state (tests / prefs restore) and capture.
+        /// </summary>
+        public void SetChromeCollapse(C2ChromeCollapseState state)
+        {
+            ChromeCollapse = state ?? C2ChromeCollapseState.Expanded;
+            _chromePrefs.Capture(ChromeCollapse);
+        }
+
+        /// <summary>CMD-23: copy of the current chrome prefs bag (host-free tests / tooling).</summary>
+        public IReadOnlyDictionary<string, bool> GetChromePrefsSnapshot() => _chromePrefs.GetSnapshot();
+
         public void BeginExecution() => Bridge.BeginExecution();
+
+        /// <summary>CMD-04: set session acceleration; label follows the sim clock.</summary>
+        public bool TrySetTimeAcceleration(int factor, out string? reason)
+        {
+            var ok = C2ClockCommand.TrySetAcceleration(Session, factor, out reason);
+            if (ok)
+            {
+                SyncTimeCompressionLabel();
+            }
+
+            return ok;
+        }
+
+        /// <summary>CMD-39: pause via session clock (WatchAutoPauseGate callers use the same API).</summary>
+        public bool TryPauseSim(out string? reason)
+        {
+            var ok = C2ClockCommand.TryPause(Session, out reason);
+            if (ok)
+            {
+                SyncTimeCompressionLabel();
+            }
+
+            return ok;
+        }
+
+        /// <summary>CMD-39: gated resume — unresolved pause-class cards block unless override.</summary>
+        public bool TryResumeSim(bool explicitOverride, out string? reason)
+        {
+            var ok = C2ClockCommand.TryResume(Session, explicitOverride, out reason);
+            if (ok)
+            {
+                SyncTimeCompressionLabel();
+            }
+
+            return ok;
+        }
+
+        /// <summary>Re-project toast from DecisionLog attention + session watch queue (not Tick).</summary>
+        public AttentionToastPresentation RefreshAttentionToast()
+        {
+            if (Bridge == null)
+            {
+                LastAttentionToast = AttentionToastPresentation.Empty;
+                return LastAttentionToast;
+            }
+
+            LastAttentionToast = _attentionToast.Refresh(
+                Bridge.Orchestrator.DecisionLog,
+                Session?.WatchQueue,
+                Session?.WatchPauseGate);
+            return LastAttentionToast;
+        }
+
+        public bool TryAcknowledgeAttentionToast(string cardId)
+        {
+            if (!_attentionToast.TryAcknowledge(cardId, Session?.WatchQueue))
+            {
+                return false;
+            }
+
+            RefreshAttentionToast();
+            return true;
+        }
+
+        public bool TryDismissAttentionToast(string cardId)
+        {
+            if (!_attentionToast.TryDismiss(cardId, Session?.WatchQueue))
+            {
+                return false;
+            }
+
+            RefreshAttentionToast();
+            return true;
+        }
+
+        /// <summary>
+        /// Play Mode demo: one pause-class hostile contact so the toast host has a real event.
+        /// Idempotent — no-ops when the watch queue already has cards.
+        /// </summary>
+        public bool TrySeedDemoWatchAttention()
+        {
+            if (Session == null || Session.WatchQueue.Cards.Count > 0)
+            {
+                return Session != null && Session.WatchQueue.Cards.Count > 0;
+            }
+
+            Session.ReportWatchAttention(new WatchAttentionEvent(
+                "watch:demo:hostile-1",
+                WatchAttentionKind.HostileOrUnknownContact,
+                WatchAttentionPriority.Critical,
+                1,
+                "hostile-1",
+                ReasonDetail: "Play Mode demo contact"));
+            SyncTimeCompressionLabel();
+            RefreshAttentionToast();
+            return true;
+        }
+
+        private void SyncTimeCompressionLabel()
+        {
+            if (Session == null)
+            {
+                return;
+            }
+
+            timeCompressionLabel = Session.IsSimPaused
+                ? "PAUSED"
+                : Session.TimeAccelerationFactor + "x";
+        }
+
+        // S37-04: bind graph surfacing after selection (viewer/panel/highlights + bind)
+        private void ApplyGraphSurfacingForSelection()
+        {
+            if (Presentation != null && CatalogReader != null)
+            {
+                Presentation.ApplyGraphSurfacing(CatalogReader);
+                LastGraphHighlightIds = Presentation.LastGraphHighlightIds;
+                LastGraphLinkChainDisplay = Presentation.LastGraphLinkChainDisplay;
+            }
+            else
+            {
+                LastGraphHighlightIds = Array.Empty<string>();
+                LastGraphLinkChainDisplay = "(graph n/a)";
+            }
+        }
+
+        /// <summary>
+        /// CMD-11 live feed: project engage-explain for the currently selected unit.
+        /// Returns <see cref="EngageExplain.Empty"/> when no selection or snapshot is available.
+        /// </summary>
+        public EngageExplain ProjectSelectedEngageExplain()
+        {
+            if (_lastSnapshot == null || string.IsNullOrEmpty(SelectedUnitId))
+            {
+                return EngageExplain.Empty;
+            }
+
+            var preview = ProjectSelectedEngagePreview();
+            return EngageExplainProjection.Project(preview);
+        }
+
+        /// <summary>CMD-11 / DRG-266: live engage preview for weapon-panel DLZ binders.</summary>
+        public EngagePreview? ProjectSelectedEngagePreview()
+        {
+            if (_lastSnapshot == null || string.IsNullOrEmpty(SelectedUnitId))
+            {
+                return null;
+            }
+
+            return Bridge.GetEngagePreviewForUnit(SelectedUnitId, _lastSnapshot);
+        }
+
+        /// <summary>DRG-266: structured threat-range facts for contact-hover DLZ when supplied by runtime evidence.</summary>
+        public ThreatRangeAssessment? ProjectSelectedContactThreatRange()
+        {
+            if (_lastSnapshot == null || string.IsNullOrEmpty(SelectedContactId))
+            {
+                return null;
+            }
+
+            if (_lastSnapshot is IAdviceEvidenceSource source
+                && source.TryGetAdviceEvidence(SelectedContactId, out var evidence))
+            {
+                return evidence.ThreatAssessment?.Range;
+            }
+
+            return null;
+        }
+
+        /// <summary>DRG-259: WRA salvo remaining vs max for weapon-panel chrome (advisory only).</summary>
+        public WraSalvoRemainingState ProjectSelectedWraSalvoRemaining()
+        {
+            if (_lastSnapshot == null || string.IsNullOrEmpty(SelectedUnitId))
+            {
+                return WraSalvoRemainingState.Empty;
+            }
+
+            var policyProfile = Bridge.Orchestrator.ScenarioPolicy;
+            var policy = policyProfile?.ResolveUnitPolicy(SelectedUnitId, isFriendly: true).Effective
+                ?? EffectivePolicy.DefaultFree;
+            var ctx = BuildSelectedLiveEngageContext(SelectedUnitId);
+            return WraSalvoRemainingBinder.Bind(
+                SelectedUnitId,
+                in ctx,
+                policy,
+                ProjectSelectedEngagePreview());
+        }
+
+        /// <summary>
+        /// DRG-167: battle graphic for the displayed combat frame.
+        /// Projection read only — does not tick, enqueue, or write the order log.
+        /// </summary>
+        public BattleGraphicState ProjectBattleGraphic(
+            IReadOnlyList<MapSymbolEntry> symbols,
+            CombatZoomBand zoom = CombatZoomBand.Tactical,
+            string? selectedKey = null) =>
+            BattleGraphicBinder.Bind(DisplayCombatFrame, symbols, zoom, selectedKey);
+
+        /// <summary>Read-only live engage context mirror of <see cref="DelegationBridge.GetEngagePreviewForUnit"/> inputs.</summary>
+        private EngageContext BuildSelectedLiveEngageContext(string shooterUnitId)
+        {
+            var engageDefaults = Bridge.Orchestrator.ScenarioPolicy?.EngageDefaults
+                ?? ScenarioEngageDefaults.MvpFallback;
+            var ctx = engageDefaults.ToEngageContext(engageDefaults.DefaultMagazineRounds);
+            if (_lastSnapshot == null)
+            {
+                return ctx;
+            }
+
+            var airReady = Session?.UnitReadiness?.IsReadyForLaunch(shooterUnitId) ?? true;
+            return ctx with
+            {
+                HasFireControlTrack = _lastSnapshot.HasFireControlTrackOnPrimaryContact,
+                RadarEmconActive = _lastSnapshot.ObserverRadarEmconActive,
+                AirOperationsReady = airReady,
+            };
+        }
 
         /// <summary>Interactive attack menu selection (req 14).</summary>
         public bool TrySelectAttackOption(string optionId, out string? failureReason)
@@ -104,10 +541,89 @@ namespace ProjectAegis.Unity.Runtime
             return Bridge.TryEnqueueAttackOption(entityKey, optionId, _lastSnapshot, out failureReason);
         }
 
+        /// <summary>
+        /// CMD-31: issue a player command for the currently selected unit (unit-order toolbar).
+        /// Does not rewrite RunTick; returns structured failure reasons for disabled UI chrome.
+        /// </summary>
+        public bool TryIssueSelectedCommand(string commandId, out string? reason)
+        {
+            reason = null;
+            if (string.IsNullOrEmpty(SelectedUnitId))
+            {
+                reason = ProjectAegis.Delegation.Input.C2CommandIssuance.ReasonNoSelection;
+                return false;
+            }
+
+            if (!TryResolveEntityKey(SelectedUnitId, out var entityKey))
+            {
+                reason = ProjectAegis.Delegation.UnityAdapter.Bridge.C2PlayerCommandBridge.ReasonUnknownUnit;
+                return false;
+            }
+
+            if (!IsPlayerControlledUnit(entityKey))
+            {
+                reason = "NOT_PLAYER_CONTROLLED";
+                return false;
+            }
+
+            var simTime = _lastSnapshot?.SimTime ?? 0;
+            return C2PlayerCommandBridge.TryIssue(Bridge, entityKey, commandId, simTime, out reason);
+        }
+
+        /// <summary>
+        /// LOG-08 / CMD-24 Phase N: launch the selected aircraft (order-log path).
+        /// Thin wrapper over C2CommandIssuance + human enqueue; no Tick rewrite.
+        /// </summary>
+        public bool TryLaunchSelectedAircraft(out string? reason) =>
+            TryIssueSelectedCommand("launch", out reason);
+
+        /// <summary>
+        /// LOG-08 / CMD-24 Phase N: abort launch for the selected aircraft (order-log path).
+        /// </summary>
+        public bool TryAbortLaunchSelected(out string? reason) =>
+            TryIssueSelectedCommand("abort_launch", out reason);
+
+        /// <summary>
+        /// CMD-25: issue a launch/recover/abort command for an explicit craft id. Boat Ops manages
+        /// its own row selection independent of the C2 unit-selection system (<see cref="SelectUnit"/>),
+        /// so this resolves the target entity directly rather than via <see cref="SelectedUnitId"/>.
+        /// </summary>
+        public bool TryIssueBoatCommand(string craftId, string commandId, out string? reason)
+        {
+            reason = null;
+            if (string.IsNullOrEmpty(craftId))
+            {
+                reason = ProjectAegis.Delegation.Input.C2CommandIssuance.ReasonNoSelection;
+                return false;
+            }
+
+            if (!TryResolveEntityKey(craftId, out var entityKey))
+            {
+                reason = ProjectAegis.Delegation.UnityAdapter.Bridge.C2PlayerCommandBridge.ReasonUnknownUnit;
+                return false;
+            }
+
+            var simTime = _lastSnapshot?.SimTime ?? 0;
+            return Bridge.TryIssuePlayerCommand(entityKey, commandId, simTime, out reason);
+        }
+
+        /// <summary>CMD-25 / LOG-09: launch the given craft (order-log path; FSM advances on next session tick).</summary>
+        public bool TryLaunchBoat(string craftId, out string? reason) =>
+            TryIssueBoatCommand(craftId, "launch_boat", out reason);
+
+        /// <summary>CMD-25 / LOG-10: recover the given craft (order-log path).</summary>
+        public bool TryRecoverBoat(string craftId, out string? reason) =>
+            TryIssueBoatCommand(craftId, "recover_boat", out reason);
+
+        /// <summary>CMD-25 / LOG-11: abort launch for the given craft (order-log path).</summary>
+        public bool TryAbortBoatLaunch(string craftId, out string? reason) =>
+            TryIssueBoatCommand(craftId, "abort_boat_launch", out reason);
+
         public void SelectUnit(string unitId)
         {
             Presentation.SelectFriendlyUnit(unitId);
             RefreshSelectionPresentation();
+            ApplyGraphSurfacingForSelection();  // S37-04 C2 graph surfacing (highlights/bind)
         }
 
         public void SelectContact(string contactId)
@@ -115,6 +631,8 @@ namespace ProjectAegis.Unity.Runtime
             var contacts = ContactPictureProjection.Project(Bridge.Orchestrator.DecisionLog);
             Presentation.SelectHostileContact(contactId, contacts);
             RefreshSelectionPresentation();
+            RefreshAdvice();
+            // contacts do not drive platform graph
         }
 
         /// <summary>
@@ -123,13 +641,24 @@ namespace ProjectAegis.Unity.Runtime
         public DelegationTickResult RunTick(ISimWorldSnapshot snapshot, IOrderSink sink)
         {
             _lastSnapshot = snapshot;
-            var result = Bridge.Tick(snapshot, sink);
-            LastMessageLog = MessageLogBridge.ProjectFrom(Bridge.Orchestrator.DecisionLog);
+            var groupSink = new CoordinationOrderSink(Bridge.Registry, snapshot, sink, _pendingGroupScopes);
+            var result = Bridge.Tick(snapshot, groupSink);
+            _pendingGroupScopes.RemoveAll(x => groupSink.ConsumedScopeIds.Contains(x.ScopeId));
+            var expiredScopes = CoordinationScopeReconciler.FindInvalidOrExpired(Bridge, _pendingGroupScopes, CurrentSimTick);
+            _pendingGroupScopes.RemoveAll(x => expiredScopes.Contains(x.ScopeId));
+            LastMessageLog = MessageLogBridge.ProjectLive(Bridge);
+            LastCombatDomainActivityTags = CombatDomainActivityTags.FromMessageLog(LastMessageLog);
             LastOobTree = OobTreeBridge.Build(snapshot, Bridge.Registry);
             Presentation.ApplyDefaultSelection(LastOobTree);
+            ApplyGraphSurfacingForSelection(); // S37-04 ensure graph after default select
             LastSensorC2 = SensorC2Bridge.Build(snapshot, Bridge.Orchestrator.DecisionLog);
             LastUnitDetail = Presentation.ResolveUnitDetail(snapshot, Bridge.Registry, Bridge);
             LastMapSymbols = MapPictureBridge.Build(
+                snapshot,
+                Bridge.Registry,
+                Bridge.Orchestrator.DecisionLog,
+                globalSeed);
+            LastMapCourses = MapPictureBridge.BuildCourses(
                 snapshot,
                 Bridge.Registry,
                 Bridge.Orchestrator.DecisionLog,
@@ -140,7 +669,442 @@ namespace ProjectAegis.Unity.Runtime
                 timeCompressionLabel,
                 simulationModeLabel,
                 Bridge.Orchestrator.DecisionLog);
+            LastCommsState = CommsStateProjection.Project(Bridge.Orchestrator.DecisionLog);
+            LastNetworkHealth = C2NetworkHealthBridge.Build(
+                Bridge.Orchestrator.DecisionLog,
+                Bridge.Registry,
+                snapshot,
+                CatalogReader,
+                CurrentSimTick);
+            LastNetworkHealthFingerprint = LastNetworkHealth == null
+                ? "c2net:empty"
+                : C2NetworkHealthFingerprint.Compute(LastNetworkHealth);
+            LastSliceAContacts = SliceAContactFrameBridge.Build(snapshot, Bridge, CatalogReader);
+            LastCombatFrame = CombatPresentationFrameBridge.Build(
+                Bridge.Orchestrator.DecisionLog, LastSliceAContacts, snapshot.SimTime);
+            LastCombatVfx = CombatVfxFrameBridge.Build(LastCombatFrame, LastMapSymbols);
+            CommandTimeline.Capture(LastCombatFrame, LastMapSymbols);
+            _commandStatus = ProjectAegis.Delegation.UnityAdapter.CommandReview.StatusFrameBridge.Build(Bridge, snapshot, LastSliceAContacts);
+            LastCoordination = CoordinationBridge.Build(Bridge, snapshot);
+            LastMissionPackage = MissionPackagePresentationSource.Project(
+                Bridge,
+                snapshot,
+                snapshot is ICoordinationFacts coordinationFacts
+                    ? coordinationFacts.Packages
+                    : Array.Empty<PackageDefinition>());
+            RefreshAdvice();
+            // CMD-37: additive roster projection (no Tick body rewrite)
+            LastAgentRoster = BuildAgentRosterFromRegistry();
+            // CMD-24 Phase A: additive air-ops readiness projection
+            RefreshAirOps();
+            // CMD-25: additive boat-ops projection (no Tick body rewrite)
+            RefreshBoatOps();
+            // CMD-24 Wave4: magazine + deck/hangar feeds (no Tick body rewrite)
+            RefreshMagazineLoadout();
+            RefreshDeckHangar();
             return result;
+        }
+
+        /// <summary>
+        /// Rebuild agent roster from registry controller slots (safe to call from LateUpdate).
+        /// </summary>
+        public void RefreshAgentRoster()
+        {
+            if (Bridge == null)
+            {
+                LastAgentRoster = Array.Empty<AgentRosterEntry>();
+                return;
+            }
+
+            LastAgentRoster = BuildAgentRosterFromRegistry();
+        }
+
+        /// <summary>
+        /// Rebuild CMD-24 Air Ops rows from Session.AirOps lifecycle when present,
+        /// else Session.UnitReadiness + OOB (safe from LateUpdate).
+        /// Honest empty when neither lifecycle ledger nor readiness map has data.
+        /// </summary>
+        public void RefreshAirOps()
+        {
+            if (Bridge?.Session == null)
+            {
+                HasAirOpsReadinessData = false;
+                LastAirOps = Array.Empty<AirOpsEntry>();
+                return;
+            }
+
+            // LOG-08 Phase N: prefer session air-ops FSM snapshot when units are tracked.
+            var airOps = Bridge.Session.AirOps;
+            if (airOps != null && airOps.Count > 0)
+            {
+                HasAirOpsReadinessData = true;
+                LastAirOps = AirOpsProjection.ProjectLifecycle(airOps.Snapshot());
+                return;
+            }
+
+            var readiness = Bridge.Session.UnitReadiness;
+            HasAirOpsReadinessData = readiness != null;
+            if (!HasAirOpsReadinessData)
+            {
+                LastAirOps = Array.Empty<AirOpsEntry>();
+                return;
+            }
+
+            // Only surface units the readiness map actually tracks (real airframes) —
+            // UnitReadinessMap.IsReadyForLaunch defaults unknown ids to ready, so an
+            // unfiltered OOB/registry sweep would show surface ships as launchable.
+            IEnumerable<string> unitIds = (LastOobTree.Count > 0
+                ? LastOobTree.Select(e => e.UnitId)
+                : Bridge.Registry != null
+                    ? Bridge.Registry.Bindings.Select(b => b.TargetId.Value)
+                    : Array.Empty<string>())
+                .Where(id => readiness!.IsTracked(id));
+
+            LastAirOps = AirOpsProjection.Project(
+                unitIds,
+                readyForLaunch: id => readiness!.IsReadyForLaunch(id));
+        }
+
+        /// <summary>
+        /// Rebuild CMD-25 Boat Ops rows from Session.BoatOps FSM ledger (safe from LateUpdate).
+        /// Honest empty when no boat-ops map is bound yet (feature only activates once a
+        /// LaunchBoat/RecoverBoat/AbortBoatLaunch order has been processed at least once).
+        /// </summary>
+        public void RefreshBoatOps()
+        {
+            var boatOps = Bridge?.Session?.BoatOps;
+            if (boatOps == null)
+            {
+                HasBoatOpsData = false;
+                LastBoatOps = Array.Empty<BoatOpsEntry>();
+                return;
+            }
+
+            HasBoatOpsData = true;
+            LastBoatOps = BoatOpsProjection.Project(boatOps.Snapshot(), boatOps.SeaStateDouglas);
+        }
+
+        /// <summary>
+        /// Rebuild magazine loadout rows from Session.Magazines snapshot (safe from LateUpdate).
+        /// Honest empty when no magazine ledger is bound. Weapon labels use missing marker.
+        /// </summary>
+        public void RefreshMagazineLoadout()
+        {
+            if (Bridge?.Session?.Magazines == null)
+            {
+                HasMagazineLoadoutData = false;
+                LastMagazineLoadout = Array.Empty<MagazineLoadoutEntry>();
+                return;
+            }
+
+            HasMagazineLoadoutData = true;
+            var snap = Bridge.Session.Magazines.Snapshot();
+            if (snap.Count == 0)
+            {
+                LastMagazineLoadout = Array.Empty<MagazineLoadoutEntry>();
+                return;
+            }
+
+            var rows = new List<(string, string, string, string, string?, int, int)>(snap.Count);
+            for (var i = 0; i < snap.Count; i++)
+            {
+                var e = snap[i];
+                rows.Add((
+                    e.ShooterUnitId.ToString(),
+                    string.Empty,
+                    e.MountId.ToString(),
+                    string.Empty,
+                    null,
+                    e.Remaining,
+                    e.Capacity));
+            }
+
+            LastMagazineLoadout = MagazineLoadoutProjection.Project(rows);
+        }
+
+        /// <summary>
+        /// Inject deck/hangar capacity states for presentation (no Session source yet).
+        /// Null clears to honest NO CAPACITY DATA.
+        /// </summary>
+        public void SetDeckHangarFeed(IReadOnlyList<DeckHangarCapacityState>? states)
+        {
+            if (states is null)
+            {
+                HasDeckHangarData = false;
+                LastDeckHangar = Array.Empty<DeckHangarCapacityEntry>();
+                return;
+            }
+
+            HasDeckHangarData = true;
+            LastDeckHangar = DeckHangarCapacityProjection.Project(states);
+        }
+
+        /// <summary>
+        /// Rebuild deck/hangar rows from last injected feed (safe from LateUpdate).
+        /// Without a feed, leaves honest empty (HasDeckHangarData false).
+        /// </summary>
+        public void RefreshDeckHangar()
+        {
+            if (!HasDeckHangarData)
+            {
+                LastDeckHangar = Array.Empty<DeckHangarCapacityEntry>();
+            }
+            // Injected rows already projected in SetDeckHangarFeed; nothing else to recompute.
+        }
+
+
+        /// <summary>CMD-37: take direct control of the currently selected unit.</summary>
+        public bool TryTakeControlOfSelected(out string? reason)
+        {
+            reason = null;
+            if (string.IsNullOrEmpty(SelectedUnitId))
+            {
+                reason = AgentDirectiveIssuance.ReasonNoSelection;
+                return false;
+            }
+
+            if (!SelectedUnitHasActiveAgent())
+            {
+                reason = AgentDirectiveIssuance.ReasonNoAgent;
+                return false;
+            }
+
+            if (!TryResolveEntityKey(SelectedUnitId, out var entityKey))
+            {
+                reason = "UNKNOWN_UNIT";
+                return false;
+            }
+
+            if (!IsPlayerControlledUnit(entityKey))
+            {
+                reason = "NOT_PLAYER_CONTROLLED";
+                return false;
+            }
+
+            var simTime = _lastSnapshot?.SimTime ?? 0;
+            if (!Bridge.TryTakeDirectControl(entityKey, simTime))
+            {
+                reason = "TAKE_CONTROL_FAILED";
+                return false;
+            }
+
+            RefreshAgentRoster();
+            return true;
+        }
+
+        /// <summary>CMD-37: return control of the selected unit to its suspended agent.</summary>
+        public bool TryReturnToAgentOfSelected(out string? reason)
+        {
+            reason = null;
+            if (string.IsNullOrEmpty(SelectedUnitId))
+            {
+                reason = AgentDirectiveIssuance.ReasonNoSelection;
+                return false;
+            }
+
+            if (!SelectedUnitHasSuspendedAgent())
+            {
+                reason = AgentDirectiveIssuance.ReasonNoAgent;
+                return false;
+            }
+
+            if (!TryResolveEntityKey(SelectedUnitId, out var entityKey))
+            {
+                reason = "UNKNOWN_UNIT";
+                return false;
+            }
+
+            if (!IsPlayerControlledUnit(entityKey))
+            {
+                reason = "NOT_PLAYER_CONTROLLED";
+                return false;
+            }
+
+            var simTime = _lastSnapshot?.SimTime ?? 0;
+            if (!Bridge.TryReleaseDirectControl(entityKey, simTime))
+            {
+                reason = "RETURN_TO_AGENT_FAILED";
+                return false;
+            }
+
+            RefreshAgentRoster();
+            return true;
+        }
+
+        /// <summary>
+        /// CMD-37: validate + apply an agent directive for the selected unit.
+        /// Mode changes use take/release control; hold/rtb reuse human enqueue path.
+        /// </summary>
+        public bool TryIssueAgentDirective(string directiveId, out string? reason)
+        {
+            reason = null;
+            var hasSelection = !string.IsNullOrEmpty(SelectedUnitId);
+            var validation = AgentDirectiveIssuance.Validate(
+                directiveId,
+                hasSelection,
+                SelectedUnitHasActiveAgent(),
+                SelectedUnitHasSuspendedAgent());
+            if (!validation.Ok || validation.Request is null)
+            {
+                reason = validation.FailureReason ?? AgentDirectiveIssuance.ReasonUnknownDirective;
+                return false;
+            }
+
+            var request = validation.Request;
+            if (request.IsModeChange)
+            {
+                return request.Action switch
+                {
+                    AgentDirectiveAction.TakeControl => TryTakeControlOfSelected(out reason),
+                    AgentDirectiveAction.ReturnToAgent => TryReturnToAgentOfSelected(out reason),
+                    _ => FailUnknown(out reason),
+                };
+            }
+
+            if (request.OrderKind is not { } kind)
+            {
+                reason = AgentDirectiveIssuance.ReasonUnknownDirective;
+                return false;
+            }
+
+            if (!TryResolveEntityKey(SelectedUnitId!, out var entityKey))
+            {
+                reason = "UNKNOWN_UNIT";
+                return false;
+            }
+
+            if (!IsPlayerControlledUnit(entityKey))
+            {
+                reason = "NOT_PLAYER_CONTROLLED";
+                return false;
+            }
+
+            // hold/rtb require human controller — take control first if agent is active
+            if (Bridge.Registry.TryGetBinding(entityKey, out var binding)
+                && binding.Target.Slot.Active is not HumanController)
+            {
+                var simTimeForControl = _lastSnapshot?.SimTime ?? 0;
+                if (!Bridge.TryTakeDirectControl(entityKey, simTimeForControl)
+                    && binding.Target.Slot.Active is not HumanController)
+                {
+                    reason = "TAKE_CONTROL_FAILED";
+                    return false;
+                }
+            }
+
+            var simTime = _lastSnapshot?.SimTime ?? 0;
+            if (!Bridge.TryEnqueueHumanOrder(entityKey, kind, simTime))
+            {
+                reason = "ENQUEUE_FAILED";
+                return false;
+            }
+
+            return true;
+
+            static bool FailUnknown(out string? r)
+            {
+                r = AgentDirectiveIssuance.ReasonUnknownDirective;
+                return false;
+            }
+        }
+
+        /// <summary>True when the selected unit has an active or suspended agent controller.</summary>
+        public bool SelectedUnitHasAgent()
+        {
+            if (string.IsNullOrEmpty(SelectedUnitId) || Bridge == null)
+            {
+                return false;
+            }
+
+            if (!TryResolveEntityKey(SelectedUnitId, out var entityKey))
+            {
+                return false;
+            }
+
+            if (!Bridge.Registry.TryGetBinding(entityKey, out var binding))
+            {
+                return false;
+            }
+
+            var slot = binding.Target.Slot;
+            return slot.Active is AgentController || slot.SuspendedAgent is not null;
+        }
+
+        /// <summary>True when the selected unit currently has an active agent controller.</summary>
+        public bool SelectedUnitHasActiveAgent() => TryGetSelectedSlot(out var slot) && slot.Active is AgentController;
+
+        /// <summary>True when the selected unit has an agent suspended by direct player control.</summary>
+        public bool SelectedUnitHasSuspendedAgent() => TryGetSelectedSlot(out var slot) && slot.SuspendedAgent is not null;
+
+        private IReadOnlyList<AgentRosterEntry> BuildAgentRosterFromRegistry()
+        {
+            if (Bridge?.Registry == null)
+            {
+                return Array.Empty<AgentRosterEntry>();
+            }
+
+            var inputs = new List<(string unitId, string controllerKind, string? agentId, string autonomy)>();
+            foreach (var binding in Bridge.Registry.Bindings.OrderBy(b => b.TargetId.Value, StringComparer.Ordinal))
+            {
+                if (!IsPlayerControlledUnit(binding.Entity))
+                {
+                    continue;
+                }
+
+                var slot = binding.Target.Slot;
+                var (kind, agentId, autonomy) = DescribeSlot(slot);
+                inputs.Add((binding.TargetId.Value, kind, agentId, autonomy));
+            }
+
+            return AgentRosterProjection.Project(inputs);
+        }
+
+        private bool TryGetSelectedSlot(out ControllerSlot slot)
+        {
+            slot = null!;
+            return !string.IsNullOrEmpty(SelectedUnitId)
+                && TryResolveEntityKey(SelectedUnitId, out var entityKey)
+                && Bridge.Registry.TryGetBinding(entityKey, out var binding)
+                && (slot = binding.Target.Slot) is not null;
+        }
+
+        private bool IsPlayerControlledUnit(EntityKey entityKey)
+        {
+            if (!Bridge.Registry.TryGetBinding(entityKey, out var binding))
+            {
+                return false;
+            }
+
+            var slot = binding.Target.Slot;
+            return slot.Active is HumanController
+                || slot.SuspendedAgent is not null
+                || slot.Active is AgentController { Id.Value: var id }
+                    && id.StartsWith("friendly-", StringComparison.Ordinal);
+        }
+
+        private static (string controllerKind, string? agentId, string autonomy) DescribeSlot(ControllerSlot slot)
+        {
+            if (slot.Active is AgentController agent)
+            {
+                return ("Agent", agent.Id.Value, AgentRosterProjection.FormatAutonomyLabel(agent.Autonomy));
+            }
+
+            if (slot.Active is HumanController)
+            {
+                if (slot.SuspendedAgent is { } suspended)
+                {
+                    return ("Human", suspended.Id.Value, AgentRosterProjection.FormatAutonomyLabel(suspended.Autonomy));
+                }
+
+                return ("Human", null, "Manual");
+            }
+
+            if (slot.SuspendedAgent is { } suspendedOnly)
+            {
+                return ("AgentSuspended", suspendedOnly.Id.Value, AgentRosterProjection.FormatAutonomyLabel(suspendedOnly.Autonomy));
+            }
+
+            return ("None", null, "—");
         }
 
         private void RefreshSelectionPresentation()
@@ -217,6 +1181,7 @@ namespace ProjectAegis.Unity.Runtime
             var policy = Bridge.Orchestrator.ScenarioPolicy;
             LastDoctrineInheritance = DoctrineInheritanceProjection.ProjectUnit(unitId, policy, isFriendly: true);
         }
+
     }
 }
 #endif

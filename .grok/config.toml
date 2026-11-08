@@ -1,0 +1,7 @@
+# Project-scoped Grok MCP. Unity-MCP is optional agent tooling, not a CI gate.
+# Live only when Unity Editor is open with Custom pin on :8080
+# (`./tools/pin-unity-mcp-8080.sh`). If the handshake fails, stay headless.
+
+[mcp_servers.ai-game-developer]
+url = "http://localhost:8080"
+enabled = true

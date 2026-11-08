@@ -1,0 +1,72 @@
+using ProjectAegis.Delegation.Projection;
+using NUnit.Framework;
+
+namespace ProjectAegis.Delegation.Tests.Projection;
+
+public sealed class UnitDetailApplyStateTests
+{
+    [Test]
+    public void BindAndApply_maps_entry_lines_into_presentation()
+    {
+        var entry = new UnitDetailEntry(
+            "blue-1",
+            IsAlive: true,
+            StatusLabel: "READY",
+            MagazineLabel: "MAG: 4/8",
+            EmconLabel: "EMCON: A",
+            DoctrineLabel: "DOC: HOLD",
+            FuelLabel: "FUEL: 80%",
+            EngagePreviewLabel: "ENG: —",
+            AttackOptionsLabel: "ATK: 0",
+            AttackMenu: Array.Empty<EngageAttackOptions.AttackOption>(),
+            CommsLabel: "COMMS: DENIED");
+
+        var applied = UnitDetailApplyState.BindAndApply(entry, "CONTACT: red-9");
+
+        Assert.That(applied.UnitIdLine, Is.EqualTo("UNIT: blue-1"));
+        Assert.That(applied.StatusLine, Is.EqualTo("STATUS: READY"));
+        Assert.That(applied.MagazineLine, Is.EqualTo("MAG: 4/8"));
+        Assert.That(applied.EmconLine, Is.EqualTo("EMCON: A"));
+        Assert.That(applied.ContactLine, Is.EqualTo("CONTACT: red-9"));
+        Assert.That(applied.CommsLine, Is.EqualTo("COMMS: DENIED"));
+        Assert.That(applied.AttackOptionCount, Is.EqualTo(0));
+    }
+
+    [Test]
+    public void Apply_null_returns_empty_presentation()
+    {
+        var applied = UnitDetailApplyState.Apply(null);
+        Assert.That(applied.UnitIdLine, Is.EqualTo("UNIT: —"));
+        Assert.That(applied.CommsLine, Is.EqualTo("COMMS: —"));
+        Assert.That(applied.AttackOptionCount, Is.EqualTo(0));
+    }
+
+    [Test]
+    public void Apply_uses_shipped_binder_output()
+    {
+        var bound = UnitDetailPanelBinder.Bind(null);
+        var applied = UnitDetailApplyState.Apply(bound);
+        Assert.That(applied.UnitIdLine, Is.EqualTo(bound.UnitIdLine));
+        Assert.That(applied.StatusLine, Is.EqualTo(bound.StatusLine));
+        Assert.That(applied.CommsLine, Is.EqualTo(bound.CommsLine));
+    }
+
+    [Test]
+    public void BindAndApply_defaults_comms_label_when_omitted()
+    {
+        var entry = new UnitDetailEntry(
+            "blue-1",
+            IsAlive: true,
+            StatusLabel: "OPERATIONAL",
+            MagazineLabel: "MAGAZINE: —",
+            EmconLabel: "EMCON: —",
+            DoctrineLabel: "DOCTRINE: —",
+            FuelLabel: "FUEL: —",
+            EngagePreviewLabel: "ENGAGE: —",
+            AttackOptionsLabel: "ATTACK: —",
+            AttackMenu: Array.Empty<EngageAttackOptions.AttackOption>());
+
+        var applied = UnitDetailApplyState.BindAndApply(entry);
+        Assert.That(applied.CommsLine, Is.EqualTo("COMMS: —"));
+    }
+}

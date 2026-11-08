@@ -1,0 +1,16 @@
+diff --git a/src/ProjectAegis.Sim/Swarm/SwarmController.cs b/src/ProjectAegis.Sim/Swarm/SwarmController.cs
+index 6cc0b80..26a9055 100644
+--- a/src/ProjectAegis.Sim/Swarm/SwarmController.cs
++++ b/src/ProjectAegis.Sim/Swarm/SwarmController.cs
+@@ -492,10 +492,7 @@ public sealed class SwarmController
+         foreach (var unitId in _units.Keys.OrderBy(id => id, StringComparer.Ordinal))
+         {
+             var unit = _units[unitId];
+-            if (unit.DroneCount <= 0)
+-            {
+-                continue;
+-            }
++            // MUTANT: dead units still advance (pressure defect)
+ 
+             // SWARM-10/11: Screen mode orbits/gravitates toward bound host when host is known.
+             if (unit.Mode == SwarmOperationalMode.Screen &&

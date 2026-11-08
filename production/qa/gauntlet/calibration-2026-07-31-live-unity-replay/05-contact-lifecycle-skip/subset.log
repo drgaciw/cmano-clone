@@ -1,0 +1,11 @@
+=== tier-1 ticks=6 seeds=42,7,123 ===
+{"kept": 12, "out": "production/qa/gauntlet/saboteur-tmp/saboteur-05-contact-lifecycle-skip/tier-1/results-anchors.csv"}
+{"tier": "tier-1", "pass": true}
+=== tier-3 ticks=16 seeds=42,7,123 ===
+{"kept": 12, "out": "production/qa/gauntlet/saboteur-tmp/saboteur-05-contact-lifecycle-skip/tier-3/results-anchors.csv"}
+{"tier": "tier-3", "pass": true}
+=== tier-5 ticks=40 seeds=42,7,123 ===
+{"kept": 12, "out": "production/qa/gauntlet/saboteur-tmp/saboteur-05-contact-lifecycle-skip/tier-5/results-anchors.csv"}
+{"tier": "tier-5", "pass": true}
+{"run": "production/qa/gauntlet/saboteur-tmp/saboteur-05-contact-lifecycle-skip", "pass": true}
+RUN_VERDICT exit=0 run_dir=production/qa/gauntlet/saboteur-tmp/saboteur-05-contact-lifecycle-skip

@@ -1,0 +1,58 @@
+{
+  "runId": "gauntlet-20260723-1416",
+  "gitSha": "84ca7eacd017199eccd931608d31f86d7a7f5834",
+  "baselineTestCount": 1724,
+  "seeds": [
+    "42",
+    "7",
+    "123"
+  ],
+  "tiers": {
+    "1": {
+      "scenarios": [
+        "gauntlet-t1-patrol-a",
+        "gauntlet-t1-patrol-b",
+        "gauntlet-t1-patrol-c",
+        "gauntlet-t1-patrol-d"
+      ],
+      "ticks": 6
+    },
+    "2": {
+      "scenarios": [
+        "gauntlet-t2-escort-a",
+        "gauntlet-t2-escort-passive",
+        "gauntlet-t2-strike-a",
+        "gauntlet-t2-strike-event"
+      ],
+      "ticks": 10
+    },
+    "3": {
+      "scenarios": [
+        "gauntlet-t3-emcon-phases",
+        "gauntlet-t3-escort-strike",
+        "gauntlet-t3-event-chain",
+        "gauntlet-t3-id-roe"
+      ],
+      "ticks": 16
+    },
+    "4": {
+      "scenarios": [
+        "gauntlet-t4-asymm-roe",
+        "gauntlet-t4-multi-mission",
+        "gauntlet-t4-random-inject",
+        "gauntlet-t4-weighted"
+      ],
+      "ticks": 24
+    },
+    "5": {
+      "scenarios": [
+        "gauntlet-t5-cascade",
+        "gauntlet-t5-dynamic-obj",
+        "gauntlet-t5-roe-change",
+        "gauntlet-t5-theater"
+      ],
+      "ticks": 40
+    }
+  },
+  "notes": "Using expanded catalog ORBAT policies from data/scenarios/ (post-PR densification)."
+}

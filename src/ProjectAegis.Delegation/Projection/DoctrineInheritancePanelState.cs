@@ -5,6 +5,7 @@ public sealed record DoctrineInheritancePanelState(
     string UnitIdLine,
     string RoeLine,
     string SalvoLine,
+    string EmconLine,
     string SourceLine,
     string OverrideLine,
     bool CanOverride,

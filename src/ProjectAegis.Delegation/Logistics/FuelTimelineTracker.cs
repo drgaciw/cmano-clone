@@ -1,7 +1,7 @@
 namespace ProjectAegis.Delegation.Logistics;
 
-using ProjectAegis.Delegation.Core;
-using ProjectAegis.Delegation.Decision;
+using Core;
+using Decision;
 using ProjectAegis.Sim.Logistics;
 using ProjectAegis.Sim.Scenario;
 
@@ -22,6 +22,22 @@ public sealed class FuelTimelineTracker
         profile is { Logistics.UsesFuelBurnModel: true }
             ? new FuelTimelineTracker(profile.Logistics)
             : null;
+
+
+    /// <summary>Current fuel band for unit (NOMINAL/JOKER/BINGO). Defaults NOMINAL if never drained.</summary>
+    public string CurrentBand(string unitId)
+    {
+        if (_lastStateByUnit.TryGetValue(unitId, out var band))
+        {
+            return band;
+        }
+
+        _ledger.EnsureUnit(unitId);
+        return _ledger.ResolveBand(unitId, _logistics.JokerFuelFraction, _logistics.BingoFuelFraction);
+    }
+
+    public bool IsBingo(string unitId) =>
+        string.Equals(CurrentBand(unitId), "BINGO", StringComparison.Ordinal);
 
     public FuelTickDrainResult Drain(
         ulong simTick,

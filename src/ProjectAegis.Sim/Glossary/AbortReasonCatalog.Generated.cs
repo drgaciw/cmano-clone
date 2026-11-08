@@ -13,6 +13,15 @@ public static partial class AbortReasonCatalog
         public const string EMCON_OFF = "EMCON_OFF";
         public const string NO_FIRE_CONTROL_TRACK = "NO_FIRE_CONTROL_TRACK";
         public const string COMMS_DENIED = "COMMS_DENIED";
+        public const string AIR_ASPECT_BLOCK = "AIR_ASPECT_BLOCK";
+        public const string SURFACE_ASPECT_BLOCK = "SURFACE_ASPECT_BLOCK";
+        public const string SUBSURFACE_ASPECT_BLOCK = "SUBSURFACE_ASPECT_BLOCK";
+        public const string LAND_ASPECT_BLOCK = "LAND_ASPECT_BLOCK";
+        public const string MINE_ASPECT_BLOCK = "MINE_ASPECT_BLOCK";
+        public const string FACILITY_ASPECT_BLOCK = "FACILITY_ASPECT_BLOCK";
+        public const string AUTO_ENGAGE_DENIED = "AUTO_ENGAGE_DENIED";
+        public const string EXPEND_UNAUTHORIZED = "EXPEND_UNAUTHORIZED";
+        public const string COMMS_OFF_GRID = "COMMS_OFF_GRID";
     }
 
     public static class Engage
@@ -25,6 +34,7 @@ public static partial class AbortReasonCatalog
         public const string ROE_HOLD_FIRE = "ROE_HOLD_FIRE";
         public const string ROE_WEAPONS_TIGHT = "ROE_WEAPONS_TIGHT";
         public const string TARGET_DESTROYED = "TARGET_DESTROYED";
+        public const string SHOOTER_DESTROYED = "SHOOTER_DESTROYED";
         public const string WRA_SALVO = "WRA_SALVO";
         public const string BLACK_PROJECT_REQUIRED = "BLACK_PROJECT_REQUIRED";
         public const string TECHNOLOGY_LEVEL_EXCEEDED = "TECHNOLOGY_LEVEL_EXCEEDED";
@@ -32,6 +42,17 @@ public static partial class AbortReasonCatalog
         public const string DOMAIN_NO_SOLUTION = "DOMAIN_NO_SOLUTION";
         public const string AIR_NOT_READY = "AIR_NOT_READY";
         public const string CYBER_SPOOF_TRACK = "CYBER_SPOOF_TRACK";
+        public const string AIR_ASPECT_BLOCK = "AIR_ASPECT_BLOCK";
+        public const string SURFACE_ASPECT_BLOCK = "SURFACE_ASPECT_BLOCK";
+        public const string SUBSURFACE_ASPECT_BLOCK = "SUBSURFACE_ASPECT_BLOCK";
+        public const string LAND_ASPECT_BLOCK = "LAND_ASPECT_BLOCK";
+        public const string MINE_ASPECT_BLOCK = "MINE_ASPECT_BLOCK";
+        public const string FACILITY_ASPECT_BLOCK = "FACILITY_ASPECT_BLOCK";
+        public const string DAMAGE_WITHDRAW_RECOMMENDED = "DAMAGE_WITHDRAW_RECOMMENDED";
+        public const string BINGO_FUEL = "BINGO_FUEL";
+        public const string SHOTGUN_ORDNANCE = "SHOTGUN_ORDNANCE";
+        public const string WINCHESTER_ORDNANCE = "WINCHESTER_ORDNANCE";
+        public const string CEC_REMOTE_TRACK_UNAVAILABLE = "CEC_REMOTE_TRACK_UNAVAILABLE";
     }
 
     public static class Logistics
@@ -49,6 +70,8 @@ public static partial class AbortReasonCatalog
         public const string SENSOR_EMCON_BLOCKED = "SENSOR_EMCON_BLOCKED";
         public const string DATALINK_STALE = "DATALINK_STALE";
         public const string TRACK_STALE = "TRACK_STALE";
+        public const string LOS_RADAR_HORIZON = "LOS_RADAR_HORIZON";
+        public const string LOS_TERRAIN_MASK = "LOS_TERRAIN_MASK";
     }
 
     public static class Cyber

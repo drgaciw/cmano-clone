@@ -1,6 +1,12 @@
-// Doc-20 top bar — sim time, phase, compression, score strip.
+// Doc-20 top bar — sim time, phase, compression, score strip; CMD-22 Zulu/local/remain.
 #if UNITY_5_3_OR_NEWER
+using System;
+using ProjectAegis.Delegation.C2Network;
+using ProjectAegis.Delegation.Orchestration;
 using ProjectAegis.Delegation.Projection;
+using ProjectAegis.Delegation.UnityAdapter.Bridge;
+using ProjectAegis.Delegation.UnityAdapter.Presentation;
+using ProjectAegis.Sim.Scenario;
 using UnityEngine;
 using UnityEngine.UIElements;
 
@@ -13,10 +19,30 @@ namespace ProjectAegis.Unity.Runtime
         private const string RootName = "c2-topbar-root";
         private const string SimTimeName = "sim-time-label";
         private const string PhaseName = "phase-label";
+        private const string BeginExecutionName = "begin-execution-button";
         private const string CompressionName = "compression-label";
+        private const string CompressionSlowerName = "compression-slower-button";
+        private const string CompressionFasterName = "compression-faster-button";
+        private const string PauseResumeName = "pause-resume-button";
         private const string ModeName = "mode-label";
+        private const string FogModeName = "fog-mode-label";
         private const string CommsName = "comms-label";
         private const string ScoreName = "score-label";
+        private const string ZuluTimeName = "zulu-time-label";
+        private const string LocalTimeName = "local-time-label";
+        private const string RemainingDurationName = "remaining-duration-label";
+        private const string CommsLegendName = "c2-topbar-comms-legend";
+        private const string NetworkAdvisoryName = "comms-network-advisory-badge";
+        private const string NetworkHealthName = "comms-network-health-label";
+        private const string NetworkNodeName = "comms-network-node-label";
+        private const string NetworkDetailName = "comms-network-detail-label";
+        private const string NetworkContributorsName = "comms-network-contributors-label";
+        private const string NetworkLostPathsName = "comms-network-lost-paths-label";
+        private const string NetworkNextName = "comms-network-next-label";
+
+        /// <summary>Repo-relative Approved production USS for ASSET-005 (Path A graduate).</summary>
+        public const string ApprovedProductionUssRelativePath =
+            ProjectAegis.Delegation.Projection.ApprovedC2AssetPaths.Asset005TopBarUss;
 
         [SerializeField] private DelegationBridgeHost bridgeHost = null!;
         [SerializeField] private VisualTreeAsset? panelAsset;
@@ -26,18 +52,61 @@ namespace ProjectAegis.Unity.Runtime
         private UIDocument _document = null!;
         private Label? _simTime;
         private Label? _phase;
+        private Button? _beginExecution;
         private Label? _compression;
+        private Button? _compressionSlower;
+        private Button? _compressionFaster;
+        private Button? _pauseResume;
         private Label? _mode;
+        private Label? _fogMode;
         private Label? _comms;
         private Label? _score;
+        private Label? _zuluTime;
+        private Label? _localTime;
+        private Label? _remainingDuration;
+        private VisualElement? _commsLegend;
+        private Label? _networkAdvisory;
+        private Label? _networkHealth;
+        private Label? _networkNode;
+        private Label? _networkDetail;
+        private Label? _networkContributors;
+        private Label? _networkLostPaths;
+        private Label? _networkNext;
         private bool _wired;
+        private C2TopBarPresentation _presentation = C2TopBarPresentation.Empty;
+        private C2NetworkHealthPanelLabels _networkLabels = C2NetworkHealthPanelBinder.Bind(C2NetworkHealthPresentation.Empty);
+        private string? _lastNetworkFingerprint;
+        private FogModePresentation _fogModePresentation = new("FOG: —", "c2-topbar-item--fog-unknown");
+        private ObserverModeChromePresentation _observerChrome = ObserverModeChromePresentation.Project(false);
+
+        /// <summary>True after panel stylesheet has been applied to the top-bar root.</summary>
+        public bool StylesApplied { get; private set; }
+
+        /// <summary>Last applied presentation fields (headless-readable after ApplyPanelState).</summary>
+        public C2TopBarPresentation LastPresentation => _presentation;
+
+        /// <summary>Last applied network-health panel labels (DRG-190).</summary>
+        public C2NetworkHealthPanelLabels LastNetworkHealthLabels => _networkLabels;
+
+        /// <summary>Last applied fog-mode label from scenario playerInfoModel (DRG-264).</summary>
+        public FogModePresentation LastFogModePresentation => _fogModePresentation;
+
+        /// <summary>Last applied observer / command chrome (DRG-413). Presentation only.</summary>
+        public ObserverModeChromePresentation LastObserverChrome => _observerChrome;
 
         private void Awake()
         {
             _document = GetComponent<UIDocument>();
+            UiDocumentPanelSettingsBootstrap.EnsureDocument(_document);
             if (panelAsset != null)
             {
                 _document.visualTreeAsset = panelAsset;
+            }
+
+            if (panelStyles != null && _document.rootVisualElement != null)
+            {
+                _document.rootVisualElement.styleSheets.Add(panelStyles);
+                StylesApplied = true;
             }
         }
 
@@ -73,57 +142,380 @@ namespace ProjectAegis.Unity.Runtime
             var panel = root.Q<VisualElement>(RootName) ?? root;
             _simTime = panel.Q<Label>(SimTimeName);
             _phase = panel.Q<Label>(PhaseName);
+            _beginExecution = panel.Q<Button>(BeginExecutionName);
             _compression = panel.Q<Label>(CompressionName);
+            _compressionSlower = panel.Q<Button>(CompressionSlowerName);
+            _compressionFaster = panel.Q<Button>(CompressionFasterName);
+            _pauseResume = panel.Q<Button>(PauseResumeName);
             _mode = panel.Q<Label>(ModeName);
+            _fogMode = panel.Q<Label>(FogModeName);
             _comms = panel.Q<Label>(CommsName);
             _score = panel.Q<Label>(ScoreName);
+            // CMD-22: null-safe Q — labels optional for older UXML trees.
+            _zuluTime = panel.Q<Label>(ZuluTimeName);
+            _localTime = panel.Q<Label>(LocalTimeName);
+            _remainingDuration = panel.Q<Label>(RemainingDurationName);
+            _commsLegend = panel.Q<VisualElement>(CommsLegendName);
+            _networkAdvisory = panel.Q<Label>(NetworkAdvisoryName);
+            _networkHealth = panel.Q<Label>(NetworkHealthName);
+            _networkNode = panel.Q<Label>(NetworkNodeName);
+            _networkDetail = panel.Q<Label>(NetworkDetailName);
+            _networkContributors = panel.Q<Label>(NetworkContributorsName);
+            _networkLostPaths = panel.Q<Label>(NetworkLostPathsName);
+            _networkNext = panel.Q<Label>(NetworkNextName);
             if (panelStyles != null && !panel.styleSheets.Contains(panelStyles))
             {
                 panel.styleSheets.Add(panelStyles);
+                StylesApplied = true;
+            }
+
+            if (_beginExecution != null)
+            {
+                _beginExecution.clicked -= OnBeginExecutionClicked;
+                _beginExecution.clicked += OnBeginExecutionClicked;
+            }
+
+            if (_compressionSlower != null)
+            {
+                _compressionSlower.clicked -= OnCompressionSlowerClicked;
+                _compressionSlower.clicked += OnCompressionSlowerClicked;
+            }
+
+            if (_compressionFaster != null)
+            {
+                _compressionFaster.clicked -= OnCompressionFasterClicked;
+                _compressionFaster.clicked += OnCompressionFasterClicked;
+            }
+
+            if (_pauseResume != null)
+            {
+                _pauseResume.clicked -= OnPauseResumeClicked;
+                _pauseResume.clicked += OnPauseResumeClicked;
             }
 
             _wired = _simTime != null && _phase != null && _compression != null && _mode != null && _score != null;
         }
 
-        private void Refresh()
+        /// <summary>
+        /// Ensures Approved-style stylesheet is on the panel root (ASSET-005 parity).
+        /// </summary>
+        public bool EnsurePanelStylesApplied()
         {
-            if (!_wired || bridgeHost == null)
+            var root = _document != null ? _document.rootVisualElement : null;
+            if (root == null || panelStyles == null)
+            {
+                return StylesApplied;
+            }
+
+            var panel = root.Q<VisualElement>(RootName) ?? root;
+            if (!panel.styleSheets.Contains(panelStyles))
+            {
+                panel.styleSheets.Add(panelStyles);
+            }
+
+            StylesApplied = true;
+            return true;
+        }
+
+        private void OnBeginExecutionClicked()
+        {
+            if (bridgeHost == null || bridgeHost.Bridge == null || bridgeHost.Phase != SimulationPhase.Planning)
             {
                 return;
             }
 
-            var state = bridgeHost.LastTopBar;
-            _simTime!.text = state.SimTimeLabel;
-            _phase!.text = state.PhaseLabel;
-            _compression!.text = state.CompressionLabel;
-            _mode!.text = state.ModeLabel;
-            if (_comms != null)
+            var chrome = ObserverModeChromePresentation.Project(bridgeHost.Bridge);
+            if (!chrome.CanIssueOrders)
             {
-                _comms.text = state.CommsLabel;
-                _comms.ClearClassList();
-                _comms.AddToClassList("c2-topbar-item");
-                _comms.AddToClassList("c2-topbar-item--comms");
-                if (state.CommsLabel.Contains("DEGRADED", System.StringComparison.Ordinal))
-                {
-                    _comms.AddToClassList("c2-topbar-item--comms-degraded");
-                }
-                else if (state.CommsLabel.Contains("DENIED", System.StringComparison.Ordinal))
-                {
-                    _comms.AddToClassList("c2-topbar-item--comms-denied");
-                }
-                else
-                {
-                    _comms.AddToClassList("c2-topbar-item--comms-nominal");
-                }
+                return;
             }
 
-            _score!.text = state.ScoreLabel;
+            bridgeHost.BeginExecution();
+            Refresh();
+        }
+
+        private void OnCompressionSlowerClicked()
+        {
+            if (bridgeHost == null)
+            {
+                return;
+            }
+
+            var current = bridgeHost.Session?.TimeAccelerationFactor ?? 1;
+            bridgeHost.TrySetTimeAcceleration(C2ClockCommand.NextSlower(current), out _);
+            Refresh();
+        }
+
+        private void OnCompressionFasterClicked()
+        {
+            if (bridgeHost == null)
+            {
+                return;
+            }
+
+            var current = bridgeHost.Session?.TimeAccelerationFactor ?? 1;
+            bridgeHost.TrySetTimeAcceleration(C2ClockCommand.NextFaster(current), out _);
+            Refresh();
+        }
+
+        private void OnPauseResumeClicked()
+        {
+            if (bridgeHost == null)
+            {
+                return;
+            }
+
+            if (bridgeHost.Session?.IsSimPaused == true)
+            {
+                bridgeHost.TryResumeSim(explicitOverride: false, out _);
+            }
+            else
+            {
+                bridgeHost.TryPauseSim(out _);
+            }
+
+            Refresh();
+        }
+
+        /// <summary>
+        /// Apply projected top-bar state via headless <see cref="C2TopBarApplyState"/> (S106).
+        /// Safe when UIDocument labels are not yet wired (presentation still recorded).
+        /// </summary>
+        public void ApplyPanelState(C2TopBarState? state)
+        {
+            _presentation = C2TopBarApplyState.Apply(state);
+            RefreshObserverChrome();
+            ApplyPresentationToLabels();
+        }
+
+        private void Refresh()
+        {
+            if (!_wired || bridgeHost == null || bridgeHost.Bridge == null)
+            {
+                return;
+            }
+
+            // Prefer bridge-projected state through the shipped apply path so label fields
+            // match C2TopBarProjection output; live phase always wins on the host.
+            var state = bridgeHost.LastTopBar;
+            var applied = C2TopBarApplyState.Apply(state) with
+            {
+                PhaseLabel = $"PHASE: {bridgeHost.Phase}",
+            };
+            var comms = bridgeHost.LastCommsState;
+            if (comms != null)
+            {
+                applied = applied with
+                {
+                    CommsLabel = comms.TopBarLabel,
+                    CommsCssClass = C2TopBarApplyState.ResolveCommsCssClass(comms.TopBarLabel),
+                };
+            }
+
+            _presentation = applied;
+            _fogModePresentation = FogModeLabelBinder.Bind(ResolvePlayerInfoModel());
+            _observerChrome = ObserverModeChromePresentation.Project(bridgeHost.Bridge);
+
+            ApplyPresentationToLabels();
+            RefreshNetworkHealthChrome();
+            OverlayLiveCompression();
+            RefreshBeginExecutionButton();
+            RefreshPauseResumeButton();
 
             var root = _document.rootVisualElement?.Q(RootName);
             if (root != null)
             {
                 root.style.display = showPanel ? DisplayStyle.Flex : DisplayStyle.None;
             }
+        }
+
+        private void ApplyPresentationToLabels()
+        {
+            if (_simTime != null)
+            {
+                _simTime.text = _presentation.SimTimeLabel;
+            }
+
+            if (_phase != null)
+            {
+                _phase.text = _presentation.PhaseLabel;
+            }
+
+            if (_compression != null)
+            {
+                _compression.text = _presentation.CompressionLabel;
+            }
+
+            if (_mode != null)
+            {
+                _mode.text = _observerChrome.TopBarModeText(_presentation.ModeLabel);
+                _mode.tooltip = _observerChrome.DisabledReasonText ?? string.Empty;
+                _mode.ClearClassList();
+                _mode.AddToClassList("c2-topbar-item");
+                _mode.AddToClassList(_observerChrome.CssClass);
+            }
+
+            if (_fogMode != null)
+            {
+                _fogMode.text = _fogModePresentation.Label;
+                _fogMode.ClearClassList();
+                _fogMode.AddToClassList("c2-topbar-item");
+                _fogMode.AddToClassList("c2-topbar-item--fog");
+                _fogMode.AddToClassList(_fogModePresentation.CssClass);
+            }
+
+            if (_score != null)
+            {
+                _score.text = _presentation.ScoreLabel;
+            }
+
+            if (_zuluTime != null)
+            {
+                _zuluTime.text = _presentation.ZuluTimeLabel;
+            }
+
+            if (_localTime != null)
+            {
+                _localTime.text = _presentation.LocalTimeLabel;
+            }
+
+            if (_remainingDuration != null)
+            {
+                _remainingDuration.text = _presentation.RemainingDurationLabel;
+            }
+
+            if (_comms != null)
+            {
+                _comms.text = _presentation.CommsLabel;
+                _comms.ClearClassList();
+                _comms.AddToClassList("c2-topbar-item");
+                _comms.AddToClassList("c2-topbar-item--comms");
+                _comms.AddToClassList(_presentation.CommsCssClass);
+            }
+        }
+
+        private void RefreshNetworkHealthChrome()
+        {
+            if (bridgeHost == null)
+            {
+                return;
+            }
+
+            var snapshot = bridgeHost.LastNetworkHealth;
+            var fingerprint = bridgeHost.LastNetworkHealthFingerprint ?? "c2net:empty";
+            if (string.Equals(fingerprint, _lastNetworkFingerprint, StringComparison.Ordinal))
+            {
+                return;
+            }
+
+            _lastNetworkFingerprint = fingerprint;
+            _networkLabels = C2NetworkHealthPanelBinder.Bind(C2NetworkHealthPresenter.Build(snapshot));
+            ApplyNetworkHealthLabels();
+        }
+
+        private void ApplyNetworkHealthLabels()
+        {
+            if (_networkAdvisory != null)
+            {
+                var badge = _networkLabels.AdvisoryBadge;
+                _networkAdvisory.text = badge;
+                _networkAdvisory.style.display = string.IsNullOrEmpty(badge)
+                    ? DisplayStyle.None
+                    : DisplayStyle.Flex;
+            }
+
+            if (_networkHealth != null)
+            {
+                _networkHealth.text = _networkLabels.SummaryLine;
+            }
+
+            if (_networkNode != null)
+            {
+                _networkNode.text = _networkLabels.CommsNodeLine;
+            }
+
+            if (_networkDetail != null)
+            {
+                _networkDetail.text = _networkLabels.LinkCountLine;
+            }
+
+            if (_networkContributors != null)
+            {
+                _networkContributors.text = _networkLabels.ContributorCountLine;
+            }
+
+            if (_networkLostPaths != null)
+            {
+                _networkLostPaths.text = _networkLabels.LostPathCountLine;
+            }
+
+            if (_networkNext != null)
+            {
+                _networkNext.text = _networkLabels.NextActionLine;
+            }
+
+            if (_commsLegend != null)
+            {
+                _commsLegend.ClearClassList();
+                _commsLegend.AddToClassList("c2-topbar-comms-legend");
+                _commsLegend.AddToClassList(_networkLabels.CssClass);
+            }
+        }
+
+        private void RefreshBeginExecutionButton()
+        {
+            if (_beginExecution == null)
+            {
+                return;
+            }
+
+            var isPlanning = bridgeHost!.Phase == SimulationPhase.Planning;
+            _beginExecution.style.display = isPlanning ? DisplayStyle.Flex : DisplayStyle.None;
+            _beginExecution.SetEnabled(isPlanning && _observerChrome.CanIssueOrders);
+            _beginExecution.tooltip = _observerChrome.CanIssueOrders
+                ? string.Empty
+                : _observerChrome.DisabledReasonText ?? string.Empty;
+        }
+
+        private void OverlayLiveCompression()
+        {
+            if (_compression == null || bridgeHost == null)
+            {
+                return;
+            }
+
+            _compression.text = bridgeHost.LiveCompressionLabel;
+        }
+
+        private void RefreshPauseResumeButton()
+        {
+            if (_pauseResume == null || bridgeHost == null)
+            {
+                return;
+            }
+
+            var paused = bridgeHost.Session != null && bridgeHost.Session.IsSimPaused;
+            var canResume = !bridgeHost.LastAttentionToast.HasUnresolvedPauseClass
+                || bridgeHost.LastAttentionToast.CanResume;
+            _pauseResume.text = paused ? "RESUME" : "PAUSE";
+            _pauseResume.SetEnabled(!paused || canResume);
+            _pauseResume.tooltip = paused && !canResume
+                ? "Acknowledge the attention toast to resume"
+                : string.Empty;
+        }
+
+        private void RefreshObserverChrome()
+        {
+            var bridge = bridgeHost != null ? bridgeHost.Bridge : null;
+            _observerChrome = bridge == null
+                ? ObserverModeChromePresentation.Project(false)
+                : ObserverModeChromePresentation.Project(bridge);
+        }
+
+        private PlayerInfoModel ResolvePlayerInfoModel()
+        {
+            var policy = bridgeHost?.Bridge?.Orchestrator.ScenarioPolicy;
+            return policy?.PlayerInfoModel ?? PlayerInfoModel.FullTransparency;
         }
     }
 }

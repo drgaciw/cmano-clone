@@ -13,6 +13,9 @@ public sealed class ValidationReportJsonDto
 
     public IReadOnlyList<ValidationFindingJsonDto> Findings { get; init; } = Array.Empty<ValidationFindingJsonDto>();
 
+    public IReadOnlyList<DoctrineResolutionJsonDto> DoctrineResolution { get; init; } =
+        Array.Empty<DoctrineResolutionJsonDto>();
+
     public static ValidationReportJsonDto FromReport(ValidationReport report, ValidationConfig config) =>
         new()
         {
@@ -20,6 +23,11 @@ public sealed class ValidationReportJsonDto
             CanExport = report.CanExport(config),
             ReportHash = report.ReportHash,
             Findings = report.Findings.Select(ValidationFindingJsonDto.FromFinding).ToArray(),
+            DoctrineResolution = report.Findings
+                .Where(f => string.Equals(f.Code, "DOCTRINE_RESOLVED", StringComparison.Ordinal))
+                .OrderBy(f => f.MissionId ?? "", StringComparer.Ordinal)
+                .Select(DoctrineResolutionJsonDto.FromFinding)
+                .ToArray(),
         };
 
     public static string Serialize(ValidationReport report, ValidationConfig config)
@@ -63,4 +71,25 @@ public sealed class ValidationFindingJsonDto
             TargetId = finding.TargetId,
             Data = finding.Data,
         };
+}
+
+public sealed class DoctrineResolutionJsonDto
+{
+    public string MissionId { get; init; } = "";
+
+    public string ResolvedRoe { get; init; } = "";
+
+    public static DoctrineResolutionJsonDto FromFinding(ValidationFinding finding)
+    {
+        var data = finding.Data;
+        return new DoctrineResolutionJsonDto
+        {
+            MissionId = data != null && data.TryGetValue("missionId", out var missionId)
+                ? missionId
+                : finding.MissionId ?? "",
+            ResolvedRoe = data != null && data.TryGetValue("resolvedRoe", out var resolvedRoe)
+                ? resolvedRoe
+                : "",
+        };
+    }
 }

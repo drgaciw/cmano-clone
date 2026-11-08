@@ -1,11 +1,13 @@
 # Game Requirements — Master Index
 
 **Project:** Project Aegis — near-future hardcore military simulation (CMO-style, agentic)  
-**Last Updated:** 2026-06-04  
-**Canonical index:** [Game-Requirements/Game-Requirements-Index.md](Game-Requirements/Game-Requirements-Index.md)  
-**Implementation status:** [Game-Requirements/implementation-tracker-2026-06-04.md](Game-Requirements/implementation-tracker-2026-06-04.md)
+**Last Updated:** 2026-09-02  
+**Canonical index:** [Game-Requirements/Game-Requirements-Index.md](Game-Requirements/Game-Requirements-Index.md) — **source of truth** for the requirements corpus  
+**Implementation status:** [Game-Requirements/implementation-tracker.md](Game-Requirements/implementation-tracker.md) (historical baseline: [implementation-tracker-2026-07-04.md](Game-Requirements/implementation-tracker-2026-07-04.md))
 
-> The May 28 index listed only docs 01–10. Requirements **11–20** (simulation, C2, combat) live under `Game-Requirements/requirements/` and are indexed in the canonical file above.
+**Program note:** **Corpus maturity W0–W4 complete (2026-07-08)**. S81–S88 scenario editor, ME Phase 2, and PE complete; active post-editor hygiene and forward continuous engineering. Live status pointers: [`docs/reports/`](docs/reports/) latest sprint roadmap and [`production/qa/`](production/qa/). Use the canonical GR index above for reading order, status stamps, and workflow; this root file is a redirect + quick table.
+
+> The May 28 index listed only docs 01–10. Requirements **11–21** (simulation, C2, combat, authoring) live under `Game-Requirements/requirements/` and are indexed in the canonical file above.
 
 ## Core (01–03)
 
@@ -37,12 +39,19 @@
 | [09](Game-Requirements/requirements/09-Near-Future-Technologies.md) | Near-future technologies |
 | [10](Game-Requirements/requirements/10-Speculative-Systems.md) | Speculative / black-project systems |
 
-## Authoring & reference (11–12)
+## Authoring & reference (11–12, 21)
 
 | Doc | Title |
 |-----|--------|
 | [11](Game-Requirements/requirements/11-Agentic-Mission-Editor.md) | Agentic mission editor |
 | [12](Game-Requirements/requirements/12-Terms-Glossary.md) | Terms glossary |
+| [21](Game-Requirements/requirements/21-Platform-Editor.md) | Platform editor (catalog / Excel round-trip) |
+
+## Platforms (22)
+
+| Doc | Title |
+|-----|--------|
+| [22](Game-Requirements/requirements/22-Drone-Swarm-Platforms.md) | Drone / UAS swarm platforms (FR-20 / H8) |
 
 ## Simulation, C2, combat (13–20)
 
@@ -72,7 +81,7 @@ See [Game-Requirements-Index.md](Game-Requirements/Game-Requirements-Index.md) f
 
 ## Agentic implementation workflow
 
-1. Read MVP row in [implementation-tracker-2026-06-04.md](Game-Requirements/implementation-tracker-2026-06-04.md)  
+1. Read MVP row in [implementation-tracker.md](Game-Requirements/implementation-tracker.md) (historical snapshot: [implementation-tracker-2026-07-04.md](Game-Requirements/implementation-tracker-2026-07-04.md))  
 2. `gitnexus_impact` before symbol edits  
 3. Skills: `team-simulation`, `team-data`, `replay-verify`, `c-sharp-engineer`  
-4. Verify: `dotnet test ProjectAegis.sln` (345 tests on `main`)
+4. Verify: `dotnet test ProjectAegis.sln` (see [AGENTS.md](AGENTS.md) §Hard Invariants for current test floor; ReplayGolden 6/6, PlayModeSmoke ≥20/20; Baltic v2 hash `17144800277401907079` preserved)  

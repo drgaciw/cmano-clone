@@ -60,4 +60,24 @@ public sealed class FuelLedgerTests
 
         Assert.Equal(9920, ledger.GetRemainingKg("u1"), 3);
     }
+
+    [Fact]
+    public void AdvanceTick_negative_delta_does_not_overfill_tank_beyond_capacity()
+    {
+        // A negative deltaSeconds can reach AdvanceTick if an upstream tick source ever
+        // delivers an out-of-order or clock-corrected step (e.g. replay re-sync). The
+        // ledger must never report more fuel than the tank can physically hold, since
+        // every other member (GetRemainingKg's unknown-unit fallback, EnsureUnit's initial
+        // fill, ResolveBand's fraction) assumes RemainingKg <= capacity.
+        var ledger = new FuelLedger(10_000, burnRateKgPerSecond: 80);
+        ledger.EnsureUnit("u1");
+
+        var (_, remaining) = ledger.AdvanceTick("u1", -50.0);
+
+        Assert.True(
+            remaining <= 10_000,
+            $"Remaining fuel {remaining}kg exceeded the 10,000kg tank capacity after a negative-delta tick.");
+        Assert.Equal(10_000, remaining, 3);
+        Assert.Equal(10_000, ledger.GetRemainingKg("u1"), 3);
+    }
 }

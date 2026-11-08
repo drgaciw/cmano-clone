@@ -1,0 +1,40 @@
+.mission-package-panel {
+    flex-grow: 1;
+    min-width: 260px;
+    padding: 6px;
+    background-color: rgba(12, 18, 28, 0.92);
+}
+
+.mission-package-title {
+    -unity-font-style: bold;
+    color: rgb(200, 210, 220);
+    margin-bottom: 2px;
+}
+
+.mission-package-advisory {
+    color: rgb(170, 180, 195);
+    margin-bottom: 4px;
+}
+
+.mission-package-subtitle {
+    -unity-font-style: bold;
+    color: rgb(180, 190, 205);
+    margin-top: 4px;
+    margin-bottom: 2px;
+}
+
+.mission-package-line {
+    color: rgb(190, 200, 215);
+    margin-bottom: 2px;
+}
+
+.mission-package-list {
+    min-height: 72px;
+    max-height: 140px;
+    margin-bottom: 4px;
+}
+
+.mission-package-next {
+    color: rgb(170, 180, 195);
+    white-space: normal;
+}

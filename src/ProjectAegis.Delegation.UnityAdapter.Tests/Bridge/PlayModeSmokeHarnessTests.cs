@@ -1,21 +1,23 @@
 namespace ProjectAegis.Delegation.UnityAdapter.Tests.Bridge;
 
-using ProjectAegis.Delegation.Controllers;
-using ProjectAegis.Delegation.Core;
-using ProjectAegis.Delegation.Decision;
-using ProjectAegis.Delegation.Orchestration;
-using ProjectAegis.Delegation.Policy;
-using ProjectAegis.Delegation.Sim;
-using ProjectAegis.Delegation.Targets;
-using ProjectAegis.Delegation.Traits;
-using ProjectAegis.Delegation.Comms;
-using ProjectAegis.Delegation.Projection;
+using Core;
+using Decision;
+using Policy;
+using Sim;
+using Targets;
+using Traits;
+using Data.Catalog;
+using Projection;
 using ProjectAegis.Delegation.UnityAdapter.Baltic;
 using ProjectAegis.Sim.Scenario;
 using ProjectAegis.Delegation.UnityAdapter.Bridge;
 using ProjectAegis.Sim.Engage;
 using ProjectAegis.Sim.Glossary;
 using ProjectAegis.Sim.Policy;
+using Data.Scenario;
+using Data.Platform;
+using ProjectAegis.Data.Scenario.Authoring;
+using System.Text.Json;
 using NUnit.Framework;
 
 /// <summary>
@@ -35,7 +37,7 @@ public sealed class PlayModeSmokeHarnessTests
             new SimulationModeProfile(SimulationModeKind.Mixed, PlayerControlsFriendlySide: true),
             friendly: [friendly.Target],
             opposing: [opposing.Target],
-            defaultTraits: ProjectAegis.Delegation.Traits.PersonalityCatalog.All[0].Traits);
+            defaultTraits: PersonalityCatalog.All[0].Traits);
 
         bridge.BeginExecution();
 
@@ -48,6 +50,91 @@ public sealed class PlayModeSmokeHarnessTests
 
         Assert.That(harness.AppliedOrders, Is.Not.Empty);
         Assert.That(harness.SimTime, Is.EqualTo(30.0 / 60.0).Within(1e-6));
+    }
+
+    /// <summary>
+    /// Headless contract for shipped <see cref="PlayModeSmokeOrbatSeeder"/>
+    /// (same entry Unity <c>SimplePlayModeSimHost</c> calls on Start):
+    /// OOB has u1+hostile-1, Unit Detail filled for u1, Message Log CONTACT+MAGAZINE+MODE.
+    /// </summary>
+    [Test]
+    public void Smoke_orbat_seed_populates_oob_unit_detail_and_message_log()
+    {
+        var bridge = new DelegationBridge(42, mvpEngagement: true, scenarioPolicyId: "baltic-patrol");
+
+        Assert.That(PlayModeSmokeOrbatSeeder.TrySeed(bridge), Is.True);
+        bridge.BeginExecution();
+
+        var harness = new PlayModeHarness(contactCount: 2, hasFireControlTrack: true);
+        harness.AdvanceTime(1.0 / 60.0);
+        bridge.Tick(harness, harness);
+
+        var oob = OobTreeBridge.Build(harness, bridge.Registry);
+        var oobIds = oob.Select(e => e.UnitId).ToArray();
+        Assert.That(oobIds, Does.Contain(PlayModeSmokeOrbatSeeder.FriendlyUnitId));
+        Assert.That(oobIds, Does.Contain(PlayModeSmokeOrbatSeeder.HostileUnitId));
+
+        var detail = UnitDetailBridge.BuildSelected(
+            new TargetId(PlayModeSmokeOrbatSeeder.FriendlyUnitId),
+            harness,
+            bridge);
+        Assert.That(detail, Is.Not.Null);
+        Assert.That(detail!.UnitId, Is.EqualTo(PlayModeSmokeOrbatSeeder.FriendlyUnitId));
+        Assert.That(detail.IsAlive, Is.True);
+        Assert.That(detail.StatusLabel, Is.EqualTo("OPERATIONAL"));
+        Assert.That(detail.MagazineLabel, Does.Contain("Δ-1"));
+        Assert.That(detail.DoctrineLabel, Is.Not.Null.And.Not.Empty);
+        Assert.That(detail.DoctrineLabel, Does.Not.Contain("—"));
+
+        var messages = MessageLogBridge.ProjectFrom(bridge.Orchestrator.DecisionLog);
+        Assert.That(messages.Count, Is.GreaterThan(3));
+        Assert.That(messages.Any(m => m.Category == "CONTACT"), Is.True);
+        Assert.That(messages.Any(m => m.Category == "MAGAZINE"), Is.True);
+        Assert.That(messages.Any(m => m.Category == "MODE"), Is.True);
+        Assert.That(messages.Any(m => m.Category == "POLICY_UPDATE"), Is.True);
+        Assert.That(messages.Any(m => m.Category == "MISSION"), Is.True);
+        Assert.That(messages.Any(m => m.Category == "EVENT"), Is.True);
+        Assert.That(messages.Any(m => m.Category == "AGENT_DECISION"), Is.True);
+        Assert.That(messages.Any(m => m.Category == "DAMAGE"), Is.True);
+
+        var panel = UnitDetailPanelBinder.Bind(detail);
+        Assert.That(panel.UnitIdLine, Is.EqualTo($"UNIT: {PlayModeSmokeOrbatSeeder.FriendlyUnitId}"));
+        Assert.That(panel.UnitIdLine, Does.Not.Contain("UNIT: —"));
+        Assert.That(panel.StatusLine, Does.Not.Contain("STATUS: —"));
+        Assert.That(panel.MagazineLine, Does.Contain("Δ-1"));
+        Assert.That(panel.DoctrineLine, Does.Not.Contain("DOCTRINE: —"));
+
+        // Idempotent re-seed must not throw or duplicate members.
+        Assert.That(PlayModeSmokeOrbatSeeder.TrySeed(bridge), Is.True);
+        Assert.That(bridge.Registry.CollectMemberIds().Count, Is.EqualTo(2));
+    }
+
+    [Test]
+    public void Smoke_decision_log_feed_grows_with_sim_time_without_bridge_tick()
+    {
+        var log = new DecisionLog();
+        PlayModeSmokeOrbatSeeder.SeedDecisionLog(log);
+        var afterSeed = MessageLogBridge.ProjectFrom(log);
+        Assert.That(afterSeed.Count, Is.GreaterThan(3));
+        Assert.That(afterSeed.Any(m => m.Category == "POLICY_UPDATE"), Is.True);
+
+        PlayModeSmokeOrbatSeeder.AdvanceDecisionLog(log, 4.0);
+        Assert.That(MessageLogBridge.ProjectFrom(log).Count, Is.EqualTo(afterSeed.Count));
+
+        PlayModeSmokeOrbatSeeder.AdvanceDecisionLog(log, 5.0);
+        var afterFive = MessageLogBridge.ProjectFrom(log);
+        Assert.That(afterFive.Count, Is.GreaterThan(afterSeed.Count));
+        Assert.That(afterFive.Any(m => m.Text.Contains("emcon", StringComparison.Ordinal)), Is.True);
+
+        PlayModeSmokeOrbatSeeder.AdvanceDecisionLog(log, 5.0);
+        Assert.That(MessageLogBridge.ProjectFrom(log).Count, Is.EqualTo(afterFive.Count));
+
+        PlayModeSmokeOrbatSeeder.AdvanceDecisionLog(log, 30.0);
+        var afterThirty = MessageLogBridge.ProjectFrom(log);
+        Assert.That(afterThirty.Count, Is.GreaterThan(afterFive.Count));
+        Assert.That(afterThirty.Any(m => m.Category == "MISSION" && m.Text.Contains("ON_STATION")), Is.True);
+        Assert.That(afterThirty.Any(m => m.Category == "AGENT_DECISION" && m.Text.Contains("Engage")), Is.True);
+        Assert.That(afterThirty.Any(m => m.Text.Contains("maxSalvo", StringComparison.Ordinal)), Is.True);
     }
 
     [Test]
@@ -164,6 +251,347 @@ public sealed class PlayModeSmokeHarnessTests
         Assert.That(drawerContacts.ContactRows.Any(r => r.ContactId == contactId), Is.True);
     }
 
+    // S37-04: extend C2 proxy filters with graph surfacing checks (viewer/panel/highlights/bind); maintain 18/18+
+    [Test]
+    public void Baltic_graph_surfacing_highlights_and_chain_bind_via_projection()
+    {
+        var result = BalticReplayHarness.Run(7, "baltic-patrol-classify", ticks: 10, mvpEngagement: false);
+        Assert.That(result.SensorC2.Contacts, Is.Not.Empty);
+        var contactIds = result.SensorC2.Contacts.Select(c => c.ContactId).ToArray();
+        var entries = contactIds.Select(id => new OobTreeEntry(id, true)).ToArray();
+        var oobGraph = OobTreePanelBinder.Bind(entries, null, contactIds);
+        Assert.That(oobGraph.UnitRows, Has.Count.EqualTo(contactIds.Length));
+        Assert.That(oobGraph.UnitRows.All(r => r.StyleClass == "oob-row--graph"), Is.True);
+        Assert.That(oobGraph.UnitRows.All(r => r.DisplayLine.Contains("\u26A1")), Is.True);
+    }
+
+    [Test]
+    public void Baltic_doctrine_mission_roe_harness_matches_doctrine_batch_preconditions()
+    {
+        var result = BalticReplayHarness.Run(42, "baltic-patrol-mission-roe", ticks: 6, mvpEngagement: false);
+        Assert.That(result.SensorC2.Contacts, Is.Not.Empty);
+
+        ScenarioPolicyRepository.EnsureDefaultJsonLoaded();
+        var policy = ScenarioPolicyRepository.TryGet("baltic-patrol-mission-roe");
+        Assert.That(policy, Is.Not.Null);
+        Assert.That(policy!.MissionRoe, Is.Not.Null);
+        Assert.That(policy.MissionRoe!.Value.Roe, Is.EqualTo(RoeLevel.WeaponsTight));
+
+        var unitId = new TargetId("u1");
+        var entry = DoctrineInheritanceProjection.ProjectUnit(unitId, policy, isFriendly: true);
+        Assert.That(entry, Is.Not.Null);
+        var panel = DoctrineInheritancePanelBinder.Bind(entry);
+        Assert.That(panel.RoeLine, Does.Contain("WeaponsTight"));
+        Assert.That(panel.SourceLine, Does.Contain("Mission"));
+
+        var oob = new[] { new OobTreeEntry("u1", true) };
+        var symbols = MapPictureProjection.Project(oob, result.SensorC2.Contacts, layoutSeed: 42);
+        var map = MapPanelBinder.Bind(symbols, "baltic-patrol-mission-roe", "u1", null);
+        Assert.That(map.Symbols.Single(s => s.SymbolId == "u1").IsSelected, Is.True);
+    }
+
+    [Test]
+    public void Doctrine_override_round_trip_updates_policy_log_and_projection_bind()
+    {
+        ScenarioPolicyRepository.EnsureDefaultJsonLoaded();
+        var bridge = new DelegationBridge(42, mvpEngagement: false, scenarioPolicyId: "baltic-patrol-mission-roe");
+        var unit = bridge.Registry.RegisterUnit(new EntityKey(1), "u1");
+        var agent = bridge.Orchestrator.CreateAgent(
+            new AgentId("a1"),
+            PersonalityCatalog.All[0].Traits,
+            AutonomyLevel.FullAutonomous);
+        bridge.Orchestrator.AssignAgentToTarget(agent, unit.Target, EffectivePolicy.DefaultFree);
+        bridge.Orchestrator.Register(unit.Target);
+        bridge.BeginExecution();
+
+        var unitId = new TargetId("u1");
+        var policy = bridge.Orchestrator.ScenarioPolicy;
+        Assert.That(policy, Is.Not.Null);
+
+        var entry = DoctrineInheritanceProjection.ProjectUnit(unitId, policy, isFriendly: true);
+        var panel = DoctrineInheritancePanelBinder.Bind(entry);
+        Assert.That(panel.RoeLine, Does.Contain("WeaponsTight"));
+        Assert.That(panel.SalvoLine, Does.Contain("SALVO:"));
+        Assert.That(panel.EmconLine, Does.StartWith("EMCON:"));
+        Assert.That(panel.SourceLine, Does.Contain("Mission"));
+        Assert.That(panel.OverrideLine, Does.Contain("OVERRIDE:"));
+        Assert.That(panel.CanOverride, Is.False);
+        Assert.That(panel.RoeOptions, Has.Count.EqualTo(3));
+
+        Assert.That(
+            DoctrineOverrideCommand.TryApply(bridge.Orchestrator, unitId, "HoldFire", simTime: 1.0),
+            Is.True);
+
+        var unitKey = Roe.OrderActionMapper.TargetIdToUlong(unitId);
+        Assert.That(
+            bridge.Orchestrator.ResolveEffectivePolicyForUnit(unitKey).Roe,
+            Is.EqualTo(RoeLevel.HoldFire));
+        Assert.That(
+            bridge.Orchestrator.DecisionLog.PolicyUpdates.Any(u =>
+                u.Field == "roe" && u.NewValue == nameof(RoeLevel.HoldFire)),
+            Is.True);
+
+        Assert.That(
+            DoctrineOverrideCommand.TryApply(bridge.Orchestrator, unitId, "HoldFire", simTime: 2.0),
+            Is.False);
+    }
+
+    [Test]
+    public void Doctrine_panel_uxml_assets_define_host_element_names()
+    {
+        var repoRoot = FindRepoRoot();
+        Assert.That(repoRoot, Is.Not.Null);
+
+        var uxmlPath = Path.Combine(
+            repoRoot!,
+            "unity",
+            "ProjectAegis",
+            "Assets",
+            "UI",
+            "DoctrineInheritance",
+            "DoctrineInheritancePanel.uxml");
+        var ussPath = Path.Combine(
+            repoRoot!,
+            "unity",
+            "ProjectAegis",
+            "Assets",
+            "UI",
+            "DoctrineInheritance",
+            "DoctrineInheritancePanel.uss");
+
+        Assert.That(File.Exists(uxmlPath), Is.True);
+        Assert.That(File.Exists(ussPath), Is.True);
+
+        var uxml = File.ReadAllText(uxmlPath);
+        var requiredNames = new[]
+        {
+            "doctrine-root",
+            "unit-id-label",
+            "roe-label",
+            "salvo-label",
+            "emcon-label",
+            "source-label",
+            "override-label",
+            "roe-dropdown",
+            "apply-override-button",
+        };
+
+        foreach (var name in requiredNames)
+        {
+            Assert.That(uxml, Does.Contain($"name=\"{name}\""), $"Missing UXML element: {name}");
+        }
+
+        Assert.That(
+            uxml,
+            Does.Contain("unit → embarked → mission → group → side → scenario"),
+            "Inheritance order hint should be visible in panel layout");
+
+        var uss = File.ReadAllText(ussPath);
+        Assert.That(uss, Does.Contain("@import url(\"../AegisTokens.uss\")"));
+        Assert.That(uss, Does.Contain("var(--focus-ring)"));
+    }
+
+    [Test]
+    public void Platform_catalog_viewer_baltic_fixture_sorted_rows_and_filter()
+    {
+        var reader = InMemoryCatalogReader.BalticPatrolFixture();
+        var rows = CatalogPlatformBrowseProjection.FromReader(reader);
+
+        Assert.That(rows, Is.Not.Empty);
+        Assert.That(
+            rows.Select(r => r.PlatformId),
+            Is.EqualTo(rows.OrderBy(r => r.PlatformId, StringComparer.Ordinal).Select(r => r.PlatformId)));
+
+        var browseRows = BalticBrowseRows();
+        Assert.That(browseRows.Count, Is.GreaterThanOrEqualTo(3));
+        var filtered = PlatformCatalogFilterProjection.Apply(browseRows, "hostile");
+        Assert.That(filtered.Count, Is.LessThan(browseRows.Count));
+        Assert.That(
+            filtered.Select(r => r.PlatformId).ToArray(),
+            Is.EqualTo(new[] { "hostile-1", "hostile-far" }));
+
+        var repoRoot = FindRepoRoot();
+        Assert.That(repoRoot, Is.Not.Null);
+
+        var hostPath = Path.Combine(
+            repoRoot!,
+            "unity",
+            "ProjectAegis",
+            "Assets",
+            "Scripts",
+            "Runtime",
+            "PlatformCatalogViewerHost.cs");
+        Assert.That(File.Exists(hostPath), Is.True);
+
+        var source = File.ReadAllText(hostPath);
+        Assert.That(source, Does.Not.Contain("CatalogWriteGate"), "Viewer host must not reference CatalogWriteGate");
+    }
+
+    [Test]
+    public void Platform_import_staging_projection_ack_gate_before_approve()
+    {
+        var dbPath = Path.Combine(Path.GetTempPath(), $"aegis-import-smoke-{Guid.NewGuid():N}.db");
+        try
+        {
+            CatalogSeedBootstrap.SeedBalticPatrol(dbPath, overwrite: true);
+            var exported = PlatformWorkbookWriteBridge.ExportBalticWorkbook(dbPath, clockTicks: 9930);
+            var sheets = exported.Sheets.Select(sheet =>
+            {
+                if (!string.Equals(sheet.Name, "Sensors", StringComparison.Ordinal))
+                {
+                    return sheet;
+                }
+
+                var colIndex = Array.IndexOf(sheet.Header.ToArray(), "BasePd");
+                Assert.That(colIndex, Is.GreaterThanOrEqualTo(0));
+                var rows = sheet.Rows.Select((row, i) =>
+                {
+                    if (i != 0)
+                    {
+                        return row;
+                    }
+
+                    var cells = row.ToList();
+                    cells[colIndex] = "0.47";
+                    return cells;
+                }).ToArray();
+                return sheet with { Rows = rows };
+            }).ToArray();
+            var edited = new PlatformWorkbook(sheets);
+
+            var propose = PlatformWorkbookWriteBridge.ProposeWorkbook(
+                dbPath,
+                edited,
+                actorType: "unity",
+                actorId: "platform-import-host",
+                clockTicks: 9931);
+            var beforeAck = PlatformImportStagingProjection.Bind(propose, reviewAcknowledged: false);
+            var afterAck = PlatformImportStagingProjection.Bind(propose, reviewAcknowledged: true);
+
+            Assert.That(beforeAck.ApproveEnabled, Is.False);
+            Assert.That(afterAck.ApproveEnabled, Is.True);
+            Assert.That(beforeAck.DiffRows, Is.Not.Empty);
+        }
+        finally
+        {
+            Microsoft.Data.Sqlite.SqliteConnection.ClearAllPools();
+            if (File.Exists(dbPath))
+            {
+                File.Delete(dbPath);
+            }
+        }
+    }
+
+    [Test]
+    public void Delegation_smoke_scene_builder_includes_platform_import_panel()
+    {
+        var repoRoot = FindRepoRoot();
+        Assert.That(repoRoot, Is.Not.Null);
+
+        var builderPath = Path.Combine(
+            repoRoot!,
+            "unity",
+            "ProjectAegis",
+            "Assets",
+            "Editor",
+            "DelegationSmokeSceneBuilder.cs");
+        var builder = File.ReadAllText(builderPath);
+
+        Assert.That(builder, Does.Contain("PlatformImportPanelHost"));
+        Assert.That(builder, Does.Contain("\"PlatformImport\""));
+        Assert.That(builder, Does.Contain("Assets/UI/PlatformImport/PlatformImportPanel.uxml"));
+        Assert.That(builder, Does.Contain("Assets/UI/PlatformImport/PlatformImportPanel.uss"));
+    }
+
+    [Test]
+    public void Delegation_smoke_scene_builder_includes_platform_catalog_viewer()
+    {
+        var repoRoot = FindRepoRoot();
+        Assert.That(repoRoot, Is.Not.Null);
+
+        var builderPath = Path.Combine(
+            repoRoot!,
+            "unity",
+            "ProjectAegis",
+            "Assets",
+            "Editor",
+            "DelegationSmokeSceneBuilder.cs");
+        var builder = File.ReadAllText(builderPath);
+
+        Assert.That(builder, Does.Contain("PlatformCatalogViewerHost"));
+        Assert.That(builder, Does.Contain("\"PlatformCatalog\""));
+        Assert.That(builder, Does.Contain("Assets/UI/PlatformCatalog/PlatformCatalogPanel.uxml"));
+        Assert.That(builder, Does.Contain("Assets/UI/PlatformCatalog/PlatformCatalogPanel.uss"));
+    }
+
+    [Test]
+    public void Doctrine_smoke_scene_builder_registers_doctrine_panel_host()
+    {
+        var repoRoot = FindRepoRoot();
+        Assert.That(repoRoot, Is.Not.Null);
+
+        var builderPath = Path.Combine(
+            repoRoot!,
+            "unity",
+            "ProjectAegis",
+            "Assets",
+            "Editor",
+            "DelegationSmokeSceneBuilder.cs");
+        var builder = File.ReadAllText(builderPath);
+
+        Assert.That(builder, Does.Contain("CreatePanelHost<DoctrineInheritancePanelHost>"));
+        Assert.That(builder, Does.Contain("\"DoctrineInheritance\""));
+        Assert.That(builder, Does.Contain("Assets/UI/DoctrineInheritance/DoctrineInheritancePanel.uxml"));
+        Assert.That(builder, Does.Contain("Assets/UI/DoctrineInheritance/DoctrineInheritancePanel.uss"));
+    }
+
+    [Test]
+    public void Delegation_smoke_keeps_useGlobeMap_false_for_ci_safe_default()
+    {
+        var repoRoot = FindRepoRoot();
+        Assert.That(repoRoot, Is.Not.Null);
+
+        var scenePath = Path.Combine(
+            repoRoot!,
+            "unity",
+            "ProjectAegis",
+            "Assets",
+            "Scenes",
+            "DelegationSmoke.unity");
+        var builderPath = Path.Combine(
+            repoRoot!,
+            "unity",
+            "ProjectAegis",
+            "Assets",
+            "Editor",
+            "DelegationSmokeSceneBuilder.cs");
+
+        Assert.That(File.Exists(scenePath), Is.True, "DelegationSmoke.unity must exist for CI PlayMode path");
+        Assert.That(File.Exists(builderPath), Is.True);
+
+        var sceneYaml = File.ReadAllText(scenePath);
+        Assert.That(sceneYaml, Does.Contain("useGlobeMap: 0"), "DelegationSmoke must keep globe map disabled for headless CI");
+
+        var builder = File.ReadAllText(builderPath);
+
+        // Scope this guard to the CI-invoked Build(scenarioPolicyId) method only. BuildCesiumSpikeScene
+        // (further down this file) is a separate, opt-in, non-CI method that intentionally sets
+        // useGlobeMap=true and wires CesiumGlobeHost for the local Cesium spike scene; a whole-file
+        // scan would false-fail on that legitimate, out-of-CI-path content.
+        const string buildMethodStart = "public static void Build(string scenarioPolicyId";
+        const string cesiumSpikeMethodMarker = "BuildCesiumSpikeSceneFromMenu";
+        var buildStart = builder.IndexOf(buildMethodStart, StringComparison.Ordinal);
+        var buildEnd = builder.IndexOf(cesiumSpikeMethodMarker, StringComparison.Ordinal);
+        Assert.That(buildStart, Is.GreaterThanOrEqualTo(0), "Build(scenarioPolicyId) method not found");
+        Assert.That(buildEnd, Is.GreaterThan(buildStart), "CesiumSpike method marker not found after Build");
+        var ciSmokeBuildMethod = builder.Substring(buildStart, buildEnd - buildStart);
+
+        Assert.That(ciSmokeBuildMethod, Does.Contain("CreatePanelHost<MapPlaceholderPanelHost>"));
+        Assert.That(ciSmokeBuildMethod, Does.Not.Contain("CreatePanelHost<CesiumGlobeHost>"));
+        Assert.That(ciSmokeBuildMethod, Does.Not.Contain("useGlobeMap\", true"));
+        Assert.That(ciSmokeBuildMethod, Does.Not.Contain("useGlobeMap\", True"));
+    }
+
     [Test]
     public void Engage_without_fire_control_track_aborts_via_bridge_snapshot()
     {
@@ -185,6 +613,284 @@ public sealed class PlayModeSmokeHarnessTests
         Assert.That(
             bridge.Orchestrator.DecisionLog.Engagements[0].AbortReasonCode,
             Is.EqualTo(AbortReasonCatalog.Engage.NO_FIRE_CONTROL_TRACK));
+    }
+
+    /// <summary>
+    /// S87 AC-8: Headless-authored scenario.json from examples/ loads with ORBAT (metadata+units), missions, events intact
+    /// and editorState round-trips (populated with schema defaults simulating Unity host load).
+    /// Uses Data loaders as headless proxy for Unity C2Presentation / host scenario consumption.
+    /// Does not mutate any canonical files; editorState never feeds sim/validation (AC-9).
+    /// </summary>
+    [Test]
+    public void AC8_Unity_host_roundtrip_loads_headless_scenario_json_intact_ORBAT_missions_events_editorState()
+    {
+        var repoRoot = FindRepoRoot();
+        Assert.That(repoRoot, Is.Not.Null, "Repo root required for example fixture load");
+
+        var scenarioPath = Path.Combine(repoRoot!, "data", "scenarios", "examples", "baltic-patrol.scenario.json");
+        Assert.That(File.Exists(scenarioPath), Is.True, $"Headless-authored fixture missing: {scenarioPath}");
+
+        var document = ScenarioDocumentJsonLoader.LoadFromFile(scenarioPath);
+        var package = ScenarioPackageLoader.LoadFromFile(scenarioPath);
+
+        // ORBAT proxy (dbRef + unitReadiness from metadata; units referenced by missions)
+        Assert.That(document.Metadata.DbRef, Is.EqualTo("baltic_patrol"));
+        Assert.That(document.Metadata.UnitReadiness, Is.Not.Null);
+        Assert.That(document.Metadata.UnitReadiness!.ContainsKey("u1"), Is.True, "ORBAT unit readiness for u1");
+        Assert.That(document.Missions.Any(m => m.AssignedUnitIds.Contains("u1")), Is.True);
+
+        // Missions intact
+        Assert.That(document.Missions, Is.Not.Empty);
+        var patrol = document.Missions[0];
+        Assert.That(patrol.Id, Is.EqualTo("patrol-1"));
+        Assert.That(patrol.Type, Is.EqualTo("Patrol"));
+        Assert.That(patrol.AssignedUnitIds, Contains.Item("u1"));
+
+        // Events intact (null for minimal headless example)
+        Assert.That(document.Events, Is.Null.Or.Empty);
+
+        // editorState intact + defaults simulation (Unity host populates derived-only on load)
+        // Use in-memory roundtrip (no file mutation of canonical)
+        var defaults = new Dictionary<string, JsonElement>
+        {
+            ["camera"] = JsonDocument.Parse("{\"lat\":57.05,\"lon\":20.05,\"zoom\":1}").RootElement.Clone(),
+            ["layers"] = JsonDocument.Parse("{\"all\":true,\"orbat\":true,\"events\":true}").RootElement.Clone()
+        };
+        var dtoWithState = new ScenarioDocumentDto
+        {
+            Metadata = document.Metadata,
+            Missions = document.Missions,
+            Events = document.Events,
+            EditorState = defaults
+        };
+
+        var serialized = ScenarioDocumentJsonWriter.Serialize(dtoWithState);
+        // Re-deserialize using loader-compatible options to prove roundtrip
+        var options = new JsonSerializerOptions
+        {
+            PropertyNameCaseInsensitive = true,
+            PropertyNamingPolicy = JsonNamingPolicy.CamelCase,
+            ReadCommentHandling = JsonCommentHandling.Skip,
+            AllowTrailingCommas = true
+        };
+        var roundTripped = JsonSerializer.Deserialize<ScenarioDocumentDto>(serialized, options);
+        Assert.That(roundTripped, Is.Not.Null);
+        Assert.That(roundTripped!.EditorState, Is.Not.Null);
+        Assert.That(roundTripped.EditorState!.ContainsKey("camera"), Is.True, "editorState camera default intact");
+        Assert.That(roundTripped.EditorState.ContainsKey("layers"), Is.True, "editorState layers default intact");
+
+        // Package load (proxy for host scenario consumption) + non-editorState preserved
+        Assert.That(package, Is.Not.Null);
+        Assert.That(package.PolicyId, Does.Contain("baltic-patrol"));
+        Assert.That(package.Seed, Is.EqualTo(42u));
+        Assert.That(package.EditVersion, Is.EqualTo(1));
+
+        // Confirm canonical untouched outside editorState (we never wrote back)
+        var originalJson = File.ReadAllText(scenarioPath);
+        Assert.That(originalJson, Does.Not.Contain("editorState"), "Headless example remains without editorState per derived-only contract");
+    }
+
+    /// <summary>
+    /// SE-W2 AC-8 productionize: second headless fixture (strike package) proves host load path
+    /// is fixture-agnostic — missions/targets preserved; editorState defaults applied in-memory only.
+    /// </summary>
+    [Test]
+    public void AC8_strike_package_fixture_loads_with_missions_and_editorState_defaults()
+    {
+        var repoRoot = FindRepoRoot();
+        Assert.That(repoRoot, Is.Not.Null);
+        var scenarioPath = Path.Combine(repoRoot!, "data", "scenarios", "examples", "strike-package.scenario.json");
+        Assert.That(File.Exists(scenarioPath), Is.True, $"Fixture missing: {scenarioPath}");
+
+        var document = ScenarioDocumentJsonLoader.LoadFromFile(scenarioPath);
+        Assert.That(document.Missions, Is.Not.Empty);
+        Assert.That(document.Missions.Any(m => string.Equals(m.Type, "Strike", StringComparison.OrdinalIgnoreCase)), Is.True);
+
+        var defaults = new Dictionary<string, JsonElement>
+        {
+            ["camera"] = JsonDocument.Parse("{\"lat\":57.05,\"lon\":20.05,\"zoom\":1}").RootElement.Clone(),
+            ["layers"] = JsonDocument.Parse("{\"all\":true,\"orbat\":true,\"events\":true}").RootElement.Clone()
+        };
+        var dtoWithState = new ScenarioDocumentDto
+        {
+            Metadata = document.Metadata,
+            Missions = document.Missions,
+            Events = document.Events,
+            EditorState = defaults
+        };
+        var serialized = ScenarioDocumentJsonWriter.Serialize(dtoWithState);
+        var options = new JsonSerializerOptions
+        {
+            PropertyNameCaseInsensitive = true,
+            PropertyNamingPolicy = JsonNamingPolicy.CamelCase,
+            ReadCommentHandling = JsonCommentHandling.Skip,
+            AllowTrailingCommas = true
+        };
+        var roundTripped = JsonSerializer.Deserialize<ScenarioDocumentDto>(serialized, options);
+        Assert.That(roundTripped, Is.Not.Null);
+        Assert.That(roundTripped!.EditorState, Is.Not.Null);
+        Assert.That(roundTripped.EditorState!.ContainsKey("camera"), Is.True);
+        Assert.That(roundTripped.Missions.Count, Is.EqualTo(document.Missions.Count));
+        Assert.That(File.ReadAllText(scenarioPath), Does.Not.Contain("editorState"));
+    }
+
+    /// <summary>
+    /// DRG-66 / DRG-67: Wave 6 hosts (PendingApproval, EngageExplain, AxisControl,
+    /// MapScaleHud, GroundOps) must be registered in the Build() path of
+    /// DelegationSmokeSceneBuilder.
+    /// </summary>
+    [Test]
+    public void Delegation_smoke_scene_builder_includes_wave6_hosts()
+    {
+        var repoRoot = FindRepoRoot();
+        Assert.That(repoRoot, Is.Not.Null);
+
+        var builderPath = Path.Combine(
+            repoRoot!,
+            "unity",
+            "ProjectAegis",
+            "Assets",
+            "Editor",
+            "DelegationSmokeSceneBuilder.cs");
+        var builder = File.ReadAllText(builderPath);
+
+        // Extract only the Build() function body (before BuildCesiumSpikeScene to stay in the
+        // correct section, same pattern as Delegation_smoke_keeps_useGlobeMap_false_for_ci_safe_default).
+        var smokeBuildStart = builder.IndexOf(
+            "public static void Build(string scenarioPolicyId",
+            StringComparison.Ordinal);
+        var cesiumBuildStart = builder.IndexOf(
+            "public static void BuildCesiumSpikeScene(",
+            StringComparison.Ordinal);
+        Assert.That(smokeBuildStart, Is.GreaterThanOrEqualTo(0));
+        Assert.That(cesiumBuildStart, Is.GreaterThan(smokeBuildStart));
+
+        var smokeSection = builder.Substring(smokeBuildStart, cesiumBuildStart - smokeBuildStart);
+
+        // PendingApproval host
+        Assert.That(smokeSection, Does.Contain("PendingApprovalPanelHost"),
+            "Wave6: PendingApprovalPanelHost must be wired in Build()");
+        Assert.That(smokeSection, Does.Contain("\"PendingApproval\""),
+            "Wave6: PendingApproval GameObject name must be registered");
+        Assert.That(smokeSection, Does.Contain("Assets/UI/PendingApproval/PendingApprovalPanel.uxml"),
+            "Wave6: PendingApproval UXML asset path must be set");
+
+        // EngageExplain host
+        Assert.That(smokeSection, Does.Contain("EngageExplainPanelHost"),
+            "Wave6: EngageExplainPanelHost must be wired in Build()");
+        Assert.That(smokeSection, Does.Contain("\"EngageExplain\""),
+            "Wave6: EngageExplain GameObject name must be registered");
+
+        // DRG-182 AuthorityRoe host
+        Assert.That(smokeSection, Does.Contain("AuthorityRoePanelHost"),
+            "DRG-182: AuthorityRoePanelHost must be wired in Build()");
+        Assert.That(smokeSection, Does.Contain("\"AuthorityRoe\""),
+            "DRG-182: AuthorityRoe GameObject name must be registered");
+        Assert.That(smokeSection, Does.Contain("Assets/UI/AuthorityRoe/AuthorityRoePanel.uxml"),
+            "DRG-182: AuthorityRoe UXML asset path must be set");
+
+        // AxisControl host
+        Assert.That(smokeSection, Does.Contain("AxisControlPanelHost"),
+            "Wave6: AxisControlPanelHost must be wired in Build()");
+        Assert.That(smokeSection, Does.Contain("\"AxisControl\""),
+            "Wave6: AxisControl GameObject name must be registered");
+
+        // MapScaleHud host
+        Assert.That(smokeSection, Does.Contain("MapScaleHudPanelHost"),
+            "Wave6: MapScaleHudPanelHost must be wired in Build()");
+        Assert.That(smokeSection, Does.Contain("\"MapScaleHud\""),
+            "Wave6: MapScaleHud GameObject name must be registered");
+
+        // GroundOps host
+        Assert.That(smokeSection, Does.Contain("GroundOpsPanelHost"),
+            "Wave6: GroundOpsPanelHost must be wired in Build()");
+        Assert.That(smokeSection, Does.Contain("\"GroundOps\""),
+            "Wave6: GroundOps GameObject name must be registered");
+    }
+
+    /// <summary>
+    /// DRG-66 / DRG-67: EnsureUiMaturityHosts must include all Wave 6 hosts so they
+    /// can be retroactively added to an open scene without a full rebuild.
+    /// </summary>
+    [Test]
+    public void Delegation_smoke_ensure_hosts_includes_wave6_hosts()
+    {
+        var repoRoot = FindRepoRoot();
+        Assert.That(repoRoot, Is.Not.Null);
+
+        var builderPath = Path.Combine(
+            repoRoot!,
+            "unity",
+            "ProjectAegis",
+            "Assets",
+            "Editor",
+            "DelegationSmokeSceneBuilder.cs");
+        var builder = File.ReadAllText(builderPath);
+
+        // Check EnsureUiMaturityHostsOnOpenScene contains all Wave 6 host types.
+        var ensureStart = builder.IndexOf(
+            "public static void EnsureUiMaturityHostsOnOpenScene()",
+            StringComparison.Ordinal);
+        Assert.That(ensureStart, Is.GreaterThanOrEqualTo(0));
+
+        var ensureSection = builder.Substring(ensureStart);
+
+        Assert.That(ensureSection, Does.Contain("PendingApprovalPanelHost"),
+            "EnsureUiMaturityHosts must include PendingApprovalPanelHost");
+        Assert.That(ensureSection, Does.Contain("EngageExplainPanelHost"),
+            "EnsureUiMaturityHosts must include EngageExplainPanelHost");
+        Assert.That(ensureSection, Does.Contain("AuthorityRoePanelHost"),
+            "EnsureUiMaturityHosts must include AuthorityRoePanelHost");
+        Assert.That(ensureSection, Does.Contain("AxisControlPanelHost"),
+            "EnsureUiMaturityHosts must include AxisControlPanelHost");
+        Assert.That(ensureSection, Does.Contain("MapScaleHudPanelHost"),
+            "EnsureUiMaturityHosts must include MapScaleHudPanelHost");
+        Assert.That(ensureSection, Does.Contain("GroundOpsPanelHost"),
+            "EnsureUiMaturityHosts must include GroundOpsPanelHost");
+    }
+
+    /// <summary>
+    /// DRG-181: Sensor-to-shooter chain chrome must be registered in Build() and EnsureUiMaturityHosts.
+    /// </summary>
+    [Test]
+    public void Delegation_smoke_scene_builder_includes_sensor_to_shooter_host()
+    {
+        var repoRoot = FindRepoRoot();
+        Assert.That(repoRoot, Is.Not.Null);
+
+        var builderPath = Path.Combine(
+            repoRoot!,
+            "unity",
+            "ProjectAegis",
+            "Assets",
+            "Editor",
+            "DelegationSmokeSceneBuilder.cs");
+        var builder = File.ReadAllText(builderPath);
+
+        var smokeBuildStart = builder.IndexOf(
+            "public static void Build(string scenarioPolicyId",
+            StringComparison.Ordinal);
+        var cesiumBuildStart = builder.IndexOf(
+            "public static void BuildCesiumSpikeScene(",
+            StringComparison.Ordinal);
+        Assert.That(smokeBuildStart, Is.GreaterThanOrEqualTo(0));
+        Assert.That(cesiumBuildStart, Is.GreaterThan(smokeBuildStart));
+
+        var smokeSection = builder.Substring(smokeBuildStart, cesiumBuildStart - smokeBuildStart);
+        Assert.That(smokeSection, Does.Contain("SensorToShooterPanelHost"));
+        Assert.That(smokeSection, Does.Contain("\"SensorToShooter\""));
+        Assert.That(smokeSection, Does.Contain("Assets/UI/SensorToShooter/SensorToShooterPanel.uxml"));
+        Assert.That(smokeSection, Does.Contain("MissionPackagePanelHost"));
+        Assert.That(smokeSection, Does.Contain("\"MissionPackage\""));
+        Assert.That(smokeSection, Does.Contain("Assets/UI/MissionPackage/MissionPackagePanel.uxml"));
+
+        var ensureStart = builder.IndexOf(
+            "public static void EnsureUiMaturityHostsOnOpenScene()",
+            StringComparison.Ordinal);
+        Assert.That(ensureStart, Is.GreaterThanOrEqualTo(0));
+        var ensureSection = builder.Substring(ensureStart);
+        Assert.That(ensureSection, Does.Contain("SensorToShooterPanelHost"));
+        Assert.That(ensureSection, Does.Contain("MissionPackagePanelHost"));
     }
 
     private sealed class PlayModeHarness : ISimWorldSnapshot, IOrderSink
@@ -222,5 +928,31 @@ public sealed class PlayModeSmokeHarnessTests
 
         public void ApplyOrder(EntityKey entity, in Order order) =>
             _applied.Add((entity, order));
+    }
+
+    private static IReadOnlyList<CatalogPlatformBrowseRow> BalticBrowseRows()
+    {
+        var platforms = CatalogValidationDefaults.BalticPlatforms();
+        var bindings = platforms
+            .Select(p => new CatalogSensorBinding(p.PlatformId, "radar-1", 1.0, $"baltic-fixture-{p.PlatformId}"))
+            .ToArray();
+        var reader = new InMemoryCatalogReader(bindings, "p0-baltic-fixture", platforms);
+        return CatalogPlatformBrowseProjection.FromReader(reader);
+    }
+
+    private static string? FindRepoRoot()
+    {
+        var dir = AppContext.BaseDirectory;
+        for (var i = 0; i < 8; i++)
+        {
+            if (File.Exists(Path.Combine(dir, "ProjectAegis.sln")))
+            {
+                return dir;
+            }
+
+            dir = Directory.GetParent(dir)?.FullName ?? dir;
+        }
+
+        return null;
     }
 }

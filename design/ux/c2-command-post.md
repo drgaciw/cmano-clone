@@ -2,8 +2,9 @@
 
 > **Status:** Draft — Sprint 4  
 > **Author:** ux-design / milsim review  
-> **Last Updated:** 2026-06-02  
+> **Last Updated:** 2026-08-03  
 > **Screen / Flow Name:** `C2CommandPost`  
+> **S39-09 residual note (lean, isolated Evidence/UX track):** Cross-ref for C2/Platform deeper polish (S39-03: density, tooltips, filter surfacing). See S39-07 playtest 11 entry (playtests/README.md) + art-bible.md; proxy evidence + s37 PNGs cover PNG/playtest 11. Minimal only; no new sections. (polish-scope-boundary-2026-06-19.md + S39 qa-plan)  
 > **Platform Target:** PC (keyboard/mouse primary); gamepad partial (Sprint 4+)  
 > **Related GDDs:** [command-and-control-ui.md](../gdd/command-and-control-ui.md), [sensor-detection-ew.md](../gdd/sensor-detection-ew.md)  
 > **Related Requirements:** [20-Command-And-Control-UI.md](../../Game-Requirements/requirements/20-Command-And-Control-UI.md)  

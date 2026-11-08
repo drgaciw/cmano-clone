@@ -1,0 +1,52 @@
+{
+  "metadata": {
+    "title": "Tier 2 Strike 03 — UCAV Primary Strike",
+    "description": "Blue fixed-wing UCAV (ucav-blue) is the primary striker against a designated Red surface target (hostile-1), with u1 providing surface backup. Red is weapons-tight and passive EMCON. Tests fixed-wing air as the primary engaging platform (recon-radar sensor, not surface radar-1). One scripted event at tick 6 confirms weapons release authorization.",
+    "author": "qa-gauntlet",
+    "schemaVersion": 1,
+    "dbRef": "baltic_patrol",
+    "seed": 123,
+    "policyId": "baltic-v3-tier2-strike-03",
+    "tlBranch": "TL-0",
+    "maxTechnologyLevel": 0,
+    "sideRoe": "WeaponsFree"
+  },
+  "missions": [
+    {
+      "id": "blue-air-strike-03",
+      "type": "Strike",
+      "assignedUnitIds": ["ucav-blue"],
+      "targetIds": ["hostile-1"],
+      "patrolZone": [
+        { "lat": 57.2, "lon": 19.8 },
+        { "lat": 57.4, "lon": 20.0 },
+        { "lat": 57.0, "lon": 20.2 }
+      ],
+      "roeOverride": "WeaponsFree"
+    },
+    {
+      "id": "blue-surface-backup-03",
+      "type": "Patrol",
+      "assignedUnitIds": ["u1"],
+      "targetIds": [],
+      "patrolZone": [
+        { "lat": 57.0, "lon": 19.5 },
+        { "lat": 57.3, "lon": 19.7 },
+        { "lat": 56.9, "lon": 20.0 }
+      ],
+      "roeOverride": "WeaponsTight"
+    },
+    {
+      "id": "red-defend-03",
+      "type": "Patrol",
+      "assignedUnitIds": ["hostile-1"],
+      "targetIds": [],
+      "patrolZone": [
+        { "lat": 58.3, "lon": 21.2 },
+        { "lat": 58.5, "lon": 21.4 },
+        { "lat": 58.1, "lon": 21.6 }
+      ],
+      "roeOverride": "WeaponsTight"
+    }
+  ]
+}

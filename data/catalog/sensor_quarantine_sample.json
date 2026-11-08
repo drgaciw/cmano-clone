@@ -1,0 +1,14 @@
+{
+  "importBatchId": "quarantine-sample",
+  "sensors": [
+    {
+      "platformId": "u9",
+      "sensorId": "radar-x",
+      "basePd": 0.5,
+      "sourceFactId": "draft",
+      "confidence": 0.9,
+      "reviewState": "provisional",
+      "trlLevel": 9
+    }
+  ]
+}

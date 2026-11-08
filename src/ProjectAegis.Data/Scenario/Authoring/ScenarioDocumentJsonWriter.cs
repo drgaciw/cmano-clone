@@ -9,6 +9,7 @@ public static class ScenarioDocumentJsonWriter
     {
         PropertyNamingPolicy = JsonNamingPolicy.CamelCase,
         WriteIndented = true,
+        DefaultIgnoreCondition = System.Text.Json.Serialization.JsonIgnoreCondition.Never,
     };
 
     public static string Serialize(ScenarioDocumentDto document) =>

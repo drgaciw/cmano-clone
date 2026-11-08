@@ -1,0 +1,1 @@
+{"sessionId": "87852e", "timestamp": 1782518943092, "hypothesisId": "ALL", "location": "final-confirm", "message": "Unity clean session verified", "data": {"log": "/tmp/unity-gui-clean-87852e-r8.log", "metaCsErrorCount": 0, "mcpErrorCount": 0, "projectLoadSeconds": 9.614, "unityPid": 2450460, "status": "FIXED"}, "runId": "final"}

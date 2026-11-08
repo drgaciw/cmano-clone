@@ -1,8 +1,6 @@
 using ProjectAegis.Delegation.Controllers;
 using ProjectAegis.Delegation.Core;
-using ProjectAegis.Delegation.Decision;
 using ProjectAegis.Delegation.Projection;
-using ProjectAegis.Delegation.Targets;
 using ProjectAegis.Delegation.UnityAdapter.Bridge;
 using NUnit.Framework;
 

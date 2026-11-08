@@ -1,0 +1,37 @@
+=== TIER 1 ticks=6 scenarios=gauntlet-t1-patrol-a,gauntlet-t1-patrol-b,gauntlet-t1-patrol-c,gauntlet-t1-patrol-d ===
+--- batch ---
+Wrote 12 rows to production/qa/gauntlet/gauntlet-20260716-2346/tier-1/results.csv
+BATCH_EXIT=0
+CSV_ROWS=13
+--- oracle ---
+{
+  "ok": true,
+  "scenarios": [
+    {
+      "scenario": "gauntlet-t1-patrol-a",
+      "passed": true,
+      "failures": [],
+      "rows": 3
+    },
+    {
+      "scenario": "gauntlet-t1-patrol-b",
+      "passed": true,
+      "failures": [],
+      "rows": 3
+    },
+    {
+      "scenario": "gauntlet-t1-patrol-c",
+      "passed": true,
+      "failures": [],
+      "rows": 3
+    },
+    {
+      "scenario": "gauntlet-t1-patrol-d",
+      "passed": true,
+      "failures": [],
+      "rows": 3
+    }
+  ],
+  "allPassed": true
+}
+ORACLE_EXIT=0

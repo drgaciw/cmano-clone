@@ -5,6 +5,8 @@ using ProjectAegis.Data.Scenario.Authoring;
 using ProjectAegis.Data.Validation;
 using Xunit;
 
+using CatalogTlTier = ProjectAegis.Data.Catalog.CatalogTlTier;
+
 public sealed class ScenarioValidationEngineTests
 {
     private readonly ScenarioValidationEngine _engine = new();
@@ -55,6 +57,25 @@ public sealed class ScenarioValidationEngineTests
         Assert.False(string.IsNullOrEmpty(finding.Data!["excess_nm"]));
     }
 
+    /// <summary>
+    /// Doc 11 AC-1: the STRIKE_UNREACHABLE finding message must take the exact form
+    /// "…out of combat radius by N nm…" (see StrikeReachabilityRule in ValidationRules.cs).
+    /// ValidationCatalogFixture.Unreachable() positions 'u1' and 'tgt-1' 800 nm apart (along a
+    /// meridian) against a 400 nm combat radius, which Haversine resolves to ~800.539 nm —
+    /// excess = distance - combatRadiusNm = ~400.539 nm, rounded to 400.5.
+    /// </summary>
+    [Fact]
+    public void Strike_unreachable_message_matches_AC1_format_with_computed_excess_nm()
+    {
+        var scenario = StrikeScenario();
+        var report = _engine.Validate(scenario, ValidationCatalogFixture.Unreachable(), _config);
+        var finding = Assert.Single(report.Findings, f => f.Code == "STRIKE_UNREACHABLE");
+
+        Assert.Equal(
+            "Strike mission 'strike-1' target 'tgt-1' is out of combat radius by 400.5 nm.",
+            finding.Message);
+    }
+
     [Fact]
     public void Strike_within_combat_radius_but_over_fuel_budget_emits_STRIKE_UNREACHABLE_FUEL()
     {
@@ -77,9 +98,30 @@ public sealed class ScenarioValidationEngineTests
         Assert.Contains(report.Findings, f => f.Code == "MISSION_NO_UNITS");
     }
 
+    /// <summary>
+    /// One of the six doc-11 AME-6.2 v1 rule codes (AC-3a-f). Prior coverage only exercised
+    /// DB_MISMATCH inside the combined ValidationGoldenTests.All_six_v1_rules_emit_expected_codes
+    /// test — this pins it down as its own focused unit test, mirroring
+    /// Mission_no_units_emits_MISSION_NO_UNITS above. Uses InMemoryCatalogReader (not the local
+    /// ValidationCatalogFixture, whose TryResolveDbRef always returns true and would never fire
+    /// DB_MISMATCH).
+    /// </summary>
+    [Fact]
+    public void Db_ref_mismatch_emits_DB_MISMATCH()
+    {
+        var scenario = new ScenarioDocumentDto
+        {
+            Metadata = new ScenarioMetadataDto { DbRef = "missing-db-xyz" },
+        };
+
+        var report = _engine.Validate(scenario, InMemoryCatalogReader.BalticPatrolFixture(), _config);
+        Assert.Contains(report.Findings, f => f.Code == "DB_MISMATCH");
+    }
+
     private static ScenarioDocumentDto StrikeScenario() =>
         new()
         {
+            Metadata = new ScenarioMetadataDto { TlBranch = CatalogTlTier.Default },
             Missions =
             [
                 new ScenarioMissionDto
@@ -126,6 +168,27 @@ public sealed class ScenarioValidationEngineTests
             return true;
         }
 
+        public bool TryGetSnapshotBranch(string snapshotId, out string branch)
+        {
+            branch = CatalogTlTier.Tl0;
+            return true;
+        }
+
+        public bool TryResolveSnapshotForTlBranch(string tlBranch, out string snapshotId, out string dbRef)
+        {
+            snapshotId = "";
+            dbRef = "";
+
+            if (!string.Equals(CatalogTlTier.Normalize(tlBranch), CatalogTlTier.Tl0, StringComparison.Ordinal))
+            {
+                return false;
+            }
+
+            snapshotId = "validation-snapshot";
+            dbRef = "validation-snapshot";
+            return true;
+        }
+
         public bool TryGetCombatRadiusNm(string platformId, out double combatRadiusNm)
         {
             combatRadiusNm = _combatRadiusNm;
@@ -152,5 +215,39 @@ public sealed class ScenarioValidationEngineTests
             lonDeg = 0;
             return false;
         }
+    }
+
+    [Fact]
+    public void Editor_migration_preview_from_clean_editor_plus_legacy_unit_produces_nonzero_ObsoleteCount_BrokenMounts_and_real_delta() // proof update
+    {
+        // clean start state, real shipped editor + pure preview Compute, no mocks of preview
+        var editor = ScenarioDocumentEditor.CreateNew(dbRef: "baltic_patrol");
+        editor.AddStrikeMission("__verif-legacy", new[] { "legacy-patrol-ship" }, new string[0]);
+        var current = InMemoryCatalogReader.BalticPatrolFixture();
+        var target = InMemoryCatalogReader.BalticV3Fixture();
+        var res = ScenarioDbMigrationPreview.Compute(editor.ToDto(), current, target);
+        // numeric from real preview + legacy in patrol platforms (position) + mount vs v3
+        Assert.True(res.ObsoleteCount >= 1, "ObsoleteCount");
+        Assert.True(res.BrokenMounts >= 1, "BrokenMounts");
+        var report = res.Report;
+        Assert.Contains("obsolete=1", report);
+        Assert.Contains("broken_mounts=1", report);
+    }
+
+    [Fact]
+    public void Editor_live_validation_and_migration_from_clean_state_emits_findings_and_preview_counts()
+    {
+        var editor = ScenarioDocumentEditor.CreateNew(dbRef: "baltic_patrol");
+        editor.AddStrikeMission("s-no-tgt", new[] { "u1" }, new string[0]);
+        var engine = new ScenarioValidationEngine();
+        var config = new ValidationConfig();
+        var catalog = ValidationCatalogFixture.Default();
+        var report = engine.Validate(editor.ToDto(), catalog, config);
+        Assert.Contains(report.Findings, f => f.Code == "STRIKE_NO_TARGETS");
+        // also drive preview numeric
+        editor.AddStrikeMission("__mig-legacy", new[] { "legacy-patrol-ship" }, new string[0]);
+        var mig = ScenarioDbMigrationPreview.Compute(editor.ToDto(), InMemoryCatalogReader.BalticPatrolFixture(), InMemoryCatalogReader.BalticV3Fixture());
+        Assert.True(mig.ObsoleteCount >= 1);
+        Assert.True(mig.BrokenMounts >= 1);
     }
 }

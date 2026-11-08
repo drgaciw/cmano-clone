@@ -1,0 +1,72 @@
+{
+  "tier": 1,
+  "platformIds": [
+    "241-slazak-meko-100-mod-2019",
+    "421-orkan-pr-660-2015",
+    "624-pr-205p-tarantul-1992",
+    "70-rauma-helsinki-ii-1990",
+    "80-hamina-rauma-2-2006",
+    "bpk-marshal-shaposhnikov-udaloy-i-pr-1155-fregat",
+    "em-sovremenny-i-pr-956-sarych",
+    "f-207-bremen-type-f122-1982",
+    "k-31-visby-2009",
+    "mpk-steregushchiy-pr-20380-2018"
+  ],
+  "unitsSample": [
+    {
+      "unitId": "k-31-visby-2009",
+      "platformId": "k-31-visby-2009",
+      "domain": "surface",
+      "side": "blue"
+    },
+    {
+      "unitId": "em-sovremenny-i-pr-956-sarych",
+      "platformId": "em-sovremenny-i-pr-956-sarych",
+      "domain": "surface",
+      "side": "red"
+    },
+    {
+      "unitId": "k-31-visby-2009",
+      "platformId": "k-31-visby-2009",
+      "domain": "surface",
+      "side": "blue"
+    },
+    {
+      "unitId": "em-sovremenny-i-pr-956-sarych",
+      "platformId": "em-sovremenny-i-pr-956-sarych",
+      "domain": "surface",
+      "side": "red"
+    },
+    {
+      "unitId": "k-31-visby-2009",
+      "platformId": "k-31-visby-2009",
+      "domain": "surface",
+      "side": "blue"
+    },
+    {
+      "unitId": "em-sovremenny-i-pr-956-sarych",
+      "platformId": "em-sovremenny-i-pr-956-sarych",
+      "domain": "surface",
+      "side": "red"
+    },
+    {
+      "unitId": "k-31-visby-2009",
+      "platformId": "k-31-visby-2009",
+      "domain": "surface",
+      "side": "blue"
+    },
+    {
+      "unitId": "em-sovremenny-i-pr-956-sarych",
+      "platformId": "em-sovremenny-i-pr-956-sarych",
+      "domain": "surface",
+      "side": "red"
+    },
+    {
+      "unitId": "mpk-steregushchiy-pr-20380-2018",
+      "platformId": "mpk-steregushchiy-pr-20380-2018",
+      "domain": "surface",
+      "side": "red"
+    }
+  ],
+  "count": 10
+}

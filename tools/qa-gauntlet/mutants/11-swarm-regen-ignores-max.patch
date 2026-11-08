@@ -1,0 +1,14 @@
+diff --git a/src/ProjectAegis.Sim/Swarm/SwarmController.cs b/src/ProjectAegis.Sim/Swarm/SwarmController.cs
+index 6cc0b80..71e0519 100644
+--- a/src/ProjectAegis.Sim/Swarm/SwarmController.cs
++++ b/src/ProjectAegis.Sim/Swarm/SwarmController.cs
+@@ -405,8 +405,7 @@ public sealed class SwarmController
+             return false;
+         }
+ 
+-        var room = unit.MaxDrones - previous;
+-        var gained = Math.Min(dronesGained, room);
++        var gained = dronesGained; // MUTANT: ignore MaxDrones room
+         if (gained <= 0)
+         {
+             return false;

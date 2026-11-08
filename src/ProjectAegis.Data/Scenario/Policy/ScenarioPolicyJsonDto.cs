@@ -1,5 +1,7 @@
 namespace ProjectAegis.Data.Scenario.Policy;
 
+using System.Text.Json;
+
 public sealed class ScenarioPolicyJsonDto
 {
     public string Id { get; set; } = "";
@@ -26,7 +28,18 @@ public sealed class ScenarioPolicyJsonDto
 
     public List<ScenarioCatalogDetectionJsonDto>? CatalogDetection { get; set; }
 
+    public List<ScenarioCatalogWithdrawJsonDto>? CatalogWithdraw { get; set; }
+
     public List<ScenarioJammerJsonDto>? Jammers { get; set; }
+
+    /// <summary>ENV-02 / DRG-379: authored observer → target LOS geometry (radar horizon + terrain mask).</summary>
+    public List<ScenarioLineOfSightJsonDto>? LineOfSight { get; set; }
+
+    /// <summary>EW-01 / DRG-386: scenario-level radar ECCM profiles keyed by sensor id (override catalog).</summary>
+    public List<ScenarioRadarEccmJsonDto>? RadarEccm { get; set; }
+
+    /// <summary>C3-01 / DRG-390: per-unit comms-grid membership transitions.</summary>
+    public List<ScenarioCommsGridJsonDto>? CommsGrid { get; set; }
 
     public ScenarioContactLifecycleJsonDto? ContactLifecycle { get; set; }
 
@@ -49,6 +62,152 @@ public sealed class ScenarioPolicyJsonDto
     public Dictionary<string, ScenarioUnitReadinessJsonDto>? UnitReadiness { get; set; }
 
     public List<ScenarioSpoofJsonDto>? SpoofTracks { get; set; }
+
+    public ScenarioTelemetryJsonDto? Telemetry { get; set; }
+
+    public ScenarioDatalinkJsonDto? Datalink { get; set; }
+
+    public ScenarioMineHazardJsonDto? MineHazard { get; set; }
+
+    /// <summary>Optional qa-gauntlet block (intent, expect, catalog units for joint ORBAT).</summary>
+    public ScenarioGauntletJsonDto? Gauntlet { get; set; }
+}
+
+/// <summary>
+/// qa-gauntlet metadata + joint catalog unit plan.
+/// Canonical owner of <c>gauntlet.*</c> keys (strict validation derives from these properties).
+/// </summary>
+public sealed class ScenarioGauntletJsonDto
+{
+    public string? Intent { get; set; }
+
+    public string? Oracle { get; set; }
+
+    public List<string>? CatalogRefs { get; set; }
+
+    public List<ScenarioGauntletUnitJsonDto>? Units { get; set; }
+
+    /// <summary>Ladder / default oracle bounds (<c>gauntlet.expect</c>).</summary>
+    public ScenarioGauntletExpectJsonDto? Expect { get; set; }
+
+    /// <summary>CI smoke oracle bounds (<c>gauntlet.expectCi</c>).</summary>
+    public ScenarioGauntletExpectJsonDto? ExpectCi { get; set; }
+
+    public string? RunId { get; set; }
+
+    public int? Tier { get; set; }
+
+    /// <summary>QA provenance blob (string or object) — key ownership only.</summary>
+    public JsonElement? ExpectProvenance { get; set; }
+
+    /// <summary>CI provenance blob (string or object) — key ownership only.</summary>
+    public JsonElement? ExpectCiProvenance { get; set; }
+
+    public List<string>? DimensionsClaimed { get; set; }
+
+    /// <summary>Forge candidate metadata blob — key ownership only.</summary>
+    public JsonElement? Forge { get; set; }
+}
+
+/// <summary>
+/// Machine-checkable expect fields aligned with <c>GauntletOracleExpect</c>
+/// (<c>gauntlet.expect</c> / <c>gauntlet.expectCi</c>).
+/// </summary>
+public sealed class ScenarioGauntletExpectJsonDto
+{
+    public string? Side { get; set; }
+
+    public int? MinKills { get; set; }
+
+    public int? MaxMissilesFired { get; set; }
+
+    public int? MinDenials { get; set; }
+
+    public int? MaxDenials { get; set; }
+
+    public double? MinScore { get; set; }
+
+    public double? MaxScore { get; set; }
+
+    public bool? RequireNonEmptyFingerprint { get; set; }
+
+    public List<string>? RequireFingerprintSubstrings { get; set; }
+
+    public List<string>? RequireTrueLaunchedShooters { get; set; }
+}
+
+/// <summary>One catalog-backed unit to register on the Baltic replay path.</summary>
+public sealed class ScenarioGauntletUnitJsonDto
+{
+    public string? UnitId { get; set; }
+
+    public string PlatformId { get; set; } = "";
+
+    public string Domain { get; set; } = "surface";
+
+    public string Side { get; set; } = "blue";
+}
+
+public sealed class ScenarioMineHazardJsonDto
+{
+    public double ZoneMinRangeMeters { get; set; }
+
+    public double ZoneMaxRangeMeters { get; set; }
+
+    public double? TriggerRadiusMeters { get; set; }
+
+    public double? HazardSeverity { get; set; }
+
+    public List<ScenarioMinePlacementJsonDto>? Mines { get; set; }
+
+    public List<ScenarioMineTransitJsonDto>? Transit { get; set; }
+}
+
+public sealed class ScenarioMinePlacementJsonDto
+{
+    public string MineId { get; set; } = "";
+
+    public double RangeMeters { get; set; }
+
+    public double Lethality { get; set; } = 1.0;
+}
+
+public sealed class ScenarioMineTransitJsonDto
+{
+    public string PlatformId { get; set; } = "u1";
+
+    public List<double>? RangesMeters { get; set; }
+}
+
+public sealed class ScenarioDatalinkJsonDto
+{
+    public bool? OrganicOnly { get; set; }
+
+    public Dictionary<string, string>? UnitSides { get; set; }
+
+    public int? ShareLagTicks { get; set; }
+}
+
+public sealed class ScenarioTelemetryJsonDto
+{
+    public bool? EnableBalanceDrift { get; set; }
+
+    public double? WinRateDriftThreshold { get; set; }
+
+    public int? MinimumSampleRuns { get; set; }
+
+    public double? DefaultExpectedWinRate { get; set; }
+
+    public List<ScenarioBalanceTrialJsonDto>? BalanceTrials { get; set; }
+}
+
+public sealed class ScenarioBalanceTrialJsonDto
+{
+    public string EntityId { get; set; } = "";
+
+    public string EntityKind { get; set; } = "Platform";
+
+    public double? ExpectedWinRate { get; set; }
 }
 
 public sealed class ScenarioUnitReadinessJsonDto
@@ -128,6 +287,25 @@ public sealed class ScenarioMissionJsonDto
     public List<string> FireOrder { get; set; } = [];
 
     public List<ScenarioMissionEventJsonDto> Events { get; set; } = [];
+
+    public List<ScenarioMissionContactTriggerJsonDto>? Triggers { get; set; }
+}
+
+public sealed class ScenarioMissionContactTriggerJsonDto
+{
+    public string Id { get; set; } = "";
+
+    public string ObserverId { get; set; } = "";
+
+    public string TargetClass { get; set; } = "Any";
+
+    public string Side { get; set; } = "friendly";
+
+    public string MissionCode { get; set; } = "";
+
+    public string Roe { get; set; } = "WeaponsFree";
+
+    public List<string>? UnitIds { get; set; }
 }
 
 /// <summary>Mission-level doctrine override (req 13 inheritance between side and unit).</summary>
@@ -171,6 +349,53 @@ public sealed class ScenarioJammerJsonDto
     public ulong ActiveFromTick { get; set; }
 
     public string? ObserverId { get; set; }
+
+    /// <summary>EW-01 / DRG-386: jammer technology generation (0 = unspecified).</summary>
+    public int TechGeneration { get; set; }
+}
+
+public sealed class ScenarioTerrainSampleJsonDto
+{
+    public double DistanceMeters { get; set; }
+
+    public double ElevationMslMeters { get; set; }
+}
+
+public sealed class ScenarioLineOfSightJsonDto
+{
+    public string ObserverId { get; set; } = "";
+
+    public string TargetId { get; set; } = "";
+
+    public double ObserverHeightMslMeters { get; set; }
+
+    public double TargetHeightMslMeters { get; set; }
+
+    public double RangeMeters { get; set; }
+
+    public List<ScenarioTerrainSampleJsonDto>? Terrain { get; set; }
+}
+
+public sealed class ScenarioRadarEccmJsonDto
+{
+    public string SensorId { get; set; } = "";
+
+    public string? ScanType { get; set; }
+
+    public bool FrequencyAgile { get; set; }
+
+    public int TechGeneration { get; set; }
+}
+
+public sealed class ScenarioCommsGridJsonDto
+{
+    public ulong AtTick { get; set; }
+
+    public string UnitId { get; set; } = "";
+
+    public string Membership { get; set; } = "OffGrid";
+
+    public string? Reason { get; set; }
 }
 
 public sealed class ScenarioCatalogDetectionJsonDto
@@ -188,6 +413,13 @@ public sealed class ScenarioCatalogDetectionJsonDto
     public double JamStrength { get; set; }
 }
 
+public sealed class ScenarioCatalogWithdrawJsonDto
+{
+    public string PlatformId { get; set; } = "u1";
+
+    public double CurrentHpPct { get; set; } = 100.0;
+}
+
 public sealed class ScenarioDetectionJsonDto
 {
     public string ObserverId { get; set; } = "u1";
@@ -203,6 +435,10 @@ public sealed class ScenarioDetectionJsonDto
     public double EnvMask { get; set; } = 1.0;
 
     public double JamStrength { get; set; }
+
+    public double EccmFactor { get; set; } = 1.0;
+
+    public bool RequiresActiveRadar { get; set; } = true;
 }
 
 public sealed class ScenarioEmconJsonDto
@@ -230,6 +466,9 @@ public sealed class ScenarioContactJsonDto
 
 public sealed class ScenarioEngageJsonDto
 {
+    /// <summary>Explicit presentation-facing weapon family; omitted or blank means Unknown.</summary>
+    public string? WeaponFamilyId { get; set; }
+
     public double RangeMeters { get; set; } = 50_000;
 
     public double EnvelopeMinMeters { get; set; } = 1_000;
@@ -251,6 +490,12 @@ public sealed class ScenarioEngageJsonDto
     /// <summary>WRA cap: max rounds per engagement (policy GDD).</summary>
     public int? MaxSalvo { get; set; }
 
+    /// <summary>
+    /// Shotgun band: remaining rounds after a fire in (0, shotgunRoundsThreshold] ⇒ SHOTGUN.
+    /// Remaining 0 ⇒ WINCHESTER. 0 disables the shotgun band (only WINCHESTER at empty).
+    /// </summary>
+    public int ShotgunRoundsThreshold { get; set; } = 1;
+
     public int? WeaponTechnologyLevel { get; set; }
 
     public bool? WeaponRequiresBlackProject { get; set; }
@@ -262,4 +507,7 @@ public sealed class ScenarioEngageJsonDto
     public bool? MountOnline { get; set; }
 
     public bool? ContactIdentified { get; set; }
+
+    /// <summary>ADR-009: enable registry validators on engage path (default false).</summary>
+    public bool? CombatDomainsEnabled { get; set; }
 }

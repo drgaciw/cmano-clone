@@ -1,0 +1,122 @@
+{
+  "id": "gauntlet-theater-inject",
+  "friendlyRoe": "WeaponsFree",
+  "opposingRoe": "WeaponsTight",
+  "engage": {
+    "rangeMeters": 45000,
+    "envelopeMinMeters": 5000,
+    "envelopeMaxMeters": 120000,
+    "defaultMagazineRounds": 4,
+    "hasFireControlTrack": true,
+    "combatDomainsEnabled": true,
+    "pkBase": 0.85,
+    "pkIntercept": 0.0,
+    "pkKill": 0.2,
+    "salvoSize": 1
+  },
+  "detection": [
+    {
+      "observerId": "k-31-visby-2009",
+      "sensorId": "radar-1",
+      "targetId": "em-sovremenny-i-pr-956-sarych",
+      "contactId": "c1",
+      "basePd": 1.0,
+      "envMask": 1.0,
+      "jamStrength": 0
+    }
+  ],
+  "commsDisplay": {
+    "degradedLagTicks": 2,
+    "ghostOffsetX": 0.06,
+    "ghostOffsetY": 0.04,
+    "degradedOrderDelayTicks": 2,
+    "degradedStaleThresholdDivisor": 2
+  },
+  "comms": [
+    {
+      "atTick": 3,
+      "newState": "Degraded",
+      "nodeId": "gauntlet-theater-net",
+      "reason": "inject_jamming"
+    },
+    {
+      "atTick": 6,
+      "newState": "Denied",
+      "nodeId": "gauntlet-theater-net",
+      "reason": "inject_link_down"
+    }
+  ],
+  "mission": {
+    "fireOrder": [
+      "start-exec",
+      "inject-comms-degrade",
+      "inject-roe-note"
+    ],
+    "events": [
+      {
+        "id": "start-exec",
+        "fireAtTick": 0,
+        "kind": "MissionTransition",
+        "code": "Execution"
+      },
+      {
+        "id": "inject-comms-degrade",
+        "fireAtTick": 3,
+        "kind": "EventFired",
+        "code": "inject_comms_degrade"
+      },
+      {
+        "id": "inject-roe-note",
+        "fireAtTick": 5,
+        "kind": "EventFired",
+        "code": "inject_mid_run_event"
+      }
+    ],
+    "triggers": [
+      {
+        "id": "contact-escalate-free",
+        "observerId": "k-31-visby-2009",
+        "targetClass": "Surface",
+        "side": "friendly",
+        "missionCode": "ASuW",
+        "roe": "WeaponsFree",
+        "unitIds": [
+          "k-31-visby-2009"
+        ]
+      }
+    ]
+  },
+  "gauntlet": {
+    "intent": "Phase-3 theater: mid-run comms[] inject (Degraded@3, Denied@6) + mission events; catalog Visby vs Sovremenny",
+    "oracle": "CommsStateChange Nominal\u2192Degraded (inject_jamming) then \u2192Denied; PolicyUpdate ROE on contact trigger; blue kills catalog red",
+    "expect": {
+      "side": "BLUE",
+      "requireNonEmptyFingerprint": true,
+      "minScore": -35.0,
+      "maxScore": 45.0,
+      "maxMissilesFired": 7,
+      "maxDenials": 27,
+      "minKills": 1
+    },
+    "catalogRefs": [
+      "k-31-visby-2009",
+      "em-sovremenny-i-pr-956-sarych"
+    ],
+    "units": [
+      {
+        "unitId": "k-31-visby-2009",
+        "platformId": "k-31-visby-2009",
+        "domain": "surface",
+        "side": "blue"
+      },
+      {
+        "unitId": "em-sovremenny-i-pr-956-sarych",
+        "platformId": "em-sovremenny-i-pr-956-sarych",
+        "domain": "surface",
+        "side": "red"
+      }
+    ],
+    "tier": 4,
+    "runId": "gauntlet-theater-phase3"
+  }
+}

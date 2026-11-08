@@ -1,0 +1,33 @@
+{
+  "version": 1,
+  "seededFrom": "winchester hard gate + rebless 2026-08-01",
+  "requiredRunWide": [
+    "CATALOG_UNIT:",
+    "MAGAZINE_SEED:",
+    "ContactChange|",
+    "EventFired|",
+    "ROE_WEAPONS_TIGHT",
+    "NO_FIRE_CONTROL_TRACK",
+    "TARGET_DESTROYED",
+    "EMCON_OFF",
+    "JOKER",
+    "BINGO",
+    "SHOTGUN",
+    "WINCHESTER",
+    "SHOTGUN_ORDNANCE",
+    "BINGO_FUEL",
+    "WINCHESTER_ORDNANCE"
+  ],
+  "warnIfAbsent": [],
+  "reportManifestCounts": true,
+  "tokenNotes": {
+    "JOKER": "Fuel warning above Bingo \u2014 finish task soon and prepare to leave (FuelStateChange)",
+    "BINGO": "Low fuel deadline \u2014 RTB or tanker immediately (FuelStateChange)",
+    "SHOTGUN": "Pre-briefed min remaining/defensive ordnance (OrdnanceStateChange)",
+    "WINCHESTER": "Out of weapons \u2014 magazine empty (OrdnanceStateChange)",
+    "SHOTGUN_ORDNANCE": "Multi-salvo denied while remaining in Shotgun band (LogisticsShotgunEngageGate)",
+    "BINGO_FUEL": "Bingo fuel hard-denies engage (LogisticsBingoEngageGate); load-bearing for mutant 08",
+    "WINCHESTER_ORDNANCE": "Winchester hard-denies engage (LogisticsWinchesterEngageGate); load-bearing for mutant 09; supersedes pre-launch NO_AMMO when ledger tracked-empty",
+    "NO_AMMO": "Legacy MagazineEmpty / TryConsumeSalvo fail path; pre-launch empty now WINCHESTER_ORDNANCE"
+  }
+}

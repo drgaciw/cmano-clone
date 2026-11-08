@@ -1,0 +1,318 @@
+{
+  "id": "gauntlet-20260727-1455-t5-s4",
+  "friendlyRoe": "WeaponsFree",
+  "opposingRoe": "WeaponsFree",
+  "engage": {
+    "rangeMeters": 53000,
+    "envelopeMinMeters": 5000,
+    "envelopeMaxMeters": 138000,
+    "defaultMagazineRounds": 6,
+    "hasFireControlTrack": true,
+    "combatDomainsEnabled": true,
+    "pkBase": 0.85,
+    "pkIntercept": 0.0,
+    "pkKill": 0.2,
+    "salvoSize": 2
+  },
+  "contactLifecycle": {
+    "staleThresholdTicks": 40,
+    "classifyAfterTicks": 6,
+    "identifyAfterTicks": 12
+  },
+  "detection": [
+    {
+      "observerId": "ka-27m-helix-a",
+      "sensorId": "sonar-dipping-1",
+      "targetId": "pl-877-kilo-paltus-1992",
+      "contactId": "c-s4-1",
+      "basePd": 0.6,
+      "envMask": 1.0,
+      "jamStrength": 0,
+      "requiresActiveRadar": false
+    },
+    {
+      "observerId": "a-26-blekinge",
+      "sensorId": "passive-sonar-1",
+      "targetId": "pla-885-severodvinsk-yasen",
+      "contactId": "c-s4-2",
+      "basePd": 0.5,
+      "envMask": 1.0,
+      "jamStrength": 0,
+      "requiresActiveRadar": false
+    },
+    {
+      "observerId": "a-19-gotland-2020",
+      "sensorId": "passive-sonar-1",
+      "targetId": "plarb-955-borei-borey",
+      "contactId": "c-s4-3",
+      "basePd": 0.45,
+      "envMask": 1.0,
+      "jamStrength": 0,
+      "requiresActiveRadar": false
+    },
+    {
+      "observerId": "eurofighter-typhoon",
+      "sensorId": "radar-1",
+      "targetId": "mig-29-fulcrum-c-1999",
+      "contactId": "c-s4-4",
+      "basePd": 1.0,
+      "envMask": 1.0,
+      "jamStrength": 0
+    },
+    {
+      "observerId": "eurofighter-typhoon",
+      "sensorId": "radar-1",
+      "targetId": "su-27sm-sm3-flanker-j-2013",
+      "contactId": "c-s4-5",
+      "basePd": 0.9,
+      "envMask": 1.0,
+      "jamStrength": 0
+    },
+    {
+      "observerId": "f-16c-blk-52iq-falcon-2015",
+      "sensorId": "radar-1",
+      "targetId": "mig-31-foxhound",
+      "contactId": "c-s4-6",
+      "basePd": 0.85,
+      "envMask": 1.0,
+      "jamStrength": 0
+    },
+    {
+      "observerId": "f-310-fridtjof-nansen",
+      "sensorId": "radar-1",
+      "targetId": "skr-admiral-sergey-gorshkov-pr-2235-0",
+      "contactId": "c-s4-7",
+      "basePd": 1.0,
+      "envMask": 1.0,
+      "jamStrength": 0
+    },
+    {
+      "observerId": "p-960-skjold",
+      "sensorId": "radar-1",
+      "targetId": "mrk-shkval-pr-22800-karakurt",
+      "contactId": "c-s4-8",
+      "basePd": 1.0,
+      "envMask": 0.9,
+      "jamStrength": 0
+    },
+    {
+      "observerId": "skr-admiral-sergey-gorshkov-pr-2235-0",
+      "sensorId": "radar-1",
+      "targetId": "f-310-fridtjof-nansen",
+      "contactId": "c-s4-9",
+      "basePd": 1.0,
+      "envMask": 1.0,
+      "jamStrength": 0
+    },
+    {
+      "observerId": "mig-29-fulcrum-c-1999",
+      "sensorId": "radar-1",
+      "targetId": "eurofighter-typhoon",
+      "contactId": "c-s4-10",
+      "basePd": 1.0,
+      "envMask": 1.0,
+      "jamStrength": 0
+    }
+  ],
+  "jammers": [
+    {
+      "targetId": "pl-877-kilo-paltus-1992",
+      "jamStrength": 0.3,
+      "activeFromTick": 10,
+      "observerId": "ka-27m-helix-a"
+    },
+    {
+      "targetId": "mig-29-fulcrum-c-1999",
+      "jamStrength": 0.4,
+      "activeFromTick": 20,
+      "observerId": "eurofighter-typhoon"
+    },
+    {
+      "targetId": "skr-admiral-sergey-gorshkov-pr-2235-0",
+      "jamStrength": 0.5,
+      "activeFromTick": 30,
+      "observerId": "f-310-fridtjof-nansen"
+    }
+  ],
+  "mission": {
+    "fireOrder": [
+      "mission-start",
+      "comms-loss-inject",
+      "sensor-degradation-inject-2",
+      "reinforcement-pressure-inject-2",
+      "concurrent-domains-checkpoint"
+    ],
+    "events": [
+      {
+        "id": "mission-start",
+        "fireAtTick": 0,
+        "kind": "MissionTransition",
+        "code": "Execution"
+      },
+      {
+        "id": "comms-loss-inject",
+        "fireAtTick": 10,
+        "kind": "EventFired",
+        "code": "comms_loss_inject_designated"
+      },
+      {
+        "id": "sensor-degradation-inject-2",
+        "fireAtTick": 20,
+        "kind": "EventFired",
+        "code": "sensor_degradation_inject_designated_2"
+      },
+      {
+        "id": "reinforcement-pressure-inject-2",
+        "fireAtTick": 30,
+        "kind": "EventFired",
+        "code": "reinforcement_pressure_inject_designated_2"
+      },
+      {
+        "id": "concurrent-domains-checkpoint",
+        "fireAtTick": 36,
+        "kind": "EventFired",
+        "code": "concurrent_domains_checkpoint"
+      }
+    ]
+  },
+  "gauntlet": {
+    "intent": "T5 main-ladder #4 (capstone): CASCADING ADVERSARIAL INJECTS (primary dimension) at full 3-stage cascade -- 3 staggered jammers (ticks 10/20/30, jamStrength 0.3/0.4/0.5) each paired with a mission.events EventFired marker at the same tick (comms_loss_inject_designated @10, sensor_degradation_inject_designated_2 @20, reinforcement_pressure_inject_designated_2 @30), the heaviest cascade in this batch (scenario-2 and scenario-3 each carry 2-3 staggered stages; this scenario is the corpus's dedicated 3-full-stage exercise). Per the required-mechanism list for this run, all three injects are modeled exclusively via jammers[].activeFromTick (confirmed-working per BUG-scenario-contacts-shadowed-by-detection.md's control check) and mission.events EventFired markers (confirmed-working, pure tick-scheduled) -- contacts[] is not used anywhere in this policy. concurrent_domains_checkpoint @36 closes the run 4 ticks before the 40-tick budget ends, confirming the cascade completed with the multi-domain fight still live. SECONDARY DIMENSION -- MULTI-DOMAIN CONCURRENT CAPSTONE, reinforcing (not duplicating) scenario-1's primary concurrency claim: both sides run WeaponsFree from tick 0 (friendlyRoe=WeaponsFree, opposingRoe=WeaponsFree), with denials driven by a differently-tuned ScenarioContactLifecycle gate (classifyAfterTicks=6/identifyAfterTicks=12, vs scenario-1's 5/10) so the corpus samples a third distinct ID-gate denial envelope (alongside t4's 3/6 and 4/8) at this tier's larger 40-tick budget. ASW thread: ka-27m-helix-a + a-26-blekinge + a-19-gotland-2020 prosecute pl-877-kilo-paltus-1992 / pla-885-severodvinsk-yasen / plarb-955-borei-borey (the roster's flagged SSBN high-value ASW target, same convention as tier 4). AAW thread: eurofighter-typhoon (dual-target) intercepts mig-29-fulcrum-c-1999 and su-27sm-sm3-flanker-j-2013. Strike/intercept thread: f-16c-blk-52iq-falcon-2015 vs mig-31-foxhound. Escort/patrol threads: f-310-fridtjof-nansen vs skr-admiral-sergey-gorshkov-pr-2235-0, p-960-skjold vs mrk-shkval-pr-22800-karakurt. DENSE-RED / ASYMMETRIC JOINT MIX / UNDERUSED-PLATFORM COVERAGE: this scenario deliberately completes this batch's coverage of roster.json's flagged underused-platform set with a-26-blekinge, a-19-gotland-2020, and plarb-955-borei-borey (SSBN HVU) -- none of which appear in scenario-1/-2/-3 -- alongside an 8-unit RED package (3 air + 2 surface + 3 subsurface, including the SSBN) against a 7-unit BLUE package, matching the tier's 'dense red, asymmetric joint mix' spec.",
+    "oracle": "All four EventFired codes (comms_loss_inject_designated @10, sensor_degradation_inject_designated_2 @20, reinforcement_pressure_inject_designated_2 @30, concurrent_domains_checkpoint @36) must appear in the fingerprint regardless of seed. BLUE (WeaponsFree throughout) is expected to register kills across at least two of the four threads (ASW/AAW/strike/escort-patrol) inside the 40-tick run as ID-gated contacts convert past the 6/12-tick classify/identify gate; denials accrue only from that gate, not ROE, and should be a modest fraction of the run given 40 ticks affords ample time past the 12-tick identify threshold even with the 3-stage jam cascade degrading Pd on three specific trials (c-s4-1, c-s4-4, c-s4-9) from ticks 10/20/30 onward. RED (also WeaponsFree) is expected to convert some of its own detections (c-s4-9, c-s4-10) into kills against BLUE, but only BLUE is scored (expect.side=BLUE).",
+    "catalogRefs": [
+      "eurofighter-typhoon",
+      "f-16c-blk-52iq-falcon-2015",
+      "ka-27m-helix-a",
+      "f-310-fridtjof-nansen",
+      "p-960-skjold",
+      "a-26-blekinge",
+      "a-19-gotland-2020",
+      "mig-29-fulcrum-c-1999",
+      "su-27sm-sm3-flanker-j-2013",
+      "mig-31-foxhound",
+      "skr-admiral-sergey-gorshkov-pr-2235-0",
+      "mrk-shkval-pr-22800-karakurt",
+      "pla-885-severodvinsk-yasen",
+      "pl-877-kilo-paltus-1992",
+      "plarb-955-borei-borey"
+    ],
+    "dimensionsClaimed": [
+      "cascading-adversarial-injects-3-stage-jammer-event",
+      "multi-domain-concurrent-capstone",
+      "dense-red-asymmetric-joint-mix",
+      "platform-underused-coverage",
+      "contact-lifecycle-id-gated-denials",
+      "combat-domain-air",
+      "combat-domain-surface",
+      "combat-domain-subsurface"
+    ],
+    "units": [
+      {
+        "unitId": "eurofighter-typhoon",
+        "platformId": "eurofighter-typhoon",
+        "domain": "air",
+        "side": "blue"
+      },
+      {
+        "unitId": "f-16c-blk-52iq-falcon-2015",
+        "platformId": "f-16c-blk-52iq-falcon-2015",
+        "domain": "air",
+        "side": "blue"
+      },
+      {
+        "unitId": "ka-27m-helix-a",
+        "platformId": "ka-27m-helix-a",
+        "domain": "air",
+        "side": "blue"
+      },
+      {
+        "unitId": "f-310-fridtjof-nansen",
+        "platformId": "f-310-fridtjof-nansen",
+        "domain": "surface",
+        "side": "blue"
+      },
+      {
+        "unitId": "p-960-skjold",
+        "platformId": "p-960-skjold",
+        "domain": "surface",
+        "side": "blue"
+      },
+      {
+        "unitId": "a-26-blekinge",
+        "platformId": "a-26-blekinge",
+        "domain": "subsurface",
+        "side": "blue"
+      },
+      {
+        "unitId": "a-19-gotland-2020",
+        "platformId": "a-19-gotland-2020",
+        "domain": "subsurface",
+        "side": "blue"
+      },
+      {
+        "unitId": "mig-29-fulcrum-c-1999",
+        "platformId": "mig-29-fulcrum-c-1999",
+        "domain": "air",
+        "side": "red"
+      },
+      {
+        "unitId": "su-27sm-sm3-flanker-j-2013",
+        "platformId": "su-27sm-sm3-flanker-j-2013",
+        "domain": "air",
+        "side": "red"
+      },
+      {
+        "unitId": "mig-31-foxhound",
+        "platformId": "mig-31-foxhound",
+        "domain": "air",
+        "side": "red"
+      },
+      {
+        "unitId": "skr-admiral-sergey-gorshkov-pr-2235-0",
+        "platformId": "skr-admiral-sergey-gorshkov-pr-2235-0",
+        "domain": "surface",
+        "side": "red"
+      },
+      {
+        "unitId": "mrk-shkval-pr-22800-karakurt",
+        "platformId": "mrk-shkval-pr-22800-karakurt",
+        "domain": "surface",
+        "side": "red"
+      },
+      {
+        "unitId": "pla-885-severodvinsk-yasen",
+        "platformId": "pla-885-severodvinsk-yasen",
+        "domain": "subsurface",
+        "side": "red"
+      },
+      {
+        "unitId": "pl-877-kilo-paltus-1992",
+        "platformId": "pl-877-kilo-paltus-1992",
+        "domain": "subsurface",
+        "side": "red"
+      },
+      {
+        "unitId": "plarb-955-borei-borey",
+        "platformId": "plarb-955-borei-borey",
+        "domain": "subsurface",
+        "side": "red"
+      }
+    ],
+    "expect": {
+      "side": "BLUE",
+      "requireNonEmptyFingerprint": true,
+      "requireFingerprintSubstrings": [
+        "comms_loss_inject_designated",
+        "sensor_degradation_inject_designated_2",
+        "reinforcement_pressure_inject_designated_2",
+        "concurrent_domains_checkpoint"
+      ],
+      "minKills": 4,
+      "maxMissilesFired": 44,
+      "minDenials": 0,
+      "maxDenials": 5,
+      "minScore": 360.0,
+      "maxScore": 640.0
+    },
+    "expectProvenance": "regenerated 2026-07-28 from real Demo batch CSV at T5 tick budget 40, seeds 42,7,123 (production/qa/gauntlet/gauntlet-20260727-1455/tier-5/results.csv). Observed: score=[600.0, 400.0, 500.0] kills=[6, 4, 5] missilesFired=[24, 36, 30] denials=[0, 0, 0]. Bounds padded ~20% beyond observed range per tools/qa-gauntlet/README-expect-regen.md (derived, not invented)."
+  }
+}

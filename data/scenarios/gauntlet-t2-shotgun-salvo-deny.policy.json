@@ -1,0 +1,85 @@
+{
+  "friendlyRoe": "WeaponsFree",
+  "opposingRoe": "WeaponsTight",
+  "engage": {
+    "rangeMeters": 45000,
+    "envelopeMinMeters": 5000,
+    "envelopeMaxMeters": 120000,
+    "defaultMagazineRounds": 3,
+    "hasFireControlTrack": true,
+    "combatDomainsEnabled": true,
+    "pkBase": 0.85,
+    "pkIntercept": 0.0,
+    "pkKill": 0.0,
+    "salvoSize": 2,
+    "shotgunRoundsThreshold": 2
+  },
+  "detection": [
+    {
+      "observerId": "k-31-visby-2009",
+      "sensorId": "radar-1",
+      "targetId": "em-sovremenny-i-pr-956-sarych",
+      "contactId": "c1",
+      "basePd": 1.0,
+      "envMask": 1.0,
+      "jamStrength": 0
+    }
+  ],
+  "gauntlet": {
+    "intent": "T2 Shotgun soft gate: multi-salvo (2) denied when remaining in SHOTGUN band (mag=3 thr=2). First salvo drops to SHOTGUN; second multi-salvo \u2192 SHOTGUN_ORDNANCE.",
+    "oracle": "Fingerprint: OrdnanceStateChange SHOTGUN; engage abort SHOTGUN_ORDNANCE.",
+    "dimensionsClaimed": [
+      "logistics-shotgun",
+      "logistics-shotgun-gate"
+    ],
+    "catalogRefs": [
+      "em-sovremenny-i-pr-956-sarych",
+      "k-31-visby-2009"
+    ],
+    "runId": "gauntlet-shotgun-soft-gate-2026-07-31",
+    "tier": 2,
+    "expect": {
+      "side": "BLUE",
+      "requireNonEmptyFingerprint": true,
+      "requireFingerprintSubstrings": [
+        "SHOTGUN",
+        "SHOTGUN_ORDNANCE"
+      ],
+      "minKills": 0,
+      "maxMissilesFired": 8,
+      "minDenials": 1,
+      "maxDenials": 40,
+      "minScore": -100.0,
+      "maxScore": 50.0
+    },
+    "units": [
+      {
+        "unitId": "k-31-visby-2009",
+        "platformId": "k-31-visby-2009",
+        "domain": "surface",
+        "side": "blue"
+      },
+      {
+        "unitId": "em-sovremenny-i-pr-956-sarych",
+        "platformId": "em-sovremenny-i-pr-956-sarych",
+        "domain": "surface",
+        "side": "red"
+      }
+    ],
+    "expectCi": {
+      "side": "BLUE",
+      "requireNonEmptyFingerprint": true,
+      "requireFingerprintSubstrings": [
+        "SHOTGUN",
+        "SHOTGUN_ORDNANCE"
+      ],
+      "minKills": 0,
+      "maxMissilesFired": 8,
+      "minDenials": 1,
+      "maxDenials": 40,
+      "minScore": -100.0,
+      "maxScore": 50.0
+    }
+  },
+  "id": "gauntlet-t2-shotgun-salvo-deny"
+}

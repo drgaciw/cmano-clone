@@ -49,4 +49,22 @@ public sealed class FuelTimelineTrackerTests
         var profile = new ScenarioPolicyProfile(EffectivePolicy.DefaultFree, logistics: new ScenarioLogisticsSettings(50, 100));
         Assert.That(FuelTimelineTracker.TryCreate(profile), Is.Null);
     }
+
+    [Test]
+    public void IsBingo_true_after_band_crosses_bingo_fraction()
+    {
+        var logistics = new ScenarioLogisticsSettings(
+            300,
+            600,
+            fuelCapacityKg: 100,
+            burnRateKgPerSecond: 10,
+            jokerFuelFraction: 0.25,
+            bingoFuelFraction: 0.10);
+        var tracker = new FuelTimelineTracker(logistics);
+        var unit = new TargetId("air-1");
+        // 9s * 10 kg/s = 90 burned → 10 remaining = 0.10 → BINGO
+        tracker.Drain(1, 9, 9.0, [unit]);
+        Assert.That(tracker.IsBingo("air-1"), Is.True);
+        Assert.That(tracker.CurrentBand("air-1"), Is.EqualTo("BINGO"));
+    }
 }

@@ -1,0 +1,16 @@
+{
+  "ok": true,
+  "defect": {
+    "id": "GAUNTLET-MD-001",
+    "status": "closed",
+    "class": "sim-code",
+    "title": "Air/sub multi-domain shooters must launch (not detection-only)",
+    "scenarioId": "gauntlet-multidomain-shooters",
+    "seed": 42,
+    "ticks": 10,
+    "policyPath": "data/scenarios/gauntlet-multidomain-shooters.policy.json",
+    "priorFailureMode": "hostile-1",
+    "fixSummary": "Multi-agent blue assignment + PreferredHostileByShooter for concurrent domain engages",
+    "closedUtc": "2026-07-13T22:00:00Z"
+  }
+}

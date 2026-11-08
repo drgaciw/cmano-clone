@@ -1,8 +1,17 @@
+/* Right unit detail chrome — fixed column under the top bar. */
+
 .unit-detail-panel {
-    flex-grow: 1;
+    position: absolute;
+    right: 0;
+    top: 56px;
+    bottom: 0;
+    width: 300px;
     min-width: 280px;
+    flex-direction: column;
     padding: 8px;
-    background-color: rgba(12, 18, 28, 0.92);
+    background-color: rgba(12, 18, 28, 0.94);
+    border-left-width: 1px;
+    border-left-color: rgb(50, 65, 80);
 }
 
 .unit-detail-title {
@@ -23,6 +32,20 @@
     margin-bottom: 4px;
 }
 
+.unit-detail-weapon-row {
+    flex-direction: row;
+}
+
+.unit-detail-weapon-row--denied {
+    border-left-width: 2px;
+    border-left-color: rgb(170, 100, 100);
+    padding-left: 2px;
+}
+
+.unit-detail-weapon-row:focus {
+    background-color: rgba(170, 140, 90, 0.18);
+}
+
 .unit-detail-attack-btn {
     margin-right: 4px;
     margin-bottom: 4px;
@@ -30,4 +53,72 @@
 
 .unit-detail-attack-btn:disabled {
     opacity: 0.45;
+}
+
+.attack-option-cue--empty {
+    border-left-width: 3px;
+    border-left-color: rgb(130, 130, 140);
+    padding-left: 6px;
+    -unity-font-style: italic;
+}
+
+.attack-option-cue--ready {
+    border-left-width: 3px;
+    border-left-color: rgb(110, 150, 120);
+    padding-left: 6px;
+}
+
+.attack-option-cue--blocked {
+    border-left-width: 3px;
+    border-left-color: rgb(170, 100, 100);
+    padding-left: 6px;
+    -unity-font-style: bold;
+}
+
+.dlz-cue--unknown {
+    border-left-width: 3px;
+    border-left-color: rgb(130, 130, 140);
+    padding-left: 6px;
+    -unity-font-style: italic;
+}
+
+.dlz-cue--in-zone {
+    border-left-width: 3px;
+    border-left-color: rgb(110, 150, 120);
+    padding-left: 6px;
+}
+
+.dlz-cue--approaching {
+    border-left-width: 3px;
+    border-left-color: rgb(170, 140, 90);
+    padding-left: 6px;
+    -unity-font-style: bold;
+}
+
+.dlz-cue--out-of-zone {
+    border-left-width: 3px;
+    border-left-color: rgb(170, 100, 100);
+    padding-left: 6px;
+    -unity-font-style: bold;
+}
+
+.wra-salvo-cue--unknown {
+    border-left-width: 3px;
+    border-left-color: rgb(130, 130, 140);
+    padding-left: 6px;
+    -unity-font-style: italic;
+}
+
+.wra-salvo-cue--nominal {
+    border-left-width: 3px;
+    border-left-color: rgb(110, 140, 170);
+    padding-left: 6px;
+}
+
+.wra-salvo-cue--exhausted {
+    border-left-width: 3px;
+    border-left-color: rgb(120, 120, 125);
+    padding-left: 6px;
+    opacity: 0.45;
+    -unity-font-style: italic;
 }

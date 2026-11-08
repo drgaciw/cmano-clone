@@ -1,0 +1,11 @@
+--- a/src/ProjectAegis.Sim/Engage/MvpEngagementResolver.cs
++++ b/src/ProjectAegis.Sim/Engage/MvpEngagementResolver.cs
+@@ -165,7 +165,7 @@
+         // Winchester hard-deny after doctrine sensors/EMCON/FC — replaces pre-launch MagazineEmpty
+         // when the ledger is tracked-empty (load-bearing WINCHESTER_ORDNANCE for saboteur 09).
+         var winchesterAbort = LogisticsWinchesterEngageGate.Evaluate(liveRounds);
+-        if (winchesterAbort != null)
++        var winchesterGateOpen = true; if (winchesterAbort != null && !winchesterGateOpen)
+         {
+             return EngageResult.Aborted(winchesterAbort.Value);
+         }

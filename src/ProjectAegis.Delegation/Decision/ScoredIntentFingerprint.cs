@@ -1,6 +1,5 @@
 namespace ProjectAegis.Delegation.Decision;
 
-using ProjectAegis.Delegation.Core;
 
 /// <summary>Deterministic scored-intent serialization for order-log replay (GDD order-log-replay).</summary>
 public static class ScoredIntentFingerprint
@@ -17,6 +16,6 @@ public static class ScoredIntentFingerprint
             alternatives
                 .OrderBy(a => a.Kind)
                 .ThenBy(a => a.Score)
-                .Select(a => $"{a.Kind}:{a.Score:R}:{a.Risk}"));
+                .Select(a => $"{a.Kind}:{FingerprintFloat.Format(a.Score)}:{a.Risk}"));
     }
 }

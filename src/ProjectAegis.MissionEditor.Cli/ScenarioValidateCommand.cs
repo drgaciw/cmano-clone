@@ -1,8 +1,8 @@
 namespace ProjectAegis.MissionEditor.Cli;
 
-using ProjectAegis.Data.Catalog;
-using ProjectAegis.Data.Scenario.Authoring;
-using ProjectAegis.Data.Validation;
+using Data.Catalog;
+using Data.Scenario.Authoring;
+using Data.Validation;
 
 public static class ScenarioValidateCommand
 {
@@ -32,11 +32,28 @@ public static class ScenarioValidateCommand
 
     private static ICatalogReader ResolveCatalog(ScenarioDocumentDto scenario)
     {
-        var dbRef = scenario.Metadata.DbRef ?? scenario.Metadata.DbSnapshotId;
         var sqlite = CatalogReaderFactory.TryCreateBalticPatrolReader();
-        if (sqlite != null && (string.IsNullOrWhiteSpace(dbRef) || sqlite.TryResolveDbRef(dbRef, out _)))
+        if (sqlite == null)
         {
-            return sqlite;
+            return InMemoryCatalogReader.BalticPatrolFixture();
+        }
+
+        var meta = scenario.Metadata;
+        if (!string.IsNullOrWhiteSpace(meta.DbSnapshotId) || !string.IsNullOrWhiteSpace(meta.DbRef))
+        {
+            var dbRef = meta.DbRef ?? meta.DbSnapshotId!;
+            if (sqlite.TryResolveDbRef(dbRef, out _))
+            {
+                return sqlite;
+            }
+        }
+        else
+        {
+            var tlBranch = Data.Scenario.ScenarioPackage.ResolveTlBranch(meta);
+            if (sqlite.TryResolveSnapshotForTlBranch(tlBranch, out _, out _))
+            {
+                return sqlite;
+            }
         }
 
         return InMemoryCatalogReader.BalticPatrolFixture();

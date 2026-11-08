@@ -1,0 +1,144 @@
+{
+  "friendlyRoe": "WeaponsFree",
+  "opposingRoe": "WeaponsFree",
+  "engage": {
+    "rangeMeters": 45000,
+    "envelopeMinMeters": 5000,
+    "envelopeMaxMeters": 120000,
+    "defaultMagazineRounds": 4,
+    "hasFireControlTrack": true,
+    "combatDomainsEnabled": true,
+    "pkBase": 0.85,
+    "pkIntercept": 0.0,
+    "pkKill": 0.55,
+    "salvoSize": 1
+  },
+  "detection": [
+    {
+      "observerId": "bpk-marshal-shaposhnikov-udaloy-i-pr-1155-fregat",
+      "sensorId": "radar-1",
+      "targetId": "mrk-shkval-pr-22800-karakurt",
+      "contactId": "c-forge-t2c2-1",
+      "basePd": 1.0,
+      "envMask": 1.0,
+      "jamStrength": 0
+    },
+    {
+      "observerId": "p-840-holland",
+      "sensorId": "radar-1",
+      "targetId": "skr-admiral-grigorovich-pr-1135-6m",
+      "contactId": "c-forge-t2c2-2",
+      "basePd": 1.0,
+      "envMask": 1.0,
+      "jamStrength": 0
+    },
+    {
+      "observerId": "mrk-shkval-pr-22800-karakurt",
+      "sensorId": "radar-1",
+      "targetId": "bpk-marshal-shaposhnikov-udaloy-i-pr-1155-fregat",
+      "contactId": "c-forge-t2c2-3",
+      "basePd": 1.0,
+      "envMask": 1.0,
+      "jamStrength": 0
+    },
+    {
+      "observerId": "su-34-fullback-2014",
+      "sensorId": "radar-1",
+      "targetId": "jas-39e-gripen-ng-2021",
+      "contactId": "c-forge-t2c2-4",
+      "basePd": 1.0,
+      "envMask": 1.0,
+      "jamStrength": 0
+    }
+  ],
+  "gauntlet": {
+    "intent": "Hard-case replay of FIXED defect BUG-losses-scoring-side-unaware (signature: enemy-kill-credited-to-own-side). Detection is deliberately reciprocal (blue observes red AND red observes blue, including one air-vs-air pair) with WeaponsFree both sides and a moderate-elevated pkKill (0.55, above the tier baseline ~0.2-0.25) so BOTH sides reliably land at least one kill across the 10-tick window, not just blue. Post-fix, BLUE's reported kills must only count outcomes where the shooter was a BLUE unit -- RED's kill(s) against BLUE hulls must NOT inflate BLUE's tally. A side-unaware scorer (the pre-fix behaviour) would report a higher BLUE kill count than the number of RED units actually destroyed. Deliberately WeaponsFree/WeaponsFree both sides and no passive-EMCON stand-in in THIS candidate -- the tier's ROE-tight/passive-EMCON asymmetry coverage is carried by candidates 3-4 instead, isolating the side-aware-scoring variable per the one-focused-mutation-family guidance.",
+    "oracle": "Both BLUE and RED score at least one Kill-coded engagement outcome; BLUE's reported kills count strictly excludes outcomes fired by RED shooters (i.e. BLUE kills <= number of RED units actually destroyed, never inflated by RED-on-BLUE kills).",
+    "catalogRefs": [
+      "bpk-marshal-shaposhnikov-udaloy-i-pr-1155-fregat",
+      "p-840-holland",
+      "p-960-skjold",
+      "jas-39e-gripen-ng-2021",
+      "mrk-shkval-pr-22800-karakurt",
+      "skr-admiral-grigorovich-pr-1135-6m",
+      "pk-368-vasily-bykov-pr-22160",
+      "su-34-fullback-2014"
+    ],
+    "runId": "gauntlet-20260727-1455",
+    "tier": 2,
+    "expect": {
+      "side": "BLUE",
+      "requireNonEmptyFingerprint": true,
+      "minScore": 100.0,
+      "maxScore": 300.0,
+      "maxMissilesFired": 13,
+      "maxDenials": 5,
+      "minKills": 2,
+      "minDenials": 0
+    },
+    "units": [
+      {
+        "unitId": "bpk-marshal-shaposhnikov-udaloy-i-pr-1155-fregat",
+        "platformId": "bpk-marshal-shaposhnikov-udaloy-i-pr-1155-fregat",
+        "domain": "surface",
+        "side": "blue"
+      },
+      {
+        "unitId": "p-840-holland",
+        "platformId": "p-840-holland",
+        "domain": "surface",
+        "side": "blue"
+      },
+      {
+        "unitId": "p-960-skjold",
+        "platformId": "p-960-skjold",
+        "domain": "surface",
+        "side": "blue"
+      },
+      {
+        "unitId": "jas-39e-gripen-ng-2021",
+        "platformId": "jas-39e-gripen-ng-2021",
+        "domain": "air",
+        "side": "blue"
+      },
+      {
+        "unitId": "mrk-shkval-pr-22800-karakurt",
+        "platformId": "mrk-shkval-pr-22800-karakurt",
+        "domain": "surface",
+        "side": "red"
+      },
+      {
+        "unitId": "skr-admiral-grigorovich-pr-1135-6m",
+        "platformId": "skr-admiral-grigorovich-pr-1135-6m",
+        "domain": "surface",
+        "side": "red"
+      },
+      {
+        "unitId": "pk-368-vasily-bykov-pr-22160",
+        "platformId": "pk-368-vasily-bykov-pr-22160",
+        "domain": "surface",
+        "side": "red"
+      },
+      {
+        "unitId": "su-34-fullback-2014",
+        "platformId": "su-34-fullback-2014",
+        "domain": "air",
+        "side": "red"
+      }
+    ],
+    "forge": {
+      "recipes": [
+        "hard-case-replay"
+      ],
+      "candidateId": "gauntlet-forge-20260727-1455-t2-c2",
+      "noveltyTags": [
+        "enemy-kill-credited-to-own-side",
+        "side-aware-scoring-regression",
+        "mutual-kills-both-sides"
+      ],
+      "note": "expect provisional pending regen"
+    },
+    "expectProvenance": "regenerated 2026-07-27 from real Demo batch CSV at T2 tick budget 10, seeds 42,7,123. NOTE minDenials may legitimately be 0: EngagementAbortReason aborts (e.g. SHOOTER_DESTROYED) are written to the OrderLog, NOT to DecisionLog.PolicyDenials, so an abort-heavy scenario can still show denials=0. Verified empirically: candidate-1 shows 9 SHOOTER_DESTROYED with 0 denials. Per tools/qa-gauntlet/README-expect-regen.md - derived, not invented."
+  },
+  "id": "gauntlet-forge-20260727-1455-t2-c2"
+}

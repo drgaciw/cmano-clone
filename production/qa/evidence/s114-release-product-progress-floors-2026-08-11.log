@@ -1,0 +1,130 @@
+================================================================================
+S114 Lane A — Release Product Progress program gate floors (S110–S113)
+Agent: S114 Lane A verification
+Host: linux | PATH=/root/.dotnet:$PATH | VSTEST_CONNECTION_TIMEOUT=180 (Data retry: 300)
+UTC: 2026-08-11T13:28:06Z
+Workspace: /workspace/cmano-clone
+Scope: RUN+READ only — no source changes (evidence write only)
+================================================================================
+
+## 0. Stage confirm
+Command: head -1 production/stage.txt
+Result:
+Release (S48 gate PASS with human ack "i provide the ack" 2026-06-20; RC1 cut; 10-sprint program COMPLETE)
+Verdict: PASS — stage is Release
+
+## 1. ReplayGoldenSuite
+Command:
+  dotnet test src/ProjectAegis.Delegation.UnityAdapter.Tests/ProjectAegis.Delegation.UnityAdapter.Tests.csproj \
+    --filter "FullyQualifiedName~ReplayGoldenSuite" -v q --nologo
+
+Result:
+  Test Run Successful.
+  Total tests: 6
+       Passed: 6
+   Total time: 2.3746 Seconds
+  Build succeeded. 0 Warning(s), 0 Error(s). Time Elapsed 00:00:05.71
+
+Cases (all Passed):
+  - replay-golden-baltic-engage-2026-06-02.txt (seed=42, baltic-patrol, 4 ticks)
+  - replay-golden-baltic-comms-2026-06-02.txt (seed=42, baltic-patrol-comms, 6 ticks)
+  - replay-golden-baltic-classify-2026-06-02.txt (seed=42, baltic-patrol-classify, 4 ticks)
+  - replay-golden-baltic-stale-2026-06-04.txt (seed=11, baltic-patrol-stale, 3 ticks)
+  - replay-golden-baltic-spoof-2026-06-04.txt (seed=7, baltic-patrol-spoof, 5 ticks)
+  - replay-golden-baltic-readiness-2026-06-04.txt (seed=7, baltic-patrol-readiness, 5 ticks)
+
+Verdict: PASS — 6/6
+
+## 2. Dual residual retest (tools/qa-gauntlet/retest-defect.sh)
+
+### 2a. GAUNTLET-SYN-T12-001
+Command: tools/qa-gauntlet/retest-defect.sh GAUNTLET-SYN-T12-001
+scenario=gauntlet-t1-patrol-b seed=42 ticks=6
+oracle allPassed=true, failures=[]
+PRIOR_FAILURE_ABSENT: CATALOG_UNIT:u1:
+retest_status=PASS
+exit=0
+Verdict: PASS
+
+### 2b. GAUNTLET-MD-001
+Command: tools/qa-gauntlet/retest-defect.sh GAUNTLET-MD-001
+scenario=gauntlet-multidomain-shooters seed=42 ticks=10
+oracle allPassed=true, failures=[]
+PRIOR_FAILURE_ABSENT: hostile-1
+retest_status=PASS
+exit=0
+Verdict: PASS
+
+## 3. Targeted S110–S112 regression filters
+
+### 3a. S110 Sim — FullyQualifiedName~SimClock|IrVisual|SensorModality
+Command:
+  dotnet test src/ProjectAegis.Sim.Tests/ProjectAegis.Sim.Tests.csproj \
+    --filter "FullyQualifiedName~SimClock|FullyQualifiedName~IrVisual|FullyQualifiedName~SensorModality" -v q --nologo
+Result:
+  Passed!  - Failed: 0, Passed: 31, Skipped: 0, Total: 31, Duration: 97 ms
+  Breakdown (list-tests): SimClock=15, IrVisual=7, SensorModality=12 (parametrized cases included; union Total=31)
+Verdict: PASS — 31/31 (0 failed)
+
+### 3b. S111 Data — FullyQualifiedName~SensorModality
+Command:
+  dotnet test src/ProjectAegis.Data.Tests/ProjectAegis.Data.Tests.csproj \
+    --filter "FullyQualifiedName~SensorModality" --no-build -v n --nologo
+  (first attempt aborted on VSTEST_CONNECTION_TIMEOUT=180; rebuild + VSTEST_CONNECTION_TIMEOUT=300 + --no-build succeeded)
+Result:
+  Test Run Successful.
+  Total tests: 4
+       Passed: 4
+   Total time: 0.9994 Seconds
+  Cases:
+    - Migration_016_adds_modality_column_and_skip_is_safe
+    - Seed_and_reader_expose_ir_and_visual_fixtures_with_radar_default
+    - InMemory_default_modality_is_radar_and_v3_ir_tagged
+    - Reader_defaults_null_modality_to_radar
+Verdict: PASS — 4/4 (0 failed)
+
+### 3c. S112 Delegation — FullyQualifiedName~ClockControls
+Command:
+  dotnet test src/ProjectAegis.Delegation.Tests/ProjectAegis.Delegation.Tests.csproj \
+    --filter "FullyQualifiedName~ClockControls" -v q --nologo
+Result:
+  Passed!  - Failed: 0, Passed: 7, Skipped: 0, Total: 7, Duration: 112 ms
+  Note: UnityAdapter.Tests has 0 matches for ClockControls (expected; filter lives in Delegation.Tests)
+Verdict: PASS — 7/7 (0 failed)
+
+## 4. Full solution test
+Not re-run; prior green CI on main.
+(Rationale: optional only if wall time under ~8 min; floors + residuals already green; full sln historically ≥1638 tests.)
+
+## 5. Baltic hash 17144800277401907079
+Command: grep -r "17144800277401907079" AGENTS.md tests/ data/
+Results:
+  AGENTS.md mentions: 3
+  tests/ hits: 21
+  data/ hits: 5
+  tests+data total: 26
+  WORLD_HASH=17144800277401907079 in tests/regression: 10 files
+  AGENTS.md documents pin: "Replay golden hash | 17144800277401907079 must be preserved"
+  Production Baltic v2 hash confirmed immutable in goldens + AGENTS.
+Verdict: PASS — hash present and pinned
+
+## 6. Stage is Release
+Already covered in §0 — PASS
+
+================================================================================
+SUMMARY TABLE
+================================================================================
+| # | Check                                      | Result   | Numbers / notes                                      |
+|---|--------------------------------------------|----------|------------------------------------------------------|
+| 1 | ReplayGoldenSuite                          | PASS     | 6/6 passed (0 failed); ~2.4s                         |
+| 2a| Residual retest GAUNTLET-SYN-T12-001       | PASS     | oracle allPassed; PRIOR_FAILURE_ABSENT CATALOG_UNIT:u1 |
+| 2b| Residual retest GAUNTLET-MD-001            | PASS     | oracle allPassed; PRIOR_FAILURE_ABSENT hostile-1     |
+| 3a| S110 Sim SimClock\|IrVisual\|SensorModality| PASS     | 31/31 (0 failed)                                     |
+| 3b| S111 Data SensorModality                   | PASS     | 4/4 (0 failed)                                       |
+| 3c| S112 Delegation ClockControls              | PASS     | 7/7 (0 failed)                                       |
+| 4 | Full solution test                         | SKIP     | not re-run; prior green CI on main                   |
+| 5 | Baltic hash 17144800277401907079           | PASS     | 26 hits tests+data; 3 AGENTS; 10 WORLD_HASH goldens  |
+| 6 | Stage Release                              | PASS     | head -1 production/stage.txt = Release (...)         |
+
+OVERALL FLOORS: PASS (all required RUN+READ checks green; full sln cited prior CI)
+================================================================================

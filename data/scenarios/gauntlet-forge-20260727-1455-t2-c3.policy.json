@@ -1,0 +1,144 @@
+{
+  "friendlyRoe": "WeaponsTight",
+  "opposingRoe": "WeaponsFree",
+  "engage": {
+    "rangeMeters": 45000,
+    "envelopeMinMeters": 5000,
+    "envelopeMaxMeters": 120000,
+    "defaultMagazineRounds": 4,
+    "hasFireControlTrack": true,
+    "combatDomainsEnabled": true,
+    "pkBase": 0.85,
+    "pkIntercept": 0.0,
+    "pkKill": 0.2,
+    "salvoSize": 1
+  },
+  "detection": [
+    {
+      "observerId": "bpk-marshal-shaposhnikov-udaloy-i-pr-1155-fregat",
+      "sensorId": "radar-1",
+      "targetId": "801-rais-hamidou-pr-1234e-nanuchka-ii-1981",
+      "contactId": "c-forge-t2c3-1",
+      "basePd": 1.0,
+      "envMask": 1.0,
+      "jamStrength": 0
+    },
+    {
+      "observerId": "skr-admiral-grigorovich-pr-1135-6m",
+      "sensorId": "radar-1",
+      "targetId": "k-31-visby-2009",
+      "contactId": "c-forge-t2c3-2",
+      "basePd": 1.0,
+      "envMask": 1.0,
+      "jamStrength": 0
+    },
+    {
+      "observerId": "801-rais-hamidou-pr-1234e-nanuchka-ii-1981",
+      "sensorId": "radar-1",
+      "targetId": "bpk-marshal-shaposhnikov-udaloy-i-pr-1155-fregat",
+      "contactId": "c-forge-t2c3-3",
+      "basePd": 1.0,
+      "envMask": 1.0,
+      "jamStrength": 0
+    },
+    {
+      "observerId": "jas-39d-gripen-2005",
+      "sensorId": "radar-1",
+      "targetId": "su-27sm-sm3-flanker-j-2013",
+      "contactId": "c-forge-t2c3-4",
+      "basePd": 1.0,
+      "envMask": 1.0,
+      "jamStrength": 0
+    }
+  ],
+  "gauntlet": {
+    "intent": "orbat-asymmetric-ratio: capability skew stacked against the tier's asymmetric ROE. BLUE is the materially stronger force (DDG bpk-marshal-shaposhnikov + FFG skr-admiral-grigorovich, both Kalibr-armed with SAM cover, + FFG f-310-fridtjof-nansen with Aster-30/Harpoon, + advanced su-27sm-sm3-flanker-j-2013 fighter) but held WeaponsTight -- deliberately restrained despite superiority. RED is the materially lighter force (PCFG 801-rais-hamidou, gun-only corvette k-31-visby-2009, moderately-armed pk-368-vasily-bykov) but WeaponsFree -- free to press its inferior hand. Detection is reciprocal (blue sees red, red sees blue back) so BLUE's tight-ROE denials are real observed-but-refused engagements, not merely absent detections, and RED's free ROE can actually convert to fire. This probes whether capability-asymmetry and ROE-asymmetry compound or partially cancel in the scoring/oracle envelope.",
+    "oracle": "BLUE lands zero or near-zero kills (WeaponsTight blocks fire per PolicyEvaluator -- RoeLevel.WeaponsTight always denies); BLUE accumulates a real minDenials floor (ROE_WEAPONS_TIGHT-coded engagement aborts) proportional to detected-but-refused contacts across 10 ticks; RED, unrestrained, may land kills against the numerically/technologically superior but silenced BLUE force.",
+    "catalogRefs": [
+      "bpk-marshal-shaposhnikov-udaloy-i-pr-1155-fregat",
+      "skr-admiral-grigorovich-pr-1135-6m",
+      "f-310-fridtjof-nansen",
+      "su-27sm-sm3-flanker-j-2013",
+      "801-rais-hamidou-pr-1234e-nanuchka-ii-1981",
+      "k-31-visby-2009",
+      "pk-368-vasily-bykov-pr-22160",
+      "jas-39d-gripen-2005"
+    ],
+    "runId": "gauntlet-20260727-1455",
+    "tier": 2,
+    "expect": {
+      "side": "BLUE",
+      "requireNonEmptyFingerprint": true,
+      "minScore": -300.0,
+      "maxScore": -100.0,
+      "maxMissilesFired": 8,
+      "maxDenials": 55,
+      "minKills": 0,
+      "minDenials": 20
+    },
+    "units": [
+      {
+        "unitId": "bpk-marshal-shaposhnikov-udaloy-i-pr-1155-fregat",
+        "platformId": "bpk-marshal-shaposhnikov-udaloy-i-pr-1155-fregat",
+        "domain": "surface",
+        "side": "blue"
+      },
+      {
+        "unitId": "skr-admiral-grigorovich-pr-1135-6m",
+        "platformId": "skr-admiral-grigorovich-pr-1135-6m",
+        "domain": "surface",
+        "side": "blue"
+      },
+      {
+        "unitId": "f-310-fridtjof-nansen",
+        "platformId": "f-310-fridtjof-nansen",
+        "domain": "surface",
+        "side": "blue"
+      },
+      {
+        "unitId": "su-27sm-sm3-flanker-j-2013",
+        "platformId": "su-27sm-sm3-flanker-j-2013",
+        "domain": "air",
+        "side": "blue"
+      },
+      {
+        "unitId": "801-rais-hamidou-pr-1234e-nanuchka-ii-1981",
+        "platformId": "801-rais-hamidou-pr-1234e-nanuchka-ii-1981",
+        "domain": "surface",
+        "side": "red"
+      },
+      {
+        "unitId": "k-31-visby-2009",
+        "platformId": "k-31-visby-2009",
+        "domain": "surface",
+        "side": "red"
+      },
+      {
+        "unitId": "pk-368-vasily-bykov-pr-22160",
+        "platformId": "pk-368-vasily-bykov-pr-22160",
+        "domain": "surface",
+        "side": "red"
+      },
+      {
+        "unitId": "jas-39d-gripen-2005",
+        "platformId": "jas-39d-gripen-2005",
+        "domain": "air",
+        "side": "red"
+      }
+    ],
+    "forge": {
+      "recipes": [
+        "orbat-asymmetric-ratio"
+      ],
+      "candidateId": "gauntlet-forge-20260727-1455-t2-c3",
+      "noveltyTags": [
+        "capability-asymmetry",
+        "roe-tight-strong-side",
+        "roe-free-weak-side"
+      ],
+      "note": "expect provisional pending regen"
+    },
+    "expectProvenance": "regenerated 2026-07-27 from real Demo batch CSV at T2 tick budget 10, seeds 42,7,123. NOTE minDenials may legitimately be 0: EngagementAbortReason aborts (e.g. SHOOTER_DESTROYED) are written to the OrderLog, NOT to DecisionLog.PolicyDenials, so an abort-heavy scenario can still show denials=0. Verified empirically: candidate-1 shows 9 SHOOTER_DESTROYED with 0 denials. Per tools/qa-gauntlet/README-expect-regen.md - derived, not invented."
+  },
+  "id": "gauntlet-forge-20260727-1455-t2-c3"
+}

@@ -1,6 +1,6 @@
 namespace ProjectAegis.Delegation.UnityAdapter.Bridge;
 
-using ProjectAegis.Delegation.Core;
+using Core;
 
 /// <summary>
 /// Per-tick world snapshot supplied by the sim/ECS layer (Unity systems implement this).
@@ -26,4 +26,38 @@ public interface ISimWorldSnapshot
 
     /// <summary>Primary observer radar EMCON allows active illumination (Active = true).</summary>
     bool ObserverRadarEmconActive { get; }
+
+    /// <summary>Whether the primary hostile contact has been confirmed destroyed/killed.
+    /// Used by patrol policies (e.g. PatrolCandidateEngagePolicy) to pre-filter Engage proposals for AAR remediation (S57-03).
+    /// Additive; defaults to false.
+    /// </summary>
+    bool PrimaryHostileDestroyed => false;
+
+    /// <summary>Primary blue-force contact for red-side engage victim selection (Baltic v3).</summary>
+    TargetId? PrimaryBlueForceContactId => null;
+
+    /// <summary>Whether the primary blue-force contact has been destroyed (red-side patrol policies).</summary>
+    bool PrimaryBlueForceContactDestroyed => false;
+
+    /// <summary>
+    /// Optional shooter→preferred-hostile map for multi-domain concurrent engage.
+    /// Default null preserves single-primary-hostile MVP behaviour.
+    /// </summary>
+    IReadOnlyDictionary<string, string>? PreferredHostileByShooter => null;
+
+    /// <summary>
+    /// Optional kinematic pose for a friendly unit or known contact (CMD-38).
+    /// Default false keeps hash placement in <c>MapPictureProjection</c>.
+    /// </summary>
+    bool TryGetKinematicPose(string unitOrContactId, out UnitKinematicPose pose)
+    {
+        pose = default;
+        return false;
+    }
+
+    /// <summary>
+    /// Optional plotted-course waypoints for a unit (CMD-30.7 / CMD-38).
+    /// Default null draws no course polyline.
+    /// </summary>
+    IReadOnlyList<CourseWaypoint>? GetPlottedCourse(string unitId) => null;
 }

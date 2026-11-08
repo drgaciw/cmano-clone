@@ -1,9 +1,10 @@
 {
   "mcpServers": {
-    "ai-game-developer": { "url": "http://localhost:8080" },
+    "ai-game-developer": { "type": "http", "url": "http://localhost:8080" },
     "windows-mcp": {
       "command": "C:\\Users\\Username01\\AppData\\Roaming\\Python\\Python314\\Scripts\\windows-mcp.exe",
-      "args": ["serve"]
+      "args": ["serve"],
+      "disabled": true
     },
     "desktop-commander": {
       "command": "npx",
@@ -13,8 +14,43 @@
       ]
     },
     "gitnexus": {
+      "command": "gitnexus",
+      "args": ["mcp"]
+    },
+    "jev-playwright": {
+      "command": "node",
+      "args": [
+        "${workspaceFolder}/tools/mcp/jev-playwright-mcp/cli.js",
+        "--jev-mode=all",
+        "--headless"
+      ]
+    },
+    "jev": {
       "command": "npx",
-      "args": ["-y", "gitnexus@latest", "mcp"]
+      "args": ["-y", "github:codaaiteam/jev-mcp#6cfb78daa00d405b76f8fee221b559cbb73563a8"],
+      "env": { "TYPESAFE_API_KEY": "${env:TYPESAFE_API_KEY}" }
+    },
+    "buildkite": {
+      "url": "https://mcp.buildkite.com/mcp"
+    },
+    "cloudflare": { "url": "https://mcp.cloudflare.com/mcp" },
+    "cloudflare-docs": { "url": "https://docs.mcp.cloudflare.com/mcp" },
+    "cloudflare-bindings": { "url": "https://bindings.mcp.cloudflare.com/mcp" },
+    "cloudflare-builds": { "url": "https://builds.mcp.cloudflare.com/mcp" },
+    "cloudflare-observability": { "url": "https://observability.mcp.cloudflare.com/mcp" },
+    "kitesurf": {
+      "command": "C:\\Program Files\\nodejs\\npx.cmd",
+      "args": [
+        "-y",
+        "chrome-devtools-mcp@latest",
+        "--wsEndpoint=wss://kitesurf.cloudflare.app/devtools/browser"
+      ],
+      "env": {
+        "PATH": "C:\\Program Files\\nodejs;C:\\Windows\\System32"
+      }
+    },
+    "linear": {
+      "url": "https://mcp.linear.app/mcp"
     }
   }
 }

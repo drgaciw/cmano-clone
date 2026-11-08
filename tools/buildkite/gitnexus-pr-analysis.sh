@@ -18,7 +18,10 @@ echo "=== Buildkite GitNexus PR analysis ==="
 
 mkdir -p .gitnexus/logs
 
-gitnexus analyze 2>&1 | tee .gitnexus/logs/analyze.log
+gitnexus analyze 2>&1 | tee .gitnexus/logs/analyze.log || {
+  echo "WARN: gitnexus analyze failed (non-blocking per pipeline soft_fail)"
+  exit 0
+}
 
 set +e
 gitnexus detect_changes --scope all --format json > "$impact_json" 2>&1

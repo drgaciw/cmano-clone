@@ -1,0 +1,325 @@
+{
+  "id": "gauntlet-20260727-1455-t5-s1",
+  "friendlyRoe": "WeaponsFree",
+  "opposingRoe": "WeaponsFree",
+  "engage": {
+    "rangeMeters": 52000,
+    "envelopeMinMeters": 5000,
+    "envelopeMaxMeters": 135000,
+    "defaultMagazineRounds": 6,
+    "hasFireControlTrack": true,
+    "combatDomainsEnabled": true,
+    "pkBase": 0.82,
+    "pkIntercept": 0.0,
+    "pkKill": 0.2,
+    "salvoSize": 2
+  },
+  "contactLifecycle": {
+    "staleThresholdTicks": 40,
+    "classifyAfterTicks": 5,
+    "identifyAfterTicks": 10
+  },
+  "emcon": {
+    "units": {
+      "ssn-774-virginia-blk-i-ii": {
+        "radar": "Passive"
+      },
+      "nh90-nfh-caiman-marine": {
+        "radar": "Passive"
+      }
+    }
+  },
+  "detection": [
+    {
+      "observerId": "ssn-774-virginia-blk-i-ii",
+      "sensorId": "passive-sonar-1",
+      "targetId": "pla-885m-severodvinsk-yasen-m",
+      "contactId": "c-s1-1",
+      "basePd": 0.65,
+      "envMask": 1.0,
+      "jamStrength": 0,
+      "requiresActiveRadar": false
+    },
+    {
+      "observerId": "nh90-nfh-caiman-marine",
+      "sensorId": "sonar-dipping-1",
+      "targetId": "pl-877-kilo-paltus-1992",
+      "contactId": "c-s1-2",
+      "basePd": 0.7,
+      "envMask": 1.0,
+      "jamStrength": 0,
+      "requiresActiveRadar": false
+    },
+    {
+      "observerId": "p-3c-orion-update-iii-2023",
+      "sensorId": "sonar-buoy-1",
+      "targetId": "pla-971-akula-i-improved-shchuka-b",
+      "contactId": "c-s1-3",
+      "basePd": 0.6,
+      "envMask": 1.0,
+      "jamStrength": 0,
+      "requiresActiveRadar": false
+    },
+    {
+      "observerId": "jas-39e-gripen-ng-2021",
+      "sensorId": "radar-1",
+      "targetId": "su-34-fullback-2014",
+      "contactId": "c-s1-4",
+      "basePd": 1.0,
+      "envMask": 1.0,
+      "jamStrength": 0
+    },
+    {
+      "observerId": "f-219-sachsen-type-f124-2006",
+      "sensorId": "radar-1",
+      "targetId": "su-35s-flanker-m-2023",
+      "contactId": "c-s1-5",
+      "basePd": 0.9,
+      "envMask": 1.0,
+      "jamStrength": 0
+    },
+    {
+      "observerId": "f-219-sachsen-type-f124-2006",
+      "sensorId": "radar-1",
+      "targetId": "su-33-flanker-d",
+      "contactId": "c-s1-6",
+      "basePd": 0.85,
+      "envMask": 1.0,
+      "jamStrength": 0
+    },
+    {
+      "observerId": "p-960-skjold",
+      "sensorId": "radar-1",
+      "targetId": "skr-admiral-grigorovich-pr-1135-6m",
+      "contactId": "c-s1-7",
+      "basePd": 0.6,
+      "envMask": 1.0,
+      "jamStrength": 0
+    },
+    {
+      "observerId": "p-960-skjold",
+      "sensorId": "radar-1",
+      "targetId": "mrk-shkval-pr-22800-karakurt",
+      "contactId": "c-s1-8",
+      "basePd": 0.6,
+      "envMask": 0.9,
+      "jamStrength": 0
+    },
+    {
+      "observerId": "skr-admiral-grigorovich-pr-1135-6m",
+      "sensorId": "radar-1",
+      "targetId": "p-960-skjold",
+      "contactId": "c-s1-9",
+      "basePd": 0.7,
+      "envMask": 1.0,
+      "jamStrength": 0
+    },
+    {
+      "observerId": "pla-885m-severodvinsk-yasen-m",
+      "sensorId": "passive-sonar-1",
+      "targetId": "ssn-774-virginia-blk-i-ii",
+      "contactId": "c-s1-10",
+      "basePd": 0.35,
+      "envMask": 1.0,
+      "jamStrength": 0,
+      "requiresActiveRadar": false
+    },
+    {
+      "observerId": "su-35s-flanker-m-2023",
+      "sensorId": "radar-1",
+      "targetId": "jas-39e-gripen-ng-2021",
+      "contactId": "c-s1-11",
+      "basePd": 1.0,
+      "envMask": 1.0,
+      "jamStrength": 0
+    }
+  ],
+  "mission": {
+    "fireOrder": [
+      "mission-start",
+      "patrol-window-open",
+      "strike-window-open",
+      "escort-window-open",
+      "asw-window-open",
+      "all-domains-concurrent-checkpoint"
+    ],
+    "events": [
+      {
+        "id": "mission-start",
+        "fireAtTick": 0,
+        "kind": "MissionTransition",
+        "code": "Execution"
+      },
+      {
+        "id": "patrol-window-open",
+        "fireAtTick": 2,
+        "kind": "EventFired",
+        "code": "patrol_window_open"
+      },
+      {
+        "id": "strike-window-open",
+        "fireAtTick": 6,
+        "kind": "EventFired",
+        "code": "strike_window_open"
+      },
+      {
+        "id": "escort-window-open",
+        "fireAtTick": 10,
+        "kind": "EventFired",
+        "code": "escort_window_open"
+      },
+      {
+        "id": "asw-window-open",
+        "fireAtTick": 14,
+        "kind": "EventFired",
+        "code": "asw_window_open"
+      },
+      {
+        "id": "all-domains-concurrent-checkpoint",
+        "fireAtTick": 24,
+        "kind": "EventFired",
+        "code": "all_domains_concurrent_checkpoint"
+      }
+    ]
+  },
+  "gauntlet": {
+    "intent": "T5 main-ladder #1: MULTI-DOMAIN CONCURRENT THEATER OP (primary dimension) -- extends tier 4's proven 2-thread ASW+AAW concurrency pattern (gauntlet-20260727-1455-t4-s1/-t4-s4) to 4 concurrent mission threads inside one 40-tick run: PATROL (p-960-skjold vs skr-admiral-grigorovich-pr-1135-6m/mrk-shkval-pr-22800-karakurt surface pickets, patrol_window_open @2), STRIKE (jas-39e-gripen-ng-2021 vs su-34-fullback-2014, strike_window_open @6), ESCORT/AAW (f-219-sachsen-type-f124-2006 vs su-35s-flanker-m-2023/su-33-flanker-d raid, escort_window_open @10), and ASW (ssn-774-virginia-blk-i-ii + nh90-nfh-caiman-marine + p-3c-orion-update-iii-2023 vs pla-885m-severodvinsk-yasen-m/pl-877-kilo-paltus-1992/pla-971-akula-i-improved-shchuka-b, asw_window_open @14). As in t4-s1/-s4, no mission.trigger is used here -- the concurrency claim rests purely on the timeline + fleet-wide friendlyRoe=WeaponsFree/opposingRoe=WeaponsFree engage config, with the denial term coming entirely from ScenarioContactLifecycle ID-gating (classifyAfterTicks=5/identifyAfterTicks=10, scaled up from t4's 3/6 and 4/8 pairs for this tier's 40-tick budget) so kills, denials and missilesFired are all simultaneously non-trivial. all_domains_concurrent_checkpoint @24 confirms all four windows are still live with 16 ticks of run remaining. NOT USED: contacts[] -- no scripted mid-run contact appearances anywhere in this policy; see production/qa/bugs/BUG-scenario-contacts-shadowed-by-detection.md (BalticReplayHarness.RunCore only constructs ScenarioContactSimulator in an else-if branch unreachable whenever detection[] is non-empty, which it is here). SECONDARY DIMENSION -- CONTESTED EM/EMCON DISCIPLINE (disclosed, static): ssn-774-virginia-blk-i-ii and nh90-nfh-caiman-marine are declared radar=Passive. Two real constraints are disclosed here, not invented: (1) ScenarioEmconResolver (src/ProjectAegis.Sim/Scenario/ScenarioEmconResolver.cs) resolves EmconState once at scenario load with no mid-run mutation path -- same constraint already disclosed in gauntlet-20260727-1455-t4-s3. (2) A closer read of the consumer (DeterministicDetectionLoop.RollTick, src/ProjectAegis.Sim/Sensors/DeterministicDetectionLoop.cs:99-103) shows EMCON specifically gates the OBSERVER side of a requiresActiveRadar:true detection trial (`if (trial.RequiresActiveRadar && ResolveRadar(trial.ObserverId) != Active) continue;`) -- it is a cost to the passive unit's OWN sensor picture, not a target-signature/stealth reduction for how easily others detect it. Neither ssn-774-virginia-blk-i-ii (observer only via passive-sonar-1/requiresActiveRadar:false, c-s1-1) nor nh90-nfh-caiman-marine (observer only via sonar-dipping-1/requiresActiveRadar:false, c-s1-2) holds a requiresActiveRadar:true observer role in this policy, so this EMCON declaration is a doctrinal/data-level EM-discipline posture flag with no additional observable fingerprint delta beyond what their sensor loadout already implies -- disclosed honestly rather than overclaimed as a functioning stealth effect, and more precise than gauntlet-20260727-1455-t4-s3's equivalent (undisclosed) inertness.",
+    "oracle": "All five EventFired codes (patrol_window_open @2, strike_window_open @6, escort_window_open @10, asw_window_open @14, all_domains_concurrent_checkpoint @24) must appear in the fingerprint regardless of seed (pure tick-scheduled mission.events, not contact-dependent). BLUE (WeaponsFree throughout, both sides free) is expected to register kills across at least two of the four domains inside the 40-tick run, converting some of c-s1-1..c-s1-8's Pd-gated detections into engagements once ScenarioContactLifecycle classifies/identifies each contact (5/10-tick gate). Denials accrue only from the pre-identification gate, not ROE, and should be a modest fraction of the run given the 40-tick budget affords ample time past the 10-tick identify threshold. RED (also WeaponsFree) is expected to convert some of its own detections (c-s1-9, c-s1-11) into kills against BLUE, but only BLUE is scored (expect.side=BLUE). No requireFingerprintSubstrings assertion is made about EMCON having a distinct observable effect, per the disclosure above -- its only real effect (gating the observer's own requiresActiveRadar:true trials) is not exercised by either declared-passive unit here.",
+    "catalogRefs": [
+      "f-219-sachsen-type-f124-2006",
+      "p-960-skjold",
+      "jas-39e-gripen-ng-2021",
+      "nh90-nfh-caiman-marine",
+      "p-3c-orion-update-iii-2023",
+      "ssn-774-virginia-blk-i-ii",
+      "s-120-papanikolis-type-214hn",
+      "skr-admiral-grigorovich-pr-1135-6m",
+      "mrk-shkval-pr-22800-karakurt",
+      "su-35s-flanker-m-2023",
+      "su-33-flanker-d",
+      "su-34-fullback-2014",
+      "pla-885m-severodvinsk-yasen-m",
+      "pl-877-kilo-paltus-1992",
+      "pla-971-akula-i-improved-shchuka-b"
+    ],
+    "dimensionsClaimed": [
+      "multi-domain-concurrent-4-thread",
+      "combat-domain-surface",
+      "combat-domain-air",
+      "combat-domain-subsurface",
+      "contact-lifecycle-id-gated-denials",
+      "emcon-static-disclosed-constraint",
+      "timed-event-chain"
+    ],
+    "units": [
+      {
+        "unitId": "f-219-sachsen-type-f124-2006",
+        "platformId": "f-219-sachsen-type-f124-2006",
+        "domain": "surface",
+        "side": "blue"
+      },
+      {
+        "unitId": "p-960-skjold",
+        "platformId": "p-960-skjold",
+        "domain": "surface",
+        "side": "blue"
+      },
+      {
+        "unitId": "jas-39e-gripen-ng-2021",
+        "platformId": "jas-39e-gripen-ng-2021",
+        "domain": "air",
+        "side": "blue"
+      },
+      {
+        "unitId": "nh90-nfh-caiman-marine",
+        "platformId": "nh90-nfh-caiman-marine",
+        "domain": "air",
+        "side": "blue"
+      },
+      {
+        "unitId": "p-3c-orion-update-iii-2023",
+        "platformId": "p-3c-orion-update-iii-2023",
+        "domain": "air",
+        "side": "blue"
+      },
+      {
+        "unitId": "ssn-774-virginia-blk-i-ii",
+        "platformId": "ssn-774-virginia-blk-i-ii",
+        "domain": "subsurface",
+        "side": "blue"
+      },
+      {
+        "unitId": "s-120-papanikolis-type-214hn",
+        "platformId": "s-120-papanikolis-type-214hn",
+        "domain": "subsurface",
+        "side": "blue"
+      },
+      {
+        "unitId": "skr-admiral-grigorovich-pr-1135-6m",
+        "platformId": "skr-admiral-grigorovich-pr-1135-6m",
+        "domain": "surface",
+        "side": "red"
+      },
+      {
+        "unitId": "mrk-shkval-pr-22800-karakurt",
+        "platformId": "mrk-shkval-pr-22800-karakurt",
+        "domain": "surface",
+        "side": "red"
+      },
+      {
+        "unitId": "su-35s-flanker-m-2023",
+        "platformId": "su-35s-flanker-m-2023",
+        "domain": "air",
+        "side": "red"
+      },
+      {
+        "unitId": "su-33-flanker-d",
+        "platformId": "su-33-flanker-d",
+        "domain": "air",
+        "side": "red"
+      },
+      {
+        "unitId": "su-34-fullback-2014",
+        "platformId": "su-34-fullback-2014",
+        "domain": "air",
+        "side": "red"
+      },
+      {
+        "unitId": "pla-885m-severodvinsk-yasen-m",
+        "platformId": "pla-885m-severodvinsk-yasen-m",
+        "domain": "subsurface",
+        "side": "red"
+      },
+      {
+        "unitId": "pl-877-kilo-paltus-1992",
+        "platformId": "pl-877-kilo-paltus-1992",
+        "domain": "subsurface",
+        "side": "red"
+      },
+      {
+        "unitId": "pla-971-akula-i-improved-shchuka-b",
+        "platformId": "pla-971-akula-i-improved-shchuka-b",
+        "domain": "subsurface",
+        "side": "red"
+      }
+    ],
+    "expect": {
+      "side": "BLUE",
+      "requireNonEmptyFingerprint": true,
+      "requireFingerprintSubstrings": [
+        "patrol_window_open",
+        "strike_window_open",
+        "escort_window_open",
+        "asw_window_open",
+        "all_domains_concurrent_checkpoint"
+      ],
+      "minKills": 3,
+      "maxMissilesFired": 34,
+      "minDenials": 0,
+      "maxDenials": 5,
+      "minScore": 280.0,
+      "maxScore": 420.0
+    },
+    "expectProvenance": "regenerated 2026-07-28 from real Demo batch CSV at T5 tick budget 40, seeds 42,7,123 (production/qa/gauntlet/gauntlet-20260727-1455/tier-5/results.csv). Observed: score=[400.0, 300.0, 300.0] kills=[4, 3, 3] missilesFired=[20, 28, 28] denials=[0, 0, 0]. Bounds padded ~20% beyond observed range per tools/qa-gauntlet/README-expect-regen.md (derived, not invented)."
+  }
+}

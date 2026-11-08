@@ -1,0 +1,289 @@
+{
+  "tier": 1,
+  "platformMix": "3 surface units/side (~6)",
+  "catalogDatabase": "assets/data/catalog/baltic_patrol.db",
+  "exportDate": "2026-07-27T14:55:00Z",
+  "platforms": [
+    {
+      "platformId": "f-361-iver-huitfeldt-2012",
+      "name": "F 361 Iver Huitfeldt - 2012, Initial Weapon Outfit",
+      "domain": "surface",
+      "class": "FFG - Guided Missile Frigate",
+      "nationality": "Denmark",
+      "emcon": "unrestricted",
+      "sensors": [
+        "cmo-sensor-2010",
+        "cmo-sensor-2234",
+        "cmo-sensor-2556",
+        "cmo-sensor-2582",
+        "cmo-sensor-2615",
+        "cmo-sensor-3354"
+      ],
+      "weapons": [
+        "cmo-weapon-1195",
+        "cmo-weapon-1274",
+        "cmo-weapon-1450",
+        "cmo-weapon-166",
+        "cmo-weapon-1695",
+        "cmo-weapon-496",
+        "cmo-weapon-589",
+        "cmo-weapon-926"
+      ]
+    },
+    {
+      "platformId": "f-450-elli-kortenaer-batch-ii-0",
+      "name": "F 450 Elli [Kortenaer Batch II] - 0, RIM-7P",
+      "domain": "surface",
+      "class": "FFG - Guided Missile Frigate",
+      "nationality": "Greece",
+      "emcon": "unrestricted",
+      "sensors": [
+        "cmo-sensor-1087",
+        "cmo-sensor-1191",
+        "cmo-sensor-1356",
+        "cmo-sensor-165",
+        "cmo-sensor-6192",
+        "cmo-sensor-6193"
+      ],
+      "weapons": [
+        "cmo-weapon-1003",
+        "cmo-weapon-1205",
+        "cmo-weapon-1598",
+        "cmo-weapon-1611",
+        "cmo-weapon-1647",
+        "cmo-weapon-1695",
+        "cmo-weapon-170",
+        "cmo-weapon-1702",
+        "cmo-weapon-456",
+        "cmo-weapon-858"
+      ]
+    },
+    {
+      "platformId": "f-341-absalon-2020",
+      "name": "F 341 Absalon - 2020, 2x",
+      "domain": "surface",
+      "class": "FFG - Guided Missile Frigate",
+      "nationality": "Denmark",
+      "emcon": "unrestricted",
+      "sensors": [
+        "cmo-sensor-2234",
+        "cmo-sensor-2238",
+        "cmo-sensor-2556",
+        "cmo-sensor-2582",
+        "cmo-sensor-3354",
+        "cmo-sensor-5652"
+      ],
+      "weapons": [
+        "cmo-weapon-1274",
+        "cmo-weapon-1394",
+        "cmo-weapon-1450",
+        "cmo-weapon-1695",
+        "cmo-weapon-2023",
+        "cmo-weapon-496",
+        "cmo-weapon-589",
+        "cmo-weapon-596",
+        "cmo-weapon-597",
+        "cmo-weapon-926"
+      ]
+    },
+    {
+      "platformId": "421-orkan-pr-660-2015",
+      "name": "421 Orkan [Pr.660] - 2015, All Ships, 4x RB 15 in peacetime",
+      "domain": "surface",
+      "class": "PCFG - Fast Guided Missile Patrol Craft",
+      "nationality": "Poland",
+      "emcon": "unrestricted",
+      "sensors": [
+        "cmo-sensor-1931",
+        "cmo-sensor-3434",
+        "cmo-sensor-3599",
+        "cmo-sensor-3689",
+        "cmo-sensor-3690",
+        "cmo-sensor-3691"
+      ],
+      "weapons": [
+        "cmo-weapon-1105",
+        "cmo-weapon-1108",
+        "cmo-weapon-1350",
+        "cmo-weapon-1374",
+        "cmo-weapon-1375",
+        "cmo-weapon-20",
+        "cmo-weapon-2799",
+        "cmo-weapon-523"
+      ]
+    },
+    {
+      "platformId": "70-rauma-helsinki-ii-1990",
+      "name": "70 Rauma [Helsinki II] - 1990",
+      "domain": "surface",
+      "class": "PCFG - Fast Guided Missile Patrol Craft",
+      "nationality": "Finland",
+      "emcon": "unrestricted",
+      "sensors": [
+        "cmo-sensor-1251",
+        "cmo-sensor-1792",
+        "cmo-sensor-1916",
+        "cmo-sensor-1931",
+        "cmo-sensor-2048",
+        "cmo-sensor-337"
+      ],
+      "weapons": [
+        "cmo-weapon-1407",
+        "cmo-weapon-1653",
+        "cmo-weapon-1695",
+        "cmo-weapon-1817",
+        "cmo-weapon-1818",
+        "cmo-weapon-368",
+        "cmo-weapon-389"
+      ]
+    },
+    {
+      "platformId": "mrk-buyan-mod-pr-21631-buyan-m-2014",
+      "name": "MRK Buyan Mod [Pr.21631 Buyan-M] - 2014",
+      "domain": "surface",
+      "class": "PCFG - Fast Guided Missile Patrol Craft",
+      "nationality": "Russia",
+      "emcon": "unrestricted",
+      "sensors": [
+        "cmo-sensor-115",
+        "cmo-sensor-1579",
+        "cmo-sensor-1581",
+        "cmo-sensor-3410",
+        "cmo-sensor-3591",
+        "cmo-sensor-3663",
+        "cmo-sensor-5611",
+        "cmo-sensor-5612"
+      ],
+      "weapons": [
+        "cmo-weapon-1110",
+        "cmo-weapon-1227",
+        "cmo-weapon-1228",
+        "cmo-weapon-1374",
+        "cmo-weapon-2693",
+        "cmo-weapon-2713",
+        "cmo-weapon-3038",
+        "cmo-weapon-3218",
+        "cmo-weapon-494",
+        "cmo-weapon-495"
+      ]
+    },
+    {
+      "platformId": "p-151-hugin",
+      "name": "P 151 Hugin",
+      "domain": "surface",
+      "class": "PCFG - Fast Guided Missile Patrol Craft",
+      "nationality": "Sweden",
+      "emcon": "unrestricted",
+      "sensors": [
+        "cmo-sensor-83021",
+        "cmo-sensor-83022",
+        "cmo-sensor-83023",
+        "cmo-sensor-83024",
+        "cmo-sensor-83025",
+        "cmo-sensor-83026",
+        "cmo-sensor-83027",
+        "cmo-sensor-83028",
+        "cmo-sensor-83029",
+        "cmo-sensor-83030"
+      ],
+      "weapons": [
+        "cmo-weapon-1407",
+        "cmo-weapon-1437",
+        "cmo-weapon-1475"
+      ]
+    },
+    {
+      "platformId": "d-32-daring-type-45-batch-1",
+      "name": "D 32 Daring [Type 45 Batch 1]",
+      "domain": "surface",
+      "class": "DDG - Guided Missile Destroyer",
+      "nationality": "United Kingdom",
+      "emcon": "unrestricted",
+      "sensors": [
+        "cmo-sensor-90001",
+        "cmo-sensor-90002",
+        "cmo-sensor-90003",
+        "cmo-sensor-90004",
+        "cmo-sensor-90005",
+        "cmo-sensor-90006"
+      ],
+      "weapons": [
+        "cmo-weapon-80001",
+        "cmo-weapon-80002",
+        "cmo-weapon-80003"
+      ]
+    },
+    {
+      "platformId": "f-207-bremen-type-f122-1982",
+      "name": "F 207 Bremen [Type F122] - 1982",
+      "domain": "surface",
+      "class": "FFG - Guided Missile Frigate",
+      "nationality": "Germany",
+      "emcon": "unrestricted",
+      "sensors": [
+        "cmo-sensor-1063",
+        "cmo-sensor-1087",
+        "cmo-sensor-1121",
+        "cmo-sensor-1122",
+        "cmo-sensor-1189",
+        "cmo-sensor-482"
+      ],
+      "weapons": [
+        "cmo-weapon-1068",
+        "cmo-weapon-1604",
+        "cmo-weapon-1611",
+        "cmo-weapon-1688",
+        "cmo-weapon-232",
+        "cmo-weapon-233",
+        "cmo-weapon-858"
+      ]
+    },
+    {
+      "platformId": "241-slazak-meko-100-mod-2019",
+      "name": "241 Slazak [Meko 100 Mod] - 2019, Pr.621M",
+      "domain": "surface",
+      "class": "OPV - Offshore Patrol Vessel",
+      "nationality": "Poland",
+      "emcon": "unrestricted",
+      "sensors": [
+        "cmo-sensor-2238",
+        "cmo-sensor-3435",
+        "cmo-sensor-3600",
+        "cmo-sensor-3601",
+        "cmo-sensor-3602",
+        "cmo-sensor-3692",
+        "cmo-sensor-3693",
+        "cmo-sensor-3694"
+      ],
+      "weapons": [
+        "cmo-weapon-166",
+        "cmo-weapon-1695",
+        "cmo-weapon-2799",
+        "cmo-weapon-2883"
+      ]
+    }
+  ],
+  "excludedForCoverage": [
+    "k-31-visby-2009 — used in gauntlet-t1-patrol-a, gauntlet-t1-patrol-b, gauntlet-multidomain-shooters (3 scenarios)",
+    "k-22-gavle-ex-goteborg-class — used in gauntlet-t1-patrol-a",
+    "k-21-goteborg — used in gauntlet-t1-patrol-a",
+    "em-sovremenny-i-pr-956-sarych — used in gauntlet-t1-patrol-a, gauntlet-t1-patrol-b, gauntlet-multidomain-shooters (3 scenarios)",
+    "mpk-steregushchiy-pr-20380-2018 — used in gauntlet-t1-patrol-a, gauntlet-multidomain-shooters",
+    "mrk-buyan-pr-21630-buyan-2007 — used in gauntlet-t1-patrol-a, gauntlet-multidomain-shooters",
+    "f-219-sachsen-type-f124-2006 — used in gauntlet-t1-patrol-b",
+    "80-hamina-rauma-2-2006 — used in gauntlet-t1-patrol-b",
+    "bpk-marshal-shaposhnikov-udaloy-i-pr-1155-fregat — used in gauntlet-t1-patrol-b",
+    "mrk-shkval-pr-22800-karakurt — used in gauntlet-t1-patrol-b",
+    "p-960-skjold — used in gauntlet-multidomain-shooters",
+    "f-230-norfolk-type-23-duke — used in gauntlet-multidomain-shooters"
+  ],
+  "selectionCriteria": [
+    "10 distinct surface platforms selected from 20+ catalog candidates (15 new for coverage diversity)",
+    "Balanced across NATO/Western (7) and Russian (3) platforms",
+    "Classes represented: FFG (4), PCFG (4), DDG (1), OPV (1)",
+    "Nationalities: Denmark (2), Sweden (2), Poland (2), Russia (3), Finland (1), Greece (1), Germany (1), UK (1), Netherlands (0), Norway (0)",
+    "Each platform has 6-10 sensors and 3-10 weapons, suitable for 3v3 patrol scenarios",
+    "No overlap with existing promoted scenarios (gauntlet-t1-patrol-a, gauntlet-t1-patrol-b, gauntlet-multidomain-shooters, gauntlet-joint-orbat-smoke)"
+  ],
+  "notes": "All platforms support unrestricted EMCON (suitable for weapons-free ROE). Tier 1 patrol scenario uses single-vs-single combat, so 3v3 = 6 platforms minimum. This roster provides 10 distinct candidates, allowing forge ephemeral variation and future Tier 1 expansions. Sensor/weapon bindings come directly from platform_comms/sensor/platform_magazine/weapon_catalog linkage tables. All IDs verified against catalog at export time."
+}

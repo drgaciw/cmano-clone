@@ -1,0 +1,64 @@
+{
+  "metadata": {
+    "title": "Tier 2 Strike 02 — Escort Under Reversed ROE Asymmetry",
+    "description": "Blue escort mission (u1 + ucav-blue) protecting an approach lane while weapons-tight and passive EMCON; Red (hostile-1 surface, ucav-red air scout) is weapons-free and active, playing the aggressor with ucav-red providing the detection track on u1. Reverses the ROE/EMCON asymmetry direction from tier2-strike-01 to test both sides of the doctrine gate. One scripted event at tick 4 designates the Red threat.",
+    "author": "qa-gauntlet",
+    "schemaVersion": 1,
+    "dbRef": "baltic_patrol",
+    "seed": 7,
+    "policyId": "baltic-v3-tier2-strike-02",
+    "tlBranch": "TL-0",
+    "maxTechnologyLevel": 0,
+    "sideRoe": "WeaponsTight"
+  },
+  "missions": [
+    {
+      "id": "blue-escort-02",
+      "type": "Patrol",
+      "assignedUnitIds": ["u1"],
+      "targetIds": [],
+      "patrolZone": [
+        { "lat": 55.3, "lon": 16.0 },
+        { "lat": 55.6, "lon": 16.3 },
+        { "lat": 55.0, "lon": 16.7 }
+      ],
+      "roeOverride": "WeaponsTight"
+    },
+    {
+      "id": "blue-recon-02",
+      "type": "Patrol",
+      "assignedUnitIds": ["ucav-blue"],
+      "targetIds": [],
+      "patrolZone": [
+        { "lat": 55.4, "lon": 16.1 },
+        { "lat": 55.7, "lon": 16.4 },
+        { "lat": 55.1, "lon": 16.8 }
+      ],
+      "roeOverride": "WeaponsTight"
+    },
+    {
+      "id": "red-attack-02",
+      "type": "Strike",
+      "assignedUnitIds": ["hostile-1"],
+      "targetIds": ["u1"],
+      "patrolZone": [
+        { "lat": 56.5, "lon": 19.5 },
+        { "lat": 56.8, "lon": 20.0 },
+        { "lat": 56.3, "lon": 20.5 }
+      ],
+      "roeOverride": "WeaponsFree"
+    },
+    {
+      "id": "red-air-scout-02",
+      "type": "Patrol",
+      "assignedUnitIds": ["ucav-red"],
+      "targetIds": [],
+      "patrolZone": [
+        { "lat": 56.4, "lon": 19.6 },
+        { "lat": 56.7, "lon": 19.9 },
+        { "lat": 56.2, "lon": 20.2 }
+      ],
+      "roeOverride": "WeaponsFree"
+    }
+  ]
+}

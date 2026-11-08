@@ -1,6 +1,6 @@
 namespace ProjectAegis.Sim.Policy;
 
-/// <summary>MVP ROE + WRA evaluator per policy GDD (HoldFire / WeaponsTight / WeaponsFree + max salvo).</summary>
+/// <summary>MVP ROE + WRA evaluator per policy GDD (HoldFire / WeaponsTight / WeaponsFree + max salvo + SWARM-15).</summary>
 public sealed class PolicyEvaluator : IPolicyEvaluator
 {
     private readonly Func<ulong, EffectivePolicy> _resolvePolicy;
@@ -27,6 +27,18 @@ public sealed class PolicyEvaluator : IPolicyEvaluator
             return roeVerdict;
         }
 
+        // SWARM-15: auto-engage posture (assault shots without explicit player click).
+        if (request.IsAutoEngage && !policy.AutoEngageAuthorized)
+        {
+            return PolicyVerdict.Deny(FireAbortReason.AutoEngageDenied);
+        }
+
+        // SWARM-15/19: expend / kamikaze pulse requires explicit doctrine grant.
+        if (request.IsExpend && !policy.ExpendAuthorized)
+        {
+            return PolicyVerdict.Deny(FireAbortReason.ExpendUnauthorized);
+        }
+
         var salvo = Math.Max(1, ctx.SalvoSize);
         if (salvo > policy.MaxSalvo)
         {
@@ -41,7 +53,6 @@ public sealed class PolicyEvaluator : IPolicyEvaluator
         {
             RoeLevel.HoldFire => PolicyVerdict.Deny(FireAbortReason.RoeHoldFire),
             RoeLevel.WeaponsTight => PolicyVerdict.Deny(FireAbortReason.WeaponsTight),
-            RoeLevel.WeaponsFree => PolicyVerdict.Allow(),
             _ => PolicyVerdict.Allow(),
         };
 

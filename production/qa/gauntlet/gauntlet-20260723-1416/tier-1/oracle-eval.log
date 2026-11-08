@@ -1,0 +1,33 @@
+{
+  "ok": false,
+  "scenarios": [
+    {
+      "scenario": "gauntlet-t1-patrol-a",
+      "passed": true,
+      "failures": [],
+      "rows": 3
+    },
+    {
+      "scenario": "gauntlet-t1-patrol-b",
+      "passed": false,
+      "failures": [
+        "row[1] scenario=gauntlet-t1-patrol-b seed=7: kills 2 \u003C min 3",
+        "row[2] scenario=gauntlet-t1-patrol-b seed=123: kills 1 \u003C min 3"
+      ],
+      "rows": 3
+    },
+    {
+      "scenario": "gauntlet-t1-patrol-c",
+      "passed": true,
+      "failures": [],
+      "rows": 3
+    },
+    {
+      "scenario": "gauntlet-t1-patrol-d",
+      "passed": true,
+      "failures": [],
+      "rows": 3
+    }
+  ],
+  "allPassed": false
+}

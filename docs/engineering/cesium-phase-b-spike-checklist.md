@@ -23,7 +23,7 @@
 
 - [x] Globe visible at Play Mode start (Baltic bbox acceptable). Verified local Editor 2026-06-09; see production/qa/cesium-s20-local-editor-evidence.md (globe visible Baltic bbox, 1 friendly + 1 hostile, ~60fps empty, selection via C2PresentationController, symbols ■/◆).
 - [x] Camera pan/zoom within performance budget (target: 60 FPS editor, empty scene). Verified local Editor 2026-06-09; see production/qa/cesium-s20-local-editor-evidence.md (globe visible Baltic bbox, 1 friendly + 1 hostile, ~60fps empty, selection via C2PresentationController, symbols ■/◆).
-- [ ] Depth/occlusion acceptable for unit billboards (note failures). (Deferred to visual signoff; primitives used for spike.)
+- [x] Depth/occlusion acceptable for unit billboards (note failures). S24-08: primitive spheres at 25 km scale remain visible above terrain at Baltic overview altitude; no z-fighting at default camera height. Minor occlusion when markers overlap at identical lat/lon — acceptable for spike. Verified per S24 Editor protocol; evidence: production/qa/sprint-24-cesium-polish-2026-06-17.md §Depth/occlusion.
 
 ## Data bridge (spike only)
 
@@ -34,7 +34,7 @@
 ## Selection (spike only)
 
 - [x] Click globe entity → same `C2PresentationController` selection path as Toolkit map. Verified local Editor 2026-06-09; see production/qa/cesium-s20-local-editor-evidence.md (globe visible Baltic bbox, 1 friendly + 1 hostile, ~60fps empty, selection via C2PresentationController, symbols ■/◆).
-- [x] Selection highlight visible on globe + OOB row stays in sync. Verified local Editor 2026-06-09; see production/qa/cesium-s20-local-editor-evidence.md (globe visible Baltic bbox, 1 friendly + 1 hostile, ~60fps empty, selection via C2PresentationController, symbols ■/◆).
+- [x] Selection highlight visible on globe + OOB row stays in sync. S24-08 re-verified in CesiumSpike.unity per production/qa/sprint-24-cesium-polish-2026-06-17.md §Selection sync OOB (globe click → C2PresentationController → OOB row highlight; headless selection contract unchanged on DelegationSmoke with useGlobeMap=false).
 
 ## Determinism & architecture
 
@@ -52,7 +52,9 @@
 |------|----------|
 | Globe load | production/qa/cesium-s20-local-editor-evidence.md (Verified local Editor 2026-06-09; see production/qa/cesium-s20-local-editor-evidence.md (globe visible Baltic bbox, 1 friendly + 1 hostile, ~60fps empty, selection via C2PresentationController, symbols ■/◆). Package pre-existing pin + real anchors; logs clean on Play. See CESIUM-SPIKE-SETUP.md for scene steps.) |
 | Perf note | production/qa/cesium-s20-local-editor-evidence.md (Verified local Editor 2026-06-09; see production/qa/cesium-s20-local-editor-evidence.md (globe visible Baltic bbox, 1 friendly + 1 hostile, ~60fps empty, selection via C2PresentationController, symbols ■/◆). ~60 FPS empty scene baseline in Editor PlayMode; note any drop with markers. Headless projection tests unaffected.) |
-| Selection | production/qa/cesium-s20-local-editor-evidence.md (Verified local Editor 2026-06-09; see production/qa/cesium-s20-local-editor-evidence.md (globe visible Baltic bbox, 1 friendly + 1 hostile, ~60fps empty, selection via C2PresentationController, symbols ■/◆). Click globe → C2PresentationController.Select* path; OOB row + highlight sync. Matches Phase A Toolkit behavior.) |
+| Selection | production/qa/cesium-s20-local-editor-evidence.md; S24-08: production/qa/sprint-24-cesium-polish-2026-06-17.md §Selection sync OOB |
+| Depth/occlusion | S24-08: production/qa/sprint-24-cesium-polish-2026-06-17.md §Depth/occlusion (CesiumSpike.unity Baltic bbox; primitive billboards at overview altitude) |
+| CI default flag | S24-08: `Delegation_smoke_keeps_useGlobeMap_false_for_ci_safe_default` PlayModeSmoke test; `useGlobeMap: 0` in DelegationSmoke.unity |
 
 ## Verdict
 

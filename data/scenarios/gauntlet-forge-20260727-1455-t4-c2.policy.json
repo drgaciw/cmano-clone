@@ -1,0 +1,236 @@
+{
+  "friendlyRoe": "WeaponsFree",
+  "opposingRoe": "WeaponsTight",
+  "engage": {
+    "rangeMeters": 45000,
+    "envelopeMinMeters": 5000,
+    "envelopeMaxMeters": 120000,
+    "defaultMagazineRounds": 4,
+    "hasFireControlTrack": true,
+    "combatDomainsEnabled": true,
+    "pkBase": 0.85,
+    "pkIntercept": 0.0,
+    "pkKill": 0.2,
+    "salvoSize": 2
+  },
+  "detection": [
+    {
+      "observerId": "ka-27m-helix-a",
+      "sensorId": "sonar-1",
+      "targetId": "pl-877-kilo-paltus-1992",
+      "contactId": "c-forge-t4c2-1",
+      "basePd": 0.6,
+      "envMask": 0.8,
+      "jamStrength": 0,
+      "requiresActiveRadar": false
+    },
+    {
+      "observerId": "p-3c-orion-update-iii-2023",
+      "sensorId": "sonar-1",
+      "targetId": "pl-877-kilo-paltus-1992",
+      "contactId": "c-forge-t4c2-2",
+      "basePd": 0.5,
+      "envMask": 0.75,
+      "jamStrength": 0,
+      "requiresActiveRadar": false
+    },
+    {
+      "observerId": "ssn-774-virginia-blk-i-ii",
+      "sensorId": "sonar-1",
+      "targetId": "pl-877-kilo-paltus-1992",
+      "contactId": "c-forge-t4c2-3",
+      "basePd": 0.75,
+      "envMask": 1.0,
+      "jamStrength": 0,
+      "requiresActiveRadar": false
+    },
+    {
+      "observerId": "f-219-sachsen-type-f124-2006",
+      "sensorId": "radar-1",
+      "targetId": "skr-admiral-sergey-gorshkov-pr-2235-0",
+      "contactId": "c-forge-t4c2-4",
+      "basePd": 1.0,
+      "envMask": 1.0,
+      "jamStrength": 0
+    },
+    {
+      "observerId": "jas-39e-gripen-ng-2021",
+      "sensorId": "radar-1",
+      "targetId": "su-30sm-flanker-g-2019",
+      "contactId": "c-forge-t4c2-5",
+      "basePd": 1.0,
+      "envMask": 1.0,
+      "jamStrength": 0
+    },
+    {
+      "observerId": "eurofighter-typhoon",
+      "sensorId": "radar-1",
+      "targetId": "su-24m-fencer-d-1992",
+      "contactId": "c-forge-t4c2-6",
+      "basePd": 1.0,
+      "envMask": 1.0,
+      "jamStrength": 0
+    },
+    {
+      "observerId": "f-310-fridtjof-nansen",
+      "sensorId": "radar-1",
+      "targetId": "mig-31-foxhound",
+      "contactId": "c-forge-t4c2-7",
+      "basePd": 0.9,
+      "envMask": 0.9,
+      "jamStrength": 0
+    }
+  ],
+  "mission": {
+    "fireOrder": [
+      "start-exec",
+      "asw-contact-designated",
+      "aaw-raid-designated"
+    ],
+    "events": [
+      {
+        "id": "start-exec",
+        "fireAtTick": 0,
+        "kind": "MissionTransition",
+        "code": "Execution"
+      },
+      {
+        "id": "asw-contact-designated",
+        "fireAtTick": 0,
+        "kind": "EventFired",
+        "code": "asw_contact_prosecution_designated"
+      },
+      {
+        "id": "aaw-raid-designated",
+        "fireAtTick": 6,
+        "kind": "EventFired",
+        "code": "aaw_raid_inbound_designated"
+      }
+    ]
+  },
+  "gauntlet": {
+    "intent": "mission-concurrent-asw-aaw: BLUE runs a concurrent ASW/AAW mission -- an ASW screen (two FFG surface combatants, a Ka-27M Helix A ASW helo with dipping sonar, a P-3C Orion MPA with sonobuoys, and an SSN trailer) actively prosecutes a RED submarine contact (PL-877 Kilo) from mission start via the tick-0 asw_contact_prosecution_designated event, while a two-ship BLUE fighter combat air cover (JAS 39E Gripen NG, Eurofighter Typhoon) simultaneously holds AAW cover. At tick 6 a second scripted timed event (aaw_raid_inbound_designated) marks RED's inbound air raid (Su-30SM Flanker G, Su-24M Fencer D, MiG-31 Foxhound) as a designated hostile track, tasking BLUE's fighter cover into an active intercept while the ASW hunt continues uninterrupted -- both engagement domains (ASW and AAW) are active and must resolve within the same 24-tick window rather than one handing off to the other, as newly eligible for this tier's ASW/AAW multi-mission theme. RED is held WeaponsTight throughout. RED's SKR Admiral Sergey Gorshkov FFG is a secondary surface radar contact providing local cover for the submarine's transit lane -- it is not itself a raid or hunt target.",
+    "oracle": "BLUE's ASW thread (ka-27m-helix-a dipping sonar + p-3c-orion-update-iii-2023 sonobuoy field + ssn-774-virginia-blk-i-ii passive trail, all cued from tick 0) prosecutes pl-877-kilo-paltus-1992 and is expected to register at least one ASW kill. Concurrently, BLUE's AAW cover (jas-39e-gripen-ng-2021, eurofighter-typhoon) intercepts the RED raid package (su-30sm-flanker-g-2019, su-24m-fencer-d-1992, mig-31-foxhound) once the tick-6 aaw_raid_inbound_designated event fires, expected to register at least one AAW kill independent of the ASW kill. RED (WeaponsTight) is expected to generate ROE_WEAPONS_TIGHT-coded denials rather than initiate engagements of its own. Both mission-event codes (asw_contact_prosecution_designated at tick 0, aaw_raid_inbound_designated at tick 6) must fire, and both threads must resolve inside the shared 24-tick window rather than sequentially.",
+    "catalogRefs": [
+      "f-219-sachsen-type-f124-2006",
+      "f-310-fridtjof-nansen",
+      "ka-27m-helix-a",
+      "p-3c-orion-update-iii-2023",
+      "jas-39e-gripen-ng-2021",
+      "eurofighter-typhoon",
+      "ssn-774-virginia-blk-i-ii",
+      "pl-877-kilo-paltus-1992",
+      "su-30sm-flanker-g-2019",
+      "su-24m-fencer-d-1992",
+      "mig-31-foxhound",
+      "skr-admiral-sergey-gorshkov-pr-2235-0"
+    ],
+    "domains": [
+      "surface",
+      "air",
+      "subsurface"
+    ],
+    "runId": "gauntlet-20260727-1455",
+    "tier": 4,
+    "expect": {
+      "side": "BLUE",
+      "requireNonEmptyFingerprint": true,
+      "minScore": 60.0,
+      "maxScore": 200.0,
+      "maxMissilesFired": 22,
+      "maxDenials": 29,
+      "minKills": 2,
+      "minDenials": 19
+    },
+    "units": [
+      {
+        "unitId": "f-219-sachsen-type-f124-2006",
+        "platformId": "f-219-sachsen-type-f124-2006",
+        "domain": "surface",
+        "side": "blue"
+      },
+      {
+        "unitId": "f-310-fridtjof-nansen",
+        "platformId": "f-310-fridtjof-nansen",
+        "domain": "surface",
+        "side": "blue"
+      },
+      {
+        "unitId": "ka-27m-helix-a",
+        "platformId": "ka-27m-helix-a",
+        "domain": "air",
+        "side": "blue"
+      },
+      {
+        "unitId": "p-3c-orion-update-iii-2023",
+        "platformId": "p-3c-orion-update-iii-2023",
+        "domain": "air",
+        "side": "blue"
+      },
+      {
+        "unitId": "jas-39e-gripen-ng-2021",
+        "platformId": "jas-39e-gripen-ng-2021",
+        "domain": "air",
+        "side": "blue"
+      },
+      {
+        "unitId": "eurofighter-typhoon",
+        "platformId": "eurofighter-typhoon",
+        "domain": "air",
+        "side": "blue"
+      },
+      {
+        "unitId": "ssn-774-virginia-blk-i-ii",
+        "platformId": "ssn-774-virginia-blk-i-ii",
+        "domain": "subsurface",
+        "side": "blue"
+      },
+      {
+        "unitId": "pl-877-kilo-paltus-1992",
+        "platformId": "pl-877-kilo-paltus-1992",
+        "domain": "subsurface",
+        "side": "red"
+      },
+      {
+        "unitId": "su-30sm-flanker-g-2019",
+        "platformId": "su-30sm-flanker-g-2019",
+        "domain": "air",
+        "side": "red"
+      },
+      {
+        "unitId": "su-24m-fencer-d-1992",
+        "platformId": "su-24m-fencer-d-1992",
+        "domain": "air",
+        "side": "red"
+      },
+      {
+        "unitId": "mig-31-foxhound",
+        "platformId": "mig-31-foxhound",
+        "domain": "air",
+        "side": "red"
+      },
+      {
+        "unitId": "skr-admiral-sergey-gorshkov-pr-2235-0",
+        "platformId": "skr-admiral-sergey-gorshkov-pr-2235-0",
+        "domain": "surface",
+        "side": "red"
+      }
+    ],
+    "forge": {
+      "recipes": [
+        "mission-concurrent-asw-aaw"
+      ],
+      "candidateId": "gauntlet-forge-20260727-1455-t4-c2",
+      "noveltyTags": [
+        "concurrent-asw-aaw",
+        "dual-domain-engagement",
+        "scripted-timed-event",
+        "asw-screen-multi-sensor",
+        "underused-platform-mix"
+      ],
+      "note": "expect provisional pending regen"
+    },
+    "expectProvenance": "regenerated 2026-07-28 from real Demo batch CSV at T4 tick budget 24, seeds 42,7,123 (production/qa/gauntlet/gauntlet-20260727-1455/tier-4/results.csv). Observed: score=[180.0, 180.0, 80.0] kills=[3, 3, 2] missilesFired=[14, 18, 16] denials=[24, 24, 24]. Bounds padded ~20% beyond observed range per tools/qa-gauntlet/README-expect-regen.md (derived, not invented)."
+  },
+  "id": "gauntlet-forge-20260727-1455-t4-c2"
+}

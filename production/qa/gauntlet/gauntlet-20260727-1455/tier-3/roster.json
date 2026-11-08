@@ -1,0 +1,383 @@
+{
+  "tier": 3,
+  "platformMix": "3 surface + 2 air + 1 subsurface per side (~12); roster sized for 6\u20138 scenario expansion with logistics/EW/lifecycle testing",
+  "platforms": [
+    {
+      "platformId": "f-16c-blk-52iq-falcon-2015",
+      "name": "F-16C Blk 52IQ Falcon - 2015",
+      "domain": "air",
+      "platformClass": "Aircraft - Multirole (Fighter/Attack)",
+      "nationality": "Iraq",
+      "sensors": [
+        "radar/fire-control"
+      ],
+      "weapons": [],
+      "magazineNotes": "High-capacity loadout (13 magazine lines, 15 mounts)",
+      "signatureNotes": "Fighter/attack aircraft"
+    },
+    {
+      "platformId": "jas-39e-gripen-ng-2021",
+      "name": "JAS 39E Gripen NG - 2021, 28x",
+      "domain": "air",
+      "platformClass": "Aircraft - Multirole (Fighter/Attack)",
+      "nationality": "Sweden",
+      "sensors": [
+        "radar/fire-control"
+      ],
+      "weapons": [],
+      "magazineNotes": "High-capacity loadout (13 magazine lines, 18 mounts)",
+      "signatureNotes": "Fighter/attack aircraft"
+    },
+    {
+      "platformId": "ka-27m-helix-a",
+      "name": "Ka-27M Helix A",
+      "domain": "air",
+      "platformClass": "Aircraft - Anti-Submarine Warfare (ASW)",
+      "nationality": "Russia",
+      "sensors": [
+        "radar/fire-control",
+        "sonar-dipping"
+      ],
+      "weapons": [],
+      "magazineNotes": "Moderate loadout (3 magazine lines, 3 mounts)",
+      "signatureNotes": "Low radar cross-section (helicopter/MPA)"
+    },
+    {
+      "platformId": "mig-29-fulcrum-c-1999",
+      "name": "MiG-29 Fulcrum C - 1999, 9.13",
+      "domain": "air",
+      "platformClass": "Aircraft - Multirole (Fighter/Attack)",
+      "nationality": "Russia",
+      "sensors": [
+        "radar/fire-control"
+      ],
+      "weapons": [],
+      "magazineNotes": "High-capacity loadout (11 magazine lines, 11 mounts)",
+      "signatureNotes": "Fighter/attack aircraft"
+    },
+    {
+      "platformId": "p-3c-orion-update-iii-2023",
+      "name": "P-3C Orion Update III - 2023, 3x, UIP Upgrade, From Norway",
+      "domain": "air",
+      "platformClass": "Maritime Patrol Aircraft (MPA)",
+      "nationality": "Norway",
+      "sensors": [
+        "sonar-buoy"
+      ],
+      "weapons": [],
+      "magazineNotes": "",
+      "signatureNotes": "Maritime patrol platform; ASW-capable"
+    },
+    {
+      "platformId": "su-27sm-sm3-flanker-j-2013",
+      "name": "Su-27SM/SM3 Flanker J - 2013, 12x by 2015, Upgr Su-27S/P",
+      "domain": "air",
+      "platformClass": "Aircraft - Fighter",
+      "nationality": "Russia",
+      "sensors": [
+        "radar/fire-control"
+      ],
+      "weapons": [],
+      "magazineNotes": "High-capacity loadout (14 magazine lines, 16 mounts)",
+      "signatureNotes": "Fighter/attack aircraft"
+    },
+    {
+      "platformId": "su-35s-flanker-m-2023",
+      "name": "Su-35S Flanker M - 2023",
+      "domain": "air",
+      "platformClass": "Aircraft - Fighter",
+      "nationality": "Russia",
+      "sensors": [
+        "radar/fire-control"
+      ],
+      "weapons": [],
+      "magazineNotes": "High-capacity loadout (14 magazine lines, 18 mounts)",
+      "signatureNotes": "Fighter/attack aircraft"
+    },
+    {
+      "platformId": "021-messali-el-hadj-pl-636m-kilo-2011",
+      "name": "021 Messali el Hadj [PL-636M Kilo] - 2011",
+      "domain": "subsurface",
+      "platformClass": "SS - Attack/Fleet Submarine",
+      "nationality": "Algeria",
+      "sensors": [
+        "radar/fire-control",
+        "passive-sonar"
+      ],
+      "weapons": [],
+      "magazineNotes": "Moderate loadout (5 magazine lines, 5 mounts)",
+      "signatureNotes": "Conventional submarine"
+    },
+    {
+      "platformId": "pl-877-kilo-paltus-1992",
+      "name": "PL-877 Kilo [Paltus] - 1992",
+      "domain": "subsurface",
+      "platformClass": "SSK - Hunter-Killer Submarine",
+      "nationality": "Russia",
+      "sensors": [
+        "radar/fire-control",
+        "passive-sonar"
+      ],
+      "weapons": [],
+      "magazineNotes": "Moderate loadout (5 magazine lines, 9 mounts)",
+      "signatureNotes": "Conventional submarine"
+    },
+    {
+      "platformId": "pla-885-severodvinsk-yasen",
+      "name": "PLA-885 Severodvinsk [Yasen]",
+      "domain": "subsurface",
+      "platformClass": "SSGN - Nuclear Powered Guided Missile Attack Submarine",
+      "nationality": "Russia",
+      "sensors": [
+        "radar/fire-control",
+        "passive-sonar"
+      ],
+      "weapons": [],
+      "magazineNotes": "Moderate loadout (3 magazine lines, 3 mounts)",
+      "signatureNotes": "Nuclear-powered; high payload capacity"
+    },
+    {
+      "platformId": "s-120-papanikolis-type-214hn",
+      "name": "S 120 Papanikolis [Type 214HN]",
+      "domain": "subsurface",
+      "platformClass": "Submarine - Attack Submarine",
+      "nationality": "Greece",
+      "sensors": [
+        "radar/fire-control",
+        "passive-sonar"
+      ],
+      "weapons": [],
+      "magazineNotes": "Moderate loadout (6 magazine lines, 5 mounts)",
+      "signatureNotes": "Conventional submarine"
+    },
+    {
+      "platformId": "s-71-chakra-pla-971i-akula-ii",
+      "name": "S 71 Chakra [PLA-971I Akula II]",
+      "domain": "subsurface",
+      "platformClass": "Submarine - Attack Submarine",
+      "nationality": "India",
+      "sensors": [
+        "radar/fire-control",
+        "passive-sonar"
+      ],
+      "weapons": [],
+      "magazineNotes": "Moderate loadout (6 magazine lines, 7 mounts)",
+      "signatureNotes": "Conventional submarine"
+    },
+    {
+      "platformId": "ssn-774-virginia-blk-i-ii",
+      "name": "SSN 774 Virginia [Blk I/II]",
+      "domain": "subsurface",
+      "platformClass": "Submarine - Attack Submarine",
+      "nationality": "United States",
+      "sensors": [
+        "radar/fire-control",
+        "passive-sonar"
+      ],
+      "weapons": [],
+      "magazineNotes": "Moderate loadout (6 magazine lines, 6 mounts)",
+      "signatureNotes": "Conventional submarine"
+    },
+    {
+      "platformId": "801-rais-hamidou-pr-1234e-nanuchka-ii-1981",
+      "name": "801 Rais Hamidou [Pr.1234E Nanuchka II] - 1981",
+      "domain": "surface",
+      "platformClass": "PCFG - Fast Guided Missile Patrol Craft",
+      "nationality": "Algeria",
+      "sensors": [
+        "radar/fire-control",
+        "radar"
+      ],
+      "weapons": [],
+      "magazineNotes": "Moderate loadout (7 magazine lines, 7 mounts)",
+      "signatureNotes": "Corvette/patrol vessel"
+    },
+    {
+      "platformId": "f-219-sachsen-type-f124-2006",
+      "name": "F 219 Sachsen [Type F124] - 2006",
+      "domain": "surface",
+      "platformClass": "FFG - Guided Missile Frigate",
+      "nationality": "Germany",
+      "sensors": [
+        "radar/fire-control",
+        "radar"
+      ],
+      "weapons": [],
+      "magazineNotes": "High-capacity loadout (9 magazine lines, 14 mounts)",
+      "signatureNotes": "Major combatant; significant radar/sonar signature"
+    },
+    {
+      "platformId": "f-230-norfolk-type-23-duke",
+      "name": "F 230 Norfolk [Type 23 Duke]",
+      "domain": "surface",
+      "platformClass": "FFG - Guided Missile Frigate",
+      "nationality": "United Kingdom",
+      "sensors": [
+        "radar/fire-control",
+        "radar"
+      ],
+      "weapons": [],
+      "magazineNotes": "Moderate loadout (3 magazine lines, 6 mounts)",
+      "signatureNotes": "Major combatant; significant radar/sonar signature"
+    },
+    {
+      "platformId": "f-310-fridtjof-nansen",
+      "name": "F 310 Fridtjof Nansen",
+      "domain": "surface",
+      "platformClass": "FFG - Guided Missile Frigate",
+      "nationality": "Norway",
+      "sensors": [
+        "radar/fire-control",
+        "radar"
+      ],
+      "weapons": [],
+      "magazineNotes": "Moderate loadout (3 magazine lines, 6 mounts)",
+      "signatureNotes": "Major combatant; significant radar/sonar signature"
+    },
+    {
+      "platformId": "k-11-stockholm-spica-iii-1986",
+      "name": "K 11 Stockholm [Spica III] - 1986",
+      "domain": "surface",
+      "platformClass": "FFL - Corvette",
+      "nationality": "Sweden",
+      "sensors": [
+        "radar/fire-control",
+        "radar"
+      ],
+      "weapons": [],
+      "magazineNotes": "Moderate loadout (6 magazine lines, 6 mounts)",
+      "signatureNotes": "Corvette/patrol vessel"
+    },
+    {
+      "platformId": "mrk-buyan-pr-21630-buyan-2007",
+      "name": "MRK Buyan [Pr.21630 Buyan] - 2007",
+      "domain": "surface",
+      "platformClass": "PCF - Fast Patrol Craft",
+      "nationality": "Russia",
+      "sensors": [
+        "radar/fire-control",
+        "radar"
+      ],
+      "weapons": [],
+      "magazineNotes": "Moderate loadout (8 magazine lines, 8 mounts)",
+      "signatureNotes": "Corvette/patrol vessel"
+    },
+    {
+      "platformId": "mrk-shkval-pr-22800-karakurt",
+      "name": "MRK Shkval [Pr.22800 Karakurt]",
+      "domain": "surface",
+      "platformClass": "FFL - Corvette",
+      "nationality": "Russia",
+      "sensors": [
+        "radar/fire-control",
+        "radar"
+      ],
+      "weapons": [],
+      "magazineNotes": "Moderate loadout (3 magazine lines, 3 mounts)",
+      "signatureNotes": "Corvette/patrol vessel"
+    },
+    {
+      "platformId": "p-840-holland",
+      "name": "P 840 Holland",
+      "domain": "surface",
+      "platformClass": "Ship - OPV - Offshore Patrol Vessel",
+      "nationality": "Netherlands",
+      "sensors": [
+        "radar/fire-control",
+        "radar"
+      ],
+      "weapons": [],
+      "magazineNotes": "Moderate loadout (3 magazine lines, 5 mounts)",
+      "signatureNotes": "Corvette/patrol vessel"
+    },
+    {
+      "platformId": "p-960-skjold",
+      "name": "P 960 Skjold",
+      "domain": "surface",
+      "platformClass": "Ship - FFL - Corvette",
+      "nationality": "Norway",
+      "sensors": [
+        "radar/fire-control",
+        "radar"
+      ],
+      "weapons": [],
+      "magazineNotes": "Moderate loadout (3 magazine lines, 5 mounts)",
+      "signatureNotes": "Corvette/patrol vessel"
+    },
+    {
+      "platformId": "pk-368-vasily-bykov-pr-22160",
+      "name": "PK 368 Vasily Bykov [Pr.22160]",
+      "domain": "surface",
+      "platformClass": "FFL - Corvette",
+      "nationality": "Russia",
+      "sensors": [
+        "radar/fire-control",
+        "radar"
+      ],
+      "weapons": [],
+      "magazineNotes": "Moderate loadout (3 magazine lines, 3 mounts)",
+      "signatureNotes": "Corvette/patrol vessel"
+    },
+    {
+      "platformId": "skr-admiral-grigorovich-pr-1135-6m",
+      "name": "SKR Admiral Grigorovich [Pr.1135.6M]",
+      "domain": "surface",
+      "platformClass": "FFG - Guided Missile Frigate",
+      "nationality": "Russia",
+      "sensors": [
+        "radar/fire-control",
+        "radar"
+      ],
+      "weapons": [],
+      "magazineNotes": "Moderate loadout (3 magazine lines, 3 mounts)",
+      "signatureNotes": "Major combatant; significant radar/sonar signature"
+    },
+    {
+      "platformId": "skr-admiral-sergey-gorshkov-pr-2235-0",
+      "name": "SKR Admiral Sergey Gorshkov [Pr.2235.0]",
+      "domain": "surface",
+      "platformClass": "FFG - Guided Missile Frigate",
+      "nationality": "Russia",
+      "sensors": [
+        "radar/fire-control",
+        "radar"
+      ],
+      "weapons": [],
+      "magazineNotes": "Moderate loadout (3 magazine lines, 3 mounts)",
+      "signatureNotes": "Major combatant; significant radar/sonar signature"
+    }
+  ],
+  "excludedForCoverage": [
+    "241-slazak-meko-100-mod-2019",
+    "421-orkan-pr-660-2015",
+    "624-pr-205p-tarantul-1992",
+    "70-rauma-helsinki-ii-1990",
+    "80-hamina-rauma-2-2006",
+    "a-17-s\u00f6dermanland-vastergotland-mod",
+    "a-17-vastergotland-1999",
+    "a-19-gotland-1996",
+    "a-19-gotland-2022",
+    "bpk-marshal-shaposhnikov-udaloy-i-pr-1155-fregat",
+    "d-32-daring-type-45-batch-1",
+    "em-sovremenny-i-pr-956-sarych",
+    "f-207-bremen-type-f122-1982",
+    "f-341-absalon-2020",
+    "f-35a-lightning-ii",
+    "f-361-iver-huitfeldt-2012",
+    "f-450-elli-kortenaer-batch-ii-0",
+    "f-a-18c-hornet-f-18c",
+    "hkp-14f-nh90-ttt",
+    "hostile-1",
+    "hostile-far",
+    "jas-39a-gripen-1997",
+    "jas-39b-gripen-1997",
+    "jas-39c-gripen-2005",
+    "k-31-visby-2009",
+    "mpk-steregushchiy-pr-20380-2018",
+    "mrk-buyan-mod-pr-21631-buyan-m-2014",
+    "mrk-buyan-pr-21630-buyan-2007",
+    "p-151-hugin",
+    "u1"
+  ],
+  "notes": "platform_emcon table is empty (0 rows); EMCON expressed at scenario level, not per-platform. Forward-compatible roster (12 surface, 7 air, 6 subsurface = 25 total) supports expanded T3 with meaningful magazine/loadout data and ASW pairings. Surface selections prioritize platforms with 3+ mounts/magazines and nationality/class diversity. Air selections include high-capacity fighters (14\u201318 mounts), ASW helicopters, and maritime patrol aircraft. Subsurface mix includes conventional attack subs, nuclear SSNs, and SSGN variant for payload/classification diversity."
+}

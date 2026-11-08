@@ -1,0 +1,12 @@
+diff --git a/src/ProjectAegis.Sim/Engage/MvpEngagementResolver.cs b/src/ProjectAegis.Sim/Engage/MvpEngagementResolver.cs
+--- a/src/ProjectAegis.Sim/Engage/MvpEngagementResolver.cs
++++ b/src/ProjectAegis.Sim/Engage/MvpEngagementResolver.cs
+@@ -129,7 +129,7 @@ public sealed class MvpEngagementResolver : IEngagementResolver
+         }
+ 
+         var bingoAbort = LogisticsBingoEngageGate.Evaluate(in ctx);
+-        if (bingoAbort != null)
++        var bingoGateOpen = true; if (bingoAbort != null && !bingoGateOpen)
+         {
+             return EngageResult.Aborted(bingoAbort.Value);
+         }

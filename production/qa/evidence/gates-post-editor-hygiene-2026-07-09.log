@@ -1,0 +1,60 @@
+=== Post-Editor Hygiene Invariant Gate ===
+Date: 2026-07-09
+HEAD: 223a5fe2751f74f0a1e9975779e5868330adfb95
+
+=== Build ===
+Build succeeded.
+    0 Warning(s)
+    0 Error(s)
+
+Time Elapsed 00:00:07.41
+
+=== Full Test Suite ===
+
+Starting test execution, please wait...
+A total of 1 test files matched the specified pattern.
+
+Passed!  - Failed:     0, Passed:   311, Skipped:     0, Total:   311, Duration: 609 ms - ProjectAegis.Sim.Tests.dll (net8.0)
+
+Passed!  - Failed:     0, Passed:   260, Skipped:     0, Total:   260, Duration: 1 s - ProjectAegis.Delegation.Tests.dll (net8.0)
+
+Passed!  - Failed:     0, Passed:   286, Skipped:     0, Total:   286, Duration: 4 s - ProjectAegis.Delegation.UnityAdapter.Tests.dll (net8.0)
+
+Passed!  - Failed:     0, Passed:    24, Skipped:     0, Total:    24, Duration: 11 s - ProjectAegis.Data.Excel.Tests.dll (net8.0)
+
+Passed!  - Failed:     0, Passed:   102, Skipped:     0, Total:   102, Duration: 18 s - ProjectAegis.MissionEditor.Cli.Tests.dll (net8.0)
+
+Passed!  - Failed:     0, Passed:   616, Skipped:     0, Total:   616, Duration: 20 s - ProjectAegis.Data.Tests.dll (net8.0)
+
+=== ReplayGolden ===
+  ProjectAegis.Delegation.UnityAdapter.Tests -> /home/username01/cmano-clone/src/ProjectAegis.Delegation.UnityAdapter.Tests/bin/Debug/net8.0/ProjectAegis.Delegation.UnityAdapter.Tests.dll
+Test run for /home/username01/cmano-clone/src/ProjectAegis.Delegation.UnityAdapter.Tests/bin/Debug/net8.0/ProjectAegis.Delegation.UnityAdapter.Tests.dll (.NETCoreApp,Version=v8.0)
+VSTest version 17.11.1 (x64)
+
+Starting test execution, please wait...
+A total of 1 test files matched the specified pattern.
+
+Passed!  - Failed:     0, Passed:     6, Skipped:     0, Total:     6, Duration: 630 ms - ProjectAegis.Delegation.UnityAdapter.Tests.dll (net8.0)
+
+=== C2 PlayModeSmoke ===
+  ProjectAegis.Delegation.UnityAdapter.Tests -> /home/username01/cmano-clone/src/ProjectAegis.Delegation.UnityAdapter.Tests/bin/Debug/net8.0/ProjectAegis.Delegation.UnityAdapter.Tests.dll
+Test run for /home/username01/cmano-clone/src/ProjectAegis.Delegation.UnityAdapter.Tests/bin/Debug/net8.0/ProjectAegis.Delegation.UnityAdapter.Tests.dll (.NETCoreApp,Version=v8.0)
+VSTest version 17.11.1 (x64)
+
+Starting test execution, please wait...
+A total of 1 test files matched the specified pattern.
+
+Passed!  - Failed:     0, Passed:    20, Skipped:     0, Total:    20, Duration: 724 ms - ProjectAegis.Delegation.UnityAdapter.Tests.dll (net8.0)
+
+=== Hash grep ===
+18
+
+=== UA Engage Filter ===
+  ProjectAegis.Delegation.UnityAdapter.Tests -> /home/username01/cmano-clone/src/ProjectAegis.Delegation.UnityAdapter.Tests/bin/Debug/net8.0/ProjectAegis.Delegation.UnityAdapter.Tests.dll
+Test run for /home/username01/cmano-clone/src/ProjectAegis.Delegation.UnityAdapter.Tests/bin/Debug/net8.0/ProjectAegis.Delegation.UnityAdapter.Tests.dll (.NETCoreApp,Version=v8.0)
+VSTest version 17.11.1 (x64)
+
+Starting test execution, please wait...
+A total of 1 test files matched the specified pattern.
+
+Passed!  - Failed:     0, Passed:     3, Skipped:     0, Total:     3, Duration: 391 ms - ProjectAegis.Delegation.UnityAdapter.Tests.dll (net8.0)

@@ -1,0 +1,20 @@
+/* MapCommsDegradeModifiers.uss — ASSET-010 Map comms degradation (Specced / S107)
+ * Authority: design/assets/specs/c2-ui-assets.md ASSET-010
+ * Status: Specced (not Approved)
+ */
+
+@import url("AegisTokens.uss");
+
+.map-symbol--stale {
+    opacity: 0.55;
+    color: var(--log-comms);
+}
+
+.map-symbol--frozen {
+    opacity: 0.4;
+    -unity-font-style: italic;
+}
+
+.map-symbol--comms-denied {
+    color: var(--log-kill);
+}

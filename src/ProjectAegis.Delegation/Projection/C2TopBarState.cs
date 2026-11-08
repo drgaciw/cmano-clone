@@ -6,4 +6,7 @@ public sealed record C2TopBarState(
     string CompressionLabel,
     string ModeLabel,
     string CommsLabel,
-    string ScoreLabel);
+    string ScoreLabel,
+    string ZuluTimeLabel = "",
+    string LocalTimeLabel = "",
+    string RemainingDurationLabel = "");

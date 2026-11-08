@@ -12,7 +12,7 @@ public sealed class ScenarioPolicyJsonLoaderTests
     {
         var repoRoot = FindRepoRoot();
         Assert.NotNull(repoRoot);
-        var path = Path.Combine(repoRoot!, "data", "scenarios", "restricted-engagement.policy.json");
+        var path = Path.Combine(repoRoot, "data", "scenarios", "restricted-engagement.policy.json");
         var profile = ScenarioPolicyJsonLoader.LoadFromFile(path);
         Assert.Equal("restricted-engagement", profile.Id);
         Assert.Equal(RoeLevel.WeaponsTight, profile.ResolveForUnit("o1", isFriendly: false).Roe);
@@ -40,7 +40,7 @@ public sealed class ScenarioPolicyJsonLoaderTests
     {
         var repoRoot = FindRepoRoot();
         Assert.NotNull(repoRoot);
-        var path = Path.Combine(repoRoot!, "data", "scenarios", "baltic-patrol-black-project.policy.json");
+        var path = Path.Combine(repoRoot, "data", "scenarios", "baltic-patrol-black-project.policy.json");
         var profile = ScenarioPolicyJsonLoader.LoadFromFile(path);
         Assert.True(profile.Speculative.BlackProjectMode);
         Assert.Equal(5, profile.EngageDefaults!.WeaponTechnologyLevel);
@@ -52,7 +52,7 @@ public sealed class ScenarioPolicyJsonLoaderTests
     {
         var repoRoot = FindRepoRoot();
         Assert.NotNull(repoRoot);
-        var path = Path.Combine(repoRoot!, "data", "scenarios", "baltic-patrol.policy.json");
+        var path = Path.Combine(repoRoot, "data", "scenarios", "baltic-patrol.policy.json");
         var profile = ScenarioPolicyJsonLoader.LoadFromFile(path);
         Assert.NotNull(profile.EngageDefaults);
         Assert.Equal(45_000, profile.EngageDefaults!.RangeMeters);
@@ -114,16 +114,130 @@ public sealed class ScenarioPolicyJsonLoaderTests
     {
         var repoRoot = FindRepoRoot();
         Assert.NotNull(repoRoot);
-        var missionPath = Path.Combine(repoRoot!, "data", "scenarios", "baltic-patrol-mission-roe.policy.json");
+        var missionPath = Path.Combine(repoRoot, "data", "scenarios", "baltic-patrol-mission-roe.policy.json");
         var missionProfile = ScenarioPolicyJsonLoader.LoadFromFile(missionPath);
         var missionUnit = missionProfile.ResolveUnitPolicy("u1", isFriendly: true);
         Assert.Equal(RoeLevel.WeaponsTight, missionUnit.Effective.Roe);
         Assert.True(missionUnit.HasInheritedDoctrineFromMission);
 
-        var wraPath = Path.Combine(repoRoot!, "data", "scenarios", "baltic-patrol-wra-cap.policy.json");
+        var wraPath = Path.Combine(repoRoot, "data", "scenarios", "baltic-patrol-wra-cap.policy.json");
         var wraProfile = ScenarioPolicyJsonLoader.LoadFromFile(wraPath);
         Assert.Equal(1, wraProfile.FriendlyDefault.MaxSalvo);
         Assert.Equal(2, wraProfile.EngageDefaults!.SalvoSize);
+    }
+
+    [Fact]
+    public void Loads_combat_domains_smoke_with_flag_enabled()
+    {
+        var repoRoot = FindRepoRoot();
+        Assert.NotNull(repoRoot);
+        var path = Path.Combine(repoRoot, "data", "scenarios", "combat-domains-smoke.policy.json");
+        var profile = ScenarioPolicyJsonLoader.LoadFromFile(path);
+        Assert.Equal("combat-domains-smoke", profile.Id);
+        Assert.NotNull(profile.EngageDefaults);
+        Assert.True(profile.EngageDefaults!.CombatDomainsEnabled);
+    }
+
+    [Fact]
+    public void Loads_baltic_patrol_combat_domains_with_flag_enabled()
+    {
+        var repoRoot = FindRepoRoot();
+        Assert.NotNull(repoRoot);
+        var path = Path.Combine(repoRoot, "data", "scenarios", "baltic-patrol-combat-domains.policy.json");
+        var profile = ScenarioPolicyJsonLoader.LoadFromFile(path);
+        Assert.Equal("baltic-patrol-combat-domains", profile.Id);
+        Assert.NotNull(profile.EngageDefaults);
+        Assert.True(profile.EngageDefaults!.CombatDomainsEnabled);
+        Assert.Equal(1.0, profile.DetectionTrials[0].EnvMask);
+    }
+
+    [Fact]
+    public void Loads_production_baltic_patrol_with_combat_domains_enabled()
+    {
+        var repoRoot = FindRepoRoot();
+        Assert.NotNull(repoRoot);
+        var path = Path.Combine(repoRoot, "data", "scenarios", "baltic-patrol.policy.json");
+        var profile = ScenarioPolicyJsonLoader.LoadFromFile(path);
+        Assert.Equal("baltic-patrol", profile.Id);
+        Assert.NotNull(profile.EngageDefaults);
+        Assert.True(profile.EngageDefaults!.CombatDomainsEnabled);
+    }
+
+    [Fact]
+    public void Loads_baltic_patrol_datalink_doctrine_with_side_sharing_enabled()
+    {
+        var repoRoot = FindRepoRoot();
+        Assert.NotNull(repoRoot);
+        var path = Path.Combine(repoRoot, "data", "scenarios", "baltic-patrol-datalink.policy.json");
+        var profile = ScenarioPolicyJsonLoader.LoadFromFile(path);
+        Assert.Equal("baltic-patrol-datalink", profile.Id);
+        Assert.False(profile.DatalinkDoctrine.OrganicOnly);
+        Assert.True(profile.DatalinkDoctrine.IsSharingEnabled);
+        Assert.Equal(0, profile.DatalinkDoctrine.ShareLagTicks);
+        Assert.False(profile.DatalinkDoctrine.ShareLagTicksSpecified);
+        Assert.Equal("blue", profile.DatalinkDoctrine.ResolveSide("u1"));
+        Assert.Equal("blue", profile.DatalinkDoctrine.ResolveSide("u2"));
+    }
+
+    [Fact]
+    public void Loads_baltic_patrol_datalink_lag_fixture_with_shareLagTicks()
+    {
+        var repoRoot = FindRepoRoot();
+        Assert.NotNull(repoRoot);
+        var path = Path.Combine(repoRoot, "data", "scenarios", "baltic-patrol-datalink-lag.policy.json");
+        var profile = ScenarioPolicyJsonLoader.LoadFromFile(path);
+        Assert.Equal("baltic-patrol-datalink-lag", profile.Id);
+        Assert.Equal(2, profile.DatalinkDoctrine.ShareLagTicks);
+        Assert.True(profile.DatalinkDoctrine.ShareLagTicksSpecified);
+        Assert.True(profile.DatalinkDoctrine.IsSharingEnabled);
+    }
+
+    [Fact]
+    public void Loads_baltic_patrol_datalink_comms_fixture_with_sharing_and_comms_transitions()
+    {
+        var repoRoot = FindRepoRoot();
+        Assert.NotNull(repoRoot);
+        var path = Path.Combine(repoRoot, "data", "scenarios", "baltic-patrol-datalink-comms.policy.json");
+        var profile = ScenarioPolicyJsonLoader.LoadFromFile(path);
+        Assert.Equal("baltic-patrol-datalink-comms", profile.Id);
+        Assert.False(profile.DatalinkDoctrine.OrganicOnly);
+        Assert.True(profile.DatalinkDoctrine.IsSharingEnabled);
+        Assert.Equal(2, profile.CommsTransitions.Count);
+        Assert.Equal(2UL, profile.CommsTransitions[0].AtTick);
+        Assert.Equal("Degraded", profile.CommsTransitions[0].NewState);
+        Assert.Equal(4UL, profile.CommsTransitions[1].AtTick);
+        Assert.Equal("Denied", profile.CommsTransitions[1].NewState);
+    }
+
+    [Fact]
+    public void Loads_baltic_patrol_mine_transit_hazard_fixture()
+    {
+        var repoRoot = FindRepoRoot();
+        Assert.NotNull(repoRoot);
+        var path = Path.Combine(repoRoot, "data", "scenarios", "baltic-patrol-mine-transit-hazard.policy.json");
+        var profile = ScenarioPolicyJsonLoader.LoadFromFile(path);
+        Assert.Equal("baltic-patrol-mine-transit-hazard", profile.Id);
+        Assert.NotNull(profile.MineHazard);
+        Assert.Equal(2, profile.MineHazard!.Mines.Count);
+        Assert.Single(profile.MineHazard.Transit);
+        Assert.True(profile.EngageDefaults!.CombatDomainsEnabled);
+    }
+
+    [Fact]
+    public void Loads_baltic_patrol_bda_lifecycle_fixture()
+    {
+        var repoRoot = FindRepoRoot();
+        Assert.NotNull(repoRoot);
+        var path = Path.Combine(repoRoot, "data", "scenarios", "baltic-patrol-bda-lifecycle.policy.json");
+        var profile = ScenarioPolicyJsonLoader.LoadFromFile(path);
+        Assert.Equal("baltic-patrol-bda-lifecycle", profile.Id);
+        Assert.True(profile.EngageDefaults!.CombatDomainsEnabled);
+        Assert.Equal(0.0, profile.EngageDefaults.PkKill);
+        Assert.Single(profile.DetectionTrials);
+        Assert.Equal("hostile-1", profile.DetectionTrials[0].TargetId);
+        Assert.Single(profile.CatalogWithdrawTargets);
+        Assert.Equal("hostile-1", profile.CatalogWithdrawTargets[0].PlatformId);
+        Assert.Equal(30.0, profile.CatalogWithdrawTargets[0].CurrentHpPct, precision: 6);
     }
 
     [Fact]
@@ -131,7 +245,7 @@ public sealed class ScenarioPolicyJsonLoaderTests
     {
         var repoRoot = FindRepoRoot();
         Assert.NotNull(repoRoot);
-        var path = Path.Combine(repoRoot!, "data", "scenarios", "baltic-patrol-comms.policy.json");
+        var path = Path.Combine(repoRoot, "data", "scenarios", "baltic-patrol-comms.policy.json");
         var profile = ScenarioPolicyJsonLoader.LoadFromFile(path);
         Assert.Equal(90, profile.Logistics.JokerSimSeconds);
         Assert.Equal(180, profile.Logistics.BingoSimSeconds);

@@ -1,22 +1,25 @@
 # Claude Code Game Studios -- Game Studio Agent Architecture
 
-Indie game development managed through 49 coordinated Claude Code subagents.
+Indie game development managed through **67** coordinated Claude Code subagents
+(on-disk count under `.claude/agents/` as of 2026-07-09).
 Each agent owns a specific domain, enforcing separation of concerns and quality.
 
 ## Technology Stack
 
-- **Engine**: Unity 6.3 LTS (editor 6000.3.14f1)
+- **Engine**: Unity 6.3 LTS (editor 6000.3.22f1)
 - **Language**: C#
 - **Version Control**: Git with trunk-based development
 - **Build System**: Unity Build Pipeline + `dotnet` for headless assemblies
 - **Asset Pipeline**: Unity Asset Import Pipeline + Addressables
 
-> **Note**: Engine-specialist agents exist for Godot, Unity, and Unreal with
-> dedicated sub-specialists. Use the set matching your engine.
+> **Note:** This repo uses the **Unity** engine-specialist set only
+> (`unity-specialist` + DOTS/UI/Addressables/shader sub-specialists).
+> Godot/Unreal agent sets are not active here.
 
 ## Project Structure
 
 @.claude/docs/directory-structure.md
+<!-- S39-04 hygiene: hybrid (co-located src/*Tests + tests/regression) retained; see appended sign-off in directory-structure.md + polish-scope-boundary-2026-06-19.md -->
 
 ## Engine Version Reference
 
@@ -62,24 +65,25 @@ Repo is Graphite-initialized. For branch/PR/stack work use **`gt`** (`gt create`
 <!-- gitnexus:start -->
 # GitNexus — Code Intelligence
 
-This project is indexed by GitNexus as **cmano-clone** (9548 symbols, 19953 relationships, 300 execution flows). Use the GitNexus MCP tools to understand code, assess impact, and navigate safely.
+This project is indexed by GitNexus as **cmano-clone** (40296 symbols, 82300 relationships, 300 execution flows). Use the GitNexus MCP tools to understand code, assess impact, and navigate safely.
 
-> If any GitNexus tool warns the index is stale, run `npx gitnexus analyze` in terminal first.
+> Index stale? Prefer `tools/gitnexus-safe-reindex.sh` (clean `main` checkout): it forces a full rebuild and checks integrity because incremental analyze can silently corrupt the index (DRG-323). If the guard is unavailable, stop the MCP host and verify no GitNexus MCP servers remain before following the manual forced-rebuild procedure in `docs/engineering/gitnexus-index-health.md`; `--force` alone does not protect a database held open by MCP.
 
 ## Always Do
 
-- **MUST run impact analysis before editing any symbol.** Before modifying a function, class, or method, run `gitnexus_impact({target: "symbolName", direction: "upstream"})` and report the blast radius (direct callers, affected processes, risk level) to the user.
-- **MUST run `gitnexus_detect_changes()` before committing** to verify your changes only affect expected symbols and execution flows.
+- **MUST run impact analysis before editing any symbol.** Before modifying a function, class, or method, run `impact({target: "symbolName", direction: "upstream"})` and report the blast radius (direct callers, affected processes, risk level) to the user.
+- **MUST run `detect_changes()` before committing** to verify your changes only affect expected symbols and execution flows. For regression review, compare against the default branch: `detect_changes({scope: "compare", base_ref: "main"})`.
 - **MUST warn the user** if impact analysis returns HIGH or CRITICAL risk before proceeding with edits.
-- When exploring unfamiliar code, use `gitnexus_query({query: "concept"})` to find execution flows instead of grepping. It returns process-grouped results ranked by relevance.
-- When you need full context on a specific symbol — callers, callees, which execution flows it participates in — use `gitnexus_context({name: "symbolName"})`.
+- When exploring unfamiliar code, use `query({search_query: "concept"})` to find execution flows instead of grepping. It returns process-grouped results ranked by relevance.
+- When you need full context on a specific symbol — callers, callees, which execution flows it participates in — use `context({name: "symbolName"})`.
+- For security review, `explain({target: "fileOrSymbol"})` lists taint findings (source→sink flows; needs `analyze --pdg`).
 
 ## Never Do
 
-- NEVER edit a function, class, or method without first running `gitnexus_impact` on it.
+- NEVER edit a function, class, or method without first running `impact` on it.
 - NEVER ignore HIGH or CRITICAL risk warnings from impact analysis.
-- NEVER rename symbols with find-and-replace — use `gitnexus_rename` which understands the call graph.
-- NEVER commit changes without running `gitnexus_detect_changes()` to check affected scope.
+- NEVER rename symbols with find-and-replace — use `rename` which understands the call graph.
+- NEVER commit changes without running `detect_changes()` to check affected scope.
 
 ## Resources
 

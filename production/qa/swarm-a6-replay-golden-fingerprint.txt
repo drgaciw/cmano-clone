@@ -1,0 +1,1 @@
+SWARM-REPLAY|seed=42|orders=7083008252339017838|integrity=11912160865538105521|orderCount=3|integrityCount=3|O:1,1,swarm-golden-1,Hold|O:2,2,swarm-golden-1,Move|O:3,3,swarm-golden-1,Attack→hostile-aa-1|I:1,4,swarm-golden-1,40→39,swarm-aa-point|I:2,5,swarm-golden-1,39→38,swarm-aa-point|I:3,6,swarm-golden-1,38→30,swarm-aa-area

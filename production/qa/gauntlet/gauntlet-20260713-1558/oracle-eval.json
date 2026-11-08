@@ -1,0 +1,190 @@
+{
+  "run_id": "gauntlet-20260713-1558",
+  "tiers": {
+    "1": {
+      "status": "green",
+      "rows": 12,
+      "scenarios": [
+        {
+          "scenario": "gauntlet-t1-patrol-a",
+          "passed": true,
+          "rows": 3,
+          "failures": []
+        },
+        {
+          "scenario": "gauntlet-t1-patrol-b",
+          "passed": true,
+          "rows": 3,
+          "failures": []
+        },
+        {
+          "scenario": "gauntlet-t1-patrol-c",
+          "passed": true,
+          "rows": 3,
+          "failures": []
+        },
+        {
+          "scenario": "gauntlet-t1-patrol-d",
+          "passed": true,
+          "rows": 3,
+          "failures": []
+        }
+      ],
+      "joint_orbat": null
+    },
+    "2": {
+      "status": "green",
+      "rows": 12,
+      "scenarios": [
+        {
+          "scenario": "gauntlet-t2-escort-a",
+          "passed": true,
+          "rows": 3,
+          "failures": []
+        },
+        {
+          "scenario": "gauntlet-t2-escort-passive",
+          "passed": true,
+          "rows": 3,
+          "failures": []
+        },
+        {
+          "scenario": "gauntlet-t2-strike-a",
+          "passed": true,
+          "rows": 3,
+          "failures": []
+        },
+        {
+          "scenario": "gauntlet-t2-strike-event",
+          "passed": true,
+          "rows": 3,
+          "failures": []
+        }
+      ],
+      "joint_orbat": null
+    },
+    "3": {
+      "status": "green",
+      "rows": 12,
+      "scenarios": [
+        {
+          "scenario": "gauntlet-t3-emcon-phases",
+          "passed": true,
+          "rows": 3,
+          "failures": []
+        },
+        {
+          "scenario": "gauntlet-t3-escort-strike",
+          "passed": true,
+          "rows": 3,
+          "failures": []
+        },
+        {
+          "scenario": "gauntlet-t3-event-chain",
+          "passed": true,
+          "rows": 3,
+          "failures": []
+        },
+        {
+          "scenario": "gauntlet-t3-id-roe",
+          "passed": true,
+          "rows": 3,
+          "failures": []
+        }
+      ],
+      "joint_orbat": {
+        "ok": true,
+        "tokens": {
+          "k-31-visby-2009": true,
+          "jas-39c-gripen-2005": true,
+          "a-19-gotland-2022": true,
+          "CATALOG_UNIT": true,
+          "MAGAZINE_SEED": true
+        }
+      }
+    },
+    "4": {
+      "status": "green",
+      "rows": 12,
+      "scenarios": [
+        {
+          "scenario": "gauntlet-t4-asymm-roe",
+          "passed": true,
+          "rows": 3,
+          "failures": []
+        },
+        {
+          "scenario": "gauntlet-t4-multi-mission",
+          "passed": true,
+          "rows": 3,
+          "failures": []
+        },
+        {
+          "scenario": "gauntlet-t4-random-inject",
+          "passed": true,
+          "rows": 3,
+          "failures": []
+        },
+        {
+          "scenario": "gauntlet-t4-weighted",
+          "passed": true,
+          "rows": 3,
+          "failures": []
+        }
+      ],
+      "joint_orbat": {
+        "ok": true,
+        "tokens": {
+          "k-31-visby-2009": true,
+          "jas-39c-gripen-2005": true,
+          "a-19-gotland-2022": true,
+          "CATALOG_UNIT": true,
+          "MAGAZINE_SEED": true
+        }
+      }
+    },
+    "5": {
+      "status": "green",
+      "rows": 12,
+      "scenarios": [
+        {
+          "scenario": "gauntlet-t5-cascade",
+          "passed": true,
+          "rows": 3,
+          "failures": []
+        },
+        {
+          "scenario": "gauntlet-t5-dynamic-obj",
+          "passed": true,
+          "rows": 3,
+          "failures": []
+        },
+        {
+          "scenario": "gauntlet-t5-roe-change",
+          "passed": true,
+          "rows": 3,
+          "failures": []
+        },
+        {
+          "scenario": "gauntlet-t5-theater",
+          "passed": true,
+          "rows": 3,
+          "failures": []
+        }
+      ],
+      "joint_orbat": {
+        "ok": true,
+        "tokens": {
+          "k-31-visby-2009": true,
+          "jas-39c-gripen-2005": true,
+          "a-19-gotland-2022": true,
+          "CATALOG_UNIT": true,
+          "MAGAZINE_SEED": true
+        }
+      }
+    }
+  },
+  "ladder_green": true,
+  "defects": [],
+  "note": "expects recalibrated for joint ORBAT multi-unit envelopes"
+}

@@ -1,0 +1,234 @@
+{
+  "friendlyRoe": "WeaponsFree",
+  "opposingRoe": "WeaponsTight",
+  "engage": {
+    "rangeMeters": 45000,
+    "envelopeMinMeters": 5000,
+    "envelopeMaxMeters": 120000,
+    "defaultMagazineRounds": 2,
+    "hasFireControlTrack": true,
+    "combatDomainsEnabled": true,
+    "pkBase": 0.85,
+    "pkIntercept": 0.0,
+    "pkKill": 0.25,
+    "salvoSize": 1
+  },
+  "detection": [
+    {
+      "observerId": "f-219-sachsen-type-f124-2006",
+      "sensorId": "radar-1",
+      "targetId": "skr-admiral-grigorovich-pr-1135-6m",
+      "contactId": "c-t3s4-1",
+      "basePd": 1.0,
+      "envMask": 1.0,
+      "jamStrength": 0
+    },
+    {
+      "observerId": "f-219-sachsen-type-f124-2006",
+      "sensorId": "radar-1",
+      "targetId": "mrk-buyan-pr-21630-buyan-2007",
+      "contactId": "c-t3s4-2",
+      "basePd": 1.0,
+      "envMask": 1.0,
+      "jamStrength": 0
+    },
+    {
+      "observerId": "jas-39e-gripen-ng-2021",
+      "sensorId": "radar-1",
+      "targetId": "skr-admiral-grigorovich-pr-1135-6m",
+      "contactId": "c-t3s4-3",
+      "basePd": 0.8,
+      "envMask": 0.9,
+      "jamStrength": 0
+    },
+    {
+      "observerId": "f-310-fridtjof-nansen",
+      "sensorId": "radar-1",
+      "targetId": "pk-368-vasily-bykov-pr-22160",
+      "contactId": "c-t3s4-4",
+      "basePd": 0.75,
+      "envMask": 0.85,
+      "jamStrength": 0
+    },
+    {
+      "observerId": "k-11-stockholm-spica-iii-1986",
+      "sensorId": "radar-1",
+      "targetId": "mig-29-fulcrum-c-1999",
+      "contactId": "c-t3s4-5",
+      "basePd": 0.7,
+      "envMask": 0.8,
+      "jamStrength": 0
+    },
+    {
+      "observerId": "p-3c-orion-update-iii-2023",
+      "sensorId": "radar-1",
+      "targetId": "su-27sm-sm3-flanker-j-2013",
+      "contactId": "c-t3s4-6",
+      "basePd": 0.6,
+      "envMask": 0.75,
+      "jamStrength": 0
+    },
+    {
+      "observerId": "s-120-papanikolis-type-214hn",
+      "sensorId": "sonar-1",
+      "targetId": "pla-885-severodvinsk-yasen",
+      "contactId": "c-t3s4-7",
+      "basePd": 0.65,
+      "envMask": 0.7,
+      "jamStrength": 0,
+      "requiresActiveRadar": false
+    }
+  ],
+  "mission": {
+    "fireOrder": [
+      "start-exec",
+      "hvu-checkpoint-alpha",
+      "strike-window-open",
+      "egress-order"
+    ],
+    "events": [
+      {
+        "id": "start-exec",
+        "fireAtTick": 0,
+        "kind": "MissionTransition",
+        "code": "Execution"
+      },
+      {
+        "id": "hvu-checkpoint-alpha",
+        "fireAtTick": 3,
+        "kind": "EventFired",
+        "code": "hvu_checkpoint_alpha"
+      },
+      {
+        "id": "strike-window-open",
+        "fireAtTick": 7,
+        "kind": "EventFired",
+        "code": "strike_window_open"
+      },
+      {
+        "id": "egress-order",
+        "fireAtTick": 13,
+        "kind": "EventFired",
+        "code": "egress_order"
+      }
+    ]
+  },
+  "gauntlet": {
+    "intent": "T3 escort+strike combined: BLUE screens HVU f-310-fridtjof-nansen while a strike element destroys designated target skr-admiral-grigorovich-pr-1135-6m; RED holds WeaponsTight (ID-required-engagement stand-in -- may not fire without a positively identified track, the only ROE lever this engine implements for that doctrine). Weapons-boundary proof: engage.defaultMagazineRounds=2 is scenario-wide (the engine keys one shared magazine per shooter+mount, not per-unit), so every shooter in this file is magazine-limited to 2 rounds. f-219-sachsen-type-f124-2006 is the instrumented shooter: it holds two concurrent, persistently-detected (basePd 1.0) live targets (skr-admiral-grigorovich-pr-1135-6m and mrk-buyan-pr-21630-buyan-2007) across all 16 ticks under friendly WeaponsFree, guaranteeing it keeps attempting to engage well past tick 2 when its shared 2-round magazine is spent -- tripping EngagementAbortReason.MagazineEmpty (log code NO_AMMO) repeatedly through tick 15, with live targets still present so it never simply stops for lack of contacts.",
+    "oracle": "Fingerprint must contain NO_AMMO from f-219-sachsen-type-f124-2006's post-exhaustion engagement attempts; non-empty fingerprint required; some kills against the designated target are plausible but not required (pkBase 0.85 x pkKill 0.25 per launch, only 2 launches per shooter).",
+    "emcon": "unrestricted",
+    "runId": "gauntlet-20260727-1455",
+    "tier": 3,
+    "dimensionsClaimed": [
+      "escort_strike_combined",
+      "hvu_protection_f-310-fridtjof-nansen",
+      "designated_target_destruction_skr-admiral-grigorovich-pr-1135-6m",
+      "timed_event_chain",
+      "id_required_roe_weaponstight_standin",
+      "magazine_exhaustion_no_ammo"
+    ],
+    "catalogRefs": [
+      "f-219-sachsen-type-f124-2006",
+      "f-310-fridtjof-nansen",
+      "k-11-stockholm-spica-iii-1986",
+      "jas-39e-gripen-ng-2021",
+      "p-3c-orion-update-iii-2023",
+      "s-120-papanikolis-type-214hn",
+      "skr-admiral-grigorovich-pr-1135-6m",
+      "mrk-buyan-pr-21630-buyan-2007",
+      "pk-368-vasily-bykov-pr-22160",
+      "mig-29-fulcrum-c-1999",
+      "su-27sm-sm3-flanker-j-2013",
+      "pla-885-severodvinsk-yasen"
+    ],
+    "expect": {
+      "side": "BLUE",
+      "requireNonEmptyFingerprint": true,
+      "minKills": 2,
+      "maxMissilesFired": 14,
+      "minDenials": 8,
+      "maxDenials": 25,
+      "minScore": 20.0,
+      "maxScore": 320.0,
+      "requireFingerprintSubstrings": [
+        "NO_AMMO"
+      ]
+    },
+    "units": [
+      {
+        "unitId": "f-219-sachsen-type-f124-2006",
+        "platformId": "f-219-sachsen-type-f124-2006",
+        "domain": "surface",
+        "side": "blue"
+      },
+      {
+        "unitId": "f-310-fridtjof-nansen",
+        "platformId": "f-310-fridtjof-nansen",
+        "domain": "surface",
+        "side": "blue"
+      },
+      {
+        "unitId": "k-11-stockholm-spica-iii-1986",
+        "platformId": "k-11-stockholm-spica-iii-1986",
+        "domain": "surface",
+        "side": "blue"
+      },
+      {
+        "unitId": "jas-39e-gripen-ng-2021",
+        "platformId": "jas-39e-gripen-ng-2021",
+        "domain": "air",
+        "side": "blue"
+      },
+      {
+        "unitId": "p-3c-orion-update-iii-2023",
+        "platformId": "p-3c-orion-update-iii-2023",
+        "domain": "air",
+        "side": "blue"
+      },
+      {
+        "unitId": "s-120-papanikolis-type-214hn",
+        "platformId": "s-120-papanikolis-type-214hn",
+        "domain": "subsurface",
+        "side": "blue"
+      },
+      {
+        "unitId": "skr-admiral-grigorovich-pr-1135-6m",
+        "platformId": "skr-admiral-grigorovich-pr-1135-6m",
+        "domain": "surface",
+        "side": "red"
+      },
+      {
+        "unitId": "mrk-buyan-pr-21630-buyan-2007",
+        "platformId": "mrk-buyan-pr-21630-buyan-2007",
+        "domain": "surface",
+        "side": "red"
+      },
+      {
+        "unitId": "pk-368-vasily-bykov-pr-22160",
+        "platformId": "pk-368-vasily-bykov-pr-22160",
+        "domain": "surface",
+        "side": "red"
+      },
+      {
+        "unitId": "mig-29-fulcrum-c-1999",
+        "platformId": "mig-29-fulcrum-c-1999",
+        "domain": "air",
+        "side": "red"
+      },
+      {
+        "unitId": "su-27sm-sm3-flanker-j-2013",
+        "platformId": "su-27sm-sm3-flanker-j-2013",
+        "domain": "air",
+        "side": "red"
+      },
+      {
+        "unitId": "pla-885-severodvinsk-yasen",
+        "platformId": "pla-885-severodvinsk-yasen",
+        "domain": "subsurface",
+        "side": "red"
+      }
+    ],
+    "expectProvenance": "regenerated 2026-07-27 from real Demo batch CSV at T3 tick budget 16, seeds 42,7,123, after the s5/control activeFromTick fix. Per tools/qa-gauntlet/README-expect-regen.md \u2014 derived, not invented."
+  },
+  "id": "gauntlet-20260727-1455-t3-s4"
+}

@@ -1,0 +1,34 @@
+{
+  "metadata": {
+    "dbRef": "baltic_patrol",
+    "dbSnapshotId": null,
+    "editVersion": 1,
+    "seed": 42,
+    "policyId": "baltic-patrol-mission",
+    "tlBranch": "TL-2",
+    "unitReadiness": null,
+    "maxTechnologyLevel": 2,
+    "nearFutureUnits": null,
+    "sideRoe": null
+  },
+  "missions": [],
+  "events": [
+    {
+      "id": "evt-no-fire",
+      "triggerType": "Time",
+      "conditions": [
+        {
+          "type": "UnitEntersZone",
+          "unitId": "u1",
+          "zoneId": "zone-alpha",
+          "result": null
+        }
+      ],
+      "actions": [
+        {
+          "type": "Message"
+        }
+      ]
+    }
+  ]
+}

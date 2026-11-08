@@ -29,6 +29,9 @@ public sealed class ReplayGoldenSuiteTests
         Assert.That(b.WorldHash, Is.EqualTo(a.WorldHash));
         ReplayGoldenAssertions.AssertPinnedHashes(a, golden);
 
+        // S36-05 polish: exercise divergence helper (always MATCH here; improves reporting on future drift)
+        Assert.That(BalticReplayHarness.DiagnoseDivergence(a, b), Is.EqualTo("MATCH"));
+
         foreach (var fragment in testCase.FingerprintMustContain)
         {
             Assert.That(a.Fingerprint, Does.Contain(fragment));

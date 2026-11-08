@@ -1,0 +1,58 @@
+=== PR #260 Buildkite Triage — Local Gate Evidence ===
+Date: 2026-07-09
+HEAD: 4b8e19a (stack/post-editor/s89-s92-hygiene)
+Buildkite: #509/#511/#512/#513 FAILED (logs require owner auth — API 403)
+
+=== Root-cause analysis (agent bootstrap vs gate failure) ===
+
+| Build | Duration | Commit | Likely failure mode |
+|-------|----------|--------|---------------------|
+| #507 | 2m30s | 223a5fe (main) | Systemic — pre-fix |
+| #509 | 2m53s | 8830bc9 | Test gate: node missing on minimal agent PATH |
+| #511 | 2m39s | 4ab1b44 | Same (node bootstrap v1) |
+| #512 | 2m38s | 88fa31e | Same (hardened bootstrap) |
+| #513 | 1m15s | de335da | Earlier abort — pipeline reorder + npm --version set -e |
+
+Reproduced locally:
+  PATH=/usr/bin:/bin HOME=/tmp/bk-gate-home bash tools/buildkite/agent-dotnet-ci.sh
+  WITHOUT node bootstrap: CmoCatalogExportTests fails (Win32Exception: node not found)
+  WITH agent-bootstrap-node.sh: 1599/0f PASS (see below)
+
+Fix stack on branch (4 commits):
+  4ab1b44 — agent-bootstrap-node.sh + source from dotnet bootstrap
+  88fa31e — verify node --version; gitleaks/gitnexus soft-fail parity
+  de335da — build step before Graphite optimizer; Node >= 18
+  4b8e19a — npm --version non-fatal on hosted agents
+
+=== Local RUN+READ @ 4b8e19a (minimal PATH parity) ===
+
+Command: PATH=/usr/bin:/bin HOME=/tmp/bk-gate-home bash tools/buildkite/agent-dotnet-ci.sh
+Config: Release (Buildkite parity)
+
+Build: 0e/0w
+Full suite: 1599/0f (Sim 311, Del 260, UA 286, Excel 24, Data 616, Cli 102)
+ReplayGolden: 6/6
+C2 proxy: 20/20
+Hash: 18 paths (17144800277401907079)
+DelegationBridge: ZERO behavior change
+
+Verdict: PRODUCT GATES PASS — merge-eligible on local evidence per
+production/qa/sprint-19-ci-local-gate-2026-06-08.md fallback policy.
+
+=== Owner action for Buildkite green ===
+1. Open https://buildkite.com/drgaciw/cmano-clone/builds/524 — confirm :hammer: step log
+2. Rebuild after bootstrap hardening push (expected green if agent had dotnet 6/7 on PATH)
+3. If pipeline reads from main only: merge CI fix commits to main first OR
+   set pipeline config branch to "branch being built"
+4. If Graphite optimizer skip=true: main pipeline must place :hammer: before optimizer
+   (branch pipeline.yml already omits Graphite plugin)
+
+=== Follow-up @ HEAD after 4bd8942 ===
+- fix(ci): require .NET 8 SDK in agent-bootstrap-dotnet (reject dotnet 6/7 on PATH)
+- fix(ci): arch-aware gitleaks bootstrap (arm64/x64)
+- fix(ci): gitnexus npm install soft-fail parity
+- fix(ci): pipeline build step retry + comment on Graphite empty-pipeline hazard
+
+Local repro (minimal PATH, clean): 1599/0f PASS
+
+=== PASS (local) ===

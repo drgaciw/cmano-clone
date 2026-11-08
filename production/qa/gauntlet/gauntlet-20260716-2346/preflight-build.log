@@ -1,0 +1,26 @@
+  Determining projects to restore...
+  All projects are up-to-date for restore.
+  ProjectAegis.Data -> /home/username01/projects/active/cmano-clone/cmano-clone/src/ProjectAegis.Data/bin/Release/netstandard2.1/ProjectAegis.Data.dll
+  ProjectAegis.Data -> /home/username01/projects/active/cmano-clone/cmano-clone/src/ProjectAegis.Data/bin/Release/net8.0/ProjectAegis.Data.dll
+  ProjectAegis.Data.Excel -> /home/username01/projects/active/cmano-clone/cmano-clone/src/ProjectAegis.Data.Excel/bin/Release/net8.0/ProjectAegis.Data.Excel.dll
+  ProjectAegis.Sim -> /home/username01/projects/active/cmano-clone/cmano-clone/src/ProjectAegis.Sim/bin/Release/net8.0/ProjectAegis.Sim.dll
+  ProjectAegis.Sim -> /home/username01/projects/active/cmano-clone/cmano-clone/src/ProjectAegis.Sim/bin/Release/netstandard2.1/ProjectAegis.Sim.dll
+  ProjectAegis.Sim.Benchmark -> /home/username01/projects/active/cmano-clone/cmano-clone/src/ProjectAegis.Sim.Benchmark/bin/Release/net8.0/ProjectAegis.Sim.Benchmark.dll
+  ProjectAegis.Data.Excel.Tests -> /home/username01/projects/active/cmano-clone/cmano-clone/src/ProjectAegis.Data.Excel.Tests/bin/Release/net8.0/ProjectAegis.Data.Excel.Tests.dll
+  ProjectAegis.Delegation -> /home/username01/projects/active/cmano-clone/cmano-clone/src/ProjectAegis.Delegation/bin/Release/net8.0/ProjectAegis.Delegation.dll
+  ProjectAegis.Data.Tests -> /home/username01/projects/active/cmano-clone/cmano-clone/src/ProjectAegis.Data.Tests/bin/Release/net8.0/ProjectAegis.Data.Tests.dll
+  ProjectAegis.Delegation.UnityAdapter -> /home/username01/projects/active/cmano-clone/cmano-clone/src/ProjectAegis.Delegation.UnityAdapter/bin/Release/net8.0/ProjectAegis.Delegation.UnityAdapter.dll
+  ProjectAegis.Delegation.Tests -> /home/username01/projects/active/cmano-clone/cmano-clone/src/ProjectAegis.Delegation.Tests/bin/Release/net8.0/ProjectAegis.Delegation.Tests.dll
+  ProjectAegis.Delegation -> /home/username01/projects/active/cmano-clone/cmano-clone/src/ProjectAegis.Delegation/bin/Release/netstandard2.1/ProjectAegis.Delegation.dll
+  ProjectAegis.Delegation.Demo -> /home/username01/projects/active/cmano-clone/cmano-clone/src/ProjectAegis.Delegation.Demo/bin/Release/net8.0/ProjectAegis.Delegation.Demo.dll
+  ProjectAegis.Sim.Tests -> /home/username01/projects/active/cmano-clone/cmano-clone/src/ProjectAegis.Sim.Tests/bin/Release/net8.0/ProjectAegis.Sim.Tests.dll
+  ProjectAegis.Delegation.UnityAdapter.Tests -> /home/username01/projects/active/cmano-clone/cmano-clone/src/ProjectAegis.Delegation.UnityAdapter.Tests/bin/Release/net8.0/ProjectAegis.Delegation.UnityAdapter.Tests.dll
+  ProjectAegis.MissionEditor.Cli -> /home/username01/projects/active/cmano-clone/cmano-clone/src/ProjectAegis.MissionEditor.Cli/bin/Release/net8.0/ProjectAegis.MissionEditor.Cli.dll
+  ProjectAegis.Delegation.UnityAdapter -> /home/username01/projects/active/cmano-clone/cmano-clone/src/ProjectAegis.Delegation.UnityAdapter/bin/Release/netstandard2.1/ProjectAegis.Delegation.UnityAdapter.dll
+  ProjectAegis.MissionEditor.Cli.Tests -> /home/username01/projects/active/cmano-clone/cmano-clone/src/ProjectAegis.MissionEditor.Cli.Tests/bin/Release/net8.0/ProjectAegis.MissionEditor.Cli.Tests.dll
+
+Build succeeded.
+    0 Warning(s)
+    0 Error(s)
+
+Time Elapsed 00:00:08.74

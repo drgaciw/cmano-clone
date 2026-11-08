@@ -1,6 +1,8 @@
 // OOB left-drawer slice — UI Toolkit panel bound to DelegationBridgeHost.
 #if UNITY_5_3_OR_NEWER
+using System.Collections.Generic;
 using ProjectAegis.Delegation.Projection;
+using ProjectAegis.Delegation.UnityAdapter.Presentation;
 using UnityEngine;
 using UnityEngine.UIElements;
 
@@ -11,7 +13,7 @@ namespace ProjectAegis.Unity.Runtime
     public sealed class OobTreePanelHost : MonoBehaviour
     {
         private const string RootName = "oob-tree-root";
-        private const string OobListName = "oob-list";
+        private static readonly string OobListName = KeyboardDiscoverySurfaces.OobListElementName;
 
         [SerializeField] private DelegationBridgeHost bridgeHost = null!;
         [SerializeField] private VisualTreeAsset? panelAsset;
@@ -21,6 +23,11 @@ namespace ProjectAegis.Unity.Runtime
         private UIDocument _document = null!;
         private ListView? _oobList;
         private OobTreePanelState _panelState = new(Array.Empty<OobTreeDisplayRow>());
+        private IReadOnlyDictionary<string, ControllerBadgeBinding> _badges =
+            new Dictionary<string, ControllerBadgeBinding>(StringComparer.Ordinal);
+        private long _badgeStamp;
+        private bool _badgesApplied;
+        private IReadOnlyList<AgentRosterEntry>? _appliedRoster;
         private bool _wired;
 
         private void Reset()
@@ -31,6 +38,7 @@ namespace ProjectAegis.Unity.Runtime
             }
 
             _document = GetComponent<UIDocument>();
+            UiDocumentPanelSettingsBootstrap.EnsureDocument(_document);
         }
 
         private void Awake()
@@ -79,15 +87,87 @@ namespace ProjectAegis.Unity.Runtime
             _oobList = root.Q<ListView>(OobListName);
             if (_oobList != null)
             {
-                _oobList.makeItem = () => new Label();
+                _oobList.focusable = true;
+                _oobList.makeItem = () =>
+                {
+                    var label = new Label();
+                    label.focusable = true;
+                    label.RegisterCallback<KeyDownEvent>(OnOobRowKeyDown);
+                    return label;
+                };
                 _oobList.bindItem = (element, index) =>
                 {
-                    if (element is Label label && index >= 0 && index < _panelState.UnitRows.Count)
+                    if (element is not Label label || index < 0 || index >= _panelState.UnitRows.Count)
                     {
-                        label.text = _panelState.UnitRows[index].DisplayLine;
+                        return;
                     }
+
+                    var row = _panelState.UnitRows[index];
+                    ControllerBadgeBinder.TryGet(_badges, row.UnitId, out var badge);
+                    label.text = ControllerBadgeBinder.DecorateOobLine(row.DisplayLine, badge);
+                    label.tooltip = badge is { Visible: true } ? badge.Tooltip : string.Empty;
+                    label.ClearClassList();
+                    label.AddToClassList(row.StyleClass ?? KeyboardDiscoverySurfaces.OobRowBaseClass);
+                    if (!row.IsAlive)
+                    {
+                        label.AddToClassList("oob-row--dead");
+                    }
+
+                    if (badge is { Visible: true })
+                    {
+                        label.AddToClassList(ControllerBadgeBinder.OobBadgeClass);
+                        label.AddToClassList(badge.ColorClass);
+                        label.AddToClassList(badge.ShapeClass);
+                    }
+
+                    label.userData = row.UnitId;
                 };
+                _oobList.selectionType = SelectionType.Single;
+                _oobList.selectionChanged -= OnOobSelectionChanged;
+                _oobList.selectionChanged += OnOobSelectionChanged;
                 _wired = true;
+            }
+        }
+
+        private void OnOobSelectionChanged(IEnumerable<object> _)
+        {
+            if (_oobList == null || bridgeHost == null)
+            {
+                return;
+            }
+
+            var index = _oobList.selectedIndex;
+            if (index < 0 || index >= _panelState.UnitRows.Count)
+            {
+                return;
+            }
+
+            bridgeHost.SelectUnit(_panelState.UnitRows[index].UnitId);
+        }
+
+        private void OnOobRowKeyDown(KeyDownEvent evt)
+        {
+            if (evt.keyCode is not (KeyCode.Return or KeyCode.KeypadEnter or KeyCode.Space))
+            {
+                return;
+            }
+
+            if (evt.currentTarget is Label { userData: string unitId } && bridgeHost != null)
+            {
+                if (_oobList != null)
+                {
+                    for (var i = 0; i < _panelState.UnitRows.Count; i++)
+                    {
+                        if (_panelState.UnitRows[i].UnitId == unitId)
+                        {
+                            _oobList.SetSelection(i);
+                            break;
+                        }
+                    }
+                }
+
+                bridgeHost.SelectUnit(unitId);
+                evt.StopPropagation();
             }
         }
 
@@ -96,6 +176,15 @@ namespace ProjectAegis.Unity.Runtime
             if (bridgeHost == null)
             {
                 return;
+            }
+
+            var roster = bridgeHost.LastAgentRoster;
+            if (ControllerBadgeBinder.NeedsRebind(_badgesApplied, _badgeStamp, _appliedRoster, roster))
+            {
+                _badges = ControllerBadgeBinder.BindRoster(roster);
+                _badgeStamp = ControllerBadgeBinder.RosterStamp(roster);
+                _appliedRoster = roster;
+                _badgesApplied = true;
             }
 
             _panelState = OobTreePanelBinder.Bind(bridgeHost.LastOobTree, bridgeHost.SelectedUnitId);

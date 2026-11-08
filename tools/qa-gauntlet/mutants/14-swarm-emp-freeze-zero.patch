@@ -1,0 +1,19 @@
+diff --git a/src/ProjectAegis.Sim/Swarm/SoftKill/SwarmEmpEvaluator.cs b/src/ProjectAegis.Sim/Swarm/SoftKill/SwarmEmpEvaluator.cs
+index 9de302c..95ed2dd 100644
+--- a/src/ProjectAegis.Sim/Swarm/SoftKill/SwarmEmpEvaluator.cs
++++ b/src/ProjectAegis.Sim/Swarm/SoftKill/SwarmEmpEvaluator.cs
+@@ -17,12 +17,8 @@ public static class SwarmEmpEvaluator
+     /// <summary>Compute exclusive freeze-until simTime (modes blocked while simTime < freezeUntil).</summary>
+     public static double ComputeFreezeUntil(double simTime, double freezeDurationSeconds)
+     {
+-        if (freezeDurationSeconds <= 0)
+-        {
+-            return simTime;
+-        }
+-
+-        return simTime + freezeDurationSeconds;
++        // MUTANT: EMP never freezes modes
++        return simTime;
+     }
+ 
+     /// <summary>True when <paramref name="simTime"/> is still inside an active freeze window.</summary>

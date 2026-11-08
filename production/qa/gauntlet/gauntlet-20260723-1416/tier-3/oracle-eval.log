@@ -1,0 +1,39 @@
+{
+  "ok": false,
+  "scenarios": [
+    {
+      "scenario": "gauntlet-t3-emcon-phases",
+      "passed": true,
+      "failures": [],
+      "rows": 3
+    },
+    {
+      "scenario": "gauntlet-t3-escort-strike",
+      "passed": true,
+      "failures": [],
+      "rows": 3
+    },
+    {
+      "scenario": "gauntlet-t3-event-chain",
+      "passed": false,
+      "failures": [
+        "row[0] scenario=gauntlet-t3-event-chain seed=42: score 600 \u003E max 500"
+      ],
+      "rows": 3
+    },
+    {
+      "scenario": "gauntlet-t3-id-roe",
+      "passed": false,
+      "failures": [
+        "row[0] scenario=gauntlet-t3-id-roe seed=42: denials 112 \u003E max 66",
+        "row[0] scenario=gauntlet-t3-id-roe seed=42: score -560 \u003C min -370",
+        "row[1] scenario=gauntlet-t3-id-roe seed=7: denials 112 \u003E max 66",
+        "row[1] scenario=gauntlet-t3-id-roe seed=7: score -560 \u003C min -370",
+        "row[2] scenario=gauntlet-t3-id-roe seed=123: denials 112 \u003E max 66",
+        "row[2] scenario=gauntlet-t3-id-roe seed=123: score -560 \u003C min -370"
+      ],
+      "rows": 3
+    }
+  ],
+  "allPassed": false
+}

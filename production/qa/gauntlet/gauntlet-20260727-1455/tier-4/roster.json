@@ -1,0 +1,403 @@
+{
+  "tier": 4,
+  "platformMix": "8 surface + 11 air + 10 subsurface (~29 total; per manifest.yaml tier_4 row: 3-4 surface + 2 air + 1-2 sub/side ~14) -- main-ladder A0 roster for /qa-gauntlet Tier 4 (ASW/AAW multi-mission), the only platform/sensor/weapon IDs the tier-4 scenario architect may reference",
+  "platforms": [
+    {
+      "platformId": "f-219-sachsen-type-f124-2006",
+      "name": "F 219 Sachsen [Type F124] - 2006",
+      "domain": "surface",
+      "platformClass": "FFG - Guided Missile Frigate",
+      "nationality": "Germany",
+      "sensors": [
+        "radar/fire-control",
+        "radar"
+      ],
+      "weapons": [],
+      "magazineNotes": "High-capacity loadout (9 magazine lines, 14 mounts)",
+      "signatureNotes": "Major combatant; significant radar/sonar signature"
+    },
+    {
+      "platformId": "f-310-fridtjof-nansen",
+      "name": "F 310 Fridtjof Nansen",
+      "domain": "surface",
+      "platformClass": "FFG - Guided Missile Frigate",
+      "nationality": "Norway",
+      "sensors": [
+        "radar/fire-control",
+        "radar"
+      ],
+      "weapons": [],
+      "magazineNotes": "Moderate loadout (3 magazine lines, 6 mounts)",
+      "signatureNotes": "Major combatant; significant radar/sonar signature"
+    },
+    {
+      "platformId": "f-230-norfolk-type-23-duke",
+      "name": "F 230 Norfolk [Type 23 Duke]",
+      "domain": "surface",
+      "platformClass": "FFG - Guided Missile Frigate",
+      "nationality": "United Kingdom",
+      "sensors": [
+        "radar/fire-control",
+        "radar"
+      ],
+      "weapons": [],
+      "magazineNotes": "Moderate loadout (3 magazine lines, 6 mounts)",
+      "signatureNotes": "Major combatant; significant radar/sonar signature"
+    },
+    {
+      "platformId": "skr-admiral-grigorovich-pr-1135-6m",
+      "name": "SKR Admiral Grigorovich [Pr.1135.6M]",
+      "domain": "surface",
+      "platformClass": "FFG - Guided Missile Frigate",
+      "nationality": "Russia",
+      "sensors": [
+        "radar/fire-control",
+        "radar"
+      ],
+      "weapons": [],
+      "magazineNotes": "Moderate loadout (3 magazine lines, 3 mounts)",
+      "signatureNotes": "Major combatant; significant radar/sonar signature"
+    },
+    {
+      "platformId": "skr-admiral-sergey-gorshkov-pr-2235-0",
+      "name": "SKR Admiral Sergey Gorshkov [Pr.2235.0]",
+      "domain": "surface",
+      "platformClass": "FFG - Guided Missile Frigate",
+      "nationality": "Russia",
+      "sensors": [
+        "radar/fire-control",
+        "radar"
+      ],
+      "weapons": [],
+      "magazineNotes": "Moderate loadout (3 magazine lines, 3 mounts)",
+      "signatureNotes": "Major combatant; significant radar/sonar signature"
+    },
+    {
+      "platformId": "k-11-stockholm-spica-iii-1986",
+      "name": "K 11 Stockholm [Spica III] - 1986",
+      "domain": "surface",
+      "platformClass": "FFL - Corvette",
+      "nationality": "Sweden",
+      "sensors": [
+        "radar/fire-control",
+        "radar"
+      ],
+      "weapons": [],
+      "magazineNotes": "Moderate loadout (6 magazine lines, 6 mounts)",
+      "signatureNotes": "Corvette/patrol vessel"
+    },
+    {
+      "platformId": "mrk-shkval-pr-22800-karakurt",
+      "name": "MRK Shkval [Pr.22800 Karakurt]",
+      "domain": "surface",
+      "platformClass": "FFL - Corvette",
+      "nationality": "Russia",
+      "sensors": [
+        "radar/fire-control",
+        "radar"
+      ],
+      "weapons": [],
+      "magazineNotes": "Moderate loadout (3 magazine lines, 3 mounts)",
+      "signatureNotes": "Corvette/patrol vessel"
+    },
+    {
+      "platformId": "pk-368-vasily-bykov-pr-22160",
+      "name": "PK 368 Vasily Bykov [Pr.22160]",
+      "domain": "surface",
+      "platformClass": "FFL - Corvette",
+      "nationality": "Russia",
+      "sensors": [
+        "radar/fire-control",
+        "radar"
+      ],
+      "weapons": [],
+      "magazineNotes": "Moderate loadout (3 magazine lines, 3 mounts)",
+      "signatureNotes": "Corvette/patrol vessel"
+    },
+    {
+      "platformId": "f-16c-blk-52iq-falcon-2015",
+      "name": "F-16C Blk 52IQ Falcon - 2015",
+      "domain": "air",
+      "platformClass": "Aircraft - Multirole (Fighter/Attack)",
+      "nationality": "Iraq",
+      "sensors": [
+        "radar/fire-control"
+      ],
+      "weapons": [],
+      "magazineNotes": "High-capacity loadout (13 magazine lines, 15 mounts)",
+      "signatureNotes": "Fighter/attack aircraft"
+    },
+    {
+      "platformId": "jas-39e-gripen-ng-2021",
+      "name": "JAS 39E Gripen NG - 2021, 28x",
+      "domain": "air",
+      "platformClass": "Aircraft - Multirole (Fighter/Attack)",
+      "nationality": "Sweden",
+      "sensors": [
+        "radar/fire-control"
+      ],
+      "weapons": [],
+      "magazineNotes": "High-capacity loadout (13 magazine lines, 18 mounts)",
+      "signatureNotes": "Fighter/attack aircraft"
+    },
+    {
+      "platformId": "su-27sm-sm3-flanker-j-2013",
+      "name": "Su-27SM/SM3 Flanker J - 2013, 12x by 2015, Upgr Su-27S/P",
+      "domain": "air",
+      "platformClass": "Aircraft - Fighter",
+      "nationality": "Russia",
+      "sensors": [
+        "radar/fire-control"
+      ],
+      "weapons": [],
+      "magazineNotes": "High-capacity loadout (14 magazine lines, 16 mounts)",
+      "signatureNotes": "Fighter/attack aircraft"
+    },
+    {
+      "platformId": "mig-29-fulcrum-c-1999",
+      "name": "MiG-29 Fulcrum C - 1999, 9.13",
+      "domain": "air",
+      "platformClass": "Aircraft - Multirole (Fighter/Attack)",
+      "nationality": "Russia",
+      "sensors": [
+        "radar/fire-control"
+      ],
+      "weapons": [],
+      "magazineNotes": "High-capacity loadout (11 magazine lines, 11 mounts)",
+      "signatureNotes": "Fighter/attack aircraft"
+    },
+    {
+      "platformId": "mig-31-foxhound",
+      "name": "MiG-31 Foxhound",
+      "domain": "air",
+      "platformClass": "Aircraft - Fighter",
+      "nationality": "Russia",
+      "sensors": [
+        "radar/fire-control"
+      ],
+      "weapons": [],
+      "magazineNotes": "Moderate loadout (3 magazine lines, 3 mounts)",
+      "signatureNotes": "Fighter/attack aircraft"
+    },
+    {
+      "platformId": "eurofighter-typhoon",
+      "name": "Eurofighter Typhoon",
+      "domain": "air",
+      "platformClass": "Aircraft - Multirole (Fighter/Attack)",
+      "nationality": "Austria",
+      "sensors": [
+        "radar/fire-control"
+      ],
+      "weapons": [],
+      "magazineNotes": "Moderate loadout (8 magazine lines, 5 mounts)",
+      "signatureNotes": "Fighter/attack aircraft"
+    },
+    {
+      "platformId": "su-24m-fencer-d-1992",
+      "name": "Su-24M Fencer D - 1992",
+      "domain": "air",
+      "platformClass": "Aircraft - Attack",
+      "nationality": "Russia",
+      "sensors": [
+        "radar/fire-control"
+      ],
+      "weapons": [],
+      "magazineNotes": "High-capacity loadout (12 magazine lines, 12 mounts)",
+      "signatureNotes": "Fighter/attack aircraft"
+    },
+    {
+      "platformId": "su-30sm-flanker-g-2019",
+      "name": "Su-30SM Flanker G - 2019, 4x",
+      "domain": "air",
+      "platformClass": "Aircraft - Fighter",
+      "nationality": "Russia",
+      "sensors": [
+        "radar/fire-control"
+      ],
+      "weapons": [],
+      "magazineNotes": "High-capacity loadout (14 magazine lines, 16 mounts)",
+      "signatureNotes": "Fighter/attack aircraft"
+    },
+    {
+      "platformId": "ka-27m-helix-a",
+      "name": "Ka-27M Helix A",
+      "domain": "air",
+      "platformClass": "Aircraft - Anti-Submarine Warfare (ASW)",
+      "nationality": "Russia",
+      "sensors": [
+        "radar/fire-control",
+        "sonar-dipping"
+      ],
+      "weapons": [],
+      "magazineNotes": "Moderate loadout (3 magazine lines, 3 mounts)",
+      "signatureNotes": "Low radar cross-section (helicopter/MPA)"
+    },
+    {
+      "platformId": "p-3c-orion-update-iii-2023",
+      "name": "P-3C Orion Update III - 2023, 3x, UIP Upgrade, From Norway",
+      "domain": "air",
+      "platformClass": "Maritime Patrol Aircraft (MPA)",
+      "nationality": "Norway",
+      "sensors": [
+        "sonar-buoy"
+      ],
+      "weapons": [],
+      "magazineNotes": "",
+      "signatureNotes": "Maritime patrol platform; ASW-capable"
+    },
+    {
+      "platformId": "nh90-tth-mrh90-taipan-2007",
+      "name": "NH90 TTH [MRH90 Taipan] - 2007, MRH 90",
+      "domain": "air",
+      "platformClass": "Aircraft - Transport",
+      "nationality": "Australia",
+      "sensors": [
+        "radar/fire-control"
+      ],
+      "weapons": [],
+      "magazineNotes": "Moderate loadout (3 magazine lines, 3 mounts)",
+      "signatureNotes": "Low-signature rotary/transport airframe"
+    },
+    {
+      "platformId": "pl-877-kilo-paltus-1992",
+      "name": "PL-877 Kilo [Paltus] - 1992",
+      "domain": "subsurface",
+      "platformClass": "SSK - Hunter-Killer Submarine",
+      "nationality": "Russia",
+      "sensors": [
+        "radar/fire-control",
+        "passive-sonar"
+      ],
+      "weapons": [],
+      "magazineNotes": "Moderate loadout (5 magazine lines, 9 mounts)",
+      "signatureNotes": "Conventional submarine"
+    },
+    {
+      "platformId": "pla-885-severodvinsk-yasen",
+      "name": "PLA-885 Severodvinsk [Yasen]",
+      "domain": "subsurface",
+      "platformClass": "SSGN - Nuclear Powered Guided Missile Attack Submarine",
+      "nationality": "Russia",
+      "sensors": [
+        "radar/fire-control",
+        "passive-sonar"
+      ],
+      "weapons": [],
+      "magazineNotes": "Moderate loadout (3 magazine lines, 3 mounts)",
+      "signatureNotes": "Nuclear-powered; high payload capacity"
+    },
+    {
+      "platformId": "s-120-papanikolis-type-214hn",
+      "name": "S 120 Papanikolis [Type 214HN]",
+      "domain": "subsurface",
+      "platformClass": "Submarine - Attack Submarine",
+      "nationality": "Greece",
+      "sensors": [
+        "radar/fire-control",
+        "passive-sonar"
+      ],
+      "weapons": [],
+      "magazineNotes": "Moderate loadout (6 magazine lines, 5 mounts)",
+      "signatureNotes": "Conventional submarine"
+    },
+    {
+      "platformId": "ssn-774-virginia-blk-i-ii",
+      "name": "SSN 774 Virginia [Blk I/II]",
+      "domain": "subsurface",
+      "platformClass": "Submarine - Attack Submarine",
+      "nationality": "United States",
+      "sensors": [
+        "radar/fire-control",
+        "passive-sonar"
+      ],
+      "weapons": [],
+      "magazineNotes": "Moderate loadout (6 magazine lines, 6 mounts)",
+      "signatureNotes": "Conventional submarine"
+    },
+    {
+      "platformId": "a-19-gotland-2002",
+      "name": "A 19 Gotland - 2002",
+      "domain": "subsurface",
+      "platformClass": "SSK - Hunter-Killer Submarine",
+      "nationality": "Sweden",
+      "sensors": [
+        "radar/fire-control",
+        "passive-sonar"
+      ],
+      "weapons": [],
+      "magazineNotes": "Moderate loadout (3 magazine lines, 3 mounts)",
+      "signatureNotes": "Conventional submarine"
+    },
+    {
+      "platformId": "pla-971-akula-i-improved-shchuka-b",
+      "name": "PLA-971 Akula I Improved [Shchuka-B]",
+      "domain": "subsurface",
+      "platformClass": "SSN - Nuclear Powered Attack Submarine",
+      "nationality": "Russia",
+      "sensors": [
+        "radar/fire-control",
+        "passive-sonar"
+      ],
+      "weapons": [],
+      "magazineNotes": "Moderate loadout (3 magazine lines, 3 mounts)",
+      "signatureNotes": "Nuclear-powered; high payload capacity"
+    },
+    {
+      "platformId": "s-181-u-31-type-212a",
+      "name": "S 181 U 31 [Type 212A, Batch 1] - 2009, 4x",
+      "domain": "subsurface",
+      "platformClass": "SSK - Hunter-Killer Submarine",
+      "nationality": "Germany",
+      "sensors": [
+        "radar/fire-control",
+        "passive-sonar"
+      ],
+      "weapons": [],
+      "magazineNotes": "Moderate loadout (3 magazine lines, 3 mounts)",
+      "signatureNotes": "Conventional submarine"
+    },
+    {
+      "platformId": "s-185-u-35-type-212a",
+      "name": "S 185 U 35 [Type 212A, Batch 2] - 2015, 2x, DDS",
+      "domain": "subsurface",
+      "platformClass": "SSK - Hunter-Killer Submarine",
+      "nationality": "Germany",
+      "sensors": [
+        "radar/fire-control",
+        "passive-sonar"
+      ],
+      "weapons": [],
+      "magazineNotes": "Moderate loadout (3 magazine lines, 3 mounts)",
+      "signatureNotes": "Conventional submarine"
+    },
+    {
+      "platformId": "pl-677-lada-b-585-sankt-peterburg-2011",
+      "name": "PL-677 Lada [B 585 Sankt Peterburg] - 2011, 1x, Pr.1650 Amur if Export",
+      "domain": "subsurface",
+      "platformClass": "SSK - Hunter-Killer Submarine",
+      "nationality": "Russia",
+      "sensors": [
+        "radar/fire-control",
+        "passive-sonar"
+      ],
+      "weapons": [],
+      "magazineNotes": "Moderate loadout (5 magazine lines, 5 mounts)",
+      "signatureNotes": "Conventional submarine"
+    },
+    {
+      "platformId": "plarb-955a-borei-ii-borey-a",
+      "name": "PLARB-955A Borei II [Borey A]",
+      "domain": "subsurface",
+      "platformClass": "SSBN - Nuclear Powered Ballistic Missile Submarine",
+      "nationality": "Russia",
+      "sensors": [
+        "radar/fire-control",
+        "passive-sonar"
+      ],
+      "weapons": [],
+      "magazineNotes": "Moderate loadout (3 magazine lines, 3 mounts)",
+      "signatureNotes": "Strategic ballistic-missile submarine; primary ASW high-value target"
+    }
+  ],
+  "notes": "Queried directly against assets/data/catalog/baltic_patrol.db (platform, platform_mount, platform_magazine tables) for domain/class/nationality and real magazine-line/mount counts -- no invented catalog rows. Sensor category labels follow the same domain+platformClass heuristic tier-3/roster.json consistently used, since the catalog sensor table stores only opaque per-import numeric IDs with no descriptive category column. 14 of 29 platforms are drawn from corpus/coverage-map.json underusedPlatformHint, directly serving broader coverage growth alongside the tier-4 forge candidate wave which draws from this same pool. plarb-955a-borei-ii-borey-a (SSBN) is included as an ASW high-value target/asset, not a combatant."
+}

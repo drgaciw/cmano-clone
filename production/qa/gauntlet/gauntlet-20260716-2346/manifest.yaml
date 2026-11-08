@@ -1,0 +1,46 @@
+run_id: gauntlet-20260716-2346
+created_utc: 2026-07-17T04:48:28Z
+git_sha: d98e7ef
+branch: qa/gauntlet-gauntlet-20260716-2346
+mode: ladder-shipped-policies
+seeds: [42, 7, 123]
+tiers: 5
+scenarios_per_tier: 4
+max_fix_attempts: 3
+ticks: {1: 6, 2: 10, 3: 16, 4: 24, 5: 40}
+preflight:
+  build: PASS
+  catalog: PASS
+  gitnexus: re-analyzed @ HEAD (see preflight note)
+  suite: PASS 1699/0f
+  replay: filter empty name match; suite green includes sim determinism
+policy_source: data/scenarios/gauntlet-*.policy.json (shipped ladder inventory)
+tier_plan:
+  1:
+    ticks: 6
+    scenarios: [gauntlet-t1-patrol-a, gauntlet-t1-patrol-b, gauntlet-t1-patrol-c, gauntlet-t1-patrol-d]
+  2:
+    ticks: 10
+    scenarios: [gauntlet-t2-escort-a, gauntlet-t2-escort-passive, gauntlet-t2-strike-a, gauntlet-t2-strike-event]
+  3:
+    ticks: 16
+    scenarios: [gauntlet-t3-emcon-phases, gauntlet-t3-escort-strike, gauntlet-t3-event-chain, gauntlet-t3-id-roe]
+  4:
+    ticks: 24
+    scenarios: [gauntlet-t4-asymm-roe, gauntlet-t4-multi-mission, gauntlet-t4-random-inject, gauntlet-t4-weighted]
+  5:
+    ticks: 40
+    scenarios: [gauntlet-t5-cascade, gauntlet-t5-theater, gauntlet-t5-dynamic-obj, gauntlet-t5-roe-change]
+notes: |
+  Uses shipped catalog-grounded policies (prior max-variance green baseline gauntlet-20260713-1739).
+  Phase A generation skipped — inventory already covers ladder dimensions.
+  Parallel agents: preflight suite ∥ tier batch where process allows; oracle after each tier.
+
+result:
+  ladder_allPassed: true
+  tiers_green: [1, 2, 3, 4, 5]
+  extra_allPassed: true
+  defects_found: 0
+  defects_fixed: 0
+  quarantined_critical: 0
+  hindsight_closed_pass: true

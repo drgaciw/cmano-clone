@@ -1,0 +1,52 @@
+# QA Gauntlet ladder manifest — single source of truth for tier scenarios + ticks.
+# Consumed by tools/qa-gauntlet/run-gauntlet.sh (via evaluate_run.py ladder).
+version: 1
+defaultAnchorSeeds: [42, 7, 123]
+tiers:
+  "1":
+    ticks: 6
+    scenarios:
+      - gauntlet-t1-patrol-a
+      - gauntlet-t1-patrol-b
+      - gauntlet-t1-patrol-c
+      - gauntlet-t1-patrol-d
+  "2":
+    ticks: 10
+    scenarios:
+      - gauntlet-t2-escort-a
+      - gauntlet-t2-escort-passive
+      - gauntlet-t2-strike-a
+      - gauntlet-t2-strike-event
+      - gauntlet-t2-strike-salvo-boundary
+      - gauntlet-t2-ordnance-shotgun-winchester
+      - gauntlet-t2-shotgun-salvo-deny
+  "3":
+    ticks: 16
+    scenarios:
+      - gauntlet-t3-escort-strike
+      - gauntlet-t3-emcon-phases
+      - gauntlet-t3-id-roe
+      - gauntlet-t3-event-chain
+      - gauntlet-t3-strike-salvo-boundary
+      - gauntlet-t3-logistics-contact-lifecycle
+      - gauntlet-t3-emcon-engage-block
+      - gauntlet-t3-logistics-joker-bingo
+  "4":
+    ticks: 24
+    scenarios:
+      - gauntlet-t4-multi-mission
+      - gauntlet-t4-weighted
+      - gauntlet-t4-asymm-roe
+      - gauntlet-t4-random-inject
+  "5":
+    ticks: 40
+    scenarios:
+      - gauntlet-t5-cascade
+      - gauntlet-t5-theater
+      - gauntlet-t5-dynamic-obj
+      - gauntlet-t5-roe-change
+  "extra":
+    ticks: 12
+    scenarios:
+      - gauntlet-joint-orbat-smoke
+      - gauntlet-multidomain-shooters

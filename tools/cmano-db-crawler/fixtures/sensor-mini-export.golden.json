@@ -1,0 +1,23 @@
+{
+  "importBatchId": "cmo-sensors-test-fixture",
+  "sensors": [
+    {
+      "platformId": "test-esm-suite",
+      "sensorId": "cmo-sensor-1002",
+      "basePd": 0.4,
+      "sourceFactId": "cmano-db:sensor/1002",
+      "confidence": 0.7,
+      "reviewState": "provisional",
+      "trlLevel": 6
+    },
+    {
+      "platformId": "test-radar-an-spy-1",
+      "sensorId": "cmo-sensor-1001",
+      "basePd": 0.75,
+      "sourceFactId": "cmano-db:sensor/1001",
+      "confidence": 0.7,
+      "reviewState": "provisional",
+      "trlLevel": 6
+    }
+  ]
+}

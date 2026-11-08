@@ -1,0 +1,228 @@
+{
+  "friendlyRoe": "WeaponsFree",
+  "opposingRoe": "WeaponsTight",
+  "engage": {
+    "rangeMeters": 45000,
+    "envelopeMinMeters": 5000,
+    "envelopeMaxMeters": 120000,
+    "defaultMagazineRounds": 4,
+    "hasFireControlTrack": true,
+    "combatDomainsEnabled": true,
+    "pkBase": 0.85,
+    "pkIntercept": 0.0,
+    "pkKill": 0.25,
+    "salvoSize": 1
+  },
+  "logistics": {
+    "jokerSimSeconds": 480,
+    "bingoSimSeconds": 720,
+    "fuelCapacityKg": 6000,
+    "burnRateKgPerSecond": 5,
+    "jokerFuelFraction": 0.35
+  },
+  "detection": [
+    {
+      "observerId": "k-11-stockholm-spica-iii-1986",
+      "sensorId": "radar-1",
+      "targetId": "pk-368-vasily-bykov-pr-22160",
+      "contactId": "c-t3s6-1",
+      "basePd": 1.0,
+      "envMask": 1.0,
+      "jamStrength": 0
+    },
+    {
+      "observerId": "p-840-holland",
+      "sensorId": "radar-1",
+      "targetId": "mrk-buyan-pr-21630-buyan-2007",
+      "contactId": "c-t3s6-2",
+      "basePd": 0.75,
+      "envMask": 0.85,
+      "jamStrength": 0
+    },
+    {
+      "observerId": "f-230-norfolk-type-23-duke",
+      "sensorId": "radar-1",
+      "targetId": "801-rais-hamidou-pr-1234e-nanuchka-ii-1981",
+      "contactId": "c-t3s6-3",
+      "basePd": 0.7,
+      "envMask": 0.8,
+      "jamStrength": 0
+    },
+    {
+      "observerId": "jas-39e-gripen-ng-2021",
+      "sensorId": "radar-1",
+      "targetId": "mig-29-fulcrum-c-1999",
+      "contactId": "c-t3s6-4",
+      "basePd": 0.65,
+      "envMask": 0.75,
+      "jamStrength": 0
+    },
+    {
+      "observerId": "p-3c-orion-update-iii-2023",
+      "sensorId": "radar-1",
+      "targetId": "su-35s-flanker-m-2023",
+      "contactId": "c-t3s6-5",
+      "basePd": 0.6,
+      "envMask": 0.7,
+      "jamStrength": 0
+    },
+    {
+      "observerId": "s-71-chakra-pla-971i-akula-ii",
+      "sensorId": "sonar-1",
+      "targetId": "021-messali-el-hadj-pl-636m-kilo-2011",
+      "contactId": "c-t3s6-6",
+      "basePd": 0.6,
+      "envMask": 0.7,
+      "jamStrength": 0,
+      "requiresActiveRadar": false
+    }
+  ],
+  "mission": {
+    "fireOrder": [
+      "start-exec",
+      "mid-transit-checkpoint",
+      "strike-window-open",
+      "egress-order"
+    ],
+    "events": [
+      {
+        "id": "start-exec",
+        "fireAtTick": 0,
+        "kind": "MissionTransition",
+        "code": "Execution"
+      },
+      {
+        "id": "mid-transit-checkpoint",
+        "fireAtTick": 4,
+        "kind": "EventFired",
+        "code": "mid_transit_checkpoint"
+      },
+      {
+        "id": "strike-window-open",
+        "fireAtTick": 8,
+        "kind": "EventFired",
+        "code": "strike_window_open"
+      },
+      {
+        "id": "egress-order",
+        "fireAtTick": 13,
+        "kind": "EventFired",
+        "code": "egress_order"
+      }
+    ]
+  },
+  "gauntlet": {
+    "intent": "T3 escort+strike combined: BLUE screens HVU k-11-stockholm-spica-iii-1986 while a strike element destroys designated target pk-368-vasily-bykov-pr-22160; RED holds WeaponsTight (ID-required-engagement stand-in). Carries a top-level logistics block (jokerSimSeconds 480 < bingoSimSeconds 720; fuelCapacityKg 6000 + burnRateKgPerSecond 5 enable the burn model; jokerFuelFraction 0.35 with default bingoFuelFraction 0.10, satisfying bingo<=joker in (0,1]). HONESTY NOTE: logistics/fuel state is currently UI-only in this build -- FuelStateProjection.ResolveState/FormatUnitFuelLine only feeds a unit-detail readout and has no engagement gating and emits nothing to the fingerprint. This scenario exercises the logistics block for schema/config correctness only. It does NOT claim, and no expect field here relies on, fuel pressure changing engagement outcomes or fingerprint content.",
+    "oracle": "Scenario must load without ScenarioLogisticsSettings validation errors (joker<bingo, fractions in (0,1] with bingo<=joker) and resolve combat normally; non-empty fingerprint required from ordinary escort/strike engagement activity, not from any fuel-state token (none is expected or required).",
+    "runId": "gauntlet-20260727-1455",
+    "tier": 3,
+    "dimensionsClaimed": [
+      "escort_strike_combined",
+      "hvu_protection_k-11-stockholm-spica-iii-1986",
+      "designated_target_destruction_pk-368-vasily-bykov-pr-22160",
+      "timed_event_chain",
+      "id_required_roe_weaponstight_standin",
+      "logistics_schema_config_only_no_runtime_gating"
+    ],
+    "catalogRefs": [
+      "k-11-stockholm-spica-iii-1986",
+      "p-840-holland",
+      "f-230-norfolk-type-23-duke",
+      "jas-39e-gripen-ng-2021",
+      "p-3c-orion-update-iii-2023",
+      "s-71-chakra-pla-971i-akula-ii",
+      "pk-368-vasily-bykov-pr-22160",
+      "mrk-buyan-pr-21630-buyan-2007",
+      "801-rais-hamidou-pr-1234e-nanuchka-ii-1981",
+      "mig-29-fulcrum-c-1999",
+      "su-35s-flanker-m-2023",
+      "021-messali-el-hadj-pl-636m-kilo-2011"
+    ],
+    "expect": {
+      "side": "BLUE",
+      "requireNonEmptyFingerprint": true,
+      "minKills": 4,
+      "maxMissilesFired": 22,
+      "minDenials": 8,
+      "maxDenials": 25,
+      "minScore": 220.0,
+      "maxScore": 520.0
+    },
+    "units": [
+      {
+        "unitId": "k-11-stockholm-spica-iii-1986",
+        "platformId": "k-11-stockholm-spica-iii-1986",
+        "domain": "surface",
+        "side": "blue"
+      },
+      {
+        "unitId": "p-840-holland",
+        "platformId": "p-840-holland",
+        "domain": "surface",
+        "side": "blue"
+      },
+      {
+        "unitId": "f-230-norfolk-type-23-duke",
+        "platformId": "f-230-norfolk-type-23-duke",
+        "domain": "surface",
+        "side": "blue"
+      },
+      {
+        "unitId": "jas-39e-gripen-ng-2021",
+        "platformId": "jas-39e-gripen-ng-2021",
+        "domain": "air",
+        "side": "blue"
+      },
+      {
+        "unitId": "p-3c-orion-update-iii-2023",
+        "platformId": "p-3c-orion-update-iii-2023",
+        "domain": "air",
+        "side": "blue"
+      },
+      {
+        "unitId": "s-71-chakra-pla-971i-akula-ii",
+        "platformId": "s-71-chakra-pla-971i-akula-ii",
+        "domain": "subsurface",
+        "side": "blue"
+      },
+      {
+        "unitId": "pk-368-vasily-bykov-pr-22160",
+        "platformId": "pk-368-vasily-bykov-pr-22160",
+        "domain": "surface",
+        "side": "red"
+      },
+      {
+        "unitId": "mrk-buyan-pr-21630-buyan-2007",
+        "platformId": "mrk-buyan-pr-21630-buyan-2007",
+        "domain": "surface",
+        "side": "red"
+      },
+      {
+        "unitId": "801-rais-hamidou-pr-1234e-nanuchka-ii-1981",
+        "platformId": "801-rais-hamidou-pr-1234e-nanuchka-ii-1981",
+        "domain": "surface",
+        "side": "red"
+      },
+      {
+        "unitId": "mig-29-fulcrum-c-1999",
+        "platformId": "mig-29-fulcrum-c-1999",
+        "domain": "air",
+        "side": "red"
+      },
+      {
+        "unitId": "su-35s-flanker-m-2023",
+        "platformId": "su-35s-flanker-m-2023",
+        "domain": "air",
+        "side": "red"
+      },
+      {
+        "unitId": "021-messali-el-hadj-pl-636m-kilo-2011",
+        "platformId": "021-messali-el-hadj-pl-636m-kilo-2011",
+        "domain": "subsurface",
+        "side": "red"
+      }
+    ],
+    "expectProvenance": "regenerated 2026-07-27 from real Demo batch CSV at T3 tick budget 16, seeds 42,7,123, after the s5/control activeFromTick fix. Per tools/qa-gauntlet/README-expect-regen.md \u2014 derived, not invented."
+  },
+  "id": "gauntlet-20260727-1455-t3-s6"
+}

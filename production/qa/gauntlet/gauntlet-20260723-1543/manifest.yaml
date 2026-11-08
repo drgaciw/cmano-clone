@@ -1,0 +1,18 @@
+runId: gauntlet-20260723-1543
+gitSha: c471443
+baselineTestCount: 1728
+seeds:
+- '42'
+- '7'
+- '123'
+tiers:
+  '1':
+    scenarios:
+    - gauntlet-t1-patrol-a
+    - gauntlet-t1-patrol-b
+    - gauntlet-t1-patrol-c
+    - gauntlet-t1-patrol-d
+    ticks: 6
+notes: >
+  Forge-integrated validation run exercising pre|a0|post-oracle|e|final hooks.
+  Uses promoted policies from data/scenarios/; ephemeral candidates under forge/candidates/.

@@ -1,0 +1,76 @@
+{
+  "metadata": {
+    "title": "Tier 4 Multi-mission 02 — Reversed Escalation Asymmetry",
+    "description": "Reversed asymmetric ROE from scenario 01: Blue is doctrine-constrained (WeaponsTight, passive, escalation-gated), Red is the free-firing aggressor (WeaponsFree, active) across both the ASW and AAW dimensions simultaneously. Tests the escalation-rule asymmetry from the defensive/constrained side. Seeded random-inject event chain at ticks 5, 13, 21.",
+    "author": "qa-gauntlet",
+    "schemaVersion": 1,
+    "dbRef": "baltic_patrol",
+    "seed": 7,
+    "policyId": "baltic-v3-tier4-multimission-02",
+    "tlBranch": "TL-0",
+    "maxTechnologyLevel": 0,
+    "sideRoe": "WeaponsTight"
+  },
+  "missions": [
+    {
+      "id": "blue-aaw-02",
+      "type": "Patrol",
+      "assignedUnitIds": ["u1"],
+      "targetIds": [],
+      "patrolZone": [
+        { "lat": 55.2, "lon": 14.5 },
+        { "lat": 55.5, "lon": 15.0 },
+        { "lat": 55.1, "lon": 15.5 }
+      ],
+      "roeOverride": "WeaponsTight"
+    },
+    {
+      "id": "blue-asw-02",
+      "type": "Patrol",
+      "assignedUnitIds": ["usub-blue"],
+      "targetIds": [],
+      "patrolZone": [
+        { "lat": 55.3, "lon": 14.7 },
+        { "lat": 55.6, "lon": 15.2 },
+        { "lat": 55.0, "lon": 15.7 }
+      ],
+      "roeOverride": "WeaponsTight"
+    },
+    {
+      "id": "red-strike-02",
+      "type": "Strike",
+      "assignedUnitIds": ["hostile-1"],
+      "targetIds": ["u1"],
+      "patrolZone": [
+        { "lat": 56.5, "lon": 19.5 },
+        { "lat": 56.8, "lon": 20.0 },
+        { "lat": 56.3, "lon": 20.5 }
+      ],
+      "roeOverride": "WeaponsFree"
+    },
+    {
+      "id": "red-sub-hunt-02",
+      "type": "Strike",
+      "assignedUnitIds": ["usub-red"],
+      "targetIds": ["usub-blue"],
+      "patrolZone": [
+        { "lat": 55.25, "lon": 14.6 },
+        { "lat": 55.55, "lon": 15.1 },
+        { "lat": 55.05, "lon": 15.6 }
+      ],
+      "roeOverride": "WeaponsFree"
+    },
+    {
+      "id": "red-air-scout-02",
+      "type": "Patrol",
+      "assignedUnitIds": ["ucav-red"],
+      "targetIds": [],
+      "patrolZone": [
+        { "lat": 56.4, "lon": 19.6 },
+        { "lat": 56.7, "lon": 19.9 },
+        { "lat": 56.2, "lon": 20.2 }
+      ],
+      "roeOverride": "WeaponsFree"
+    }
+  ]
+}

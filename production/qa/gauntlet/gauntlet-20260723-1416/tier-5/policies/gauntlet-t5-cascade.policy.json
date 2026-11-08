@@ -1,0 +1,331 @@
+{
+  "friendlyRoe": "WeaponsFree",
+  "opposingRoe": "WeaponsFree",
+  "engage": {
+    "rangeMeters": 45000,
+    "envelopeMinMeters": 5000,
+    "envelopeMaxMeters": 120000,
+    "defaultMagazineRounds": 5,
+    "hasFireControlTrack": true,
+    "combatDomainsEnabled": true,
+    "pkBase": 0.7,
+    "pkIntercept": 0.0,
+    "pkKill": 0.2,
+    "salvoSize": 2
+  },
+  "detection": [
+    {
+      "observerId": "f-207-bremen-type-f122-1982",
+      "sensorId": "radar-1",
+      "targetId": "skr-admiral-grigorovich-pr-1135-6m",
+      "contactId": "c-2484-1",
+      "basePd": 1.0,
+      "envMask": 1.0,
+      "jamStrength": 0
+    },
+    {
+      "observerId": "d-32-daring-type-45-batch-1",
+      "sensorId": "radar-1",
+      "targetId": "skr-admiral-sergey-gorshkov-pr-2235-0",
+      "contactId": "c-2484-2",
+      "basePd": 1.0,
+      "envMask": 1.0,
+      "jamStrength": 0
+    },
+    {
+      "observerId": "p-960-skjold",
+      "sensorId": "radar-1",
+      "targetId": "624-pr-205p-tarantul-1992",
+      "contactId": "c-2484-3",
+      "basePd": 1.0,
+      "envMask": 1.0,
+      "jamStrength": 0
+    },
+    {
+      "observerId": "f-230-norfolk-type-23-duke",
+      "sensorId": "radar-1",
+      "targetId": "mrk-buyan-mod-pr-21631-buyan-m-2014",
+      "contactId": "c-2484-4",
+      "basePd": 1.0,
+      "envMask": 1.0,
+      "jamStrength": 0
+    },
+    {
+      "observerId": "jas-39e-gripen-ng-2021",
+      "sensorId": "radar-1",
+      "targetId": "ka-27m-helix-a",
+      "contactId": "c-2484-5",
+      "basePd": 1.0,
+      "envMask": 1.0,
+      "jamStrength": 0
+    },
+    {
+      "observerId": "jas-39a-gripen-1997",
+      "sensorId": "radar-1",
+      "targetId": "mig-29-fulcrum-c-1999",
+      "contactId": "c-2484-6",
+      "basePd": 1.0,
+      "envMask": 1.0,
+      "jamStrength": 0
+    },
+    {
+      "observerId": "f-35a-lightning-ii",
+      "sensorId": "radar-1",
+      "targetId": "ka-27m-helix-a",
+      "contactId": "c-2484-7",
+      "basePd": 1.0,
+      "envMask": 1.0,
+      "jamStrength": 0
+    },
+    {
+      "observerId": "a-19-gotland-2022",
+      "sensorId": "sonar-1",
+      "targetId": "pla-971-akula-i-improved-shchuka-b",
+      "contactId": "c-2484-8",
+      "basePd": 1.0,
+      "envMask": 1.0,
+      "jamStrength": 0,
+      "requiresActiveRadar": false
+    },
+    {
+      "observerId": "a-26-blekinge",
+      "sensorId": "sonar-1",
+      "targetId": "pla-971-akula-i-improved-shchuka-b",
+      "contactId": "c-2484-9",
+      "basePd": 1.0,
+      "envMask": 1.0,
+      "jamStrength": 0,
+      "requiresActiveRadar": false
+    }
+  ],
+  "gauntlet": {
+    "intent": "Cascading adversarial injects (comms/sensor degrade stand-in via jam) [catalog red: Sovremenny] [real cascading comms Degraded\u2192Denied\u2192Degraded] [expanded ORBAT 16 units / 41 catalogRefs]",
+    "oracle": "High jam multi-contact stable CommsStateChange/PolicyUpdate required.",
+    "catalogRefs": [
+      "241-slazak-meko-100-mod-2019",
+      "421-orkan-pr-660-2015",
+      "624-pr-205p-tarantul-1992",
+      "70-rauma-helsinki-ii-1990",
+      "80-hamina-rauma-2-2006",
+      "a-17-vastergotland-1999",
+      "a-19-gotland-1996",
+      "a-19-gotland-2022",
+      "a-26-blekinge",
+      "bpk-marshal-shaposhnikov-udaloy-i-pr-1155-fregat",
+      "d-32-daring-type-45-batch-1",
+      "em-sovremenny-i-pr-956-sarych",
+      "f-207-bremen-type-f122-1982",
+      "f-219-sachsen-type-f124-2006",
+      "f-230-norfolk-type-23-duke",
+      "f-310-fridtjof-nansen",
+      "f-341-absalon-2020",
+      "f-35a-lightning-ii",
+      "f-361-iver-huitfeldt-2012",
+      "f-a-18c-hornet-f-18c",
+      "hkp-14f-nh90-ttt",
+      "jas-39a-gripen-1997",
+      "jas-39b-gripen-1997",
+      "jas-39c-gripen-2005",
+      "jas-39e-gripen-ng-2021",
+      "k-11-stockholm-spica-iii-1986",
+      "k-21-goteborg",
+      "k-22-gavle-ex-goteborg-class",
+      "k-31-visby-2009",
+      "ka-27m-helix-a",
+      "m-04-carlskrona",
+      "m-73-koster-upgraded-landsort-class",
+      "mig-29-fulcrum-c-1999",
+      "mpk-steregushchiy-pr-20380-2018",
+      "mrk-buyan-mod-pr-21631-buyan-m-2014",
+      "p-151-hugin",
+      "p-840-holland",
+      "p-960-skjold",
+      "pla-971-akula-i-improved-shchuka-b",
+      "skr-admiral-grigorovich-pr-1135-6m",
+      "skr-admiral-sergey-gorshkov-pr-2235-0"
+    ],
+    "runId": "gauntlet-t3t5-catalog-red",
+    "tier": 5,
+    "expect": {
+      "side": "BLUE",
+      "requireNonEmptyFingerprint": true,
+      "requireFingerprintSubstrings": [
+        "CommsStateChange",
+        "Denied",
+        "cascade_link_down"
+      ],
+      "minKills": 4,
+      "maxMissilesFired": 52,
+      "maxDenials": 80,
+      "minScore": -50,
+      "maxScore": 420.0,
+      "minDenials": 34
+    },
+    "units": [
+      {
+        "unitId": "f-207-bremen-type-f122-1982",
+        "platformId": "f-207-bremen-type-f122-1982",
+        "domain": "surface",
+        "side": "blue"
+      },
+      {
+        "unitId": "d-32-daring-type-45-batch-1",
+        "platformId": "d-32-daring-type-45-batch-1",
+        "domain": "surface",
+        "side": "blue"
+      },
+      {
+        "unitId": "p-960-skjold",
+        "platformId": "p-960-skjold",
+        "domain": "surface",
+        "side": "blue"
+      },
+      {
+        "unitId": "f-230-norfolk-type-23-duke",
+        "platformId": "f-230-norfolk-type-23-duke",
+        "domain": "surface",
+        "side": "blue"
+      },
+      {
+        "unitId": "jas-39e-gripen-ng-2021",
+        "platformId": "jas-39e-gripen-ng-2021",
+        "domain": "air",
+        "side": "blue"
+      },
+      {
+        "unitId": "jas-39a-gripen-1997",
+        "platformId": "jas-39a-gripen-1997",
+        "domain": "air",
+        "side": "blue"
+      },
+      {
+        "unitId": "f-35a-lightning-ii",
+        "platformId": "f-35a-lightning-ii",
+        "domain": "air",
+        "side": "blue"
+      },
+      {
+        "unitId": "a-19-gotland-2022",
+        "platformId": "a-19-gotland-2022",
+        "domain": "subsurface",
+        "side": "blue"
+      },
+      {
+        "unitId": "a-26-blekinge",
+        "platformId": "a-26-blekinge",
+        "domain": "subsurface",
+        "side": "blue"
+      },
+      {
+        "unitId": "skr-admiral-grigorovich-pr-1135-6m",
+        "platformId": "skr-admiral-grigorovich-pr-1135-6m",
+        "domain": "surface",
+        "side": "red"
+      },
+      {
+        "unitId": "skr-admiral-sergey-gorshkov-pr-2235-0",
+        "platformId": "skr-admiral-sergey-gorshkov-pr-2235-0",
+        "domain": "surface",
+        "side": "red"
+      },
+      {
+        "unitId": "624-pr-205p-tarantul-1992",
+        "platformId": "624-pr-205p-tarantul-1992",
+        "domain": "surface",
+        "side": "red"
+      },
+      {
+        "unitId": "mrk-buyan-mod-pr-21631-buyan-m-2014",
+        "platformId": "mrk-buyan-mod-pr-21631-buyan-m-2014",
+        "domain": "surface",
+        "side": "red"
+      },
+      {
+        "unitId": "ka-27m-helix-a",
+        "platformId": "ka-27m-helix-a",
+        "domain": "air",
+        "side": "red"
+      },
+      {
+        "unitId": "mig-29-fulcrum-c-1999",
+        "platformId": "mig-29-fulcrum-c-1999",
+        "domain": "air",
+        "side": "red"
+      },
+      {
+        "unitId": "pla-971-akula-i-improved-shchuka-b",
+        "platformId": "pla-971-akula-i-improved-shchuka-b",
+        "domain": "subsurface",
+        "side": "red"
+      }
+    ]
+  },
+  "id": "gauntlet-t5-cascade",
+  "commsDisplay": {
+    "degradedLagTicks": 2,
+    "ghostOffsetX": 0.06,
+    "ghostOffsetY": 0.04,
+    "degradedOrderDelayTicks": 2,
+    "degradedStaleThresholdDivisor": 2
+  },
+  "comms": [
+    {
+      "atTick": 2,
+      "newState": "Degraded",
+      "nodeId": "ladder-t5-cascade-net",
+      "reason": "cascade_jamming"
+    },
+    {
+      "atTick": 4,
+      "newState": "Denied",
+      "nodeId": "ladder-t5-cascade-net",
+      "reason": "cascade_link_down"
+    },
+    {
+      "atTick": 8,
+      "newState": "Degraded",
+      "nodeId": "ladder-t5-cascade-net",
+      "reason": "cascade_partial_restore"
+    }
+  ],
+  "mission": {
+    "fireOrder": [
+      "start-exec",
+      "cascade-1",
+      "cascade-2"
+    ],
+    "events": [
+      {
+        "id": "start-exec",
+        "fireAtTick": 0,
+        "kind": "MissionTransition",
+        "code": "Execution"
+      },
+      {
+        "id": "cascade-1",
+        "fireAtTick": 2,
+        "kind": "EventFired",
+        "code": "cascade_inject_1"
+      },
+      {
+        "id": "cascade-2",
+        "fireAtTick": 4,
+        "kind": "EventFired",
+        "code": "cascade_inject_2"
+      }
+    ],
+    "triggers": [
+      {
+        "id": "ladder-contact-roe",
+        "observerId": "k-31-visby-2009",
+        "targetClass": "Surface",
+        "side": "friendly",
+        "missionCode": "ASuW",
+        "roe": "WeaponsFree",
+        "unitIds": [
+          "k-31-visby-2009"
+        ]
+      }
+    ]
+  }
+}

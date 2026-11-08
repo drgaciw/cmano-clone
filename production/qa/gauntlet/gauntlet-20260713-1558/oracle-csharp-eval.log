@@ -1,0 +1,21 @@
+OK   tier1 gauntlet-t1-patrol-a
+OK   tier1 gauntlet-t1-patrol-b
+OK   tier1 gauntlet-t1-patrol-c
+OK   tier1 gauntlet-t1-patrol-d
+OK   tier2 gauntlet-t2-escort-a
+OK   tier2 gauntlet-t2-escort-passive
+OK   tier2 gauntlet-t2-strike-a
+OK   tier2 gauntlet-t2-strike-event
+OK   tier3 gauntlet-t3-emcon-phases
+OK   tier3 gauntlet-t3-escort-strike
+OK   tier3 gauntlet-t3-event-chain
+OK   tier3 gauntlet-t3-id-roe
+OK   tier4 gauntlet-t4-asymm-roe
+OK   tier4 gauntlet-t4-multi-mission
+OK   tier4 gauntlet-t4-random-inject
+OK   tier4 gauntlet-t4-weighted
+OK   tier5 gauntlet-t5-cascade
+OK   tier5 gauntlet-t5-dynamic-obj
+OK   tier5 gauntlet-t5-roe-change
+OK   tier5 gauntlet-t5-theater
+ladder_green=True defects=0 wrote /home/username01/projects/active/cmano-clone/cmano-clone/production/qa/gauntlet/gauntlet-20260713-1558/oracle-eval-csharp.json

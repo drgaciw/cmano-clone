@@ -1,0 +1,37 @@
+namespace ProjectAegis.Data.Platform;
+
+using Catalog;
+
+/// <summary>
+/// Req-21 / PLE-1.3: resolve <see cref="PlatformCatalogExportData"/> from a bound catalog snapshot.
+/// Keeps CLI verbs decoupled from raw SQLite wiring while returning real DB payloads when a snapshot resolves.
+/// </summary>
+public static class PlatformCatalogExportResolver
+{
+    public static bool TryResolve(
+        string? dbPath,
+        string? snapshotId,
+        out PlatformCatalogExportData data,
+        string? maxTlTier = null)
+    {
+        data = PlatformCatalogExportData.Empty;
+        if (string.IsNullOrWhiteSpace(dbPath) || !File.Exists(dbPath))
+        {
+            return false;
+        }
+
+        // Null/empty snapshot: default to Baltic harness id so CLI browse/export
+        // against baltic_patrol.db works without requiring --snapshot every call.
+        var sid = string.IsNullOrWhiteSpace(snapshotId)
+            ? CatalogValidationDefaults.BalticSnapshotId
+            : snapshotId.Trim();
+        using var reader = new SqliteCatalogReader(dbPath, "cli-export-resolver");
+        if (!reader.TryResolveDbRef(sid, out _))
+        {
+            return false;
+        }
+
+        data = reader.LoadExportData(maxTlTier);
+        return true;
+    }
+}

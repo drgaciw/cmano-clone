@@ -1,0 +1,15 @@
+# Golden fingerprint — baltic-v2-comms-challenged seed=456 ticks=6 (S58 wave1 comms-challenged AAR variant; isolated v2 prefix, Band C fixture)
+# Regenerate: /home/username01/.dotnet/dotnet run --project src/ProjectAegis.Delegation.Demo -- --seed 456 --scenario baltic-v2-comms-challenged --ticks 6
+# Cites baltic-v2-scope-boundary + roadmap-062226.md §10 S58. No prod baltic-patrol hash change.
+# Comms degrade/deny + post-kill PolicyDenial(CommsDenied) as in game-players-report AAR.
+
+FINGERPRINT_SHA256=678ecf3d8d6bf12b5a94075431a562632ab9972575b26617069810c705fcc240
+DETECTION_WORLD_HASH=2025028254506979556
+WORLD_HASH=11746372718169604930
+
+EngagementOutcome|7|1|1|1|hostile-1|Miss|0.881737980265575
+EngagementOutcome|11|2|2|2|hostile-1|Kill|0.5938250256222265
+CommsStateChange|13|3|3|brigade-net|Nominal|Degraded|jamming
+CommsStateChange|18|5|5|brigade-net|Degraded|Denied|link-down
+PolicyDenial|20|5|u1|CommsDenied|Engage
+PolicyDenial|22|6|u1|CommsDenied|Engage

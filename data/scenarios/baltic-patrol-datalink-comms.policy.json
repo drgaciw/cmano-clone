@@ -1,0 +1,66 @@
+{
+  "id": "baltic-patrol-datalink-comms",
+  "friendlyRoe": "WeaponsFree",
+  "opposingRoe": "WeaponsFree",
+  "engage": {
+    "rangeMeters": 50000,
+    "envelopeMinMeters": 1000,
+    "envelopeMaxMeters": 100000,
+    "defaultMagazineRounds": 2,
+    "hasFireControlTrack": true,
+    "pkBase": 0.85,
+    "pkIntercept": 0.0,
+    "pkKill": 1.0,
+    "salvoSize": 1
+  },
+  "detection": [
+    {
+      "observerId": "u1",
+      "sensorId": "radar-1",
+      "targetId": "hostile-1",
+      "contactId": "c1",
+      "basePd": 1.0
+    },
+    {
+      "observerId": "u2",
+      "sensorId": "radar-2",
+      "targetId": "hostile-1",
+      "contactId": "c2",
+      "basePd": 0.0
+    }
+  ],
+  "datalink": {
+    "organicOnly": false,
+    "shareLagTicks": 0,
+    "unitSides": {
+      "u1": "blue",
+      "u2": "blue"
+    }
+  },
+  "contactLifecycle": {
+    "staleThresholdTicks": 30,
+    "classifyAfterTicks": 1,
+    "identifyAfterTicks": 2
+  },
+  "commsDisplay": {
+    "degradedLagTicks": 2,
+    "ghostOffsetX": 0.06,
+    "ghostOffsetY": 0.04,
+    "degradedOrderDelayTicks": 2,
+    "degradedStaleThresholdDivisor": 2
+  },
+  "comms": [
+    {
+      "atTick": 2,
+      "newState": "Degraded",
+      "nodeId": "brigade-net",
+      "reason": "jamming"
+    },
+    {
+      "atTick": 4,
+      "newState": "Denied",
+      "nodeId": "brigade-net",
+      "reason": "link-down"
+    }
+  ]
+}

@@ -1,5 +1,7 @@
 namespace ProjectAegis.Data.Catalog;
 
+using Platform;
+
 public interface ICatalogReader
 {
     string LayerVersion { get; }
@@ -13,6 +15,14 @@ public interface ICatalogReader
     bool TryResolveDbRef(string dbRef, out string resolvedSnapshotId) =>
         TryResolveDbRefCore(dbRef, out resolvedSnapshotId);
 
+    /// <summary>S30-03: resolve <c>catalog_snapshot.branch</c> for load-time tlBranch binding.</summary>
+    bool TryGetSnapshotBranch(string snapshotId, out string branch) =>
+        TryGetSnapshotBranchCore(snapshotId, out branch);
+
+    /// <summary>S31-03: resolve snapshotId+dbRef from tlBranch via release-train metadata at load.</summary>
+    bool TryResolveSnapshotForTlBranch(string tlBranch, out string snapshotId, out string dbRef) =>
+        TryResolveSnapshotForTlBranchCore(tlBranch, out snapshotId, out dbRef);
+
     /// <summary>ADR-008: platform combat radius (nm), round-trip budget per GDD §4.1.</summary>
     bool TryGetCombatRadiusNm(string platformId, out double combatRadiusNm) =>
         TryGetCombatRadiusNmCore(platformId, out combatRadiusNm);
@@ -21,9 +31,134 @@ public interface ICatalogReader
     bool TryGetPlatformPosition(string platformId, out double latDeg, out double lonDeg) =>
         TryGetPlatformPositionCore(platformId, out latDeg, out lonDeg);
 
+    /// <summary>Catalog <c>platform.domain</c> for mission contact target-class classification.</summary>
+    bool TryGetPlatformDomain(string platformId, out string domain) =>
+        TryGetPlatformDomainCore(platformId, out domain);
+
     /// <summary>DATA-4: weapon min/max range (meters) for engage envelope wiring.</summary>
     bool TryGetWeaponEnvelope(string weaponId, out WeaponEnvelopeDto envelope) =>
         TryGetWeaponEnvelopeCore(weaponId, out envelope);
+
+    /// <summary>Req-21 Phase B: sorted mobility rows (platform_id).</summary>
+    IReadOnlyList<CatalogMobility> GetSortedMobility() => GetSortedMobilityCore();
+
+    /// <summary>Req-21 Phase B: sorted signature rows (platform_id).</summary>
+    IReadOnlyList<CatalogSignature> GetSortedSignatures() => GetSortedSignaturesCore();
+
+    /// <summary>Req-21 Phase B: sorted EMCON rows (platform_id, condition, emitter_id).</summary>
+    IReadOnlyList<CatalogEmcon> GetSortedEmcon() => GetSortedEmconCore();
+
+    bool TryGetMobility(string platformId, out CatalogMobility mobility) =>
+        TryGetMobilityCore(platformId, out mobility);
+
+    bool TryGetSignature(string platformId, out CatalogSignature signature) =>
+        TryGetSignatureCore(platformId, out signature);
+
+    bool TryGetEmcon(string platformId, string condition, string emitterId, out CatalogEmcon emcon) =>
+        TryGetEmconCore(platformId, condition, emitterId, out emcon);
+
+    /// <summary>Req-21 Phase B: sorted platform damage rows (platform_id).</summary>
+    IReadOnlyList<CatalogPlatformDamage> GetSortedPlatformDamage() => GetSortedPlatformDamageCore();
+
+    bool TryGetPlatformDamage(string platformId, out CatalogPlatformDamage damage) =>
+        TryGetPlatformDamageCore(platformId, out damage);
+
+    /// <summary>SWARM-01 / SWARM-21 Phase A: sorted swarm platform rows (platform_id).</summary>
+    IReadOnlyList<CatalogSwarmPlatform> GetSortedSwarmPlatforms() => GetSortedSwarmPlatformsCore();
+
+    /// <summary>SWARM-01: resolve swarm catalog row by platform id.</summary>
+    bool TryGetSwarmPlatform(string platformId, out CatalogSwarmPlatform swarm) =>
+        TryGetSwarmPlatformCore(platformId, out swarm);
+
+    /// <summary>Req-21 Phase A: sorted mount rows (platform_id, mount_id).</summary>
+    IReadOnlyList<CatalogMount> GetSortedMounts() => GetSortedMountsCore();
+
+    /// <summary>Req-21 Phase A: sorted loadout rows (platform_id, loadout_id).</summary>
+    IReadOnlyList<CatalogLoadout> GetSortedLoadouts() => GetSortedLoadoutsCore();
+
+    /// <summary>Req-16: sorted magazine rows (platform_id, loadout_id, mount_id, weapon_id).</summary>
+    IReadOnlyList<CatalogMagazineEntry> GetSortedMagazines() => GetSortedMagazinesCore();
+
+    /// <summary>Req-21 Phase A*: sorted comms/datalink rows (platform_id, link_id).</summary>
+    IReadOnlyList<CatalogCommsBinding> GetSortedComms() => GetSortedCommsCore();
+
+    /// <summary>Req-21 Phase A*: sorted link catalog rows (link_id).</summary>
+    IReadOnlyList<CatalogLinkEntry> GetSortedLinks() => GetSortedLinksCore();
+
+    /// <summary>S34-04: resolve nominal one-way datalink latency (ms) for a link id.</summary>
+    bool TryGetLinkLatencyMs(string linkId, out int latencyMsNominal) =>
+        TryGetLinkLatencyMsCore(linkId, out latencyMsNominal);
+
+    /// <summary>S33-02 / DBI-1.5: sorted kill-chain dependency edges (platform_id, mount_id, weapon_id, sensor_id).</summary>
+    IReadOnlyList<CatalogDependencyEdge> GetSortedDependencyEdges() => GetSortedDependencyEdgesCore();
+
+    /// <summary>
+    /// S30-02: read-only workbook export payload with optional per-tier ceiling filter.
+    /// Default implementation returns an empty export slice (non-SQLite readers).
+    /// </summary>
+    PlatformCatalogExportData LoadExportData(string? maxTlTier = null) =>
+        LoadExportDataCore(maxTlTier);
+
+    PlatformCatalogExportData LoadExportDataCore(string? maxTlTier = null) =>
+        PlatformCatalogExportData.Empty;
+
+    IReadOnlyList<CatalogMount> GetSortedMountsCore() => [];
+
+    IReadOnlyList<CatalogLoadout> GetSortedLoadoutsCore() => [];
+
+    IReadOnlyList<CatalogMagazineEntry> GetSortedMagazinesCore() => [];
+
+    IReadOnlyList<CatalogCommsBinding> GetSortedCommsCore() => [];
+
+    IReadOnlyList<CatalogLinkEntry> GetSortedLinksCore() => [];
+
+    bool TryGetLinkLatencyMsCore(string linkId, out int latencyMsNominal)
+    {
+        latencyMsNominal = 0;
+        return false;
+    }
+
+    IReadOnlyList<CatalogDependencyEdge> GetSortedDependencyEdgesCore() => [];
+
+    IReadOnlyList<CatalogMobility> GetSortedMobilityCore() => [];
+
+    IReadOnlyList<CatalogSignature> GetSortedSignaturesCore() => [];
+
+    IReadOnlyList<CatalogEmcon> GetSortedEmconCore() => [];
+
+    IReadOnlyList<CatalogPlatformDamage> GetSortedPlatformDamageCore() => [];
+
+    IReadOnlyList<CatalogSwarmPlatform> GetSortedSwarmPlatformsCore() => [];
+
+    bool TryGetMobilityCore(string platformId, out CatalogMobility mobility)
+    {
+        mobility = new CatalogMobility(platformId);
+        return false;
+    }
+
+    bool TryGetSignatureCore(string platformId, out CatalogSignature signature)
+    {
+        signature = new CatalogSignature(platformId);
+        return false;
+    }
+
+    bool TryGetEmconCore(string platformId, string condition, string emitterId, out CatalogEmcon emcon)
+    {
+        emcon = new CatalogEmcon(platformId, condition, emitterId);
+        return false;
+    }
+
+    bool TryGetPlatformDamageCore(string platformId, out CatalogPlatformDamage damage)
+    {
+        damage = new CatalogPlatformDamage(platformId);
+        return false;
+    }
+
+    bool TryGetSwarmPlatformCore(string platformId, out CatalogSwarmPlatform swarm)
+    {
+        swarm = new CatalogSwarmPlatform(platformId, MaxDrones: 1, IsSwarm: false);
+        return false;
+    }
 
     bool TryGetWeaponEnvelopeCore(string weaponId, out WeaponEnvelopeDto envelope)
     {
@@ -37,6 +172,19 @@ public interface ICatalogReader
         return false;
     }
 
+    bool TryGetSnapshotBranchCore(string snapshotId, out string branch)
+    {
+        branch = CatalogTlTier.Default;
+        return false;
+    }
+
+    bool TryResolveSnapshotForTlBranchCore(string tlBranch, out string snapshotId, out string dbRef)
+    {
+        snapshotId = "";
+        dbRef = "";
+        return false;
+    }
+
     bool TryGetCombatRadiusNmCore(string platformId, out double combatRadiusNm)
     {
         combatRadiusNm = 0;
@@ -47,6 +195,12 @@ public interface ICatalogReader
     {
         latDeg = 0;
         lonDeg = 0;
+        return false;
+    }
+
+    bool TryGetPlatformDomainCore(string platformId, out string domain)
+    {
+        domain = "";
         return false;
     }
 }

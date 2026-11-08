@@ -1,0 +1,43 @@
+{
+  /* S82-01 Doctrine inheritance validation (AC-4) fixture.
+   * Source per: scenario-editor-scope-boundary-2026-07-04.md, sprint-82-validation-tracks-ac.md,
+   * qa-plan-scenario-editor-2026-07-01.md (unit #4), roadmap-execute-plan-07042026.md .
+   * Side parent ROE (WeaponsFree) -> child mission overrides or inherit.
+   * Covers parent/child resolution: side (parent) -> mission (child).
+   * Used by DoctrineInheritanceValidateTests via updated ResolveFixture.
+   * See also assets/data copy for test packaging.
+   */
+  "metadata": {
+    "dbRef": "baltic_patrol",
+    "tlBranch": "TL-0",
+    "seed": 42,
+    "policyId": "baltic-patrol-catalog",
+    "sideRoe": "WeaponsFree"
+  },
+  "missions": [
+    {
+      "id": "strike-1",
+      "type": "Strike",
+      "assignedUnitIds": ["u1"],
+      "targetIds": ["tgt-1"],
+      "roeOverride": "WeaponsTight"
+    },
+    {
+      "id": "patrol-1",
+      "type": "Patrol",
+      "assignedUnitIds": ["u1"],
+      "patrolZone": [
+        { "lat": 57.0, "lon": 20.0 },
+        { "lat": 57.1, "lon": 20.1 },
+        { "lat": 57.2, "lon": 20.2 }
+      ]
+    },
+    {
+      "id": "support-1",
+      "type": "Support",
+      "assignedUnitIds": ["u2"],
+      "supportRole": "AEW",
+      "roeOverride": "WeaponsHold"
+    }
+  ]
+}

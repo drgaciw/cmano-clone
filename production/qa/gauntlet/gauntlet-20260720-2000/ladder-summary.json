@@ -1,0 +1,16 @@
+{
+  "runId": "gauntlet-20260720-2000",
+  "sha": "7caae00",
+  "tiers": {
+    "1": {"allPassed": true, "ticks": 6},
+    "2": {"allPassed": true, "ticks": 10},
+    "3": {"allPassed": true, "ticks": 16},
+    "4": {"allPassed": true, "ticks": 24},
+    "5": {"allPassed": true, "ticks": 40, "retestedAfterFix": true},
+    "extra": {"allPassed": true, "ticks": 12}
+  },
+  "x10": {"pass": 10, "fail": 0},
+  "ciDryRun": {"allPassed": true, "profile": "ci", "ticks": 10, "seed": 42},
+  "suite": {"passed": 1782, "failed": 0},
+  "defects": {"found": 1, "fixed": 1, "quarantined": 0}
+}

@@ -1,0 +1,24 @@
+/* MapPlaceholderPanel.uss — ASSET-009 Map Placeholder (Specced path-parity / S107)
+ * Authority: design/assets/specs/c2-ui-assets.md ASSET-009
+ * Status: Specced (not Approved)
+ * Unity: unity/ProjectAegis/Assets/UI/MapPlaceholder/MapPlaceholderPanel.uss
+ */
+
+@import url("AegisTokens.uss");
+
+.map-placeholder-panel {
+    flex-grow: 1;
+    background-color: rgb(16, 24, 36);
+    border-width: 1px;
+    border-color: var(--border-subtle);
+}
+
+.map-placeholder-field {
+    flex-grow: 1;
+    background-color: rgb(8, 14, 22);
+}
+
+.map-symbol {
+    font-size: 11px;
+    color: var(--text-data);
+}

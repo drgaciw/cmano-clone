@@ -1,0 +1,122 @@
+{
+  "summary": {
+    "caught": 4,
+    "survived": 4,
+    "invalid": 0,
+    "caughtDefects": 4,
+    "survivedDefects": 2,
+    "killRate": "4/6"
+  },
+  "results": [
+    {
+      "id": "00-noop-comment",
+      "role": "control",
+      "expectedOracles": [],
+      "firedOracles": [],
+      "outcome": "survived"
+    },
+    {
+      "id": "01-pd-weakened",
+      "role": "defect",
+      "expectedOracles": [
+        "goldens",
+        "victory_roe"
+      ],
+      "firedOracles": [
+        "goldens",
+        "tiers"
+      ],
+      "outcome": "caught"
+    },
+    {
+      "id": "02-roe-tight-inverted",
+      "role": "defect",
+      "expectedOracles": [
+        "victory_roe",
+        "goldens",
+        "token_coverage"
+      ],
+      "firedOracles": [
+        "goldens",
+        "tiers",
+        "token_coverage",
+        "victory_roe"
+      ],
+      "outcome": "caught"
+    },
+    {
+      "id": "03-salvo-off-by-one",
+      "role": "defect",
+      "expectedOracles": [
+        "goldens",
+        "victory_roe"
+      ],
+      "firedOracles": [],
+      "outcome": "survived"
+    },
+    {
+      "id": "04-rng-seed-ignored",
+      "role": "defect",
+      "expectedOracles": [
+        "sanity",
+        "goldens",
+        "replay_golden"
+      ],
+      "firedOracles": [
+        "goldens",
+        "tiers"
+      ],
+      "outcome": "caught"
+    },
+    {
+      "id": "05-contact-lifecycle-skip",
+      "role": "defect",
+      "expectedOracles": [
+        "goldens"
+      ],
+      "firedOracles": [],
+      "outcome": "survived"
+    },
+    {
+      "id": "06-emcon-engage-bypass",
+      "role": "expected-miss",
+      "expectedOracles": [],
+      "firedOracles": [],
+      "outcome": "survived"
+    },
+    {
+      "id": "07-magazine-not-decremented",
+      "role": "defect",
+      "expectedOracles": [
+        "token_coverage",
+        "goldens",
+        "victory_roe"
+      ],
+      "firedOracles": [
+        "goldens",
+        "tiers",
+        "token_coverage",
+        "victory_roe"
+      ],
+      "outcome": "caught"
+    }
+  ],
+  "meta": {
+    "kind": "role-aware-summary-refresh",
+    "generatedAt": "2026-07-31",
+    "sourceOutcomes": "production/qa/gauntlet/calibration-2026-07-28-postrebase/report.json",
+    "sourceNote": "Mutant outcomes (caught/survived/firedOracles) are the measured post-rebase live saboteur run. Not re-executed in this refresh. Roles + summary/killRate/exit matrix recomputed via saboteur.py summarize/exit_code_for/render_report against catalog.yaml after PR #370 role contracts.",
+    "catalogRoles": {
+      "00-noop-comment": "control",
+      "01-pd-weakened": "defect",
+      "02-roe-tight-inverted": "defect",
+      "03-salvo-off-by-one": "defect",
+      "04-rng-seed-ignored": "defect",
+      "05-contact-lifecycle-skip": "defect",
+      "06-emcon-engage-bypass": "expected-miss",
+      "07-magazine-not-decremented": "defect"
+    },
+    "exitCodeFor": 1,
+    "killRateFormula": "caught_defects / (caught_defects + survived_defects)"
+  }
+}

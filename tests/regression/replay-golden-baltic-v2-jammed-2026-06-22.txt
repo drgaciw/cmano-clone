@@ -1,0 +1,12 @@
+# Golden fingerprint — baltic-v2-jammed seed=42 ticks=4 (S58 wave1 Band C jammed fixture variant; isolated v2)
+# Regenerate: /home/username01/.dotnet/dotnet run --project src/ProjectAegis.Delegation.Demo -- --seed 42 --scenario baltic-v2-jammed --ticks 4
+# Cites baltic-v2-scope-boundary + roadmap-062226.md §10 S58. All engages NO_FIRE_CONTROL_TRACK per AAR jammed session pattern.
+
+FINGERPRINT_SHA256=e461e5567f7eb356f5ebe2a8f3bb739dde1192ed427ec92386d4af94bdd0a7c6
+DETECTION_WORLD_HASH=15600
+WORLD_HASH=15054805846390044170
+
+Engagement|4|1|1|u1|0|False|NO_FIRE_CONTROL_TRACK
+Engagement|6|2|2|u1|0|False|NO_FIRE_CONTROL_TRACK
+Engagement|8|3|3|u1|0|False|NO_FIRE_CONTROL_TRACK
+Engagement|10|4|4|u1|0|False|NO_FIRE_CONTROL_TRACK

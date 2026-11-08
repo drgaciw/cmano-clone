@@ -1,0 +1,9 @@
+# Golden fingerprint — baltic-patrol-v2 (S59 theater, alt seed) seed=7 ticks=3
+# Isolated theater hash family (second-side OOB extended)
+# Cites: production/baltic-v2-scope-boundary-2026-06-22.md + roadmap §10 S59
+
+WORLD_HASH=10345192447808018855
+DETECTION_WORLD_HASH=11108865088316811247
+FINGERPRINT_SHA256=544bbf6f71eb83dc4c525a69e0ad18e539ad555aa2bb3fd860e18db50070456b
+
+# Additional engagements for extended OOB

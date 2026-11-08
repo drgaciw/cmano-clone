@@ -1,0 +1,108 @@
+{
+  "id": "gauntlet-multidomain-shooters",
+  "friendlyRoe": "WeaponsFree",
+  "opposingRoe": "WeaponsTight",
+  "engage": {
+    "rangeMeters": 45000,
+    "envelopeMinMeters": 5000,
+    "envelopeMaxMeters": 120000,
+    "defaultMagazineRounds": 4,
+    "hasFireControlTrack": true,
+    "combatDomainsEnabled": true,
+    "pkBase": 0.85,
+    "pkIntercept": 0.0,
+    "pkKill": 0.2,
+    "salvoSize": 1
+  },
+  "detection": [
+    {
+      "observerId": "k-31-visby-2009",
+      "sensorId": "radar-1",
+      "targetId": "em-sovremenny-i-pr-956-sarych",
+      "contactId": "c-surface",
+      "basePd": 1.0,
+      "envMask": 1.0,
+      "jamStrength": 0
+    },
+    {
+      "observerId": "jas-39c-gripen-2005",
+      "sensorId": "radar-1",
+      "targetId": "mpk-steregushchiy-pr-20380-2018",
+      "contactId": "c-air",
+      "basePd": 1.0,
+      "envMask": 1.0,
+      "jamStrength": 0
+    },
+    {
+      "observerId": "a-19-gotland-2022",
+      "sensorId": "sonar-1",
+      "targetId": "mrk-buyan-pr-21630-buyan-2007",
+      "contactId": "c-sub",
+      "basePd": 1.0,
+      "envMask": 1.0,
+      "jamStrength": 0,
+      "requiresActiveRadar": false
+    }
+  ],
+  "gauntlet": {
+    "intent": "True multi-domain engage: surface\u2192Sovremenny, air\u2192Steregushchiy, sub\u2192Buyan (distinct reds so concurrent launch)",
+    "oracle": "True|Launched from Visby, Gripen, and Gotland against their paired catalog reds",
+    "expect": {
+      "side": "BLUE",
+      "requireNonEmptyFingerprint": true,
+      "minScore": 0.0,
+      "maxScore": 280.0,
+      "maxMissilesFired": 13,
+      "maxDenials": 20,
+      "minKills": 1
+    },
+    "catalogRefs": [
+      "k-31-visby-2009",
+      "jas-39c-gripen-2005",
+      "a-19-gotland-2022",
+      "em-sovremenny-i-pr-956-sarych",
+      "mpk-steregushchiy-pr-20380-2018",
+      "mrk-buyan-pr-21630-buyan-2007"
+    ],
+    "units": [
+      {
+        "unitId": "k-31-visby-2009",
+        "platformId": "k-31-visby-2009",
+        "domain": "surface",
+        "side": "blue"
+      },
+      {
+        "unitId": "jas-39c-gripen-2005",
+        "platformId": "jas-39c-gripen-2005",
+        "domain": "air",
+        "side": "blue"
+      },
+      {
+        "unitId": "a-19-gotland-2022",
+        "platformId": "a-19-gotland-2022",
+        "domain": "subsurface",
+        "side": "blue"
+      },
+      {
+        "unitId": "em-sovremenny-i-pr-956-sarych",
+        "platformId": "em-sovremenny-i-pr-956-sarych",
+        "domain": "surface",
+        "side": "red"
+      },
+      {
+        "unitId": "mpk-steregushchiy-pr-20380-2018",
+        "platformId": "mpk-steregushchiy-pr-20380-2018",
+        "domain": "surface",
+        "side": "red"
+      },
+      {
+        "unitId": "mrk-buyan-pr-21630-buyan-2007",
+        "platformId": "mrk-buyan-pr-21630-buyan-2007",
+        "domain": "surface",
+        "side": "red"
+      }
+    ],
+    "tier": 3,
+    "runId": "gauntlet-multidomain-shooters"
+  }
+}

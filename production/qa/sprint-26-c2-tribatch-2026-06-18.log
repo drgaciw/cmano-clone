@@ -1,0 +1,49 @@
+# S26-07 C2 Editor Tri-Batch Sign-Off — Protocol Log
+# Date: 2026-06-18
+# Story: S26-07 (clears S25-11 APPROVED WITH CONDITIONS)
+# Environment: Headless Linux — Unity 6.3 Editor unavailable
+# Mode: lean — headless proxy = merge authority; Editor batch = advisory
+
+## Tri-batch protocol execution
+
+| Batch | Editor entry (advisory) | Policy id | Headless proxy (merge authority) | Result |
+|-------|-------------------------|-----------|----------------------------------|--------|
+| **Comms** | `Invoke-C2PlayModeSignoffBatch.ps1 -Scenario comms` | `baltic-patrol-comms` | `Baltic_patrol_comms_harness_matches_manual_qa_preconditions` | **PASS** |
+| **Classify** | `Invoke-C2PlayModeSignoffBatch.ps1 -Scenario classify` | `baltic-patrol-classify` | `Baltic_classify_map_symbols_include_hostile_for_selection_path`; `Baltic_classify_selection_flow_syncs_map_oob_and_contact_summary` | **PASS** |
+| **Doctrine** | `Invoke-C2PlayModeSignoffBatch.ps1 -Scenario doctrine` | `baltic-patrol-mission-roe` | `Baltic_doctrine_mission_roe_harness_matches_doctrine_batch_preconditions`; `Doctrine_override_round_trip_updates_policy_log_and_projection_bind`; `Doctrine_panel_uxml_assets_define_host_element_names`; `Doctrine_smoke_scene_builder_registers_doctrine_panel_host` | **PASS** |
+
+## Headless proxy run (merge authority)
+
+```text
+export PATH="/home/username01/.dotnet:$PATH"
+cd /home/username01/cmano-clone/cmano-clone
+dotnet test src/ProjectAegis.Delegation.UnityAdapter.Tests/ProjectAegis.Delegation.UnityAdapter.Tests.csproj \
+  --filter "PlayModeSmoke|Doctrine|MapPanelBinder" -v minimal
+```
+
+```text
+Passed!  - Failed:     0, Passed:    19, Skipped:     0, Total:    19, Duration: 297 ms
+```
+
+## SIGNOFF_ERROR scan
+
+| Source | SIGNOFF_ERROR count |
+|--------|---------------------|
+| Headless proxy log (`sprint-26-c2-tribatch-headless-proxy-2026-06-18.log`) | **0** |
+| Editor `unity-c2-playmode-signoff.log` | N/A — lean mode; Editor host unavailable |
+
+## Advisory Editor steps (optional polish)
+
+Run locally with Unity **6000.3.14f1**:
+
+```powershell
+pwsh tools/unity/Invoke-C2PlayModeSignoffBatch.ps1 -Scenario comms
+pwsh tools/unity/Invoke-C2PlayModeSignoffBatch.ps1 -Scenario classify -SkipBuild
+pwsh tools/unity/Invoke-C2PlayModeSignoffBatch.ps1 -Scenario doctrine -SkipBuild
+```
+
+**Evidence to attach when run:** `unity-c2-playmode-signoff.log` with `C2PlayModeSignoffBatchRunner PASS` lines and zero `SIGNOFF_ERROR` for all three scenarios.
+
+## Verdict (tri-batch component)
+
+**PASS (lean mode)** — comms/classify/doctrine headless proxy **19/19 PASS**; no `SIGNOFF_ERROR` in proxy log. Clears S25-11 advisory condition per S26-07 closeout.

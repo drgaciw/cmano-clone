@@ -1,0 +1,26 @@
+{
+  "id": "threat-advisory-calibration",
+  "friendlyRoe": "WeaponsFree",
+  "opposingRoe": "WeaponsTight",
+  "engage": {
+    "rangeMeters": 50000,
+    "envelopeMinMeters": 1000,
+    "envelopeMaxMeters": 100000,
+    "defaultMagazineRounds": 4,
+    "hasFireControlTrack": true,
+    "maxSalvo": 2
+  },
+  "threatAssessmentUrgency": {
+    "inZoneBase": 0.30,
+    "approachingBase": 0.20,
+    "outOfZoneBase": 0.10,
+    "defensiveBonus": 0.05,
+    "hypersonicBonus": 0.05,
+    "missingFireControlPenalty": 0.03,
+    "immediateFloor": 0.90,
+    "focusFloor": 0.70,
+    "watchFloor": 0.40,
+    "lowFloor": 0.15,
+    "lowConfidenceFloor": 0.90
+  }
+}

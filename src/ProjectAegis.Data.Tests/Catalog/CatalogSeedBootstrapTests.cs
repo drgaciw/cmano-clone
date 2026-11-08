@@ -18,7 +18,12 @@ public sealed class CatalogSeedBootstrapTests
             Assert.Equal(1.0, radar1);
             Assert.True(reader.TryGetBasePd("u1", "radar-2", out var radar2));
             Assert.Equal(0.75, radar2);
-            Assert.Equal(2, reader.GetSortedSensorBindings().Count);
+            // Baltic radar pair + SWARM-A1 generic swarm EO/IR sensor.
+            Assert.True(reader.GetSortedSensorBindings().Count >= 2);
+            Assert.True(reader.TryGetBasePd(
+                CatalogSwarmPlatformDefaults.GenericSwarmPlatformId,
+                CatalogSwarmPlatformDefaults.DefaultSensorId,
+                out _));
         }
         finally
         {

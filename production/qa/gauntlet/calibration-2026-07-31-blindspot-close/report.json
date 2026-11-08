@@ -1,0 +1,56 @@
+{
+  "summary": {
+    "caught": 3,
+    "survived": 0,
+    "invalid": 0,
+    "caughtDefects": 3,
+    "survivedDefects": 0,
+    "killRate": "3/3"
+  },
+  "results": [
+    {
+      "id": "03-salvo-off-by-one",
+      "role": "defect",
+      "expectedOracles": [
+        "goldens",
+        "victory_roe"
+      ],
+      "firedOracles": [
+        "goldens",
+        "tiers",
+        "victory_roe"
+      ],
+      "outcome": "caught"
+    },
+    {
+      "id": "05-contact-lifecycle-skip",
+      "role": "defect",
+      "expectedOracles": [
+        "goldens"
+      ],
+      "firedOracles": [
+        "goldens",
+        "replay_golden",
+        "tiers",
+        "victory_roe"
+      ],
+      "outcome": "caught"
+    },
+    {
+      "id": "06-emcon-engage-bypass",
+      "role": "defect",
+      "expectedOracles": [
+        "token_coverage",
+        "goldens",
+        "victory_roe"
+      ],
+      "firedOracles": [
+        "goldens",
+        "tiers",
+        "token_coverage",
+        "victory_roe"
+      ],
+      "outcome": "caught"
+    }
+  ]
+}

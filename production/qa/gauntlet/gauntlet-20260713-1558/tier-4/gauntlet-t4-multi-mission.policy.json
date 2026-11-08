@@ -1,0 +1,112 @@
+{
+  "friendlyRoe": "WeaponsFree",
+  "opposingRoe": "WeaponsTight",
+  "engage": {
+    "rangeMeters": 45000,
+    "envelopeMinMeters": 5000,
+    "envelopeMaxMeters": 120000,
+    "defaultMagazineRounds": 4,
+    "hasFireControlTrack": true,
+    "combatDomainsEnabled": true,
+    "pkBase": 0.85,
+    "pkIntercept": 0.0,
+    "pkKill": 0.2,
+    "salvoSize": 2
+  },
+  "detection": [
+    {
+      "observerId": "k-31-visby-2009",
+      "sensorId": "radar-1",
+      "targetId": "hostile-1",
+      "contactId": "c-visby",
+      "basePd": 1.0,
+      "envMask": 1.0,
+      "jamStrength": 0
+    },
+    {
+      "observerId": "jas-39c-gripen-2005",
+      "sensorId": "radar-1",
+      "targetId": "hostile-1",
+      "contactId": "c-gripen",
+      "basePd": 1.0,
+      "envMask": 1.0,
+      "jamStrength": 0
+    },
+    {
+      "observerId": "a-19-gotland-2022",
+      "sensorId": "sonar-1",
+      "targetId": "hostile-1",
+      "contactId": "c-gotland",
+      "basePd": 1.0,
+      "envMask": 1.0,
+      "jamStrength": 0,
+      "requiresActiveRadar": false
+    }
+  ],
+  "gauntlet": {
+    "intent": "ASW/AAW multi-mission with joint catalog (surface+air+sub)",
+    "oracle": "Multi-target detection; jam weak",
+    "catalogRefs": [
+      "241-slazak-meko-100-mod-2019",
+      "421-orkan-pr-660-2015",
+      "624-pr-205p-tarantul-1992",
+      "70-rauma-helsinki-ii-1990",
+      "80-hamina-rauma-2-2006",
+      "a-19-gotland-2022",
+      "bpk-marshal-shaposhnikov-udaloy-i-pr-1155-fregat",
+      "em-sovremenny-i-pr-956-sarych",
+      "f-207-bremen-type-f122-1982",
+      "f-219-sachsen-type-f124-2006",
+      "f-310-fridtjof-nansen",
+      "f-35a-lightning-ii",
+      "f-a-18c-hornet-f-18c",
+      "hkp-14f-nh90-ttt",
+      "hostile-1",
+      "hostile-far",
+      "jas-39a-gripen-1997",
+      "jas-39b-gripen-1997",
+      "jas-39c-gripen-2005",
+      "jas-39d-gripen-2005",
+      "jas-39e-gripen-ng-2021",
+      "k-31-visby-2009",
+      "u1"
+    ],
+    "domains": [
+      "surface",
+      "air",
+      "subsurface"
+    ],
+    "runId": "gauntlet-20260713-1558",
+    "tier": 4,
+    "expect": {
+      "side": "BLUE",
+      "requireNonEmptyFingerprint": true,
+      "minScore": -140.0,
+      "maxScore": 0.0,
+      "maxMissilesFired": 6,
+      "maxDenials": 28,
+      "minDenials": 20
+    },
+    "units": [
+      {
+        "unitId": "k-31-visby-2009",
+        "platformId": "k-31-visby-2009",
+        "domain": "surface",
+        "side": "blue"
+      },
+      {
+        "unitId": "jas-39c-gripen-2005",
+        "platformId": "jas-39c-gripen-2005",
+        "domain": "air",
+        "side": "blue"
+      },
+      {
+        "unitId": "a-19-gotland-2022",
+        "platformId": "a-19-gotland-2022",
+        "domain": "subsurface",
+        "side": "blue"
+      }
+    ]
+  },
+  "id": "gauntlet-t4-multi-mission"
+}

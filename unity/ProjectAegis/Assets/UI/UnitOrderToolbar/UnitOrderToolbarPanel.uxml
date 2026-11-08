@@ -1,0 +1,14 @@
+<ui:UXML xmlns:ui="UnityEngine.UIElements" editor-extension-mode="False">
+    <ui:VisualElement name="unit-order-toolbar-root" class="unit-order-toolbar">
+        <ui:Label text="ORDERS" class="unit-order-toolbar-title" />
+        <ui:VisualElement name="unit-order-toolbar-buttons" class="unit-order-toolbar-buttons">
+            <ui:Button name="order-hold" text="Hold" class="unit-order-btn" />
+            <ui:Button name="order-rtb" text="RTB" class="unit-order-btn" />
+            <ui:Button name="order-plot-course" text="Plot Course" class="unit-order-btn" />
+            <ui:Button name="order-emcon" text="EMCON" class="unit-order-btn" />
+            <ui:Button name="order-sensors" text="Sensors" class="unit-order-btn" />
+            <ui:Button name="order-engage" text="Engage" class="unit-order-btn unit-order-btn--engage" />
+        </ui:VisualElement>
+        <ui:Label name="order-status-line" text="" class="unit-order-status" />
+    </ui:VisualElement>
+</ui:UXML>

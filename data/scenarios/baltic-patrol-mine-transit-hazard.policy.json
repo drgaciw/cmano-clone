@@ -1,0 +1,58 @@
+{
+  "id": "baltic-patrol-mine-transit-hazard",
+  "friendlyRoe": "WeaponsFree",
+  "opposingRoe": "WeaponsTight",
+  "engage": {
+    "rangeMeters": 45000,
+    "envelopeMinMeters": 5000,
+    "envelopeMaxMeters": 120000,
+    "defaultMagazineRounds": 4,
+    "hasFireControlTrack": true,
+    "pkBase": 0.85,
+    "pkIntercept": 0.0,
+    "pkKill": 0.0,
+    "combatDomain": "Mine",
+    "combatDomainsEnabled": true
+  },
+  "detection": [
+    {
+      "observerId": "u1",
+      "sensorId": "radar-1",
+      "targetId": "hostile-1",
+      "contactId": "c1",
+      "basePd": 1.0,
+      "envMask": 1.0,
+      "jamStrength": 0
+    }
+  ],
+  "catalogWithdraw": [
+    {
+      "platformId": "u1",
+      "currentHpPct": 100
+    }
+  ],
+  "mineHazard": {
+    "zoneMinRangeMeters": 45000,
+    "zoneMaxRangeMeters": 70000,
+    "triggerRadiusMeters": 8000,
+    "hazardSeverity": 1.0,
+    "mines": [
+      {
+        "mineId": "mine-a",
+        "rangeMeters": 52000,
+        "lethality": 1.0
+      },
+      {
+        "mineId": "mine-b",
+        "rangeMeters": 61000,
+        "lethality": 1.0
+      }
+    ],
+    "transit": [
+      {
+        "platformId": "u1",
+        "rangesMeters": [40000, 52000, 61000, 75000]
+      }
+    ]
+  }
+}

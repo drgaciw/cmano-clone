@@ -1,0 +1,1698 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Project Aegis — Scenario Editor P2.1+P2.2 UX Preview</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500;600&family=IBM+Plex+Sans:wght@400;500;600;700&display=swap" rel="stylesheet" />
+  <style>
+    :root {
+      --surface-deep: #080E16;
+      --surface-map: #101824;
+      --surface-panel: rgba(12, 18, 28, 0.92);
+      --surface-topbar: rgba(10, 16, 26, 0.95);
+      --border-subtle: #324150;
+      --border-panel: #384860;
+      --border-section: rgba(80, 100, 130, 0.6);
+      --text-heading: #C8D2DC;
+      --text-body: #B4BEC8;
+      --text-muted: #8C9BAA;
+      --text-data: #D2DCE6;
+      --text-topbar: #BEC8D2;
+      --selected-ring: #FFC850;
+      --selected-row-bg: rgba(74, 158, 255, 0.25);
+      --selected-row-bar: #4A9EFF;
+      --affil-friendly: #4A9EFF;
+      --affil-hostile: #E85D5D;
+      --diff-added: #64C88C;
+      --diff-changed: #E6C850;
+      --diff-blocked: #E65A5A;
+      --diff-warn: #F0B450;
+      --aegis-surface-deep: var(--surface-deep);
+      --aegis-surface-map: var(--surface-map);
+      --aegis-surface-panel: var(--surface-panel);
+      --aegis-surface-topbar: var(--surface-topbar);
+      --aegis-border-subtle: var(--border-subtle);
+      --aegis-border-panel: var(--border-panel);
+      --aegis-border-section: var(--border-section);
+      --aegis-text-heading: var(--text-heading);
+      --aegis-text-body: var(--text-body);
+      --aegis-text-muted: var(--text-muted);
+      --aegis-text-data: var(--text-data);
+      --aegis-text-topbar: var(--text-topbar);
+      --aegis-selected-ring: var(--selected-ring);
+      --aegis-selected-row-bg: var(--selected-row-bg);
+      --aegis-selected-row-bar: var(--selected-row-bar);
+      --aegis-affil-friendly: var(--affil-friendly);
+      --aegis-affil-hostile: var(--affil-hostile);
+      --aegis-diff-added: var(--diff-added);
+      --aegis-diff-changed: var(--diff-changed);
+      --aegis-diff-blocked: var(--diff-blocked);
+      --aegis-diff-warn: var(--diff-warn);
+      --font-ui: "IBM Plex Sans", "Segoe UI", sans-serif;
+      --font-mono: "IBM Plex Mono", "Consolas", monospace;
+      --drawer-w: 240px;
+      --inspector-w: 320px;
+      --findings-h: 160px;
+      --topbar-h: 48px;
+      --shell-tabs-h: 36px;
+    }
+
+    * { box-sizing: border-box; }
+
+    html, body {
+      margin: 0;
+      height: 100%;
+      overflow: hidden;
+      font-family: var(--font-ui);
+      color: var(--aegis-text-body);
+      background: var(--aegis-surface-deep);
+    }
+
+    button, input, select {
+      font: inherit;
+      color: inherit;
+    }
+
+    .app {
+      display: grid;
+      grid-template-rows: auto auto var(--topbar-h) 1fr auto auto;
+      height: 100vh;
+      min-height: 640px;
+    }
+
+    /* —— Review banner —— */
+    .review-banner {
+      display: flex;
+      flex-wrap: wrap;
+      align-items: baseline;
+      justify-content: space-between;
+      gap: 10px;
+      padding: 10px 16px;
+      background:
+        linear-gradient(90deg, rgba(74, 158, 255, 0.08), transparent 40%),
+        var(--aegis-surface-topbar);
+      border-bottom: 1px solid var(--aegis-border-panel);
+    }
+
+    .review-banner h1 {
+      margin: 0;
+      font-size: 13px;
+      letter-spacing: 0.12em;
+      text-transform: uppercase;
+      color: var(--aegis-text-heading);
+      font-weight: 600;
+    }
+
+    .review-banner p {
+      margin: 2px 0 0;
+      font-size: 11px;
+      color: var(--aegis-text-muted);
+      max-width: 72ch;
+    }
+
+    .review-banner .footnote {
+      display: block;
+      margin-top: 4px;
+      font-size: 10px;
+      color: var(--aegis-text-muted);
+      font-style: italic;
+    }
+
+    .badge {
+      font-size: 10px;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      color: var(--aegis-selected-ring);
+      border: 1px solid var(--aegis-selected-ring);
+      padding: 3px 8px;
+      white-space: nowrap;
+    }
+
+    /* —— Shell mode tabs —— */
+    .shell-tabs {
+      display: flex;
+      align-items: stretch;
+      gap: 0;
+      height: var(--shell-tabs-h);
+      padding: 0 12px;
+      background: rgba(8, 14, 22, 0.95);
+      border-bottom: 1px solid var(--aegis-border-panel);
+    }
+
+    .shell-tabs .btn {
+      border: none;
+      border-bottom: 2px solid transparent;
+      border-radius: 0;
+      background: transparent;
+      min-width: 88px;
+      padding: 0 16px;
+      font-size: 11px;
+      letter-spacing: 0.08em;
+    }
+
+    .shell-tabs .btn.active {
+      border-bottom-color: var(--aegis-selected-ring);
+      color: var(--aegis-text-heading);
+      background: rgba(74, 158, 255, 0.06);
+    }
+
+    .shell-tabs .btn:disabled {
+      opacity: 0.4;
+      cursor: not-allowed;
+    }
+
+    /* —— Top bar —— */
+    .topbar {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      padding: 0 12px;
+      height: var(--topbar-h);
+      background: var(--aegis-surface-topbar);
+      border-bottom: 1px solid var(--aegis-border-panel);
+      color: var(--aegis-text-topbar);
+      font-size: 12px;
+    }
+
+    .topbar .scenario-title {
+      font-weight: 600;
+      color: var(--aegis-text-heading);
+      letter-spacing: 0.04em;
+    }
+
+    .mode-pill {
+      font-size: 10px;
+      font-weight: 700;
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+      padding: 2px 8px;
+      border: 1px solid var(--aegis-selected-ring);
+      color: var(--aegis-selected-ring);
+    }
+
+    .dirty {
+      color: var(--aegis-diff-changed);
+      font-family: var(--font-mono);
+      font-size: 11px;
+    }
+
+    .dirty.clean {
+      color: var(--aegis-text-muted);
+    }
+
+    .meta-chip {
+      font-family: var(--font-mono);
+      font-size: 11px;
+      color: var(--aegis-text-muted);
+    }
+
+    .topbar-spacer { flex: 1; }
+
+    .btn-row {
+      display: flex;
+      gap: 6px;
+      align-items: center;
+    }
+
+    .btn {
+      appearance: none;
+      border: 1px solid var(--aegis-border-subtle);
+      background: rgba(16, 24, 36, 0.9);
+      color: var(--aegis-text-body);
+      font: 11px/1 var(--font-ui);
+      letter-spacing: 0.04em;
+      text-transform: uppercase;
+      padding: 7px 10px;
+      min-width: 56px;
+      cursor: pointer;
+    }
+
+    .btn:hover:not(:disabled) {
+      border-color: var(--aegis-text-muted);
+      color: var(--aegis-text-heading);
+    }
+
+    .btn:focus-visible {
+      outline: 2px solid var(--aegis-selected-ring);
+      outline-offset: 1px;
+    }
+
+    .btn:disabled {
+      opacity: 0.45;
+      cursor: not-allowed;
+    }
+
+    .btn.primary {
+      border-color: #50A064;
+      background: #285A3C;
+      color: #D8F0DE;
+    }
+
+    .btn.active {
+      border-bottom: 2px solid var(--aegis-selected-ring);
+      color: var(--aegis-text-heading);
+    }
+
+    .btn.tool {
+      min-width: 0;
+      padding: 6px 8px;
+      font-size: 10px;
+    }
+
+    .btn.filter {
+      min-width: 0;
+      padding: 4px 8px;
+      font-size: 10px;
+    }
+
+    .btn.filter.active {
+      border-color: var(--aegis-selected-ring);
+      color: var(--aegis-selected-ring);
+    }
+
+    /* —— Workspace —— */
+    .workspace {
+      display: grid;
+      grid-template-columns: var(--drawer-w) 1fr var(--inspector-w);
+      min-height: 0;
+      overflow: hidden;
+    }
+
+    .workspace.missions-mode {
+      grid-template-columns: 1fr var(--inspector-w);
+    }
+
+    .workspace.missions-mode .drawer {
+      display: none;
+    }
+
+    .panel {
+      background: var(--aegis-surface-panel);
+      border-right: 1px solid var(--aegis-border-panel);
+      display: flex;
+      flex-direction: column;
+      min-height: 0;
+      padding: 6px;
+    }
+
+    .panel.inspector {
+      border-right: none;
+      border-left: 1px solid var(--aegis-border-panel);
+    }
+
+    .panel-title {
+      font-size: 11px;
+      font-weight: 700;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      color: var(--aegis-text-heading);
+      margin: 2px 4px 8px;
+    }
+
+    .tabs {
+      display: flex;
+      gap: 2px;
+      margin-bottom: 6px;
+      border-bottom: 1px solid var(--aegis-border-section);
+    }
+
+    .tabs .btn {
+      border: none;
+      border-bottom: 2px solid transparent;
+      background: transparent;
+      border-radius: 0;
+      min-width: 0;
+      flex: 1;
+      padding: 8px 4px;
+    }
+
+    .tabs .btn.active {
+      border-bottom-color: var(--aegis-selected-ring);
+    }
+
+    .list {
+      flex: 1;
+      min-height: 0;
+      overflow: auto;
+      border: 1px solid var(--aegis-border-section);
+      background: rgba(8, 14, 22, 0.55);
+    }
+
+    .list-item {
+      padding: 7px 10px;
+      font: 12px/1.35 var(--font-mono);
+      color: var(--aegis-text-data);
+      border-left: 3px solid transparent;
+      cursor: pointer;
+      border-bottom: 1px solid rgba(50, 65, 80, 0.45);
+    }
+
+    .list-item:hover { background: rgba(74, 158, 255, 0.08); }
+
+    .list-item:focus-visible {
+      outline: 2px solid var(--aegis-selected-ring);
+      outline-offset: -2px;
+    }
+
+    .list-item.selected {
+      background: var(--aegis-selected-row-bg);
+      border-left-color: var(--aegis-selected-row-bar);
+    }
+
+    .list-item .meta {
+      display: block;
+      font-size: 10px;
+      color: var(--aegis-text-muted);
+      margin-top: 2px;
+      font-family: var(--font-ui);
+    }
+
+    .list-item .shape {
+      display: inline-block;
+      width: 1.1em;
+      text-align: center;
+      margin-right: 4px;
+    }
+
+    .list-item.friendly .shape { color: var(--aegis-affil-friendly); }
+    .list-item.hostile .shape { color: var(--aegis-affil-hostile); }
+    .list-item.invalid .meta { color: var(--aegis-diff-blocked); }
+
+    /* —— Mission board —— */
+    .mission-board {
+      display: none;
+      flex-direction: column;
+      min-height: 0;
+      min-width: 0;
+      background: var(--aegis-surface-map);
+      overflow: hidden;
+    }
+
+    .mission-board.visible {
+      display: flex;
+    }
+
+    .board-toolbar {
+      display: flex;
+      flex-wrap: wrap;
+      align-items: center;
+      gap: 8px;
+      padding: 8px 10px;
+      border-bottom: 1px solid var(--aegis-border-panel);
+      background: rgba(10, 16, 26, 0.88);
+    }
+
+    .board-toolbar .group {
+      display: flex;
+      align-items: center;
+      gap: 4px;
+    }
+
+    .board-toolbar .group-label {
+      font-size: 10px;
+      letter-spacing: 0.06em;
+      text-transform: uppercase;
+      color: var(--aegis-text-muted);
+      margin-right: 4px;
+    }
+
+    .board-toolbar .sep {
+      width: 1px;
+      height: 22px;
+      background: var(--aegis-border-section);
+      margin: 0 4px;
+    }
+
+    .board-toolbar .spacer { flex: 1; }
+
+    .type-strip {
+      display: none;
+      flex-wrap: wrap;
+      gap: 4px;
+      padding: 6px 10px;
+      background: rgba(74, 158, 255, 0.06);
+      border-bottom: 1px solid var(--aegis-border-section);
+    }
+
+    .type-strip.visible { display: flex; }
+
+    .type-strip .label {
+      font-size: 10px;
+      color: var(--aegis-text-muted);
+      align-self: center;
+      margin-right: 6px;
+      letter-spacing: 0.06em;
+      text-transform: uppercase;
+    }
+
+    .board-table-wrap {
+      flex: 1;
+      min-height: 0;
+      overflow: auto;
+      border: 1px solid var(--aegis-border-section);
+      margin: 6px;
+      background: rgba(8, 14, 22, 0.55);
+    }
+
+    .board-table {
+      width: 100%;
+      border-collapse: collapse;
+      font: 12px/1.35 var(--font-mono);
+    }
+
+    .board-table th {
+      position: sticky;
+      top: 0;
+      z-index: 1;
+      text-align: left;
+      font-size: 10px;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      color: var(--aegis-text-muted);
+      background: rgba(12, 18, 28, 0.98);
+      border-bottom: 1px solid var(--aegis-border-panel);
+      padding: 8px 10px;
+      white-space: nowrap;
+    }
+
+    .board-table td {
+      padding: 8px 10px;
+      border-bottom: 1px solid rgba(50, 65, 80, 0.4);
+      color: var(--aegis-text-data);
+    }
+
+    .board-table tbody tr {
+      cursor: pointer;
+      border-left: 3px solid transparent;
+    }
+
+    .board-table tbody tr:hover {
+      background: rgba(74, 158, 255, 0.08);
+    }
+
+    .board-table tbody tr:focus-visible {
+      outline: 2px solid var(--aegis-selected-ring);
+      outline-offset: -2px;
+    }
+
+    .board-table tbody tr.selected {
+      background: var(--aegis-selected-row-bg);
+      border-left-color: var(--aegis-selected-row-bar);
+    }
+
+    .board-table tbody tr.highlight-finding {
+      box-shadow: inset 0 0 0 1px var(--aegis-diff-warn);
+    }
+
+    .board-table .status-assigned { color: var(--aegis-diff-added); }
+    .board-table .status-blocked { color: var(--aegis-diff-blocked); font-weight: 600; }
+    .board-table .status-unassigned { color: var(--aegis-diff-warn); }
+
+    .board-table .side-blue { color: var(--aegis-affil-friendly); }
+    .board-table .side-red { color: var(--aegis-affil-hostile); }
+    .board-table .side-none { color: var(--aegis-text-muted); }
+
+    /* —— Map —— */
+    .map-host {
+      position: relative;
+      min-width: 0;
+      min-height: 0;
+      background:
+        radial-gradient(ellipse 70% 55% at 35% 40%, rgba(40, 90, 140, 0.22), transparent 60%),
+        radial-gradient(ellipse 50% 40% at 80% 70%, rgba(20, 60, 90, 0.18), transparent 55%),
+        linear-gradient(165deg, #0A121C 0%, var(--aegis-surface-map) 45%, #0C1824 100%);
+      overflow: hidden;
+    }
+
+    .map-host.hidden { display: none; }
+
+    .map-host::before {
+      content: "";
+      position: absolute;
+      inset: 0;
+      opacity: 0.07;
+      pointer-events: none;
+      background-image:
+        linear-gradient(rgba(200, 220, 240, 0.35) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(200, 220, 240, 0.35) 1px, transparent 1px);
+      background-size: 48px 48px;
+    }
+
+    .map-tools-panel {
+      position: absolute;
+      top: 10px;
+      left: 10px;
+      z-index: 3;
+      max-width: calc(100% - 24px);
+      background: rgba(10, 16, 26, 0.88);
+      border: 1px solid var(--aegis-border-panel);
+    }
+
+    .map-tools {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 4px;
+      padding: 6px 6px 0;
+    }
+
+    .map-tools .tool-sep {
+      width: 1px;
+      align-self: stretch;
+      margin: 2px 2px;
+      background: var(--aegis-border-section);
+    }
+
+    .map-tool-status {
+      padding: 4px 8px 6px;
+      font: 10px/1.3 var(--font-mono);
+      color: var(--aegis-text-muted);
+      border-top: 1px solid var(--aegis-border-section);
+      margin-top: 4px;
+    }
+
+    .map-status {
+      position: absolute;
+      top: 10px;
+      right: 10px;
+      z-index: 3;
+      font: 11px/1.3 var(--font-mono);
+      color: var(--aegis-text-muted);
+      padding: 6px 10px;
+      background: rgba(10, 16, 26, 0.88);
+      border: 1px solid var(--aegis-border-panel);
+      max-width: 280px;
+    }
+
+    .map-canvas {
+      position: absolute;
+      inset: 0;
+      width: 100%;
+      height: 100%;
+    }
+
+    .map-symbol {
+      cursor: pointer;
+      outline: none;
+    }
+
+    .map-symbol .glyph {
+      font-size: 14px;
+      font-weight: 700;
+      paint-order: stroke fill;
+      stroke: rgba(8, 14, 22, 0.85);
+      stroke-width: 2px;
+    }
+
+    .map-symbol .label {
+      font-family: var(--font-mono);
+      font-size: 11px;
+      fill: var(--aegis-text-data);
+    }
+
+    .map-symbol.friendly .glyph { fill: var(--aegis-affil-friendly); }
+    .map-symbol.hostile .glyph { fill: var(--aegis-affil-hostile); }
+
+    .map-symbol.selected .ring {
+      fill: rgba(255, 200, 80, 0.15);
+      stroke: var(--aegis-selected-ring);
+      stroke-width: 1.5;
+    }
+
+    .map-symbol:not(.selected) .ring {
+      fill: transparent;
+      stroke: transparent;
+    }
+
+    .zone-poly {
+      fill: rgba(74, 158, 255, 0.12);
+      stroke: var(--aegis-affil-friendly);
+      stroke-width: 1.5;
+      cursor: pointer;
+    }
+
+    .zone-poly.invalid {
+      fill: rgba(232, 93, 93, 0.1);
+      stroke: var(--aegis-diff-blocked);
+      stroke-dasharray: 5 3;
+    }
+
+    .zone-poly.selected {
+      stroke: var(--aegis-selected-ring);
+      stroke-width: 2;
+      fill: rgba(255, 200, 80, 0.12);
+    }
+
+    .zone-poly.highlight-finding {
+      stroke: var(--aegis-diff-blocked);
+      stroke-width: 2.5;
+      animation: pulse-zone 1.2s ease-in-out 2;
+    }
+
+    @keyframes pulse-zone {
+      0%, 100% { fill: rgba(232, 93, 93, 0.1); }
+      50% { fill: rgba(232, 93, 93, 0.22); }
+    }
+
+    .zone-label {
+      font-family: var(--font-mono);
+      font-size: 10px;
+      fill: var(--aegis-text-muted);
+      pointer-events: none;
+    }
+
+    .invalid-badge {
+      font-family: var(--font-ui);
+      font-size: 9px;
+      font-weight: 700;
+      letter-spacing: 0.08em;
+      fill: var(--aegis-diff-blocked);
+    }
+
+    /* —— Inspector —— */
+    .field {
+      display: flex;
+      flex-direction: column;
+      gap: 4px;
+      margin-bottom: 8px;
+    }
+
+    .field label {
+      font-size: 11px;
+      color: var(--aegis-text-muted);
+      letter-spacing: 0.04em;
+    }
+
+    .field input,
+    .field select {
+      background: rgba(8, 14, 22, 0.75);
+      border: 1px solid var(--aegis-border-subtle);
+      color: var(--aegis-text-data);
+      padding: 6px 8px;
+      font: 12px/1.3 var(--font-mono);
+      outline: none;
+    }
+
+    .field input:focus,
+    .field select:focus {
+      border-color: var(--aegis-selected-ring);
+    }
+
+    .detail-block {
+      border-top: 1px solid var(--aegis-border-section);
+      padding-top: 8px;
+      margin-top: 4px;
+    }
+
+    .detail-title {
+      font-size: 11px;
+      font-weight: 700;
+      letter-spacing: 0.08em;
+      color: var(--aegis-text-body);
+      margin: 0 0 6px;
+      text-transform: uppercase;
+    }
+
+    .detail-line {
+      font: 12px/1.45 var(--font-mono);
+      color: var(--aegis-text-muted);
+      margin: 0 0 2px;
+    }
+
+    .detail-line strong {
+      color: var(--aegis-text-data);
+      font-weight: 500;
+    }
+
+    .empty-state {
+      margin: 24px 8px;
+      font-size: 12px;
+      color: var(--aegis-text-muted);
+      line-height: 1.5;
+    }
+
+    .inherit-chain {
+      font: 11px/1.5 var(--font-mono);
+      color: var(--aegis-text-muted);
+      padding: 6px 8px;
+      background: rgba(8, 14, 22, 0.55);
+      border: 1px solid var(--aegis-border-section);
+    }
+
+    .inherit-chain span { color: var(--aegis-diff-changed); }
+
+    .inspector-actions {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 6px;
+      margin-top: 10px;
+    }
+
+    /* —— Findings —— */
+    .findings {
+      height: var(--findings-h);
+      border-top: 1px solid var(--aegis-border-panel);
+      background: var(--aegis-surface-panel);
+      display: grid;
+      grid-template-rows: auto 1fr;
+      padding: 6px 10px 8px;
+      min-height: 0;
+    }
+
+    .findings-head {
+      display: flex;
+      flex-wrap: wrap;
+      align-items: center;
+      gap: 10px;
+      margin-bottom: 6px;
+    }
+
+    .findings-head h2 {
+      margin: 0;
+      font-size: 11px;
+      font-weight: 700;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      color: var(--aegis-text-heading);
+    }
+
+    .chip {
+      font: 10px/1 var(--font-mono);
+      letter-spacing: 0.04em;
+      text-transform: uppercase;
+      padding: 3px 8px;
+      border: 1px solid var(--aegis-border-subtle);
+    }
+
+    .chip.err {
+      color: var(--aegis-diff-blocked);
+      border-color: var(--aegis-diff-blocked);
+    }
+
+    .chip.warn {
+      color: var(--aegis-diff-warn);
+      border-color: var(--aegis-diff-warn);
+    }
+
+    .chip.ok {
+      color: var(--aegis-diff-added);
+      border-color: var(--aegis-diff-added);
+    }
+
+    .chip.blocked {
+      color: var(--aegis-diff-blocked);
+      border-color: var(--aegis-diff-blocked);
+      background: rgba(230, 90, 90, 0.08);
+    }
+
+    .sev-filters {
+      display: flex;
+      gap: 4px;
+    }
+
+    .findings-list {
+      overflow: auto;
+      border: 1px solid var(--aegis-border-section);
+      background: rgba(8, 14, 22, 0.55);
+    }
+
+    .finding {
+      display: grid;
+      grid-template-columns: 64px 1fr auto;
+      gap: 10px;
+      align-items: start;
+      padding: 7px 10px;
+      font: 12px/1.35 var(--font-mono);
+      border-bottom: 1px solid rgba(50, 65, 80, 0.4);
+      cursor: pointer;
+      border-left: 3px solid transparent;
+    }
+
+    .finding.hidden { display: none; }
+
+    .finding:hover { background: rgba(74, 158, 255, 0.08); }
+
+    .finding:focus-visible {
+      outline: 2px solid var(--aegis-selected-ring);
+      outline-offset: -2px;
+    }
+
+    .finding.selected {
+      background: var(--aegis-selected-row-bg);
+      border-left-color: var(--aegis-selected-ring);
+    }
+
+    .finding .sev {
+      font-weight: 700;
+      letter-spacing: 0.06em;
+      font-size: 10px;
+    }
+
+    .finding .sev.error { color: var(--aegis-diff-blocked); }
+    .finding .sev.warn { color: var(--aegis-diff-warn); }
+
+    .finding .code { color: var(--aegis-text-data); }
+    .finding .msg {
+      display: block;
+      margin-top: 2px;
+      font-family: var(--font-ui);
+      font-size: 11px;
+      color: var(--aegis-text-muted);
+    }
+
+    .finding .entity {
+      font-size: 10px;
+      color: var(--aegis-text-muted);
+      white-space: nowrap;
+    }
+
+    .app-footnote {
+      padding: 4px 16px 8px;
+      font-size: 10px;
+      color: var(--aegis-text-muted);
+      border-top: 1px solid rgba(50, 65, 80, 0.35);
+      background: rgba(8, 14, 22, 0.6);
+    }
+
+    @media (prefers-reduced-motion: reduce) {
+      *, *::before, *::after {
+        animation: none !important;
+        transition: none !important;
+      }
+    }
+
+    @media (max-width: 1100px) {
+      :root {
+        --drawer-w: 200px;
+        --inspector-w: 260px;
+      }
+    }
+  </style>
+</head>
+<body>
+  <div class="app" id="app">
+    <header class="review-banner">
+      <div>
+        <h1>Scenario Editor — P2.1 Map + P2.2 Mission Board UX Preview</h1>
+        <p>
+          HTML stand-in for Unity Edit Mode <code>MapAuthoringSurface</code>,
+          <code>MissionBoardPresenter</code>, <code>LiveFindingsPresenter</code>, and
+          <code>SelectionInspector</code>. Canonical truth remains <code>scenario.json</code>
+          via <code>ScenarioDocumentEditor</code>.
+        </p>
+        <span class="footnote">Events / mission graph editor deferred to P2.3 — shell tab present but disabled.</span>
+      </div>
+      <span class="badge">Review mock · P2.1+P2.2</span>
+    </header>
+
+    <nav class="shell-tabs" role="tablist" aria-label="Shell workspace mode">
+      <button type="button" class="btn active" role="tab" aria-selected="true" data-shell="map" id="shell-map">Map</button>
+      <button type="button" class="btn" role="tab" aria-selected="false" data-shell="missions" id="shell-missions">Missions</button>
+      <button type="button" class="btn" role="tab" aria-selected="false" data-shell="events" id="shell-events" disabled title="P2.3 deferred">Events</button>
+    </nav>
+
+    <div class="topbar" role="banner">
+      <span class="scenario-title">Baltic Patrol v3</span>
+      <span class="mode-pill" title="Edit Mode">Edit</span>
+      <span class="dirty" id="dirty-flag" aria-live="polite">• unsaved</span>
+      <span class="meta-chip">editVersion: <strong id="edit-version">14</strong></span>
+      <span class="meta-chip">T+00:00 · 2026-07-04T06:00Z</span>
+      <span class="meta-chip">dbRef: baltic-catalog@tl-42</span>
+      <span class="chip blocked" id="chip-play-blocked" aria-live="polite">Play blocked · 2 errors</span>
+      <span class="topbar-spacer"></span>
+      <div class="btn-row">
+        <button type="button" class="btn" id="btn-load">Load</button>
+        <button type="button" class="btn primary" id="btn-save">Save</button>
+        <button type="button" class="btn" id="btn-undo">Undo</button>
+        <button type="button" class="btn" id="btn-redo" disabled>Redo</button>
+        <button type="button" class="btn" id="btn-play" disabled title="Blocked by ERROR findings">Play</button>
+        <button type="button" class="btn" id="btn-sample" disabled title="Blocked by ERROR findings">Sample</button>
+      </div>
+    </div>
+
+    <div class="workspace" id="workspace">
+      <!-- Left drawer (Map mode) -->
+      <aside class="panel drawer" aria-label="Scenario lists">
+        <div class="panel-title">Theater lists</div>
+        <div class="tabs" role="tablist" aria-label="Drawer tabs">
+          <button type="button" class="btn active" role="tab" aria-selected="true" data-tab="orbat" id="tab-orbat">ORBAT</button>
+          <button type="button" class="btn" role="tab" aria-selected="false" data-tab="zones" id="tab-zones">Zones</button>
+        </div>
+        <div class="list" id="drawer-list" role="listbox" aria-label="ORBAT list"></div>
+      </aside>
+
+      <!-- Map center -->
+      <section class="map-host" id="map-host" aria-label="Map authoring surface">
+        <div class="map-tools-panel">
+          <div class="map-tools" role="toolbar" aria-label="Map tools">
+            <button type="button" class="btn tool active" data-tool="place">Place Unit</button>
+            <button type="button" class="btn tool" data-tool="move">Move</button>
+            <span class="tool-sep" aria-hidden="true"></span>
+            <button type="button" class="btn tool" data-tool="poly">Draw Polygon</button>
+            <button type="button" class="btn tool" data-tool="circle">Draw Circle</button>
+            <button type="button" class="btn tool" data-tool="line">Draw Line</button>
+            <button type="button" class="btn tool" data-tool="measure">Measure</button>
+          </div>
+          <div class="map-tool-status" id="map-tool-status" aria-live="polite">Place/Move · unit placement · Draw · geometry authoring</div>
+        </div>
+        <div class="map-status" id="map-status" aria-live="polite">Tool: Place Unit · click map/list to select</div>
+        <svg class="map-canvas" id="map-svg" viewBox="0 0 960 540" preserveAspectRatio="xMidYMid slice" role="img" aria-label="Baltic theater map">
+          <defs>
+            <linearGradient id="sea" x1="0" y1="0" x2="1" y2="1">
+              <stop offset="0%" stop-color="#0C2438" />
+              <stop offset="100%" stop-color="#081420" />
+            </linearGradient>
+          </defs>
+          <rect width="960" height="540" fill="url(#sea)" />
+          <path d="M40 80 C120 60, 180 100, 260 90 C340 80, 400 40, 480 70 C560 100, 620 60, 700 90 C780 120, 860 80, 940 110 L940 0 L40 0 Z"
+                fill="rgba(30, 48, 40, 0.55)" stroke="rgba(100, 130, 110, 0.35)" stroke-width="1" />
+          <path d="M0 420 C80 390, 140 450, 220 430 C300 410, 360 470, 450 450 C540 430, 620 480, 720 455 C820 430, 900 470, 960 450 L960 540 L0 540 Z"
+                fill="rgba(28, 42, 36, 0.5)" stroke="rgba(100, 130, 110, 0.3)" stroke-width="1" />
+          <g fill="#8C9BAA" font-family="IBM Plex Mono, monospace" font-size="9" opacity="0.55">
+            <text x="48" y="520">14°E</text>
+            <text x="280" y="520">16°E</text>
+            <text x="520" y="520">18°E</text>
+            <text x="760" y="520">20°E</text>
+            <text x="12" y="140">58°N</text>
+            <text x="12" y="280">57°N</text>
+            <text x="12" y="400">56°N</text>
+          </g>
+          <polygon id="zone-rp-patrol-asuw" class="zone-poly" data-id="rp-patrol-asuw"
+                   points="320,180 420,150 510,200 470,280 350,260" />
+          <text class="zone-label" x="360" y="210">rp-patrol-asuw</text>
+          <polygon id="zone-rp-empty-zone" class="zone-poly invalid" data-id="rp-empty-zone"
+                   points="680,300 720,290 700,320" />
+          <text class="zone-label" x="690" y="280">rp-empty-zone</text>
+          <text class="invalid-badge" x="690" y="345">INVALID</text>
+          <g class="map-symbol friendly" data-id="u1" tabindex="0" transform="translate(380, 240)">
+            <circle class="ring" r="16" cx="0" cy="0" />
+            <text class="glyph" x="0" y="5" text-anchor="middle">■</text>
+            <text class="label" x="14" y="4">u1</text>
+          </g>
+          <g class="map-symbol hostile" data-id="hostile-1" tabindex="0" transform="translate(560, 200)">
+            <circle class="ring" r="16" cx="0" cy="0" />
+            <text class="glyph" x="0" y="5" text-anchor="middle">◆</text>
+            <text class="label" x="14" y="4">hostile-1</text>
+          </g>
+          <g class="map-symbol friendly" data-id="ucav-blue" tabindex="0" transform="translate(300, 160)">
+            <circle class="ring" r="16" cx="0" cy="0" />
+            <text class="glyph" x="0" y="5" text-anchor="middle">▲</text>
+            <text class="label" x="14" y="4">ucav-blue</text>
+          </g>
+          <g class="map-symbol hostile" data-id="ucav-red" tabindex="0" transform="translate(640, 170)">
+            <circle class="ring" r="16" cx="0" cy="0" />
+            <text class="glyph" x="0" y="5" text-anchor="middle">▲</text>
+            <text class="label" x="14" y="4">ucav-red</text>
+          </g>
+        </svg>
+      </section>
+
+      <!-- Mission board center -->
+      <section class="mission-board" id="mission-board" aria-label="Mission board">
+        <div class="board-toolbar">
+          <div class="group">
+            <span class="group-label">Type</span>
+            <button type="button" class="btn filter active" data-filter-type="ALL">ALL</button>
+            <button type="button" class="btn filter" data-filter-type="Patrol">Patrol</button>
+            <button type="button" class="btn filter" data-filter-type="Strike">Strike</button>
+            <button type="button" class="btn filter" data-filter-type="Support">Support</button>
+            <button type="button" class="btn filter" data-filter-type="Ferry">Ferry</button>
+          </div>
+          <span class="sep" aria-hidden="true"></span>
+          <div class="group">
+            <span class="group-label">Side</span>
+            <button type="button" class="btn filter active" data-filter-side="ALL">ALL</button>
+            <button type="button" class="btn filter" data-filter-side="Blue">Blue</button>
+            <button type="button" class="btn filter" data-filter-side="Red">Red</button>
+          </div>
+          <span class="sep" aria-hidden="true"></span>
+          <div class="group">
+            <span class="group-label">Status</span>
+            <button type="button" class="btn filter active" data-filter-status="ALL">ALL</button>
+            <button type="button" class="btn filter" data-filter-status="Assigned">Assigned</button>
+            <button type="button" class="btn filter" data-filter-status="Unassigned">Unassigned</button>
+            <button type="button" class="btn filter" data-filter-status="Blocked">Blocked</button>
+          </div>
+          <span class="spacer"></span>
+          <button type="button" class="btn" id="btn-add-mission">Add Mission</button>
+          <button type="button" class="btn" id="btn-clone" disabled>Clone</button>
+          <button type="button" class="btn" id="btn-template" disabled>From Template</button>
+        </div>
+        <div class="type-strip" id="type-strip" aria-label="Inline mission type picker">
+          <span class="label">New mission type</span>
+          <button type="button" class="btn filter" data-new-type="Strike">Strike</button>
+          <button type="button" class="btn filter" data-new-type="Patrol">Patrol</button>
+          <button type="button" class="btn filter" data-new-type="Support">Support</button>
+          <button type="button" class="btn filter" data-new-type="Ferry">Ferry</button>
+          <button type="button" class="btn" id="btn-cancel-add" style="margin-left:auto">Cancel</button>
+        </div>
+        <div class="board-table-wrap">
+          <table class="board-table" role="grid" aria-label="Mission board table">
+            <thead>
+              <tr>
+                <th scope="col">Type</th>
+                <th scope="col">Id</th>
+                <th scope="col">Side</th>
+                <th scope="col">Units</th>
+                <th scope="col">Status</th>
+                <th scope="col">Summary</th>
+              </tr>
+            </thead>
+            <tbody id="board-body"></tbody>
+          </table>
+        </div>
+      </section>
+
+      <!-- Inspector -->
+      <aside class="panel inspector" aria-label="Selection inspector">
+        <div class="panel-title">Selection inspector</div>
+        <div id="inspector-body">
+          <p class="empty-state">Select a unit, zone, or mission</p>
+        </div>
+      </aside>
+    </div>
+
+    <!-- Findings -->
+    <section class="findings" aria-label="Live findings">
+      <div class="findings-head">
+        <h2>Live Findings</h2>
+        <div class="sev-filters" role="group" aria-label="Severity filter">
+          <button type="button" class="btn filter active" data-sev-filter="all">All</button>
+          <button type="button" class="btn filter" data-sev-filter="error">Errors</button>
+          <button type="button" class="btn filter" data-sev-filter="warn">Warnings</button>
+        </div>
+        <span class="chip err" id="chip-err">2 errors</span>
+        <span class="chip warn" id="chip-warn">1 warning</span>
+        <span class="chip ok">Validation Engine · debounce 300ms</span>
+        <span class="meta-chip" style="margin-left:auto">Save allowed · Play/Sample gated on ERROR</span>
+      </div>
+      <div class="findings-list" id="findings-list" role="listbox" aria-label="Validation findings"></div>
+    </section>
+
+    <footer class="app-footnote">
+      P2.3 scope: Events tab + mission dependency graph editor — not in this mock. Switch Map ↔ Missions preserves selection and findings highlight.
+    </footer>
+  </div>
+
+  <script>
+    (function () {
+      const units = {
+        "u1": {
+          kind: "unit", id: "u1", shape: "■", side: "Blue", affiliation: "friendly",
+          domain: "Surface", lat: 57.12, lon: 17.45, mission: "patrol-asuw",
+          platform: "FFG — Type 31", roe: "Weapons Tight", emcon: "EMCON B",
+          inherit: "Side Blue ROE → Group TG-01 → <span>u1 override: Weapons Tight</span>"
+        },
+        "hostile-1": {
+          kind: "unit", id: "hostile-1", shape: "◆", side: "Red", affiliation: "hostile",
+          domain: "Surface", lat: 57.40, lon: 18.90, mission: "—",
+          platform: "Corvette — Buyan-M", roe: "Weapons Free", emcon: "EMCON A",
+          inherit: "Side Red ROE → <span>hostile-1 (side default)</span>"
+        },
+        "ucav-blue": {
+          kind: "unit", id: "ucav-blue", shape: "▲", side: "Blue", affiliation: "friendly",
+          domain: "Air / UCAV", lat: 57.55, lon: 16.80, mission: "strike-alpha",
+          platform: "UCAV — MQ-9 class", roe: "Weapons Free", emcon: "EMCON C",
+          inherit: "Side Blue ROE → Mission strike-alpha → <span>ucav-blue</span>"
+        },
+        "ucav-red": {
+          kind: "unit", id: "ucav-red", shape: "▲", side: "Red", affiliation: "hostile",
+          domain: "Air / UCAV", lat: 57.50, lon: 19.20, mission: "—",
+          platform: "UCAV — Orion class", roe: "Weapons Free", emcon: "EMCON A",
+          inherit: "Side Red ROE → <span>ucav-red (side default)</span>"
+        }
+      };
+
+      const missions = {
+        "patrol-asuw": {
+          kind: "mission", id: "patrol-asuw", type: "Patrol", variant: "ASuW",
+          side: "Blue", units: ["u1"], status: "Assigned", boardStatus: "Assigned",
+          zone: "rp-patrol-asuw", summary: "Surface ASuW patrol in rp-patrol-asuw"
+        },
+        "strike-alpha": {
+          kind: "mission", id: "strike-alpha", type: "Strike", variant: "—",
+          side: "Blue", units: ["ucav-blue"], status: "Blocked — unreachable", boardStatus: "Blocked",
+          zone: "—", target: "hostile-1 @ 420nm",
+          summary: "Strike hostile-1 — ucav-blue out of combat_radius_nm"
+        },
+        "ferry-redeploy": {
+          kind: "mission", id: "ferry-redeploy", type: "Ferry", variant: "—",
+          side: "—", units: [], status: "Incomplete", boardStatus: "Unassigned",
+          zone: "—", dest: "base-karlskrona",
+          summary: "Ferry redeploy to base-karlskrona — no units assigned"
+        }
+      };
+
+      const zones = {
+        "rp-patrol-asuw": {
+          kind: "zone", id: "rp-patrol-asuw", geom: "Polygon", waypoints: 5,
+          valid: true, mission: "patrol-asuw", note: "Prosecution optional unset"
+        },
+        "rp-empty-zone": {
+          kind: "zone", id: "rp-empty-zone", geom: "Polygon", waypoints: 2,
+          valid: false, mission: "—", note: "Degenerate — stays visible for in-place fix"
+        }
+      };
+
+      const findings = [
+        {
+          id: "f1", sev: "error", code: "STRIKE_UNREACHABLE",
+          entity: "strike-alpha", select: "strike-alpha", missionRelated: true,
+          msg: "Target hostile-1 beyond combat_radius_nm for assigned unit ucav-blue."
+        },
+        {
+          id: "f2", sev: "error", code: "PATROL_ZONE_DEGENERATE",
+          entity: "rp-empty-zone", select: "rp-empty-zone", missionRelated: false,
+          msg: "Zone has <3 waypoints; object remains on map marked INVALID."
+        },
+        {
+          id: "f3", sev: "warn", code: "MISSION_NO_UNITS",
+          entity: "ferry-redeploy", select: "ferry-redeploy", missionRelated: true,
+          msg: "Ferry mission has no assigned units; export may warn depending on floor."
+        }
+      ];
+
+      let selectedId = null;
+      let highlightedFindingId = null;
+      let activeTab = "orbat";
+      let shellMode = "map";
+      let editVersion = 14;
+      let dirty = true;
+      let activeTool = "place";
+      let sevFilter = "all";
+      let filterType = "ALL";
+      let filterSide = "ALL";
+      let filterStatus = "ALL";
+      let nextMissionNum = 1;
+
+      const workspace = document.getElementById("workspace");
+      const mapHost = document.getElementById("map-host");
+      const missionBoard = document.getElementById("mission-board");
+      const drawerList = document.getElementById("drawer-list");
+      const boardBody = document.getElementById("board-body");
+      const inspectorBody = document.getElementById("inspector-body");
+      const findingsList = document.getElementById("findings-list");
+      const mapStatus = document.getElementById("map-status");
+      const mapToolStatus = document.getElementById("map-tool-status");
+      const dirtyFlag = document.getElementById("dirty-flag");
+      const editVersionEl = document.getElementById("edit-version");
+      const btnPlay = document.getElementById("btn-play");
+      const btnSample = document.getElementById("btn-sample");
+      const btnClone = document.getElementById("btn-clone");
+      const btnTemplate = document.getElementById("btn-template");
+      const chipPlayBlocked = document.getElementById("chip-play-blocked");
+      const typeStrip = document.getElementById("type-strip");
+
+      function entityKind(id) {
+        if (units[id]) return "unit";
+        if (missions[id]) return "mission";
+        if (zones[id]) return "zone";
+        return null;
+      }
+
+      function setShellMode(mode) {
+        if (mode === "events") return;
+        shellMode = mode;
+        document.querySelectorAll(".shell-tabs .btn").forEach((btn) => {
+          const on = btn.dataset.shell === mode;
+          btn.classList.toggle("active", on);
+          btn.setAttribute("aria-selected", on ? "true" : "false");
+        });
+        const isMap = mode === "map";
+        mapHost.classList.toggle("hidden", !isMap);
+        missionBoard.classList.toggle("visible", !isMap);
+        workspace.classList.toggle("missions-mode", !isMap);
+        renderBoard();
+        renderInspector();
+      }
+
+      function select(id, opts) {
+        opts = opts || {};
+        selectedId = id;
+        syncMapSelection();
+        renderDrawer();
+        renderBoard();
+        renderInspector();
+        renderFindings();
+        updateBoardActions();
+
+        if (opts.findingId) {
+          highlightedFindingId = opts.findingId;
+          pulseFindingHighlight();
+        }
+
+        if (opts.fromFinding) {
+          const f = findings.find((x) => x.id === opts.findingId);
+          if (f && f.missionRelated) {
+            setShellMode("missions");
+          } else if (entityKind(id) === "zone" || entityKind(id) === "unit") {
+            setShellMode("map");
+            if (entityKind(id) === "zone") setTab("zones");
+            else setTab("orbat");
+          }
+        }
+      }
+
+      function pulseFindingHighlight() {
+        document.querySelectorAll(".zone-poly, .board-table tbody tr").forEach((el) => {
+          el.classList.remove("highlight-finding");
+        });
+        if (!highlightedFindingId) return;
+        const f = findings.find((x) => x.id === highlightedFindingId);
+        if (!f) return;
+        const zoneEl = document.querySelector('.zone-poly[data-id="' + f.select + '"]');
+        if (zoneEl) zoneEl.classList.add("highlight-finding");
+        const row = boardBody.querySelector('tr[data-id="' + f.entity + '"]');
+        if (row) row.classList.add("highlight-finding");
+      }
+
+      function syncMapSelection() {
+        document.querySelectorAll(".map-symbol").forEach((el) => {
+          el.classList.toggle("selected", el.dataset.id === selectedId);
+        });
+        document.querySelectorAll(".zone-poly").forEach((el) => {
+          el.classList.toggle("selected", el.dataset.id === selectedId);
+        });
+      }
+
+      function setTab(tab) {
+        activeTab = tab;
+        document.querySelectorAll(".drawer .tabs .btn").forEach((btn) => {
+          const on = btn.dataset.tab === tab;
+          btn.classList.toggle("active", on);
+          btn.setAttribute("aria-selected", on ? "true" : "false");
+        });
+        const labels = { orbat: "ORBAT list", zones: "Zones list" };
+        drawerList.setAttribute("aria-label", labels[tab]);
+        renderDrawer();
+      }
+
+      function missionMatchesFilters(m) {
+        if (filterType !== "ALL" && m.type !== filterType) return false;
+        if (filterSide !== "ALL" && m.side !== filterSide) return false;
+        if (filterStatus !== "ALL" && m.boardStatus !== filterStatus) return false;
+        return true;
+      }
+
+      function renderDrawer() {
+        drawerList.innerHTML = "";
+        let items = [];
+        if (activeTab === "orbat") {
+          items = Object.values(units).map((u) => ({
+            id: u.id,
+            html: '<span class="shape" aria-hidden="true">' + u.shape + '</span>' + u.id,
+            meta: u.side + " · " + u.domain + " · mission " + u.mission,
+            cls: u.affiliation
+          }));
+        } else {
+          items = Object.values(zones).map((z) => ({
+            id: z.id,
+            html: z.id,
+            meta: z.geom + " · " + z.waypoints + " wp · " + (z.valid ? "valid" : "INVALID") + " · " + z.mission,
+            cls: z.valid ? "" : "invalid"
+          }));
+        }
+
+        items.forEach((item) => {
+          const row = document.createElement("div");
+          row.className = "list-item " + (item.cls || "");
+          if (item.id === selectedId) row.classList.add("selected");
+          row.setAttribute("role", "option");
+          row.setAttribute("tabindex", "0");
+          row.setAttribute("aria-selected", item.id === selectedId ? "true" : "false");
+          row.dataset.id = item.id;
+          row.innerHTML = item.html + '<span class="meta">' + item.meta + '</span>';
+          row.addEventListener("click", () => select(item.id));
+          row.addEventListener("keydown", (e) => {
+            if (e.key === "Enter" || e.key === " ") {
+              e.preventDefault();
+              select(item.id);
+            }
+          });
+          drawerList.appendChild(row);
+        });
+      }
+
+      function sideClass(side) {
+        if (side === "Blue") return "side-blue";
+        if (side === "Red") return "side-red";
+        return "side-none";
+      }
+
+      function statusClass(status) {
+        if (status === "Assigned") return "status-assigned";
+        if (status === "Blocked") return "status-blocked";
+        return "status-unassigned";
+      }
+
+      function renderBoard() {
+        boardBody.innerHTML = "";
+        Object.values(missions)
+          .filter(missionMatchesFilters)
+          .forEach((m) => {
+            const tr = document.createElement("tr");
+            tr.dataset.id = m.id;
+            tr.setAttribute("tabindex", "0");
+            tr.setAttribute("role", "row");
+            if (m.id === selectedId) tr.classList.add("selected");
+            if (highlightedFindingId) {
+              const f = findings.find((x) => x.id === highlightedFindingId);
+              if (f && (f.entity === m.id || f.select === m.id)) {
+                tr.classList.add("highlight-finding");
+              }
+            }
+            tr.innerHTML =
+              "<td>" + m.type + "</td>" +
+              "<td>" + m.id + "</td>" +
+              '<td class="' + sideClass(m.side) + '">' + m.side + "</td>" +
+              "<td>" + m.units.length + "</td>" +
+              '<td class="' + statusClass(m.boardStatus) + '">' + m.boardStatus + "</td>" +
+              "<td>" + m.summary + "</td>";
+
+            tr.addEventListener("click", () => select(m.id));
+            tr.addEventListener("dblclick", () => {
+              select(m.id);
+              showOnMap(m.id);
+            });
+            tr.addEventListener("keydown", (e) => {
+              if (e.key === "Enter" || e.key === " ") {
+                e.preventDefault();
+                select(m.id);
+              }
+            });
+            boardBody.appendChild(tr);
+          });
+      }
+
+      function updateBoardActions() {
+        const isMission = missions[selectedId];
+        btnClone.disabled = !isMission;
+        btnTemplate.disabled = !isMission;
+      }
+
+      function showOnMap(missionId) {
+        const m = missions[missionId];
+        if (!m) return;
+        setShellMode("map");
+        if (m.zone && m.zone !== "—" && zones[m.zone]) {
+          select(m.zone);
+          setTab("zones");
+        } else if (m.units.length > 0 && units[m.units[0]]) {
+          select(m.units[0]);
+          setTab("orbat");
+        } else {
+          select(missionId);
+        }
+        mapStatus.textContent = "Show on Map → " + missionId + " · selection synced";
+      }
+
+      function renderInspector() {
+        if (!selectedId) {
+          inspectorBody.innerHTML = '<p class="empty-state">Select a unit, zone, or mission</p>';
+          return;
+        }
+
+        if (units[selectedId]) {
+          const u = units[selectedId];
+          inspectorBody.innerHTML =
+            '<div class="field"><label>Unit</label><input type="text" readonly value="' + u.shape + " " + u.id + '" /></div>' +
+            '<div class="field"><label>Platform</label><input type="text" readonly value="' + u.platform + '" /></div>' +
+            '<div class="field"><label>Side / Domain</label><input type="text" readonly value="' + u.side + " · " + u.domain + '" /></div>' +
+            '<div class="field"><label>Position (lat, lon)</label><input type="text" readonly value="' + u.lat.toFixed(4) + ", " + u.lon.toFixed(4) + '" /></div>' +
+            '<div class="field"><label for="mission-assign">Attach mission</label><select id="mission-assign">' +
+            '<option value="">— none —</option>' +
+            Object.values(missions).map(function (m) {
+              return '<option value="' + m.id + '"' + (u.mission === m.id ? " selected" : "") + ">" + m.id + " (" + m.type + ")</option>";
+            }).join("") +
+            "</select></div>" +
+            '<div class="detail-block"><div class="detail-title">Doctrine chain</div>' +
+            '<div class="inherit-chain">' + u.inherit + "</div>" +
+            '<p class="detail-line" style="margin-top:8px">ROE <strong>' + u.roe + "</strong> · EMCON <strong>" + u.emcon + "</strong></p></div>" +
+            '<p class="detail-line" style="margin-top:10px;font-size:10px">Gesture-end commits via ScenarioEditCommandBus → ScenarioDocumentEditor</p>';
+          document.getElementById("mission-assign").addEventListener("change", function (e) {
+            bumpEdit("Attached " + (e.target.value || "none") + " → " + u.id);
+            u.mission = e.target.value || "—";
+            renderDrawer();
+          });
+          return;
+        }
+
+        if (zones[selectedId]) {
+          const z = zones[selectedId];
+          inspectorBody.innerHTML =
+            '<div class="field"><label>Reference point</label><input type="text" readonly value="' + z.id + '" /></div>' +
+            '<div class="field"><label>Geometry</label><input type="text" readonly value="' + z.geom + '" /></div>' +
+            '<div class="field"><label>Waypoints</label><input type="text" readonly value="' + z.waypoints + '" /></div>' +
+            '<div class="field"><label>Validity</label><input type="text" readonly value="' + (z.valid ? "Valid" : "INVALID — stays on map") + '" style="' + (z.valid ? "" : "color:#E65A5A;font-weight:600") + '" /></div>' +
+            '<div class="detail-block"><div class="detail-title">Links</div>' +
+            "<p class=\"detail-line\">Mission <strong>" + z.mission + "</strong></p>" +
+            "<p class=\"detail-line\">" + z.note + "</p></div>";
+          return;
+        }
+
+        if (missions[selectedId]) {
+          const m = missions[selectedId];
+          inspectorBody.innerHTML =
+            '<div class="field"><label>Mission</label><input type="text" readonly value="' + m.id + '" /></div>' +
+            '<div class="field"><label>Type</label><input type="text" readonly value="' + m.type + (m.variant !== "—" ? " / " + m.variant : "") + '" /></div>' +
+            '<div class="field"><label>Side</label><input type="text" readonly value="' + m.side + '" /></div>' +
+            '<div class="field"><label>Assigned units</label><input type="text" readonly value="' + (m.units.length ? m.units.join(", ") : "(none)") + '" /></div>' +
+            '<div class="field"><label>Zone / target</label><input type="text" readonly value="' + (m.zone !== "—" ? m.zone : (m.target || m.dest || "—")) + '" /></div>' +
+            '<div class="detail-block"><div class="detail-title">Status</div>' +
+            "<p class=\"detail-line\"><strong>" + m.status + "</strong></p></div>" +
+            '<div class="inspector-actions">' +
+            '<button type="button" class="btn" id="btn-show-map">Show on Map</button>' +
+            "</div>";
+          document.getElementById("btn-show-map").addEventListener("click", () => showOnMap(m.id));
+        }
+      }
+
+      function renderFindings() {
+        findingsList.innerHTML = "";
+        findings.forEach((f) => {
+          const hidden = sevFilter !== "all" && f.sev !== sevFilter;
+          const row = document.createElement("div");
+          row.className = "finding" +
+            (hidden ? " hidden" : "") +
+            (f.select === selectedId || f.entity === selectedId ? " selected" : "");
+          row.dataset.id = f.id;
+          row.setAttribute("role", "option");
+          row.setAttribute("tabindex", hidden ? "-1" : "0");
+          row.innerHTML =
+            '<span class="sev ' + f.sev + '">' + (f.sev === "error" ? "ERROR" : "WARN") + "</span>" +
+            "<div><span class=\"code\">" + f.code + "</span><span class=\"msg\">" + f.msg + "</span></div>" +
+            '<span class="entity">' + f.entity + "</span>";
+          const go = () => select(f.select, { fromFinding: true, findingId: f.id });
+          row.addEventListener("click", go);
+          row.addEventListener("keydown", (e) => {
+            if (e.key === "Enter" || e.key === " ") {
+              e.preventDefault();
+              go();
+            }
+          });
+          findingsList.appendChild(row);
+        });
+
+        const errCount = findings.filter((f) => f.sev === "error").length;
+        const warnCount = findings.filter((f) => f.sev === "warn").length;
+        document.getElementById("chip-err").textContent = errCount + " error" + (errCount === 1 ? "" : "s");
+        document.getElementById("chip-warn").textContent = warnCount + " warning" + (warnCount === 1 ? "" : "s");
+        const blocked = errCount > 0;
+        btnPlay.disabled = blocked;
+        btnSample.disabled = blocked;
+        chipPlayBlocked.textContent = blocked
+          ? "Play blocked · " + errCount + " error" + (errCount === 1 ? "" : "s")
+          : "Play ready";
+        chipPlayBlocked.classList.toggle("blocked", blocked);
+        chipPlayBlocked.classList.toggle("ok", !blocked);
+      }
+
+      function bumpEdit(msg) {
+        dirty = true;
+        editVersion += 1;
+        dirtyFlag.textContent = "• unsaved";
+        dirtyFlag.classList.remove("clean");
+        editVersionEl.textContent = String(editVersion);
+        mapStatus.textContent = "Committed: " + msg + " · editVersion " + editVersion;
+      }
+
+      function setTool(tool) {
+        activeTool = tool;
+        document.querySelectorAll(".map-tools .btn").forEach((btn) => {
+          btn.classList.toggle("active", btn.dataset.tool === tool);
+        });
+        const labels = {
+          place: "Place Unit",
+          move: "Move",
+          poly: "Draw Polygon",
+          circle: "Draw Circle",
+          line: "Draw Line",
+          measure: "Measure"
+        };
+        const group = (tool === "place" || tool === "move") ? "Place/Move group" : "Draw group";
+        mapStatus.textContent = "Tool: " + labels[tool] + " · tentative overlay until gesture-end";
+        mapToolStatus.textContent = group + " · " + labels[tool] + " armed";
+      }
+
+      // Shell tabs
+      document.querySelectorAll(".shell-tabs .btn").forEach((btn) => {
+        btn.addEventListener("click", () => {
+          if (!btn.disabled) setShellMode(btn.dataset.shell);
+        });
+      });
+
+      // Drawer tabs
+      document.querySelectorAll(".drawer .tabs .btn").forEach((btn) => {
+        btn.addEventListener("click", () => setTab(btn.dataset.tab));
+      });
+
+      // Board filters
+      document.querySelectorAll("[data-filter-type]").forEach((btn) => {
+        btn.addEventListener("click", () => {
+          filterType = btn.dataset.filterType;
+          document.querySelectorAll("[data-filter-type]").forEach((b) => b.classList.toggle("active", b.dataset.filterType === filterType));
+          renderBoard();
+        });
+      });
+      document.querySelectorAll("[data-filter-side]").forEach((btn) => {
+        btn.addEventListener("click", () => {
+          filterSide = btn.dataset.filterSide;
+          document.querySelectorAll("[data-filter-side]").forEach((b) => b.classList.toggle("active", b.dataset.filterSide === filterSide));
+          renderBoard();
+        });
+      });
+      document.querySelectorAll("[data-filter-status]").forEach((btn) => {
+        btn.addEventListener("click", () => {
+          filterStatus = btn.dataset.filterStatus;
+          document.querySelectorAll("[data-filter-status]").forEach((b) => b.classList.toggle("active", b.dataset.filterStatus === filterStatus));
+          renderBoard();
+        });
+      });
+
+      // Severity filters
+      document.querySelectorAll("[data-sev-filter]").forEach((btn) => {
+        btn.addEventListener("click", () => {
+          sevFilter = btn.dataset.sevFilter;
+          document.querySelectorAll("[data-sev-filter]").forEach((b) => b.classList.toggle("active", b.dataset.sevFilter === sevFilter));
+          renderFindings();
+        });
+      });
+
+      // Add mission inline strip
+      document.getElementById("btn-add-mission").addEventListener("click", () => {
+        typeStrip.classList.add("visible");
+      });
+      document.getElementById("btn-cancel-add").addEventListener("click", () => {
+        typeStrip.classList.remove("visible");
+      });
+      document.querySelectorAll("[data-new-type]").forEach((btn) => {
+        btn.addEventListener("click", () => {
+          const type = btn.dataset.newType;
+          const id = "new-" + type.toLowerCase() + "-" + nextMissionNum++;
+          missions[id] = {
+            kind: "mission", id: id, type: type, variant: "—",
+            side: "—", units: [], status: "Draft", boardStatus: "Unassigned",
+            zone: "—", summary: "New " + type + " mission (inline add — no wizard)"
+          };
+          typeStrip.classList.remove("visible");
+          bumpEdit("Added mission " + id);
+          select(id);
+          setShellMode("missions");
+          renderBoard();
+        });
+      });
+
+      document.getElementById("btn-clone").addEventListener("click", () => {
+        if (!missions[selectedId]) return;
+        const src = missions[selectedId];
+        const id = src.id + "-clone-" + nextMissionNum++;
+        missions[id] = Object.assign({}, src, { id: id, summary: "Clone of " + src.id });
+        bumpEdit("Cloned " + src.id + " → " + id);
+        select(id);
+        renderBoard();
+      });
+
+      document.getElementById("btn-template").addEventListener("click", () => {
+        if (!missions[selectedId]) return;
+        bumpEdit("From Template stub → " + selectedId);
+        mapStatus.textContent = "Template picker stub — would open catalog template strip";
+      });
+
+      // Map tools
+      document.querySelectorAll(".map-tools .btn").forEach((btn) => {
+        btn.addEventListener("click", () => {
+          setTool(btn.dataset.tool);
+          if (btn.dataset.tool !== "measure") {
+            bumpEdit(btn.dataset.tool + " tool armed (mock)");
+          }
+        });
+      });
+
+      // Map symbols
+      document.querySelectorAll(".map-symbol").forEach((el) => {
+        el.addEventListener("click", (e) => {
+          e.stopPropagation();
+          select(el.dataset.id);
+          setTab("orbat");
+        });
+        el.addEventListener("keydown", (e) => {
+          if (e.key === "Enter" || e.key === " ") {
+            e.preventDefault();
+            select(el.dataset.id);
+            setTab("orbat");
+          }
+        });
+      });
+
+      // Zones
+      document.querySelectorAll(".zone-poly").forEach((el) => {
+        el.addEventListener("click", (e) => {
+          e.stopPropagation();
+          select(el.dataset.id);
+          setTab("zones");
+        });
+      });
+
+      // Top actions
+      document.getElementById("btn-save").addEventListener("click", () => {
+        dirty = false;
+        dirtyFlag.textContent = "saved";
+        dirtyFlag.classList.add("clean");
+        mapStatus.textContent = "Saved scenario.json · editVersion " + editVersion + " · findings re-validated";
+      });
+
+      document.getElementById("btn-load").addEventListener("click", () => {
+        mapStatus.textContent = "Loaded Baltic Patrol v3 · editorState (camera/layers) derived-only";
+      });
+
+      document.getElementById("btn-undo").addEventListener("click", () => {
+        if (editVersion > 1) {
+          editVersion -= 1;
+          editVersionEl.textContent = String(editVersion);
+          dirty = true;
+          dirtyFlag.textContent = "• unsaved";
+          dirtyFlag.classList.remove("clean");
+          mapStatus.textContent = "Undo → editVersion " + editVersion;
+          document.getElementById("btn-redo").disabled = false;
+        }
+      });
+
+      document.getElementById("btn-redo").addEventListener("click", () => {
+        editVersion += 1;
+        editVersionEl.textContent = String(editVersion);
+        mapStatus.textContent = "Redo → editVersion " + editVersion;
+      });
+
+      // Init
+      renderDrawer();
+      renderBoard();
+      renderFindings();
+      renderInspector();
+      select("u1");
+      setTool("place");
+    })();
+  </script>
+</body>
+</html>

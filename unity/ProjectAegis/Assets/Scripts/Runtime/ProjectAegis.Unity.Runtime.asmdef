@@ -1,0 +1,14 @@
+{
+    "name": "ProjectAegis.Unity.Runtime",
+    "rootNamespace": "ProjectAegis.Unity.Runtime",
+    "references": [],
+    "includePlatforms": [],
+    "excludePlatforms": [],
+    "allowUnsafeCode": false,
+    "overrideReferences": false,
+    "precompiledReferences": [],
+    "autoReferenced": true,
+    "defineConstraints": [],
+    "versionDefines": [],
+    "noEngineReferences": false
+}

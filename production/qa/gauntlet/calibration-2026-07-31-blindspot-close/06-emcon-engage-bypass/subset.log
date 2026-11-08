@@ -1,0 +1,11 @@
+=== tier-1 ticks=6 seeds=42,7,123 ===
+{"kept": 12, "out": "production/qa/gauntlet/saboteur-tmp/saboteur-06-emcon-engage-bypass/tier-1/results-anchors.csv"}
+{"tier": "tier-1", "pass": true}
+=== tier-3 ticks=16 seeds=42,7,123 ===
+{"kept": 21, "out": "production/qa/gauntlet/saboteur-tmp/saboteur-06-emcon-engage-bypass/tier-3/results-anchors.csv"}
+{"tier": "tier-3", "pass": false}
+=== tier-5 ticks=40 seeds=42,7,123 ===
+{"kept": 12, "out": "production/qa/gauntlet/saboteur-tmp/saboteur-06-emcon-engage-bypass/tier-5/results-anchors.csv"}
+{"tier": "tier-5", "pass": true}
+{"run": "production/qa/gauntlet/saboteur-tmp/saboteur-06-emcon-engage-bypass", "pass": false}
+RUN_VERDICT exit=1 run_dir=production/qa/gauntlet/saboteur-tmp/saboteur-06-emcon-engage-bypass

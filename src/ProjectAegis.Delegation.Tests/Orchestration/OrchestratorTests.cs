@@ -1,6 +1,5 @@
 namespace ProjectAegis.Delegation.Tests.Orchestration;
 
-using ProjectAegis.Delegation.Controllers;
 using ProjectAegis.Delegation.Core;
 using ProjectAegis.Delegation.Orchestration;
 using ProjectAegis.Delegation.Sim;
@@ -31,7 +30,7 @@ public sealed class OrchestratorTests
         orchestrator.Register(unit);
         orchestrator.BeginExecution();
 
-        var state = new ObservedState(0, ContactCount: 2, ActiveEngagementCount: 0, new Dictionary<TargetId, bool>());
+        var state = new ObservedState(0, ContactCount: 2, ActiveEngagementCount: 0, new Dictionary<TargetId, bool>(), PrimaryHostileDestroyed: false);
         orchestrator.Tick(state);
         orchestrator.Tick(state with { SimTime = 1 });
         return orchestrator.ExecutedOrders.Select(o => o.Kind).ToArray();

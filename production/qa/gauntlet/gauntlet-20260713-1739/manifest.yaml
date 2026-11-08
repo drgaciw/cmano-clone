@@ -1,0 +1,59 @@
+{
+  "run_id": "gauntlet-20260713-1739",
+  "created_utc": "2026-07-13T22:39:01.514291Z",
+  "git_sha": "917e7160051b3ec1c413960c8630261aabbb6f46",
+  "seeds": [
+    42,
+    7,
+    123
+  ],
+  "ticks_by_tier": {
+    "1": 6,
+    "2": 10,
+    "3": 16,
+    "4": 24,
+    "5": 40,
+    "extra": 12
+  },
+  "mode": "max-variance-inventory-smoke",
+  "scenarios_by_tier": {
+    "1": [
+      "gauntlet-t1-patrol-a",
+      "gauntlet-t1-patrol-b",
+      "gauntlet-t1-patrol-c",
+      "gauntlet-t1-patrol-d"
+    ],
+    "2": [
+      "gauntlet-t2-escort-a",
+      "gauntlet-t2-escort-passive",
+      "gauntlet-t2-strike-a",
+      "gauntlet-t2-strike-event"
+    ],
+    "3": [
+      "gauntlet-t3-emcon-phases",
+      "gauntlet-t3-escort-strike",
+      "gauntlet-t3-event-chain",
+      "gauntlet-t3-id-roe"
+    ],
+    "4": [
+      "gauntlet-t4-asymm-roe",
+      "gauntlet-t4-multi-mission",
+      "gauntlet-t4-random-inject",
+      "gauntlet-t4-weighted"
+    ],
+    "5": [
+      "gauntlet-t5-cascade",
+      "gauntlet-t5-dynamic-obj",
+      "gauntlet-t5-roe-change",
+      "gauntlet-t5-theater"
+    ],
+    "extra": [
+      "gauntlet-joint-orbat-smoke",
+      "gauntlet-multidomain-shooters",
+      "gauntlet-theater-dynamic-victory",
+      "gauntlet-theater-inject"
+    ]
+  },
+  "missing_expect": [],
+  "total_scenarios": 24
+}

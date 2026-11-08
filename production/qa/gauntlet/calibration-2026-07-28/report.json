@@ -1,0 +1,95 @@
+{
+  "summary": {
+    "caught": 4,
+    "survived": 4,
+    "invalid": 0,
+    "killRate": "4/8"
+  },
+  "results": [
+    {
+      "id": "00-noop-comment",
+      "expectedOracles": [],
+      "firedOracles": [],
+      "outcome": "survived"
+    },
+    {
+      "id": "01-pd-weakened",
+      "expectedOracles": [
+        "goldens",
+        "victory_roe"
+      ],
+      "firedOracles": [
+        "goldens",
+        "tiers"
+      ],
+      "outcome": "caught"
+    },
+    {
+      "id": "02-roe-tight-inverted",
+      "expectedOracles": [
+        "victory_roe",
+        "goldens",
+        "token_coverage"
+      ],
+      "firedOracles": [
+        "goldens",
+        "tiers",
+        "token_coverage",
+        "victory_roe"
+      ],
+      "outcome": "caught"
+    },
+    {
+      "id": "03-salvo-off-by-one",
+      "expectedOracles": [
+        "goldens",
+        "victory_roe"
+      ],
+      "firedOracles": [],
+      "outcome": "survived"
+    },
+    {
+      "id": "04-rng-seed-ignored",
+      "expectedOracles": [
+        "sanity",
+        "goldens",
+        "replay_golden"
+      ],
+      "firedOracles": [
+        "goldens",
+        "tiers",
+        "token_coverage"
+      ],
+      "outcome": "caught"
+    },
+    {
+      "id": "05-contact-lifecycle-skip",
+      "expectedOracles": [
+        "goldens"
+      ],
+      "firedOracles": [],
+      "outcome": "survived"
+    },
+    {
+      "id": "06-emcon-engage-bypass",
+      "expectedOracles": [],
+      "firedOracles": [],
+      "outcome": "survived"
+    },
+    {
+      "id": "07-magazine-not-decremented",
+      "expectedOracles": [
+        "token_coverage",
+        "goldens",
+        "victory_roe"
+      ],
+      "firedOracles": [
+        "goldens",
+        "tiers",
+        "token_coverage",
+        "victory_roe"
+      ],
+      "outcome": "caught"
+    }
+  ]
+}

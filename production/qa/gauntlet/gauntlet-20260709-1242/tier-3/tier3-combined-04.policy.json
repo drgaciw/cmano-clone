@@ -1,0 +1,77 @@
+{
+  "metadata": {
+    "title": "Tier 3 Combined 04 — Maximum Density Combined Task Group",
+    "description": "Maximum Tier-3 platform density: full Blue task group (u1 surface, ucav-blue air, usub-blue submarine) executing combined escort+strike against a defended Red position (hostile-1 surface, usub-red submarine). u1 holds the designated-target track and executes Strike (destroy-target); usub-blue provides ASW escort against usub-red (protect-HVU) under positive-ID-required WeaponsTight doctrine; ucav-blue provides overhead recon. EMCON: u1/ucav-blue active for strike coordination, usub-blue passive for stealth ASW escort. Event chain: task group rendezvous at tick 3, target designation at tick 8, weapons release at tick 13.",
+    "author": "qa-gauntlet",
+    "schemaVersion": 1,
+    "dbRef": "baltic_patrol",
+    "seed": 999,
+    "policyId": "baltic-v3-tier3-combined-04",
+    "tlBranch": "TL-0",
+    "maxTechnologyLevel": 0,
+    "sideRoe": "WeaponsFree"
+  },
+  "missions": [
+    {
+      "id": "blue-strike-04",
+      "type": "Strike",
+      "assignedUnitIds": ["u1"],
+      "targetIds": ["hostile-1"],
+      "patrolZone": [
+        { "lat": 59.5, "lon": 23.0 },
+        { "lat": 59.8, "lon": 23.5 },
+        { "lat": 59.4, "lon": 24.0 }
+      ],
+      "roeOverride": "WeaponsFree"
+    },
+    {
+      "id": "blue-recon-04",
+      "type": "Support",
+      "assignedUnitIds": ["ucav-blue"],
+      "targetIds": ["hostile-1"],
+      "patrolZone": [
+        { "lat": 59.6, "lon": 23.2 },
+        { "lat": 59.9, "lon": 23.7 },
+        { "lat": 59.3, "lon": 24.2 }
+      ],
+      "roeOverride": "WeaponsFree",
+      "supportRole": "AEW"
+    },
+    {
+      "id": "blue-sub-asw-escort-04",
+      "type": "Patrol",
+      "assignedUnitIds": ["usub-blue"],
+      "targetIds": ["usub-red"],
+      "patrolZone": [
+        { "lat": 59.55, "lon": 23.1 },
+        { "lat": 59.85, "lon": 23.6 },
+        { "lat": 59.35, "lon": 24.1 }
+      ],
+      "roeOverride": "WeaponsTight"
+    },
+    {
+      "id": "red-defend-04",
+      "type": "Patrol",
+      "assignedUnitIds": ["hostile-1"],
+      "targetIds": [],
+      "patrolZone": [
+        { "lat": 60.2, "lon": 26.0 },
+        { "lat": 60.5, "lon": 26.5 },
+        { "lat": 60.1, "lon": 27.0 }
+      ],
+      "roeOverride": "WeaponsTight"
+    },
+    {
+      "id": "red-sub-shadow-04",
+      "type": "Patrol",
+      "assignedUnitIds": ["usub-red"],
+      "targetIds": [],
+      "patrolZone": [
+        { "lat": 59.5, "lon": 23.15 },
+        { "lat": 59.8, "lon": 23.65 },
+        { "lat": 59.3, "lon": 24.15 }
+      ],
+      "roeOverride": "WeaponsTight"
+    }
+  ]
+}

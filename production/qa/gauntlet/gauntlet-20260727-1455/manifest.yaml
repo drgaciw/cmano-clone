@@ -1,0 +1,183 @@
+run_id: gauntlet-20260727-1455
+started_utc: "2026-07-27T14:55:00Z"
+branch: 07-27-qa_gauntlet_gauntlet-20260727-1455
+trunk_base_sha: fa4db95c2aafd914b03e4ba938d8519c56011561
+trunk_base: main
+
+args:
+  tiers: 5
+  scenarios_per_tier: 4
+  seeds: [42, 7, 123]
+  max_fix_attempts: 3
+  resume: null
+
+preflight:
+  gitnexus:
+    status: "recovered — FTS index corruption on incremental analyze required clean + full rebuild"
+    result: "29338 nodes | 55559 edges | 516 clusters | 300 flows"
+    note: "two checkouts registered in GitNexus global registry — every impact/detect_changes/context call in this run passes explicit repo=/home/username01/cmano-clone"
+  dotnet_test_baseline:
+    status: PASS
+    total: 1924
+    passed: 1924
+    failed: 0
+    by_project:
+      ProjectAegis.Sim.Tests: 326
+      ProjectAegis.Delegation.Tests: 388
+      ProjectAegis.Delegation.UnityAdapter.Tests: 391
+      ProjectAegis.Data.Excel.Tests: 24
+      ProjectAegis.Data.Tests: 682
+      ProjectAegis.MissionEditor.Cli.Tests: 113
+    monotonic_floor: 1924
+  replay_verify:
+    status: PASS
+    report: production/determinism/replay-2026-07-27.md
+    replay_golden_tests: "17/17"
+  smoke_check:
+    status: PASS
+    report: production/qa/smoke-2026-07-27.md
+    playmode_smoke_tests: "21/21"
+  catalog_gate:
+    status: PASS
+    db: assets/data/catalog/baltic_patrol.db
+    release_version: catalog-p0-2026-06-04
+    schema_version: "005"
+    platform_rows: 79
+
+complexity_ladder:
+  tier_1:
+    mission_type: "Single patrol"
+    platform_mix: "3 surface units/side (~6)"
+    victory_conditions: "Survive N ticks"
+    events: "None"
+    roe: "Weapons free, both sides"
+    emcon: "Unrestricted emissions"
+    ticks: 6
+  tier_2:
+    mission_type: "Strike OR escort"
+    platform_mix: "3 surface + 1 air/side (~8)"
+    victory_conditions: "Destroy designated target"
+    events: "1 scripted timed event"
+    roe: "Weapons tight one side"
+    emcon: "Passive-only one side"
+    ticks: 10
+  tier_3:
+    mission_type: "Escort + strike combined"
+    platform_mix: "3 surface + 2 air + 1 sub/side (~12)"
+    victory_conditions: "Protect HVU + destroy target"
+    events: "Timed event chain"
+    roe: "ID-required engagement criteria"
+    emcon: "Timed EMCON phases"
+    ticks: 16
+  tier_4:
+    mission_type: "ASW/AAW multi-mission"
+    platform_mix: "3-4 surface + 2 air + 1-2 sub/side (~14)"
+    victory_conditions: "Weighted multi-objective scoring"
+    events: "Random injects (seeded)"
+    roe: "Asymmetric per-side ROE + escalation rules"
+    emcon: "Dynamic EMCON change on detection"
+    ticks: 24
+  tier_5:
+    mission_type: "Multi-domain theater op (patrol+strike+escort+ASW concurrent)"
+    platform_mix: "4 surface + 3 air + 2 sub blue vs dense red (~16); asymmetric joint mix"
+    victory_conditions: "Conditional/dynamic objectives that change on trigger"
+    events: "Cascading adversarial injects (comms loss, sensor degradation, reinforcements)"
+    roe: "Mid-mission ROE changes via event"
+    emcon: "Contested EM: deception emitters + EMCON discipline scored"
+    ticks: 40
+
+tiers:
+  - n: 1
+    status: green
+    note: >
+      Originally quarantined (see defects below for the two CRITICAL-impact engine
+      defects found). Both were fixed under explicit human authorization the same
+      day (PR #361): BUG-engagement-resolver-shooter-liveness and
+      BUG-losses-scoring-side-unaware. Post-fix: 4/4 main scenarios pass, corpus
+      re-baselined 24/24. This status corrects a stale `quarantined` entry that
+      was never updated after the fix landed.
+  - n: 2
+    status: green
+    note: "4/4 main scenarios pass. Forge: 4 promotes (hard-case-replay x2, orbat-asymmetric-ratio, mission-combo-escort-strike)."
+  - n: 3
+    status: green
+    note: >
+      6/6 main scenarios (incl. scenario-5-control sibling) pass gauntlet_oracle_eval
+      (allPassed: true). No forge candidates were drafted for this tier — a process
+      gap accepted as missed per human direction on 2026-07-28, not backfilled
+      retroactively. Corrects a stale `in_progress` entry.
+  - n: 4
+    status: green
+    note: >
+      8/8 policies (4 main + 4 forge candidates) pass gauntlet_oracle_eval
+      (allPassed: true) after gauntlet.expect regen from the real 24-tick/seeds
+      42,7,123 batch CSV. Forge: 4 promotes (platform-swap-underused,
+      mission-concurrent-asw-aaw, victory-weighted-multi, roe-asymmetric-per-side).
+      One real sim-code defect found and quarantined (not fixed — GitNexus
+      unavailable this session):
+      production/qa/bugs/BUG-scenario-contacts-shadowed-by-detection.md
+      (contacts[]-scripted mid-run appearances are silently unreachable whenever
+      detection[] is also populated). Regression anchors for tiers 1-3 re-verified
+      clean at their own tick budgets. Full solution baseline 1928/1928,
+      replay-verify 17/17, smoke 21/21.
+  - n: 5
+    status: green
+    note: >
+      Final tier. 8/8 policies (4 main + 4 forge candidates) pass
+      gauntlet_oracle_eval (allPassed: true) after gauntlet.expect regen from
+      the real 40-tick/seeds 42,7,123 batch CSV. Forge: 4 promotes
+      (platform-swap-underused, event-cascading-adversarial,
+      roe-mid-mission-change, victory-trigger-conditional). One authoring
+      mistake caught and fixed before finalizing (not a defect that shipped):
+      a forge candidate's own mission.triggers used targetClass "Air" against
+      a real platform id, which — per the defect below — can never actually
+      match; corrected to "Any" before promotion. One new sim-code defect
+      found and quarantined (not fixed — GitNexus unavailable this session):
+      production/qa/bugs/BUG-missioncontacttargetclass-domain-filter-broken.md.
+      Regression anchors for all 4 prior tiers re-verified clean at their own
+      tick budgets (exact match, seed 42). Full solution baseline 1928/1928,
+      replay-verify 17/17, smoke 21/21. Ladder complete — 5/5 tiers green.
+
+forge_wiring:
+  required_hooks: [pre, a0, post_oracle_per_tier, e_per_tier, final]
+  hindsight_bank: qa-gauntlet-forge
+
+defects:
+  - id: BUG-engagement-resolver-shooter-liveness
+    class: sim-code
+    status: FIXED (2026-07-27, PR #361) — was QUARANTINED-CRITICAL
+    report: production/qa/bugs/BUG-engagement-resolver-shooter-liveness.md
+    symbol: "MvpEngagementResolver.Resolve (src/ProjectAegis.Sim/Engage/MvpEngagementResolver.cs:59)"
+    impact: "CRITICAL — 42 impacted symbols, reaches unity/ProjectAegis/Assets/Scripts/Runtime/DelegationBridgeHost.cs RunTick (live Unity runtime)"
+    regression_test: "src/ProjectAegis.Sim.Tests/Engage/MvpEngagementResolverTests.cs Killed_shooter_aborts_before_launch (un-skipped, passing)"
+  - id: BUG-losses-scoring-side-unaware
+    class: sim-code
+    status: FIXED (2026-07-27, PR #361) — was QUARANTINED-CRITICAL
+    report: production/qa/bugs/BUG-losses-scoring-side-unaware.md
+    symbol: "LossesScoringProjection.Project (src/ProjectAegis.Delegation/Projection/LossesScoringProjection.cs:12)"
+    impact: "CRITICAL — 381 impacted symbols on the real fix surface (EngagementOutcomeRecord constructor)"
+    regression_test: null
+  - id: BUG-scenario-contacts-shadowed-by-detection
+    class: sim-code
+    status: QUARANTINED — not fixed (GitNexus MCP unavailable this session, tier 4)
+    report: production/qa/bugs/BUG-scenario-contacts-shadowed-by-detection.md
+    symbol: "BalticReplayHarness.RunCore (src/ProjectAegis.Delegation.UnityAdapter/Baltic/BalticReplayHarness.cs:139-164)"
+    impact: "not GitNexus-assessed (tool unavailable) — scoped: only affects scenarios combining non-empty contacts[] with non-empty detection[]"
+    regression_test: null
+  - id: BUG-missioncontacttargetclass-domain-filter-broken
+    class: sim-code
+    status: >
+      QUARANTINED (the underlying src/ classifier) — not fixed, GitNexus MCP
+      unavailable this session. PARTIALLY REMEDIATED AT CONTENT LEVEL
+      (2026-07-29, PR #367 review): two already-shipped tier-4 scenarios
+      (gauntlet-20260727-1455-t4-s2, gauntlet-forge-20260727-1455-t4-c3) each
+      had an `"targetClass": "Air"` trigger that could never fire — missed by
+      this session's own review, caught by an external automated PR reviewer
+      (chatgpt-codex-connector) after the PR left draft. Both fixed
+      (targetClass -> "Any"), re-batched, gauntlet.expect regenerated from
+      corrected real behavior, oracle re-confirmed allPassed:true for the
+      full tier-4 8-policy set.
+    report: production/qa/bugs/BUG-missioncontacttargetclass-domain-filter-broken.md
+    symbol: "MissionContactTargetClassifier.Classify/Matches (src/ProjectAegis.Sim/Scenario/MissionContactTargetClass.cs)"
+    impact: "not GitNexus-assessed (tool unavailable) — scoped: mission.triggers[].targetClass 'Subsurface' silently degrades to 'Any' (found harmless everywhere it's used so far); 'Air' silently never matches any real catalog platform id (only ids literally prefixed 'ucav-' classify as Air -- a narrow, undocumented convention that 6 pre-existing golden-backed baltic-v3-* fixtures correctly follow, but the entire catalog-driven gauntlet corpus does not). Two content-level instances fixed this pass; the underlying classifier itself remains unfixed and will trap any future scenario built from real catalog platforms."
+    regression_test: null

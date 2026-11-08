@@ -1,32 +1,94 @@
 namespace ProjectAegis.Sim.Sensors;
 
-using ProjectAegis.Sim.Core;
-using ProjectAegis.Sim.Policy;
-using ProjectAegis.Sim.Scenario;
+using ProjectAegis.Data.Catalog;
+using Core;
+using Policy;
+using Scenario;
 
 /// <summary>Tick-4 MVP: sorted detection trials with SeededRng Detection domain.</summary>
 public static class DeterministicDetectionLoop
 {
+    private sealed class TrialSortComparer : IComparer<ScenarioDetectionTrial>
+    {
+        public static readonly TrialSortComparer Instance = new();
+
+        public int Compare(ScenarioDetectionTrial? x, ScenarioDetectionTrial? y)
+        {
+            if (ReferenceEquals(x, y))
+            {
+                return 0;
+            }
+
+            if (x is null)
+            {
+                return -1;
+            }
+
+            if (y is null)
+            {
+                return 1;
+            }
+
+            var c = StringComparer.Ordinal.Compare(x.ObserverId, y.ObserverId);
+            if (c != 0)
+            {
+                return c;
+            }
+
+            c = StringComparer.Ordinal.Compare(x.SensorId, y.SensorId);
+            if (c != 0)
+            {
+                return c;
+            }
+
+            return StringComparer.Ordinal.Compare(x.TargetId, y.TargetId);
+        }
+    }
+
+    /// <summary>Sort trials in-place: ObserverId → SensorId → TargetId (Ordinal).</summary>
+    public static void SortTrials(ScenarioDetectionTrial[] trials)
+    {
+        if (trials.Length < 2)
+        {
+            return;
+        }
+
+        Array.Sort(trials, TrialSortComparer.Instance);
+    }
+
+    /// <summary>Return a sorted copy: ObserverId → SensorId → TargetId (Ordinal).</summary>
+    public static ScenarioDetectionTrial[] SortTrialsCopy(IReadOnlyList<ScenarioDetectionTrial> trials)
+    {
+        if (trials.Count == 0)
+        {
+            return Array.Empty<ScenarioDetectionTrial>();
+        }
+
+        var copy = trials.ToArray();
+        SortTrials(copy);
+        return copy;
+    }
+
     public static IReadOnlyList<DetectionRollResult> RollTick(
         SimSeed seed,
         ulong simTick,
         IReadOnlyList<ScenarioDetectionTrial> trials,
         IReadOnlyDictionary<string, EmconState>? unitRadarEmcon,
         IReadOnlyCollection<string>? alreadyDetectedContactIds = null,
-        IReadOnlyList<ScenarioJammer>? jammers = null)
+        IReadOnlyList<ScenarioJammer>? jammers = null,
+        ICatalogReader? catalog = null,
+        bool trialsPreSorted = false,
+        DetectionEnvironment? environment = null,
+        ICollection<DetectionLosBlock>? losBlocks = null)
     {
         if (trials.Count == 0)
         {
             return Array.Empty<DetectionRollResult>();
         }
 
-        var sorted = trials
-            .OrderBy(t => t.ObserverId, StringComparer.Ordinal)
-            .ThenBy(t => t.SensorId, StringComparer.Ordinal)
-            .ThenBy(t => t.TargetId, StringComparer.Ordinal)
-            .ToArray();
+        var sorted = trialsPreSorted ? trials : SortTrialsCopy(trials);
 
-        var results = new List<DetectionRollResult>(sorted.Length);
+        var results = new List<DetectionRollResult>(sorted.Count);
         var drawIndex = 0;
         foreach (var trial in sorted)
         {
@@ -37,20 +99,49 @@ public static class DeterministicDetectionLoop
             }
 
             if (trial.RequiresActiveRadar &&
-                ScenarioEmconResolver.ResolveRadar(trial.ObserverId, unitRadarEmcon) != EmconState.Active)
+                ScenarioEmconResolver.ResolveRadar(trial.ObserverId, unitRadarEmcon, catalog) != EmconState.Active)
             {
                 continue;
             }
 
+            // ENV-02 / DRG-379: authored LOS geometry (radar horizon + terrain mask). A blocked pair
+            // emits no roll, but it still reserves this sorted-trial draw index. Later contacts then
+            // keep the RNG inputs they have when the pair is clear. EMCON and already-detected skips
+            // still consume no draw (pre-existing).
+            if (environment != null &&
+                environment.LineOfSight.TryGet(trial.ObserverId, trial.TargetId, out var geometry))
+            {
+                var los = LineOfSightEvaluator.Evaluate(geometry, trial.Modality);
+                if (!los.Clear)
+                {
+                    losBlocks?.Add(new DetectionLosBlock(
+                        simTick, trial.ObserverId, trial.SensorId, trial.TargetId, los.BlockCode!));
+                    drawIndex++;
+                    continue;
+                }
+            }
+
+            // RF ScenarioJamResolver applies only to radar. IR/visual use trial.JamStrength only
+            // (optical/IR jam separate; default 0).
             var jamStrength = trial.JamStrength;
-            if (jammers is { Count: > 0 })
+            if (trial.Modality == SensorModality.Radar && jammers is { Count: > 0 })
             {
                 jamStrength = Math.Max(
                     jamStrength,
-                    ScenarioJamResolver.ResolveJam(trial.ObserverId, trial.TargetId, simTick, jammers));
+                    ScenarioJamResolver.ResolveJam(
+                        trial.ObserverId,
+                        trial.TargetId,
+                        simTick,
+                        jammers,
+                        environment?.ResolveEccm(trial.SensorId) ?? RadarEccmProfile.Unspecified));
             }
 
-            var pd = DetectionProbability.ComputePd(trial.BasePd, trial.EnvMask, jamStrength: jamStrength);
+            var pd = DetectionProbability.ComputePd(
+                trial.BasePd,
+                trial.EnvMask,
+                trial.EccmFactor,
+                jamStrength: jamStrength,
+                swarmIntegrityScale: trial.SwarmIntegrityScale);
             var entityId = DetectionEntityId.FromTrial(trial.ObserverId, trial.SensorId, trial.TargetId);
             var draw = SeededRng.UnitFloat(seed, RngDomain.Detection, entityId, simTick, drawIndex++);
             var detected = draw < pd;

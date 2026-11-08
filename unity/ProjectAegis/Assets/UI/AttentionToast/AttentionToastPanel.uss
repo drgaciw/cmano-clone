@@ -1,0 +1,77 @@
+/* CMD-39 Track A — ephemeral attention toast. No pulse / strobe (art-bible §7). */
+
+.c2-attention-toast {
+    position: absolute;
+    top: 64px;
+    right: 12px;
+    width: 360px;
+    flex-direction: column;
+    align-items: stretch;
+}
+
+.c2-attention-toast-card {
+    padding: 10px 12px;
+    background-color: rgba(12, 18, 28, 0.96);
+    border-width: 1px;
+    border-color: rgb(80, 100, 120);
+    flex-direction: column;
+}
+
+.c2-attention-toast-card--critical {
+    border-color: rgb(220, 90, 90);
+}
+
+.c2-attention-toast-card--notable {
+    border-color: rgb(230, 180, 70);
+}
+
+.c2-attention-toast-severity {
+    font-size: 10px;
+    -unity-font-style: bold;
+    color: rgb(200, 210, 220);
+    margin-bottom: 2px;
+}
+
+.c2-attention-toast-title {
+    font-size: 13px;
+    -unity-font-style: bold;
+    color: rgb(230, 235, 240);
+    margin-bottom: 4px;
+}
+
+.c2-attention-toast-body {
+    font-size: 12px;
+    color: rgb(190, 200, 210);
+    white-space: normal;
+}
+
+.c2-attention-toast-queue {
+    margin-top: 6px;
+    font-size: 11px;
+    color: rgb(160, 175, 190);
+}
+
+.c2-attention-toast-actions {
+    flex-direction: row;
+    margin-top: 8px;
+}
+
+.c2-attention-toast-ack {
+    margin-right: 8px;
+    padding: 2px 10px;
+    background-color: rgb(40, 90, 60);
+    border-width: 1px;
+    border-color: rgb(80, 160, 100);
+    color: rgb(220, 240, 220);
+    font-size: 11px;
+    -unity-font-style: bold;
+}
+
+.c2-attention-toast-dismiss {
+    padding: 2px 10px;
+    background-color: rgb(40, 48, 58);
+    border-width: 1px;
+    border-color: rgb(90, 105, 120);
+    color: rgb(200, 210, 220);
+    font-size: 11px;
+}

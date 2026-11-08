@@ -1,6 +1,6 @@
 namespace ProjectAegis.MissionEditor.Cli;
 
-using ProjectAegis.Data.Scenario.Authoring;
+using Data.Scenario.Authoring;
 
 public static class MissionAddStrikeCommand
 {
@@ -31,7 +31,9 @@ public static class MissionAddStrikeCommand
         {
             var editor = ScenarioDocumentEditor.Load(scenarioPath);
             editor.RequireEditVersion(editVersion, scenarioPath);
+            var undoSnapshot = editor.CaptureUndoSnapshot();
             editor.AddStrikeMission(missionId, unitIds, targetIds);
+            editor.PersistUndoSnapshot(scenarioPath, undoSnapshot);
             editor.CommitMutation();
             editor.Save(scenarioPath);
 

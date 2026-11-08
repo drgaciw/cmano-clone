@@ -1,0 +1,13 @@
+diff --git a/src/ProjectAegis.Sim/Policy/PolicyEvaluator.cs b/src/ProjectAegis.Sim/Policy/PolicyEvaluator.cs
+index 02a6cc53..809f627b 100644
+--- a/src/ProjectAegis.Sim/Policy/PolicyEvaluator.cs
++++ b/src/ProjectAegis.Sim/Policy/PolicyEvaluator.cs
+@@ -40,7 +40,7 @@ public sealed class PolicyEvaluator : IPolicyEvaluator
+         roe switch
+         {
+             RoeLevel.HoldFire => PolicyVerdict.Deny(FireAbortReason.RoeHoldFire),
+-            RoeLevel.WeaponsTight => PolicyVerdict.Deny(FireAbortReason.WeaponsTight),
++            RoeLevel.WeaponsTight => PolicyVerdict.Allow(),
+             RoeLevel.WeaponsFree => PolicyVerdict.Allow(),
+             _ => PolicyVerdict.Allow(),
+         };

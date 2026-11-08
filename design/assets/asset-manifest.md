@@ -1,0 +1,127 @@
+# Asset Manifest
+
+> **Last updated:** 2026-08-17 (Track C VFX reopen note on ASSET-021 — status unchanged)
+> **Authority:** [`s93-asset-production-scope-boundary-2026-07-09.md`](../../production/s93-asset-production-scope-boundary-2026-07-09.md), S91 closeout, S93 closeout  
+> **Inventory:** `design/assets/entity-inventory.md` (Phase 0b; user review pending)  
+> **Art bible:** `design/art/art-bible.md` (lean B2 — C2 + Platform Editor)  
+> **S91 specs:** [`design/assets/specs/c2-ui-assets.md`](specs/c2-ui-assets.md), [`baltic-patrol-assets.md`](specs/baltic-patrol-assets.md), [`store-capsule-assets.md`](specs/store-capsule-assets.md)
+
+---
+
+## Progress Summary
+
+| Total | Needed | Specced | In Production | Done | Approved |
+|-------|--------|---------|---------------|------|----------|
+| 42 | **0** | **20** | **3** | **15** | **4** |
+
+*S93 @ 2026-07-09: First binary wave — **8 Done**. Post-S93 Track B (2026-07-14): residual **036/037/040/041 → Done** (stubs under `production/assets/ui|audio`). Umbrellas **001–003 In Production**. **Needed: 0**. S94 wave 2 (2026-07-14): **ASSET-006 → Done** (`MessageLogPanel.uss`); **ASSET-021 → Done** (`production/assets/baltic/CombatDomainsHotTick.uss`); **ASSET-026 → Done** (`production/assets/store/PressKit_LogoPack_README.md` placeholder). **S101-05 Path A (2026-07-17):** human `asset approved: ASSET-006` + `asset approved: ASSET-021` → both **Approved** (first Approved promotions; Done 15→13; Approved 0→2). Evidence: `production/qa/s101-05-human-asset-approval-2026-07-17.md`. **S102 Path A (2026-07-17):** human `asset approved: ASSET-004` → **Approved** (Done 13→12; Approved 2→3). Evidence: `production/qa/s102-02-human-asset-approval-004-2026-07-17.md`. **Path A (2026-07-17):** human `asset approved: ASSET-005` → **Approved** (Done→Approved). Evidence: `production/qa/s103-05-human-asset-approval-005-2026-07-17.md`.* **S113 wave 3 (2026-08-11):** ASSET-007/008/011/012 → **Done** (`C2LeftDrawerPanel.uss`, `RightUnitDetailPanel.uss`, `DelegationBadgeOverlay.uss`, `PolicyEmconHud.uss`). Specced 24→20; Done 11→15; Approved **4** unchanged (Path A only). Evidence: PRs #462/#463 content + smoke-sprint-113. Local waterline also recorded S36 UX pack (DRG-22…28) Done.
+
+---
+
+## Assets by Context
+
+### Priority stubs (S91 production-ready)
+
+| Asset ID | Name | Category | Status | Spec File |
+|----------|------|----------|--------|-----------|
+| ASSET-001 | C2 Command Post panel suite | UI | **In Production** | design/assets/specs/c2-ui-assets.md |
+| ASSET-002 | Baltic patrol theater presentation | Environment / UI | **In Production** | design/assets/specs/baltic-patrol-assets.md |
+| ASSET-003 | Store capsule + header art pack | Marketing | **In Production** | design/assets/specs/store-capsule-assets.md |
+
+### System: Command & Control UI
+
+| Asset ID | Name | Category | Status | Spec File |
+|----------|------|----------|--------|-----------|
+| ASSET-004 | APP-6 Frame Atlas | Sprite / 2D | **Approved** | design/assets/specs/c2-ui-assets.md → `production/assets/c2/App6FrameAtlas.png` |
+| ASSET-005 | C2 Top Bar Panel | UI | **Approved** | design/assets/specs/c2-ui-assets.md → `production/assets/c2/C2TopBarPanel.uss` |
+| ASSET-006 | Message Log Panel | UI | **Approved** | design/assets/specs/c2-ui-assets.md → `production/assets/c2/MessageLogPanel.uss` |
+| ASSET-007 | Left Drawer (OOB / missions / contacts) | UI | **Done** | design/assets/specs/c2-ui-assets.md → `production/assets/c2/C2LeftDrawerPanel.uss` |
+| ASSET-008 | Right Unit Detail Panel | UI | **Done** | design/assets/specs/c2-ui-assets.md → `production/assets/c2/RightUnitDetailPanel.uss` |
+| ASSET-009 | Map Placeholder Canvas + symbols | UI / Environment | Specced | design/assets/specs/c2-ui-assets.md |
+| ASSET-010 | Map comms degradation modifiers | UI | Specced | design/assets/specs/c2-ui-assets.md |
+| ASSET-011 | Delegation badge overlay | UI | **Done** | design/assets/specs/c2-ui-assets.md → `production/assets/c2/DelegationBadgeOverlay.uss` |
+| ASSET-012 | Policy denial + EMCON HUD | HUD | **Done** | design/assets/specs/c2-ui-assets.md → `production/assets/c2/PolicyEmconHud.uss` |
+| ASSET-013 | Replay scrubber / hash overlay | UI | Specced | design/assets/specs/c2-ui-assets.md |
+| ASSET-014 | AegisTokens.uss shared theme | UI tokens | **Done** | design/assets/specs/c2-ui-assets.md → `production/assets/c2/AegisTokens.uss` |
+
+### System: Platform Editor
+
+| Asset ID | Name | Category | Status | Spec File |
+|----------|------|----------|--------|-----------|
+| ASSET-015 | Platform Catalog Panel | UI | Specced | design/assets/specs/c2-ui-assets.md |
+| ASSET-016 | Platform Import Staging Panel | UI | Specced | design/assets/specs/c2-ui-assets.md |
+| ASSET-017 | Staging diff row styles | UI | Specced | design/assets/specs/c2-ui-assets.md |
+
+### Scenario: Baltic patrol (v2 / v3 corpus)
+
+| Asset ID | Name | Category | Status | Spec File |
+|----------|------|----------|--------|-----------|
+| ASSET-018 | Baltic patrol map framing | Environment | **Done** | design/assets/specs/baltic-patrol-assets.md → `production/assets/baltic/baltic-theater-framing-v1.png` |
+| ASSET-019 | Band B datalink contact presentation | UI / Map | **Done** | design/assets/specs/baltic-patrol-assets.md → `production/assets/baltic/ASSET-019-band-b-contact-overlay-spec.md` |
+| ASSET-020 | Comms-challenged / jammed capture set | UI / Map | Specced | design/assets/specs/baltic-patrol-assets.md |
+| ASSET-021 | Combat domains hot-tick overlay | HUD | **Approved** | design/assets/specs/baltic-patrol-assets.md → `production/assets/baltic/CombatDomainsHotTick.uss` |
+
+> **Track C (2026-08-17):** ASSET-021 stays **Approved HUD** (domain hot-tick). Map fire lines / impact markers are a **separate** presentation overlay (`CombatVfxProjection` + `MapCanvasTransientEffectsRenderer`) — not an ASSET-021 restyle and not a Path A promotion. See `docs/superpowers/specs/2026-08-17-track-c-combat-vfx-reopen.md` and art-bible §7.
+| ASSET-022 | Band C intercept / spoof stress layout | UI / Map | Specced | design/assets/specs/baltic-patrol-assets.md |
+
+### Store / E7 prep (S70 asset-checklist)
+
+| Asset ID | Name | Category | Status | Spec File |
+|----------|------|----------|--------|-----------|
+| ASSET-023 | Main capsule (616×353) | Marketing | **Done** | design/assets/specs/store-capsule-assets.md → `production/assets/store/ProjectAegis_BalticMainCapsule_v1.png` |
+| ASSET-024 | Small capsule (231×87) | Marketing | **Done** | design/assets/specs/store-capsule-assets.md → `production/assets/store/ProjectAegis_SmallCapsule.png` |
+| ASSET-025 | Logo / header variants | Marketing | **Done** | design/assets/specs/store-capsule-assets.md → `production/assets/store/ProjectAegis_Logo_Dark_v1.png`, `ProjectAegis_Icon_v1.png` |
+| ASSET-026 | Press kit logo pack | Marketing | **Done** | design/assets/specs/store-capsule-assets.md → `production/assets/store/PressKit_LogoPack_README.md` |
+| ASSET-027 | Store screenshot 01 — C2 map patrol | Capture | Specced | design/assets/specs/store-capsule-assets.md |
+| ASSET-028 | Store screenshot 02 — policy panel | Capture | Specced | design/assets/specs/store-capsule-assets.md |
+| ASSET-029 | Store screenshot 03 — order log + replay | Capture | Specced | design/assets/specs/store-capsule-assets.md |
+| ASSET-030 | Store screenshot 04 — combat domains | Capture | Specced | design/assets/specs/store-capsule-assets.md |
+| ASSET-031 | Store screenshot 05 — sensor/EW jammed | Capture | Specced | design/assets/specs/store-capsule-assets.md |
+| ASSET-032 | Store screenshot 06 — catalog panel | Capture | Specced | design/assets/specs/store-capsule-assets.md |
+| ASSET-033 | Store screenshot 07 — band C intercept | Capture | Specced | design/assets/specs/store-capsule-assets.md |
+| ASSET-034 | Store screenshot 08 — replay AAR | Capture | Specced | design/assets/specs/store-capsule-assets.md |
+| ASSET-035 | Baltic trailer draft (script + placeholder) | Video | Specced | design/assets/specs/store-capsule-assets.md |
+
+### Screens (deferred art — tracked only)
+
+| Asset ID | Name | Category | Status | Spec File |
+|----------|------|----------|--------|-----------|
+| ASSET-036 | Main Menu shell | UI | **Done** | design/assets/specs/post-s93-residual-assets.md → `production/assets/ui/MainMenuShell.uss` |
+| ASSET-037 | Scenario Select | UI | **Done** | design/assets/specs/post-s93-residual-assets.md → `production/assets/ui/ScenarioSelect.uss` |
+| ASSET-038 | Mission Planning RTwP | UI | Specced | design/assets/specs/c2-ui-assets.md |
+| ASSET-039 | Onboarding Baltic overlay | UI | Specced | design/assets/specs/baltic-patrol-assets.md |
+
+### Audio (descriptions only — no generation prompts)
+
+| Asset ID | Name | Category | Status | Spec File |
+|----------|------|----------|--------|-----------|
+| ASSET-040 | Policy denial SFX | Audio | **Done** | design/assets/specs/post-s93-residual-assets.md → `production/assets/audio/sfx_policy_denial.wav` |
+| ASSET-041 | ROE change SFX | Audio | **Done** | design/assets/specs/post-s93-residual-assets.md → `production/assets/audio/sfx_roe_change.wav` |
+
+### Shared / cross-context
+
+| Asset ID | Name | Category | Status | Spec File | Referenced by |
+|----------|------|----------|--------|-----------|---------------|
+| ASSET-042 | Evidence capture protocol (1920×1080 PNG) | QA / Presentation | Specced | design/assets/specs/c2-ui-assets.md | All UI + store captures |
+
+---
+
+## Cross-links
+
+| Artifact | Path |
+|----------|------|
+| Entity inventory (Phase 0b) | `design/assets/entity-inventory.md` |
+| Art bible (lean B2) | `design/art/art-bible.md` |
+| S70 store asset checklist | `production/release/store/asset-checklist.md` |
+| S91 closeout | `production/qa/smoke-sprint-91-closeout-2026-07-09.md` |
+| S93 closeout | `production/qa/smoke-sprint-93-closeout-2026-07-09.md` |
+| Production assets (S93) | `production/assets/c2/`, `production/assets/store/`, `production/assets/baltic/` |
+| Release checklist v3 (asset section) | `production/release/release-checklist-v3.md` |
+| Evidence index | `production/release/launch/evidence-index.md` |
+| QA evidence captures | `production/qa/evidence/` |
+
+---
+
+## GitNexus note (S93)
+
+Assets + docs sprint — expect **low** `detect_changes` risk. No Addressables bulk import; no `DelegationBridge` edits. Manifest bumps only where files exist on disk.

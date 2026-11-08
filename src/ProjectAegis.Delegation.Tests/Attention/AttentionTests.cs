@@ -15,7 +15,8 @@ public sealed class AttentionTests
             SimTime: 10,
             ContactCount: 50,
             ActiveEngagementCount: 20,
-            MemberAlive: new Dictionary<TargetId, bool>());
+            MemberAlive: new Dictionary<TargetId, bool>(),
+            PrimaryHostileDestroyed: false);
 
         var result = AttentionCalculator.Evaluate(
             budget: 10,

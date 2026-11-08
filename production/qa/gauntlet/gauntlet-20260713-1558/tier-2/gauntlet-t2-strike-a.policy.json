@@ -1,0 +1,66 @@
+{
+  "friendlyRoe": "WeaponsFree",
+  "opposingRoe": "WeaponsTight",
+  "engage": {
+    "rangeMeters": 45000,
+    "envelopeMinMeters": 5000,
+    "envelopeMaxMeters": 120000,
+    "defaultMagazineRounds": 4,
+    "hasFireControlTrack": true,
+    "combatDomainsEnabled": true,
+    "pkBase": 0.85,
+    "pkIntercept": 0.0,
+    "pkKill": 0.2,
+    "salvoSize": 1
+  },
+  "detection": [
+    {
+      "observerId": "u1",
+      "sensorId": "radar-1",
+      "targetId": "hostile-1",
+      "contactId": "c1",
+      "basePd": 1.0,
+      "envMask": 1.0,
+      "jamStrength": 0
+    }
+  ],
+  "gauntlet": {
+    "intent": "Strike: destroy designated surface target; catalog air available for mix metadata",
+    "oracle": "Engagement path stable; Blue score finite",
+    "catalogRefs": [
+      "241-slazak-meko-100-mod-2019",
+      "421-orkan-pr-660-2015",
+      "jas-39c-gripen-2005",
+      "hostile-1",
+      "hostile-far",
+      "u1",
+      "624-pr-205p-tarantul-1992",
+      "70-rauma-helsinki-ii-1990",
+      "80-hamina-rauma-2-2006",
+      "bpk-marshal-shaposhnikov-udaloy-i-pr-1155-fregat",
+      "em-sovremenny-i-pr-956-sarych",
+      "f-207-bremen-type-f122-1982",
+      "f-35a-lightning-ii",
+      "f-a-18c-hornet-f-18c",
+      "hkp-14f-nh90-ttt",
+      "jas-39a-gripen-1997",
+      "jas-39b-gripen-1997"
+    ],
+    "airPool": [
+      "jas-39c-gripen-2005",
+      "f-16c-blk-52iq-falcon-2015"
+    ],
+    "runId": "gauntlet-20260713-1558",
+    "tier": 2,
+    "expect": {
+      "side": "BLUE",
+      "requireNonEmptyFingerprint": true,
+      "minScore": 80.0,
+      "maxScore": 120.0,
+      "maxMissilesFired": 5,
+      "minKills": 1,
+      "maxDenials": 4
+    }
+  },
+  "id": "gauntlet-t2-strike-a"
+}

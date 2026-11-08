@@ -1,0 +1,100 @@
+=== CI local verify (Release) ===
+  Determining projects to restore...
+  All projects are up-to-date for restore.
+=== verify-catalog-import ===
+OK: no *.db3 in git ls-files
+Running CmoMarkdown Import tests...
+  Determining projects to restore...
+  All projects are up-to-date for restore.
+  ProjectAegis.Data -> C:\Users\dgorn\cmano-clone\cmano-clone\src\ProjectAegis.Data\bin\Debug\net8.0\ProjectAegis.Data.dll
+  ProjectAegis.Data.Excel -> C:\Users\dgorn\cmano-clone\cmano-clone\src\ProjectAegis.Data.Excel\bin\Debug\net8.0\ProjectAegis.Data.Excel.dll
+  ProjectAegis.Data.Tests -> C:\Users\dgorn\cmano-clone\cmano-clone\src\ProjectAegis.Data.Tests\bin\Debug\net8.0\ProjectAegis.Data.Tests.dll
+Test run for C:\Users\dgorn\cmano-clone\cmano-clone\src\ProjectAegis.Data.Tests\bin\Debug\net8.0\ProjectAegis.Data.Tests.dll (.NETCoreApp,Version=v8.0)
+VSTest version 17.11.1 (x64)
+
+Starting test execution, please wait...
+A total of 1 test files matched the specified pattern.
+
+Passed!  - Failed:     0, Passed:    67, Skipped:     0, Total:    67, Duration: 9 s - ProjectAegis.Data.Tests.dll (net8.0)
+=== PASS ===
+  ProjectAegis.Data -> C:\Users\dgorn\cmano-clone\cmano-clone\src\ProjectAegis.Data\bin\Release\netstandard2.1\ProjectAegis.Data.dll
+  ProjectAegis.Data -> C:\Users\dgorn\cmano-clone\cmano-clone\src\ProjectAegis.Data\bin\Release\net8.0\ProjectAegis.Data.dll
+  ProjectAegis.Data.Excel -> C:\Users\dgorn\cmano-clone\cmano-clone\src\ProjectAegis.Data.Excel\bin\Release\net8.0\ProjectAegis.Data.Excel.dll
+  ProjectAegis.Sim -> C:\Users\dgorn\cmano-clone\cmano-clone\src\ProjectAegis.Sim\bin\Release\net8.0\ProjectAegis.Sim.dll
+  ProjectAegis.Sim -> C:\Users\dgorn\cmano-clone\cmano-clone\src\ProjectAegis.Sim\bin\Release\netstandard2.1\ProjectAegis.Sim.dll
+  ProjectAegis.Sim.Benchmark -> C:\Users\dgorn\cmano-clone\cmano-clone\src\ProjectAegis.Sim.Benchmark\bin\Release\net8.0\ProjectAegis.Sim.Benchmark.dll
+  ProjectAegis.Data.Excel.Tests -> C:\Users\dgorn\cmano-clone\cmano-clone\src\ProjectAegis.Data.Excel.Tests\bin\Release\net8.0\ProjectAegis.Data.Excel.Tests.dll
+  ProjectAegis.Data.Tests -> C:\Users\dgorn\cmano-clone\cmano-clone\src\ProjectAegis.Data.Tests\bin\Release\net8.0\ProjectAegis.Data.Tests.dll
+  ProjectAegis.Delegation -> C:\Users\dgorn\cmano-clone\cmano-clone\src\ProjectAegis.Delegation\bin\Release\netstandard2.1\ProjectAegis.Delegation.dll
+  ProjectAegis.Sim.Tests -> C:\Users\dgorn\cmano-clone\cmano-clone\src\ProjectAegis.Sim.Tests\bin\Release\net8.0\ProjectAegis.Sim.Tests.dll
+  ProjectAegis.Delegation -> C:\Users\dgorn\cmano-clone\cmano-clone\src\ProjectAegis.Delegation\bin\Release\net8.0\ProjectAegis.Delegation.dll
+  ProjectAegis.Delegation.UnityAdapter -> C:\Users\dgorn\cmano-clone\cmano-clone\src\ProjectAegis.Delegation.UnityAdapter\bin\Release\netstandard2.1\ProjectAegis.Delegation.UnityAdapter.dll
+  ProjectAegis.Delegation.UnityAdapter -> C:\Users\dgorn\cmano-clone\cmano-clone\src\ProjectAegis.Delegation.UnityAdapter\bin\Release\net8.0\ProjectAegis.Delegation.UnityAdapter.dll
+  ProjectAegis.Delegation.Demo -> C:\Users\dgorn\cmano-clone\cmano-clone\src\ProjectAegis.Delegation.Demo\bin\Release\net8.0\ProjectAegis.Delegation.Demo.dll
+  ProjectAegis.MissionEditor.Cli -> C:\Users\dgorn\cmano-clone\cmano-clone\src\ProjectAegis.MissionEditor.Cli\bin\Release\net8.0\ProjectAegis.MissionEditor.Cli.dll
+  ProjectAegis.Delegation.Tests -> C:\Users\dgorn\cmano-clone\cmano-clone\src\ProjectAegis.Delegation.Tests\bin\Release\net8.0\ProjectAegis.Delegation.Tests.dll
+  ProjectAegis.Delegation.UnityAdapter.Tests -> C:\Users\dgorn\cmano-clone\cmano-clone\src\ProjectAegis.Delegation.UnityAdapter.Tests\bin\Release\net8.0\ProjectAegis.Delegation.UnityAdapter.Tests.dll
+  ProjectAegis.MissionEditor.Cli.Tests -> C:\Users\dgorn\cmano-clone\cmano-clone\src\ProjectAegis.MissionEditor.Cli.Tests\bin\Release\net8.0\ProjectAegis.MissionEditor.Cli.Tests.dll
+
+Build succeeded.
+    0 Warning(s)
+    0 Error(s)
+
+Time Elapsed 00:00:07.01
+Test run for C:\Users\dgorn\cmano-clone\cmano-clone\src\ProjectAegis.Data.Excel.Tests\bin\Release\net8.0\ProjectAegis.Data.Excel.Tests.dll (.NETCoreApp,Version=v8.0)
+Test run for C:\Users\dgorn\cmano-clone\cmano-clone\src\ProjectAegis.MissionEditor.Cli.Tests\bin\Release\net8.0\ProjectAegis.MissionEditor.Cli.Tests.dll (.NETCoreApp,Version=v8.0)
+Test run for C:\Users\dgorn\cmano-clone\cmano-clone\src\ProjectAegis.Data.Tests\bin\Release\net8.0\ProjectAegis.Data.Tests.dll (.NETCoreApp,Version=v8.0)
+Test run for C:\Users\dgorn\cmano-clone\cmano-clone\src\ProjectAegis.Sim.Tests\bin\Release\net8.0\ProjectAegis.Sim.Tests.dll (.NETCoreApp,Version=v8.0)
+Test run for C:\Users\dgorn\cmano-clone\cmano-clone\src\ProjectAegis.Delegation.UnityAdapter.Tests\bin\Release\net8.0\ProjectAegis.Delegation.UnityAdapter.Tests.dll (.NETCoreApp,Version=v8.0)
+Test run for C:\Users\dgorn\cmano-clone\cmano-clone\src\ProjectAegis.Delegation.Tests\bin\Release\net8.0\ProjectAegis.Delegation.Tests.dll (.NETCoreApp,Version=v8.0)
+VSTest version 17.11.1 (x64)
+VSTest version 17.11.1 (x64)
+
+
+VSTest version 17.11.1 (x64)
+VSTest version 17.11.1 (x64)
+
+
+VSTest version 17.11.1 (x64)
+
+VSTest version 17.11.1 (x64)
+
+Starting test execution, please wait...
+Starting test execution, please wait...
+A total of 1 test files matched the specified pattern.
+Starting test execution, please wait...
+A total of 1 test files matched the specified pattern.
+Starting test execution, please wait...
+Starting test execution, please wait...
+A total of 1 test files matched the specified pattern.
+Starting test execution, please wait...
+A total of 1 test files matched the specified pattern.
+A total of 1 test files matched the specified pattern.
+A total of 1 test files matched the specified pattern.
+
+Passed!  - Failed:     0, Passed:   577, Skipped:     0, Total:   577, Duration: 814 ms - ProjectAegis.Sim.Tests.dll (net8.0)
+
+Passed!  - Failed:     0, Passed:  1091, Skipped:     0, Total:  1091, Duration: 1 s - ProjectAegis.Delegation.Tests.dll (net8.0)
+
+Passed!  - Failed:     0, Passed:   115, Skipped:     0, Total:   115, Duration: 6 s - ProjectAegis.MissionEditor.Cli.Tests.dll (net8.0)
+
+Passed!  - Failed:     0, Passed:    24, Skipped:     0, Total:    24, Duration: 7 s - ProjectAegis.Data.Excel.Tests.dll (net8.0)
+
+Passed!  - Failed:     0, Passed:   520, Skipped:     0, Total:   520, Duration: 13 s - ProjectAegis.Delegation.UnityAdapter.Tests.dll (net8.0)
+
+Passed!  - Failed:     0, Passed:   769, Skipped:     0, Total:   769, Duration: 53 s - ProjectAegis.Data.Tests.dll (net8.0)
+Test run for C:\Users\dgorn\cmano-clone\cmano-clone\src\ProjectAegis.Delegation.UnityAdapter.Tests\bin\Release\net8.0\ProjectAegis.Delegation.UnityAdapter.Tests.dll (.NETCoreApp,Version=v8.0)
+VSTest version 17.11.1 (x64)
+
+Starting test execution, please wait...
+A total of 1 test files matched the specified pattern.
+
+Passed!  - Failed:     0, Passed:     6, Skipped:     0, Total:     6, Duration: 360 ms - ProjectAegis.Delegation.UnityAdapter.Tests.dll (net8.0)
+Test run for C:\Users\dgorn\cmano-clone\cmano-clone\src\ProjectAegis.Delegation.UnityAdapter.Tests\bin\Release\net8.0\ProjectAegis.Delegation.UnityAdapter.Tests.dll (.NETCoreApp,Version=v8.0)
+VSTest version 17.11.1 (x64)
+
+Starting test execution, please wait...
+A total of 1 test files matched the specified pattern.
+
+Passed!  - Failed:     0, Passed:    24, Skipped:     0, Total:    24, Duration: 683 ms - ProjectAegis.Delegation.UnityAdapter.Tests.dll (net8.0)
+=== PASS ===

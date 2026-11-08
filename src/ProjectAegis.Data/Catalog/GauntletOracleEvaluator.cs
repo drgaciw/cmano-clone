@@ -1,0 +1,404 @@
+using System.Globalization;
+using System.Text.Json;
+
+namespace ProjectAegis.Data.Catalog;
+
+/// <summary>
+/// Fail-closed post-batch oracle evaluation for qa-gauntlet.
+/// Parses <c>gauntlet.expect</c> from policy JSON and bounds from results CSV rows.
+/// </summary>
+public static class GauntletOracleEvaluator
+{
+    /// <summary>Ladder / default profile key — uses <c>gauntlet.expect</c> (tier-tick authority).</summary>
+    public const string ProfileLadder = "ladder";
+
+    /// <summary>CI smoke profile key — requires <c>gauntlet.expectCi</c>.</summary>
+    public const string ProfileCi = "ci";
+
+    public static GauntletOracleEvaluationResult EvaluateFromPolicyAndCsv(
+        string policyJson,
+        string resultsCsv,
+        string profile = ProfileLadder)
+    {
+        if (string.IsNullOrWhiteSpace(policyJson))
+        {
+            return new GauntletOracleEvaluationResult(false, ["missing policy json"]);
+        }
+
+        // Fail closed on unknown gauntlet.* keys before expect-bound evaluation.
+        var strict = GauntletPolicyStrictKeys.Check(policyJson);
+        if (strict.Errors.Count > 0)
+        {
+            return new GauntletOracleEvaluationResult(false, strict.Errors, strict.Warnings);
+        }
+
+        if (!TryParseExpect(policyJson, out var expect, out var parseFailures, profile))
+        {
+            return new GauntletOracleEvaluationResult(false, parseFailures, strict.Warnings);
+        }
+
+        var rows = ParseCsvRows(resultsCsv);
+        if (rows.Count == 0)
+        {
+            return new GauntletOracleEvaluationResult(false, ["no results rows"], strict.Warnings);
+        }
+
+        var eval = Evaluate(rows, expect!);
+        return eval with { Warnings = strict.Warnings };
+    }
+
+    public static GauntletOracleEvaluationResult Evaluate(
+        IReadOnlyList<GauntletBatchResultRow> rows,
+        GauntletOracleExpect expect)
+    {
+        var failures = new List<string>();
+        if (rows.Count == 0)
+        {
+            failures.Add("no results rows");
+            return new GauntletOracleEvaluationResult(false, failures);
+        }
+
+        for (var i = 0; i < rows.Count; i++)
+        {
+            var row = rows[i];
+            var prefix = $"row[{i}] scenario={row.ScenarioId} seed={row.Seed}";
+
+            if (expect.RequireNonEmptyFingerprint
+                && string.IsNullOrWhiteSpace(row.Fingerprint))
+            {
+                failures.Add($"{prefix}: empty fingerprint");
+            }
+
+            if (expect.Side != null
+                && !string.Equals(expect.Side, row.Side, StringComparison.OrdinalIgnoreCase))
+            {
+                failures.Add($"{prefix}: side expected '{expect.Side}' got '{row.Side}'");
+            }
+
+            if (expect.MinKills is { } minKills && row.Kills < minKills)
+            {
+                failures.Add($"{prefix}: kills {row.Kills} < min {minKills}");
+            }
+
+            if (expect.MaxMissilesFired is { } maxMissiles && row.MissilesFired > maxMissiles)
+            {
+                failures.Add($"{prefix}: missilesFired {row.MissilesFired} > max {maxMissiles}");
+            }
+
+            if (expect.MinDenials is { } minDenials && row.Denials < minDenials)
+            {
+                failures.Add($"{prefix}: denials {row.Denials} < min {minDenials}");
+            }
+
+            if (expect.MaxDenials is { } maxDenials && row.Denials > maxDenials)
+            {
+                failures.Add($"{prefix}: denials {row.Denials} > max {maxDenials}");
+            }
+
+            if (expect.MinScore is { } minScore && row.Score < minScore)
+            {
+                failures.Add($"{prefix}: score {row.Score} < min {minScore}");
+            }
+
+            if (expect.MaxScore is { } maxScore && row.Score > maxScore)
+            {
+                failures.Add($"{prefix}: score {row.Score} > max {maxScore}");
+            }
+
+            if (expect.RequireFingerprintSubstrings is { Count: > 0 })
+            {
+                var fp = row.Fingerprint ?? "";
+                foreach (var token in expect.RequireFingerprintSubstrings)
+                {
+                    if (string.IsNullOrEmpty(token))
+                    {
+                        continue;
+                    }
+
+                    if (fp.IndexOf(token, StringComparison.Ordinal) < 0)
+                    {
+                        failures.Add(
+                            $"{prefix}: fingerprint missing required substring '{token}'");
+                    }
+                }
+            }
+
+            if (expect.RequireTrueLaunchedShooters is { Count: > 0 })
+            {
+                var launched = CollectTrueLaunchedShooters(row.Fingerprint);
+                foreach (var shooter in expect.RequireTrueLaunchedShooters)
+                {
+                    if (string.IsNullOrEmpty(shooter))
+                    {
+                        continue;
+                    }
+
+                    if (!launched.Contains(shooter))
+                    {
+                        failures.Add(
+                            $"{prefix}: fingerprint missing True|Launched for shooter '{shooter}'");
+                    }
+                }
+            }
+        }
+
+        return new GauntletOracleEvaluationResult(failures.Count == 0, failures);
+    }
+
+    /// <summary>
+    /// Tokens shaped <c>Engagement|…|shooterId|…|True|Launched</c> (space-separated fingerprint).
+    /// </summary>
+    internal static HashSet<string> CollectTrueLaunchedShooters(string? fingerprint)
+    {
+        var set = new HashSet<string>(StringComparer.Ordinal);
+        if (string.IsNullOrWhiteSpace(fingerprint))
+        {
+            return set;
+        }
+
+        // netstandard2.1: no StringSplitOptions.TrimEntries — trim tokens manually
+        foreach (var raw in fingerprint.Split(
+                     new[] { ' ', '\n', '\r', '\t' },
+                     StringSplitOptions.RemoveEmptyEntries))
+        {
+            var token = raw.Trim();
+            if (!token.StartsWith("Engagement|", StringComparison.Ordinal)
+                || !token.Contains("|True|Launched", StringComparison.Ordinal))
+            {
+                continue;
+            }
+
+            var parts = token.Split('|');
+            // Engagement|seq|t0|t1|shooter|engId|True|Launched
+            if (parts.Length >= 6 && !string.IsNullOrEmpty(parts[4]))
+            {
+                set.Add(parts[4]);
+            }
+        }
+
+        return set;
+    }
+
+    public static bool TryParseExpect(
+        string policyJson,
+        out GauntletOracleExpect? expect,
+        out IReadOnlyList<string> failures,
+        string profile = ProfileLadder)
+    {
+        expect = null;
+        var fails = new List<string>();
+        try
+        {
+            using var doc = JsonDocument.Parse(policyJson);
+            if (!doc.RootElement.TryGetProperty("gauntlet", out var gauntlet)
+                || gauntlet.ValueKind != JsonValueKind.Object)
+            {
+                fails.Add("missing gauntlet.expect");
+                failures = fails;
+                return false;
+            }
+
+            // CI smoke uses a different tick budget from the authoritative ladder run.
+            // Fail closed instead of silently applying a full-budget envelope to short-run data.
+            var useCi = string.Equals(profile, ProfileCi, StringComparison.OrdinalIgnoreCase);
+            JsonElement exp;
+            if (useCi)
+            {
+                if (!gauntlet.TryGetProperty("expectCi", out exp)
+                    || exp.ValueKind != JsonValueKind.Object)
+                {
+                    fails.Add("missing gauntlet.expectCi for CI profile");
+                    failures = fails;
+                    return false;
+                }
+            }
+            else if (!gauntlet.TryGetProperty("expect", out exp)
+                     || exp.ValueKind != JsonValueKind.Object)
+            {
+                fails.Add("missing gauntlet.expect");
+                failures = fails;
+                return false;
+            }
+
+            string? side = exp.TryGetProperty("side", out var sideEl)
+                && sideEl.ValueKind == JsonValueKind.String
+                ? sideEl.GetString()
+                : null;
+
+            expect = new GauntletOracleExpect(
+                Side: side,
+                MinKills: ReadInt(exp, "minKills"),
+                MaxMissilesFired: ReadInt(exp, "maxMissilesFired"),
+                MinDenials: ReadInt(exp, "minDenials"),
+                MaxDenials: ReadInt(exp, "maxDenials"),
+                MinScore: ReadDouble(exp, "minScore"),
+                MaxScore: ReadDouble(exp, "maxScore"),
+                RequireNonEmptyFingerprint: !exp.TryGetProperty("requireNonEmptyFingerprint", out var fp)
+                    || fp.ValueKind != JsonValueKind.False,
+                RequireFingerprintSubstrings: ReadStringArray(exp, "requireFingerprintSubstrings"),
+                RequireTrueLaunchedShooters: ReadStringArray(exp, "requireTrueLaunchedShooters"));
+
+            failures = fails;
+            return true;
+        }
+        catch (JsonException ex)
+        {
+            fails.Add($"invalid policy json: {ex.Message}");
+            failures = fails;
+            return false;
+        }
+    }
+
+    public static IReadOnlyList<GauntletBatchResultRow> ParseCsvRows(string resultsCsv)
+    {
+        var rows = new List<GauntletBatchResultRow>();
+        if (string.IsNullOrWhiteSpace(resultsCsv))
+        {
+            return rows;
+        }
+
+        var lines = resultsCsv.Split('\n');
+        if (lines.Length < 2)
+        {
+            return rows;
+        }
+
+        var header = lines[0].Trim().Split(',');
+        var idx = new Dictionary<string, int>(StringComparer.OrdinalIgnoreCase);
+        for (var i = 0; i < header.Length; i++)
+        {
+            idx[header[i].Trim()] = i;
+        }
+
+        int Col(string name) => idx.TryGetValue(name, out var i) ? i : -1;
+        var cScenario = Col("scenarioId");
+        var cSeed = Col("seed");
+        var cSide = Col("side");
+        var cScore = Col("score");
+        var cKills = Col("kills");
+        var cMissiles = Col("missilesFired");
+        var cDenials = Col("denials");
+        var cFp = Col("fingerprint");
+
+        for (var li = 1; li < lines.Length; li++)
+        {
+            var line = lines[li].TrimEnd('\r');
+            if (string.IsNullOrWhiteSpace(line))
+            {
+                continue;
+            }
+
+            var cells = SplitCsvLine(line);
+            string Get(int c) => c >= 0 && c < cells.Count ? cells[c] : "";
+
+            rows.Add(new GauntletBatchResultRow(
+                ScenarioId: Get(cScenario),
+                Seed: Get(cSeed),
+                Side: Get(cSide),
+                Score: ParseDouble(Get(cScore)),
+                Kills: ParseInt(Get(cKills)),
+                MissilesFired: ParseInt(Get(cMissiles)),
+                Denials: ParseInt(Get(cDenials)),
+                Fingerprint: Get(cFp)));
+        }
+
+        return rows;
+    }
+
+    private static int? ReadInt(JsonElement exp, string name)
+    {
+        if (!exp.TryGetProperty(name, out var el))
+        {
+            return null;
+        }
+
+        if (el.ValueKind == JsonValueKind.Number && el.TryGetInt32(out var i))
+        {
+            return i;
+        }
+
+        if (el.ValueKind == JsonValueKind.String
+            && int.TryParse(el.GetString(), NumberStyles.Integer, CultureInfo.InvariantCulture, out var j))
+        {
+            return j;
+        }
+
+        return null;
+    }
+
+    private static IReadOnlyList<string>? ReadStringArray(JsonElement exp, string name)
+    {
+        if (!exp.TryGetProperty(name, out var el) || el.ValueKind != JsonValueKind.Array)
+        {
+            return null;
+        }
+
+        var list = new List<string>();
+        foreach (var item in el.EnumerateArray())
+        {
+            if (item.ValueKind == JsonValueKind.String)
+            {
+                var s = item.GetString();
+                if (!string.IsNullOrEmpty(s))
+                {
+                    list.Add(s);
+                }
+            }
+        }
+
+        return list.Count == 0 ? null : list;
+    }
+
+    private static double? ReadDouble(JsonElement exp, string name)
+    {
+        if (!exp.TryGetProperty(name, out var el))
+        {
+            return null;
+        }
+
+        if (el.ValueKind == JsonValueKind.Number && el.TryGetDouble(out var d))
+        {
+            return d;
+        }
+
+        if (el.ValueKind == JsonValueKind.String
+            && double.TryParse(el.GetString(), NumberStyles.Float, CultureInfo.InvariantCulture, out var e))
+        {
+            return e;
+        }
+
+        return null;
+    }
+
+    private static int ParseInt(string s) =>
+        int.TryParse(s, NumberStyles.Integer, CultureInfo.InvariantCulture, out var v) ? v : 0;
+
+    private static double ParseDouble(string s) =>
+        double.TryParse(s, NumberStyles.Float, CultureInfo.InvariantCulture, out var v) ? v : 0;
+
+    /// <summary>Minimal CSV split (handles no embedded commas in fingerprint by joining tail).</summary>
+    private static List<string> SplitCsvLine(string line)
+    {
+        // Fingerprint is last column and may contain no commas in practice; if more cells than 8, join rest into fingerprint.
+        var parts = line.Split(',');
+        if (parts.Length <= 8)
+        {
+            return parts.ToList();
+        }
+
+        var cells = parts.Take(7).ToList();
+        cells.Add(string.Join(",", parts.Skip(7)));
+        return cells;
+    }
+}
+
+/// <summary>One batch harness CSV result row.</summary>
+public sealed record GauntletBatchResultRow(
+    string ScenarioId,
+    string Seed,
+    string Side,
+    double Score,
+    int Kills,
+    int MissilesFired,
+    int Denials,
+    string Fingerprint);

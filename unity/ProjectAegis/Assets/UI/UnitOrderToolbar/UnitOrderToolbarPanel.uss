@@ -1,0 +1,60 @@
+/* Unit order toolbar shell (CMD-16) — bottom-center strip under map chrome. */
+
+.unit-order-toolbar {
+    position: absolute;
+    left: 50%;
+    bottom: 48px;
+    translate: -50% 0;
+    min-width: 420px;
+    max-width: 720px;
+    flex-direction: column;
+    padding: 6px 10px;
+    background-color: rgba(10, 16, 26, 0.94);
+    border-width: 1px;
+    border-color: rgb(50, 65, 80);
+    border-radius: 4px;
+}
+
+.unit-order-toolbar-title {
+    -unity-font-style: bold;
+    color: rgb(200, 210, 220);
+    font-size: 11px;
+    margin-bottom: 4px;
+}
+
+.unit-order-toolbar-buttons {
+    flex-direction: row;
+    flex-wrap: wrap;
+    align-items: center;
+}
+
+.unit-order-btn {
+    margin-right: 6px;
+    margin-bottom: 4px;
+    padding: 4px 10px;
+    background-color: rgb(32, 48, 68);
+    border-width: 1px;
+    border-color: rgb(70, 95, 120);
+    color: rgb(210, 220, 230);
+    font-size: 12px;
+}
+
+.unit-order-btn:hover {
+    background-color: rgb(42, 62, 88);
+}
+
+.unit-order-btn:disabled {
+    opacity: 0.45;
+}
+
+.unit-order-btn--engage {
+    background-color: rgb(70, 40, 40);
+    border-color: rgb(140, 70, 70);
+}
+
+.unit-order-status {
+    margin-top: 2px;
+    color: rgb(240, 180, 80);
+    font-size: 11px;
+    min-height: 14px;
+}

@@ -1,7 +1,7 @@
 namespace ProjectAegis.Delegation.UnityAdapter.Bridge;
 
-using ProjectAegis.Delegation.Core;
-using ProjectAegis.Delegation.Sim;
+using Core;
+using Sim;
 
 public static class ObservedStateBuilder
 {
@@ -20,6 +20,10 @@ public static class ObservedStateBuilder
             alive,
             snapshot.HasFireControlTrackOnPrimaryContact,
             snapshot.PrimaryHostileContactId,
-            snapshot.ObserverRadarEmconActive);
+            snapshot.ObserverRadarEmconActive,
+            snapshot.PrimaryHostileDestroyed,
+            snapshot.PrimaryBlueForceContactId,
+            snapshot.PrimaryBlueForceContactDestroyed,
+            snapshot.PreferredHostileByShooter);
     }
 }

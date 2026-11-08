@@ -1,0 +1,188 @@
+{
+  "friendlyRoe": "WeaponsTight",
+  "opposingRoe": "WeaponsFree",
+  "engage": {
+    "rangeMeters": 45000,
+    "envelopeMinMeters": 5000,
+    "envelopeMaxMeters": 120000,
+    "defaultMagazineRounds": 4,
+    "hasFireControlTrack": true,
+    "combatDomainsEnabled": true,
+    "pkBase": 0.85,
+    "pkIntercept": 0.0,
+    "pkKill": 0.2,
+    "salvoSize": 1
+  },
+  "detection": [
+    {
+      "observerId": "mrk-shkval-pr-22800-karakurt",
+      "sensorId": "radar-1",
+      "targetId": "f-219-sachsen-type-f124-2006",
+      "contactId": "c-t2s3-1",
+      "basePd": 0.35,
+      "envMask": 0.4,
+      "jamStrength": 0
+    },
+    {
+      "observerId": "p-840-holland",
+      "sensorId": "radar-1",
+      "targetId": "f-310-fridtjof-nansen",
+      "contactId": "c-t2s3-2",
+      "basePd": 0.35,
+      "envMask": 0.4,
+      "jamStrength": 0
+    },
+    {
+      "observerId": "p-960-skjold",
+      "sensorId": "radar-1",
+      "targetId": "k-31-visby-2009",
+      "contactId": "c-t2s3-3",
+      "basePd": 0.3,
+      "envMask": 0.35,
+      "jamStrength": 0
+    },
+    {
+      "observerId": "jas-39d-gripen-2005",
+      "sensorId": "radar-1",
+      "targetId": "su-27sm-sm3-flanker-j-2013",
+      "contactId": "c-t2s3-4",
+      "basePd": 0.4,
+      "envMask": 0.45,
+      "jamStrength": 0
+    },
+    {
+      "observerId": "f-219-sachsen-type-f124-2006",
+      "sensorId": "radar-1",
+      "targetId": "mrk-shkval-pr-22800-karakurt",
+      "contactId": "c-t2s3-5",
+      "basePd": 1.0,
+      "envMask": 1.0,
+      "jamStrength": 0
+    },
+    {
+      "observerId": "f-310-fridtjof-nansen",
+      "sensorId": "radar-1",
+      "targetId": "p-840-holland",
+      "contactId": "c-t2s3-6",
+      "basePd": 1.0,
+      "envMask": 1.0,
+      "jamStrength": 0
+    },
+    {
+      "observerId": "k-31-visby-2009",
+      "sensorId": "radar-1",
+      "targetId": "p-960-skjold",
+      "contactId": "c-t2s3-7",
+      "basePd": 1.0,
+      "envMask": 1.0,
+      "jamStrength": 0
+    },
+    {
+      "observerId": "su-27sm-sm3-flanker-j-2013",
+      "sensorId": "radar-1",
+      "targetId": "jas-39d-gripen-2005",
+      "contactId": "c-t2s3-8",
+      "basePd": 1.0,
+      "envMask": 1.0,
+      "jamStrength": 0
+    }
+  ],
+  "mission": {
+    "fireOrder": [
+      "start-exec",
+      "inject-emcon-break"
+    ],
+    "events": [
+      {
+        "id": "start-exec",
+        "fireAtTick": 0,
+        "kind": "MissionTransition",
+        "code": "Execution"
+      },
+      {
+        "id": "inject-emcon-break",
+        "fireAtTick": 6,
+        "kind": "EventFired",
+        "code": "inject_target_emcon_break"
+      }
+    ]
+  },
+  "gauntlet": {
+    "intent": "Strike (split-asymmetric ROE/EMCON): Blue (WeaponsTight, unrestricted sensors) must positively ID and destroy designated target mrk-shkval-pr-22800-karakurt, which holds passive-EMCON stand-in [low Pd/envMask on red's own detection] alongside the rest of Red (WeaponsFree). New air domain this tier: blue su-27sm-sm3-flanker-j-2013, red jas-39d-gripen-2005 (gun/Sidewinder-only picket per roster, no listed missile loadout \u2014 fits a quiet defensive posture). Scripted timed event at tick 6 breaks the target's EMCON discipline.",
+    "oracle": "Blue converts the tick-6 EMCON-break event into the positive ID its tight ROE requires and lands the designated-target kill; both sides carry restriction-driven denials (blue from tight-ROE gating, red from passive-EMCON stand-in); non-empty fingerprint.",
+    "catalogRefs": [
+      "f-219-sachsen-type-f124-2006",
+      "f-310-fridtjof-nansen",
+      "k-31-visby-2009",
+      "su-27sm-sm3-flanker-j-2013",
+      "mrk-shkval-pr-22800-karakurt",
+      "p-840-holland",
+      "p-960-skjold",
+      "jas-39d-gripen-2005"
+    ],
+    "runId": "gauntlet-20260727-1455",
+    "tier": 2,
+    "expect": {
+      "side": "BLUE",
+      "requireNonEmptyFingerprint": true,
+      "minKills": 0,
+      "maxMissilesFired": 8,
+      "minDenials": 20,
+      "maxDenials": 55,
+      "minScore": -300.0,
+      "maxScore": -100.0
+    },
+    "units": [
+      {
+        "unitId": "f-219-sachsen-type-f124-2006",
+        "platformId": "f-219-sachsen-type-f124-2006",
+        "domain": "surface",
+        "side": "blue"
+      },
+      {
+        "unitId": "f-310-fridtjof-nansen",
+        "platformId": "f-310-fridtjof-nansen",
+        "domain": "surface",
+        "side": "blue"
+      },
+      {
+        "unitId": "k-31-visby-2009",
+        "platformId": "k-31-visby-2009",
+        "domain": "surface",
+        "side": "blue"
+      },
+      {
+        "unitId": "su-27sm-sm3-flanker-j-2013",
+        "platformId": "su-27sm-sm3-flanker-j-2013",
+        "domain": "air",
+        "side": "blue"
+      },
+      {
+        "unitId": "mrk-shkval-pr-22800-karakurt",
+        "platformId": "mrk-shkval-pr-22800-karakurt",
+        "domain": "surface",
+        "side": "red"
+      },
+      {
+        "unitId": "p-840-holland",
+        "platformId": "p-840-holland",
+        "domain": "surface",
+        "side": "red"
+      },
+      {
+        "unitId": "p-960-skjold",
+        "platformId": "p-960-skjold",
+        "domain": "surface",
+        "side": "red"
+      },
+      {
+        "unitId": "jas-39d-gripen-2005",
+        "platformId": "jas-39d-gripen-2005",
+        "domain": "air",
+        "side": "red"
+      }
+    ],
+    "expectProvenance": "regenerated 2026-07-27 from real Demo batch CSV at T2 tick budget 10, seeds 42,7,123. Batch taken AFTER the scenario-data fix to s2/s3 detection blocks (BLUE previously had no observer entries and could not engage at all). Margin: +/-100 score (one kill), missiles ceil(1.5x)+2, denials floor kept at ~half observed min so ROE/EMCON gating stays asserted. Per tools/qa-gauntlet/README-expect-regen.md - derived, not invented."
+  },
+  "id": "gauntlet-20260727-1455-t2-s3"
+}

@@ -1,0 +1,39 @@
+run_id: gauntlet-20260713-1558
+created_utc: 2026-07-13T20:59:53Z
+completed_utc: 2026-07-13T21:01:46Z
+git_sha_start: ffa01a200aecb3a642f460517db788863ea100f0
+branch: 07-10-qa_gauntlet_gauntlet-20260710-1352
+args:
+  tiers: 5
+  scenarios_per_tier: 4
+  seeds: [42, 7, 123]
+  max_fix_attempts: 3
+baseline:
+  test_count: 1665
+  suite_status: green
+  catalog_db: assets/data/catalog/baltic_patrol.db
+  catalog_platforms: 79
+  combat_usable_platforms: 76
+preflight:
+  suite: green_1665
+  catalog_openable: true
+  hard_gate_expect: enforced
+  joint_orbat_tier_ge: 3
+tiers:
+  1: {ticks: 6, status: green, rows: 12, defects_found: 0}
+  2: {ticks: 10, status: green, rows: 12, defects_found: 0}
+  3: {ticks: 16, status: green, rows: 12, defects_found: 0, joint_orbat: true}
+  4: {ticks: 24, status: green, rows: 12, defects_found: 0, joint_orbat: true}
+  5: {ticks: 40, status: green, rows: 12, defects_found: 0, joint_orbat: true}
+defects:
+  - id: ORACLE-T3+
+    class: oracle
+    resolution: recalibrated expects for joint multi-unit envelopes
+    log: oracle-expect-recalibration.json
+quarantined_critical: []
+oracle_eval: production/qa/gauntlet/gauntlet-20260713-1558/oracle-eval.json
+oracle_eval_csharp: production/qa/gauntlet/gauntlet-20260713-1558/oracle-eval-csharp.json
+aar: production/qa/gauntlet/gauntlet-20260713-1558/AAR.md
+fixes: production/qa/gauntlet/gauntlet-20260713-1558/fixes.md
+final_test_count: 1665
+ladder_green: true

@@ -1,0 +1,319 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Unity-MCP Steelman Assessment — Project Aegis (2026-07-12)</title>
+<style>
+:root {
+  --bg: #f7f5f1;
+  --fg: #1a1a1a;
+  --muted: #5a5a5a;
+  --border: #d4cfc6;
+  --accent: #1f4b3a;
+  --th-bg: #e8e2d8;
+  --code-bg: #efeae2;
+  --pre-bg: #1e2430;
+  --pre-fg: #e8ecf1;
+  --link: #1a5f4a;
+  --high: #8b2e1f;
+  --high-bg: #f5e4df;
+  --med: #8a5a12;
+  --med-bg: #f5edd9;
+  --low: #3a5a4a;
+  --low-bg: #e4efe8;
+  --ok-bg: #e8f0eb;
+}
+* { box-sizing: border-box; }
+body {
+  margin: 0;
+  font-family: "IBM Plex Sans", "Segoe UI", system-ui, sans-serif;
+  line-height: 1.55;
+  color: var(--fg);
+  background: linear-gradient(180deg, #ebe6dc 0%, var(--bg) 180px);
+}
+.wrap {
+  max-width: 980px;
+  margin: 0 auto;
+  padding: 2rem 1.25rem 4rem;
+}
+header.doc-meta {
+  border-bottom: 2px solid var(--accent);
+  padding-bottom: 1rem;
+  margin-bottom: 1.5rem;
+}
+h1, h2, h3 {
+  font-family: "IBM Plex Serif", Georgia, serif;
+  color: var(--accent);
+  line-height: 1.25;
+}
+h1 { font-size: 1.75rem; margin: 0 0 0.5rem; }
+h2 { font-size: 1.35rem; margin-top: 2rem; border-bottom: 1px solid var(--border); padding-bottom: 0.35rem; }
+h3 { font-size: 1.1rem; margin-top: 1.4rem; }
+.meta { color: var(--muted); font-size: 0.92rem; }
+.meta dt { font-weight: 600; color: var(--fg); display: inline; }
+.meta dd { display: inline; margin: 0 1.25rem 0 0.35rem; }
+a { color: var(--link); }
+p, li { max-width: 72ch; }
+table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 0.92rem;
+  margin: 1rem 0 1.5rem;
+}
+th, td {
+  border: 1px solid var(--border);
+  padding: 0.45rem 0.6rem;
+  text-align: left;
+  vertical-align: top;
+}
+th { background: var(--th-bg); font-weight: 600; }
+code {
+  font-family: "IBM Plex Mono", ui-monospace, Consolas, monospace;
+  font-size: 0.88em;
+  background: var(--code-bg);
+  padding: 0.05em 0.3em;
+  border-radius: 3px;
+}
+pre {
+  background: var(--pre-bg);
+  color: var(--pre-fg);
+  padding: 1rem 1.1rem;
+  overflow-x: auto;
+  border-radius: 6px;
+  font-size: 0.85rem;
+  line-height: 1.45;
+}
+pre code { background: transparent; padding: 0; color: inherit; }
+.verdict {
+  background: var(--ok-bg);
+  border-left: 4px solid var(--accent);
+  padding: 0.9rem 1.1rem;
+  margin: 1.25rem 0;
+}
+.banner {
+  background: var(--med-bg);
+  border: 1px solid #e0d0a8;
+  border-radius: 6px;
+  padding: 0.75rem 1rem;
+  font-size: 0.92rem;
+  margin-bottom: 1.25rem;
+}
+.sev {
+  display: inline-block;
+  font-size: 0.75rem;
+  font-weight: 700;
+  letter-spacing: 0.03em;
+  text-transform: uppercase;
+  padding: 0.15rem 0.45rem;
+  border-radius: 3px;
+}
+.sev-high { background: var(--high-bg); color: var(--high); }
+.sev-med { background: var(--med-bg); color: var(--med); }
+.sev-ok { background: var(--low-bg); color: var(--low); }
+.toc { background: #f0ebe3; padding: 0.9rem 1.1rem; border-radius: 6px; }
+.toc ol { margin: 0.4rem 0 0; padding-left: 1.25rem; }
+.toc a { text-decoration: none; }
+.toc a:hover { text-decoration: underline; }
+.status-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr 1fr;
+  gap: 0.75rem;
+  margin: 1rem 0 1.5rem;
+}
+.status-card {
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  padding: 0.85rem 1rem;
+  background: #fff;
+}
+.status-card h3 { margin: 0 0 0.4rem; font-size: 0.95rem; }
+.status-card p { margin: 0; font-size: 0.88rem; color: var(--muted); max-width: none; }
+.status-card.ready { border-top: 3px solid var(--accent); }
+.status-card.blocked { border-top: 3px solid var(--med); }
+.status-card.never { border-top: 3px solid var(--high); }
+footer {
+  margin-top: 2.5rem;
+  padding-top: 1rem;
+  border-top: 1px solid var(--border);
+  color: var(--muted);
+  font-size: 0.88rem;
+}
+@media (max-width: 720px) {
+  .status-grid { grid-template-columns: 1fr; }
+}
+</style>
+</head>
+<body>
+<main class="wrap">
+<header class="doc-meta">
+  <h1>Unity-MCP Steelman Assessment</h1>
+  <p class="meta">Project Aegis · IvanMurzak / <code>com.ivanmurzak.unity.mcp</code></p>
+  <dl class="meta">
+    <dt>Framed</dt><dd>2026-07-12</dd>
+    <dt>Evidence refresh</dt><dd>2026-07-23</dd>
+    <dt>Markdown</dt><dd><a href="./unity-mcp-steelman-assessment-2026-07-12.md">companion .md</a></dd>
+  </dl>
+</header>
+
+<div class="banner">
+  <strong>Update note (2026-07-23):</strong> Package is now a direct dependency at <code>0.82.4</code> in
+  <code>manifest.json</code> (77 Editor skills present). Editor session / <code>:8080</code> remains pending.
+  <code>Claude-Agent-Setup.md</code> still claims the package is not installed — treat that as P0 doc drift.
+</div>
+
+<nav class="toc" aria-label="Contents">
+  <strong>Contents</strong>
+  <ol>
+    <li><a href="#verdict">Executive verdict</a></li>
+    <li><a href="#state">Current factual state</a></li>
+    <li><a href="#steelman">Steelman FOR Unity-MCP</a></li>
+    <li><a href="#boundaries">Boundaries</a></li>
+    <li><a href="#objections">Objections &amp; rebuttals</a></li>
+    <li><a href="#checklist">Readiness checklist</a></li>
+    <li><a href="#actions">Recommended next actions</a></li>
+  </ol>
+</nav>
+
+<section id="verdict">
+  <h2>1. Executive verdict</h2>
+  <div class="verdict">
+    <p><strong>Keep and activate Unity-MCP for local Editor / C2 presentation work.</strong>
+    Package and client wiring are already on disk; the remaining gap is an interactive Editor session
+    (<code>login</code> + <code>:8080</code>, not architecture.</p>
+    <p><strong>Do not</strong> make Unity-MCP a CI or Cloud merge dependency. Headless .NET on Linux Buildkite
+    remains merge authority. MCP is the local multiplier for scenes, UI Toolkit, assets, and PNG evidence
+    that Cloud Agents cannot produce.</p>
+  </div>
+
+  <div class="status-grid">
+    <div class="status-card ready">
+      <h3><span class="sev sev-ok">Ready today</span></h3>
+      <p>Package <code>0.82.4</code> in manifest · <code>mcp.json</code> → <code>:8080</code> · 77 Editor skills</p>
+    </div>
+    <div class="status-card blocked">
+      <h3><span class="sev sev-med">Blocked on</span></h3>
+      <p>Editor <code>6000.3.14f1</code> open · <code>unity-mcp-cli login</code> · live <code>:8080</code> ping</p>
+    </div>
+    <div class="status-card never">
+      <h3><span class="sev sev-high">Never MCP-gated</span></h3>
+      <p>Buildkite · ReplayGolden · <code>DelegationBridge</code> hotpath · Cloud default path</p>
+    </div>
+  </div>
+</section>
+
+<section id="state">
+  <h2>2. Current factual state</h2>
+  <table>
+    <thead><tr><th>Fact</th><th>Evidence</th></tr></thead>
+    <tbody>
+      <tr><td>Package <strong>is</strong> a direct dependency</td><td><code>Packages/manifest.json</code>: <code>"com.ivanmurzak.unity.mcp": "0.82.4"</code></td></tr>
+      <tr><td>Tech-Stack aligned</td><td><code>Tech-Stack.md</code> pins <code>0.82.4</code>; session pending</td></tr>
+      <tr><td>Client MCP configs</td><td><code>.cursor/mcp.json</code> / <code>.mcp.json</code> → <code>ai-game-developer</code></td></tr>
+      <tr><td>Editor skills tree</td><td><strong>77</strong> dirs under <code>unity/ProjectAegis/.claude/skills/</code></td></tr>
+      <tr><td><code>:8080</code> / Editor session</td><td><strong>Pending</strong> until Editor open + login</td></tr>
+      <tr><td>Cloud / CI policy</td><td>Live Editor PNG = <strong>local only</strong></td></tr>
+    </tbody>
+  </table>
+
+  <h3>Doc drift <span class="sev sev-high">P0</span></h3>
+  <table>
+    <thead><tr><th>Source</th><th>Claims about package</th></tr></thead>
+    <tbody>
+      <tr><td><code>manifest.json</code> / <code>Tech-Stack.md</code></td><td>Installed at <strong>0.82.4</strong></td></tr>
+      <tr><td><code>Claude-Agent-Setup.md</code></td><td><strong>Not</strong> a direct dependency — run <code>install-plugin</code> (stale)</td></tr>
+      <tr><td>ProjectAegis <code>.claude/README.md</code></td><td>“May not yet appear” under dependencies (stale)</td></tr>
+    </tbody>
+  </table>
+  <p>Shared healthy truth: both sides still agree <code>:8080</code> is pending until Editor + login.</p>
+</section>
+
+<section id="steelman">
+  <h2>3. Steelman FOR Unity-MCP</h2>
+  <ol>
+    <li><strong>Closes the agentic gap Unity actually has.</strong> Sim/delegation is headless-complete.
+      Remaining work is Editor-native (UXML/USS, PanelHosts, scenes, assets, Game View smoke).
+      Unity-MCP is the wired path for agents to drive that layer.</li>
+    <li><strong>Matches the integration review’s highest-leverage pain.</strong>
+      <a href="./unity-integration-review-2026-07-07.md">unity-integration-review-2026-07-07.md</a> §4.2–4.4 —
+      MCP skills already cover scene/gameobject/assets/screenshot/profiler loops Cloud cannot run.</li>
+    <li><strong>Skill surface is already paid for.</strong> 77 skills + README safety rules —
+      adoption is activate session, not invent tooling. No need for a separate <code>unity-mcp-operator</code> agent.</li>
+    <li><strong>Low risk to Release invariants if bounded.</strong> Editor/dev tooling only;
+      headless gates stay authoritative; DelegationBridge zero-touch stays in skill preambles.</li>
+    <li><strong>Mil-sim C2 needs visual truth.</strong> Screenshots + console + hierarchy beats
+      markdown-only Unity forever.</li>
+  </ol>
+</section>
+
+<section id="boundaries">
+  <h2>4. Boundaries — when NOT to use</h2>
+  <table>
+    <thead><tr><th>Prefer headless / avoid MCP</th><th>Why</th></tr></thead>
+    <tbody>
+      <tr><td>Buildkite / CI merge gates</td><td>No Editor on hosted Linux agents</td></tr>
+      <tr><td>ReplayGolden / Baltic hash</td><td>Determinism</td></tr>
+      <tr><td><code>DelegationBridge</code> hotpath</td><td>Zero-touch invariant</td></tr>
+      <tr><td>Cloud Agent default path</td><td>VM typically lacks Unity 6.3</td></tr>
+      <tr><td>Sim <code>Tick()</code> / Hindsight in sim</td><td>Determinism rules</td></tr>
+      <tr><td>Unapproved package / URP / Input System</td><td>Project invariants</td></tr>
+    </tbody>
+  </table>
+  <p>Related: <a href="./linux-vs-windows-build-gap-analysis-2026-07-20.md">Linux vs Windows build gap analysis</a>
+  — Linux headless is merge authority; Editor automation remains path-friction prone.</p>
+</section>
+
+<section id="objections">
+  <h2>5. Strongest objections and rebuttals</h2>
+  <table>
+    <thead><tr><th>Objection</th><th>Rebuttal</th></tr></thead>
+    <tbody>
+      <tr><td>“Headless-first means MCP is theater.”</td><td>True for merge authority; false for C2 presentation leverage.</td></tr>
+      <tr><td>“<code>:8080</code> never verified; sunk cost.”</td><td>Package + 77 skills already sunk; remaining cost is one login.</td></tr>
+      <tr><td>“MCP can mutate DelegationBridge.”</td><td>Process control + headless gates — not a reason to uninstall.</td></tr>
+      <tr><td>“CLI/package version skew.”</td><td>Hygiene: pin docs to manifest; verify CLI after session.</td></tr>
+      <tr><td>“Cloud/Buildkite can’t use it.”</td><td>Invest in local evidence lane; never sell as CI substitute.</td></tr>
+    </tbody>
+  </table>
+</section>
+
+<section id="checklist">
+  <h2>6. Readiness checklist</h2>
+  <h3>Ready today</h3>
+  <ul>
+    <li>OpenUPM scopes + direct dep <code>0.82.4</code></li>
+    <li><code>.cursor/mcp.json</code> / <code>.mcp.json</code> → <code>:8080</code></li>
+    <li>77 Editor skills + ProjectAegis README</li>
+    <li>Headless verification path without MCP</li>
+  </ul>
+  <h3>Not ready</h3>
+  <ul>
+    <li>Unity Editor <code>6000.3.14f1</code> open interactively</li>
+    <li><code>unity-mcp-cli login</code> completed</li>
+    <li><code>http://localhost:8080</code> responds; Cursor connected</li>
+    <li>Live <code>ping</code> / <code>unity-tool-list</code> / <code>package-list</code></li>
+    <li>Doc sync ending obsolete <code>install-plugin</code> instructions</li>
+  </ul>
+</section>
+
+<section id="actions">
+  <h2>7. Recommended next actions</h2>
+  <ol>
+    <li><strong>P0 docs:</strong> Sync <code>Claude-Agent-Setup.md</code> to <code>manifest.json</code> / <code>Tech-Stack.md</code>.</li>
+    <li><strong>P0 hedges:</strong> Stop “may not appear in dependencies”; drop stale Entities pins from setup skill.</li>
+    <li><strong>Local activation:</strong> Editor → resolve → login → verify <code>:8080</code> → <code>ping</code>.</li>
+    <li><strong>Keep CI policy:</strong> Buildkite/Cloud never depend on Unity-MCP.</li>
+    <li><strong>Use where steelman is strongest:</strong> C2 UXML/USS/scenes + Game View screenshots;
+      always re-verify with headless PlayModeSmoke before merge.</li>
+  </ol>
+</section>
+
+<footer>
+  Steelman framing 2026-07-12; evidence refreshed 2026-07-23 against disk
+  (<code>manifest.json</code> 0.82.4, 77 Editor skills, <code>:8080</code> still pending).
+  Companion markdown:
+  <a href="./unity-mcp-steelman-assessment-2026-07-12.md">unity-mcp-steelman-assessment-2026-07-12.md</a>.
+</footer>
+</main>
+</body>
+</html>

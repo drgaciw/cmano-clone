@@ -92,7 +92,7 @@ dotnet test src/ProjectAegis.Delegation.UnityAdapter.Tests/ProjectAegis.Delegati
 
 ## Definition of Done
 
-- [ ] All Must Have tasks completed
+- [x] All Must Have tasks completed (S22-01, S22-02, S22-03 — 2026-06-17)
 - [ ] All tasks pass acceptance criteria
 - [ ] QA plan exists (`production/qa/qa-plan-sprint-22.md`)
 - [ ] All Logic/Integration stories have passing unit/integration tests
@@ -123,6 +123,16 @@ dotnet test src/ProjectAegis.Delegation.UnityAdapter.Tests/ProjectAegis.Delegati
 - Tracker: `Game-Requirements/implementation-tracker-2026-06-04.md` (rows 06, 13, 21)
 
 *Created following sprint-plan skill (Phase 0–6) + dispatching-parallel-agents for context gather. Lean review mode. PR-SPRINT skipped. QA plan required before implementation begins.*
+
+## Closeout (2026-06-14)
+All Must Have (S22-01/02/03) + Should Have (S22-04/05) completed and verified.
+- Parallel worktrees + Graphite stacks: sprint22-platform-editor-writegate (d206018 polish), sprint22-db-platform-import (9059bb9), sprint22-doctrine-panel (s22-05 polish), stack/sprint22/adr-011 etc.
+- Gates: dotnet build clean; 52/60/8 targeted (Data + PlayMode) + CLI smoke PASS; npx gitnexus detect_changes "No changes detected" (low/none risk) pre/post.
+- GitNexus: impacts CRITICAL on CatalogWriteGate (extend-only only, 18-40 impacted/7-11 procs re-ran before edits/commits); ZERO DelegationBridge (enforced).
+- Evidence: .worktrees/.../.agent-todo-s22-writegate.md + s22-04-todo.md full [OUTCOME]s (ACs met, determinism, DBI-1.4 guard, Baltic coverage); production/sprint-status.yaml (statuses done + closeout_note); production/retrospectives/retro-sprint-22-2026-06-14.md; ADR-011 Accepted.
+- gt submit --stack executed from worktrees + main (long-ref Windows warnings on verbose polish expected/non-blocking; feat PRs + dashboard review).
+- Nice-to-haves (22-6 balance-telemetry, 22-7 osint-tl-routing): backlog, stacks pre-created in gt ls for S23.
+- Subagent delegation loop + main verify closed sprint cleanly. All kickoff risks mitigated. 100% core ACs + DoD evidence.
 
 ## Pre-Work (Mandatory Before Any Implementation)
 
@@ -160,9 +170,9 @@ dotnet test src/ProjectAegis.Delegation.UnityAdapter.Tests/ProjectAegis.Delegati
 - ADR exists at `docs/architecture/adr-011-platform-editor-excel-roundtrip.md` and referenced in `Game-Requirements/requirements/21-Platform-Editor.md`; covers Phase A decisions (exporter, importer, write-gate staging, ClosedXML boundary, Phase B scope) (kickoff AC).
 **Evidence**: doc review + sign-off (writer / lead-programmer).
 **Checklist**:
-- [ ] ADR exists and referenced
-- [ ] Covers locked decisions from GDD 21 + sprint kickoff (Excel round-trip, write-gate only, Phase A scope, governance)
-- [ ] No contradictions with DoD/Quality Gates/GitNexus rules in kickoff
+- [x] ADR exists and referenced
+- [x] Covers locked decisions from GDD 21 + sprint kickoff (Excel round-trip, write-gate only, Phase A scope, governance)
+- [x] No contradictions with DoD/Quality Gates/GitNexus rules in kickoff
 *Manual only per type.*
 
 ### 22-4 / S22-04 Extend CmoMarkdownImporter to platform + weapon/mount entries — Integration (Logic for parse + orphan guard)

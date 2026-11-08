@@ -1,0 +1,432 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://projectaegis.dev/schemas/scenario-document.schema.json",
+  "title": "Project Aegis Scenario Document",
+  "description": "Canonical scenario document format as serialized by ScenarioDocumentJsonWriter (ADR-008 authoring model). Property names are camelCase. The writer uses JsonSerializerOptions with CamelCase naming and no DefaultIgnoreCondition, so every DTO property is always emitted: nullable fields serialize as null and empty collections serialize as []. This schema reflects that always-emitted shape. NOTE: these documents are NOT the same as data/scenarios/*.policy.json (sim policy files); they are authoring documents mapping to ScenarioDocumentDto.",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["metadata", "missions"],
+  "properties": {
+    "metadata": { "$ref": "#/$defs/metadata" },
+    "features": {
+      "type": ["object", "null"],
+      "description": "Optional scenario feature toggles.",
+      "additionalProperties": true
+    },
+    "sides": {
+      "type": "array",
+      "description": "Canonical side definitions.",
+      "items": { "$ref": "#/$defs/side" }
+    },
+    "orbat": {
+      "type": ["object", "null"],
+      "description": "Canonical order of battle section.",
+      "additionalProperties": true
+    },
+    "referencePoints": {
+      "type": "array",
+      "description": "Canonical named reference points and zones.",
+      "items": { "$ref": "#/$defs/referencePoint" }
+    },
+    "missions": {
+      "type": "array",
+      "description": "Mission list. Serialized from ScenarioDocumentDto.Missions (always present, may be empty []).",
+      "items": { "$ref": "#/$defs/mission" }
+    },
+    "operationsTimeline": {
+      "type": "array",
+      "description": "Optional operation timeline activation entries.",
+      "items": { "$ref": "#/$defs/operationTimelineEntry" }
+    },
+    "events": {
+      "type": ["array", "null"],
+      "description": "Optional typed event DSL entries (AME-5.x). Null when unset.",
+      "items": { "$ref": "#/$defs/event" }
+    },
+    "variables": {
+      "type": ["object", "null"],
+      "description": "Optional scenario variable store.",
+      "additionalProperties": { "type": "string" }
+    },
+    "editorState": {
+      "type": ["object", "null"],
+      "description": "Derived-only editor UI state; never read by ScenarioValidationEngine.",
+      "x-aegis-derived-only": true,
+      "additionalProperties": true
+    }
+  },
+  "$defs": {
+    "metadata": {
+      "type": "object",
+      "description": "Maps to ScenarioMetadataDto. All properties are always serialized by the writer; nullable ones may be null.",
+      "additionalProperties": false,
+      "required": [
+        "dbRef",
+        "dbSnapshotId",
+        "editVersion",
+        "seed",
+        "policyId",
+        "tlBranch",
+        "unitReadiness",
+        "maxTechnologyLevel",
+        "nearFutureUnits",
+        "sideRoe"
+      ],
+      "properties": {
+        "title": {
+          "type": ["string", "null"],
+          "description": "Human-readable scenario title. Nullable when unset."
+        },
+        "description": {
+          "type": ["string", "null"],
+          "description": "Human-readable scenario description. Nullable when unset."
+        },
+        "author": {
+          "type": ["string", "null"],
+          "description": "Scenario author or source label. Nullable when unset."
+        },
+        "schemaVersion": {
+          "type": "integer",
+          "minimum": 1,
+          "description": "Scenario authoring schema version. DTO default is 1."
+        },
+        "dbRef": {
+          "type": ["string", "null"],
+          "description": "Catalog / database reference bound at scenario load (e.g. 'baltic_patrol'). Nullable."
+        },
+        "dbSnapshotId": {
+          "type": ["string", "null"],
+          "description": "Optional immutable snapshot id of the bound database. Nullable."
+        },
+        "editVersion": {
+          "type": "integer",
+          "minimum": 0,
+          "description": "Optimistic-concurrency edit version (req 11). CreateNew() seeds this at 1; each CommitMutation() increments it."
+        },
+        "seed": {
+          "type": "integer",
+          "minimum": 0,
+          "description": "Scenario RNG root (GDD metadata.seed). Serialized from a ulong; DTO default is 42."
+        },
+        "policyId": {
+          "type": ["string", "null"],
+          "description": "Id of a data/scenarios/*.policy.json sim policy used for harness sample runs. Nullable."
+        },
+        "tlBranch": {
+          "type": ["string", "null"],
+          "description": "Technology-level branch binding at load (TL-0 through TL-5), e.g. 'TL-2'. Validated at load, not mid-tick. Nullable."
+        },
+        "unitReadiness": {
+          "type": ["object", "null"],
+          "description": "Per-unit launch readiness map keyed by unit id (req 16). Nullable when unset.",
+          "additionalProperties": { "$ref": "#/$defs/unitReadiness" }
+        },
+        "maxTechnologyLevel": {
+          "type": "integer",
+          "minimum": 0,
+          "description": "Scenario max technology level for near-future gates (req 09). DTO default is 2."
+        },
+        "nearFutureUnits": {
+          "type": ["array", "null"],
+          "description": "Near-future archetype spawn rows to instantiate at harness start (req 09). Nullable when unset.",
+          "items": { "$ref": "#/$defs/nearFutureUnit" }
+        },
+        "sideRoe": {
+          "type": ["string", "null"],
+          "description": "Side-level ROE default (AME-3.2). Null means WeaponsFree."
+        }
+      }
+    },
+    "unitReadiness": {
+      "type": "object",
+      "description": "Maps to ScenarioUnitReadinessDto.",
+      "additionalProperties": false,
+      "required": ["readyForLaunch"],
+      "properties": {
+        "readyForLaunch": {
+          "type": "boolean",
+          "description": "Whether the unit is ready for launch. DTO default is true."
+        }
+      }
+    },
+    "nearFutureUnit": {
+      "type": "object",
+      "description": "Maps to ScenarioNearFutureUnitDto (req 09 CCA / attritable runtime).",
+      "additionalProperties": false,
+      "required": ["archetypeId", "unitId"],
+      "properties": {
+        "archetypeId": {
+          "type": "string",
+          "description": "Archetype id to spawn from."
+        },
+        "unitId": {
+          "type": "string",
+          "description": "Runtime unit id assigned to the spawned unit."
+        }
+      }
+    },
+    "side": {
+      "type": "object",
+      "description": "Maps to ScenarioSideDto.",
+      "additionalProperties": false,
+      "required": ["id", "name", "defaultRoe", "defaultEmcon", "postures"],
+      "properties": {
+        "id": { "type": "string" },
+        "name": { "type": "string" },
+        "defaultRoe": { "type": ["string", "null"] },
+        "defaultEmcon": { "type": ["string", "null"] },
+        "postures": {
+          "type": "array",
+          "items": { "type": "string" }
+        }
+      }
+    },
+    "referencePoint": {
+      "type": "object",
+      "description": "Maps to ScenarioReferencePointDto.",
+      "additionalProperties": false,
+      "required": ["id", "type", "geometry", "radiusNm"],
+      "properties": {
+        "id": { "type": "string" },
+        "type": { "type": "string" },
+        "geometry": {
+          "type": "array",
+          "items": { "$ref": "#/$defs/waypoint" }
+        },
+        "radiusNm": { "type": ["number", "null"] }
+      }
+    },
+    "operationTimelineEntry": {
+      "type": "object",
+      "description": "Maps to ScenarioOperationTimelineEntryDto.",
+      "additionalProperties": false,
+      "required": ["missionId", "activateAtTick"],
+      "properties": {
+        "missionId": { "type": "string" },
+        "activateAtTick": { "type": "integer", "minimum": 0 }
+      }
+    },
+    "waypoint": {
+      "type": "object",
+      "description": "Maps to ScenarioWaypointDto. A geographic vertex of a patrol zone.",
+      "additionalProperties": false,
+      "required": ["lat", "lon"],
+      "properties": {
+        "lat": {
+          "type": "number",
+          "minimum": -90,
+          "maximum": 90,
+          "description": "Latitude in decimal degrees."
+        },
+        "lon": {
+          "type": "number",
+          "minimum": -180,
+          "maximum": 180,
+          "description": "Longitude in decimal degrees."
+        }
+      }
+    },
+    "mission": {
+      "type": "object",
+      "description": "Maps to ScenarioMissionDto. The writer always emits all properties (id/type/assigned/target/ferry/patrol/roe/support) for every mission regardless of type: unused collections serialize as [] and nullable fields as null. The 'type' discriminator selects which fields carry meaningful content, enforced by the allOf branches below.",
+      "additionalProperties": false,
+      "required": [
+        "id",
+        "type",
+        "assignedUnitIds",
+        "targetIds",
+        "ferryDestinationBaseId",
+        "patrolZone",
+        "roeOverride",
+        "supportRole"
+      ],
+      "properties": {
+        "id": {
+          "type": "string",
+          "minLength": 1,
+          "description": "Unique mission id within the document."
+        },
+        "type": {
+          "type": "string",
+          "enum": ["Patrol", "Strike", "Ferry", "Support"],
+          "description": "Mission type discriminator (PascalCase values, as written by ScenarioDocumentEditor)."
+        },
+        "assignedUnitIds": {
+          "type": "array",
+          "description": "String ids of units assigned to the mission (always present, may be empty).",
+          "items": { "type": "string" }
+        },
+        "targetIds": {
+          "type": "array",
+          "description": "String ids of targets. Meaningful for Strike; empty [] for Patrol/Ferry.",
+          "items": { "type": "string" }
+        },
+        "ferryDestinationBaseId": {
+          "type": ["string", "null"],
+          "description": "Destination base id. Meaningful (non-null) for Ferry; null for Patrol/Strike."
+        },
+        "patrolZone": {
+          "type": "array",
+          "description": "Patrol zone vertices. Meaningful for Patrol; empty [] for Strike/Ferry.",
+          "items": { "$ref": "#/$defs/waypoint" }
+        },
+        "stationGeometry": {
+          "type": ["array", "null"],
+          "description": "Support station geometry. Nullable for non-Support missions.",
+          "items": { "$ref": "#/$defs/waypoint" }
+        },
+        "roeOverride": {
+          "type": ["string", "null"],
+          "description": "Mission-level ROE override (AME-3.2). Null inherits sideRoe or WeaponsFree."
+        },
+        "supportRole": {
+          "type": ["string", "null"],
+          "enum": ["Tanker", "AEW", "EW", null],
+          "description": "Support mission role. Meaningful for Support; null for other mission types."
+        },
+        "emconOverride": {
+          "type": ["string", "null"],
+          "description": "Mission-level EMCON override. Nullable when inherited."
+        }
+      },
+      "allOf": [
+        {
+          "if": {
+            "properties": { "type": { "const": "Patrol" } }
+          },
+          "then": {
+            "properties": {
+              "patrolZone": {
+                "type": "array",
+                "minItems": 3,
+                "description": "A valid patrol zone is a closed area and requires at least 3 vertices."
+              }
+            }
+          }
+        },
+        {
+          "if": {
+            "properties": { "type": { "const": "Strike" } }
+          },
+          "then": {
+            "properties": {
+              "targetIds": {
+                "type": "array",
+                "minItems": 1
+              }
+            }
+          }
+        },
+        {
+          "if": {
+            "properties": { "type": { "const": "Ferry" } }
+          },
+          "then": {
+            "properties": {
+              "ferryDestinationBaseId": {
+                "type": "string",
+                "minLength": 1
+              }
+            }
+          }
+        },
+        {
+          "if": {
+            "properties": { "type": { "const": "Support" } }
+          },
+          "then": {
+            "properties": {
+              "supportRole": {
+                "type": "string",
+                "enum": ["Tanker", "AEW", "EW"]
+              },
+              "patrolZone": {
+                "type": "array",
+                "minItems": 3,
+                "description": "Support station geometry (stored in patrolZone)."
+              }
+            }
+          }
+        }
+      ]
+    },
+    "eventCondition": {
+      "type": "object",
+      "description": "Maps to ScenarioEventConditionDto.",
+      "additionalProperties": false,
+      "required": ["type"],
+      "properties": {
+        "type": {
+          "type": "string",
+          "minLength": 1,
+          "description": "Condition type discriminator (e.g. UnitEntersZone, Time)."
+        },
+        "unitId": {
+          "type": ["string", "null"],
+          "description": "Unit id for zone-entry and unit-state conditions."
+        },
+        "zoneId": {
+          "type": ["string", "null"],
+          "description": "Zone id for UnitEntersZone conditions."
+        },
+        "result": {
+          "type": ["boolean", "null"],
+          "description": "Optional explicit evaluation hint for debugger fixtures."
+        }
+      }
+    },
+    "eventAction": {
+      "type": "object",
+      "description": "Maps to ScenarioEventActionDto.",
+      "additionalProperties": false,
+      "required": ["type"],
+      "properties": {
+        "type": {
+          "type": "string",
+          "minLength": 1,
+          "description": "Action type discriminator (e.g. TeleportUnit, ActivateMission)."
+        },
+        "unitId": {
+          "type": ["string", "null"],
+          "description": "Target unit id for unit-scoped actions."
+        },
+        "lat": {
+          "type": ["number", "null"],
+          "description": "Latitude for TeleportUnit and placement actions."
+        },
+        "lon": {
+          "type": ["number", "null"],
+          "description": "Longitude for TeleportUnit and placement actions."
+        }
+      }
+    },
+    "event": {
+      "type": "object",
+      "description": "Maps to ScenarioEventDto.",
+      "additionalProperties": false,
+      "required": ["id", "triggerType", "conditions", "actions"],
+      "properties": {
+        "id": {
+          "type": "string",
+          "minLength": 1,
+          "description": "Unique event id within the document."
+        },
+        "triggerType": {
+          "type": "string",
+          "minLength": 1,
+          "description": "Primary trigger type (Time, UnitEntersZone, etc.)."
+        },
+        "conditions": {
+          "type": "array",
+          "description": "All conditions that must hold for the event to fire.",
+          "items": { "$ref": "#/$defs/eventCondition" }
+        },
+        "actions": {
+          "type": "array",
+          "description": "Actions executed when the event fires.",
+          "items": { "$ref": "#/$defs/eventAction" }
+        }
+      }
+    }
+  }
+}

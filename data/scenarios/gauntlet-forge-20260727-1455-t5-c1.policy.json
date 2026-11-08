@@ -1,0 +1,255 @@
+{
+  "friendlyRoe": "WeaponsTight",
+  "opposingRoe": "WeaponsFree",
+  "engage": {
+    "rangeMeters": 55000,
+    "envelopeMinMeters": 4000,
+    "envelopeMaxMeters": 140000,
+    "defaultMagazineRounds": 5,
+    "hasFireControlTrack": true,
+    "combatDomainsEnabled": true,
+    "pkBase": 0.8,
+    "pkIntercept": 0.0,
+    "pkKill": 0.22,
+    "salvoSize": 1
+  },
+  "detection": [
+    {
+      "observerId": "eurofighter-typhoon",
+      "sensorId": "radar-1",
+      "targetId": "su-57-felon",
+      "contactId": "c-forge-t5c1-1",
+      "basePd": 0.35,
+      "envMask": 0.85,
+      "jamStrength": 0
+    },
+    {
+      "observerId": "f-230-norfolk-type-23-duke",
+      "sensorId": "radar-1",
+      "targetId": "su-35s-flanker-m-2023",
+      "contactId": "c-forge-t5c1-2",
+      "basePd": 0.9,
+      "envMask": 0.95,
+      "jamStrength": 0
+    },
+    {
+      "observerId": "ssn-774-virginia-blk-i-ii",
+      "sensorId": "sonar-1",
+      "targetId": "pla-885m-severodvinsk-yasen-m",
+      "contactId": "c-forge-t5c1-3",
+      "basePd": 0.4,
+      "envMask": 0.8,
+      "jamStrength": 0
+    },
+    {
+      "observerId": "s-120-papanikolis-type-214hn",
+      "sensorId": "sonar-1",
+      "targetId": "a-19-gotland-2020",
+      "contactId": "c-forge-t5c1-4",
+      "basePd": 0.3,
+      "envMask": 0.75,
+      "jamStrength": 0
+    },
+    {
+      "observerId": "skr-admiral-grigorovich-pr-1135-6m",
+      "sensorId": "radar-1",
+      "targetId": "f-310-fridtjof-nansen",
+      "contactId": "c-forge-t5c1-5",
+      "basePd": 1.0,
+      "envMask": 1.0,
+      "jamStrength": 0
+    },
+    {
+      "observerId": "su-34-fullback-2014",
+      "sensorId": "radar-1",
+      "targetId": "p-3c-orion-update-iii-2023",
+      "contactId": "c-forge-t5c1-6",
+      "basePd": 0.95,
+      "envMask": 0.9,
+      "jamStrength": 0
+    },
+    {
+      "observerId": "p-3c-orion-update-iii-2023",
+      "sensorId": "sonar-1",
+      "targetId": "pla-885m-severodvinsk-yasen-m",
+      "contactId": "c-forge-t5c1-7",
+      "basePd": 0.5,
+      "envMask": 0.8,
+      "jamStrength": 0
+    },
+    {
+      "observerId": "mig-31-foxhound",
+      "sensorId": "radar-1",
+      "targetId": "eurofighter-typhoon",
+      "contactId": "c-forge-t5c1-8",
+      "basePd": 0.9,
+      "envMask": 0.9,
+      "jamStrength": 0
+    },
+    {
+      "observerId": "p-960-skjold",
+      "sensorId": "radar-1",
+      "targetId": "tu-160-blackjack",
+      "contactId": "c-forge-t5c1-9",
+      "basePd": 0.85,
+      "envMask": 0.85,
+      "jamStrength": 0
+    }
+  ],
+  "gauntlet": {
+    "intent": "platform-swap-underused: builds tier 5's multi-domain theater op candidate (this run's ladder theme is 'patrol+strike+escort+ASW concurrent', asymmetric joint mix, dense red) by reusing BLUE's proven, recurring escort/CAP/ASW-MPA/attack-sub ORBAT style -- three Western FFG/corvette pickets (f-230-norfolk-type-23-duke, f-310-fridtjof-nansen, p-960-skjold), one Eurofighter CAP shooter, one P-3C Orion MPA for the ASW picture, and a standard SSN/SSK attack-sub pair (ssn-774-virginia-blk-i-ii, s-120-papanikolis-type-214hn) -- while swapping RED's air and subsurface arm almost entirely into tier-5-roster.json's post-tier-4 underused-platform pool: a 5th-generation fighter (su-57-felon), a strategic bomber (tu-160-blackjack), two additional advanced fighter/attack types (su-34-fullback-2014, su-35s-flanker-m-2023, su-33-flanker-d), a long-range interceptor (mig-31-foxhound), a modern SSGN (pla-885m-severodvinsk-yasen-m), and a modern AIP-SSK (a-19-gotland-2020), plus one recurring skr-admiral-grigorovich-pr-1135-6m flagship for RED surface command presence (plarb-955-borei-borey deliberately excluded as a shooter -- roster notes flag it as an ASW high-value target/asset only). This yields a materially denser and more advanced RED (9 units: 6 air, 2 subsurface, 1 surface) against a leaner BLUE (7 units: 3 surface, 2 air, 2 subsurface), matching tier 5's asymmetric-joint-mix / dense-red spec while isolating the platform-swap-underused mutation dimension only -- no cascading-inject, ROE-change, or contested-EM recipe layered on top (those are this run's other tier-5 candidate lanes, e.g. this run's sibling event-cascading-adversarial candidate). BLUE stays WeaponsTight (restrained, consistent with the tier-4 winner's convention) against RED's WeaponsFree stance, so detections span AAW (Eurofighter/MiG-31/Su-35S/Su-34 radar contacts, with su-57-felon modeled at reduced basePd for 5th-gen low-observability), ASW (BLUE SSN/SSK vs RED's quieter SSGN/AIP-SSK), and surface cross-cueing (flagship-vs-frigate radar) concurrently within one ORBAT across the full 40-tick tier-5 budget.",
+    "oracle": "BLUE (WeaponsTight) is expected to land zero or near-zero kills across all three domains, since RoeLevel.WeaponsTight denies fire (PolicyEvaluator / EngagementAbortReason.WeaponsTight, not RoeHoldFire) regardless of domain or contact type, while accumulating a real minDenials floor from detected-but-refused AAW, ASW, and surface contacts across the 40-tick tier-5 budget -- proportionally larger than tier 4's floor given more units (16 total vs 14) and roughly 1.7x the tick budget (40 vs 24). RED (WeaponsFree, denser and materially more advanced) is unrestrained and, given su-57-felon/su-35s-flanker-m-2023/su-34-fullback-2014's stronger air arm and pla-885m-severodvinsk-yasen-m/a-19-gotland-2020's quieter subsurface signatures, may convert more detections into real kills against BLUE's leaner screen than tier 4's winner did against its more symmetric 7v7 ORBAT. This candidate has NOT been batch-regen'd -- see gauntlet.expect and expectProvenance below for the honest provisional-bounds caveat; it probes whether an underused-heavy dense-RED swap at tier 5 scale opens a genuinely new patrol|air,subsurface,surface|WeaponsTight/WeaponsFree|unrestricted|none coverage cell distinct from this run's other tier-5 candidates (cascade/dynamic-obj/roe-change/theater-classed, and this run's event-cascading-adversarial sibling), none of which isolate the platform-swap-underused recipe alone.",
+    "catalogRefs": [
+      "f-230-norfolk-type-23-duke",
+      "f-310-fridtjof-nansen",
+      "p-960-skjold",
+      "eurofighter-typhoon",
+      "p-3c-orion-update-iii-2023",
+      "ssn-774-virginia-blk-i-ii",
+      "s-120-papanikolis-type-214hn",
+      "skr-admiral-grigorovich-pr-1135-6m",
+      "su-57-felon",
+      "tu-160-blackjack",
+      "su-34-fullback-2014",
+      "su-35s-flanker-m-2023",
+      "su-33-flanker-d",
+      "mig-31-foxhound",
+      "pla-885m-severodvinsk-yasen-m",
+      "a-19-gotland-2020"
+    ],
+    "runId": "gauntlet-20260727-1455",
+    "tier": 5,
+    "expect": {
+      "side": "BLUE",
+      "requireNonEmptyFingerprint": true,
+      "minScore": -1420.0,
+      "maxScore": -1380.0,
+      "maxMissilesFired": 7,
+      "maxDenials": 285,
+      "minKills": 0,
+      "minDenials": 275
+    },
+    "units": [
+      {
+        "unitId": "f-230-norfolk-type-23-duke",
+        "platformId": "f-230-norfolk-type-23-duke",
+        "domain": "surface",
+        "side": "blue"
+      },
+      {
+        "unitId": "f-310-fridtjof-nansen",
+        "platformId": "f-310-fridtjof-nansen",
+        "domain": "surface",
+        "side": "blue"
+      },
+      {
+        "unitId": "p-960-skjold",
+        "platformId": "p-960-skjold",
+        "domain": "surface",
+        "side": "blue"
+      },
+      {
+        "unitId": "eurofighter-typhoon",
+        "platformId": "eurofighter-typhoon",
+        "domain": "air",
+        "side": "blue"
+      },
+      {
+        "unitId": "p-3c-orion-update-iii-2023",
+        "platformId": "p-3c-orion-update-iii-2023",
+        "domain": "air",
+        "side": "blue"
+      },
+      {
+        "unitId": "ssn-774-virginia-blk-i-ii",
+        "platformId": "ssn-774-virginia-blk-i-ii",
+        "domain": "subsurface",
+        "side": "blue"
+      },
+      {
+        "unitId": "s-120-papanikolis-type-214hn",
+        "platformId": "s-120-papanikolis-type-214hn",
+        "domain": "subsurface",
+        "side": "blue"
+      },
+      {
+        "unitId": "skr-admiral-grigorovich-pr-1135-6m",
+        "platformId": "skr-admiral-grigorovich-pr-1135-6m",
+        "domain": "surface",
+        "side": "red"
+      },
+      {
+        "unitId": "su-57-felon",
+        "platformId": "su-57-felon",
+        "domain": "air",
+        "side": "red"
+      },
+      {
+        "unitId": "tu-160-blackjack",
+        "platformId": "tu-160-blackjack",
+        "domain": "air",
+        "side": "red"
+      },
+      {
+        "unitId": "su-34-fullback-2014",
+        "platformId": "su-34-fullback-2014",
+        "domain": "air",
+        "side": "red"
+      },
+      {
+        "unitId": "su-35s-flanker-m-2023",
+        "platformId": "su-35s-flanker-m-2023",
+        "domain": "air",
+        "side": "red"
+      },
+      {
+        "unitId": "su-33-flanker-d",
+        "platformId": "su-33-flanker-d",
+        "domain": "air",
+        "side": "red"
+      },
+      {
+        "unitId": "mig-31-foxhound",
+        "platformId": "mig-31-foxhound",
+        "domain": "air",
+        "side": "red"
+      },
+      {
+        "unitId": "pla-885m-severodvinsk-yasen-m",
+        "platformId": "pla-885m-severodvinsk-yasen-m",
+        "domain": "subsurface",
+        "side": "red"
+      },
+      {
+        "unitId": "a-19-gotland-2020",
+        "platformId": "a-19-gotland-2020",
+        "domain": "subsurface",
+        "side": "red"
+      }
+    ],
+    "forge": {
+      "recipes": [
+        "platform-swap-underused"
+      ],
+      "candidateId": "gauntlet-forge-20260727-1455-t5-c1",
+      "noveltyTags": [
+        "rare-platform",
+        "orbat-mix",
+        "tier5-asymmetric-joint",
+        "aaw-air-heavy-red",
+        "asw-subsurface-quiet-red",
+        "underused-fighter-swap",
+        "underused-bomber-swap",
+        "underused-submarine-swap"
+      ],
+      "note": "expect provisional pending regen"
+    },
+    "expectProvenance": "regenerated 2026-07-28 from real Demo batch CSV at T5 tick budget 40, seeds 42,7,123 (production/qa/gauntlet/gauntlet-20260727-1455/tier-5/results.csv). Observed: score=[-1400.0, -1400.0, -1400.0] kills=[0, 0, 0] missilesFired=[5, 5, 5] denials=[280, 280, 280]. Bounds padded ~20% beyond observed range per tools/qa-gauntlet/README-expect-regen.md (derived, not invented).",
+    "domains": [
+      "surface",
+      "air",
+      "subsurface"
+    ]
+  },
+  "id": "gauntlet-forge-20260727-1455-t5-c1"
+}

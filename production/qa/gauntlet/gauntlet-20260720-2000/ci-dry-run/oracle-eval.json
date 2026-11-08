@@ -1,0 +1,60 @@
+{
+  "ok": true,
+  "scenarios": [
+    {
+      "scenario": "gauntlet-joint-orbat-smoke",
+      "passed": true,
+      "failures": [],
+      "rows": 1
+    },
+    {
+      "scenario": "gauntlet-multidomain-shooters",
+      "passed": true,
+      "failures": [],
+      "rows": 1
+    },
+    {
+      "scenario": "gauntlet-t1-patrol-b",
+      "passed": true,
+      "failures": [],
+      "rows": 1
+    },
+    {
+      "scenario": "gauntlet-t3-emcon-phases",
+      "passed": true,
+      "failures": [],
+      "rows": 1
+    },
+    {
+      "scenario": "gauntlet-t4-random-inject",
+      "passed": true,
+      "failures": [],
+      "rows": 1
+    },
+    {
+      "scenario": "gauntlet-t5-cascade",
+      "passed": true,
+      "failures": [],
+      "rows": 1
+    },
+    {
+      "scenario": "gauntlet-t5-roe-change",
+      "passed": true,
+      "failures": [],
+      "rows": 1
+    },
+    {
+      "scenario": "gauntlet-theater-dynamic-victory",
+      "passed": true,
+      "failures": [],
+      "rows": 1
+    },
+    {
+      "scenario": "gauntlet-theater-inject",
+      "passed": true,
+      "failures": [],
+      "rows": 1
+    }
+  ],
+  "allPassed": true
+}
