@@ -497,6 +497,46 @@ def test_urllib_transport_enforces_overall_deadline_on_slow_body():
         server.shutdown()
 
 
+def test_classify_or_degrade_returns_no_advisory_when_body_exceeds_budget():
+    """Chunks arrive inside the socket timeout, but the total exceeds the budget."""
+    questions = load_questions(RUBRIC)
+    packet = load_evidence_packet(FIXTURES / "sample-evidence.json")
+
+    def slow_drip(h):
+        h.send_response(200)
+        h.send_header("Content-Length", "40")
+        h.end_headers()
+        for _ in range(40):
+            try:
+                h.wfile.write(b" ")
+                h.wfile.flush()
+            except OSError:
+                return
+            time.sleep(0.05)
+
+    server = _serve(slow_drip)
+    try:
+        route = ApiRoute(
+            provider="typesafe",
+            url=f"http://127.0.0.1:{server.server_address[1]}/",
+            model=TYPESAFE_MODEL_ID,
+            api_key="budget-test",
+        )
+        start = time.monotonic()
+        result = classify_or_degrade(
+            packet,
+            questions,
+            route=route,
+            transport=UrllibTransport(),
+            timeout_ms=300,
+        )
+        assert result["status"] == "no_advisory"
+        assert "TimeoutError" in result["error"]
+        assert time.monotonic() - start < 0.8
+    finally:
+        server.shutdown()
+
+
 def test_urllib_transport_returns_fast_response():
     def ok(h):
         body = b'{"ok": true}'
