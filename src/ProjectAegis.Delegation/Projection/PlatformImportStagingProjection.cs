@@ -1,6 +1,6 @@
 namespace ProjectAegis.Delegation.Projection;
 
-using ProjectAegis.Data.Platform;
+using Data.Platform;
 
 /// <summary>Workbook domain section for Platform Import staging filters (PE-UX-W1 / P-PE-04).</summary>
 public enum PlatformImportStagingSection

@@ -1,7 +1,7 @@
 namespace ProjectAegis.Data.Tests.Architecture;
 
 using System.Text.RegularExpressions;
-using ProjectAegis.Data.Excel;
+using Excel;
 using Xunit;
 
 /// <summary>
@@ -22,7 +22,7 @@ public sealed class Wave3RequirementsHonestyContractTests
         {
             var path = ResolveRepoFile("Game-Requirements", "requirements", name);
             Assert.True(path != null, $"Could not locate {name}");
-            var text = File.ReadAllText(path!);
+            var text = File.ReadAllText(path);
 
             Assert.Contains("FR-08", text, StringComparison.Ordinal);
             Assert.Contains("Implementation Mapping", text, StringComparison.Ordinal);
@@ -35,7 +35,7 @@ public sealed class Wave3RequirementsHonestyContractTests
     {
         var path = ResolveRepoFile("Game-Requirements", "requirements", "21-Platform-Editor.md");
         Assert.True(path != null, "Could not locate 21-Platform-Editor.md");
-        var text = File.ReadAllText(path!);
+        var text = File.ReadAllText(path);
 
         Assert.Contains("FR-19", text, StringComparison.Ordinal);
         Assert.Contains("Implementation Mapping", text, StringComparison.Ordinal);
@@ -68,7 +68,7 @@ public sealed class Wave3RequirementsHonestyContractTests
     {
         var path = ResolveRepoFile("Game-Requirements", "implementation-tracker-2026-07-04.md");
         Assert.True(path != null, "Could not locate implementation-tracker-2026-07-04.md");
-        var text = File.ReadAllText(path!);
+        var text = File.ReadAllText(path);
 
         Assert.Contains("10b", text, StringComparison.Ordinal);
         Assert.Contains("Phase N / not on main", text, StringComparison.Ordinal);
@@ -77,8 +77,8 @@ public sealed class Wave3RequirementsHonestyContractTests
             .Split('\n')
             .FirstOrDefault(l => l.Contains("| 10b |", StringComparison.Ordinal));
         Assert.True(tenBLine != null, "Tracker row for | 10b | not found");
-        Assert.Contains("Phase N", tenBLine!, StringComparison.Ordinal);
-        Assert.DoesNotContain("Implemented (S54)", tenBLine!, StringComparison.Ordinal);
+        Assert.Contains("Phase N", tenBLine, StringComparison.Ordinal);
+        Assert.DoesNotContain("Implemented (S54)", tenBLine, StringComparison.Ordinal);
     }
 
     [Fact]
@@ -93,7 +93,7 @@ public sealed class Wave3RequirementsHonestyContractTests
         var excelAsm = typeof(ClosedXmlPlatformWorkbookIo).Assembly;
         var byName = excelAsm.GetType("ProjectAegis.Data.Excel.ClosedXmlPlatformWorkbookIo", throwOnError: false);
         Assert.NotNull(byName);
-        Assert.True(byName!.IsClass, "ClosedXmlPlatformWorkbookIo must be a class type");
+        Assert.True(byName.IsClass, "ClosedXmlPlatformWorkbookIo must be a class type");
     }
 
     private static string? ResolveRepoFile(params string[] relativeSegments)

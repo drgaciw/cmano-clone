@@ -1,13 +1,13 @@
 namespace ProjectAegis.Delegation.UnityAdapter.Tests.Bridge;
 
-using ProjectAegis.Delegation.Controllers;
-using ProjectAegis.Delegation.Core;
-using ProjectAegis.Delegation.Decision;
-using ProjectAegis.Delegation.Orchestration;
-using ProjectAegis.Delegation.Policy;
-using ProjectAegis.Delegation.Sim;
-using ProjectAegis.Delegation.Targets;
-using ProjectAegis.Delegation.Traits;
+using Controllers;
+using Core;
+using Decision;
+using Orchestration;
+using Policy;
+using Sim;
+using Targets;
+using Traits;
 using ProjectAegis.Delegation.UnityAdapter.Bridge;
 using ProjectAegis.Sim.Policy;
 using NUnit.Framework;
@@ -26,7 +26,7 @@ public sealed class DelegationBridgeTests
             new SimulationModeProfile(SimulationModeKind.Mixed, PlayerControlsFriendlySide: true),
             friendly: [friendly.Target],
             opposing: [opposing.Target],
-            defaultTraits: ProjectAegis.Delegation.Traits.PersonalityCatalog.All[0].Traits);
+            defaultTraits: PersonalityCatalog.All[0].Traits);
 
         var sink = new RecordingSink();
         var result = bridge.Tick(
@@ -49,7 +49,7 @@ public sealed class DelegationBridgeTests
             new SimulationModeProfile(SimulationModeKind.Mixed, PlayerControlsFriendlySide: true),
             friendly: [friendly.Target],
             opposing: [opposing.Target],
-            defaultTraits: ProjectAegis.Delegation.Traits.PersonalityCatalog.All[0].Traits);
+            defaultTraits: PersonalityCatalog.All[0].Traits);
 
         bridge.BeginExecution();
 

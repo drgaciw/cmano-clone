@@ -1,8 +1,8 @@
 namespace ProjectAegis.Delegation.Hindsight;
 
 using System.Collections.Concurrent;
-using ProjectAegis.Delegation.Core;
-using ProjectAegis.Delegation.Decision;
+using Core;
+using Decision;
 
 public sealed class HindsightOrderLogHook : IHindsightOrderLogHook
 {
@@ -13,6 +13,10 @@ public sealed class HindsightOrderLogHook : IHindsightOrderLogHook
 
     public void RegisterAgent(AgentId agentId, string? personalitySlug) =>
         _personalityByAgent[agentId.Value] = string.IsNullOrWhiteSpace(personalitySlug) ? "custom" : personalitySlug.Trim();
+
+    /// <summary>Last slug passed to <see cref="RegisterAgent"/> for this agent. A later call overwrites it.</summary>
+    internal bool TryGetRegisteredPersonality(AgentId agentId, out string? personality) =>
+        _personalityByAgent.TryGetValue(agentId.Value, out personality);
 
     public void OnAppended(OrderLogEntry entry)
     {

@@ -1,0 +1,11 @@
+<ui:UXML xmlns:ui="UnityEngine.UIElements" editor-extension-mode="False">
+    <ui:VisualElement name="authority-roe-root" class="c2-authority-roe">
+        <ui:Label name="authority-roe-header" text="COMMAND AUTHORITY" class="c2-authority-roe-header" />
+        <ui:Label name="authority-roe-badge" text="" class="c2-authority-roe-badge" />
+        <ui:Label name="authority-roe-roe" text="" class="c2-authority-roe-roe" />
+        <ui:Label name="authority-roe-targeting" text="" class="c2-authority-roe-targeting" />
+        <ui:ListView name="authority-roe-verbs" class="c2-authority-roe-verbs" selection-type="None" />
+        <ui:ListView name="authority-roe-gates" class="c2-authority-roe-gates" selection-type="None" />
+        <ui:Label name="authority-roe-next" text="" class="c2-authority-roe-next" />
+    </ui:VisualElement>
+</ui:UXML>

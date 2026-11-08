@@ -55,6 +55,6 @@ public sealed record UnitDetailPresentation(
         "ENGAGE: —",
         "ATTACK: —",
         "CONTACT: —",
-        0,
-        "COMMS: —");
+        0
+    );
 }

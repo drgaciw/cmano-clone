@@ -1,6 +1,6 @@
 namespace ProjectAegis.Sim.Scenario;
 
-using ProjectAegis.Sim.Engage;
+using Engage;
 
 /// <summary>Deterministic TL / BLACK_PROJECT_MODE checks before engage resolution (req 10).</summary>
 public static class SpeculativeEngageGate

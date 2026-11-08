@@ -3,6 +3,14 @@
     Avoid CS0006 metadata file missing under obj/Release/ref when dependent projects
     compile while upstream ref assemblies are still being regenerated (common after
     no-incremental solution builds or parallel CLI-only Release builds).
+
+    LangVersion is pinned to 12.0 in each headless csproj, not in this file, so the
+    pin does not leak into generated Unity projects under unity/. SDK 10 treats
+    `latest` as C# 14; 12.0 is the language SDK 8.0.400 compiled. Do not raise it.
+    Shared netstandard2.1 projects cannot use LangVersion 9.0: that source already
+    uses C# 10 (file-scoped namespaces, record struct) and C# 11 (raw string
+    literals), including hard-no CatalogWriteGate.cs. Unity Editor scripts stay on
+    unity/ProjectAegis/Assets/csc.rsp (-langversion:10).
   -->
   <PropertyGroup>
     <ProduceReferenceAssembly>false</ProduceReferenceAssembly>

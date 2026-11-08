@@ -1,5 +1,4 @@
 using ProjectAegis.Data.Catalog;
-using ProjectAegis.Data.Excel;
 using ProjectAegis.Data.Platform;
 using ProjectAegis.Data.WriteGate;
 using Xunit;
@@ -147,13 +146,13 @@ public sealed class PlatformWorkbookBinaryGoldenTests
                 }
 
                 cells[postureCol] = posture;
-                return (IReadOnlyList<string>)cells;
+                return cells;
             }).ToArray();
 
             return sheet with { Rows = rows };
         }).ToArray();
 
-        return workbook with { Sheets = sheets };
+        return new PlatformWorkbook(sheets);
     }
 
     private static bool IsZipArchive(string path)

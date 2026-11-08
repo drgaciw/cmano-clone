@@ -1,6 +1,8 @@
 # 24 - Human-On-The-Loop Authority, Approvals & Agent Recommendations
 
-**Last Updated:** 2026-09-02  
+**Review / acceptance state (2026-09-30):** Draft maturity retained; formal document promotion and criterion-level owner acceptance are pending. Implementation/test mappings below identify subsets, not complete product signoff. Live evidence: [tracker](../implementation-tracker.md#post-mvp-requirement-evidence-22-27) and [RTM](../../docs/architecture/requirements-traceability.md).
+
+**Last Updated:** 2026-09-30 (additive evidence reconciliation)
 **Related:** [01-Project-Overview.md](../requirements/01-Project-Overview.md) · [04-Agent-Delegation.md](../requirements/04-Agent-Delegation.md) · [07-Agentic-Infrastructure.md](../requirements/07-Agentic-Infrastructure.md) · [08-Agentic-Architecture.md](../requirements/08-Agentic-Architecture.md) · [13-Doctrine-ROE-EMCON-WRA.md](../requirements/13-Doctrine-ROE-EMCON-WRA.md) · [14-Engagement-And-Fire-Control.md](../requirements/14-Engagement-And-Fire-Control.md) · [17-Replay-AAR-And-Order-Log.md](../requirements/17-Replay-AAR-And-Order-Log.md) · [18-Combat-Domains.md](../requirements/18-Combat-Domains.md) · [20-Command-And-Control-UI.md](../requirements/20-Command-And-Control-UI.md)  
 **Status:** Draft (W3-HOL)  
 **Requirement IDs:** `HOL-01` through `HOL-10`

@@ -1,7 +1,7 @@
 namespace ProjectAegis.Sim.Scenario;
 
 using System.Text.Json;
-using ProjectAegis.Sim.Doctrine;
+using Doctrine;
 
 /// <summary>Loads data/catalog/speculative_platforms.json for TL/black-project metadata.</summary>
 public sealed class SpeculativePlatformCatalog

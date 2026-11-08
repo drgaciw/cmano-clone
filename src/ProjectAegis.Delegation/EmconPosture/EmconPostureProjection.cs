@@ -1,9 +1,8 @@
 namespace ProjectAegis.Delegation.EmconPosture;
 
-using System.Globalization;
 using System.Text;
-using ProjectAegis.Data.Catalog;
-using ProjectAegis.Delegation.Comms;
+using Data.Catalog;
+using Comms;
 using ProjectAegis.Sim.Catalog;
 using ProjectAegis.Sim.Glossary;
 using ProjectAegis.Sim.Policy;

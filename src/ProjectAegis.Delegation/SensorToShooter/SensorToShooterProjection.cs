@@ -1,11 +1,10 @@
 namespace ProjectAegis.Delegation.SensorToShooter;
 
-using ProjectAegis.Data.Catalog;
-using ProjectAegis.Delegation.Decision;
-using ProjectAegis.Delegation.Orchestration;
-using ProjectAegis.Delegation.Projection;
+using Data.Catalog;
+using Decision;
+using Orchestration;
+using Projection;
 using ProjectAegis.Sim.Engage;
-using ProjectAegis.Sim.Scenario;
 
 /// <summary>
 /// DRG-207: projects kill-chain contact state plus catalog engage envelope into an inspectable

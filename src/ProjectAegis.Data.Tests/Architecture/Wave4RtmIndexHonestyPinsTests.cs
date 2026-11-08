@@ -14,7 +14,7 @@ public sealed class Wave4RtmIndexHonestyPinsTests
     {
         var path = ResolveRepoFile("docs", "architecture", "requirements-traceability.md");
         Assert.True(path != null, "Could not locate docs/architecture/requirements-traceability.md");
-        var text = File.ReadAllText(path!);
+        var text = File.ReadAllText(path);
 
         // Gate floor references AGENTS.md §Hard Invariants (or cites current floor ≥1638).
         Assert.True(
@@ -38,7 +38,7 @@ public sealed class Wave4RtmIndexHonestyPinsTests
     {
         var path = ResolveRepoFile("docs", "architecture", "requirements-traceability.md");
         Assert.True(path != null, "Could not locate docs/architecture/requirements-traceability.md");
-        var text = File.ReadAllText(path!);
+        var text = File.ReadAllText(path);
 
         Assert.Contains("Platform editor", text, StringComparison.OrdinalIgnoreCase);
         Assert.Contains("FR-19", text, StringComparison.Ordinal);
@@ -56,7 +56,7 @@ public sealed class Wave4RtmIndexHonestyPinsTests
     {
         var path = ResolveRepoFile("docs", "architecture", "requirements-traceability.md");
         Assert.True(path != null, "Could not locate docs/architecture/requirements-traceability.md");
-        var text = File.ReadAllText(path!);
+        var text = File.ReadAllText(path);
 
         // Header / current gates cite AGENTS.md or current floor.
         Assert.True(
@@ -88,7 +88,7 @@ public sealed class Wave4RtmIndexHonestyPinsTests
     {
         var path = ResolveRepoFile("00-Master-Index.md");
         Assert.True(path != null, "Could not locate root 00-Master-Index.md");
-        var text = File.ReadAllText(path!);
+        var text = File.ReadAllText(path);
 
         Assert.True(
             text.Contains("implementation-tracker.md", StringComparison.Ordinal) ||
@@ -109,7 +109,7 @@ public sealed class Wave4RtmIndexHonestyPinsTests
     {
         var path = ResolveRepoFile("Game-Requirements", "Game-Requirements-Index.md");
         Assert.True(path != null, "Could not locate Game-Requirements/Game-Requirements-Index.md");
-        var text = File.ReadAllText(path!);
+        var text = File.ReadAllText(path);
 
         Assert.True(
             text.Contains("W0–W4", StringComparison.Ordinal) ||

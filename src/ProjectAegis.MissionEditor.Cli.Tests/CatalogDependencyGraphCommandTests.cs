@@ -2,7 +2,6 @@ using System.Text.Json;
 using Microsoft.Data.Sqlite;
 using ProjectAegis.Data.Catalog;
 using ProjectAegis.Data.WriteGate;
-using ProjectAegis.MissionEditor.Cli;
 using Xunit;
 
 namespace ProjectAegis.MissionEditor.Cli.Tests;
@@ -67,6 +66,22 @@ public sealed class CatalogDependencyGraphCommandTests
         {
             Cleanup(dbPath);
         }
+    }
+
+    [Fact]
+    public void DependencyGraph_reported_database_path_reflects_actual_source_when_input_path_missing()
+    {
+        var missingPath = Path.Combine(Path.GetTempPath(), $"aegis-cli-dep-missing-{Guid.NewGuid():N}.db");
+        Assert.False(File.Exists(missingPath));
+
+        using var writer = new StringWriter();
+        Assert.Equal(0, CatalogDependencyGraphCommand.Run(missingPath, writer));
+
+        using var doc = JsonDocument.Parse(writer.ToString());
+        var reportedPath = doc.RootElement.GetProperty("databasePath").GetString();
+
+        Assert.NotEqual(missingPath, reportedPath);
+        Assert.Equal(CatalogReaderFactory.ResolveBalticPatrolDatabasePath(), reportedPath);
     }
 
     [Fact]

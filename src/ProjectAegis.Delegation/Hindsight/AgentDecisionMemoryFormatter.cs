@@ -1,7 +1,7 @@
 namespace ProjectAegis.Delegation.Hindsight;
 
 using System.Globalization;
-using ProjectAegis.Delegation.Decision;
+using Decision;
 
 /// <summary>Turns structured agent decisions into Hindsight retain content (§6.4 lazy NL).</summary>
 public static class AgentDecisionMemoryFormatter

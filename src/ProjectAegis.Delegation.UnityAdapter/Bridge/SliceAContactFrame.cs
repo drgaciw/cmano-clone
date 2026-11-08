@@ -1,12 +1,13 @@
 namespace ProjectAegis.Delegation.UnityAdapter.Bridge;
 
 using System.Collections.ObjectModel;
-using ProjectAegis.Data.Catalog;
-using ProjectAegis.Delegation.Core;
-using ProjectAegis.Delegation.Projection;
-using ProjectAegis.Delegation.Roe;
-using ProjectAegis.Delegation.SensorToShooter;
-using ProjectAegis.Delegation.Skills;
+using Data.Catalog;
+using Core;
+using Projection;
+using Roe;
+using SensorToShooter;
+using Skills;
+using TargetabilityAccept;
 
 /// <summary>Tick-level read model for Slice A; no live simulation handles (ADR-010 §2–3, ADR-007, ADR-001).</summary>
 public sealed record SliceAContactFrame(
@@ -16,8 +17,18 @@ public sealed record SliceAContactFrame(
     IReadOnlyList<ContactPictureEntry> Contacts,
     IReadOnlyDictionary<string, C2AuthorityProjection> Authorities,
     bool EligibilityAvailable = false,
-    ulong SimTick = 0)
+    ulong SimTick = 0,
+    double? SimTime = null)
 {
+    private readonly TargetabilityAcceptSnapshot _targetability = TargetabilityAcceptSnapshot.Empty;
+
+    /// <summary>Acceptance facts composed once from this frame's cached projections and actor-specific authorities.</summary>
+    public TargetabilityAcceptSnapshot Targetability
+    {
+        get => _targetability;
+        init => _targetability = new TargetabilityAcceptSnapshot(Array.AsReadOnly(value.Contacts.ToArray()));
+    }
+
     /// <summary>No received simulation frame.</summary>
     public static SliceAContactFrame Empty { get; } = new(
         KillChainContactSnapshot.Empty, ContactProvenanceSnapshot.Empty, SensorToShooterSnapshot.Empty,
@@ -72,7 +83,7 @@ public static class SliceAContactFrameBridge
         {
             var shooter = chain.Links.FirstOrDefault(l => l.Kind == SensorToShooterLinkKind.EligibleShooter && l.IsLinked)?.UnitId;
             var registered = !string.IsNullOrEmpty(shooter)
-                && bridge.Registry.TryGetBinding(new TargetId(shooter!), out _);
+                && bridge.Registry.TryGetBinding(new TargetId(shooter), out _);
             if (!registered || snapshot is not ISliceAContactAuthoritySource authoritySource
                 || !authoritySource.TryGetAuthorityContext(chain.ContactId, shooter!, out var supplied)
                 || supplied.TrackSource == TrackSource.Unknown)
@@ -93,7 +104,10 @@ public static class SliceAContactFrameBridge
         }
 
         return new SliceAContactFrame(killChain, provenance, chains, contacts,
-            new ReadOnlyDictionary<string, C2AuthorityProjection>(authorities), source != null, tick);
+            new ReadOnlyDictionary<string, C2AuthorityProjection>(authorities), source != null, tick, snapshot.SimTime)
+        {
+            Targetability = TargetabilityAcceptProjection.ProjectPerContact(provenance, chains, authorities),
+        };
     }
 
     private sealed class LiveCandidateGuard(

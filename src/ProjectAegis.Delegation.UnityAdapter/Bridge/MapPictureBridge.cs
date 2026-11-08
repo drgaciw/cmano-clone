@@ -1,8 +1,8 @@
 namespace ProjectAegis.Delegation.UnityAdapter.Bridge;
 
-using ProjectAegis.Delegation.Core;
-using ProjectAegis.Delegation.Decision;
-using ProjectAegis.Delegation.Projection;
+using Core;
+using Decision;
+using Projection;
 
 /// <summary>
 /// Headless/Unity facade: tactical map symbols from snapshot alive-state + order-log contacts.

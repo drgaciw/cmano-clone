@@ -1,6 +1,6 @@
 namespace ProjectAegis.Delegation.C2Network;
 
-using ProjectAegis.Delegation.Comms;
+using Comms;
 
 /// <summary>
 /// Headless fold of comms state, datalink topology, and order-log contacts.

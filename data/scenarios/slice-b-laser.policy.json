@@ -1,0 +1,17 @@
+{
+  "id": "slice-b-laser",
+  "friendlyRoe": "WeaponsFree",
+  "opposingRoe": "WeaponsTight",
+  "engage": {
+    "weaponFamilyId": "Laser",
+    "rangeMeters": 12000,
+    "envelopeMinMeters": 0,
+    "envelopeMaxMeters": 20000,
+    "defaultMagazineRounds": 10,
+    "hasFireControlTrack": true,
+    "pkBase": 0.9,
+    "pkIntercept": 0.0,
+    "pkKill": 0.75,
+    "salvoSize": 1
+  }
+}

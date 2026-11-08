@@ -1,6 +1,6 @@
 namespace ProjectAegis.Sim.Engage;
 
-using ProjectAegis.Sim.Core;
+using Core;
 
 /// <summary>Tracks destroyed hostile target ids for engage gating and world hash.</summary>
 public sealed class KilledTargetRegistry

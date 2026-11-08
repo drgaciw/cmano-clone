@@ -147,7 +147,6 @@ public static class AirOpsProjection
             AirOpsPhase.Airborne or AirOpsPhase.Landing => AirOpsFsm.ReasonAlreadyAirborne,
             AirOpsPhase.Prepping or AirOpsPhase.Taxiing or AirOpsPhase.TakingOff =>
                 AirOpsFsm.ReasonLaunchInProgress,
-            AirOpsPhase.OnGround when !state.ReadyForLaunch => AirOpsFsm.ReasonAirNotReady,
             _ => AirOpsFsm.ReasonAirNotReady,
         };
     }
@@ -158,8 +157,8 @@ public static class AirOpsProjection
         string? platformType,
         string? host)
     {
-        var platform = string.IsNullOrWhiteSpace(platformType) ? MissingLabel : platformType!.Trim();
-        var hostLabel = string.IsNullOrWhiteSpace(host) ? MissingLabel : host!.Trim();
+        var platform = string.IsNullOrWhiteSpace(platformType) ? MissingLabel : platformType.Trim();
+        var hostLabel = string.IsNullOrWhiteSpace(host) ? MissingLabel : host.Trim();
         var status = ready ? StatusReady : StatusNotReady;
         var refusal = ready ? null : AirNotReadyCode;
         return new AirOpsEntry(
@@ -178,7 +177,7 @@ public static class AirOpsProjection
 
     private static AirOpsEntry ToLifecycleEntry(AirOpsUnitState state, string? platformType)
     {
-        var platform = string.IsNullOrWhiteSpace(platformType) ? MissingLabel : platformType!.Trim();
+        var platform = string.IsNullOrWhiteSpace(platformType) ? MissingLabel : platformType.Trim();
         var hostLabel = string.IsNullOrWhiteSpace(state.HostId) ? MissingLabel : state.HostId!.Trim();
         var phaseLabel = FormatPhaseLabel(state.Phase);
         var canLaunch = state.Phase == AirOpsPhase.OnGround && state.ReadyForLaunch;

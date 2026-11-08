@@ -14,7 +14,7 @@ public static class SwarmEmpEvaluator
     public const string ReasonModeBlocked = "soft-kill-emp-mode-frozen";
     public const string ReasonClear = "soft-kill-emp-clear";
 
-    /// <summary>Compute exclusive freeze-until simTime (modes blocked while simTime < freezeUntil).</summary>
+    /// <summary>Compute exclusive freeze-until simTime (modes blocked while simTime &lt; freezeUntil).</summary>
     public static double ComputeFreezeUntil(double simTime, double freezeDurationSeconds)
     {
         if (freezeDurationSeconds <= 0)

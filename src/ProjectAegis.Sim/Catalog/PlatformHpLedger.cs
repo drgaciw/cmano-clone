@@ -1,7 +1,7 @@
 namespace ProjectAegis.Sim.Catalog;
 
-using ProjectAegis.Sim.Core;
-using ProjectAegis.Sim.Scenario;
+using Core;
+using Scenario;
 
 /// <summary>Deterministic platform HP% ledger for bounded catalog hot-tick damage (ADR-009).</summary>
 public sealed class PlatformHpLedger
