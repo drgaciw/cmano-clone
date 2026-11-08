@@ -1,6 +1,6 @@
 namespace ProjectAegis.Sim.Engage;
 
-using ProjectAegis.Sim.Swarm;
+using Swarm;
 
 /// <summary>
 /// SWARM-07 / DRG-88: apply engagement integrity losses only via authorized
@@ -59,7 +59,7 @@ public static class SwarmEngagementIntegrityApplier
         var applied = 0;
         for (var i = 0; i < hitCount; i++)
         {
-            var tick = startTick + (ulong)(uint)i;
+            var tick = startTick + (uint)i;
             var time = startSimTime + (i * tickDeltaSeconds);
             if (!TryApplyHit(
                     controller,

@@ -138,6 +138,19 @@ public sealed class EscalationGateProjectionTests
   }
 
   [Test]
+  public void ProjectFromAuthority_reuses_projection_without_recomputing_context()
+  {
+    var context = OrganicContext(roe: RoeLevel.HoldFire, commandId: "engage");
+    var authority = C2AuthorityProjector.Project(context);
+
+    var fromContext = EscalationGateProjection.Project(new EscalationGateInput("c-hold", context));
+    var fromAuthority = EscalationGateProjection.ProjectFromAuthority("c-hold", authority);
+
+    Assert.That(fromAuthority.IsOrder, Is.False);
+    Assert.That(fromAuthority.Rows, Is.EqualTo(fromContext.Rows));
+  }
+
+  [Test]
   public void Null_or_empty_input_returns_empty_snapshot()
   {
     Assert.That(EscalationGateProjection.Project((EscalationGateInput?)null).Rows, Is.Empty);

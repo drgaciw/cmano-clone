@@ -1,7 +1,7 @@
 namespace ProjectAegis.Delegation.Orchestration;
 
-using ProjectAegis.Delegation.Core;
-using ProjectAegis.Delegation.Decision;
+using Core;
+using Decision;
 using ProjectAegis.Sim.Scenario;
 
 /// <summary>Filters order-log entries for live player HUD (req 02). Replay/AAR uses full log.</summary>
@@ -35,7 +35,6 @@ public static class PlayerInfoFilter
                 IsDecisionVisibleInLiveView(payload.AutonomyLevel, model),
             OrderLogEntryKind.AgentDecision when entry.Payload is DecisionRecord record =>
                 IsDecisionVisibleInLiveView(record.AutonomyLevel, model),
-            OrderLogEntryKind.PolicyDenial or OrderLogEntryKind.Engagement => true,
             _ => true,
         };
 }

@@ -1,6 +1,5 @@
 using Microsoft.Data.Sqlite;
 using ProjectAegis.Data.Catalog;
-using ProjectAegis.Data.Import;
 using Xunit;
 
 namespace ProjectAegis.Data.Tests.Snapshots;

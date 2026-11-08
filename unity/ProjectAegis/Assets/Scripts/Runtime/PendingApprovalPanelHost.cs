@@ -1,9 +1,11 @@
 // DRG-66: Pending Approval panel — APPROVE / REJECT actions for queued agent orders.
+// DRG-260: Assisted withdraw / redeploy confirm chrome (command façade on confirm only).
 #if UNITY_5_3_OR_NEWER
 using System.Collections.Generic;
 using ProjectAegis.Delegation.Core;
 using ProjectAegis.Delegation.Orchestration;
 using ProjectAegis.Delegation.Projection;
+using ProjectAegis.Delegation.UnityAdapter.Presentation;
 using UnityEngine;
 using UnityEngine.UIElements;
 
@@ -21,6 +23,12 @@ namespace ProjectAegis.Unity.Runtime
         private const string ApproveButtonName = "pending-approval-approve";
         private const string RejectButtonName = "pending-approval-reject";
         private const string StatusName = "pending-approval-status";
+        private const string AuthorityName = "pending-approval-authority";
+        private const string CoordinationConfirmRootName = "pending-coordination-confirm";
+        private const string CoordinationConfirmTitleName = "pending-coordination-confirm-title";
+        private const string CoordinationConfirmBodyName = "pending-coordination-confirm-body";
+        private const string CoordinationConfirmAcceptName = "pending-coordination-confirm-accept";
+        private const string CoordinationConfirmCancelName = "pending-coordination-confirm-cancel";
 
         [SerializeField] private DelegationBridgeHost bridgeHost = null!;
         [SerializeField] private VisualTreeAsset? panelAsset;
@@ -32,12 +40,19 @@ namespace ProjectAegis.Unity.Runtime
         private Label? _badgeLine;
         private Label? _emptyLine;
         private Label? _statusLine;
+        private Label? _authorityLine;
         private ListView? _approvalList;
         private Button? _approveButton;
         private Button? _rejectButton;
+        private VisualElement? _coordinationConfirmRoot;
+        private Label? _coordinationConfirmTitle;
+        private Label? _coordinationConfirmBody;
+        private Button? _coordinationConfirmAccept;
+        private Button? _coordinationConfirmCancel;
         private IReadOnlyList<PendingApprovalRow> _rows = System.Array.Empty<PendingApprovalRow>();
         private bool _wired;
         private bool _handlersRegistered;
+        private bool _coordinationHandlersRegistered;
         private string? _lastStatus;
 
         /// <summary>Last status line set by APPROVE or REJECT action.</summary>
@@ -105,9 +120,15 @@ namespace ProjectAegis.Unity.Runtime
             _badgeLine = panel.Q<Label>(BadgeName);
             _emptyLine = panel.Q<Label>(EmptyName);
             _statusLine = panel.Q<Label>(StatusName);
+            _authorityLine = panel.Q<Label>(AuthorityName);
             _approvalList = panel.Q<ListView>(ListName);
             _approveButton = panel.Q<Button>(ApproveButtonName);
             _rejectButton = panel.Q<Button>(RejectButtonName);
+            _coordinationConfirmRoot = panel.Q(CoordinationConfirmRootName);
+            _coordinationConfirmTitle = panel.Q<Label>(CoordinationConfirmTitleName);
+            _coordinationConfirmBody = panel.Q<Label>(CoordinationConfirmBodyName);
+            _coordinationConfirmAccept = panel.Q<Button>(CoordinationConfirmAcceptName);
+            _coordinationConfirmCancel = panel.Q<Button>(CoordinationConfirmCancelName);
 
             if (_approvalList != null)
             {
@@ -130,6 +151,7 @@ namespace ProjectAegis.Unity.Runtime
             }
 
             WireClickHandlers();
+            WireCoordinationConfirmHandlers();
             _wired = _approvalList != null || _approveButton != null || _rejectButton != null;
         }
 
@@ -151,6 +173,53 @@ namespace ProjectAegis.Unity.Runtime
             }
 
             _handlersRegistered = true;
+        }
+
+        private void WireCoordinationConfirmHandlers()
+        {
+            if (_coordinationHandlersRegistered)
+            {
+                return;
+            }
+
+            if (_coordinationConfirmAccept != null)
+            {
+                _coordinationConfirmAccept.clicked += OnCoordinationConfirmAcceptClicked;
+            }
+
+            if (_coordinationConfirmCancel != null)
+            {
+                _coordinationConfirmCancel.clicked += OnCoordinationConfirmCancelClicked;
+            }
+
+            _coordinationHandlersRegistered = true;
+        }
+
+        private void OnCoordinationConfirmAcceptClicked()
+        {
+            if (bridgeHost == null)
+            {
+                SetStatus("NO_BRIDGE");
+                return;
+            }
+
+            var result = CoordinationAssistedWithdrawRedeployConfirmBinder.Confirm(
+                (groupId, decision) => bridgeHost.SubmitGroupDecision(groupId, decision));
+            var resultLabels = CoordinationAssistedWithdrawRedeployPanelBinder.Bind(result);
+            SetStatus(resultLabels.Accepted ? null : resultLabels.StatusLine);
+            RefreshCoordinationConfirmChrome();
+        }
+
+        private void OnCoordinationConfirmCancelClicked()
+        {
+            if (!CoordinationAssistedWithdrawRedeployConfirmBinder.TryCancel())
+            {
+                SetStatus("NO_PENDING_CONFIRM");
+                return;
+            }
+
+            SetStatus(null);
+            RefreshCoordinationConfirmChrome();
         }
 
         private void OnSelectionChanged(IEnumerable<object> _)
@@ -247,12 +316,27 @@ namespace ProjectAegis.Unity.Runtime
             }
 
             UpdateActionButtons();
+            UpdateAuthorityContext();
+            RefreshCoordinationConfirmChrome();
 
             var rootEl = _document.rootVisualElement?.Q(RootName);
             if (rootEl != null)
             {
                 rootEl.style.display = showPanel ? DisplayStyle.Flex : DisplayStyle.None;
             }
+        }
+
+        private void UpdateAuthorityContext()
+        {
+            if (_authorityLine == null || bridgeHost == null)
+            {
+                return;
+            }
+
+            var contactId = bridgeHost.SelectedContactId;
+            bridgeHost.LastSliceAContacts.Authorities.TryGetValue(contactId ?? string.Empty, out var authority);
+            _authorityLine.text = C2AuthorityPresenter.FormatSummaryLine(
+                C2AuthorityPresenter.Build(contactId, authority));
         }
 
         private void UpdateActionButtons()
@@ -280,6 +364,50 @@ namespace ProjectAegis.Unity.Runtime
             }
 
             return _rows[_approvalList.selectedIndex];
+        }
+
+        private void RefreshCoordinationConfirmChrome()
+        {
+            var pending = CoordinationAssistedWithdrawRedeployConfirmBinder.Pending;
+            if (_coordinationConfirmRoot != null)
+            {
+                _coordinationConfirmRoot.style.display = pending != null ? DisplayStyle.Flex : DisplayStyle.None;
+            }
+
+            if (pending == null)
+            {
+                return;
+            }
+
+            _ = CoordinationAssistedWithdrawRedeployPanelBinder.Bind(pending);
+
+            var chrome = CoordinationAssistedWithdrawRedeployConfirmBinder.ProjectChromeForPending();
+            if (chrome is null)
+            {
+                return;
+            }
+
+            var labels = CoordinationAssistedWithdrawRedeployPanelBinder.Bind(chrome);
+
+            if (_coordinationConfirmTitle != null)
+            {
+                _coordinationConfirmTitle.text = labels.Title;
+            }
+
+            if (_coordinationConfirmBody != null)
+            {
+                _coordinationConfirmBody.text = labels.Body;
+            }
+
+            if (_coordinationConfirmAccept != null)
+            {
+                _coordinationConfirmAccept.text = labels.ConfirmLabel;
+            }
+
+            if (_coordinationConfirmCancel != null)
+            {
+                _coordinationConfirmCancel.text = labels.CancelLabel;
+            }
         }
 
         private void SetStatus(string? status)

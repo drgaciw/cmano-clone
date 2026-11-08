@@ -1,7 +1,7 @@
 namespace ProjectAegis.Data.Agents;
 
-using ProjectAegis.Data.Catalog;
-using ProjectAegis.Data.Validation;
+using Catalog;
+using Validation;
 
 /// <summary>Req-06 rules agent — TRL/review/confidence gates (wraps CatalogImportGate).</summary>
 public sealed class CatalogRulesValidationAgent : IDatabaseIntelligenceAgent

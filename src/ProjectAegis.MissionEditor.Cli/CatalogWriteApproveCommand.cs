@@ -1,10 +1,10 @@
 namespace ProjectAegis.MissionEditor.Cli;
 
 using System.Text.Json;
-using ProjectAegis.Data.Import;
-using ProjectAegis.Data.Snapshots;
-using ProjectAegis.Data.Telemetry;
-using ProjectAegis.Data.WriteGate;
+using Data.Import;
+using Data.Snapshots;
+using Data.Telemetry;
+using Data.WriteGate;
 
 public static class CatalogWriteApproveCommand
 {

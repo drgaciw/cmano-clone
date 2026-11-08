@@ -1,7 +1,7 @@
 namespace ProjectAegis.Delegation.Projection;
 
 using System.Globalization;
-using ProjectAegis.Data.Catalog;
+using Data.Catalog;
 
 /// <summary>S40-03: read-only provenance labels for Catalog JSON import bindings (projection-side; no write path).</summary>
 public sealed record CatalogImportProvenanceRow(string SummaryLine);

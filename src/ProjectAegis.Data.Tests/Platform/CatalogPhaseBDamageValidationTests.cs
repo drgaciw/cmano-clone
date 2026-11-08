@@ -209,7 +209,7 @@ public sealed class CatalogPhaseBDamageValidationTests
                 ? sheet with { Header = header }
                 : sheet).ToArray();
 
-        return workbook with { Sheets = sheets };
+        return new PlatformWorkbook(sheets);
     }
 
     private static PlatformWorkbook WithPlatformCell(
@@ -220,7 +220,7 @@ public sealed class CatalogPhaseBDamageValidationTests
     {
         var sheet = workbook.FindSheet("Platforms");
         Assert.NotNull(sheet);
-        var platformCol = Array.IndexOf(sheet!.Header.ToArray(), "PlatformId");
+        var platformCol = Array.IndexOf(sheet.Header.ToArray(), "PlatformId");
         var targetCol = Array.IndexOf(sheet.Header.ToArray(), columnName);
         Assert.True(platformCol >= 0);
         Assert.True(targetCol >= 0);
@@ -259,13 +259,13 @@ public sealed class CatalogPhaseBDamageValidationTests
                 }
 
                 cells[targetCol] = value;
-                return (IReadOnlyList<string>)cells;
+                return cells;
             }).ToArray();
 
             return s with { Rows = rows };
         }).ToArray();
 
-        return workbook with { Sheets = sheets };
+        return new PlatformWorkbook(sheets);
     }
 
     private sealed class FakeWriteGate : IWriteGate

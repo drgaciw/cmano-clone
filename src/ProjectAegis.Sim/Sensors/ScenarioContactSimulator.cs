@@ -1,7 +1,7 @@
 namespace ProjectAegis.Sim.Sensors;
 
-using ProjectAegis.Sim.Policy;
-using ProjectAegis.Sim.Scenario;
+using Policy;
+using Scenario;
 
 /// <summary>Deterministic scenario contact appearances (MVP: Unknown → Detected).</summary>
 public sealed class ScenarioContactSimulator

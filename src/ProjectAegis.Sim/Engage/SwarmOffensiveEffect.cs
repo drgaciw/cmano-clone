@@ -6,12 +6,13 @@ namespace ProjectAegis.Sim.Engage;
 /// </summary>
 public static class SwarmOffensiveEffect
 {
-    /// <summary>Minimum scale when at least one drone remains (avoids zero-shot lockouts at 1/max).</summary>
+    /// <summary>Public compatibility value for the linear curve's zero lower bound.</summary>
     public const double MinLivingScale = 0.0;
 
     /// <summary>
     /// Linear integrity scale: <c>droneCount / maxDrones</c>, clamped to [0, 1].
-    /// TUNING: replace with power curve via <see cref="ScaleFactorPower"/> if balance needs it.
+    /// <see cref="ScaleFactorPower"/> remains public compatibility metadata for the current linear tuning.
+    /// A nonlinear curve is a separate data-driven tuning change.
     /// </summary>
     public const double ScaleFactorPower = 1.0;
 
@@ -41,13 +42,7 @@ public static class SwarmOffensiveEffect
             return 0;
         }
 
-        var fraction = IntegrityFraction(droneCount, maxDrones);
-        var scale = ScaleFactorPower == 1.0 ? fraction : Math.Pow(fraction, ScaleFactorPower);
-        if (scale < MinLivingScale && droneCount > 0)
-        {
-            scale = MinLivingScale;
-        }
-
+        var scale = IntegrityFraction(droneCount, maxDrones);
         return baseEffect * scale;
     }
 }

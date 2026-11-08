@@ -42,7 +42,7 @@ public static class CampaignDocumentJsonLoader
         try
         {
             document = LoadFromFile(path);
-            return document is not null;
+            return true;
         }
         catch (JsonException)
         {

@@ -3,6 +3,7 @@ using ProjectAegis.Delegation.Decision;
 using ProjectAegis.Delegation.Projection;
 using ProjectAegis.Sim.Engage;
 using ProjectAegis.Sim.Policy;
+using ProjectAegis.Sim.Scenario;
 using NUnit.Framework;
 
 namespace ProjectAegis.Delegation.Tests.Projection;
@@ -93,4 +94,39 @@ public sealed class LossesScoringProjectionTests
 
         Assert.That(tally.HostileKills, Is.EqualTo(1));
     }
+
+
+    /// <summary>
+    /// DRG-257 / Codex P2: after BalticReplayHarness.Run returns, the live registry is cleared.
+    /// Catalog-backed shooters would then look "unknown" and inflate the wrong side's tally.
+    /// Passing the captured scenario side map must keep filtering correct without the live registry.
+    /// </summary>
+    [Test]
+    public void Project_with_captured_scenario_sides_filters_after_registry_clear()
+    {
+        BalticV3SideRegistry.ClearScenarioSides();
+        var blueShooter = "f-361-iver-huitfeldt-2012";
+        var redShooter = "f-450-elli-kortenaer-batch-ii-0";
+        var log = new DecisionLog();
+        log.AppendEngagementOutcome(new EngagementOutcomeRecord(
+            1, 1, 1, new TargetId(blueShooter), new TargetId(redShooter), 1,
+            EngagementOutcomeCodes.Kill, 0.1));
+        log.AppendEngagementOutcome(new EngagementOutcomeRecord(
+            2, 2, 2, new TargetId(redShooter), new TargetId(blueShooter), 2,
+            EngagementOutcomeCodes.Kill, 0.2));
+
+        var sides = new Dictionary<string, string>(StringComparer.Ordinal)
+        {
+            [blueShooter] = "blue",
+            [redShooter] = "red",
+        };
+
+        Assert.That(BalticV3SideRegistry.GetSideForUnit(blueShooter), Is.Null, "registry must be clear");
+        var withoutMap = LossesScoringProjection.Project(log, scoredSide: "red");
+        Assert.That(withoutMap.HostileKills, Is.EqualTo(2), "cleared registry treats catalog ids as unknown");
+
+        var withMap = LossesScoringProjection.Project(log, scoredSide: "red", scenarioSides: sides);
+        Assert.That(withMap.HostileKills, Is.EqualTo(1), "captured map keeps RED from claiming BLUE kills");
+    }
+
 }

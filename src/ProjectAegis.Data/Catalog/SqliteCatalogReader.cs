@@ -1,8 +1,8 @@
 namespace ProjectAegis.Data.Catalog;
 
 using Microsoft.Data.Sqlite;
-using ProjectAegis.Data.Platform;
-using ProjectAegis.Data.Snapshots;
+using Platform;
+using Snapshots;
 
 /// <summary>SQLite-backed catalog reader; applies migrations on open.</summary>
 public sealed class SqliteCatalogReader : ICatalogReader, IDisposable
@@ -508,6 +508,11 @@ public sealed class SqliteCatalogReader : ICatalogReader, IDisposable
             return true;
         }
 
+        if (file.Contains("018", StringComparison.Ordinal) && TableHasColumn("sensor", "radar_scan_type"))
+        {
+            return true;
+        }
+
         // Data seed (not schema). platform_emcon already exists from 008; skip only when
         // Visby published+staging sentinels exist AND every non-fixture platform with sensors
         // already has a platform_emcon row (017 expands beyond the original T2 allowlist).
@@ -615,49 +620,46 @@ public sealed class SqliteCatalogReader : ICatalogReader, IDisposable
         using var cmd = _connection.CreateCommand();
         var hasProvenance = TableHasColumn("sensor", "value_tier");
         var hasModality = TableHasColumn("sensor", "modality");
-        cmd.CommandText = (hasProvenance, hasModality) switch
+        var hasEccm = TableHasColumn("sensor", "radar_scan_type");
+        var baseSelect = (hasProvenance, hasModality) switch
         {
             (true, true) =>
                 """
                 SELECT platform_id, sensor_id, base_pd, source_fact_id, confidence,
                        import_batch_id, source_file, review_state, trl_level,
                        value_tier, reviewer_id, revised_utc_ticks, citation_ref, modality
-                FROM sensor
-                ORDER BY platform_id ASC, sensor_id ASC
                 """,
             (true, false) =>
                 """
                 SELECT platform_id, sensor_id, base_pd, source_fact_id, confidence,
                        import_batch_id, source_file, review_state, trl_level,
                        value_tier, reviewer_id, revised_utc_ticks, citation_ref
-                FROM sensor
-                ORDER BY platform_id ASC, sensor_id ASC
                 """,
             (false, true) =>
                 """
                 SELECT platform_id, sensor_id, base_pd, source_fact_id, confidence,
                        import_batch_id, source_file, review_state, trl_level, modality
-                FROM sensor
-                ORDER BY platform_id ASC, sensor_id ASC
                 """,
             _ =>
                 """
                 SELECT platform_id, sensor_id, base_pd, source_fact_id, confidence,
                        import_batch_id, source_file, review_state, trl_level
-                FROM sensor
-                ORDER BY platform_id ASC, sensor_id ASC
                 """,
         };
+        var eccmSelect = hasEccm ? ", radar_scan_type, frequency_agile, radar_tech_generation" : string.Empty;
+        cmd.CommandText = baseSelect + eccmSelect + " FROM sensor ORDER BY platform_id ASC, sensor_id ASC";
         using var reader = cmd.ExecuteReader();
         var list = new List<CatalogSensorBinding>();
+        var eccmOrdinal = hasProvenance ? (hasModality ? 14 : 13) : (hasModality ? 10 : 9);
         while (reader.Read())
         {
+            CatalogSensorBinding binding;
             if (hasProvenance)
             {
                 var modality = hasModality
                     ? NormalizeModality(reader.IsDBNull(13) ? null : reader.GetString(13))
                     : CatalogSensorModalities.Radar;
-                list.Add(new CatalogSensorBinding(
+                binding = new CatalogSensorBinding(
                     reader.GetString(0),
                     reader.GetString(1),
                     reader.GetDouble(2),
@@ -671,14 +673,14 @@ public sealed class SqliteCatalogReader : ICatalogReader, IDisposable
                     reader.GetString(10),
                     reader.GetInt64(11),
                     reader.GetString(12),
-                    Modality: modality));
+                    Modality: modality);
             }
             else
             {
                 var modality = hasModality
                     ? NormalizeModality(reader.IsDBNull(9) ? null : reader.GetString(9))
                     : CatalogSensorModalities.Radar;
-                list.Add(new CatalogSensorBinding(
+                binding = new CatalogSensorBinding(
                     reader.GetString(0),
                     reader.GetString(1),
                     reader.GetDouble(2),
@@ -688,8 +690,20 @@ public sealed class SqliteCatalogReader : ICatalogReader, IDisposable
                     reader.GetString(6),
                     reader.GetString(7),
                     reader.GetInt32(8),
-                    Modality: modality));
+                    Modality: modality);
             }
+
+            if (hasEccm)
+            {
+                binding = binding with
+                {
+                    RadarScanType = reader.IsDBNull(eccmOrdinal) ? CatalogRadarScanTypes.Unspecified : reader.GetString(eccmOrdinal),
+                    FrequencyAgile = !reader.IsDBNull(eccmOrdinal + 1) && reader.GetInt64(eccmOrdinal + 1) != 0,
+                    RadarTechGeneration = reader.IsDBNull(eccmOrdinal + 2) ? 0 : reader.GetInt32(eccmOrdinal + 2),
+                };
+            }
+
+            list.Add(binding);
         }
 
         return list.ToArray();

@@ -35,7 +35,7 @@ public static class SwarmScenarioValidation
             return Result.Fail(CountInvalid, "Drone count must be a positive integer when specified.");
         }
 
-        if (droneCount is int count && maxDrones is int max && count > max)
+        if (droneCount is { } count && maxDrones is { } max && count > max)
         {
             return Result.Fail(
                 CountExceedsMax,

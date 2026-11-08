@@ -1,6 +1,6 @@
 # 20 - Command and Control User Interface
 
-**Last Updated:** 2026-07-26 (CMD-16…CMD-26 landed from CMO reference-product analysis)  
+**Last Updated:** 2026-09-05 (added draft military/civilian symbology requirements; implementation not claimed)
 **Status:** Draft — Template B (Wave 2 re-honesty)  
 **CMO basis:** Manual Ch 3–4, §6.2–7, §6.9, §1.3 multitaskers, §10.1 keyboard  
 **Related:** [01](01-Project-Overview.md), [02](02-Core-Gameplay-Loop.md), [03](03-Simulation-Modes.md), [04](04-Agent-Delegation.md), [11](11-Agentic-Mission-Editor.md), [12](12-Terms-Glossary.md), [13](13-Doctrine-ROE-EMCON-WRA.md)–[17](17-Replay-AAR-And-Order-Log.md), [19](19-Cyber-And-Comms.md) · [implementation tracker 2026-07-04](../implementation-tracker.md)  
@@ -59,6 +59,15 @@ The UI is a **command post**, not a game HUD. It must support long sessions, den
 **Phase N / Deferred:** detachable multitasker windows and ultrawide multi-bookmark layouts (§1.3).
 
 ## Functional Requirements (major IDs)
+
+### Symbology additions — 2026-09-05
+
+- **SYM-MIL-01 — Military Tactical symbology:** selectable NTDS-informed naval graphics with a documented, versioned APP-6 / MIL-STD-2525 mapping for U.S. Navy ships and supported domains. [Requirement and acceptance criteria](../drafts/2026-09-05-military-tactical-symbology.md). **Draft / not scheduled.** Extends CMD-06/12/13; does not mark the APP-6 atlas shipped.
+- **SYM-CIV-01 — Custom Civilian-Friendly gameplay symbology:** original, accessible pictograms over the same projected tactical picture, with profile switching that preserves selection and simulation semantics. [Requirement and acceptance criteria](../drafts/2026-09-05-civilian-gameplay-symbology.md). **Draft / scope clarification recorded.** Provisionally an alternate profile for all units; civilian-vessel-only intent remains an open question.
+
+Both are requirements records only. Notion holds their design records; Linear tracks delivery. Existing Phase N and release boundaries remain unchanged.
+
+### Existing C2 requirements
 
 | ID | Requirement | Status |
 |----|-------------|--------|

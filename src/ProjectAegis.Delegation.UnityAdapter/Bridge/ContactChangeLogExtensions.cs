@@ -1,6 +1,6 @@
 namespace ProjectAegis.Delegation.UnityAdapter.Bridge;
 
-using ProjectAegis.Delegation.Decision;
+using Decision;
 using ProjectAegis.Sim.Sensors;
 
 /// <summary>Bridge compat — prefer <see cref="OrderLogExtensions.AppendContactTransition"/>.</summary>

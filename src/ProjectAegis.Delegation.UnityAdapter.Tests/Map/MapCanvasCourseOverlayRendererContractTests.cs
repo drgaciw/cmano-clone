@@ -90,7 +90,7 @@ public sealed class MapCanvasCourseOverlayRendererContractTests
         Assert.That(host, Does.Not.Contain("DelegationBridge.Tick"));
         Assert.That(map, Does.Contain("MapCanvasCourseOverlayRenderer"));
         Assert.That(map, Does.Contain("LastMapCourses"));
-        Assert.That(map, Does.Contain("MapCanvasTransientEffectsRenderer"));
+        Assert.That(map, Does.Contain("CombatMapView"));
         Assert.That(sim, Does.Contain("PlayModeKinematicMover"));
         Assert.That(sim, Does.Contain("TryGetKinematicPose"));
         Assert.That(sim, Does.Not.Contain("CatalogWriteGate"));

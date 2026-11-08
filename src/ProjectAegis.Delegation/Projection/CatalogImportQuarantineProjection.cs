@@ -1,7 +1,7 @@
 namespace ProjectAegis.Delegation.Projection;
 
 using System.Globalization;
-using ProjectAegis.Data.Catalog;
+using Data.Catalog;
 
 /// <summary>S40-03: read-only quarantine surfacing for CatalogJsonImporter / CatalogImportGate outcomes.</summary>
 public sealed record CatalogImportQuarantinePanelState(

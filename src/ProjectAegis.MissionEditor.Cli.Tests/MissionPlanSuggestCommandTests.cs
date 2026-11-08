@@ -1,4 +1,3 @@
-using ProjectAegis.MissionEditor.Cli;
 using Xunit;
 
 namespace ProjectAegis.MissionEditor.Cli.Tests;
@@ -60,14 +59,14 @@ public sealed class ScenarioPublishAndAiScaffoldTests
     public void ManifestBuilder_produces_scenario_manifest_with_all_fields_and_provenance_tags()
     {
         // Uses real validation + builder (no high-risk dto edits)
-        var doc = new ProjectAegis.Data.Scenario.Authoring.ScenarioDocumentDto
+        var doc = new Data.Scenario.Authoring.ScenarioDocumentDto
         {
-            Metadata = new ProjectAegis.Data.Scenario.Authoring.ScenarioMetadataDto { DbRef = "baltic_patrol", EditVersion = 1 },
-            Missions = new[] { new ProjectAegis.Data.Scenario.Authoring.ScenarioMissionDto { Id = "p1", Type = "Patrol" } }
+            Metadata = new Data.Scenario.Authoring.ScenarioMetadataDto { DbRef = "baltic_patrol", EditVersion = 1 },
+            Missions = new[] { new Data.Scenario.Authoring.ScenarioMissionDto { Id = "p1", Type = "Patrol" } }
         };
-        var report = ProjectAegis.Data.Validation.ValidationReport.FromFindings(Array.Empty<ProjectAegis.Data.Validation.ValidationFinding>());
-        var manifest = ProjectAegis.Data.Scenario.Authoring.ManifestBuilder.Build("test-scen", doc, report, semver: "1.2.3");
-        var json = ProjectAegis.Data.Scenario.Authoring.ManifestBuilder.Serialize(manifest);
+        var report = Data.Validation.ValidationReport.FromFindings(Array.Empty<Data.Validation.ValidationFinding>());
+        var manifest = Data.Scenario.Authoring.ManifestBuilder.Build("test-scen", doc, report, semver: "1.2.3");
+        var json = Data.Scenario.Authoring.ManifestBuilder.Serialize(manifest);
 
         Assert.True(manifest.EmbeddedValidationReport.Passed); // via embedded
         Assert.Contains("\"title\"", json);
@@ -80,7 +79,7 @@ public sealed class ScenarioPublishAndAiScaffoldTests
     [Fact]
     public void NlScaffold_NL_brief_to_draft_scenario_scaffold_produces_sides_missions_objectives_and_provenance_tags()
     {
-        var res = ProjectAegis.Data.Scenario.Authoring.AiAuthoringServices.NlScaffold("Create a baltic patrol and strike scenario for blue side");
+        var res = Data.Scenario.Authoring.AiAuthoringServices.NlScaffold("Create a baltic patrol and strike scenario for blue side");
         Assert.Contains("Blue", res.Sides);
         Assert.Contains("patrol", string.Join(" ", res.Missions).ToLower());
         Assert.Contains("strike", string.Join(" ", res.Missions).ToLower());
@@ -93,20 +92,20 @@ public sealed class ScenarioPublishAndAiScaffoldTests
     [Fact]
     public void ConstraintPlacementAssistant_refuses_invalid()
     {
-        var (ok1, reason1, tag1) = ProjectAegis.Data.Scenario.Authoring.AiAuthoringServices.CheckPlacement("u1", "bad-host-xyz", 57.0, 20.0);
+        var (ok1, reason1, tag1) = Data.Scenario.Authoring.AiAuthoringServices.CheckPlacement("u1", "bad-host-xyz", 57.0, 20.0);
         Assert.False(ok1);
         Assert.Contains("ConstraintPlacementAssistant", reason1);
         Assert.NotNull(tag1);
 
-        var (ok2, _, _) = ProjectAegis.Data.Scenario.Authoring.AiAuthoringServices.CheckPlacement("u1", "airbase-blue", 57.0, 20.0);
+        var (ok2, _, _) = Data.Scenario.Authoring.AiAuthoringServices.CheckPlacement("u1", "airbase-blue", 57.0, 20.0);
         Assert.True(ok2);
     }
 
     [Fact]
     public void SmokeTestAgent_detects_issues_and_produces_tag()
     {
-        var badDoc = new ProjectAegis.Data.Scenario.Authoring.ScenarioDocumentDto { Missions = new[] { new ProjectAegis.Data.Scenario.Authoring.ScenarioMissionDto { Id = "s1", Type = "Strike" /* no targets */ } } };
-        var rep = ProjectAegis.Data.Scenario.Authoring.AiAuthoringServices.RunSmokeTestAgent(badDoc);
+        var badDoc = new Data.Scenario.Authoring.ScenarioDocumentDto { Missions = new[] { new Data.Scenario.Authoring.ScenarioMissionDto { Id = "s1", Type = "Strike" /* no targets */ } } };
+        var rep = Data.Scenario.Authoring.AiAuthoringServices.RunSmokeTestAgent(badDoc);
         Assert.False(rep.Passed);
         Assert.Contains(rep.Issues, i => i.Contains("no targets"));
         Assert.Contains("smoke-test", rep.Tag.Tag);
@@ -115,9 +114,9 @@ public sealed class ScenarioPublishAndAiScaffoldTests
     [Fact]
     public void ExplainWithEvidence_uses_report_evidence()
     {
-        var doc = new ProjectAegis.Data.Scenario.Authoring.ScenarioDocumentDto();
-        var report = ProjectAegis.Data.Validation.ValidationReport.FromFindings(new[] { new ProjectAegis.Data.Validation.ValidationFinding("TEST", ProjectAegis.Data.Validation.ValidationSeverity.Warning, "sample") });
-        var exp = ProjectAegis.Data.Scenario.Authoring.AiAuthoringServices.ExplainWithEvidence("why patrol?", doc, report);
+        var doc = new Data.Scenario.Authoring.ScenarioDocumentDto();
+        var report = Data.Validation.ValidationReport.FromFindings(new[] { new Data.Validation.ValidationFinding("TEST", Data.Validation.ValidationSeverity.Warning, "sample") });
+        var exp = Data.Scenario.Authoring.AiAuthoringServices.ExplainWithEvidence("why patrol?", doc, report);
         Assert.Contains("evidence", exp.Explanation.ToLowerInvariant());
         Assert.NotEmpty(exp.EvidenceLines);
         Assert.Contains("explain-evidence", exp.Tag.Tag);

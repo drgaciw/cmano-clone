@@ -1,9 +1,9 @@
 namespace ProjectAegis.MissionEditor.Cli;
 
 using System.Text.Json;
-using ProjectAegis.Data.Catalog;
-using ProjectAegis.Data.PlatformAssistant;
-using ProjectAegis.Data.WriteGate;
+using Data.Catalog;
+using Data.PlatformAssistant;
+using Data.WriteGate;
 
 /// <summary>
 /// DRG-73: platform_design_propose — draft + stage a peer-relative platform via CatalogWriteGate.

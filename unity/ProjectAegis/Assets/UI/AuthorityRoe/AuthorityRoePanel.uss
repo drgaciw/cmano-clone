@@ -1,0 +1,48 @@
+/* DRG-182 — authority / ROE / escalation chrome. Advisory only; no motion chrome. */
+
+.c2-authority-roe {
+    flex-grow: 1;
+    min-width: 300px;
+    max-width: 440px;
+    padding: 8px;
+    background-color: rgba(10, 16, 24, 0.94);
+    border-width: 1px;
+    border-color: rgb(70, 95, 120);
+    flex-direction: column;
+}
+
+.c2-authority-roe-header {
+    font-size: 12px;
+    -unity-font-style: bold;
+    color: rgb(200, 215, 230);
+    margin-bottom: 2px;
+}
+
+.c2-authority-roe-badge {
+    font-size: 10px;
+    color: rgb(170, 185, 200);
+    margin-bottom: 6px;
+}
+
+.c2-authority-roe-roe,
+.c2-authority-roe-targeting {
+    font-size: 11px;
+    color: rgb(190, 205, 220);
+    white-space: normal;
+    margin-bottom: 4px;
+}
+
+.c2-authority-roe-verbs,
+.c2-authority-roe-gates {
+    flex-grow: 1;
+    min-height: 72px;
+    max-height: 160px;
+    margin-bottom: 6px;
+}
+
+.c2-authority-roe-next {
+    font-size: 11px;
+    color: rgb(210, 190, 120);
+    white-space: normal;
+    margin-top: 4px;
+}

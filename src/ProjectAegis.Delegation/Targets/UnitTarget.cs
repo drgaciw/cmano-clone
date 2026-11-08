@@ -1,7 +1,7 @@
 namespace ProjectAegis.Delegation.Targets;
 
-using ProjectAegis.Delegation.Controllers;
-using ProjectAegis.Delegation.Core;
+using Controllers;
+using Core;
 
 public sealed class UnitTarget : ICommandableTarget
 {

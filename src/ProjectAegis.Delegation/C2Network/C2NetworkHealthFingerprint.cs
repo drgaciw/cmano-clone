@@ -1,9 +1,6 @@
 namespace ProjectAegis.Delegation.C2Network;
 
 using System.Text;
-using ProjectAegis.Delegation.Comms;
-using ProjectAegis.Delegation.Decision;
-using ProjectAegis.Delegation.Projection;
 
 /// <summary>Deterministic fingerprint for <see cref="C2NetworkHealthSnapshot"/> (replay-stable projection).</summary>
 public static class C2NetworkHealthFingerprint

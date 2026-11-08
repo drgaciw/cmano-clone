@@ -64,6 +64,10 @@
         {
           "logCode": "EXPEND_UNAUTHORIZED",
           "member": "ExpendUnauthorized"
+        },
+        {
+          "logCode": "COMMS_OFF_GRID",
+          "member": "OffGrid"
         }
       ]
     },
@@ -197,7 +201,9 @@
         "SENSOR_OFFLINE",
         "SENSOR_EMCON_BLOCKED",
         "DATALINK_STALE",
-        "TRACK_STALE"
+        "TRACK_STALE",
+        "LOS_RADAR_HORIZON",
+        "LOS_TERRAIN_MASK"
       ]
     },
     {

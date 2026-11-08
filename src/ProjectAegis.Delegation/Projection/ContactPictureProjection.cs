@@ -1,6 +1,6 @@
 namespace ProjectAegis.Delegation.Projection;
 
-using ProjectAegis.Delegation.Decision;
+using Decision;
 
 /// <summary>Rebuilds the active contact picture from <see cref="OrderLogEntryKind.ContactChange"/> rows (sensor GDD / C2 UI).</summary>
 public static class ContactPictureProjection

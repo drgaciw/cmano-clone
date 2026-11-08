@@ -7,7 +7,7 @@ public static class CatalogSortKeyGoldenHashes
     public const string PlatformEditorSample =
         "b6ccbfd8171fabec51f79a04fcc5b7733ef3d9d6d35235819d885ba05fa9eeda";
 
-    /// <summary><see cref="PlatformWorkbookExporter"/> hash for the platform-editor sample (excludes _Meta).</summary>
+    /// <summary><see cref="ProjectAegis.Data.Platform.PlatformWorkbookExporter"/> hash for the platform-editor sample (excludes _Meta).</summary>
     public const string PlatformEditorWorkbook =
         "e48bc90d8a5f3df5e78df9731db18fc8d7f092239a971656fa5eaf34bc2a5a69";
 
