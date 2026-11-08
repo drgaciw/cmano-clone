@@ -12,6 +12,7 @@ import argparse
 import json
 import os
 import sys
+import threading
 import urllib.error
 import urllib.request
 from dataclasses import dataclass
@@ -73,6 +74,40 @@ class UrllibTransport:
     """Minimal POST transport with a hard timeout (seconds)."""
 
     def post(
+        self,
+        url: str,
+        *,
+        headers: Mapping[str, str],
+        json_body: Mapping[str, Any],
+        timeout: float,
+    ) -> Any:
+        """POST and return a response object, bounded by an overall deadline.
+
+        ``urlopen(timeout=...)`` only bounds individual socket operations, so a
+        slow-drip ``resp.read()`` could exceed the budget. The whole request
+        (connect, send, read) runs in a daemon worker joined with ``timeout``;
+        if it has not finished, ``TimeoutError`` is raised and callers degrade.
+        """
+        result: dict[str, Any] = {}
+
+        def _worker() -> None:
+            try:
+                result["value"] = self._post_blocking(
+                    url, headers=headers, json_body=json_body, timeout=timeout
+                )
+            except BaseException as exc:  # surfaced to caller below
+                result["error"] = exc
+
+        worker = threading.Thread(target=_worker, name="jev-uat-post", daemon=True)
+        worker.start()
+        worker.join(timeout)
+        if worker.is_alive():
+            raise TimeoutError(f"System One request exceeded {timeout:.3f}s overall budget")
+        if "error" in result:
+            raise result["error"]
+        return result["value"]
+
+    def _post_blocking(
         self,
         url: str,
         *,

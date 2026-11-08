@@ -450,3 +450,70 @@ def test_classify_typesafe_posts_to_typesafe_systemone(
     assert headers["Authorization"] == "Bearer ts-live-key"
     body = call_args.kwargs["json_body"]
     assert body["model"] == "jev-1.13.0"
+
+
+def _serve(handler_body):
+    import http.server
+    import threading
+
+    class _H(http.server.BaseHTTPRequestHandler):
+        def do_POST(self):  # noqa: N802
+            self.rfile.read(int(self.headers.get("Content-Length", 0)))
+            handler_body(self)
+
+        def log_message(self, *args):
+            pass
+
+    server = http.server.ThreadingHTTPServer(("127.0.0.1", 0), _H)
+    server.daemon_threads = True
+    threading.Thread(target=server.serve_forever, daemon=True).start()
+    return server
+
+
+def test_urllib_transport_enforces_overall_deadline_on_slow_body():
+    """Each chunk arrives inside the socket timeout, but the total exceeds it."""
+    import time
+
+    from classify_uat import UrllibTransport
+
+    def slow_drip(h):
+        h.send_response(200)
+        h.send_header("Content-Length", "40")
+        h.end_headers()
+        for _ in range(40):
+            try:
+                h.wfile.write(b" ")
+                h.wfile.flush()
+            except OSError:
+                return
+            time.sleep(0.05)
+
+    server = _serve(slow_drip)
+    try:
+        url = f"http://127.0.0.1:{server.server_address[1]}/"
+        start = time.monotonic()
+        with pytest.raises(TimeoutError):
+            UrllibTransport().post(url, headers={}, json_body={}, timeout=0.3)
+        assert time.monotonic() - start < 0.6
+    finally:
+        server.shutdown()
+
+
+def test_urllib_transport_returns_fast_response():
+    from classify_uat import UrllibTransport
+
+    def ok(h):
+        body = b'{"ok": true}'
+        h.send_response(200)
+        h.send_header("Content-Length", str(len(body)))
+        h.end_headers()
+        h.wfile.write(body)
+
+    server = _serve(ok)
+    try:
+        url = f"http://127.0.0.1:{server.server_address[1]}/"
+        resp = UrllibTransport().post(url, headers={}, json_body={}, timeout=0.8)
+        assert resp.status_code == 200
+        assert resp.json() == {"ok": True}
+    finally:
+        server.shutdown()

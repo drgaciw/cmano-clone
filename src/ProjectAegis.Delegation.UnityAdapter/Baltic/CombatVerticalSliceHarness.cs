@@ -94,7 +94,15 @@ public static class CombatVerticalSliceHarness
         var endTime = scenario.Events.Events.Count == 0 ? 0 : scenario.Events.Events.Max(e => e.SimTime);
         var targetability = ProjectTargetabilityAtCommand(scenario, legs);
         var events = CombatEventLogProjection.Build(scenario.Log, endTime, targetability);
-        var frame = CombatPresentationFrameBridge.Build(scenario.Log, SliceAContactFrame.Empty, endTime);
+        // Command-time acceptance is the authoritative Slice A picture for this slice.
+        // A live contact-frame rebuild would recompute from a snapshot this harness does not hold.
+        var contacts = SliceAContactFrame.Empty with
+        {
+            Targetability = targetability,
+            SimTime = endTime,
+            SimTick = endTime <= 0 ? 0UL : (ulong)endTime,
+        };
+        var frame = CombatPresentationFrameBridge.Build(scenario.Log, contacts, endTime);
         var symbols = DistinctSymbols(scenario.Symbols);
         var holdSeconds = Math.Max(endTime, BattleGraphicBinder.InFlightHoldSeconds);
 

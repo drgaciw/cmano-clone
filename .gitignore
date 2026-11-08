@@ -184,3 +184,7 @@ tools/resharper/__pycache__/
 /.pi/teams/audit/
 !/.pi/teams/artifacts/
 !/.pi/teams/graphs/
+
+# Python bytecode (DRG-650)
+__pycache__/
+*.pyc

@@ -1,0 +1,42 @@
+{
+  "schema": "aegis.jev.pin.vs2.v0",
+  "pinModel": "jev-1.13.x",
+  "openRouterModel": "typesafe/jev-1.13",
+  "package": "jev-1.13.x",
+  "privacyAck": "Projection-only advisory. No coordinates, no proprietary catalog db3, and no fire, enqueue, or approve authority.",
+  "draftThresholds": {
+    "lowConfidenceFloor": 0.5,
+    "note": "Draft until calibrated. Below the floor the chrome lists alternative weapon families and still does not fire."
+  },
+  "questions": {
+    "threat_urgency": {
+      "type": "score",
+      "instructions": "Score how urgent this contact is for the player right now. Use only projection fields (range, DLZ, posture, fire-control track, hypersonic flag). Never imply engage, enqueue, or approve.",
+      "criteria": [
+        "ignore — no threat attention needed",
+        "low — optional later review",
+        "watch — keep on the recommendation row",
+        "focus — primary recommendation",
+        "immediate — top of the advisory sort"
+      ]
+    },
+    "weapon_family_recommend": {
+      "type": "choice",
+      "instructions": "Choose the weapon family to show as the advisory recommendation for this contact. Closed set only. This choice never fires and never enqueues Accept.",
+      "criteria": {
+        "missile": "Guided missile family (for example SM-2).",
+        "gun": "Gun or CIWS family.",
+        "energy": "Laser or other directed-energy family.",
+        "withhold": "No family should be recommended."
+      }
+    },
+    "wra_exhaustion_warn": {
+      "type": "noul",
+      "instructions": "Return yes when magazine, shotgun threshold, or WRA salvo/range says the recommendation should warn that the weapon load is exhausted or over the salvo limit. Warning only.",
+      "criteria": {
+        "yes": "Show the WRA exhaustion warning on the advisory row",
+        "no": "No exhaustion warning"
+      }
+    }
+  }
+}

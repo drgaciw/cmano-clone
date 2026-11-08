@@ -14,7 +14,7 @@ class InspectWrapperTests(unittest.TestCase):
         with tempfile.TemporaryDirectory() as directory:
             root = Path(directory)
             dotnet = root/'dotnet.ps1'
-            dotnet.write_text("if ($args -contains '--version') { '8.0.400' }; exit 0\n")
+            dotnet.write_text("if ($args -contains '--version') { '10.0.403' }; exit 0\n")
             analyzer = root/'inspectcode.ps1'
             analyzer.write_text("""if ($args -contains '--version') { 'JetBrains Inspect Code 2026.2.1'; exit 0 }
 $destination = ($args | Where-Object { $_ -like '--output=*' }) -replace '^--output=', ''
