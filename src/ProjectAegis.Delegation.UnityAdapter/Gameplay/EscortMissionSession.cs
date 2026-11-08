@@ -1,16 +1,16 @@
 namespace ProjectAegis.Delegation.UnityAdapter.Gameplay;
 
-using ProjectAegis.Delegation.Controllers;
-using ProjectAegis.Delegation.Core;
-using ProjectAegis.Delegation.Decision;
+using Controllers;
+using Core;
+using Decision;
 using ProjectAegis.Delegation.Gameplay;
-using ProjectAegis.Delegation.Orchestration;
-using ProjectAegis.Delegation.Roe;
-using ProjectAegis.Delegation.Projection;
-using ProjectAegis.Delegation.Sim;
-using ProjectAegis.Delegation.Traits;
-using ProjectAegis.Delegation.UnityAdapter.Bridge;
-using ProjectAegis.Delegation.Watch;
+using Orchestration;
+using Roe;
+using Projection;
+using Traits;
+using Targets;
+using Bridge;
+using Watch;
 using ProjectAegis.Sim.Engage;
 using ProjectAegis.Sim.Policy;
 using ProjectAegis.Sim.Scenario;
@@ -36,6 +36,7 @@ public sealed class EscortMissionSession : ISimWorldSnapshot, IOrderSink
     private readonly List<EscortDecisiveMoment> _commandHistory = new();
     private EscortMissionState _world;
     private AgentController? _friendlyAgent;
+    private EscortPosture? _deferredPosture;
     private int _observedOutcomeCount;
     private string _lastContactState = "Unknown";
     private int _unauthorizedReleases;
@@ -118,6 +119,7 @@ public sealed class EscortMissionSession : ISimWorldSnapshot, IOrderSink
         _world.Advance();
         var contactAlert = ObserveContact();
         Bridge.Tick(this, this);
+        CompleteDeferredOfficerAssignment();
         _world.AdvanceKinematics();
         ObserveCombat();
         if (contactAlert is not null) Bridge.Session!.ReportWatchAttention(contactAlert);
@@ -189,6 +191,7 @@ public sealed class EscortMissionSession : ISimWorldSnapshot, IOrderSink
         _lastContactState = "Unknown";
         _unauthorizedReleases = 0;
         _friendlyAgent = null;
+        _deferredPosture = null;
         Bridge = CreateBridge();
     }
 
@@ -285,25 +288,78 @@ public sealed class EscortMissionSession : ISimWorldSnapshot, IOrderSink
 
     private EscortCommandResult AssignPosture(EscortPosture posture)
     {
-        _world.SetPosture(posture);
-        var target = Bridge.Registry.Bindings.First(b => b.TargetId.Value == EscortId).Target;
+        var target = EscortTarget();
         if (posture == EscortPosture.Manual)
         {
+            _deferredPosture = null;
             // Re-selecting manual control must retain orders already queued by the player.
-            if (target.Slot.Active is not HumanController) target.Slot.SetActive(new HumanController());
+            if (target.Slot.Active is not HumanController)
+            {
+                target.Slot.SetActive(new HumanController());
+            }
+
+            _world.SetPosture(posture);
+        }
+        else if (target.Slot.Active is HumanController human && human.PendingOrderCount > 0)
+        {
+            // The queued manual order lives on this controller. Install the officer only after
+            // the next tick drains it, and do not change doctrine until that assignment lands.
+            EnsureFriendlyAgent();
+            _deferredPosture = posture;
         }
         else
         {
-            var traits = new TraitVector(0.5, 0.5, _definition.AgentReactionSeconds, 0, 1, 1);
-            _friendlyAgent ??= Bridge.Orchestrator.CreateAgent(new AgentId("escort-officer"), traits,
-                AutonomyLevel.FullAutonomous, policy: new EscortPolicy(() => new EscortPolicyFacts(
-                    _world.HasFriendlyTrack && _world.RangeNm(false) <= _definition.FriendlyWeaponRangeNm,
-                    _world.ThreatAlive, GetRounds(EscortId), ReserveRounds())));
-            Bridge.Orchestrator.AssignAgentToTarget(_friendlyAgent, target, EffectivePolicy.DefaultFree);
+            _deferredPosture = null;
+            AssignFriendlyAgent(target);
+            _world.SetPosture(posture);
         }
-        RecordCommand("Delegation changed", $"Escort posture: {posture}; defensive reserve {ReserveRounds()} rounds.");
-        return Accepted($"Escort {posture}: retains {ReserveRounds()} defensive rounds.");
+
+        var reserve = ReserveFor(posture);
+        RecordCommand("Delegation changed", $"Escort posture: {posture}; defensive reserve {reserve} rounds.");
+        return Accepted($"Escort {posture}: retains {reserve} defensive rounds.");
     }
+
+    private void CompleteDeferredOfficerAssignment()
+    {
+        if (_deferredPosture is not { } posture)
+        {
+            return;
+        }
+
+        var target = EscortTarget();
+        if (target.Slot.Active is HumanController human && human.PendingOrderCount > 0)
+        {
+            return;
+        }
+
+        AssignFriendlyAgent(target);
+        _world.SetPosture(posture);
+        _deferredPosture = null;
+    }
+
+    private void EnsureFriendlyAgent()
+    {
+        if (_friendlyAgent is not null)
+        {
+            return;
+        }
+
+        var traits = new TraitVector(0.5, 0.5, _definition.AgentReactionSeconds, 0, 1, 1);
+        _friendlyAgent = Bridge.Orchestrator.CreateAgent(new AgentId("escort-officer"), traits,
+            AutonomyLevel.FullAutonomous, policy: new EscortPolicy(() => new EscortPolicyFacts(
+                _world.HasFriendlyTrack && _world.RangeNm(false) <= _definition.FriendlyWeaponRangeNm,
+                _world.ThreatAlive, GetRounds(EscortId), ReserveRounds())));
+    }
+
+    private void AssignFriendlyAgent(ICommandableTarget target)
+    {
+        EnsureFriendlyAgent();
+        var agent = _friendlyAgent ?? throw new InvalidOperationException("Escort officer was not created.");
+        Bridge.Orchestrator.AssignAgentToTarget(agent, target, EffectivePolicy.DefaultFree);
+    }
+
+    private ICommandableTarget EscortTarget() =>
+        Bridge.Registry.Bindings.First(b => b.TargetId.Value == EscortId).Target;
 
     private EscortCommandResult QueueConvoyOrder(OrderKind kind)
     {
@@ -369,8 +425,10 @@ public sealed class EscortMissionSession : ISimWorldSnapshot, IOrderSink
     }
 
     private bool IsAlive(string id) => !Bridge.Session!.KilledTargets!.IsKilled(OrderActionMapper.TargetIdToUlong(new TargetId(id)));
-    private int GetRounds(string id) => Bridge?.Session?.Magazines?.GetRounds(OrderActionMapper.TargetIdToUlong(new TargetId(id)), 0) ?? 0;
-    private int ReserveRounds() => _world.Posture switch
+    private int GetRounds(string id) => Bridge.Session?.Magazines?.GetRounds(OrderActionMapper.TargetIdToUlong(new TargetId(id)), 0) ?? 0;
+    private int ReserveRounds() => ReserveFor(_world.Posture);
+
+    private int ReserveFor(EscortPosture posture) => posture switch
     {
         EscortPosture.Cautious => _definition.CautiousReserveRounds,
         EscortPosture.Balanced => _definition.BalancedReserveRounds,

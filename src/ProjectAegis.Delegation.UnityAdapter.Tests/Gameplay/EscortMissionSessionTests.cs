@@ -1,8 +1,9 @@
 namespace ProjectAegis.Delegation.UnityAdapter.Tests.Gameplay;
 
 using NUnit.Framework;
+using Controllers;
 using ProjectAegis.Delegation.Gameplay;
-using ProjectAegis.Delegation.Watch;
+using Watch;
 using ProjectAegis.Delegation.UnityAdapter.Gameplay;
 
 [TestFixture]
@@ -103,10 +104,13 @@ public sealed class EscortMissionSessionTests
     [Test]
     public void Definition_rejects_invalid_values_and_unknown_commands_do_not_mutate_state()
     {
-        Assert.Throws<ArgumentException>((Action)(() => new EscortMissionSession(42, ShortMission() with { ConvoySpeedKnots = double.NaN })));
+        Assert.Throws<ArgumentException>(() =>
+        {
+            _ = new EscortMissionSession(42, ShortMission() with { ConvoySpeedKnots = double.NaN });
+        });
         var session = new EscortMissionSession();
         Assert.That(session.Command("unknown").Accepted, Is.False);
-        Assert.Throws<ArgumentOutOfRangeException>((Action)(() => session.Step(double.NaN)));
+        Assert.Throws<ArgumentOutOfRangeException>(() => session.Step(double.NaN));
         Assert.That(session.SimTime, Is.Zero);
     }
 
@@ -248,10 +252,61 @@ public sealed class EscortMissionSessionTests
     [Test]
     public void Mission_definition_rejects_off_map_exit_and_threat_positions()
     {
-        Assert.Throws<ArgumentException>((Action)(() => new EscortMissionSession(42, ShortMission() with { ExitDistanceNm = 11 })));
-        Assert.Throws<ArgumentException>((Action)(() => new EscortMissionSession(42, ShortMission() with { EnemyStartXNm = -1 })));
+        Assert.Throws<ArgumentException>(() =>
+        {
+            _ = new EscortMissionSession(42, ShortMission() with { ExitDistanceNm = 11 });
+        });
+        Assert.Throws<ArgumentException>(() =>
+        {
+            _ = new EscortMissionSession(42, ShortMission() with { EnemyStartXNm = -1 });
+        });
         var session = new EscortMissionSession();
         Assert.That(session.ExitNormalizedX, Is.EqualTo(0.5).Within(1e-10));
+    }
+
+    [Test]
+    public void Presentation_exposes_the_fields_bound_by_the_mission_panel()
+    {
+        var view = new EscortMissionSession().Presentation;
+        Assert.That(view.Title, Is.EqualTo("Baltic Passage"));
+        Assert.That(view.Objective, Does.Contain("convoy"));
+        Assert.That(view.Guidance, Does.Contain("escort officer"));
+        Assert.That(view.Posture, Is.EqualTo(nameof(EscortPosture.Manual)));
+        Assert.That(view.Radar, Does.Contain("Passive"));
+        Assert.That(view.RemainingSeconds, Is.GreaterThan(0));
+        Assert.That(view.IsComplete, Is.False);
+    }
+
+    [Test]
+    public void Queued_manual_engage_survives_officer_assignment_and_fires_on_the_next_step()
+    {
+        var definition = ShortMission() with { CautiousReserveRounds = 4 };
+        var session = new EscortMissionSession(42, definition);
+        session.Command("alerts-manual");
+        session.Command("radar-active");
+        session.Command("begin");
+        Run(session, 1);
+        session.Command("pause");
+        Assert.That(session.Command("engage").Accepted, Is.True);
+
+        var escort = session.Bridge.Registry.Bindings.First(b => b.TargetId.Value == EscortMissionSession.EscortId).Target;
+        var assigned = session.Command("posture-cautious");
+        Assert.That(assigned.Accepted, Is.True);
+        var human = escort.Slot.Active as HumanController;
+        Assert.That(human, Is.Not.Null);
+        Assert.That(human!.PendingOrderCount, Is.EqualTo(1));
+        Assert.That(session.Presentation.Posture, Is.EqualTo(nameof(EscortPosture.Manual)));
+
+        var escortShots = session.Bridge.Orchestrator.DecisionLog.EngagementOutcomes
+            .Count(o => o.ShooterTargetId.Value == EscortMissionSession.EscortId);
+        Assert.That(session.Command("acknowledge-alerts").Accepted, Is.True);
+        Assert.That(session.Command("resume").Accepted, Is.True);
+        session.Step(StepSeconds);
+
+        Assert.That(escort.Slot.Active, Is.InstanceOf<AgentController>());
+        Assert.That(session.Presentation.Posture, Is.EqualTo(nameof(EscortPosture.Cautious)));
+        Assert.That(session.Bridge.Orchestrator.DecisionLog.EngagementOutcomes
+            .Count(o => o.ShooterTargetId.Value == EscortMissionSession.EscortId), Is.GreaterThan(escortShots));
     }
 
     [Test]
