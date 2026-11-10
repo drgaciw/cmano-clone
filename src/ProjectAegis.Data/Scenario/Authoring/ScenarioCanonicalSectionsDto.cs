@@ -103,7 +103,16 @@ public sealed class ScenarioSideDto
     [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingDefault)]
     public int Score { get; init; }
 
-    public IReadOnlyList<string> Postures { get; init; } = Array.Empty<string>();
+    private readonly IReadOnlyList<string> _postures = Array.Empty<string>();
+
+    /// <summary>
+    /// Side postures. Explicit null from JSON or object initialization is stored as an empty list.
+    /// </summary>
+    public IReadOnlyList<string> Postures
+    {
+        get => _postures;
+        init => _postures = ScenarioNestedCollections.EmptyIfNull<string>(value);
+    }
 }
 
 public sealed class ScenarioOrbatDto

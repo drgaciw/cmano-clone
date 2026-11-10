@@ -38,6 +38,20 @@ Source:
 - **Hand-authored files may omit optional fields.** Because the schema only *requires* the
   always-emitted set, a file that leaves out optional metadata (`title`, `description`, `author`,
   `schemaVersion`) still validates and loads — the committed examples do exactly this.
+- **Explicit `null` on a required nested collection loads as empty, not null.** Omitting a
+  non-nullable list is fine (it keeps its empty default), but writing the key with an explicit
+  `null` — e.g. `"postures": null` on a side, or `"conditions": null` on an event — would
+  otherwise leave the init property holding `null` despite its non-nullable contract. The two
+  collections that System.Text.Json can reach this way, `sides[].postures`
+  ([`ScenarioSideDto.Postures`](../../src/ProjectAegis.Data/Scenario/Authoring/ScenarioCanonicalSectionsDto.cs))
+  and `events[].conditions`
+  ([`ScenarioEventDto.Conditions`](../../src/ProjectAegis.Data/Scenario/Authoring/ScenarioDocumentDto.cs)),
+  normalize an explicit `null` to an empty list in their `init` accessor (via
+  `ScenarioNestedCollections.EmptyIfNull`). The same guard applies to null-forgiving object
+  initialization (`Postures = null!`) and to the editor's deep-copy path, so downstream code and
+  the validation engine always see a non-null list. This applies equally in tolerant and
+  `strict` load modes. (`events` itself is a nullable top-level member — see the structure table —
+  so a `null` *events* array stays null; the guard is for the nested `conditions` list.)
 - **The editor is the mutation seam.** `ScenarioDocumentEditor.Load(path)` /
   `.CreateNew(...)` → mutate → `.Save(path)`. All CLI mission verbs go through it, so undo,
   edit-version guarding, and canonical serialization apply uniformly.
@@ -278,6 +292,11 @@ Author a Strike inline (ids resolve against the bound catalog):
 - **Keep authoring documents out of the sim-policy path.** A document's `policyId` points at a
   `*.policy.json`; editing the *document* never changes replay goldens, but editing the
   *referenced policy* can — see the [replay hash invariant](determinism-and-replay.md).
+- **A `null` nested collection is treated as empty, not as a validation error.** Loading
+  `"postures": null` or `"conditions": null` yields an empty list, so an event written with
+  `conditions: null` behaves exactly like one with `conditions: []` — including the
+  `EVENT_DEAD_TRIGGER` warning when its `triggerType` ≠ `Time`. Don't rely on `null` to signal
+  "unset" for these two fields; it is indistinguishable from `[]` after load.
 
 ---
 
