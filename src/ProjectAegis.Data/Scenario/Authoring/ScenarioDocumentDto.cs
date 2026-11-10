@@ -41,7 +41,17 @@ public sealed class ScenarioEventDto
     [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
     public int? Priority { get; init; }
 
-    public IReadOnlyList<ScenarioEventConditionDto> Conditions { get; init; } = Array.Empty<ScenarioEventConditionDto>();
+    private readonly IReadOnlyList<ScenarioEventConditionDto> _conditions =
+        Array.Empty<ScenarioEventConditionDto>();
+
+    /// <summary>
+    /// Event conditions. Explicit null from JSON or object initialization is stored as an empty list.
+    /// </summary>
+    public IReadOnlyList<ScenarioEventConditionDto> Conditions
+    {
+        get => _conditions;
+        init => _conditions = ScenarioNestedCollections.EmptyIfNull<ScenarioEventConditionDto>(value);
+    }
 
     public IReadOnlyList<ScenarioEventActionDto> Actions { get; init; } = Array.Empty<ScenarioEventActionDto>();
 }
@@ -182,5 +192,26 @@ public sealed class ScenarioEditorStateJsonConverter : JsonConverter<ScenarioEdi
         }
 
         value.WriteCanonical(writer);
+    }
+}
+
+/// <summary>
+/// Normalizes nested scenario collections that the non-nullable contract still receives as null.
+/// </summary>
+internal static class ScenarioNestedCollections
+{
+    /// <summary>
+    /// Returns <paramref name="value"/> when it is a list; otherwise an empty list.
+    /// The argument is <see cref="object"/> because System.Text.Json can assign null to a
+    /// non-nullable <see cref="IReadOnlyList{T}"/> init property.
+    /// </summary>
+    public static IReadOnlyList<T> EmptyIfNull<T>(object? value)
+    {
+        if (value is IReadOnlyList<T> list)
+        {
+            return list;
+        }
+
+        return Array.Empty<T>();
     }
 }

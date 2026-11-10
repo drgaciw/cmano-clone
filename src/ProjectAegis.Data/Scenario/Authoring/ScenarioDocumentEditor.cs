@@ -1069,7 +1069,7 @@ public sealed class ScenarioDocumentEditor
             Id = evt.Id,
             TriggerType = evt.TriggerType,
             Priority = evt.Priority,
-            Conditions = (evt.Conditions ?? Array.Empty<ScenarioEventConditionDto>())
+            Conditions = evt.Conditions
                 .Select(c => new ScenarioEventConditionDto
                 {
                     Type = c.Type,
@@ -1247,7 +1247,7 @@ public sealed class ScenarioDocumentEditor
             Briefing = side.Briefing,
             DoctrineDefaultId = side.DoctrineDefaultId,
             Score = side.Score,
-            Postures = (side.Postures ?? Array.Empty<string>()).ToArray(),
+            Postures = side.Postures.ToArray(),
         };
 
     private void RestoreCanonicalSections(ScenarioDocumentDto snapshot)
