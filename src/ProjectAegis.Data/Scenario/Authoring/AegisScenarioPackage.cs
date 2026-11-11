@@ -27,7 +27,7 @@ public static partial class AegisScenarioPackage
         {
             PackageVersion = 1,
             Title = title ?? document.Metadata.Title ?? Path.GetFileNameWithoutExtension(packagePath),
-            SchemaVersion = document.Metadata.SchemaVersion,
+            SchemaVersion = document.Metadata.SchemaVersionNumber,
         };
 
         WriteJsonEntry(archive, ManifestEntryName, JsonSerializer.Serialize(manifest, JsonOptions));
