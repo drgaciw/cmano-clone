@@ -1,8 +1,8 @@
 namespace ProjectAegis.Delegation.UnityAdapter.CommandReview;
 
-using ProjectAegis.Delegation.ResourceRank;
-using ProjectAegis.Delegation.Skills;
-using ProjectAegis.Delegation.ThreatAssessment;
+using ResourceRank;
+using Skills;
+using ThreatAssessment;
 
 /// <summary>Availability of a tick-bound advisory read model.</summary>
 public enum AdviceAvailability { Available, EvidenceUnavailable, Stale, ModelUnavailable }

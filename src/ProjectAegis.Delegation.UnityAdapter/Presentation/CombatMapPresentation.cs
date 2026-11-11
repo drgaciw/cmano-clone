@@ -1,9 +1,9 @@
 namespace ProjectAegis.Delegation.UnityAdapter.Presentation;
 
 using System.Collections.ObjectModel;
-using ProjectAegis.Delegation.CombatEvents;
-using ProjectAegis.Delegation.Projection;
-using ProjectAegis.Delegation.UnityAdapter.Bridge;
+using Bridge;
+using CombatEvents;
+using Projection;
 
 /// <summary>Presentation density used when projecting combat legs onto the map.</summary>
 public enum CombatZoomBand
