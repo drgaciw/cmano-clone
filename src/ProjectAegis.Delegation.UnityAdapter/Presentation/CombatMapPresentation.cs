@@ -473,7 +473,6 @@ public static class CombatMapPresenter
                 return null;
             }
         }
-
         return mark;
     }
 
