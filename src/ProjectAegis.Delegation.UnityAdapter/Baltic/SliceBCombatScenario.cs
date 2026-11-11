@@ -68,6 +68,7 @@ public static class SliceBCombatScenario
     /// resolver on the next tick. A synthetic Detected → Classified → Identified contact feed precedes the command.
     /// </summary>
     public static Result RunCommanded(int seed, Definition definition) => Execute(seed, definition, commanded: true);
+
     private static Result Execute(int seed, Definition definition, bool commanded)
     {
         if (definition is null)

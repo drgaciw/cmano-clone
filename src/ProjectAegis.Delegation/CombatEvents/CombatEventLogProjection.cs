@@ -1,9 +1,9 @@
 namespace ProjectAegis.Delegation.CombatEvents;
 
 using Decision;
-using TargetabilityAccept;
 using ProjectAegis.Sim.Engage;
 using ProjectAegis.Sim.Policy;
+using TargetabilityAccept;
 
 /// <summary>
 /// Builds presentation combat events strictly from authoritative, enriched order-log rows.

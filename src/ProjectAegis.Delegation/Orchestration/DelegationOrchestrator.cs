@@ -198,6 +198,9 @@ public sealed class DelegationOrchestrator
     /// </summary>
     public IReadOnlyList<PendingApprovalEntry> PendingApprovals => _pendingApprovalQueue.Pending;
 
+    /// <summary>Session-local pending approval queue.</summary>
+    public PendingApprovalQueue PendingApprovalQueue => _pendingApprovalQueue;
+
     /// <summary>
     /// DRG-66: approve a pending order by id.
     /// The approved order is injected into <see cref="ExecutedOrders"/> on the next <see cref="Tick"/>.
