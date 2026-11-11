@@ -1,7 +1,7 @@
 namespace ProjectAegis.Delegation.UnityAdapter.CommandReview;
 
 using System.Globalization;
-using Skills;
+using ProjectAegis.Delegation.Skills;
 
 /// <summary>Stable capability-scoped Slice C advisory function identities.</summary>
 public static class AdviceSkillIds

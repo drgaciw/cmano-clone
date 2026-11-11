@@ -14,7 +14,6 @@ public sealed record CombatPresentationFrame(
     /// <summary>No combat facts received.</summary>
     public static CombatPresentationFrame Empty { get; } = new(
         CombatEventSnapshot.Empty, SliceAContactFrame.Empty, BdaAssessSnapshot.Empty, 0);
-
     /// <summary>
     /// Latest track/allocation fact for a shooter and correlation.
     /// Presentation read only — does not mutate the frame or the order log.
@@ -50,7 +49,6 @@ public sealed record CombatPresentationFrame(
                 found = row;
             }
         }
-
         return found;
     }
 }

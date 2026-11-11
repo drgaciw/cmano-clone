@@ -262,6 +262,7 @@ namespace ProjectAegis.Unity.Runtime
             if (!string.IsNullOrEmpty(cueClass))
             {
                 label.AddToClassList(cueClass);
+
             }
         }
     }
