@@ -1,0 +1,60 @@
+.escort-screen {
+    flex-grow: 1;
+    background-color: rgb(10, 19, 28);
+    color: rgb(226, 234, 239);
+    padding: 16px;
+    font-size: 15px;
+}
+.escort-header, .escort-row { flex-direction: row; align-items: center; }
+.escort-header { padding-bottom: 14px; border-bottom-width: 1px; border-bottom-color: rgb(54, 76, 90); }
+.escort-title { font-size: 24px; -unity-font-style: bold; flex-grow: 1; }
+.escort-clock { font-size: 17px; margin-right: 16px; color: rgb(164, 211, 225); }
+.escort-body { flex-grow: 1; flex-direction: row; padding-top: 14px; min-height: 0; }
+.escort-sidebar { width: 360px; margin-right: 16px; flex-shrink: 0; }
+.escort-main { flex-grow: 1; min-width: 280px; }
+.escort-section { padding: 12px; margin-bottom: 12px; background-color: rgb(19, 33, 45); border-radius: 4px; }
+.escort-section-title { color: rgb(155, 194, 210); -unity-font-style: bold; font-size: 12px; margin-bottom: 8px; }
+.escort-copy { white-space: normal; margin-bottom: 8px; }
+.escort-objective { font-size: 19px; -unity-font-style: bold; white-space: normal; margin-bottom: 10px; }
+.escort-state { color: rgb(128, 225, 188); margin-bottom: 8px; white-space: normal; }
+.escort-guidance { color: rgb(243, 209, 143); white-space: normal; margin-bottom: 10px; }
+.escort-screen Button {
+    background-color: rgb(35, 56, 72);
+    color: rgb(235, 242, 246);
+    border-width: 1px;
+    border-color: rgb(71, 101, 118);
+    border-radius: 3px;
+    min-height: 34px;
+    margin: 3px;
+    padding: 6px 10px;
+}
+.escort-screen Button:hover, .escort-screen Button:focus { background-color: rgb(53, 81, 100); border-color: rgb(153, 207, 225); }
+.escort-screen Button:disabled { color: rgb(130, 148, 158); background-color: rgb(26, 40, 50); }
+.escort-screen Button.escort-primary { background-color: rgb(28, 99, 78); border-color: rgb(89, 194, 157); }
+.escort-controls { flex-direction: row; flex-wrap: wrap; }
+.escort-map {
+    flex-grow: 1;
+    min-height: 260px;
+    background-color: rgb(14, 36, 49);
+    border-width: 1px;
+    border-color: rgb(53, 84, 102);
+    overflow: hidden;
+}
+.escort-map-key { position: absolute; left: 14px; top: 12px; color: rgb(163, 195, 211); white-space: normal; }
+.escort-exit { position: absolute; right: 8%; top: 10%; bottom: 10%; width: 2px; background-color: rgb(71, 154, 125); }
+.escort-exit-label { position: absolute; right: 9%; top: 11%; color: rgb(139, 216, 183); }
+.escort-marker { position: absolute; width: 24px; height: 24px; margin-left: -12px; margin-top: -12px; color: rgb(125, 225, 195); }
+.escort-marker-glyph { font-size: 22px; -unity-text-align: middle-center; }
+.escort-marker-caption { position: absolute; left: 0; top: -22px; width: 160px; white-space: normal; background-color: rgba(14, 36, 49, 0.94); padding: 2px 4px; }
+.escort-marker--convoy .escort-marker-caption { top: 28px; }
+.escort-marker--hostile { color: rgb(250, 177, 139); }
+.escort-marker--destroyed { color: rgb(151, 162, 168); }
+.escort-marker--focused { border-width: 1px; border-color: rgb(241, 218, 160); background-color: rgb(36, 58, 70); }
+.escort-map-footer { padding-top: 8px; padding-bottom: 10px; color: rgb(163, 195, 211); white-space: normal; }
+.escort-command-result { white-space: normal; padding-top: 10px; color: rgb(188, 219, 232); }
+.escort-debrief { max-height: 290px; margin-top: 12px; }
+.escort-moments { white-space: normal; padding: 10px; }
+.escort-progress { margin-bottom: 10px; height: 22px; }
+.escort-screen .unity-progress-bar__progress { background-color: rgb(44, 134, 109); }
+.escort-screen .unity-progress-bar__background { background-color: rgb(29, 48, 62); }
+.escort-screen .unity-progress-bar__title { color: rgb(240, 245, 248); }

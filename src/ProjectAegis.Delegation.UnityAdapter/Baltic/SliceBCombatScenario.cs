@@ -1,16 +1,15 @@
 namespace ProjectAegis.Delegation.UnityAdapter.Baltic;
 
 using System.Text.Json;
-using ProjectAegis.Delegation.CombatEvents;
-using ProjectAegis.Delegation.Controllers;
-using ProjectAegis.Delegation.Core;
-using ProjectAegis.Delegation.Decision;
-using ProjectAegis.Delegation.Orchestration;
-using ProjectAegis.Delegation.Policy;
-using ProjectAegis.Delegation.Projection;
-using ProjectAegis.Delegation.Sim;
-using ProjectAegis.Delegation.Targets;
-using ProjectAegis.Delegation.Traits;
+using CombatEvents;
+using Core;
+using Decision;
+using Orchestration;
+using Policy;
+using Projection;
+using Sim;
+using Targets;
+using Traits;
 using ProjectAegis.Sim.Engage;
 using ProjectAegis.Sim.Policy;
 
@@ -69,6 +68,7 @@ public static class SliceBCombatScenario
     /// resolver on the next tick. A synthetic Detected → Classified → Identified contact feed precedes the command.
     /// </summary>
     public static Result RunCommanded(int seed, Definition definition) => Execute(seed, definition, commanded: true);
+
     private static Result Execute(int seed, Definition definition, bool commanded)
     {
         if (definition is null)

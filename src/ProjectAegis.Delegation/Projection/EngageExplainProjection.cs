@@ -1,6 +1,7 @@
 namespace ProjectAegis.Delegation.Projection;
 
 using ProjectAegis.Sim.Engage;
+using EngageNextAction;
 
 /// <summary>
 /// CMD-11: plain-language engage refusal / FireAbort explain for unit and contact panels.
@@ -86,6 +87,11 @@ public sealed record EngageExplain(
     string ReasonPlain,
     bool IsBlocked)
 {
+    /// <summary>Advisory next step for a blocked shot; empty when no correction is needed.</summary>
+    public string NextActionPlain => IsBlocked
+        ? EngageNextActionProjection.ExplainNextAction(ReasonCode)
+        : string.Empty;
+
     public static EngageExplain Empty { get; } = new(
         EngageExplainProjection.NoPreviewLabel,
         null,

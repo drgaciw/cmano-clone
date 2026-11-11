@@ -43,6 +43,6 @@ public sealed class ScenarioWeaponFamilyPolicyTests
         }
 
         Assert.NotNull(current);
-        return Path.Combine(current!.FullName, "data", "scenarios", fileName);
+        return Path.Combine(current.FullName, "data", "scenarios", fileName);
     }
 }

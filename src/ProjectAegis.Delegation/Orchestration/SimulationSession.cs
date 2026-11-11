@@ -44,12 +44,14 @@ public sealed class SimulationSession
         var seed = SimSeed.FromScenario((ulong)globalSeed);
         Orchestrator = new DelegationOrchestrator(globalSeed, policyEvaluator);
         Sim = new SimTickPipeline(seed, engagement ?? new StubEngagementResolver());
+        WireApprovalQueueAutoPause();
     }
 
     private SimulationSession(DelegationOrchestrator orchestrator, SimTickPipeline sim)
     {
         Orchestrator = orchestrator;
         Sim = sim;
+        WireApprovalQueueAutoPause();
     }
 
     public static SimulationSession BindMvpEngagement(
@@ -156,7 +158,7 @@ public sealed class SimulationSession
 
     public bool TryResumeSim(bool explicitOverride = false)
     {
-        if (!WatchPauseGate.CanResume(WatchQueue, explicitOverride))
+        if (!WatchPauseGate.CanResume(WatchQueue, Orchestrator.PendingApprovalQueue, explicitOverride))
         {
             return false;
         }
@@ -164,6 +166,34 @@ public sealed class SimulationSession
         ResumeSim();
         WatchPauseGate.ClearReason();
         return true;
+    }
+
+    /// <summary>
+    /// True while <see cref="RunExecutingTick"/> is inside <c>Orchestrator.Tick</c>.
+    /// An approval queued there must not pause the clock until that step finishes.
+    /// </summary>
+    private bool _deferApprovalAutoPause;
+
+    private bool _approvalPauseAfterTick;
+
+    private void WireApprovalQueueAutoPause()
+    {
+        WatchPauseGate.PendingApprovalQueue = Orchestrator.PendingApprovalQueue;
+        Orchestrator.PendingApprovalQueue.OnOrderEnqueued = entry =>
+        {
+            if (!ExternallyScheduledSteps || !WatchPauseGate.ShouldAutoPause(entry))
+            {
+                return;
+            }
+
+            if (_deferApprovalAutoPause)
+            {
+                _approvalPauseAfterTick = true;
+                return;
+            }
+
+            PauseSim();
+        };
     }
 
     public void ReportWatchAttention(WatchAttentionEvent evt)
@@ -222,6 +252,12 @@ public sealed class SimulationSession
 
     public int TimeAccelerationFactor => Sim.Clock.AccelerationFactor;
 
+    /// <summary>
+    /// When true, a fixed-step host schedules accelerated steps and each session tick
+    /// advances exactly one simulation step. False preserves legacy harness scheduling.
+    /// </summary>
+    public bool ExternallyScheduledSteps { get; set; }
+
     public void SetTimeAccelerationFactor(int factor) => Sim.Clock.SetAccelerationFactor(factor);
 
     public void BeginExecution() => Orchestrator.BeginExecution();
@@ -257,7 +293,17 @@ public sealed class SimulationSession
     private void RunExecutingTick(ObservedState state, bool headlessOverride)
     {
         RecordObservedFireControl(in state);
-        Orchestrator.Tick(state);
+        _approvalPauseAfterTick = false;
+        _deferApprovalAutoPause = true;
+        try
+        {
+            Orchestrator.Tick(state);
+        }
+        finally
+        {
+            _deferApprovalAutoPause = false;
+        }
+
         var simTick = (ulong)Math.Max(0, (long)state.SimTime);
         ReportCommsGridPositions(simTick);
 
@@ -337,13 +383,17 @@ public sealed class SimulationSession
         SurfaceRoePolicyDeniedEngagements(state, simTick);
         ApplyCatalogDamageHotTick(state, queued);
 
-        var extraSteps = Math.Max(0, Sim.Clock.AccelerationFactor - 1);
+        var extraSteps = ExternallyScheduledSteps ? 0 : Math.Max(0, Sim.Clock.AccelerationFactor - 1);
         for (var i = 0; i < extraSteps; i++)
         {
             Sim.TickOnce(mode);
         }
 
         AdvanceLogisticsFsms(state);
+        if (_approvalPauseAfterTick)
+        {
+            PauseSim();
+        }
     }
 
     private void AdvanceLogisticsFsms(ObservedState state)
@@ -851,6 +901,18 @@ public sealed class SimulationSession
             OrderActionMapper.TargetIdToUlong(new TargetId(targetId)),
             MountId: 0,
             SimTick: 0);
+    /// <summary>
+    /// Optional authoritative world range for each shooter and its current engagement
+    /// target. No callback preserves the scenario template. Invalid ranges deny fire.
+    /// </summary>
+    public Func<string, double>? ResolveEngagementRangeMeters { get; set; }
+
+    /// <summary>
+    /// Optional trusted simulation-world provider for shooter-specific geometry and
+    /// sensor facts. Downstream ROE, liveness and magazine gates remain authoritative.
+    /// Null preserves legacy scenario context; invalid returned ranges deny fire.
+    /// </summary>
+    public Func<string, EngageContext, EngageContext>? ResolveEngagementContext { get; set; }
 
     private void PrimeEngageWorld(in EngageRequest request, ObservedState state, string shooterUnitId)
     {
@@ -889,9 +951,12 @@ public sealed class SimulationSession
             var bingoBlocked = FuelTimeline?.IsBingo(shooterUnitId) ?? false;
             var shotgunThreshold = Orchestrator.ScenarioPolicy?.EngageDefaults?.ShotgunRoundsThreshold
                 ?? template.ShotgunRoundsThreshold;
+            var range = ResolveEngagementRangeMeters?.Invoke(shooterUnitId) ?? template.RangeMeters;
+            var validRange = !double.IsNaN(range) && !double.IsInfinity(range) && range >= 0;
             var primed = template with
             {
-                HasFireControlTrack = state.HasFireControlTrack,
+                RangeMeters = validRange ? range : double.MaxValue,
+                HasFireControlTrack = state.HasFireControlTrack && validRange,
                 RadarEmconActive = radarActive,
                 AirOperationsReady = airReady,
                 CatalogDamageWithdrawBlocked = damageWithdrawBlocked,
@@ -900,6 +965,15 @@ public sealed class SimulationSession
                 SalvoSize = Math.Max(1, salvo),
                 ShotgunRoundsThreshold = Math.Max(0, shotgunThreshold),
             };
+            if (ResolveEngagementContext is not null)
+            {
+                primed = ResolveEngagementContext(shooterUnitId, primed);
+                if (double.IsNaN(primed.RangeMeters) || double.IsInfinity(primed.RangeMeters) || primed.RangeMeters < 0)
+                {
+                    primed = primed with { RangeMeters = double.MaxValue, HasFireControlTrack = false };
+                }
+            }
+
             EngageWorld.Set(request, primed);
         }
         else if (!EngageWorld.TryGetContext(request, out _))
