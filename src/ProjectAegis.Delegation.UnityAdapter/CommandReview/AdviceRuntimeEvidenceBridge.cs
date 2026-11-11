@@ -1,10 +1,10 @@
 namespace ProjectAegis.Delegation.UnityAdapter.CommandReview;
 
 using System.Collections.ObjectModel;
-using Core;
-using Roe;
-using SensorToShooter;
-using Bridge;
+using ProjectAegis.Delegation.Core;
+using ProjectAegis.Delegation.Roe;
+using ProjectAegis.Delegation.SensorToShooter;
+using ProjectAegis.Delegation.UnityAdapter.Bridge;
 
 /// <summary>
 /// Composes native current runtime evidence for advice without reconstructing an engage context.
