@@ -1,0 +1,76 @@
+<ui:UXML xmlns:ui="UnityEngine.UIElements" editor-extension-mode="False">
+    <ui:Style src="EscortMissionPanel.uss" />
+    <ui:VisualElement name="escort-screen" class="escort-screen">
+        <ui:VisualElement class="escort-header">
+            <ui:Label name="escort-title" text="BALTIC ESCORT" class="escort-title" />
+            <ui:Label name="escort-clock" text="00:00 · PLANNING" class="escort-clock" />
+            <ui:Button name="command-speed-slower" text="Slower" tooltip="Reduce simulation speed" />
+            <ui:Button name="command-speed-faster" text="Faster" tooltip="Increase simulation speed" />
+            <ui:Button name="command-pause" text="Pause" />
+            <ui:Button name="command-resume" text="Resume" />
+        </ui:VisualElement>
+        <ui:VisualElement class="escort-body">
+            <ui:ScrollView name="escort-sidebar" class="escort-sidebar">
+                <ui:VisualElement class="escort-section">
+                    <ui:Label text="COMMANDER'S BRIEF" class="escort-section-title" />
+                    <ui:Label name="escort-briefing" class="escort-copy" />
+                    <ui:Label name="escort-guidance" class="escort-guidance" />
+                    <ui:Button name="command-begin" text="Begin execution" class="escort-primary" />
+                </ui:VisualElement>
+                <ui:VisualElement class="escort-section">
+                    <ui:Label text="DELEGATION" class="escort-section-title" />
+                    <ui:Label name="escort-posture" class="escort-state" />
+                    <ui:VisualElement class="escort-controls">
+                        <ui:Button name="command-posture-manual" text="Manual" tooltip="You issue weapon orders" />
+                        <ui:Button name="command-posture-cautious" text="Cautious" tooltip="Preserve the larger defensive ammunition reserve" />
+                        <ui:Button name="command-posture-balanced" text="Balanced" tooltip="Engage identified threats while retaining a defensive reserve" />
+                        <ui:Button name="command-posture-assertive" text="Assertive" tooltip="Allow the agent to expend its remaining ammunition" />
+                    </ui:VisualElement>
+                </ui:VisualElement>
+                <ui:VisualElement class="escort-section">
+                    <ui:Label text="SENSORS &amp; MOVEMENT" class="escort-section-title" />
+                    <ui:Label name="escort-radar" class="escort-state" />
+                    <ui:VisualElement class="escort-controls">
+                        <ui:Button name="command-radar-active" text="Radar active" tooltip="Gain a track; emissions reveal your position" />
+                        <ui:Button name="command-radar-passive" text="Radar passive" tooltip="Reduce emissions; identification and fire control take longer" />
+                        <ui:Button name="command-investigate" text="Investigate contact" tooltip="Request identification; this does not authorize fire" />
+                        <ui:Button name="command-engage" text="Engage identified threat" tooltip="Issue a manual order through the command queue" />
+                        <ui:Button name="command-hold" text="Hold convoy" tooltip="Stop the convoy while the mission deadline continues" />
+                        <ui:Button name="command-proceed" text="Resume convoy" />
+                    </ui:VisualElement>
+                </ui:VisualElement>
+                <ui:VisualElement class="escort-section">
+                    <ui:Label text="INTERRUPTIONS" class="escort-section-title" />
+                    <ui:VisualElement class="escort-controls">
+                        <ui:Button name="command-alerts-all" text="All contacts" />
+                        <ui:Button name="command-alerts-critical" text="Critical only" />
+                        <ui:Button name="command-alerts-manual" text="Manual pause" />
+                    </ui:VisualElement>
+                    <ui:Label name="escort-alerts" class="escort-copy" />
+                    <ui:VisualElement class="escort-controls">
+                        <ui:Button name="escort-focus-alert" text="Focus contact" />
+                        <ui:Button name="command-acknowledge-alerts" text="Acknowledge alerts" />
+                    </ui:VisualElement>
+                </ui:VisualElement>
+            </ui:ScrollView>
+            <ui:VisualElement class="escort-main">
+                <ui:Label name="escort-objective" class="escort-objective" />
+                <ui:Label name="escort-status" class="escort-state" />
+                <ui:ProgressBar name="escort-progress" title="Convoy transit" low-value="0" high-value="100" class="escort-progress" />
+                <ui:VisualElement name="escort-map" class="escort-map">
+                    <ui:Label text="TACTICAL PICTURE · SELECT A SYMBOL TO INSPECT" class="escort-map-key" />
+                    <ui:VisualElement name="escort-exit" class="escort-exit" picking-mode="Ignore" />
+                    <ui:Label name="escort-exit-label" text="EXIT CORRIDOR" class="escort-exit-label" />
+                </ui:VisualElement>
+                <ui:Label name="escort-selection" text="Friendly units are shown continuously. Threat contacts appear when detected." class="escort-map-footer" />
+                <ui:Label name="escort-command-result" class="escort-command-result" />
+                <ui:VisualElement name="escort-debrief" class="escort-section escort-debrief">
+                    <ui:Label name="escort-debrief-title" text="DECISIVE MOMENTS" class="escort-section-title" />
+                    <ui:Label name="escort-debrief-summary" class="escort-copy" />
+                    <ui:ScrollView><ui:Label name="escort-moments" class="escort-moments" /></ui:ScrollView>
+                    <ui:Button name="command-restart" text="Restart with the same seed" tooltip="Start a clean mission with the same initial conditions" />
+                </ui:VisualElement>
+            </ui:VisualElement>
+        </ui:VisualElement>
+    </ui:VisualElement>
+</ui:UXML>

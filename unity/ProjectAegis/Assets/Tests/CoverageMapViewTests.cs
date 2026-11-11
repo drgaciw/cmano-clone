@@ -57,6 +57,24 @@ namespace ProjectAegis.Unity.Tests
         }
 
         [Test]
+        public void Source_declares_gap_dashes_covered_solids_geometry_scaling_and_segment_cap()
+        {
+            var source = System.IO.File.ReadAllText(System.IO.Path.Combine(
+                TestContext.CurrentContext.TestDirectory, "..", "..", "..", "..", "ProjectAegis", "Assets", "Scripts", "Runtime", "CoverageMapView.cs"));
+            Assert.Multiple(() =>
+            {
+                Assert.That(source, Does.Contain("coverage.Status == CoverageStatus.Gap ? 4 : 1"));
+                Assert.That(source, Does.Contain("gap ? \"GAP\" : \"COVERED\""));
+                Assert.That(source, Does.Contain("GeometryChangedEvent"));
+                Assert.That(source, Does.Contain("MaxSegments = 2048"));
+                Assert.That(source, Does.Not.Contain("radius"));
+            });
+        }
+
+        private static CoordinationSnapshot Snapshot(CoverageAssessment coverage) =>
+            new(new[] { new CoordinationGroupSnapshot(null!, null!, new[] { Effect(coverage) }, Array.Empty<CoordinationGap>()) });
+
+        [Test]
         public void Oversized_boundary_is_omitted_with_explicit_segment_budget_disclosure()
         {
             var points = Enumerable.Range(0, 600).Select(i => new CoverageAreaPoint(
@@ -69,9 +87,6 @@ namespace ProjectAegis.Unity.Tests
             Assert.That(view.SegmentCount, Is.Zero);
             Assert.That(view.StatusText, Does.Contain("TRUNCATED segments"));
         }
-
-        private static CoordinationSnapshot Snapshot(CoverageAssessment coverage) =>
-            new(new[] { new CoordinationGroupSnapshot(null!, null!, new[] { Effect(coverage) }, Array.Empty<CoordinationGap>()) });
 
         private static CoordinationEffect Effect(CoverageAssessment coverage) =>
             new("g1", "u1", coverage.CoverageId, null, CoordinationEffectState.Available, coverage);

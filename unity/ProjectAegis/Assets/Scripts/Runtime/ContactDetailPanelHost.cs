@@ -219,7 +219,7 @@ namespace ProjectAegis.Unity.Runtime
                     ? DisplayStyle.Flex : DisplayStyle.None;
 
             var frame = bridgeHost == null ? SliceAContactFrame.Empty : bridgeHost.LastSliceAContacts;
-            var combatFrame = bridgeHost == null ? CombatPresentationFrame.Empty : bridgeHost.LastCombatFrame;
+            var combatFrame = bridgeHost == null ? CombatPresentationFrame.Empty : bridgeHost.DisplayCombatFrame;
             if (ReferenceEquals(frame, _lastFrame) && ReferenceEquals(combatFrame, _lastCombatFrame)
                 && string.Equals(contactId, _lastContactId, StringComparison.Ordinal))
                 return;
@@ -425,7 +425,6 @@ namespace ProjectAegis.Unity.Runtime
             {
                 return;
             }
-
             bridgeHost.InspectCombatEvent(_liveSurface.EngagementInspectionKey);
         }
     }
