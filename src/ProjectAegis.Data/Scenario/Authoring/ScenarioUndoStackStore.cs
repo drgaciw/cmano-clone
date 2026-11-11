@@ -111,9 +111,22 @@ public static class ScenarioUndoStackStore
                 })
                 .ToArray(),
             Events = source.Events?.ToList(),
-            Variables = source.Variables == null ? null : new Dictionary<string, string>(source.Variables),
+            Variables = source.Variables == null
+                ? null
+                : source.Variables.ToDictionary(pair => pair.Key, pair => pair.Value.Clone(), StringComparer.Ordinal),
             EditorState = source.EditorState == null
                 ? null
-                : new Dictionary<string, JsonElement>(source.EditorState),
+                : new ScenarioEditorStateDto
+                {
+                    CameraLat = source.EditorState.CameraLat,
+                    CameraLon = source.EditorState.CameraLon,
+                    CameraZoom = source.EditorState.CameraZoom,
+                    LayersVisible = source.EditorState.LayersVisible,
+                    LayerVisibility = source.EditorState.LayerVisibility,
+                    Entries = source.EditorState.Entries.ToDictionary(
+                        pair => pair.Key,
+                        pair => pair.Value.Clone(),
+                        StringComparer.Ordinal),
+                },
         };
 }

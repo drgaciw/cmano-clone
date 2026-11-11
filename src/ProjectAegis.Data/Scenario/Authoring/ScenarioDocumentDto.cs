@@ -1,8 +1,9 @@
 namespace ProjectAegis.Data.Scenario.Authoring;
 
 using System.Text.Json;
+using System.Text.Json.Serialization;
 
-/// <summary>Minimal canonical scenario shape for validation engine v1 (ADR-008).</summary>
+/// <summary>Canonical scenario shape for validation engine v1+ (ADR-008, GDD §3.2).</summary>
 public sealed class ScenarioDocumentDto
 {
     public ScenarioMetadataDto Metadata { get; init; } = new();
@@ -22,10 +23,11 @@ public sealed class ScenarioDocumentDto
     /// <summary>Optional typed event DSL entries (AME-5.x). Null when unset.</summary>
     public IReadOnlyList<ScenarioEventDto>? Events { get; init; }
 
-    public Dictionary<string, string>? Variables { get; init; }
+    public Dictionary<string, JsonElement>? Variables { get; init; }
 
     /// <summary>Derived-only editor UI state; never read by <see cref="Validation.ScenarioValidationEngine"/>.</summary>
-    public Dictionary<string, JsonElement>? EditorState { get; init; }
+    [JsonConverter(typeof(ScenarioEditorStateJsonConverter))]
+    public ScenarioEditorStateDto? EditorState { get; init; }
 }
 
 /// <summary>Typed scenario event (trigger + conditions + actions).</summary>
@@ -35,7 +37,21 @@ public sealed class ScenarioEventDto
 
     public string TriggerType { get; init; } = "";
 
-    public IReadOnlyList<ScenarioEventConditionDto> Conditions { get; init; } = Array.Empty<ScenarioEventConditionDto>();
+    /// <summary>Event priority. Null means the canonical default of 100 and is omitted from JSON.</summary>
+    [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
+    public int? Priority { get; init; }
+
+    private readonly IReadOnlyList<ScenarioEventConditionDto> _conditions =
+        Array.Empty<ScenarioEventConditionDto>();
+
+    /// <summary>
+    /// Event conditions. Explicit null from JSON or object initialization is stored as an empty list.
+    /// </summary>
+    public IReadOnlyList<ScenarioEventConditionDto> Conditions
+    {
+        get => _conditions;
+        init => _conditions = ScenarioNestedCollections.EmptyIfNull<ScenarioEventConditionDto>(value);
+    }
 
     public IReadOnlyList<ScenarioEventActionDto> Actions { get; init; } = Array.Empty<ScenarioEventActionDto>();
 }
@@ -43,6 +59,10 @@ public sealed class ScenarioEventDto
 public sealed class ScenarioEventConditionDto
 {
     public string Type { get; init; } = "";
+
+    /// <summary>Canonical condition target id. Null when the condition uses <see cref="UnitId"/> or <see cref="ZoneId"/>.</summary>
+    [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
+    public string? TargetId { get; init; }
 
     public string? UnitId { get; init; }
 
@@ -54,6 +74,10 @@ public sealed class ScenarioEventConditionDto
 public sealed class ScenarioEventActionDto
 {
     public string Type { get; init; } = "";
+
+    /// <summary>Canonical action target id. Null when the action uses <see cref="UnitId"/>.</summary>
+    [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
+    public string? TargetId { get; init; }
 
     public string? UnitId { get; init; }
 
@@ -92,4 +116,102 @@ public sealed class ScenarioWaypointDto
     public double Lat { get; init; }
 
     public double Lon { get; init; }
+}
+
+/// <summary>
+/// Serializes editorState as either a free-form object or structured camera fields.
+/// </summary>
+public sealed class ScenarioEditorStateJsonConverter : JsonConverter<ScenarioEditorStateDto?>
+{
+    /// <inheritdoc />
+    public override ScenarioEditorStateDto? Read(ref Utf8JsonReader reader, Type typeToConvert, JsonSerializerOptions options)
+    {
+        if (reader.TokenType == JsonTokenType.Null)
+        {
+            return null;
+        }
+
+        if (reader.TokenType != JsonTokenType.StartObject)
+        {
+            throw new JsonException("editorState must be a JSON object.");
+        }
+
+        using var document = JsonDocument.ParseValue(ref reader);
+        var entries = new Dictionary<string, JsonElement>(StringComparer.Ordinal);
+        var cameraLat = 57.0;
+        var cameraLon = 20.0;
+        var cameraZoom = 1.0;
+        var layersVisible = true;
+        IReadOnlyDictionary<string, bool>? layerVisibility = null;
+        foreach (var property in document.RootElement.EnumerateObject())
+        {
+            if (property.NameEquals("cameraLat"))
+            {
+                cameraLat = property.Value.GetDouble();
+            }
+            else if (property.NameEquals("cameraLon"))
+            {
+                cameraLon = property.Value.GetDouble();
+            }
+            else if (property.NameEquals("cameraZoom"))
+            {
+                cameraZoom = property.Value.GetDouble();
+            }
+            else if (property.NameEquals("layersVisible"))
+            {
+                layersVisible = property.Value.GetBoolean();
+            }
+            else if (property.NameEquals("layerVisibility"))
+            {
+                layerVisibility = JsonSerializer.Deserialize<Dictionary<string, bool>>(property.Value.GetRawText(), options);
+            }
+            else
+            {
+                entries[property.Name] = property.Value.Clone();
+            }
+        }
+
+        return new ScenarioEditorStateDto
+        {
+            CameraLat = cameraLat,
+            CameraLon = cameraLon,
+            CameraZoom = cameraZoom,
+            LayersVisible = layersVisible,
+            LayerVisibility = layerVisibility,
+            Entries = entries,
+        };
+    }
+
+    /// <inheritdoc />
+    public override void Write(Utf8JsonWriter writer, ScenarioEditorStateDto? value, JsonSerializerOptions options)
+    {
+        if (value is null)
+        {
+            writer.WriteNullValue();
+            return;
+        }
+
+        value.WriteCanonical(writer);
+    }
+}
+
+/// <summary>
+/// Normalizes nested scenario collections that the non-nullable contract still receives as null.
+/// </summary>
+internal static class ScenarioNestedCollections
+{
+    /// <summary>
+    /// Returns <paramref name="value"/> when it is a list; otherwise an empty list.
+    /// The argument is <see cref="object"/> because System.Text.Json can assign null to a
+    /// non-nullable <see cref="IReadOnlyList{T}"/> init property.
+    /// </summary>
+    public static IReadOnlyList<T> EmptyIfNull<T>(object? value)
+    {
+        if (value is IReadOnlyList<T> list)
+        {
+            return list;
+        }
+
+        return Array.Empty<T>();
+    }
 }

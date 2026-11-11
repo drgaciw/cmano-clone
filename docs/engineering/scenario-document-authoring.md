@@ -38,6 +38,20 @@ Source:
 - **Hand-authored files may omit optional fields.** Because the schema only *requires* the
   always-emitted set, a file that leaves out optional metadata (`title`, `description`, `author`,
   `schemaVersion`) still validates and loads — the committed examples do exactly this.
+- **Explicit `null` on a required nested collection loads as empty, not null.** Omitting a
+  non-nullable list is fine (it keeps its empty default), but writing the key with an explicit
+  `null` — e.g. `"postures": null` on a side, or `"conditions": null` on an event — would
+  otherwise leave the init property holding `null` despite its non-nullable contract. The two
+  collections that System.Text.Json can reach this way, `sides[].postures`
+  ([`ScenarioSideDto.Postures`](../../src/ProjectAegis.Data/Scenario/Authoring/ScenarioCanonicalSectionsDto.cs))
+  and `events[].conditions`
+  ([`ScenarioEventDto.Conditions`](../../src/ProjectAegis.Data/Scenario/Authoring/ScenarioDocumentDto.cs)),
+  normalize an explicit `null` to an empty list in their `init` accessor (via
+  `ScenarioNestedCollections.EmptyIfNull`). The same guard applies to null-forgiving object
+  initialization (`Postures = null!`) and to the editor's deep-copy path, so downstream code and
+  the validation engine always see a non-null list. This applies equally in tolerant and
+  `strict` load modes. (`events` itself is a nullable top-level member — see the structure table —
+  so a `null` *events* array stays null; the guard is for the nested `conditions` list.)
 - **The editor is the mutation seam.** `ScenarioDocumentEditor.Load(path)` /
   `.CreateNew(...)` → mutate → `.Save(path)`. All CLI mission verbs go through it, so undo,
   edit-version guarding, and canonical serialization apply uniformly.
@@ -107,10 +121,10 @@ For the CLI-side read-modify-write loop and exit-code contract, see
 | `metadata` | object | **yes** | Scenario-wide binding & tuning (see below). |
 | `missions` | array | **yes** | Mission list; may be empty `[]`. |
 | `features` | object \| null | no | Feature toggles (`realismMagazines` default `true`, `maxTimeCompression` default `256`). |
-| `sides` | array | no | Side definitions (`id`, `name`, `defaultRoe?`, `defaultEmcon?`, `postures[]`). |
-| `orbat` | object \| null | no | Order of battle: `units[]` (`id`, `sideId`, `platformId`, `lat`, `lon`, `parentUnitId?`, `roeOverride?`, `emconOverride?`) and `bases[]`. |
+| `sides` | array | no | Side definitions: `id`, `name`, `defaultRoe?`, `defaultEmcon?`, `postures[]`, plus `briefing?`, `doctrineDefaultId?`, `score` — see [Expanded canonical sections](#expanded-canonical-sections). |
+| `orbat` | object \| null | no | Order of battle: `units[]`, `groups[]?`, `bases[]`, `cargo[]?` — see [Expanded canonical sections](#expanded-canonical-sections). |
 | `referencePoints` | array | no | Named points/zones (`id`, `type`, `geometry[]`, `radiusNm?`). |
-| `operationsTimeline` | array | no | `{ missionId, activateAtTick }` activation entries. |
+| `operationsTimeline` | array | no | Mission activation entries: `missionId`, `activateAtTick`, plus `id?`, `simTick?`, `action?` — see [Expanded canonical sections](#expanded-canonical-sections). |
 | `events` | array \| null | no | Typed event DSL (AME-5.x); see [Events](#events). |
 | `variables` | object \| null | no | String→string scenario variable store. |
 | `editorState` | object \| null | no | **Derived-only** UI state (camera, layers). Never read by the validation engine — do not encode authoritative data here. |
@@ -120,7 +134,7 @@ For the CLI-side read-modify-write loop and exit-code contract, see
 | Field | Type | Default | Notes |
 |-------|------|---------|-------|
 | `title` / `description` / `author` | string \| null | `null` | Free text; optional. |
-| `schemaVersion` | int | `1` | Authoring schema version. |
+| `schemaVersion` | int \| string | `1` | Authoring schema version. Stored as a string but serialized via `FlexibleSchemaVersionConverter`: integer-valued versions emit as a JSON **number** (`1`), dotted labels (`"1.0.0"`) emit as a string. `metadata.schemaVersionNumber` exposes the parsed integer view. |
 | `dbRef` | string \| null | `null` | Catalog/database reference bound at load (e.g. `baltic_patrol`). Must resolve to an available snapshot (`DB_MISMATCH` otherwise). |
 | `dbSnapshotId` | string \| null | `null` | Optional immutable snapshot id of the bound DB. |
 | `editVersion` | int | `1` (via `CreateNew`) | Optimistic-concurrency counter (see above). |
@@ -163,9 +177,102 @@ engine):
 | `Ferry` | ≥1 assigned unit, non-empty `ferryDestinationBaseId` (and reachable) |
 | `Support` | ≥1 assigned unit, a `supportRole`, ≥3 `patrolZone` waypoints (station) |
 
+## Expanded canonical sections
+
+Beyond `metadata` and `missions`, a document carries optional **canonical sections** that the
+editor round-trips and the canonical writer emits (as `[]` / `null` when unset). These map onto
+the extra members of
+[`ScenarioDocumentDto`](../../src/ProjectAegis.Data/Scenario/Authoring/ScenarioDocumentDto.cs) and
+[`ScenarioCanonicalSectionsDto`](../../src/ProjectAegis.Data/Scenario/Authoring/ScenarioCanonicalSectionsDto.cs).
+"Written when" below reflects the per-property serialization: fields marked *when set* / *when
+non-zero* are omitted from JSON at their default and otherwise always appear.
+
+### `sides[]`
+
+| Field | Type | Written | Notes |
+|-------|------|---------|-------|
+| `id` / `name` | string | always | Side id and display name. |
+| `defaultRoe` / `defaultEmcon` | string \| null | always | Side-wide ROE / EMCON defaults; `null` when unset. |
+| `postures` | string[] | always | Named posture ids; `[]` when none. |
+| `briefing` | string | when set | Side briefing text; omitted when `null`. |
+| `doctrineDefaultId` | string | when set | Default doctrine id; omitted when `null`. |
+| `score` | int | when ≠ 0 | Side score; omitted when `0`. |
+
+Headless sides CRUD runs through `ScenarioDocumentEditor.UpsertSide` / `TryRemoveSide`
+(AME-4.5); removing a side does **not** cascade-delete ORBAT units that reference it.
+
+### `orbat`
+
+`orbat.units[]` — one row per unit:
+
+| Field | Type | Written | Notes |
+|-------|------|---------|-------|
+| `id` / `sideId` / `platformId` | string | always | Unit id, owning side, catalog platform id. |
+| `lat` / `lon` | number | always | Spawn position (decimal degrees; validated by `ScenarioLatLonDiagnostics`). |
+| `parentUnitId` / `roeOverride` / `emconOverride` | string \| null | always | Group parent and per-unit ROE / EMCON overrides. |
+| `droneCount` | int \| null | always | SWARM-02 initial swarm integrity; `null` ⇒ catalog `maxDrones` at spawn. |
+| `hostUnitId` | string \| null | always | SWARM-22 mothership / host unit for swarm placement. |
+| `missionType` | string \| null | always | SWARM-20 swarm tasking (`Patrol` / `Support` / `Strike`). |
+| `mode` | string \| null | always | SWARM-20 Phase B mode (`Hold` / `Assault` / `Screen` / `Scatter` / `Rejoin`). |
+| `platformDbId` | string | when set | Catalog platform db id; omitted when `null`. |
+| `baseId` | string | when set | Home base id; omitted when `null`. |
+| `groupId` | string | when set | ORBAT group id; omitted when `null`. |
+
+- `orbat.groups[]` (omitted when `null`): `{ id, sideId, unitIds[] }`.
+- `orbat.bases[]`: `{ id, sideId, lat, lon }`.
+- `orbat.cargo[]` (omitted when `null`): `{ id, unitId, cargoType }`.
+
+Swarm placement/configuration goes through the editor's `PlaceSwarmUnit` / `ConfigureSwarmUnit`
+seams, which call `SwarmScenarioValidation` (drone count ≤ catalog `maxDrones`, host existence,
+mission/mode compatibility) and apply the mission's default mode when `mode` is left unset.
+
+### `operationsTimeline[]`
+
+| Field | Type | Written | Notes |
+|-------|------|---------|-------|
+| `missionId` | string | always | Mission this entry activates; the case-insensitive upsert key. |
+| `activateAtTick` | int | always | Activation tick (≥ 0; the editor rejects negatives). |
+| `id` | string | when set | Optional entry id; omitted when `null`. |
+| `simTick` | int | when ≠ 0 | Sim-tick alias; omitted when `0`. |
+| `action` | string | when set | Optional timeline action; omitted when `null`. |
+
+Headless list/edit only (AME-3.5 Partial+) via `UpsertTimelineEntry` / `TryRemoveTimelineEntry`;
+a full Gantt UI is deferred.
+
+### `editorState`
+
+**Derived-only** — never read by the validation engine. `ScenarioEditorStateJsonConverter`
+serializes it as **either** the structured camera fields (`cameraLat` default `57.0`, `cameraLon`
+default `20.0`, `cameraZoom` default `1.0`, `layersVisible` default `true`, and a
+`layerVisibility` `{ layerId: bool }` map when set) **or**, when the host supplies a free-form
+`entries` bag (e.g. `unitZonePresence`), that bag's keys verbatim. Never encode authoritative
+scenario data here.
+
+### Schema coverage & DTO drift
+
+The authoring DTOs and the canonical writer carry more than the committed
+[`scenario-document.schema.json`](../../data/scenarios/scenario-document.schema.json) currently
+enumerates. The loader/writer round-trip every field regardless, but **external JSON-Schema
+validation is split across two postures**:
+
+- **Loose (validate today).** `orbat`, `editorState`, and `features` are
+  `additionalProperties: true` in the schema, so the expanded ORBAT unit fields (`droneCount`,
+  `hostUnitId`, `missionType`, `mode`, `platformDbId`, `baseId`, `groupId`), `orbat.groups[]` /
+  `orbat.cargo[]`, and the `editorState` camera / `layerVisibility` fields all pass.
+- **Strict (reject the new fields when present).** The `side`, `operationTimelineEntry`, `event`,
+  `eventCondition`, and `eventAction` `$defs` are `additionalProperties: false` and do **not** yet
+  list `side.briefing` / `doctrineDefaultId` / `score`, `operationsTimeline[].id` / `simTick` /
+  `action`, `event.priority`, or `eventCondition` / `eventAction` `targetId`. Each is omitted from
+  JSON at its default (`null` / `0`), so a document that leaves them unset still validates — which
+  is why the CI conformance guard
+  ([`ScenarioDocumentSchemaConformanceTests`](../../src/ProjectAegis.Data.Tests/Scenario/ScenarioDocumentSchemaConformanceTests.cs))
+  passes on minimal editor output. Set any of them and the canonical file still loads and saves,
+  but will fail `scenario-document.schema.json` validation until those `$defs` are extended to match.
+
 ## Events
 
-Optional typed event entries (`events[]`) each declare `id`, `triggerType`, `conditions[]`, and
+Optional typed event entries (`events[]`) each declare `id`, `triggerType`, an optional
+`priority` (semantic default `100`; omitted from JSON when unset), `conditions[]`, and
 `actions[]`:
 
 ```json
@@ -179,8 +286,10 @@ Optional typed event entries (`events[]`) each declare `id`, `triggerType`, `con
 }
 ```
 
-- **Conditions** carry `type` plus optional `unitId` / `zoneId` / `result` (a boolean debugger
-  hint). **Actions** carry `type` plus optional `unitId` / `lat` / `lon`.
+- **Conditions** carry `type` plus optional `targetId` / `unitId` / `zoneId` / `result` (a boolean
+  debugger hint). **Actions** carry `type` plus optional `targetId` / `unitId` / `lat` / `lon`.
+  (`targetId` on conditions/actions and the event-level `priority` are DTO fields the committed
+  JSON Schema does not yet enumerate — see [Schema coverage & DTO drift](#schema-coverage--dto-drift).)
 - The event graph is bounded by the complexity rule (ADR-016): soft `Warning` findings for high
   graph complexity and peak-tick density, and one **hard** blocking cap of **32 conditions per
   event** (`EVENT_CONDITION_CAP_EXCEEDED`).
@@ -278,6 +387,11 @@ Author a Strike inline (ids resolve against the bound catalog):
 - **Keep authoring documents out of the sim-policy path.** A document's `policyId` points at a
   `*.policy.json`; editing the *document* never changes replay goldens, but editing the
   *referenced policy* can — see the [replay hash invariant](determinism-and-replay.md).
+- **A `null` nested collection is treated as empty, not as a validation error.** Loading
+  `"postures": null` or `"conditions": null` yields an empty list, so an event written with
+  `conditions: null` behaves exactly like one with `conditions: []` — including the
+  `EVENT_DEAD_TRIGGER` warning when its `triggerType` ≠ `Time`. Don't rely on `null` to signal
+  "unset" for these two fields; it is indistinguishable from `[]` after load.
 
 ---
 

@@ -96,7 +96,14 @@ public static class ScenarioStableJsonWriter
         WriteStringIfPresent(w, "title", m.Title);
         WriteStringIfPresent(w, "description", m.Description);
         WriteStringIfPresent(w, "author", m.Author);
-        w.WriteNumber("schemaVersion", m.SchemaVersion);
+        if (int.TryParse(m.SchemaVersion, NumberStyles.Integer, CultureInfo.InvariantCulture, out var schemaVersion))
+        {
+            w.WriteNumber("schemaVersion", schemaVersion);
+        }
+        else
+        {
+            w.WriteString("schemaVersion", string.IsNullOrWhiteSpace(m.SchemaVersion) ? "1" : m.SchemaVersion);
+        }
         WriteStringIfPresent(w, "dbRef", m.DbRef);
         WriteStringIfPresent(w, "dbSnapshotId", m.DbSnapshotId);
         w.WriteNumber("editVersion", m.EditVersion);
@@ -155,6 +162,12 @@ public static class ScenarioStableJsonWriter
             w.WriteString("name", side.Name);
             WriteStringIfPresent(w, "defaultRoe", side.DefaultRoe);
             WriteStringIfPresent(w, "defaultEmcon", side.DefaultEmcon);
+            WriteStringIfPresent(w, "briefing", side.Briefing);
+            WriteStringIfPresent(w, "doctrineDefaultId", side.DoctrineDefaultId);
+            if (side.Score != 0)
+            {
+                w.WriteNumber("score", side.Score);
+            }
             if (side.Postures.Count > 0)
             {
                 w.WritePropertyName("postures");
@@ -184,8 +197,11 @@ public static class ScenarioStableJsonWriter
             w.WriteString("id", unit.Id);
             w.WriteString("sideId", unit.SideId);
             w.WriteString("platformId", unit.PlatformId);
+            WriteStringIfPresent(w, "platformDbId", unit.PlatformDbId);
             WriteNumber(w, "lat", unit.Lat);
             WriteNumber(w, "lon", unit.Lon);
+            WriteStringIfPresent(w, "baseId", unit.BaseId);
+            WriteStringIfPresent(w, "groupId", unit.GroupId);
             WriteStringIfPresent(w, "parentUnitId", unit.ParentUnitId);
             WriteStringIfPresent(w, "roeOverride", unit.RoeOverride);
             WriteStringIfPresent(w, "emconOverride", unit.EmconOverride);
@@ -201,6 +217,23 @@ public static class ScenarioStableJsonWriter
 
         w.WriteEndArray();
 
+        if (orbat.Groups is { Count: > 0 })
+        {
+            w.WritePropertyName("groups");
+            w.WriteStartArray();
+            foreach (var group in orbat.Groups.OrderBy(g => g.Id, StringComparer.Ordinal))
+            {
+                w.WriteStartObject();
+                w.WriteString("id", group.Id);
+                w.WriteString("sideId", group.SideId);
+                w.WritePropertyName("unitIds");
+                WriteStringArray(w, group.UnitIds);
+                w.WriteEndObject();
+            }
+
+            w.WriteEndArray();
+        }
+
         w.WritePropertyName("bases");
         w.WriteStartArray();
         foreach (var b in orbat.Bases.OrderBy(b => b.Id, StringComparer.Ordinal))
@@ -214,6 +247,23 @@ public static class ScenarioStableJsonWriter
         }
 
         w.WriteEndArray();
+
+        if (orbat.Cargo is { Count: > 0 })
+        {
+            w.WritePropertyName("cargo");
+            w.WriteStartArray();
+            foreach (var cargo in orbat.Cargo.OrderBy(c => c.Id, StringComparer.Ordinal))
+            {
+                w.WriteStartObject();
+                w.WriteString("id", cargo.Id);
+                w.WriteString("unitId", cargo.UnitId);
+                w.WriteString("cargoType", cargo.CargoType);
+                w.WriteEndObject();
+            }
+
+            w.WriteEndArray();
+        }
+
         w.WriteEndObject();
     }
 
@@ -282,8 +332,15 @@ public static class ScenarioStableJsonWriter
         foreach (var entry in entries.OrderBy(e => e.ActivateAtTick).ThenBy(e => e.MissionId, StringComparer.Ordinal))
         {
             w.WriteStartObject();
+            WriteStringIfPresent(w, "id", entry.Id);
             w.WriteString("missionId", entry.MissionId);
             w.WriteNumber("activateAtTick", entry.ActivateAtTick);
+            if (entry.SimTick != 0)
+            {
+                w.WriteNumber("simTick", entry.SimTick);
+            }
+
+            WriteStringIfPresent(w, "action", entry.Action);
             w.WriteEndObject();
         }
 
@@ -298,6 +355,10 @@ public static class ScenarioStableJsonWriter
             w.WriteStartObject();
             w.WriteString("id", evt.Id);
             w.WriteString("triggerType", evt.TriggerType);
+            if (evt.Priority is { } priority)
+            {
+                w.WriteNumber("priority", priority);
+            }
 
             if (evt.Conditions.Count > 0)
             {
@@ -307,6 +368,7 @@ public static class ScenarioStableJsonWriter
                 {
                     w.WriteStartObject();
                     w.WriteString("type", cond.Type);
+                    WriteStringIfPresent(w, "targetId", cond.TargetId);
                     WriteStringIfPresent(w, "unitId", cond.UnitId);
                     WriteStringIfPresent(w, "zoneId", cond.ZoneId);
                     if (cond.Result.HasValue)
@@ -328,6 +390,7 @@ public static class ScenarioStableJsonWriter
                 {
                     w.WriteStartObject();
                     w.WriteString("type", action.Type);
+                    WriteStringIfPresent(w, "targetId", action.TargetId);
                     WriteStringIfPresent(w, "unitId", action.UnitId);
                     if (action.Lat.HasValue)
                     {
@@ -351,28 +414,20 @@ public static class ScenarioStableJsonWriter
         w.WriteEndArray();
     }
 
-    private static void WriteVariables(Utf8JsonWriter w, Dictionary<string, string> variables)
+    private static void WriteVariables(Utf8JsonWriter w, Dictionary<string, JsonElement> variables)
     {
         w.WriteStartObject();
         foreach (var key in variables.Keys.OrderBy(k => k, StringComparer.Ordinal))
         {
-            w.WriteString(key, variables[key]);
-        }
-
-        w.WriteEndObject();
-    }
-
-    private static void WriteEditorState(Utf8JsonWriter w, Dictionary<string, JsonElement> state)
-    {
-        w.WriteStartObject();
-        foreach (var key in state.Keys.OrderBy(k => k, StringComparer.Ordinal))
-        {
             w.WritePropertyName(key);
-            state[key].WriteTo(w);
+            variables[key].WriteTo(w);
         }
 
         w.WriteEndObject();
     }
+
+    private static void WriteEditorState(Utf8JsonWriter w, ScenarioEditorStateDto state) =>
+        state.WriteCanonical(w);
 
     private static void WriteWaypoints(Utf8JsonWriter w, IReadOnlyList<ScenarioWaypointDto> waypoints)
     {
