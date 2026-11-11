@@ -24,6 +24,9 @@ dotnet run --project src/ProjectAegis.Delegation.Demo -- --batch [--scenarios a,
 # Batch across every policy under data/scenarios
 dotnet run --project src/ProjectAegis.Delegation.Demo -- --batch --all-scenarios
 
+# Experiment seed-grid batch (definition file drives scenario, seeds, ticks, and sweeps)
+dotnet run --project src/ProjectAegis.Delegation.Demo -- --batch --experiment path.experiment.json [--csv-out path.csv]
+
 # Help
 dotnet run --project src/ProjectAegis.Delegation.Demo -- --help
 ```
@@ -41,9 +44,15 @@ dotnet run --project src/ProjectAegis.Delegation.Demo -- --help
 | `--scenarios a,b` | batch | Comma-separated scenario ids (`baltic-patrol,baltic-patrol-comms,baltic-patrol-classify`). |
 | `--seeds 42,7` | batch | Comma-separated seeds (`42`). |
 | `--all-scenarios` | batch | Discover every policy under `data/scenarios` instead of `--scenarios`. |
-| `--csv-out path.csv` | batch | Write the batch CSV to a file (otherwise printed to stdout). |
+| `--csv-out path.csv` | batch, experiment | Write the batch CSV to a file (otherwise printed to stdout). |
+| `--experiment path` | experiment | Run the seed-grid batch defined by an experiment JSON file. Requires `--batch`. |
 
-Exit codes: `0` success, `1` harness exception, `2` unknown argument.
+`--experiment` reads scenario, seeds, ticks, and sweeps from its file, so it rejects being combined
+with `--scenarios`, `--seeds`, `--all-scenarios`, `--ticks`, `--no-engage`, `--seed`, `--scenario`, or
+`--csv`. See [Experiment batch](#experiment-batch---batch---experiment) below.
+
+Exit codes: `0` success, `1` harness exception or an unreadable/invalid experiment definition,
+`2` unknown or misused argument (including `--experiment` without `--batch`).
 
 ---
 
@@ -66,6 +75,68 @@ MESSAGE=<CATEGORY>|<text>                                   # KILL_CONFIRMED/INT
 - `REPLAY_CHECKPOINT` lines expose the per-checkpoint world hash + last order-log
   `SequenceId`, useful for bisecting *where* two runs diverge.
 - `MESSAGE` lines are a filtered view of harness messages (combat + comms categories only).
+
+---
+
+## Experiment batch (`--batch --experiment`)
+
+`--batch --experiment <file>` runs a **seed grid** defined by a JSON file (DRG-257 / INF-6.1) and prints
+one CSV row per grid point. Each point still calls [`BalticReplayHarness.Run`](../ProjectAegis.Delegation.UnityAdapter/Baltic/BalticReplayHarness.cs);
+the path does not modify the harness, `BalticBatchRunner`, `SimulationSession`, or `DelegationBridge`.
+
+The file is validated by
+[`ExperimentDefinitionLoader`](ExperimentDefinitionLoader.cs) against
+[`data/experiments/experiment-definition.schema.json`](../../data/experiments/experiment-definition.schema.json)
+(the loader re-implements the schema checks and rejects any unknown property):
+
+| Field | Required | Meaning (default) |
+|-------|----------|-------------------|
+| `scenarioId` | yes | Scenario policy id. Must be a policy discoverable under `data/scenarios`. |
+| `ticks` | yes | Tick count for every grid point (integer ≥ 1). |
+| `seeds` | yes | Seed grid — a non-empty array of unique integers, executed in order. |
+| `side` | no | Side the `score`/`kills`/… columns tally (`BLUE`). |
+| `mvpEngagement` | no | Passed to `BalticReplayHarness.Run` (`true`). |
+| `doctrineId`, `roeId`, `forceRatioId` | no | Opaque scalar ids recorded on each row when that axis is not swept. |
+| `grid.method` | with `grid` | `cartesian` (full product of active axes) or `latin-hypercube` (deterministic discrete sample sized to the longest active axis). |
+| `grid.parameters` | no | Which axes vary: any of `seed`, `doctrineId`, `roeId`, `forceRatioId`. Omit to vary every axis that has sweep values. `seed` is always executed in full. |
+| `sweeps.doctrineIds`, `sweeps.roeIds`, `sweeps.forceRatioIds` | no | Discrete levels for the opaque axes. An axis with no levels falls back to its scalar id. |
+| `schemaVersion` | no | Must be `1` when present. |
+
+**Opaque ids are recorded, not applied.** `doctrineId`, `roeId`, and `forceRatioId` are written to the
+CSV but are not fed into the simulation, so the fingerprint and world-hash columns depend only on
+`(scenarioId, seed, ticks, mvpEngagement)`. Sweeping doctrine or ROE changes the labels, not the run.
+
+CSV columns (header emitted on every run):
+
+```text
+scenarioId,seed,ticks,side,doctrineId,roeId,forceRatioId,gridMethod,score,kills,missilesFired,denials,fingerprint,fingerprintSha256,worldHash,detectionWorldHash,buildId
+```
+
+`buildId` is the demo assembly's informational version, so a definition plus a build reproduce a row.
+With `--csv-out` the CSV is written to the file (`Wrote <n> rows to <path>`); otherwise it goes to stdout.
+
+Example definition and its output (2 seeds × 2 doctrines, cartesian):
+
+```json
+{
+  "scenarioId": "baltic-patrol",
+  "ticks": 4,
+  "seeds": [42, 7],
+  "grid": { "method": "cartesian", "parameters": ["seed", "doctrineId"] },
+  "sweeps": { "doctrineIds": ["aggressive", "cautious"] },
+  "roeId": "weapons-tight"
+}
+```
+
+```text
+scenarioId,seed,ticks,side,doctrineId,roeId,forceRatioId,gridMethod,score,kills,missilesFired,denials,fingerprint,fingerprintSha256,worldHash,detectionWorldHash,buildId
+baltic-patrol,42,4,BLUE,aggressive,weapons-tight,,cartesian,100,1,1,0,…,2cc200ec…,17144800277401907079,15600,1.0.0+…
+baltic-patrol,42,4,BLUE,cautious,weapons-tight,,cartesian,100,1,1,0,…,2cc200ec…,17144800277401907079,15600,1.0.0+…
+baltic-patrol,7,4,BLUE,aggressive,weapons-tight,,cartesian,100,1,1,0,…,4443e889…,6759168507833323181,6879,1.0.0+…
+baltic-patrol,7,4,BLUE,cautious,weapons-tight,,cartesian,100,1,1,0,…,4443e889…,6759168507833323181,6879,1.0.0+…
+```
+
+The two doctrines share a fingerprint and world hash for each seed — the opaque label did not touch the sim.
 
 ---
 
