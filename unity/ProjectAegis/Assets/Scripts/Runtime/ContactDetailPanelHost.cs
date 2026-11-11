@@ -64,8 +64,6 @@ namespace ProjectAegis.Unity.Runtime
         private CombatPresentationFrame? _lastCombatFrame;
         private string? _lastContactId;
         private SliceAContactPresentation _sliceA = SliceAContactPresentation.Empty;
-        private Label? _engagementLine;
-        private Label? _postureLine;
         private SliceAContactLiveSurfaceState _liveSurface = SliceAContactLiveSurfaceState.Empty;
         private DlzLiveSurfaceState _dlzSurface = DlzLiveSurfaceState.Empty;
         private CombatDetailPresentation _combat = CombatDetailPresentation.Empty;
@@ -427,7 +425,6 @@ namespace ProjectAegis.Unity.Runtime
             {
                 return;
             }
-            bridgeHost.InspectCombatEvent(_liveSurface.EngagementInspectionKey);
             bridgeHost.InspectCombatEvent(_liveSurface.EngagementInspectionKey);
         }
     }

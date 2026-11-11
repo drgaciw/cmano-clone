@@ -127,7 +127,6 @@ namespace ProjectAegis.Unity.Runtime
                 panel.styleSheets.Add(panelStyles);
             }
 
-            _wired = _statusLabel != null || _reasonLabel != null;
             _wired = _statusLabel != null || _reasonLabel != null || _authorityLabel != null
                 || _domainAbortLabel != null;
             _lastFrame = null; // A rebuilt UIDocument needs binding even while simulation is paused.
