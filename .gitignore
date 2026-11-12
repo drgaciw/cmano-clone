@@ -99,6 +99,7 @@ _to_delete/
 .kilo/
 .claude/settings.local.json
 .cursor/hooks/
+.cursor/debug-*.log
 
 # obra/superpowers — junctions from tools/install-superpowers.ps1 (see .claude/skills/superpowers/README.md)
 .claude/skills/superpowers/*/
