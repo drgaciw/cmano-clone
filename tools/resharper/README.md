@@ -1,7 +1,7 @@
 # ReSharper command-line analysis
 
 Run the configured solution inspection from the repository root with SDK 11.0.100
-and ReSharper Command Line Tools 2026.2.1:
+and ReSharper Command Line Tools 2026.3.0:
 
 ```powershell
 .\tools\resharper\inspect.ps1 -Check
@@ -23,7 +23,7 @@ the portable `inspectcode.exe`. `-ToolPath` explicitly selects a portable binary
 or the `jb.exe` shim from the pinned .NET tool package used in CI:
 
 ```powershell
-dotnet tool install JetBrains.ReSharper.GlobalTools --version 2026.2.1 --tool-path artifacts/resharper/cli
+dotnet tool install JetBrains.ReSharper.GlobalTools --version 2026.3.0 --tool-path artifacts/resharper/cli
 .\tools\resharper\inspect.ps1 -ToolPath ./artifacts/resharper/cli/jb.exe -Check
 ```
 

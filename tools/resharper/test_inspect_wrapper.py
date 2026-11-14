@@ -9,6 +9,20 @@ import unittest
 
 
 class InspectWrapperTests(unittest.TestCase):
+    def test_cli_version_pin_accepts_2026_3_banner_and_rejects_others(self):
+        pattern = r'\b2026\.3(?:\.0)?(?!\.\d)'
+        banners = {
+            'JetBrains Inspect Code 2026.3 Running on x64 OS in x64 architecture, .NET 11.0.0 under Microsoft Windows 10.0.26100 Version: 2026.3': True,
+            '2026.3.0': True,
+            '2026.3': True,
+            '2026.3.1': False,
+            '2026.2.1': False,
+        }
+        for banner, expected in banners.items():
+            with self.subTest(banner=banner):
+                matched = __import__('re').search(pattern, banner) is not None
+                self.assertEqual(expected, matched)
+
     def test_analyzer_failure_malformed_new_and_clean_reports(self):
         wrapper = Path(__file__).with_name('inspect.ps1').resolve()
         with tempfile.TemporaryDirectory() as directory:
@@ -16,7 +30,8 @@ class InspectWrapperTests(unittest.TestCase):
             dotnet = root/'dotnet.ps1'
             dotnet.write_text("if ($args -contains '--version') { '11.0.100' }; exit 0\n")
             analyzer = root/'inspectcode.ps1'
-            analyzer.write_text("""if ($args -contains '--version') { 'JetBrains Inspect Code 2026.2.1'; exit 0 }
+            # Real jb --version for NuGet 2026.3.0 banners "2026.3" (no .0 patch).
+            analyzer.write_text("""if ($args -contains '--version') { 'JetBrains Inspect Code 2026.3 Running on x64 OS Version: 2026.3'; exit 0 }
 $destination = ($args | Where-Object { $_ -like '--output=*' }) -replace '^--output=', ''
 Copy-Item -LiteralPath $env:RESHARPER_TEST_REPORT -Destination $destination
 exit ([int]$env:RESHARPER_TEST_EXIT)

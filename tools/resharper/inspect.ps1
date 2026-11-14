@@ -51,8 +51,9 @@ try {
         throw "Inspection requires SDK 11.0.100; selected '$sdkVersion'. Pass -DotnetPath to an isolated 11.0.100 installation."
     }
     $toolVersion = (& $inspectCode @toolPrefix --version | Out-String).Trim()
-    if ($LASTEXITCODE -ne 0 -or $toolVersion -notmatch '\b2026\.2\.1\b') {
-        throw "Inspection requires ReSharper CLI 2026.2.1; selected '$toolVersion'."
+    # NuGet package 2026.3.0 banners as "2026.3" (no patch) or "2026.3.0"; reject 2026.3.x≠0.
+    if ($LASTEXITCODE -ne 0 -or $toolVersion -notmatch '\b2026\.3(?:\.0)?(?!\.\d)') {
+        throw "Inspection requires ReSharper CLI 2026.3.0; selected '$toolVersion'."
     }
     & $DotnetPath build $solution
     if ($LASTEXITCODE -ne 0) { throw "Build failed; inspection was not run." }
