@@ -16,7 +16,8 @@ class InspectWrapperTests(unittest.TestCase):
             dotnet = root/'dotnet.ps1'
             dotnet.write_text("if ($args -contains '--version') { '11.0.100' }; exit 0\n")
             analyzer = root/'inspectcode.ps1'
-            analyzer.write_text("""if ($args -contains '--version') { 'JetBrains Inspect Code 2026.3.0'; exit 0 }
+            # Real jb --version for NuGet 2026.3.0 banners "2026.3" (no .0 patch).
+            analyzer.write_text("""if ($args -contains '--version') { 'JetBrains Inspect Code 2026.3 Running on x64 OS Version: 2026.3'; exit 0 }
 $destination = ($args | Where-Object { $_ -like '--output=*' }) -replace '^--output=', ''
 Copy-Item -LiteralPath $env:RESHARPER_TEST_REPORT -Destination $destination
 exit ([int]$env:RESHARPER_TEST_EXIT)
