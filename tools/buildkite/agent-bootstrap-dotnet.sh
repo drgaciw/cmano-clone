@@ -2,14 +2,15 @@
 # Ensures a .NET SDK that satisfies global.json is on PATH for CI agents
 # (Buildkite + GitHub Actions). Hosted images may ship an older SDK on PATH.
 #
-# global.json pins 10.0.403 with "rollForward": "latestMajor". A higher installed
-# SDK satisfies the pin. An older SDK cannot roll backward, so `dotnet --version`
-# fails until 10.0.403 (or newer) is installed. Do not require an exact 10.0.403
-# string here: latestMajor intentionally selects a newer SDK when one is present.
+# global.json pins 11.0.100 with "rollForward": "latestFeature". A higher 11.0.x
+# SDK satisfies the pin. An older major cannot roll forward across majors, so
+# `dotnet --version` fails until 11.0.100 (or a newer 11.0.x) is installed.
+# Do not require an exact 11.0.100 string here: latestFeature selects servicing
+# updates within 11.0.x when present (Decision DRG-724).
 set -euo pipefail
 
 DOTNET_ROOT="${DOTNET_ROOT:-$HOME/.dotnet}"
-PINNED_SDK="10.0.403"
+PINNED_SDK="11.0.100"
 export DOTNET_ROOT
 
 sdk_satisfies_global_json() {
@@ -40,9 +41,16 @@ ensure_dotnet() {
 ensure_dotnet
 
 if ! sdk_satisfies_global_json; then
-  echo "ERROR: .NET SDK satisfying global.json (${PINNED_SDK}, rollForward=latestMajor) required after bootstrap; got $(dotnet --version 2>/dev/null || echo missing)"
+  echo "ERROR: .NET SDK satisfying global.json (${PINNED_SDK}, rollForward=latestFeature) required after bootstrap; got $(dotnet --version 2>/dev/null || echo missing)"
   exit 1
 fi
-echo "=== dotnet SDK resolved: $(dotnet --version) (global.json pins ${PINNED_SDK}, rollForward=latestMajor) ==="
+echo "=== dotnet SDK resolved: $(dotnet --version) (global.json pins ${PINNED_SDK}, rollForward=latestFeature) ==="
+
+# Agents that install only SDK 11.0.100 ship Microsoft.NETCore.App 11.0.x and no
+# 10.0 shared framework. PR 1 still targets net10.0 (TFMs move in PR 2), so
+# framework-dependent `dotnet test` hosts need LatestMajor roll-forward or they
+# exit immediately after build with no test output (Buildkite #2989).
+export DOTNET_ROLL_FORWARD="${DOTNET_ROLL_FORWARD:-LatestMajor}"
+echo "=== DOTNET_ROLL_FORWARD=${DOTNET_ROLL_FORWARD} (net10.0 apps on SDK 11 agents) ==="
 
 dotnet --info

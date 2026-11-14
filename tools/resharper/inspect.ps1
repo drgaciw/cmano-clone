@@ -47,8 +47,8 @@ try {
         throw "The regression gate requires WARNING severity so findings cannot be hidden."
     }
     $sdkVersion = (& $DotnetPath --version | Out-String).Trim()
-    if ($LASTEXITCODE -ne 0 -or $sdkVersion -ne "10.0.403") {
-        throw "Inspection requires SDK 10.0.403; selected '$sdkVersion'. Pass -DotnetPath to an isolated 10.0.403 installation."
+    if ($LASTEXITCODE -ne 0 -or $sdkVersion -ne "11.0.100") {
+        throw "Inspection requires SDK 11.0.100; selected '$sdkVersion'. Pass -DotnetPath to an isolated 11.0.100 installation."
     }
     $toolVersion = (& $inspectCode @toolPrefix --version | Out-String).Trim()
     if ($LASTEXITCODE -ne 0 -or $toolVersion -notmatch '\b2026\.2\.1\b') {
@@ -62,7 +62,7 @@ try {
     $arguments = @(
         $solution, "--output=$temporaryReport", "--format=Sarif", "--severity=$Severity",
         "--swea", "--disable-settings-layers=GlobalAll;GlobalPerProduct;SolutionPersonal;ProjectPersonal",
-        "--dotnetcore=$dotnetExe", "--dotnetcoresdk=10.0.403",
+        "--dotnetcore=$dotnetExe", "--dotnetcoresdk=11.0.100",
         "--caches-home=$(Join-Path $repoRoot 'artifacts/resharper/cache')", "--no-build", "--no-updates"
     )
     & $inspectCode @toolPrefix @arguments

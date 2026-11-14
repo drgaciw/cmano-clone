@@ -8,7 +8,7 @@
     ],
     "frameworks": "all",
     "originalReportSha256": "C6808CB407DC6DE4EDBB2BF9D94D0B917D3C0D0A0A02F987D581318F012C0B83",
-    "sdkVersion": "10.0.403",
+    "sdkVersion": "11.0.100",
     "solutionWideAnalysis": true,
     "sourceLineEndings": "LF per .gitattributes; original CRLF normalized source verified equal in all 751 reported files",
     "sourceRevision": "c6dc93b0b061eef6be3867237a9024afd8e4ec90",
