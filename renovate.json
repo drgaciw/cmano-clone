@@ -25,6 +25,26 @@
       "enabled": false
     },
     {
+      "description": "Allow SDK major to 11.0.x only (Dependency Dashboard approval; no automerge). Keep after merge so .NET 12 stays gated. netstandard2.1 targets hold Microsoft.* 10.0.14 on purpose for Unity plug-in stability.",
+      "matchManagers": [
+        "nuget"
+      ],
+      "matchDepTypes": [
+        "dotnet-sdk"
+      ],
+      "matchFileNames": [
+        "global.json"
+      ],
+      "matchUpdateTypes": [
+        "major"
+      ],
+      "allowedVersions": "/^11\\.0\\./",
+      "enabled": true,
+      "automerge": false,
+      "dependencyDashboardApproval": true,
+      "groupName": null
+    },
+    {
       "description": "Unity Editor bump stays owner-only: keep out of the weekly group (must move together with unity-ci.yml unityVersion and tools/unity defaults; currently 6000.3.27f2)",
       "matchFileNames": [
         "unity/ProjectAegis/ProjectSettings/ProjectVersion.txt"

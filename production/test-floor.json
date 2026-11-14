@@ -1,7 +1,11 @@
 {
-  "solutionMinPass": 1638,
-  "provenance": "Standing AGENTS.md invariant. Not a fresh 2026-09-18 measurement. A 2026-09-08 planning run recorded 3216 passing tests; that count is historical and is not the floor.",
+  "solutionMinPass": 4361,
+  "provenance": "DRG-724 Decision + DRG-725 baseline 2026-11-14 on Ubuntu-Host commit d3a358ae SDK 10.0.403: 4361 passed / 0 failed. Floor never below 1638.",
   "replayGoldenMin": 6,
   "playModeSmokeMin": 20,
-  "balticV2Hash": "17144800277401907079"
+  "balticV2Hash": "17144800277401907079",
+  "baselineCommit": "d3a358ae3a1122f651c381e1e0d89bc8b84d7157",
+  "baselineSdk": "10.0.403",
+  "baselineWarnings": 0,
+  "baselinePluginDllCount": 14
 }
