@@ -5,7 +5,7 @@ using System.IO.Compression;
 using System.Text.Json;
 #endif
 
-// DRG-695: .NET 10 async ZIP APIs. net10.0 only; the netstandard2.1 Unity build keeps the sync API.
+// DRG-695 / DRG-737: async ZIP APIs under NET10_0_OR_GREATER (net11.0 headless). netstandard2.1 Unity build keeps the sync API.
 public static partial class AegisScenarioPackage
 {
 #if NET10_0_OR_GREATER

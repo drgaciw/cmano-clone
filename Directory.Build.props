@@ -5,8 +5,8 @@
     no-incremental solution builds or parallel CLI-only Release builds).
 
     LangVersion is pinned to 12.0 in each headless csproj, not in this file, so the
-    pin does not leak into generated Unity projects under unity/. SDK 10 treats
-    `latest` as C# 14; 12.0 is the language SDK 8.0.400 compiled. Do not raise it.
+    pin does not leak into generated Unity projects under unity/. SDK 10/11 treat
+    `latest` as C# 14 or newer; 12.0 is the language SDK 8.0.400 compiled. Do not raise it.
     Shared netstandard2.1 projects cannot use LangVersion 9.0: that source already
     uses C# 10 (file-scoped namespaces, record struct) and C# 11 (raw string
     literals), including hard-no CatalogWriteGate.cs. Unity Editor scripts stay on
