@@ -46,4 +46,11 @@ if ! sdk_satisfies_global_json; then
 fi
 echo "=== dotnet SDK resolved: $(dotnet --version) (global.json pins ${PINNED_SDK}, rollForward=latestFeature) ==="
 
+# Agents that install only SDK 11.0.100 ship Microsoft.NETCore.App 11.0.x and no
+# 10.0 shared framework. PR 1 still targets net10.0 (TFMs move in PR 2), so
+# framework-dependent `dotnet test` hosts need LatestMajor roll-forward or they
+# exit immediately after build with no test output (Buildkite #2989).
+export DOTNET_ROLL_FORWARD="${DOTNET_ROLL_FORWARD:-LatestMajor}"
+echo "=== DOTNET_ROLL_FORWARD=${DOTNET_ROLL_FORWARD} (net10.0 apps on SDK 11 agents) ==="
+
 dotnet --info
