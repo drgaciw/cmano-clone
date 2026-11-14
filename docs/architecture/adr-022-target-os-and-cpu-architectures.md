@@ -10,6 +10,9 @@
 > Notion are mirrors* — so the ADR present in git kept 018 and this one moved to **022**.
 > Tracked as Linear DRG-51.
 
+> **Amended 2026-11-14 (DRG-742, .NET 11 upgrade).** Added the **x86-64-v2 minimum** CPU baseline for
+> x64 hosts (see Decision 1a and the host matrix). No change to the OS matrix or the x64-only v1 scope.
+
 ## Date
 
 2026-07-25
@@ -35,7 +38,7 @@ supported matrix, the non-goals, and the cross-OS determinism rules enforceable 
 
 | Field | Value |
 |-------|-------|
-| Engine | Unity 6.3 LTS (6000.3.14f1) + .NET 8 |
+| Engine | Unity 6.3 LTS (6000.3.14f1) + .NET 11 headless (`net11.0`; Unity plugins stay `netstandard2.1`) |
 | Player target | **StandaloneWindows64** only for the v1 commercial path |
 | Headless RID | **linux-x64** farm; optional **win-x64** for local tooling |
 | Risk | **LOW** — documents the shipped matrix; no code change |
@@ -57,12 +60,24 @@ supported matrix, the non-goals, and the cross-OS determinism rules enforceable 
 | Headless farm / AvA / CI | Linux | x64 |
 | Local dev (optional) | Windows or Linux | x64 |
 
+**CPU baseline (all x64 rows): x86-64-v2 minimum** (SSE4.2 and POPCNT, roughly Nehalem/2008 and
+later). .NET 11 refuses to start on older x64 CPUs, so this applies to the interactive player host,
+every Buildkite agent, and self-hosted runners.
+
 Matches the product NFR verbatim: *"Windows 10/11 x64 (primary, Steam); Linux x64 for the headless
 server/batch farm only. No macOS, console, or Steam Deck support in v1."*
 
 ## Decision
 
 ### 1. Ship matrix is as above; x64 only for v1
+
+### 1a. x86-64-v2 is the minimum x64 CPU level
+
+Every x64 host in the matrix must expose **x86-64-v2** (SSE4.2, POPCNT) or newer. This follows from
+the .NET 11 runtime requirement (DRG-742). It does not add an architecture: ARM64 remains a non-goal.
+CI and runner onboarding verify it with `grep -m1 -oE 'sse4_2|popcnt' /proc/cpuinfo` (expect both
+flags on Linux). A host below the baseline is unsupported for build, test, or play; raising the
+baseline to x86-64-v3 or higher requires an ADR amendment.
 
 ### 2. The managed core is host-agnostic
 
@@ -127,6 +142,7 @@ Running the Editor or a script on another OS locally does not add that OS to the
 - [x] Authoritative CI host is Linux x64 — `.buildkite/pipeline.yml`, `docs/engineering/buildkite-ci.md`
 - [x] Cited ADR dependencies all resolve — ADR-001, 006, 008, 010, 011 verified present
 - [x] **Decision 2 verified clean** — spot-check run 2026-07-26 across all **489** `.cs` files in `Data`, `Sim`, and `Delegation`: **zero** OS preprocessor directives (`#if WINDOWS|LINUX|OSX|…`), **zero** runtime OS checks (`RuntimeInformation.IsOSPlatform`, `OperatingSystem.Is*`, `Environment.OSVersion`). Wall-clock reads and unseeded RNG also zero. Hardcoded separators: none harmful — repo-relative `/` constants resolved through BCL path APIs
+- [x] **x86-64-v2 baseline recorded** — DRG-742 (2026-11-14); baseline CPU check is part of the .NET 11 upgrade plan ([`docs/superpowers/plans/2026-11-12-dotnet-11-upgrade.md`](../superpowers/plans/2026-11-12-dotnet-11-upgrade.md))
 - [ ] **OPEN:** packaging checklist cites ADR-022 + StandaloneWindows64 when the store epic runs (Linear DRG-39)
 - [ ] **OPEN (Linear DRG-54):** one **Decision 3** exception found by the same spot-check — `ScenarioPolicyJsonIndex.cs:26` and `ScenarioPolicyJsonLoader.cs:32` call `Directory.EnumerateFiles` unordered and then `map[dto.Id] = dto`, so a duplicate `Id` resolves last-writer-wins and **the survivor differs between Windows and Linux**. Latent today (76 policy files, zero duplicate ids), but neither site guards the overwrite
 

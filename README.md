@@ -12,7 +12,7 @@ The numbered program in that snapshot is **S122–S127**. [`production/sprint-st
 
 ### In the tree and covered by headless tests
 
-These assemblies target `net10.0` (shared libraries also target `netstandard2.1`) and do not reference `UnityEngine`:
+These assemblies target `net11.0` (shared libraries also target `netstandard2.1`) and do not reference `UnityEngine`:
 
 | Piece | Where | What it does |
 | --- | --- | --- |
@@ -26,7 +26,7 @@ These assemblies target `net10.0` (shared libraries also target `netstandard2.1`
 
 Scenario **policies** (`data/scenarios/*.policy.json`) are sim-runtime config. Scenario **documents** (`*.scenario.json`) are the authoring artifact. They are different files: [scenario policy authoring](docs/engineering/scenario-policy-authoring.md), [scenario document authoring](docs/engineering/scenario-document-authoring.md), [policy id list](data/scenarios/scenario-policy-ids.md).
 
-Replay fixtures live under [`tests/regression/`](tests/regression/). The committed floors are in [`production/test-floor.json`](production/test-floor.json): `solutionMinPass` 1638, `replayGoldenMin` 6, `playModeSmokeMin` 20, Baltic v2 hash `17144800277401907079`. Those numbers are minimums recorded in that file, not a live count of the suite.
+Replay fixtures live under [`tests/regression/`](tests/regression/). The committed floors are in [`production/test-floor.json`](production/test-floor.json): `solutionMinPass` 4361, `replayGoldenMin` 6, `playModeSmokeMin` 20, Baltic v2 hash `17144800277401907079`. Those numbers are minimums recorded in that file, not a live count of the suite.
 
 `PlayModeSmokeHarnessTests` is a **headless** C2 proxy in the UnityAdapter test project. It does not launch the Unity Editor. Editor Play Mode is the checklist in [`unity/ProjectAegis/PLAYMODE-SMOKE.md`](unity/ProjectAegis/PLAYMODE-SMOKE.md).
 
@@ -125,7 +125,7 @@ Test projects stay next to their assemblies. Golden files stay under `tests/regr
 
 | Requirement | Source of truth | Needed for |
 | --- | --- | --- |
-| .NET SDK **10.0.403** (`rollForward`: `latestMajor`) | [`global.json`](global.json) | Build, test, demo, CLI |
+| .NET SDK **11.0.100** (`rollForward`: `latestFeature`) | [`global.json`](global.json) | Build, test, demo, CLI |
 | Git LFS | [`.gitattributes`](.gitattributes) (`assets/data/catalog/aegis_public_corpus.db`) | Catalog tests. A pointer file fails SQLite open. |
 | Unity Editor **6000.3.27f2** | [`ProjectSettings/ProjectVersion.txt`](unity/ProjectAegis/ProjectSettings/ProjectVersion.txt) | Opening the Unity project. Headless `dotnet` work does not need it. |
 | PowerShell 7 (`pwsh`) | — | `*.ps1` helpers, including [`tools/verify-ci-local.ps1`](tools/verify-ci-local.ps1) |
@@ -134,7 +134,7 @@ Test projects stay next to their assemblies. Golden files stay under `tests/regr
 Install the SDK if `dotnet` is missing or older than the pin:
 
 ```bash
-curl -sSL https://dot.net/v1/dotnet-install.sh | bash /dev/stdin --version 10.0.403
+curl -sSL https://dot.net/v1/dotnet-install.sh | bash /dev/stdin --version 11.0.100
 export PATH="$HOME/.dotnet:$PATH"
 ```
 

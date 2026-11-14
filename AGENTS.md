@@ -2,7 +2,7 @@
 
 ## What This Is
 
-**Project Aegis** is a near-future hardcore military simulation inspired by Command: Modern Air/Naval Operations. The player commands theater-level forces and delegates tactical decisions to autonomous AI agents. The codebase is a **.NET 10 C# solution** (`ProjectAegis.sln`) — engine-agnostic at the core, with Unity 6.3 LTS as the optional rendering layer.
+**Project Aegis** is a near-future hardcore military simulation inspired by Command: Modern Air/Naval Operations. The player commands theater-level forces and delegates tactical decisions to autonomous AI agents. The codebase is a **.NET 11 C# solution** (`ProjectAegis.sln`) — engine-agnostic at the core, with Unity 6.3 LTS as the optional rendering layer.
 
 Production stage: **Release** (S48 gate PASS; S73–S80 Baltic v3 content COMPLETE as of 2026-06-26).
 
@@ -10,9 +10,9 @@ Production stage: **Release** (S48 gate PASS; S73–S80 Baltic v3 content COMPLE
 
 ## Build & Test Commands
 
-> **Prerequisite**: .NET SDK **10.0.403** (enforced by `global.json`, `rollForward: latestMajor`). If `dotnet` is missing or too old:
+> **Prerequisite**: .NET SDK **11.0.100** (enforced by `global.json`, `rollForward: latestFeature`). If `dotnet` is missing or too old:
 > ```bash
-> curl -sSL https://dot.net/v1/dotnet-install.sh | bash /dev/stdin --version 10.0.403
+> curl -sSL https://dot.net/v1/dotnet-install.sh | bash /dev/stdin --version 11.0.100
 > export PATH="$HOME/.dotnet:$PATH"
 > ```
 
@@ -22,7 +22,7 @@ Run from repo root (`cmano-clone/`):
 |------|---------|
 | Restore | `dotnet restore ProjectAegis.sln` |
 | Build | `dotnet build ProjectAegis.sln` |
-| Full test suite (≥1638) | `dotnet test ProjectAegis.sln -v minimal` |
+| Full test suite (≥4361) | `dotnet test ProjectAegis.sln -v minimal` |
 | Play Mode smoke (C2 proxy) | `dotnet test src/ProjectAegis.Delegation.UnityAdapter.Tests/ProjectAegis.Delegation.UnityAdapter.Tests.csproj --filter PlayModeSmokeHarnessTests` |
 | Console demo | `dotnet run --project src/ProjectAegis.Delegation.Demo` |
 | Format check | `dotnet format --verify-no-changes` |
@@ -31,7 +31,7 @@ Run from repo root (`cmano-clone/`):
 
 ```bash
 dotnet build ProjectAegis.sln                   # 0 errors, 0 warnings
-dotnet test ProjectAegis.sln -v minimal          # ≥1638 / 0 failures (post S95 gauntlet land; prior floor ≥1599)
+dotnet test ProjectAegis.sln -v minimal          # ≥4361 / 0 failures (DRG-724/725 baseline; prior floor ≥1638)
 dotnet test src/ProjectAegis.Delegation.UnityAdapter.Tests/ProjectAegis.Delegation.UnityAdapter.Tests.csproj --filter PlayModeSmokeHarnessTests   # ≥20/20
 ```
 
@@ -142,7 +142,7 @@ IOrderSink.ApplyOrder(entityKey, order)  →  movement / weapons / EW systems
 | Invariant | Rule |
 |-----------|------|
 | **Replay golden hash** | `17144800277401907079` must be preserved in Baltic v2 replay golden files. Grep to verify: `grep -r "17144800277401907079" tests/ data/` |
-| **Test baseline** | ≥1638 solution tests, 0 failures (post S95 gauntlet land; prior ≥1599; monotonic — never regress). Single source: [`production/test-floor.json`](production/test-floor.json) |
+| **Test baseline** | ≥4361 solution tests, 0 failures (DRG-724/725 baseline; prior ≥1638; monotonic — never regress). Single source: [`production/test-floor.json`](production/test-floor.json) |
 | **ReplayGolden** | 6/6 (Baltic v2 replay suite) |
 | **PlayModeSmokeHarness** | ≥20/20 (C2 proxy tests) |
 | **DelegationBridge.cs** | Zero-touch through Release v1 — no hotpath changes |
@@ -380,7 +380,7 @@ This repo is Graphite-initialized (trunk `main`, [`.graphite_repo_config`](.grap
 
 Full guide: [`docs/engineering/graphite-github-substitute-plan.md`](docs/engineering/graphite-github-substitute-plan.md). Read-only `gh pr checks` / `gh pr diff` is fine for CI triage.
 
-**verification-before note for trunk resolution (e.g. "trunk out of date" block):** Before gt sync / restack / submit when blocked: (1) GitNexus pre (search_tool then list_repos + detect_changes(scope=staged) + impact(CatalogWriteGate upstream summaryOnly)); (2) full gates RUN+READ: dotnet build, dotnet test full (0f ≥1638 post S95 gauntlet land; prior ≥1599), ReplayGolden 6/6, PlayModeSmoke ≥20/20, hash grep `17144800277401907079`, ZERO DelegationBridge grep, gt status; (3) stage ONLY sprint-scoped payload files per active closeout; (4) re-verif post each gt step. Cite active scope boundary + this AGENTS + graphite plan. All RUN outputs READ before proceed.
+**verification-before note for trunk resolution (e.g. "trunk out of date" block):** Before gt sync / restack / submit when blocked: (1) GitNexus pre (search_tool then list_repos + detect_changes(scope=staged) + impact(CatalogWriteGate upstream summaryOnly)); (2) full gates RUN+READ: dotnet build, dotnet test full (0f ≥4361, DRG-724/725 baseline; prior ≥1638), ReplayGolden 6/6, PlayModeSmoke ≥20/20, hash grep `17144800277401907079`, ZERO DelegationBridge grep, gt status; (3) stage ONLY sprint-scoped payload files per active closeout; (4) re-verif post each gt step. Cite active scope boundary + this AGENTS + graphite plan. All RUN outputs READ before proceed.
 
 ### Hermes Agent skills
 
@@ -396,18 +396,18 @@ Load with: `/skill graphite-pr-review` or `hermes -s graphite-pr-review`
 
 ## Cursor Cloud specific instructions
 
-Headless **.NET 10** development is the supported Cloud Agent path. Unity Editor 6.3 LTS (`unity/ProjectAegis`) is optional and usually not installed in the VM; use the headless Play Mode harness instead of opening the Editor. Unity projects stay on the Editor runtime.
+Headless **.NET 11** development is the supported Cloud Agent path. Unity Editor 6.3 LTS (`unity/ProjectAegis`) is optional and usually not installed in the VM; use the headless Play Mode harness instead of opening the Editor. Unity projects stay on the Editor runtime.
 
 **Unity Editor invariants** (legacy Input Manager, Built-in RP, Unity-MCP Custom `:8080`, headless-vs-Editor routing): [`unity/ProjectAegis/.claude/README.md`](unity/ProjectAegis/.claude/README.md). Editor pin **6000.3.22f1**.
 
-Cloud VMs run `.cursor/cloud-install.sh` on startup via `.cursor/environment.json` (installs .NET SDK 10.0.403 when `global.json` is not satisfied, then `dotnet restore`). See [Cloud agent setup](https://cursor.com/docs/cloud-agent/setup).
+Cloud VMs run `.cursor/cloud-install.sh` on startup via `.cursor/environment.json` (installs .NET SDK 11.0.100 when `global.json` is not satisfied, then `dotnet restore`). See [Cloud agent setup](https://cursor.com/docs/cloud-agent/setup).
 
 ### Prerequisites
 
-- **.NET SDK 10.0.403** (see `global.json`). If `dotnet` is missing or older than the pin, install to `~/.dotnet` and add it to `PATH` in your shell profile (no root symlink required):
+- **.NET SDK 11.0.100** (see `global.json`). If `dotnet` is missing or older than the pin, install to `~/.dotnet` and add it to `PATH` in your shell profile (no root symlink required):
 
   ```bash
-  curl -sSL https://dot.net/v1/dotnet-install.sh | bash /dev/stdin --version 10.0.403
+  curl -sSL https://dot.net/v1/dotnet-install.sh | bash /dev/stdin --version 11.0.100
   export PATH="$HOME/.dotnet:$PATH"
   # Persist: append the export line to ~/.bashrc (or ~/.zshrc)
   ```
@@ -420,7 +420,7 @@ Cloud VMs run `.cursor/cloud-install.sh` on startup via `.cursor/environment.jso
 |------|---------|
 | Restore | `dotnet restore ProjectAegis.sln` |
 | Build | `dotnet build ProjectAegis.sln` |
-| Test (full suite, ≥1638 tests post S95 gauntlet land; hybrid layout retained) | `dotnet test ProjectAegis.sln -v minimal` |
+| Test (full suite, ≥4361 tests, DRG-724/725 baseline; hybrid layout retained) | `dotnet test ProjectAegis.sln -v minimal` |
 | Play Mode smoke (headless) | `dotnet test src/ProjectAegis.Delegation.UnityAdapter.Tests/ProjectAegis.Delegation.UnityAdapter.Tests.csproj --filter PlayModeSmokeHarnessTests` |
 | Run delegation demo | `dotnet run --project src/ProjectAegis.Delegation.Demo` |
 | Format check | `dotnet format --verify-no-changes` (may report pre-existing whitespace in `ProjectAegis.Delegation.Demo/Program.cs`) |
@@ -441,8 +441,8 @@ dotnet test src/ProjectAegis.Delegation.UnityAdapter.Tests/ProjectAegis.Delegati
 
 | Symptom | Fix |
 |---------|-----|
-| `dotnet: command not found` | Run the install block under Prerequisites; confirm `dotnet --version` prints `10.0.403` (or a newer SDK selected by `rollForward: latestMajor`). |
-| Missing `Microsoft.NETCore.App` runtime | Install SDK 10.0.403 (not runtime-only); `dotnet --list-sdks` should include `10.0.403`. |
+| `dotnet: command not found` | Run the install block under Prerequisites; confirm `dotnet --version` prints `11.0.100` (or a newer 11.0.x SDK selected by `rollForward: latestFeature`). |
+| Missing `Microsoft.NETCore.App` runtime | Install SDK 11.0.100 (not runtime-only); `dotnet --list-sdks` should include `11.0.100`. |
 | Play Mode smoke not found | Use the full project path in the table above; filter name is `PlayModeSmokeHarnessTests`. |
 | Branch protection API 403 | Private repo on free plan — enable required checks manually; see `docs/engineering/ci-and-branch-protection.md` |
 | `dotnet format` fails on `Program.cs` | Known pre-existing whitespace in `ProjectAegis.Delegation.Demo/Program.cs`; unrelated to most PRs. |
@@ -471,7 +471,7 @@ No Docker compose or long-running servers. The "application" is in-process: `dot
 
 - Production stage is **Release** (`production/stage.txt`; S48 gate PASS 2026-06-20; RC1 cut); Launch / commercial execution remains deferred pending an explicit separate decision.
 - **S39–S80** programs COMPLETE through Baltic v3 content expansion (RC1 S48, MVP exit S56, Baltic v2 S64, release train S68, launch prep S72, Baltic v3 S73–S80).
-- Headless test baseline floor is **≥1638** solution tests post S95 gauntlet land (prior floor ≥1599; ReplayGolden 6/6, C2 proxy ≥20/20; monotonic). UA engage filter (`BalticReplayHarnessPolicyEngageTests`) **3/3 green** @ post-PE gate 2026-07-09 — see [`production/qa/ua-engage-triage-2026-07-09.md`](production/qa/ua-engage-triage-2026-07-09.md).
+- Headless test baseline floor is **≥4361** solution tests (DRG-724/725 baseline; prior floor ≥1638; ReplayGolden 6/6, C2 proxy ≥20/20; monotonic). UA engage filter (`BalticReplayHarnessPolicyEngageTests`) **3/3 green** @ post-PE gate 2026-07-09 — see [`production/qa/ua-engage-triage-2026-07-09.md`](production/qa/ua-engage-triage-2026-07-09.md).
 - Canonical forward roadmap uses dated `docs/reports/future-sprint-roadpmap-*.md` / `future-sprint-roadmap-*.md` with stable alias `docs/reports/future-sprint-roadpmap.md`; **S73–S80 Baltic v3** COMPLETE; **S81–S88 + ME Phase 2 + PE** COMPLETE (2026-07-09); **S89–S92 post-editor hygiene** COMPLETE (human ack 2026-07-09); **S93 + post-S93 remediation** COMPLETE; forward snapshot includes `future-sprint-roadmap-07142026.md` (S94+ Release Continuity); Platform/Mission Editor UI/UX productization (2026-07-23) is active Unity chrome polish with Excel-primary PE authoring (ADR-011).
 - Production Baltic v2 replay hash **`17144800277401907079`** must stay preserved unless an ADR explicitly changes it.
 - Baltic v3 uses isolated **`baltic-v3-*`** scenario policies and replay goldens; v2 hash invariant unchanged.

@@ -2,7 +2,7 @@
 
 Pure C# **simulation core** — the deterministic tick pipeline, sensors/detection, engagement
 resolution, and policy evaluation that sit behind the delegation framework. No `UnityEngine`
-reference (targets `net10.0;netstandard2.1`, depends only on `ProjectAegis.Data`), so every
+reference (targets `net11.0;netstandard2.1`, depends only on `ProjectAegis.Data`), so every
 subsystem is exercised headless with `dotnet test`.
 
 > **Determinism is the load-bearing invariant.** Everything here must be a pure function of
@@ -174,7 +174,7 @@ dotnet test  src/ProjectAegis.Sim.Tests/ProjectAegis.Sim.Tests.csproj -v minimal
 ```
 
 `ProjectAegis.Sim.Tests` mirrors this folder layout (`Core/`, `Sensors/`, `Engage/`,
-`Policy/`, `Scenario/`, …) and is part of the ≥1638-test solution baseline. The replay
+`Policy/`, `Scenario/`, …) and is part of the ≥4361-test solution baseline. The replay
 goldens that assert reproducibility of this core live in
 [`tests/regression/`](../../tests/regression/) and are driven by the
 [`ProjectAegis.Delegation.Demo`](../ProjectAegis.Delegation.Demo/README.md) harness.
