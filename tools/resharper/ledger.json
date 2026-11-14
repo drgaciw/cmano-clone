@@ -89812,6 +89812,386 @@
       "ruleId": "UnusedVariable",
       "status": "open",
       "verification": "GHA ReSharper comparison on main 57bbf9e8 / run 43641061990; ruleId=UnusedVariable; path=src/ProjectAegis.Delegation.UnityAdapter/Bridge/DelegationBridge.cs"
+    },
+    {
+      "identity": "[\"DefaultStringComparerUsage\",\"src/ProjectAegis.Data.Tests/Catalog/BalticMultidomainImportResolutionTests.cs\",{\"contextRegionHash/v1\":\"081035B0DC6BF38E5368A391147258F6A220B1B1BE751D807266FB994C08F0D5\"}]",
+      "ruleId": "DefaultStringComparerUsage",
+      "path": "src/ProjectAegis.Data.Tests/Catalog/BalticMultidomainImportResolutionTests.cs",
+      "partialFingerprints": {
+        "contextRegionHash/v1": "081035B0DC6BF38E5368A391147258F6A220B1B1BE751D807266FB994C08F0D5"
+      },
+      "location": {
+        "startLine": 27,
+        "startColumn": 88,
+        "endLine": 27,
+        "endColumn": 95
+      },
+      "message": "String ordering is culture-sensitive",
+      "frameworkTags": [
+        ".NET 11.0"
+      ],
+      "level": "warning",
+      "occurrence": 1,
+      "originalFingerprint": "A1062C6BB7175E905EAC75123D635CD41485B9709A6150089DCBC1882ABC2DAD",
+      "owner": "net11-cli-202630",
+      "status": "open",
+      "rationale": "ReSharper CLI 2026.3.0 tool shift: culture-sensitivity rules (DefaultStringComparerUsage, InvocationIsCultureSensitive) surfaced as NEW on net11.0; classified analyzer upgrade debt for DRG-738.",
+      "resolutionRevision": "d9b4da7bb282da8d4a5273624fb27ad978dbc5f2",
+      "reviewCondition": "After ReSharper CLI 2026.3.0 pin: re-run inspect -Check; mark fixed if gone, or promote to accepted-exception with contract-specific rationale if it remains and is intentional.",
+      "verification": "GHA ReSharper run 43643842677 / CLI 2026.3.0 first successful inspect after banner pin fix. ruleId=DefaultStringComparerUsage; path=src/ProjectAegis.Data.Tests/Catalog/BalticMultidomainImportResolutionTests.cs"
+    },
+    {
+      "identity": "[\"DefaultStringComparerUsage\",\"src/ProjectAegis.Data.Tests/Osint/OsintConnectorTests.cs\",{\"contextRegionHash/v1\":\"83E06742A9FB82F868EEF4FE45957F779186DBCED8E08CDA4A28C2E3ADCEA198\"}]",
+      "ruleId": "DefaultStringComparerUsage",
+      "path": "src/ProjectAegis.Data.Tests/Osint/OsintConnectorTests.cs",
+      "partialFingerprints": {
+        "contextRegionHash/v1": "83E06742A9FB82F868EEF4FE45957F779186DBCED8E08CDA4A28C2E3ADCEA198"
+      },
+      "location": {
+        "endColumn": 37,
+        "endLine": 115,
+        "startColumn": 30,
+        "startLine": 115
+      },
+      "message": "String ordering is culture-sensitive",
+      "frameworkTags": [
+        ".NET 11.0"
+      ],
+      "level": "warning",
+      "occurrence": 1,
+      "originalFingerprint": "DA8DFC0B0FE4EAE66665A8CC9C3FD0D52D648884A7D1E654C7DA85DEA5183D7D",
+      "owner": "net11-cli-202630",
+      "status": "open",
+      "rationale": "ReSharper CLI 2026.3.0 tool shift: culture-sensitivity rules (DefaultStringComparerUsage, InvocationIsCultureSensitive) surfaced as NEW on net11.0; classified analyzer upgrade debt for DRG-738.",
+      "resolutionRevision": "d9b4da7bb282da8d4a5273624fb27ad978dbc5f2",
+      "reviewCondition": "After ReSharper CLI 2026.3.0 pin: re-run inspect -Check; mark fixed if gone, or promote to accepted-exception with contract-specific rationale if it remains and is intentional.",
+      "verification": "GHA ReSharper run 43643842677 / CLI 2026.3.0 first successful inspect after banner pin fix. ruleId=DefaultStringComparerUsage; path=src/ProjectAegis.Data.Tests/Osint/OsintConnectorTests.cs"
+    },
+    {
+      "identity": "[\"DefaultStringComparerUsage\",\"src/ProjectAegis.Data.Tests/Osint/OsintConnectorTests.cs\",{\"contextRegionHash/v1\":\"83E06742A9FB82F868EEF4FE45957F779186DBCED8E08CDA4A28C2E3ADCEA198\"}]",
+      "ruleId": "DefaultStringComparerUsage",
+      "path": "src/ProjectAegis.Data.Tests/Osint/OsintConnectorTests.cs",
+      "partialFingerprints": {
+        "contextRegionHash/v1": "83E06742A9FB82F868EEF4FE45957F779186DBCED8E08CDA4A28C2E3ADCEA198"
+      },
+      "location": {
+        "endColumn": 62,
+        "endLine": 115,
+        "startColumn": 56,
+        "startLine": 115
+      },
+      "message": "String ordering is culture-sensitive",
+      "frameworkTags": [
+        ".NET 11.0"
+      ],
+      "level": "warning",
+      "occurrence": 2,
+      "originalFingerprint": "DA8DFC0B0FE4EAE66665A8CC9C3FD0D52D648884A7D1E654C7DA85DEA5183D7D",
+      "owner": "net11-cli-202630",
+      "status": "open",
+      "rationale": "ReSharper CLI 2026.3.0 tool shift: culture-sensitivity rules (DefaultStringComparerUsage, InvocationIsCultureSensitive) surfaced as NEW on net11.0; classified analyzer upgrade debt for DRG-738.",
+      "resolutionRevision": "d9b4da7bb282da8d4a5273624fb27ad978dbc5f2",
+      "reviewCondition": "After ReSharper CLI 2026.3.0 pin: re-run inspect -Check; mark fixed if gone, or promote to accepted-exception with contract-specific rationale if it remains and is intentional.",
+      "verification": "GHA ReSharper run 43643842677 / CLI 2026.3.0 first successful inspect after banner pin fix. ruleId=DefaultStringComparerUsage; path=src/ProjectAegis.Data.Tests/Osint/OsintConnectorTests.cs"
+    },
+    {
+      "identity": "[\"InvocationIsCultureSensitive\",\"src/ProjectAegis.Data/Validation/Rules/ValidationRules.cs\",{\"contextRegionHash/v1\":\"B034F41FB7D796A4B47F4129323661010281E3245AB3FBD4B4B252F07BC1EC51\"}]",
+      "ruleId": "InvocationIsCultureSensitive",
+      "path": "src/ProjectAegis.Data/Validation/Rules/ValidationRules.cs",
+      "partialFingerprints": {
+        "contextRegionHash/v1": "B034F41FB7D796A4B47F4129323661010281E3245AB3FBD4B4B252F07BC1EC51"
+      },
+      "location": {
+        "startLine": 300,
+        "startColumn": 84,
+        "endLine": 300,
+        "endColumn": 92
+      },
+      "message": "'Double.ToString' is culture-sensitive",
+      "frameworkTags": [
+        ".NET 11.0",
+        ".NETStandard 2.1"
+      ],
+      "level": "warning",
+      "occurrence": 1,
+      "originalFingerprint": "C46498EAF3EBC9B2ACF6695E36FA3AF9BAE0580E5A9A63DA3AB42251FD4B6A54",
+      "owner": "net11-cli-202630",
+      "status": "open",
+      "rationale": "ReSharper CLI 2026.3.0 tool shift: culture-sensitivity rules (DefaultStringComparerUsage, InvocationIsCultureSensitive) surfaced as NEW on net11.0; classified analyzer upgrade debt for DRG-738.",
+      "resolutionRevision": "d9b4da7bb282da8d4a5273624fb27ad978dbc5f2",
+      "reviewCondition": "After ReSharper CLI 2026.3.0 pin: re-run inspect -Check; mark fixed if gone, or promote to accepted-exception with contract-specific rationale if it remains and is intentional.",
+      "verification": "GHA ReSharper run 43643842677 / CLI 2026.3.0 first successful inspect after banner pin fix. ruleId=InvocationIsCultureSensitive; path=src/ProjectAegis.Data/Validation/Rules/ValidationRules.cs"
+    },
+    {
+      "identity": "[\"InvocationIsCultureSensitive\",\"src/ProjectAegis.Data/Validation/Rules/ValidationRules.cs\",{\"contextRegionHash/v1\":\"4A5EEE5C4FC75FE27E192C2F5A0B675FBE26CD56BD8C93818DD03829293A822E\"}]",
+      "ruleId": "InvocationIsCultureSensitive",
+      "path": "src/ProjectAegis.Data/Validation/Rules/ValidationRules.cs",
+      "partialFingerprints": {
+        "contextRegionHash/v1": "4A5EEE5C4FC75FE27E192C2F5A0B675FBE26CD56BD8C93818DD03829293A822E"
+      },
+      "location": {
+        "startLine": 367,
+        "startColumn": 88,
+        "endLine": 367,
+        "endColumn": 96
+      },
+      "message": "'Double.ToString' is culture-sensitive",
+      "frameworkTags": [
+        ".NET 11.0",
+        ".NETStandard 2.1"
+      ],
+      "level": "warning",
+      "occurrence": 1,
+      "originalFingerprint": "FAD631648A03376C2A69F27B2204017FC40ECA3FFD064630368F45A43C6CE290",
+      "owner": "net11-cli-202630",
+      "status": "open",
+      "rationale": "ReSharper CLI 2026.3.0 tool shift: culture-sensitivity rules (DefaultStringComparerUsage, InvocationIsCultureSensitive) surfaced as NEW on net11.0; classified analyzer upgrade debt for DRG-738.",
+      "resolutionRevision": "d9b4da7bb282da8d4a5273624fb27ad978dbc5f2",
+      "reviewCondition": "After ReSharper CLI 2026.3.0 pin: re-run inspect -Check; mark fixed if gone, or promote to accepted-exception with contract-specific rationale if it remains and is intentional.",
+      "verification": "GHA ReSharper run 43643842677 / CLI 2026.3.0 first successful inspect after banner pin fix. ruleId=InvocationIsCultureSensitive; path=src/ProjectAegis.Data/Validation/Rules/ValidationRules.cs"
+    },
+    {
+      "identity": "[\"InvocationIsCultureSensitive\",\"src/ProjectAegis.Delegation.Tests/Projection/KillChainContactStateProjectionTests.cs\",{\"contextRegionHash/v1\":\"1C36C70390F96B4DCCA5CAA0783F742231762EF3BFB41CCB4DE8939EDD14CBFC\"}]",
+      "ruleId": "InvocationIsCultureSensitive",
+      "path": "src/ProjectAegis.Delegation.Tests/Projection/KillChainContactStateProjectionTests.cs",
+      "partialFingerprints": {
+        "contextRegionHash/v1": "1C36C70390F96B4DCCA5CAA0783F742231762EF3BFB41CCB4DE8939EDD14CBFC"
+      },
+      "location": {
+        "startLine": 503,
+        "startColumn": 36,
+        "endLine": 503,
+        "endColumn": 44
+      },
+      "message": "'Double.ToString' is culture-sensitive",
+      "frameworkTags": [
+        ".NET 11.0"
+      ],
+      "level": "warning",
+      "occurrence": 1,
+      "originalFingerprint": "DAD0812818A5A26E056689EAC683520C1E38279D1B9C183773505437D3C2D1A0",
+      "owner": "net11-cli-202630",
+      "status": "open",
+      "rationale": "ReSharper CLI 2026.3.0 tool shift: culture-sensitivity rules (DefaultStringComparerUsage, InvocationIsCultureSensitive) surfaced as NEW on net11.0; classified analyzer upgrade debt for DRG-738.",
+      "resolutionRevision": "d9b4da7bb282da8d4a5273624fb27ad978dbc5f2",
+      "reviewCondition": "After ReSharper CLI 2026.3.0 pin: re-run inspect -Check; mark fixed if gone, or promote to accepted-exception with contract-specific rationale if it remains and is intentional.",
+      "verification": "GHA ReSharper run 43643842677 / CLI 2026.3.0 first successful inspect after banner pin fix. ruleId=InvocationIsCultureSensitive; path=src/ProjectAegis.Delegation.Tests/Projection/KillChainContactStateProjectionTests.cs"
+    },
+    {
+      "identity": "[\"InvocationIsCultureSensitive\",\"src/ProjectAegis.Delegation.Tests/Projection/KillChainContactStateProjectionTests.cs\",{\"contextRegionHash/v1\":\"CB13D8E3DA6CAEBF379E2CC0D68EE896B6DC8CEAE6049EA99D2FF4DA311E695A\"}]",
+      "ruleId": "InvocationIsCultureSensitive",
+      "path": "src/ProjectAegis.Delegation.Tests/Projection/KillChainContactStateProjectionTests.cs",
+      "partialFingerprints": {
+        "contextRegionHash/v1": "CB13D8E3DA6CAEBF379E2CC0D68EE896B6DC8CEAE6049EA99D2FF4DA311E695A"
+      },
+      "location": {
+        "startLine": 505,
+        "startColumn": 35,
+        "endLine": 505,
+        "endColumn": 43
+      },
+      "message": "'Double.ToString' is culture-sensitive",
+      "frameworkTags": [
+        ".NET 11.0"
+      ],
+      "level": "warning",
+      "occurrence": 1,
+      "originalFingerprint": "2C43FEDEE263A3CD7DE7A2932827BF736890150ACD1D05975852A20BD1D9306F",
+      "owner": "net11-cli-202630",
+      "status": "open",
+      "rationale": "ReSharper CLI 2026.3.0 tool shift: culture-sensitivity rules (DefaultStringComparerUsage, InvocationIsCultureSensitive) surfaced as NEW on net11.0; classified analyzer upgrade debt for DRG-738.",
+      "resolutionRevision": "d9b4da7bb282da8d4a5273624fb27ad978dbc5f2",
+      "reviewCondition": "After ReSharper CLI 2026.3.0 pin: re-run inspect -Check; mark fixed if gone, or promote to accepted-exception with contract-specific rationale if it remains and is intentional.",
+      "verification": "GHA ReSharper run 43643842677 / CLI 2026.3.0 first successful inspect after banner pin fix. ruleId=InvocationIsCultureSensitive; path=src/ProjectAegis.Delegation.Tests/Projection/KillChainContactStateProjectionTests.cs"
+    },
+    {
+      "identity": "[\"InvocationIsCultureSensitive\",\"src/ProjectAegis.Delegation.Tests/Projection/KillChainContactStateProjectionTests.cs\",{\"contextRegionHash/v1\":\"F0CE5AE7ED70812420B44EFC17D8CED0028895F9407FF4A42633D60C364E2C4A\"}]",
+      "ruleId": "InvocationIsCultureSensitive",
+      "path": "src/ProjectAegis.Delegation.Tests/Projection/KillChainContactStateProjectionTests.cs",
+      "partialFingerprints": {
+        "contextRegionHash/v1": "F0CE5AE7ED70812420B44EFC17D8CED0028895F9407FF4A42633D60C364E2C4A"
+      },
+      "location": {
+        "startLine": 520,
+        "startColumn": 31,
+        "endLine": 520,
+        "endColumn": 39
+      },
+      "message": "'Double.ToString' is culture-sensitive",
+      "frameworkTags": [
+        ".NET 11.0"
+      ],
+      "level": "warning",
+      "occurrence": 1,
+      "originalFingerprint": "ABA589992C54AD4A1E7251E344194155FFE9731CCBA98451B33BD109B93A1C92",
+      "owner": "net11-cli-202630",
+      "status": "open",
+      "rationale": "ReSharper CLI 2026.3.0 tool shift: culture-sensitivity rules (DefaultStringComparerUsage, InvocationIsCultureSensitive) surfaced as NEW on net11.0; classified analyzer upgrade debt for DRG-738.",
+      "resolutionRevision": "d9b4da7bb282da8d4a5273624fb27ad978dbc5f2",
+      "reviewCondition": "After ReSharper CLI 2026.3.0 pin: re-run inspect -Check; mark fixed if gone, or promote to accepted-exception with contract-specific rationale if it remains and is intentional.",
+      "verification": "GHA ReSharper run 43643842677 / CLI 2026.3.0 first successful inspect after banner pin fix. ruleId=InvocationIsCultureSensitive; path=src/ProjectAegis.Delegation.Tests/Projection/KillChainContactStateProjectionTests.cs"
+    },
+    {
+      "identity": "[\"InvocationIsCultureSensitive\",\"src/ProjectAegis.Data/Osint/Connectors/FileOsintConnector.cs\",{\"contextRegionHash/v1\":\"3B5F4EE54E1A0A3B1AD8365814DCDEBEC0CA3B2B20EEDCD86CD00B168FACF94E\"}]",
+      "ruleId": "InvocationIsCultureSensitive",
+      "path": "src/ProjectAegis.Data/Osint/Connectors/FileOsintConnector.cs",
+      "partialFingerprints": {
+        "contextRegionHash/v1": "3B5F4EE54E1A0A3B1AD8365814DCDEBEC0CA3B2B20EEDCD86CD00B168FACF94E"
+      },
+      "location": {
+        "startLine": 74,
+        "startColumn": 63,
+        "endLine": 74,
+        "endColumn": 71
+      },
+      "message": "'Double.TryParse' is culture-sensitive",
+      "frameworkTags": [
+        ".NET 11.0"
+      ],
+      "level": "warning",
+      "occurrence": 1,
+      "originalFingerprint": "C36CA7C52C2C4E3E6D993F3EDB391272DEE95335311B6B72F4973A4C91D6EB61",
+      "owner": "net11-cli-202630",
+      "status": "open",
+      "rationale": "ReSharper CLI 2026.3.0 tool shift: culture-sensitivity rules (DefaultStringComparerUsage, InvocationIsCultureSensitive) surfaced as NEW on net11.0; classified analyzer upgrade debt for DRG-738.",
+      "resolutionRevision": "d9b4da7bb282da8d4a5273624fb27ad978dbc5f2",
+      "reviewCondition": "After ReSharper CLI 2026.3.0 pin: re-run inspect -Check; mark fixed if gone, or promote to accepted-exception with contract-specific rationale if it remains and is intentional.",
+      "verification": "GHA ReSharper run 43643842677 / CLI 2026.3.0 first successful inspect after banner pin fix. ruleId=InvocationIsCultureSensitive; path=src/ProjectAegis.Data/Osint/Connectors/FileOsintConnector.cs"
+    },
+    {
+      "identity": "[\"InvocationIsCultureSensitive\",\"src/ProjectAegis.Data/Osint/Connectors/RssOsintConnector.cs\",{\"contextRegionHash/v1\":\"3B5F4EE54E1A0A3B1AD8365814DCDEBEC0CA3B2B20EEDCD86CD00B168FACF94E\"}]",
+      "ruleId": "InvocationIsCultureSensitive",
+      "path": "src/ProjectAegis.Data/Osint/Connectors/RssOsintConnector.cs",
+      "partialFingerprints": {
+        "contextRegionHash/v1": "3B5F4EE54E1A0A3B1AD8365814DCDEBEC0CA3B2B20EEDCD86CD00B168FACF94E"
+      },
+      "location": {
+        "startLine": 88,
+        "startColumn": 63,
+        "endLine": 88,
+        "endColumn": 71
+      },
+      "message": "'Double.TryParse' is culture-sensitive",
+      "frameworkTags": [
+        ".NET 11.0"
+      ],
+      "level": "warning",
+      "occurrence": 1,
+      "originalFingerprint": "8C548F3ADCAD06237860AB0338A983B590B803ED78C145DCD45AF3B2EE01C447",
+      "owner": "net11-cli-202630",
+      "status": "open",
+      "rationale": "ReSharper CLI 2026.3.0 tool shift: culture-sensitivity rules (DefaultStringComparerUsage, InvocationIsCultureSensitive) surfaced as NEW on net11.0; classified analyzer upgrade debt for DRG-738.",
+      "resolutionRevision": "d9b4da7bb282da8d4a5273624fb27ad978dbc5f2",
+      "reviewCondition": "After ReSharper CLI 2026.3.0 pin: re-run inspect -Check; mark fixed if gone, or promote to accepted-exception with contract-specific rationale if it remains and is intentional.",
+      "verification": "GHA ReSharper run 43643842677 / CLI 2026.3.0 first successful inspect after banner pin fix. ruleId=InvocationIsCultureSensitive; path=src/ProjectAegis.Data/Osint/Connectors/RssOsintConnector.cs"
+    },
+    {
+      "identity": "[\"InvocationIsCultureSensitive\",\"src/ProjectAegis.MissionEditor.Cli/CliArgParser.cs\",{\"contextRegionHash/v1\":\"8E84959C6832CE803677E3AE4FBD9A1EE83B591FF52F50193A44C89AB2DFB80C\"}]",
+      "ruleId": "InvocationIsCultureSensitive",
+      "path": "src/ProjectAegis.MissionEditor.Cli/CliArgParser.cs",
+      "partialFingerprints": {
+        "contextRegionHash/v1": "8E84959C6832CE803677E3AE4FBD9A1EE83B591FF52F50193A44C89AB2DFB80C"
+      },
+      "location": {
+        "startLine": 91,
+        "startColumn": 25,
+        "endLine": 91,
+        "endColumn": 33
+      },
+      "message": "'Double.TryParse' is culture-sensitive",
+      "frameworkTags": [
+        ".NET 11.0"
+      ],
+      "level": "warning",
+      "occurrence": 1,
+      "originalFingerprint": "B46433245EC2C83F70E62497EE6AED370216981739F91979EA96C9E572A65456",
+      "owner": "net11-cli-202630",
+      "status": "open",
+      "rationale": "ReSharper CLI 2026.3.0 tool shift: culture-sensitivity rules (DefaultStringComparerUsage, InvocationIsCultureSensitive) surfaced as NEW on net11.0; classified analyzer upgrade debt for DRG-738.",
+      "resolutionRevision": "d9b4da7bb282da8d4a5273624fb27ad978dbc5f2",
+      "reviewCondition": "After ReSharper CLI 2026.3.0 pin: re-run inspect -Check; mark fixed if gone, or promote to accepted-exception with contract-specific rationale if it remains and is intentional.",
+      "verification": "GHA ReSharper run 43643842677 / CLI 2026.3.0 first successful inspect after banner pin fix. ruleId=InvocationIsCultureSensitive; path=src/ProjectAegis.MissionEditor.Cli/CliArgParser.cs"
+    },
+    {
+      "identity": "[\"InvocationIsCultureSensitive\",\"src/ProjectAegis.MissionEditor.Cli/CliArgParser.cs\",{\"contextRegionHash/v1\":\"127A365A27F58450950A04CD7B309120F778706CC06095A21DE6CDEBEAA3A4D6\"}]",
+      "ruleId": "InvocationIsCultureSensitive",
+      "path": "src/ProjectAegis.MissionEditor.Cli/CliArgParser.cs",
+      "partialFingerprints": {
+        "contextRegionHash/v1": "127A365A27F58450950A04CD7B309120F778706CC06095A21DE6CDEBEAA3A4D6"
+      },
+      "location": {
+        "startLine": 92,
+        "startColumn": 25,
+        "endLine": 92,
+        "endColumn": 33
+      },
+      "message": "'Double.TryParse' is culture-sensitive",
+      "frameworkTags": [
+        ".NET 11.0"
+      ],
+      "level": "warning",
+      "occurrence": 1,
+      "originalFingerprint": "E7FBD17DA4366BCDD498445271929ED06E0E6FB80326BE29A7571B0CAB1724E9",
+      "owner": "net11-cli-202630",
+      "status": "open",
+      "rationale": "ReSharper CLI 2026.3.0 tool shift: culture-sensitivity rules (DefaultStringComparerUsage, InvocationIsCultureSensitive) surfaced as NEW on net11.0; classified analyzer upgrade debt for DRG-738.",
+      "resolutionRevision": "d9b4da7bb282da8d4a5273624fb27ad978dbc5f2",
+      "reviewCondition": "After ReSharper CLI 2026.3.0 pin: re-run inspect -Check; mark fixed if gone, or promote to accepted-exception with contract-specific rationale if it remains and is intentional.",
+      "verification": "GHA ReSharper run 43643842677 / CLI 2026.3.0 first successful inspect after banner pin fix. ruleId=InvocationIsCultureSensitive; path=src/ProjectAegis.MissionEditor.Cli/CliArgParser.cs"
+    },
+    {
+      "identity": "[\"InvocationIsCultureSensitive\",\"src/ProjectAegis.MissionEditor.Cli.Tests/MissionPlanSuggestCommandTests.cs\",{\"contextRegionHash/v1\":\"AE21AFABF4230E4798089078DE857632A3662F153D41C0EEA27F558D4FB7CB05\"}]",
+      "ruleId": "InvocationIsCultureSensitive",
+      "path": "src/ProjectAegis.MissionEditor.Cli.Tests/MissionPlanSuggestCommandTests.cs",
+      "partialFingerprints": {
+        "contextRegionHash/v1": "AE21AFABF4230E4798089078DE857632A3662F153D41C0EEA27F558D4FB7CB05"
+      },
+      "location": {
+        "startLine": 84,
+        "startColumn": 66,
+        "endLine": 84,
+        "endColumn": 73
+      },
+      "message": "'String.ToLower' is culture-sensitive",
+      "frameworkTags": [
+        ".NET 11.0"
+      ],
+      "level": "warning",
+      "occurrence": 1,
+      "originalFingerprint": "47E461D8948D0E63270714DD2942D8AA9CE00F4B165B41957E89618CBB7BDAC6",
+      "owner": "net11-cli-202630",
+      "status": "open",
+      "rationale": "ReSharper CLI 2026.3.0 tool shift: culture-sensitivity rules (DefaultStringComparerUsage, InvocationIsCultureSensitive) surfaced as NEW on net11.0; classified analyzer upgrade debt for DRG-738.",
+      "resolutionRevision": "d9b4da7bb282da8d4a5273624fb27ad978dbc5f2",
+      "reviewCondition": "After ReSharper CLI 2026.3.0 pin: re-run inspect -Check; mark fixed if gone, or promote to accepted-exception with contract-specific rationale if it remains and is intentional.",
+      "verification": "GHA ReSharper run 43643842677 / CLI 2026.3.0 first successful inspect after banner pin fix. ruleId=InvocationIsCultureSensitive; path=src/ProjectAegis.MissionEditor.Cli.Tests/MissionPlanSuggestCommandTests.cs"
+    },
+    {
+      "identity": "[\"InvocationIsCultureSensitive\",\"src/ProjectAegis.MissionEditor.Cli.Tests/MissionPlanSuggestCommandTests.cs\",{\"contextRegionHash/v1\":\"D997393ADFCBCA40A8BC3086F72B71E974B6ADD8F4EF4E9E8C7BEF7D92E8959F\"}]",
+      "ruleId": "InvocationIsCultureSensitive",
+      "path": "src/ProjectAegis.MissionEditor.Cli.Tests/MissionPlanSuggestCommandTests.cs",
+      "partialFingerprints": {
+        "contextRegionHash/v1": "D997393ADFCBCA40A8BC3086F72B71E974B6ADD8F4EF4E9E8C7BEF7D92E8959F"
+      },
+      "location": {
+        "startLine": 85,
+        "startColumn": 66,
+        "endLine": 85,
+        "endColumn": 73
+      },
+      "message": "'String.ToLower' is culture-sensitive",
+      "frameworkTags": [
+        ".NET 11.0"
+      ],
+      "level": "warning",
+      "occurrence": 1,
+      "originalFingerprint": "637CFEA4EDCCFCB9ECD1C74D1E41BB637055D6F2268675A49D330F134809B113",
+      "owner": "net11-cli-202630",
+      "status": "open",
+      "rationale": "ReSharper CLI 2026.3.0 tool shift: culture-sensitivity rules (DefaultStringComparerUsage, InvocationIsCultureSensitive) surfaced as NEW on net11.0; classified analyzer upgrade debt for DRG-738.",
+      "resolutionRevision": "d9b4da7bb282da8d4a5273624fb27ad978dbc5f2",
+      "reviewCondition": "After ReSharper CLI 2026.3.0 pin: re-run inspect -Check; mark fixed if gone, or promote to accepted-exception with contract-specific rationale if it remains and is intentional.",
+      "verification": "GHA ReSharper run 43643842677 / CLI 2026.3.0 first successful inspect after banner pin fix. ruleId=InvocationIsCultureSensitive; path=src/ProjectAegis.MissionEditor.Cli.Tests/MissionPlanSuggestCommandTests.cs"
     }
   ],
   "schemaVersion": 1,
