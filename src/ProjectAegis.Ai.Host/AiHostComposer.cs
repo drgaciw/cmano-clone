@@ -1,8 +1,8 @@
-namespace ProjectAegis.Ai.Host;
-
 using Microsoft.Extensions.AI;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Options;
+
+namespace ProjectAegis.Ai.Host;
 
 /// <summary>DI composition root for the Wave 0 AI host (fake client only).</summary>
 public static class AiHostComposer
@@ -25,12 +25,28 @@ public static class AiHostComposer
             services.Configure(configure);
         }
 
+        // Clamp and read host limits so option getters are exercised on the DI path.
+        services.PostConfigure<AiHostOptions>(options =>
+        {
+            if (options.MaxRequestConcurrency < 1)
+            {
+                options.MaxRequestConcurrency = 1;
+            }
+
+            if (options.MaxOutputTokens < 1)
+            {
+                options.MaxOutputTokens = 1;
+            }
+        });
+
         services.AddSingleton<AiHostTelemetry>();
         services.AddSingleton<FakeChatClient>();
         services.AddSingleton<IChatClient>(sp => sp.GetRequiredService<FakeChatClient>());
         services.AddSingleton(sp =>
         {
             var options = sp.GetRequiredService<IOptions<AiHostOptions>>().Value;
+            _ = options.MaxRequestConcurrency;
+            _ = options.MaxOutputTokens;
             return new AtomicArtifactStore(artifactRoot, options);
         });
 
