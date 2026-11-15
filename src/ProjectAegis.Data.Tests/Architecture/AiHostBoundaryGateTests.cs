@@ -14,6 +14,32 @@ public sealed class AiHostBoundaryGateTests
     /// <c>tools/copy-delegation-assemblies.sh</c>. AI packages on these
     /// projects would leak into <c>Assets/Plugins/ProjectAegis</c>.
     /// </summary>
+    public static TheoryData<string> UnityBoundNetstandardProjectPaths()
+    {
+        var data = new TheoryData<string>();
+        foreach (var path in UnityBoundNetstandardProjects)
+        {
+            data.Add(path);
+        }
+
+        return data;
+    }
+
+    /// <summary>
+    /// Same authoring/validation scan list as <see cref="NoDynamicExecutionGateTests"/>,
+    /// with .NET 11 process-helper patterns the original gate does not match.
+    /// </summary>
+    public static TheoryData<string> AuthoringPathSourcePaths()
+    {
+        var data = new TheoryData<string>();
+        foreach (var path in AuthoringPathSources)
+        {
+            data.Add(path);
+        }
+
+        return data;
+    }
+
     private static readonly string[] UnityBoundNetstandardProjects =
     {
         "src/ProjectAegis.Data/ProjectAegis.Data.csproj",
@@ -46,10 +72,6 @@ public sealed class AiHostBoundaryGateTests
         "Anthropic",
     };
 
-    /// <summary>
-    /// Same authoring/validation scan list as <see cref="NoDynamicExecutionGateTests"/>,
-    /// with .NET 11 process-helper patterns the original gate does not match.
-    /// </summary>
     private static readonly string[] AuthoringPathSources =
     {
         "src/ProjectAegis.Data/Validation/ScenarioValidationEngine.cs",
@@ -70,16 +92,17 @@ public sealed class AiHostBoundaryGateTests
     };
 
     [Theory]
-    [InlineData("src/ProjectAegis.Data/ProjectAegis.Data.csproj")]
-    [InlineData("src/ProjectAegis.Sim/ProjectAegis.Sim.csproj")]
-    [InlineData("src/ProjectAegis.Delegation/ProjectAegis.Delegation.csproj")]
-    [InlineData("src/ProjectAegis.Delegation.UnityAdapter/ProjectAegis.Delegation.UnityAdapter.csproj")]
+    [MemberData(nameof(UnityBoundNetstandardProjectPaths))]
     public void Unity_bound_netstandard_csproj_has_no_ai_or_provider_package(string relativePath)
     {
         var path = ResolveRepoFile(relativePath.Split('/'));
-        Assert.True(path != null, $"Missing project '{relativePath}'.");
+        if (path is null)
+        {
+            Assert.Fail($"Missing project '{relativePath}'.");
+            return;
+        }
 
-        var includes = LoadPackageReferenceIncludes(path!);
+        var includes = LoadPackageReferenceIncludes(path);
         foreach (var forbidden in ForbiddenAiPackageSubstrings)
         {
             var offending = includes
@@ -134,19 +157,17 @@ public sealed class AiHostBoundaryGateTests
     }
 
     [Theory]
-    [InlineData("src/ProjectAegis.Data/Validation/ScenarioValidationEngine.cs")]
-    [InlineData("src/ProjectAegis.Data/Validation/Rules/ValidationRules.cs")]
-    [InlineData("src/ProjectAegis.Data/Scenario/Authoring/ScenarioDocumentEditor.cs")]
-    [InlineData("src/ProjectAegis.Data/Validation/ScenarioValidationExportGate.cs")]
-    [InlineData("src/ProjectAegis.Data/Validation/ReachabilityCalculator.cs")]
-    [InlineData("src/ProjectAegis.Data/Scenario/Authoring/AiAuthoringServices.cs")]
-    [InlineData("src/ProjectAegis.Data/Scenario/Authoring/ScenarioEditVersionGuard.cs")]
+    [MemberData(nameof(AuthoringPathSourcePaths))]
     public void Authoring_path_has_no_net11_process_helpers(string relativePath)
     {
         var path = ResolveRepoFile(relativePath.Split('/'));
-        Assert.True(path != null, $"Missing source '{relativePath}'.");
+        if (path is null)
+        {
+            Assert.Fail($"Missing source '{relativePath}'.");
+            return;
+        }
 
-        var source = File.ReadAllText(path!);
+        var source = File.ReadAllText(path);
         foreach (var forbidden in ForbiddenNet11ProcessPatterns)
         {
             Assert.True(
@@ -190,6 +211,8 @@ public sealed class AiHostBoundaryGateTests
     {
         Assert.Equal(4, UnityBoundNetstandardProjects.Length);
         Assert.Equal(7, AuthoringPathSources.Length);
+        Assert.Equal(4, UnityBoundNetstandardProjectPaths().Count<object[]>());
+        Assert.Equal(7, AuthoringPathSourcePaths().Count<object[]>());
     }
 
     private static List<string> LoadPackageReferenceIncludes(string csprojPath)
