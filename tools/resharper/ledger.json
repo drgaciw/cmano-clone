@@ -89814,39 +89814,38 @@
       "verification": "GHA ReSharper comparison on main 57bbf9e8 / run 43641061990; ruleId=UnusedVariable; path=src/ProjectAegis.Delegation.UnityAdapter/Bridge/DelegationBridge.cs"
     },
     {
-      "identity": "[\"DefaultStringComparerUsage\",\"src/ProjectAegis.Data.Tests/Catalog/BalticMultidomainImportResolutionTests.cs\",{\"contextRegionHash/v1\":\"081035B0DC6BF38E5368A391147258F6A220B1B1BE751D807266FB994C08F0D5\"}]",
-      "ruleId": "DefaultStringComparerUsage",
-      "path": "src/ProjectAegis.Data.Tests/Catalog/BalticMultidomainImportResolutionTests.cs",
-      "partialFingerprints": {
-        "contextRegionHash/v1": "081035B0DC6BF38E5368A391147258F6A220B1B1BE751D807266FB994C08F0D5"
-      },
-      "location": {
-        "startLine": 27,
-        "startColumn": 88,
-        "endLine": 27,
-        "endColumn": 95
-      },
-      "message": "String ordering is culture-sensitive",
       "frameworkTags": [
         ".NET 11.0"
       ],
+      "identity": "[\"DefaultStringComparerUsage\",\"src/ProjectAegis.Data.Tests/Catalog/BalticMultidomainImportResolutionTests.cs\",{\"contextRegionHash/v1\":\"081035B0DC6BF38E5368A391147258F6A220B1B1BE751D807266FB994C08F0D5\"}]",
       "level": "warning",
+      "location": {
+        "endColumn": 95,
+        "endLine": 27,
+        "startColumn": 88,
+        "startLine": 27
+      },
+      "message": "String ordering is culture-sensitive",
       "occurrence": 1,
       "originalFingerprint": "A1062C6BB7175E905EAC75123D635CD41485B9709A6150089DCBC1882ABC2DAD",
       "owner": "net11-cli-202630",
-      "status": "open",
+      "partialFingerprints": {
+        "contextRegionHash/v1": "081035B0DC6BF38E5368A391147258F6A220B1B1BE751D807266FB994C08F0D5"
+      },
+      "path": "src/ProjectAegis.Data.Tests/Catalog/BalticMultidomainImportResolutionTests.cs",
       "rationale": "ReSharper CLI 2026.3.0 tool shift: culture-sensitivity rules (DefaultStringComparerUsage, InvocationIsCultureSensitive) surfaced as NEW on net11.0; classified analyzer upgrade debt for DRG-738.",
       "resolutionRevision": "d9b4da7bb282da8d4a5273624fb27ad978dbc5f2",
       "reviewCondition": "After ReSharper CLI 2026.3.0 pin: re-run inspect -Check; mark fixed if gone, or promote to accepted-exception with contract-specific rationale if it remains and is intentional.",
+      "ruleId": "DefaultStringComparerUsage",
+      "status": "open",
       "verification": "GHA ReSharper run 43643842677 / CLI 2026.3.0 first successful inspect after banner pin fix. ruleId=DefaultStringComparerUsage; path=src/ProjectAegis.Data.Tests/Catalog/BalticMultidomainImportResolutionTests.cs"
     },
     {
+      "frameworkTags": [
+        ".NET 11.0"
+      ],
       "identity": "[\"DefaultStringComparerUsage\",\"src/ProjectAegis.Data.Tests/Osint/OsintConnectorTests.cs\",{\"contextRegionHash/v1\":\"83E06742A9FB82F868EEF4FE45957F779186DBCED8E08CDA4A28C2E3ADCEA198\"}]",
-      "ruleId": "DefaultStringComparerUsage",
-      "path": "src/ProjectAegis.Data.Tests/Osint/OsintConnectorTests.cs",
-      "partialFingerprints": {
-        "contextRegionHash/v1": "83E06742A9FB82F868EEF4FE45957F779186DBCED8E08CDA4A28C2E3ADCEA198"
-      },
+      "level": "warning",
       "location": {
         "endColumn": 37,
         "endLine": 115,
@@ -89854,26 +89853,26 @@
         "startLine": 115
       },
       "message": "String ordering is culture-sensitive",
-      "frameworkTags": [
-        ".NET 11.0"
-      ],
-      "level": "warning",
       "occurrence": 1,
       "originalFingerprint": "DA8DFC0B0FE4EAE66665A8CC9C3FD0D52D648884A7D1E654C7DA85DEA5183D7D",
       "owner": "net11-cli-202630",
-      "status": "open",
-      "rationale": "ReSharper CLI 2026.3.0 tool shift: culture-sensitivity rules (DefaultStringComparerUsage, InvocationIsCultureSensitive) surfaced as NEW on net11.0; classified analyzer upgrade debt for DRG-738.",
-      "resolutionRevision": "d9b4da7bb282da8d4a5273624fb27ad978dbc5f2",
-      "reviewCondition": "After ReSharper CLI 2026.3.0 pin: re-run inspect -Check; mark fixed if gone, or promote to accepted-exception with contract-specific rationale if it remains and is intentional.",
-      "verification": "GHA ReSharper run 43643842677 / CLI 2026.3.0 first successful inspect after banner pin fix. ruleId=DefaultStringComparerUsage; path=src/ProjectAegis.Data.Tests/Osint/OsintConnectorTests.cs"
-    },
-    {
-      "identity": "[\"DefaultStringComparerUsage\",\"src/ProjectAegis.Data.Tests/Osint/OsintConnectorTests.cs\",{\"contextRegionHash/v1\":\"83E06742A9FB82F868EEF4FE45957F779186DBCED8E08CDA4A28C2E3ADCEA198\"}]",
-      "ruleId": "DefaultStringComparerUsage",
-      "path": "src/ProjectAegis.Data.Tests/Osint/OsintConnectorTests.cs",
       "partialFingerprints": {
         "contextRegionHash/v1": "83E06742A9FB82F868EEF4FE45957F779186DBCED8E08CDA4A28C2E3ADCEA198"
       },
+      "path": "src/ProjectAegis.Data.Tests/Osint/OsintConnectorTests.cs",
+      "rationale": "ReSharper CLI 2026.3.0 tool shift: culture-sensitivity rules (DefaultStringComparerUsage, InvocationIsCultureSensitive) surfaced as NEW on net11.0; classified analyzer upgrade debt for DRG-738.",
+      "resolutionRevision": "d9b4da7bb282da8d4a5273624fb27ad978dbc5f2",
+      "reviewCondition": "After ReSharper CLI 2026.3.0 pin: re-run inspect -Check; mark fixed if gone, or promote to accepted-exception with contract-specific rationale if it remains and is intentional.",
+      "ruleId": "DefaultStringComparerUsage",
+      "status": "open",
+      "verification": "GHA ReSharper run 43643842677 / CLI 2026.3.0 first successful inspect after banner pin fix. ruleId=DefaultStringComparerUsage; path=src/ProjectAegis.Data.Tests/Osint/OsintConnectorTests.cs"
+    },
+    {
+      "frameworkTags": [
+        ".NET 11.0"
+      ],
+      "identity": "[\"DefaultStringComparerUsage\",\"src/ProjectAegis.Data.Tests/Osint/OsintConnectorTests.cs\",{\"contextRegionHash/v1\":\"83E06742A9FB82F868EEF4FE45957F779186DBCED8E08CDA4A28C2E3ADCEA198\"}]",
+      "level": "warning",
       "location": {
         "endColumn": 62,
         "endLine": 115,
@@ -89881,317 +89880,1325 @@
         "startLine": 115
       },
       "message": "String ordering is culture-sensitive",
-      "frameworkTags": [
-        ".NET 11.0"
-      ],
-      "level": "warning",
       "occurrence": 2,
       "originalFingerprint": "DA8DFC0B0FE4EAE66665A8CC9C3FD0D52D648884A7D1E654C7DA85DEA5183D7D",
       "owner": "net11-cli-202630",
-      "status": "open",
+      "partialFingerprints": {
+        "contextRegionHash/v1": "83E06742A9FB82F868EEF4FE45957F779186DBCED8E08CDA4A28C2E3ADCEA198"
+      },
+      "path": "src/ProjectAegis.Data.Tests/Osint/OsintConnectorTests.cs",
       "rationale": "ReSharper CLI 2026.3.0 tool shift: culture-sensitivity rules (DefaultStringComparerUsage, InvocationIsCultureSensitive) surfaced as NEW on net11.0; classified analyzer upgrade debt for DRG-738.",
       "resolutionRevision": "d9b4da7bb282da8d4a5273624fb27ad978dbc5f2",
       "reviewCondition": "After ReSharper CLI 2026.3.0 pin: re-run inspect -Check; mark fixed if gone, or promote to accepted-exception with contract-specific rationale if it remains and is intentional.",
+      "ruleId": "DefaultStringComparerUsage",
+      "status": "open",
       "verification": "GHA ReSharper run 43643842677 / CLI 2026.3.0 first successful inspect after banner pin fix. ruleId=DefaultStringComparerUsage; path=src/ProjectAegis.Data.Tests/Osint/OsintConnectorTests.cs"
     },
     {
-      "identity": "[\"InvocationIsCultureSensitive\",\"src/ProjectAegis.Data/Validation/Rules/ValidationRules.cs\",{\"contextRegionHash/v1\":\"B034F41FB7D796A4B47F4129323661010281E3245AB3FBD4B4B252F07BC1EC51\"}]",
-      "ruleId": "InvocationIsCultureSensitive",
-      "path": "src/ProjectAegis.Data/Validation/Rules/ValidationRules.cs",
-      "partialFingerprints": {
-        "contextRegionHash/v1": "B034F41FB7D796A4B47F4129323661010281E3245AB3FBD4B4B252F07BC1EC51"
-      },
-      "location": {
-        "startLine": 300,
-        "startColumn": 84,
-        "endLine": 300,
-        "endColumn": 92
-      },
-      "message": "'Double.ToString' is culture-sensitive",
       "frameworkTags": [
         ".NET 11.0",
         ".NETStandard 2.1"
       ],
+      "identity": "[\"InvocationIsCultureSensitive\",\"src/ProjectAegis.Data/Validation/Rules/ValidationRules.cs\",{\"contextRegionHash/v1\":\"B034F41FB7D796A4B47F4129323661010281E3245AB3FBD4B4B252F07BC1EC51\"}]",
       "level": "warning",
+      "location": {
+        "endColumn": 92,
+        "endLine": 300,
+        "startColumn": 84,
+        "startLine": 300
+      },
+      "message": "'Double.ToString' is culture-sensitive",
       "occurrence": 1,
       "originalFingerprint": "C46498EAF3EBC9B2ACF6695E36FA3AF9BAE0580E5A9A63DA3AB42251FD4B6A54",
       "owner": "net11-cli-202630",
-      "status": "open",
+      "partialFingerprints": {
+        "contextRegionHash/v1": "B034F41FB7D796A4B47F4129323661010281E3245AB3FBD4B4B252F07BC1EC51"
+      },
+      "path": "src/ProjectAegis.Data/Validation/Rules/ValidationRules.cs",
       "rationale": "ReSharper CLI 2026.3.0 tool shift: culture-sensitivity rules (DefaultStringComparerUsage, InvocationIsCultureSensitive) surfaced as NEW on net11.0; classified analyzer upgrade debt for DRG-738.",
       "resolutionRevision": "d9b4da7bb282da8d4a5273624fb27ad978dbc5f2",
       "reviewCondition": "After ReSharper CLI 2026.3.0 pin: re-run inspect -Check; mark fixed if gone, or promote to accepted-exception with contract-specific rationale if it remains and is intentional.",
+      "ruleId": "InvocationIsCultureSensitive",
+      "status": "open",
       "verification": "GHA ReSharper run 43643842677 / CLI 2026.3.0 first successful inspect after banner pin fix. ruleId=InvocationIsCultureSensitive; path=src/ProjectAegis.Data/Validation/Rules/ValidationRules.cs"
     },
     {
-      "identity": "[\"InvocationIsCultureSensitive\",\"src/ProjectAegis.Data/Validation/Rules/ValidationRules.cs\",{\"contextRegionHash/v1\":\"4A5EEE5C4FC75FE27E192C2F5A0B675FBE26CD56BD8C93818DD03829293A822E\"}]",
-      "ruleId": "InvocationIsCultureSensitive",
-      "path": "src/ProjectAegis.Data/Validation/Rules/ValidationRules.cs",
-      "partialFingerprints": {
-        "contextRegionHash/v1": "4A5EEE5C4FC75FE27E192C2F5A0B675FBE26CD56BD8C93818DD03829293A822E"
-      },
-      "location": {
-        "startLine": 367,
-        "startColumn": 88,
-        "endLine": 367,
-        "endColumn": 96
-      },
-      "message": "'Double.ToString' is culture-sensitive",
       "frameworkTags": [
         ".NET 11.0",
         ".NETStandard 2.1"
       ],
+      "identity": "[\"InvocationIsCultureSensitive\",\"src/ProjectAegis.Data/Validation/Rules/ValidationRules.cs\",{\"contextRegionHash/v1\":\"4A5EEE5C4FC75FE27E192C2F5A0B675FBE26CD56BD8C93818DD03829293A822E\"}]",
       "level": "warning",
+      "location": {
+        "endColumn": 96,
+        "endLine": 367,
+        "startColumn": 88,
+        "startLine": 367
+      },
+      "message": "'Double.ToString' is culture-sensitive",
       "occurrence": 1,
       "originalFingerprint": "FAD631648A03376C2A69F27B2204017FC40ECA3FFD064630368F45A43C6CE290",
       "owner": "net11-cli-202630",
-      "status": "open",
+      "partialFingerprints": {
+        "contextRegionHash/v1": "4A5EEE5C4FC75FE27E192C2F5A0B675FBE26CD56BD8C93818DD03829293A822E"
+      },
+      "path": "src/ProjectAegis.Data/Validation/Rules/ValidationRules.cs",
       "rationale": "ReSharper CLI 2026.3.0 tool shift: culture-sensitivity rules (DefaultStringComparerUsage, InvocationIsCultureSensitive) surfaced as NEW on net11.0; classified analyzer upgrade debt for DRG-738.",
       "resolutionRevision": "d9b4da7bb282da8d4a5273624fb27ad978dbc5f2",
       "reviewCondition": "After ReSharper CLI 2026.3.0 pin: re-run inspect -Check; mark fixed if gone, or promote to accepted-exception with contract-specific rationale if it remains and is intentional.",
+      "ruleId": "InvocationIsCultureSensitive",
+      "status": "open",
       "verification": "GHA ReSharper run 43643842677 / CLI 2026.3.0 first successful inspect after banner pin fix. ruleId=InvocationIsCultureSensitive; path=src/ProjectAegis.Data/Validation/Rules/ValidationRules.cs"
     },
     {
-      "identity": "[\"InvocationIsCultureSensitive\",\"src/ProjectAegis.Delegation.Tests/Projection/KillChainContactStateProjectionTests.cs\",{\"contextRegionHash/v1\":\"1C36C70390F96B4DCCA5CAA0783F742231762EF3BFB41CCB4DE8939EDD14CBFC\"}]",
-      "ruleId": "InvocationIsCultureSensitive",
-      "path": "src/ProjectAegis.Delegation.Tests/Projection/KillChainContactStateProjectionTests.cs",
-      "partialFingerprints": {
-        "contextRegionHash/v1": "1C36C70390F96B4DCCA5CAA0783F742231762EF3BFB41CCB4DE8939EDD14CBFC"
-      },
-      "location": {
-        "startLine": 503,
-        "startColumn": 36,
-        "endLine": 503,
-        "endColumn": 44
-      },
-      "message": "'Double.ToString' is culture-sensitive",
       "frameworkTags": [
         ".NET 11.0"
       ],
+      "identity": "[\"InvocationIsCultureSensitive\",\"src/ProjectAegis.Delegation.Tests/Projection/KillChainContactStateProjectionTests.cs\",{\"contextRegionHash/v1\":\"1C36C70390F96B4DCCA5CAA0783F742231762EF3BFB41CCB4DE8939EDD14CBFC\"}]",
       "level": "warning",
+      "location": {
+        "endColumn": 44,
+        "endLine": 503,
+        "startColumn": 36,
+        "startLine": 503
+      },
+      "message": "'Double.ToString' is culture-sensitive",
       "occurrence": 1,
       "originalFingerprint": "DAD0812818A5A26E056689EAC683520C1E38279D1B9C183773505437D3C2D1A0",
       "owner": "net11-cli-202630",
-      "status": "open",
+      "partialFingerprints": {
+        "contextRegionHash/v1": "1C36C70390F96B4DCCA5CAA0783F742231762EF3BFB41CCB4DE8939EDD14CBFC"
+      },
+      "path": "src/ProjectAegis.Delegation.Tests/Projection/KillChainContactStateProjectionTests.cs",
       "rationale": "ReSharper CLI 2026.3.0 tool shift: culture-sensitivity rules (DefaultStringComparerUsage, InvocationIsCultureSensitive) surfaced as NEW on net11.0; classified analyzer upgrade debt for DRG-738.",
       "resolutionRevision": "d9b4da7bb282da8d4a5273624fb27ad978dbc5f2",
       "reviewCondition": "After ReSharper CLI 2026.3.0 pin: re-run inspect -Check; mark fixed if gone, or promote to accepted-exception with contract-specific rationale if it remains and is intentional.",
+      "ruleId": "InvocationIsCultureSensitive",
+      "status": "open",
       "verification": "GHA ReSharper run 43643842677 / CLI 2026.3.0 first successful inspect after banner pin fix. ruleId=InvocationIsCultureSensitive; path=src/ProjectAegis.Delegation.Tests/Projection/KillChainContactStateProjectionTests.cs"
     },
     {
-      "identity": "[\"InvocationIsCultureSensitive\",\"src/ProjectAegis.Delegation.Tests/Projection/KillChainContactStateProjectionTests.cs\",{\"contextRegionHash/v1\":\"CB13D8E3DA6CAEBF379E2CC0D68EE896B6DC8CEAE6049EA99D2FF4DA311E695A\"}]",
-      "ruleId": "InvocationIsCultureSensitive",
-      "path": "src/ProjectAegis.Delegation.Tests/Projection/KillChainContactStateProjectionTests.cs",
-      "partialFingerprints": {
-        "contextRegionHash/v1": "CB13D8E3DA6CAEBF379E2CC0D68EE896B6DC8CEAE6049EA99D2FF4DA311E695A"
-      },
-      "location": {
-        "startLine": 505,
-        "startColumn": 35,
-        "endLine": 505,
-        "endColumn": 43
-      },
-      "message": "'Double.ToString' is culture-sensitive",
       "frameworkTags": [
         ".NET 11.0"
       ],
+      "identity": "[\"InvocationIsCultureSensitive\",\"src/ProjectAegis.Delegation.Tests/Projection/KillChainContactStateProjectionTests.cs\",{\"contextRegionHash/v1\":\"CB13D8E3DA6CAEBF379E2CC0D68EE896B6DC8CEAE6049EA99D2FF4DA311E695A\"}]",
       "level": "warning",
+      "location": {
+        "endColumn": 43,
+        "endLine": 505,
+        "startColumn": 35,
+        "startLine": 505
+      },
+      "message": "'Double.ToString' is culture-sensitive",
       "occurrence": 1,
       "originalFingerprint": "2C43FEDEE263A3CD7DE7A2932827BF736890150ACD1D05975852A20BD1D9306F",
       "owner": "net11-cli-202630",
-      "status": "open",
+      "partialFingerprints": {
+        "contextRegionHash/v1": "CB13D8E3DA6CAEBF379E2CC0D68EE896B6DC8CEAE6049EA99D2FF4DA311E695A"
+      },
+      "path": "src/ProjectAegis.Delegation.Tests/Projection/KillChainContactStateProjectionTests.cs",
       "rationale": "ReSharper CLI 2026.3.0 tool shift: culture-sensitivity rules (DefaultStringComparerUsage, InvocationIsCultureSensitive) surfaced as NEW on net11.0; classified analyzer upgrade debt for DRG-738.",
       "resolutionRevision": "d9b4da7bb282da8d4a5273624fb27ad978dbc5f2",
       "reviewCondition": "After ReSharper CLI 2026.3.0 pin: re-run inspect -Check; mark fixed if gone, or promote to accepted-exception with contract-specific rationale if it remains and is intentional.",
+      "ruleId": "InvocationIsCultureSensitive",
+      "status": "open",
       "verification": "GHA ReSharper run 43643842677 / CLI 2026.3.0 first successful inspect after banner pin fix. ruleId=InvocationIsCultureSensitive; path=src/ProjectAegis.Delegation.Tests/Projection/KillChainContactStateProjectionTests.cs"
     },
     {
-      "identity": "[\"InvocationIsCultureSensitive\",\"src/ProjectAegis.Delegation.Tests/Projection/KillChainContactStateProjectionTests.cs\",{\"contextRegionHash/v1\":\"F0CE5AE7ED70812420B44EFC17D8CED0028895F9407FF4A42633D60C364E2C4A\"}]",
-      "ruleId": "InvocationIsCultureSensitive",
-      "path": "src/ProjectAegis.Delegation.Tests/Projection/KillChainContactStateProjectionTests.cs",
-      "partialFingerprints": {
-        "contextRegionHash/v1": "F0CE5AE7ED70812420B44EFC17D8CED0028895F9407FF4A42633D60C364E2C4A"
-      },
-      "location": {
-        "startLine": 520,
-        "startColumn": 31,
-        "endLine": 520,
-        "endColumn": 39
-      },
-      "message": "'Double.ToString' is culture-sensitive",
       "frameworkTags": [
         ".NET 11.0"
       ],
+      "identity": "[\"InvocationIsCultureSensitive\",\"src/ProjectAegis.Delegation.Tests/Projection/KillChainContactStateProjectionTests.cs\",{\"contextRegionHash/v1\":\"F0CE5AE7ED70812420B44EFC17D8CED0028895F9407FF4A42633D60C364E2C4A\"}]",
       "level": "warning",
+      "location": {
+        "endColumn": 39,
+        "endLine": 520,
+        "startColumn": 31,
+        "startLine": 520
+      },
+      "message": "'Double.ToString' is culture-sensitive",
       "occurrence": 1,
       "originalFingerprint": "ABA589992C54AD4A1E7251E344194155FFE9731CCBA98451B33BD109B93A1C92",
       "owner": "net11-cli-202630",
-      "status": "open",
+      "partialFingerprints": {
+        "contextRegionHash/v1": "F0CE5AE7ED70812420B44EFC17D8CED0028895F9407FF4A42633D60C364E2C4A"
+      },
+      "path": "src/ProjectAegis.Delegation.Tests/Projection/KillChainContactStateProjectionTests.cs",
       "rationale": "ReSharper CLI 2026.3.0 tool shift: culture-sensitivity rules (DefaultStringComparerUsage, InvocationIsCultureSensitive) surfaced as NEW on net11.0; classified analyzer upgrade debt for DRG-738.",
       "resolutionRevision": "d9b4da7bb282da8d4a5273624fb27ad978dbc5f2",
       "reviewCondition": "After ReSharper CLI 2026.3.0 pin: re-run inspect -Check; mark fixed if gone, or promote to accepted-exception with contract-specific rationale if it remains and is intentional.",
+      "ruleId": "InvocationIsCultureSensitive",
+      "status": "open",
       "verification": "GHA ReSharper run 43643842677 / CLI 2026.3.0 first successful inspect after banner pin fix. ruleId=InvocationIsCultureSensitive; path=src/ProjectAegis.Delegation.Tests/Projection/KillChainContactStateProjectionTests.cs"
     },
     {
-      "identity": "[\"InvocationIsCultureSensitive\",\"src/ProjectAegis.Data/Osint/Connectors/FileOsintConnector.cs\",{\"contextRegionHash/v1\":\"3B5F4EE54E1A0A3B1AD8365814DCDEBEC0CA3B2B20EEDCD86CD00B168FACF94E\"}]",
-      "ruleId": "InvocationIsCultureSensitive",
-      "path": "src/ProjectAegis.Data/Osint/Connectors/FileOsintConnector.cs",
-      "partialFingerprints": {
-        "contextRegionHash/v1": "3B5F4EE54E1A0A3B1AD8365814DCDEBEC0CA3B2B20EEDCD86CD00B168FACF94E"
-      },
-      "location": {
-        "startLine": 74,
-        "startColumn": 63,
-        "endLine": 74,
-        "endColumn": 71
-      },
-      "message": "'Double.TryParse' is culture-sensitive",
       "frameworkTags": [
         ".NET 11.0"
       ],
+      "identity": "[\"InvocationIsCultureSensitive\",\"src/ProjectAegis.Data/Osint/Connectors/FileOsintConnector.cs\",{\"contextRegionHash/v1\":\"3B5F4EE54E1A0A3B1AD8365814DCDEBEC0CA3B2B20EEDCD86CD00B168FACF94E\"}]",
       "level": "warning",
+      "location": {
+        "endColumn": 71,
+        "endLine": 74,
+        "startColumn": 63,
+        "startLine": 74
+      },
+      "message": "'Double.TryParse' is culture-sensitive",
       "occurrence": 1,
       "originalFingerprint": "C36CA7C52C2C4E3E6D993F3EDB391272DEE95335311B6B72F4973A4C91D6EB61",
       "owner": "net11-cli-202630",
-      "status": "open",
-      "rationale": "ReSharper CLI 2026.3.0 tool shift: culture-sensitivity rules (DefaultStringComparerUsage, InvocationIsCultureSensitive) surfaced as NEW on net11.0; classified analyzer upgrade debt for DRG-738.",
-      "resolutionRevision": "d9b4da7bb282da8d4a5273624fb27ad978dbc5f2",
-      "reviewCondition": "After ReSharper CLI 2026.3.0 pin: re-run inspect -Check; mark fixed if gone, or promote to accepted-exception with contract-specific rationale if it remains and is intentional.",
-      "verification": "GHA ReSharper run 43643842677 / CLI 2026.3.0 first successful inspect after banner pin fix. ruleId=InvocationIsCultureSensitive; path=src/ProjectAegis.Data/Osint/Connectors/FileOsintConnector.cs"
-    },
-    {
-      "identity": "[\"InvocationIsCultureSensitive\",\"src/ProjectAegis.Data/Osint/Connectors/RssOsintConnector.cs\",{\"contextRegionHash/v1\":\"3B5F4EE54E1A0A3B1AD8365814DCDEBEC0CA3B2B20EEDCD86CD00B168FACF94E\"}]",
-      "ruleId": "InvocationIsCultureSensitive",
-      "path": "src/ProjectAegis.Data/Osint/Connectors/RssOsintConnector.cs",
       "partialFingerprints": {
         "contextRegionHash/v1": "3B5F4EE54E1A0A3B1AD8365814DCDEBEC0CA3B2B20EEDCD86CD00B168FACF94E"
       },
-      "location": {
-        "startLine": 88,
-        "startColumn": 63,
-        "endLine": 88,
-        "endColumn": 71
-      },
-      "message": "'Double.TryParse' is culture-sensitive",
+      "path": "src/ProjectAegis.Data/Osint/Connectors/FileOsintConnector.cs",
+      "rationale": "ReSharper CLI 2026.3.0 tool shift: culture-sensitivity rules (DefaultStringComparerUsage, InvocationIsCultureSensitive) surfaced as NEW on net11.0; classified analyzer upgrade debt for DRG-738.",
+      "resolutionRevision": "d9b4da7bb282da8d4a5273624fb27ad978dbc5f2",
+      "reviewCondition": "After ReSharper CLI 2026.3.0 pin: re-run inspect -Check; mark fixed if gone, or promote to accepted-exception with contract-specific rationale if it remains and is intentional.",
+      "ruleId": "InvocationIsCultureSensitive",
+      "status": "open",
+      "verification": "GHA ReSharper run 43643842677 / CLI 2026.3.0 first successful inspect after banner pin fix. ruleId=InvocationIsCultureSensitive; path=src/ProjectAegis.Data/Osint/Connectors/FileOsintConnector.cs"
+    },
+    {
       "frameworkTags": [
         ".NET 11.0"
       ],
+      "identity": "[\"InvocationIsCultureSensitive\",\"src/ProjectAegis.Data/Osint/Connectors/RssOsintConnector.cs\",{\"contextRegionHash/v1\":\"3B5F4EE54E1A0A3B1AD8365814DCDEBEC0CA3B2B20EEDCD86CD00B168FACF94E\"}]",
       "level": "warning",
+      "location": {
+        "endColumn": 71,
+        "endLine": 88,
+        "startColumn": 63,
+        "startLine": 88
+      },
+      "message": "'Double.TryParse' is culture-sensitive",
       "occurrence": 1,
       "originalFingerprint": "8C548F3ADCAD06237860AB0338A983B590B803ED78C145DCD45AF3B2EE01C447",
       "owner": "net11-cli-202630",
-      "status": "open",
+      "partialFingerprints": {
+        "contextRegionHash/v1": "3B5F4EE54E1A0A3B1AD8365814DCDEBEC0CA3B2B20EEDCD86CD00B168FACF94E"
+      },
+      "path": "src/ProjectAegis.Data/Osint/Connectors/RssOsintConnector.cs",
       "rationale": "ReSharper CLI 2026.3.0 tool shift: culture-sensitivity rules (DefaultStringComparerUsage, InvocationIsCultureSensitive) surfaced as NEW on net11.0; classified analyzer upgrade debt for DRG-738.",
       "resolutionRevision": "d9b4da7bb282da8d4a5273624fb27ad978dbc5f2",
       "reviewCondition": "After ReSharper CLI 2026.3.0 pin: re-run inspect -Check; mark fixed if gone, or promote to accepted-exception with contract-specific rationale if it remains and is intentional.",
+      "ruleId": "InvocationIsCultureSensitive",
+      "status": "open",
       "verification": "GHA ReSharper run 43643842677 / CLI 2026.3.0 first successful inspect after banner pin fix. ruleId=InvocationIsCultureSensitive; path=src/ProjectAegis.Data/Osint/Connectors/RssOsintConnector.cs"
     },
     {
-      "identity": "[\"InvocationIsCultureSensitive\",\"src/ProjectAegis.MissionEditor.Cli/CliArgParser.cs\",{\"contextRegionHash/v1\":\"8E84959C6832CE803677E3AE4FBD9A1EE83B591FF52F50193A44C89AB2DFB80C\"}]",
-      "ruleId": "InvocationIsCultureSensitive",
-      "path": "src/ProjectAegis.MissionEditor.Cli/CliArgParser.cs",
-      "partialFingerprints": {
-        "contextRegionHash/v1": "8E84959C6832CE803677E3AE4FBD9A1EE83B591FF52F50193A44C89AB2DFB80C"
-      },
-      "location": {
-        "startLine": 91,
-        "startColumn": 25,
-        "endLine": 91,
-        "endColumn": 33
-      },
-      "message": "'Double.TryParse' is culture-sensitive",
       "frameworkTags": [
         ".NET 11.0"
       ],
+      "identity": "[\"InvocationIsCultureSensitive\",\"src/ProjectAegis.MissionEditor.Cli/CliArgParser.cs\",{\"contextRegionHash/v1\":\"8E84959C6832CE803677E3AE4FBD9A1EE83B591FF52F50193A44C89AB2DFB80C\"}]",
       "level": "warning",
+      "location": {
+        "endColumn": 33,
+        "endLine": 91,
+        "startColumn": 25,
+        "startLine": 91
+      },
+      "message": "'Double.TryParse' is culture-sensitive",
       "occurrence": 1,
       "originalFingerprint": "B46433245EC2C83F70E62497EE6AED370216981739F91979EA96C9E572A65456",
       "owner": "net11-cli-202630",
-      "status": "open",
+      "partialFingerprints": {
+        "contextRegionHash/v1": "8E84959C6832CE803677E3AE4FBD9A1EE83B591FF52F50193A44C89AB2DFB80C"
+      },
+      "path": "src/ProjectAegis.MissionEditor.Cli/CliArgParser.cs",
       "rationale": "ReSharper CLI 2026.3.0 tool shift: culture-sensitivity rules (DefaultStringComparerUsage, InvocationIsCultureSensitive) surfaced as NEW on net11.0; classified analyzer upgrade debt for DRG-738.",
       "resolutionRevision": "d9b4da7bb282da8d4a5273624fb27ad978dbc5f2",
       "reviewCondition": "After ReSharper CLI 2026.3.0 pin: re-run inspect -Check; mark fixed if gone, or promote to accepted-exception with contract-specific rationale if it remains and is intentional.",
+      "ruleId": "InvocationIsCultureSensitive",
+      "status": "open",
       "verification": "GHA ReSharper run 43643842677 / CLI 2026.3.0 first successful inspect after banner pin fix. ruleId=InvocationIsCultureSensitive; path=src/ProjectAegis.MissionEditor.Cli/CliArgParser.cs"
     },
     {
-      "identity": "[\"InvocationIsCultureSensitive\",\"src/ProjectAegis.MissionEditor.Cli/CliArgParser.cs\",{\"contextRegionHash/v1\":\"127A365A27F58450950A04CD7B309120F778706CC06095A21DE6CDEBEAA3A4D6\"}]",
-      "ruleId": "InvocationIsCultureSensitive",
-      "path": "src/ProjectAegis.MissionEditor.Cli/CliArgParser.cs",
-      "partialFingerprints": {
-        "contextRegionHash/v1": "127A365A27F58450950A04CD7B309120F778706CC06095A21DE6CDEBEAA3A4D6"
-      },
-      "location": {
-        "startLine": 92,
-        "startColumn": 25,
-        "endLine": 92,
-        "endColumn": 33
-      },
-      "message": "'Double.TryParse' is culture-sensitive",
       "frameworkTags": [
         ".NET 11.0"
       ],
+      "identity": "[\"InvocationIsCultureSensitive\",\"src/ProjectAegis.MissionEditor.Cli/CliArgParser.cs\",{\"contextRegionHash/v1\":\"127A365A27F58450950A04CD7B309120F778706CC06095A21DE6CDEBEAA3A4D6\"}]",
       "level": "warning",
+      "location": {
+        "endColumn": 33,
+        "endLine": 92,
+        "startColumn": 25,
+        "startLine": 92
+      },
+      "message": "'Double.TryParse' is culture-sensitive",
       "occurrence": 1,
       "originalFingerprint": "E7FBD17DA4366BCDD498445271929ED06E0E6FB80326BE29A7571B0CAB1724E9",
       "owner": "net11-cli-202630",
-      "status": "open",
+      "partialFingerprints": {
+        "contextRegionHash/v1": "127A365A27F58450950A04CD7B309120F778706CC06095A21DE6CDEBEAA3A4D6"
+      },
+      "path": "src/ProjectAegis.MissionEditor.Cli/CliArgParser.cs",
       "rationale": "ReSharper CLI 2026.3.0 tool shift: culture-sensitivity rules (DefaultStringComparerUsage, InvocationIsCultureSensitive) surfaced as NEW on net11.0; classified analyzer upgrade debt for DRG-738.",
       "resolutionRevision": "d9b4da7bb282da8d4a5273624fb27ad978dbc5f2",
       "reviewCondition": "After ReSharper CLI 2026.3.0 pin: re-run inspect -Check; mark fixed if gone, or promote to accepted-exception with contract-specific rationale if it remains and is intentional.",
+      "ruleId": "InvocationIsCultureSensitive",
+      "status": "open",
       "verification": "GHA ReSharper run 43643842677 / CLI 2026.3.0 first successful inspect after banner pin fix. ruleId=InvocationIsCultureSensitive; path=src/ProjectAegis.MissionEditor.Cli/CliArgParser.cs"
     },
     {
-      "identity": "[\"InvocationIsCultureSensitive\",\"src/ProjectAegis.MissionEditor.Cli.Tests/MissionPlanSuggestCommandTests.cs\",{\"contextRegionHash/v1\":\"AE21AFABF4230E4798089078DE857632A3662F153D41C0EEA27F558D4FB7CB05\"}]",
-      "ruleId": "InvocationIsCultureSensitive",
-      "path": "src/ProjectAegis.MissionEditor.Cli.Tests/MissionPlanSuggestCommandTests.cs",
-      "partialFingerprints": {
-        "contextRegionHash/v1": "AE21AFABF4230E4798089078DE857632A3662F153D41C0EEA27F558D4FB7CB05"
-      },
-      "location": {
-        "startLine": 84,
-        "startColumn": 66,
-        "endLine": 84,
-        "endColumn": 73
-      },
-      "message": "'String.ToLower' is culture-sensitive",
       "frameworkTags": [
         ".NET 11.0"
       ],
+      "identity": "[\"InvocationIsCultureSensitive\",\"src/ProjectAegis.MissionEditor.Cli.Tests/MissionPlanSuggestCommandTests.cs\",{\"contextRegionHash/v1\":\"AE21AFABF4230E4798089078DE857632A3662F153D41C0EEA27F558D4FB7CB05\"}]",
       "level": "warning",
+      "location": {
+        "endColumn": 73,
+        "endLine": 84,
+        "startColumn": 66,
+        "startLine": 84
+      },
+      "message": "'String.ToLower' is culture-sensitive",
       "occurrence": 1,
       "originalFingerprint": "47E461D8948D0E63270714DD2942D8AA9CE00F4B165B41957E89618CBB7BDAC6",
       "owner": "net11-cli-202630",
-      "status": "open",
+      "partialFingerprints": {
+        "contextRegionHash/v1": "AE21AFABF4230E4798089078DE857632A3662F153D41C0EEA27F558D4FB7CB05"
+      },
+      "path": "src/ProjectAegis.MissionEditor.Cli.Tests/MissionPlanSuggestCommandTests.cs",
       "rationale": "ReSharper CLI 2026.3.0 tool shift: culture-sensitivity rules (DefaultStringComparerUsage, InvocationIsCultureSensitive) surfaced as NEW on net11.0; classified analyzer upgrade debt for DRG-738.",
       "resolutionRevision": "d9b4da7bb282da8d4a5273624fb27ad978dbc5f2",
       "reviewCondition": "After ReSharper CLI 2026.3.0 pin: re-run inspect -Check; mark fixed if gone, or promote to accepted-exception with contract-specific rationale if it remains and is intentional.",
+      "ruleId": "InvocationIsCultureSensitive",
+      "status": "open",
       "verification": "GHA ReSharper run 43643842677 / CLI 2026.3.0 first successful inspect after banner pin fix. ruleId=InvocationIsCultureSensitive; path=src/ProjectAegis.MissionEditor.Cli.Tests/MissionPlanSuggestCommandTests.cs"
     },
     {
-      "identity": "[\"InvocationIsCultureSensitive\",\"src/ProjectAegis.MissionEditor.Cli.Tests/MissionPlanSuggestCommandTests.cs\",{\"contextRegionHash/v1\":\"D997393ADFCBCA40A8BC3086F72B71E974B6ADD8F4EF4E9E8C7BEF7D92E8959F\"}]",
-      "ruleId": "InvocationIsCultureSensitive",
-      "path": "src/ProjectAegis.MissionEditor.Cli.Tests/MissionPlanSuggestCommandTests.cs",
-      "partialFingerprints": {
-        "contextRegionHash/v1": "D997393ADFCBCA40A8BC3086F72B71E974B6ADD8F4EF4E9E8C7BEF7D92E8959F"
-      },
-      "location": {
-        "startLine": 85,
-        "startColumn": 66,
-        "endLine": 85,
-        "endColumn": 73
-      },
-      "message": "'String.ToLower' is culture-sensitive",
       "frameworkTags": [
         ".NET 11.0"
       ],
+      "identity": "[\"InvocationIsCultureSensitive\",\"src/ProjectAegis.MissionEditor.Cli.Tests/MissionPlanSuggestCommandTests.cs\",{\"contextRegionHash/v1\":\"D997393ADFCBCA40A8BC3086F72B71E974B6ADD8F4EF4E9E8C7BEF7D92E8959F\"}]",
       "level": "warning",
+      "location": {
+        "endColumn": 73,
+        "endLine": 85,
+        "startColumn": 66,
+        "startLine": 85
+      },
+      "message": "'String.ToLower' is culture-sensitive",
       "occurrence": 1,
       "originalFingerprint": "637CFEA4EDCCFCB9ECD1C74D1E41BB637055D6F2268675A49D330F134809B113",
       "owner": "net11-cli-202630",
-      "status": "open",
+      "partialFingerprints": {
+        "contextRegionHash/v1": "D997393ADFCBCA40A8BC3086F72B71E974B6ADD8F4EF4E9E8C7BEF7D92E8959F"
+      },
+      "path": "src/ProjectAegis.MissionEditor.Cli.Tests/MissionPlanSuggestCommandTests.cs",
       "rationale": "ReSharper CLI 2026.3.0 tool shift: culture-sensitivity rules (DefaultStringComparerUsage, InvocationIsCultureSensitive) surfaced as NEW on net11.0; classified analyzer upgrade debt for DRG-738.",
       "resolutionRevision": "d9b4da7bb282da8d4a5273624fb27ad978dbc5f2",
       "reviewCondition": "After ReSharper CLI 2026.3.0 pin: re-run inspect -Check; mark fixed if gone, or promote to accepted-exception with contract-specific rationale if it remains and is intentional.",
+      "ruleId": "InvocationIsCultureSensitive",
+      "status": "open",
       "verification": "GHA ReSharper run 43643842677 / CLI 2026.3.0 first successful inspect after banner pin fix. ruleId=InvocationIsCultureSensitive; path=src/ProjectAegis.MissionEditor.Cli.Tests/MissionPlanSuggestCommandTests.cs"
+    },
+    {
+      "frameworkTags": [
+        ".NETStandard 2.1"
+      ],
+      "identity": "[\"CheckNamespace\",\"src/ProjectAegis.Ai.Contracts/Polyfills/IsExternalInit.cs\",{\"contextRegionHash/v1\":\"45F0F606A0CCADB9BE7F0B4EAD7B8CDE7E0F07E06C663C9B7FD1F9C5DC3A09CA\"}]",
+      "level": "warning",
+      "location": {
+        "endColumn": 42,
+        "endLine": 2,
+        "startColumn": 11,
+        "startLine": 2
+      },
+      "message": "Namespace does not correspond to file location, must be: 'ProjectAegis.Ai.Contracts.Polyfills'",
+      "occurrence": 1,
+      "originalFingerprint": "AC3DA79D38E90B61D3086B484E957D72F2E8578096029FA59D28A9635979F7CF",
+      "owner": "ai-wave0-contracts",
+      "partialFingerprints": {
+        "contextRegionHash/v1": "45F0F606A0CCADB9BE7F0B4EAD7B8CDE7E0F07E06C663C9B7FD1F9C5DC3A09CA"
+      },
+      "path": "src/ProjectAegis.Ai.Contracts/Polyfills/IsExternalInit.cs",
+      "rationale": "Wave 0 Contracts freeze (DRG-735 / AiContractSchema v1): positional DTO properties and System.Runtime.CompilerServices.IsExternalInit polyfill are intentional serialization/compiler contracts. First-scan after sln add; accepted-exception, not product defect.",
+      "resolutionRevision": "",
+      "reviewCondition": "Review when AiContractSchema.Version bumps or polyfill/TFM contract changes.",
+      "ruleId": "CheckNamespace",
+      "status": "accepted-exception",
+      "verification": "2026-11-15 DRG-735 inspect #855 @ b39867f4; Decision hybrid Surface expansion"
+    },
+    {
+      "frameworkTags": [
+        ".NET 11.0",
+        ".NETStandard 2.1"
+      ],
+      "identity": "[\"NotAccessedPositionalProperty.Global\",\"src/ProjectAegis.Ai.Contracts/AiArtifactTransport.cs\",{\"contextRegionHash/v1\":\"D193933B9C3494805083EF76875A325574D409DFC00DBC97B58BE00B6F1E5612\"}]",
+      "level": "warning",
+      "location": {
+        "endColumn": 28,
+        "endLine": 9,
+        "startColumn": 12,
+        "startLine": 9
+      },
+      "message": "Positional property 'ProjectAegis.Ai.Contracts.AiArtifactTransport.ContentMediaType' is never accessed (except in implicit Equals/ToString implementations)",
+      "occurrence": 1,
+      "originalFingerprint": "A18250E125DEF951082F39B21326EAE51966DBADA97E19D19BF669C31736FF00",
+      "owner": "ai-wave0-contracts",
+      "partialFingerprints": {
+        "contextRegionHash/v1": "D193933B9C3494805083EF76875A325574D409DFC00DBC97B58BE00B6F1E5612"
+      },
+      "path": "src/ProjectAegis.Ai.Contracts/AiArtifactTransport.cs",
+      "rationale": "Wave 0 Contracts freeze (DRG-735 / AiContractSchema v1): positional DTO properties and System.Runtime.CompilerServices.IsExternalInit polyfill are intentional serialization/compiler contracts. First-scan after sln add; accepted-exception, not product defect.",
+      "resolutionRevision": "",
+      "reviewCondition": "Review when AiContractSchema.Version bumps or polyfill/TFM contract changes.",
+      "ruleId": "NotAccessedPositionalProperty.Global",
+      "status": "accepted-exception",
+      "verification": "2026-11-15 DRG-735 inspect #855 @ b39867f4; Decision hybrid Surface expansion"
+    },
+    {
+      "frameworkTags": [
+        ".NET 11.0",
+        ".NETStandard 2.1"
+      ],
+      "identity": "[\"NotAccessedPositionalProperty.Global\",\"src/ProjectAegis.Ai.Contracts/AiArtifactTransport.cs\",{\"contextRegionHash/v1\":\"23DB2A7DC34E903994965F9D84A5A15174A5A35C509085174D9ADC70413905AC\"}]",
+      "level": "warning",
+      "location": {
+        "endColumn": 24,
+        "endLine": 10,
+        "startColumn": 13,
+        "startLine": 10
+      },
+      "message": "Positional property 'ProjectAegis.Ai.Contracts.AiArtifactTransport.ContentText' is never accessed (except in implicit Equals/ToString implementations)",
+      "occurrence": 1,
+      "originalFingerprint": "5860E7F4A3D63BB5023076D1FCC597A1C8E06160DA43F8E99040CF3A6EA75C3C",
+      "owner": "ai-wave0-contracts",
+      "partialFingerprints": {
+        "contextRegionHash/v1": "23DB2A7DC34E903994965F9D84A5A15174A5A35C509085174D9ADC70413905AC"
+      },
+      "path": "src/ProjectAegis.Ai.Contracts/AiArtifactTransport.cs",
+      "rationale": "Wave 0 Contracts freeze (DRG-735 / AiContractSchema v1): positional DTO properties and System.Runtime.CompilerServices.IsExternalInit polyfill are intentional serialization/compiler contracts. First-scan after sln add; accepted-exception, not product defect.",
+      "resolutionRevision": "",
+      "reviewCondition": "Review when AiContractSchema.Version bumps or polyfill/TFM contract changes.",
+      "ruleId": "NotAccessedPositionalProperty.Global",
+      "status": "accepted-exception",
+      "verification": "2026-11-15 DRG-735 inspect #855 @ b39867f4; Decision hybrid Surface expansion"
+    },
+    {
+      "frameworkTags": [
+        ".NET 11.0",
+        ".NETStandard 2.1"
+      ],
+      "identity": "[\"NotAccessedPositionalProperty.Global\",\"src/ProjectAegis.Ai.Contracts/AiArtifactTransport.cs\",{\"contextRegionHash/v1\":\"49C98EB7483E4B6366A901E22D42C26A038978A0E9FB90B40642EC286EB8BC7B\"}]",
+      "level": "warning",
+      "location": {
+        "endColumn": 30,
+        "endLine": 8,
+        "startColumn": 22,
+        "startLine": 8
+      },
+      "message": "Positional property 'ProjectAegis.Ai.Contracts.AiArtifactTransport.Envelope' is never accessed (except in implicit Equals/ToString implementations)",
+      "occurrence": 1,
+      "originalFingerprint": "377E162B92C8D3B0CDF2130B91DF110C8B5ADA9AF45CA7B21F320F102588495E",
+      "owner": "ai-wave0-contracts",
+      "partialFingerprints": {
+        "contextRegionHash/v1": "49C98EB7483E4B6366A901E22D42C26A038978A0E9FB90B40642EC286EB8BC7B"
+      },
+      "path": "src/ProjectAegis.Ai.Contracts/AiArtifactTransport.cs",
+      "rationale": "Wave 0 Contracts freeze (DRG-735 / AiContractSchema v1): positional DTO properties and System.Runtime.CompilerServices.IsExternalInit polyfill are intentional serialization/compiler contracts. First-scan after sln add; accepted-exception, not product defect.",
+      "resolutionRevision": "",
+      "reviewCondition": "Review when AiContractSchema.Version bumps or polyfill/TFM contract changes.",
+      "ruleId": "NotAccessedPositionalProperty.Global",
+      "status": "accepted-exception",
+      "verification": "2026-11-15 DRG-735 inspect #855 @ b39867f4; Decision hybrid Surface expansion"
+    },
+    {
+      "frameworkTags": [
+        ".NET 11.0",
+        ".NETStandard 2.1"
+      ],
+      "identity": "[\"NotAccessedPositionalProperty.Global\",\"src/ProjectAegis.Ai.Contracts/AiArtifactTransport.cs\",{\"contextRegionHash/v1\":\"82D48E7D9FE1358C86720A6C11472BE335F24957ABE780E50801C767AC13FF27\"}]",
+      "level": "warning",
+      "location": {
+        "endColumn": 36,
+        "endLine": 11,
+        "startColumn": 28,
+        "startLine": 11
+      },
+      "message": "Positional property 'ProjectAegis.Ai.Contracts.AiArtifactTransport.Warnings' is never accessed (except in implicit Equals/ToString implementations)",
+      "occurrence": 1,
+      "originalFingerprint": "9B8E30674E1FD347B333DFC139BE8E44F2990648907F2E15343A57950594DB6A",
+      "owner": "ai-wave0-contracts",
+      "partialFingerprints": {
+        "contextRegionHash/v1": "82D48E7D9FE1358C86720A6C11472BE335F24957ABE780E50801C767AC13FF27"
+      },
+      "path": "src/ProjectAegis.Ai.Contracts/AiArtifactTransport.cs",
+      "rationale": "Wave 0 Contracts freeze (DRG-735 / AiContractSchema v1): positional DTO properties and System.Runtime.CompilerServices.IsExternalInit polyfill are intentional serialization/compiler contracts. First-scan after sln add; accepted-exception, not product defect.",
+      "resolutionRevision": "",
+      "reviewCondition": "Review when AiContractSchema.Version bumps or polyfill/TFM contract changes.",
+      "ruleId": "NotAccessedPositionalProperty.Global",
+      "status": "accepted-exception",
+      "verification": "2026-11-15 DRG-735 inspect #855 @ b39867f4; Decision hybrid Surface expansion"
+    },
+    {
+      "frameworkTags": [
+        ".NET 11.0",
+        ".NETStandard 2.1"
+      ],
+      "identity": "[\"NotAccessedPositionalProperty.Global\",\"src/ProjectAegis.Ai.Contracts/ArtifactEnvelope.cs\",{\"contextRegionHash/v1\":\"E2E407285F48C2152C859273934C3A8A536B536AD980C01A48C13F77109AA5C3\"}]",
+      "level": "warning",
+      "location": {
+        "endColumn": 25,
+        "endLine": 9,
+        "startColumn": 12,
+        "startLine": 9
+      },
+      "message": "Positional property 'ProjectAegis.Ai.Contracts.ArtifactEnvelope.BuildIdentity' is never accessed (except in implicit Equals/ToString implementations)",
+      "occurrence": 1,
+      "originalFingerprint": "4E956D1C450C22FF0DF102849F872E6C2BCBE0DE1D106D16C2E670D0D807CEAF",
+      "owner": "ai-wave0-contracts",
+      "partialFingerprints": {
+        "contextRegionHash/v1": "E2E407285F48C2152C859273934C3A8A536B536AD980C01A48C13F77109AA5C3"
+      },
+      "path": "src/ProjectAegis.Ai.Contracts/ArtifactEnvelope.cs",
+      "rationale": "Wave 0 Contracts freeze (DRG-735 / AiContractSchema v1): positional DTO properties and System.Runtime.CompilerServices.IsExternalInit polyfill are intentional serialization/compiler contracts. First-scan after sln add; accepted-exception, not product defect.",
+      "resolutionRevision": "",
+      "reviewCondition": "Review when AiContractSchema.Version bumps or polyfill/TFM contract changes.",
+      "ruleId": "NotAccessedPositionalProperty.Global",
+      "status": "accepted-exception",
+      "verification": "2026-11-15 DRG-735 inspect #855 @ b39867f4; Decision hybrid Surface expansion"
+    },
+    {
+      "frameworkTags": [
+        ".NET 11.0",
+        ".NETStandard 2.1"
+      ],
+      "identity": "[\"NotAccessedPositionalProperty.Global\",\"src/ProjectAegis.Ai.Contracts/ArtifactEnvelope.cs\",{\"contextRegionHash/v1\":\"98C18C2385575725C9779E677E8FA6BD87E72334DA85C0C188FDB65A38ABF2FA\"}]",
+      "level": "warning",
+      "location": {
+        "endColumn": 27,
+        "endLine": 11,
+        "startColumn": 12,
+        "startLine": 11
+      },
+      "message": "Positional property 'ProjectAegis.Ai.Contracts.ArtifactEnvelope.CatalogRevision' is never accessed (except in implicit Equals/ToString implementations)",
+      "occurrence": 1,
+      "originalFingerprint": "85FB79889EFABFD21E18CCEF9EAEBE5C5CACB6066AA584EFA23601A047347CA2",
+      "owner": "ai-wave0-contracts",
+      "partialFingerprints": {
+        "contextRegionHash/v1": "98C18C2385575725C9779E677E8FA6BD87E72334DA85C0C188FDB65A38ABF2FA"
+      },
+      "path": "src/ProjectAegis.Ai.Contracts/ArtifactEnvelope.cs",
+      "rationale": "Wave 0 Contracts freeze (DRG-735 / AiContractSchema v1): positional DTO properties and System.Runtime.CompilerServices.IsExternalInit polyfill are intentional serialization/compiler contracts. First-scan after sln add; accepted-exception, not product defect.",
+      "resolutionRevision": "",
+      "reviewCondition": "Review when AiContractSchema.Version bumps or polyfill/TFM contract changes.",
+      "ruleId": "NotAccessedPositionalProperty.Global",
+      "status": "accepted-exception",
+      "verification": "2026-11-15 DRG-735 inspect #855 @ b39867f4; Decision hybrid Surface expansion"
+    },
+    {
+      "frameworkTags": [
+        ".NET 11.0",
+        ".NETStandard 2.1"
+      ],
+      "identity": "[\"NotAccessedPositionalProperty.Global\",\"src/ProjectAegis.Ai.Contracts/ArtifactEnvelope.cs\",{\"contextRegionHash/v1\":\"B129D32E246A8BE7CDE1ACA37D02D748DF19FCC80DA54932081C5307127E793A\"}]",
+      "level": "warning",
+      "location": {
+        "endColumn": 23,
+        "endLine": 20,
+        "startColumn": 12,
+        "startLine": 20
+      },
+      "message": "Positional property 'ProjectAegis.Ai.Contracts.ArtifactEnvelope.ContentHash' is never accessed (except in implicit Equals/ToString implementations)",
+      "occurrence": 1,
+      "originalFingerprint": "DB8FA0227AE00769B751B032FEA62ACBE09197C74A70E7463516C85E219EFE30",
+      "owner": "ai-wave0-contracts",
+      "partialFingerprints": {
+        "contextRegionHash/v1": "B129D32E246A8BE7CDE1ACA37D02D748DF19FCC80DA54932081C5307127E793A"
+      },
+      "path": "src/ProjectAegis.Ai.Contracts/ArtifactEnvelope.cs",
+      "rationale": "Wave 0 Contracts freeze (DRG-735 / AiContractSchema v1): positional DTO properties and System.Runtime.CompilerServices.IsExternalInit polyfill are intentional serialization/compiler contracts. First-scan after sln add; accepted-exception, not product defect.",
+      "resolutionRevision": "",
+      "reviewCondition": "Review when AiContractSchema.Version bumps or polyfill/TFM contract changes.",
+      "ruleId": "NotAccessedPositionalProperty.Global",
+      "status": "accepted-exception",
+      "verification": "2026-11-15 DRG-735 inspect #855 @ b39867f4; Decision hybrid Surface expansion"
+    },
+    {
+      "frameworkTags": [
+        ".NET 11.0",
+        ".NETStandard 2.1"
+      ],
+      "identity": "[\"NotAccessedPositionalProperty.Global\",\"src/ProjectAegis.Ai.Contracts/ArtifactEnvelope.cs\",{\"contextRegionHash/v1\":\"4792FD9E83C66DD6DF42BBC26C8B857E6D9B9C9506361B819A0F7FD987CF0EE6\"}]",
+      "level": "warning",
+      "location": {
+        "endColumn": 21,
+        "endLine": 18,
+        "startColumn": 10,
+        "startLine": 18
+      },
+      "message": "Positional property 'ProjectAegis.Ai.Contracts.ArtifactEnvelope.DebriefMode' is never accessed (except in implicit Equals/ToString implementations)",
+      "occurrence": 1,
+      "originalFingerprint": "D5411EF9BBE603F9E4D27464C9FD7F2CF4556326C15AB453ED42AF69617F5B6A",
+      "owner": "ai-wave0-contracts",
+      "partialFingerprints": {
+        "contextRegionHash/v1": "4792FD9E83C66DD6DF42BBC26C8B857E6D9B9C9506361B819A0F7FD987CF0EE6"
+      },
+      "path": "src/ProjectAegis.Ai.Contracts/ArtifactEnvelope.cs",
+      "rationale": "Wave 0 Contracts freeze (DRG-735 / AiContractSchema v1): positional DTO properties and System.Runtime.CompilerServices.IsExternalInit polyfill are intentional serialization/compiler contracts. First-scan after sln add; accepted-exception, not product defect.",
+      "resolutionRevision": "",
+      "reviewCondition": "Review when AiContractSchema.Version bumps or polyfill/TFM contract changes.",
+      "ruleId": "NotAccessedPositionalProperty.Global",
+      "status": "accepted-exception",
+      "verification": "2026-11-15 DRG-735 inspect #855 @ b39867f4; Decision hybrid Surface expansion"
+    },
+    {
+      "frameworkTags": [
+        ".NET 11.0",
+        ".NETStandard 2.1"
+      ],
+      "identity": "[\"NotAccessedPositionalProperty.Global\",\"src/ProjectAegis.Ai.Contracts/ArtifactEnvelope.cs\",{\"contextRegionHash/v1\":\"772EAC052BABDF9C7553A032BB0EA4430248A59953B71C8184CC7B2C1BEB2CC2\"}]",
+      "level": "warning",
+      "location": {
+        "endColumn": 38,
+        "endLine": 16,
+        "startColumn": 27,
+        "startLine": 16
+      },
+      "message": "Positional property 'ProjectAegis.Ai.Contracts.ArtifactEnvelope.EvidenceIds' is never accessed (except in implicit Equals/ToString implementations)",
+      "occurrence": 1,
+      "originalFingerprint": "7051DC086970A0486D143891BEF80DB4B925490874856662FA2886412C78BBB2",
+      "owner": "ai-wave0-contracts",
+      "partialFingerprints": {
+        "contextRegionHash/v1": "772EAC052BABDF9C7553A032BB0EA4430248A59953B71C8184CC7B2C1BEB2CC2"
+      },
+      "path": "src/ProjectAegis.Ai.Contracts/ArtifactEnvelope.cs",
+      "rationale": "Wave 0 Contracts freeze (DRG-735 / AiContractSchema v1): positional DTO properties and System.Runtime.CompilerServices.IsExternalInit polyfill are intentional serialization/compiler contracts. First-scan after sln add; accepted-exception, not product defect.",
+      "resolutionRevision": "",
+      "reviewCondition": "Review when AiContractSchema.Version bumps or polyfill/TFM contract changes.",
+      "ruleId": "NotAccessedPositionalProperty.Global",
+      "status": "accepted-exception",
+      "verification": "2026-11-15 DRG-735 inspect #855 @ b39867f4; Decision hybrid Surface expansion"
+    },
+    {
+      "frameworkTags": [
+        ".NET 11.0",
+        ".NETStandard 2.1"
+      ],
+      "identity": "[\"NotAccessedPositionalProperty.Global\",\"src/ProjectAegis.Ai.Contracts/ArtifactEnvelope.cs\",{\"contextRegionHash/v1\":\"E25978F2A9BC4F16C8548A84AA1D3CE0E683B9BD2D5F1BBF2295DA7BDAEBEB3A\"}]",
+      "level": "warning",
+      "location": {
+        "endColumn": 19,
+        "endLine": 14,
+        "startColumn": 12,
+        "startLine": 14
+      },
+      "message": "Positional property 'ProjectAegis.Ai.Contracts.ArtifactEnvelope.ModelId' is never accessed (except in implicit Equals/ToString implementations)",
+      "occurrence": 1,
+      "originalFingerprint": "A52FDBB1785FF2551992EA5433D11464CEAA01A5D0E9E81422423B70BE6CCD79",
+      "owner": "ai-wave0-contracts",
+      "partialFingerprints": {
+        "contextRegionHash/v1": "E25978F2A9BC4F16C8548A84AA1D3CE0E683B9BD2D5F1BBF2295DA7BDAEBEB3A"
+      },
+      "path": "src/ProjectAegis.Ai.Contracts/ArtifactEnvelope.cs",
+      "rationale": "Wave 0 Contracts freeze (DRG-735 / AiContractSchema v1): positional DTO properties and System.Runtime.CompilerServices.IsExternalInit polyfill are intentional serialization/compiler contracts. First-scan after sln add; accepted-exception, not product defect.",
+      "resolutionRevision": "",
+      "reviewCondition": "Review when AiContractSchema.Version bumps or polyfill/TFM contract changes.",
+      "ruleId": "NotAccessedPositionalProperty.Global",
+      "status": "accepted-exception",
+      "verification": "2026-11-15 DRG-735 inspect #855 @ b39867f4; Decision hybrid Surface expansion"
+    },
+    {
+      "frameworkTags": [
+        ".NET 11.0",
+        ".NETStandard 2.1"
+      ],
+      "identity": "[\"NotAccessedPositionalProperty.Global\",\"src/ProjectAegis.Ai.Contracts/ArtifactEnvelope.cs\",{\"contextRegionHash/v1\":\"DED74D4252C04024DC26DD416E22C058A70A819BA349190A1D7A12D94398A88F\"}]",
+      "level": "warning",
+      "location": {
+        "endColumn": 31,
+        "endLine": 12,
+        "startColumn": 12,
+        "startLine": 12
+      },
+      "message": "Positional property 'ProjectAegis.Ai.Contracts.ArtifactEnvelope.OrderLogFingerprint' is never accessed (except in implicit Equals/ToString implementations)",
+      "occurrence": 1,
+      "originalFingerprint": "4ABE767410B851AB5DDC96B1B14DD55C01388303EC70687D75DAE8D5E86C6F8E",
+      "owner": "ai-wave0-contracts",
+      "partialFingerprints": {
+        "contextRegionHash/v1": "DED74D4252C04024DC26DD416E22C058A70A819BA349190A1D7A12D94398A88F"
+      },
+      "path": "src/ProjectAegis.Ai.Contracts/ArtifactEnvelope.cs",
+      "rationale": "Wave 0 Contracts freeze (DRG-735 / AiContractSchema v1): positional DTO properties and System.Runtime.CompilerServices.IsExternalInit polyfill are intentional serialization/compiler contracts. First-scan after sln add; accepted-exception, not product defect.",
+      "resolutionRevision": "",
+      "reviewCondition": "Review when AiContractSchema.Version bumps or polyfill/TFM contract changes.",
+      "ruleId": "NotAccessedPositionalProperty.Global",
+      "status": "accepted-exception",
+      "verification": "2026-11-15 DRG-735 inspect #855 @ b39867f4; Decision hybrid Surface expansion"
+    },
+    {
+      "frameworkTags": [
+        ".NET 11.0",
+        ".NETStandard 2.1"
+      ],
+      "identity": "[\"NotAccessedPositionalProperty.Global\",\"src/ProjectAegis.Ai.Contracts/ArtifactEnvelope.cs\",{\"contextRegionHash/v1\":\"A06D2AF171966E26C9F84699BB008DF07045DA506AE9DE743B7D861F0BB7B8E1\"}]",
+      "level": "warning",
+      "location": {
+        "endColumn": 25,
+        "endLine": 15,
+        "startColumn": 12,
+        "startLine": 15
+      },
+      "message": "Positional property 'ProjectAegis.Ai.Contracts.ArtifactEnvelope.PromptVersion' is never accessed (except in implicit Equals/ToString implementations)",
+      "occurrence": 1,
+      "originalFingerprint": "102A35F65966A1BF285A2F0A30C01A9D1F0E67FA2121C67D833618F162F12701",
+      "owner": "ai-wave0-contracts",
+      "partialFingerprints": {
+        "contextRegionHash/v1": "A06D2AF171966E26C9F84699BB008DF07045DA506AE9DE743B7D861F0BB7B8E1"
+      },
+      "path": "src/ProjectAegis.Ai.Contracts/ArtifactEnvelope.cs",
+      "rationale": "Wave 0 Contracts freeze (DRG-735 / AiContractSchema v1): positional DTO properties and System.Runtime.CompilerServices.IsExternalInit polyfill are intentional serialization/compiler contracts. First-scan after sln add; accepted-exception, not product defect.",
+      "resolutionRevision": "",
+      "reviewCondition": "Review when AiContractSchema.Version bumps or polyfill/TFM contract changes.",
+      "ruleId": "NotAccessedPositionalProperty.Global",
+      "status": "accepted-exception",
+      "verification": "2026-11-15 DRG-735 inspect #855 @ b39867f4; Decision hybrid Surface expansion"
+    },
+    {
+      "frameworkTags": [
+        ".NET 11.0",
+        ".NETStandard 2.1"
+      ],
+      "identity": "[\"NotAccessedPositionalProperty.Global\",\"src/ProjectAegis.Ai.Contracts/ArtifactEnvelope.cs\",{\"contextRegionHash/v1\":\"D754F8753876A7B35D07E8409C0784F262620FE3EBA3F19B49F199539BCC5C71\"}]",
+      "level": "warning",
+      "location": {
+        "endColumn": 22,
+        "endLine": 13,
+        "startColumn": 12,
+        "startLine": 13
+      },
+      "message": "Positional property 'ProjectAegis.Ai.Contracts.ArtifactEnvelope.ProviderId' is never accessed (except in implicit Equals/ToString implementations)",
+      "occurrence": 1,
+      "originalFingerprint": "26885672CEF39129FB8FDE012AF660B1FC8065EF57E4BDFE527E0B32383F78F6",
+      "owner": "ai-wave0-contracts",
+      "partialFingerprints": {
+        "contextRegionHash/v1": "D754F8753876A7B35D07E8409C0784F262620FE3EBA3F19B49F199539BCC5C71"
+      },
+      "path": "src/ProjectAegis.Ai.Contracts/ArtifactEnvelope.cs",
+      "rationale": "Wave 0 Contracts freeze (DRG-735 / AiContractSchema v1): positional DTO properties and System.Runtime.CompilerServices.IsExternalInit polyfill are intentional serialization/compiler contracts. First-scan after sln add; accepted-exception, not product defect.",
+      "resolutionRevision": "",
+      "reviewCondition": "Review when AiContractSchema.Version bumps or polyfill/TFM contract changes.",
+      "ruleId": "NotAccessedPositionalProperty.Global",
+      "status": "accepted-exception",
+      "verification": "2026-11-15 DRG-735 inspect #855 @ b39867f4; Decision hybrid Surface expansion"
+    },
+    {
+      "frameworkTags": [
+        ".NET 11.0",
+        ".NETStandard 2.1"
+      ],
+      "identity": "[\"NotAccessedPositionalProperty.Global\",\"src/ProjectAegis.Ai.Contracts/ArtifactEnvelope.cs\",{\"contextRegionHash/v1\":\"09C72945ABBC6D8F3C299DB0807EA5CDB3FD01CF5FC2E7F7E60B2995F1E528DC\"}]",
+      "level": "warning",
+      "location": {
+        "endColumn": 22,
+        "endLine": 10,
+        "startColumn": 12,
+        "startLine": 10
+      },
+      "message": "Positional property 'ProjectAegis.Ai.Contracts.ArtifactEnvelope.ScenarioId' is never accessed (except in implicit Equals/ToString implementations)",
+      "occurrence": 1,
+      "originalFingerprint": "210528015E600FF740EC996A5BC28EF500554EF9E5CF5790775CB1C4E86B7EDD",
+      "owner": "ai-wave0-contracts",
+      "partialFingerprints": {
+        "contextRegionHash/v1": "09C72945ABBC6D8F3C299DB0807EA5CDB3FD01CF5FC2E7F7E60B2995F1E528DC"
+      },
+      "path": "src/ProjectAegis.Ai.Contracts/ArtifactEnvelope.cs",
+      "rationale": "Wave 0 Contracts freeze (DRG-735 / AiContractSchema v1): positional DTO properties and System.Runtime.CompilerServices.IsExternalInit polyfill are intentional serialization/compiler contracts. First-scan after sln add; accepted-exception, not product defect.",
+      "resolutionRevision": "",
+      "reviewCondition": "Review when AiContractSchema.Version bumps or polyfill/TFM contract changes.",
+      "ruleId": "NotAccessedPositionalProperty.Global",
+      "status": "accepted-exception",
+      "verification": "2026-11-15 DRG-735 inspect #855 @ b39867f4; Decision hybrid Surface expansion"
+    },
+    {
+      "frameworkTags": [
+        ".NET 11.0",
+        ".NETStandard 2.1"
+      ],
+      "identity": "[\"NotAccessedPositionalProperty.Global\",\"src/ProjectAegis.Ai.Contracts/ArtifactEnvelope.cs\",{\"contextRegionHash/v1\":\"DF54F75A2582EF28D844F43441594E8E4ABE1AB593F72B9C5256213CA41AF8D3\"}]",
+      "level": "warning",
+      "location": {
+        "endColumn": 22,
+        "endLine": 8,
+        "startColumn": 9,
+        "startLine": 8
+      },
+      "message": "Positional property 'ProjectAegis.Ai.Contracts.ArtifactEnvelope.SchemaVersion' is never accessed (except in implicit Equals/ToString implementations)",
+      "occurrence": 1,
+      "originalFingerprint": "D19233343A9F09AA223732896934C9108B7876EB8827EEA4F8BAE20AC7429073",
+      "owner": "ai-wave0-contracts",
+      "partialFingerprints": {
+        "contextRegionHash/v1": "DF54F75A2582EF28D844F43441594E8E4ABE1AB593F72B9C5256213CA41AF8D3"
+      },
+      "path": "src/ProjectAegis.Ai.Contracts/ArtifactEnvelope.cs",
+      "rationale": "Wave 0 Contracts freeze (DRG-735 / AiContractSchema v1): positional DTO properties and System.Runtime.CompilerServices.IsExternalInit polyfill are intentional serialization/compiler contracts. First-scan after sln add; accepted-exception, not product defect.",
+      "resolutionRevision": "",
+      "reviewCondition": "Review when AiContractSchema.Version bumps or polyfill/TFM contract changes.",
+      "ruleId": "NotAccessedPositionalProperty.Global",
+      "status": "accepted-exception",
+      "verification": "2026-11-15 DRG-735 inspect #855 @ b39867f4; Decision hybrid Surface expansion"
+    },
+    {
+      "frameworkTags": [
+        ".NET 11.0",
+        ".NETStandard 2.1"
+      ],
+      "identity": "[\"NotAccessedPositionalProperty.Global\",\"src/ProjectAegis.Ai.Contracts/ArtifactEnvelope.cs\",{\"contextRegionHash/v1\":\"F6CCDC3636AA11F4097D1288CD33A5284AF160A98BC360A92D80D9790EFC0EBE\"}]",
+      "level": "warning",
+      "location": {
+        "endColumn": 28,
+        "endLine": 19,
+        "startColumn": 22,
+        "startLine": 19
+      },
+      "message": "Positional property 'ProjectAegis.Ai.Contracts.ArtifactEnvelope.Status' is never accessed (except in implicit Equals/ToString implementations)",
+      "occurrence": 1,
+      "originalFingerprint": "524268A06BE7E99A700863E41B64732A56810FF1B657A77C71EF7C35F1497488",
+      "owner": "ai-wave0-contracts",
+      "partialFingerprints": {
+        "contextRegionHash/v1": "F6CCDC3636AA11F4097D1288CD33A5284AF160A98BC360A92D80D9790EFC0EBE"
+      },
+      "path": "src/ProjectAegis.Ai.Contracts/ArtifactEnvelope.cs",
+      "rationale": "Wave 0 Contracts freeze (DRG-735 / AiContractSchema v1): positional DTO properties and System.Runtime.CompilerServices.IsExternalInit polyfill are intentional serialization/compiler contracts. First-scan after sln add; accepted-exception, not product defect.",
+      "resolutionRevision": "",
+      "reviewCondition": "Review when AiContractSchema.Version bumps or polyfill/TFM contract changes.",
+      "ruleId": "NotAccessedPositionalProperty.Global",
+      "status": "accepted-exception",
+      "verification": "2026-11-15 DRG-735 inspect #855 @ b39867f4; Decision hybrid Surface expansion"
+    },
+    {
+      "frameworkTags": [
+        ".NET 11.0",
+        ".NETStandard 2.1"
+      ],
+      "identity": "[\"NotAccessedPositionalProperty.Global\",\"src/ProjectAegis.Ai.Contracts/ArtifactEnvelope.cs\",{\"contextRegionHash/v1\":\"4CA5E7FB060D6FA4B7B16D1AC6A08DB13C046B39A87B08F9DC906B67B5DA6C7B\"}]",
+      "level": "warning",
+      "location": {
+        "endColumn": 28,
+        "endLine": 17,
+        "startColumn": 17,
+        "startLine": 17
+      },
+      "message": "Positional property 'ProjectAegis.Ai.Contracts.ArtifactEnvelope.ViewingSide' is never accessed (except in implicit Equals/ToString implementations)",
+      "occurrence": 1,
+      "originalFingerprint": "3D226142FAE6246FA58C2076D1F35DC1360A41E2A9C3EFBFE890C45487A983BE",
+      "owner": "ai-wave0-contracts",
+      "partialFingerprints": {
+        "contextRegionHash/v1": "4CA5E7FB060D6FA4B7B16D1AC6A08DB13C046B39A87B08F9DC906B67B5DA6C7B"
+      },
+      "path": "src/ProjectAegis.Ai.Contracts/ArtifactEnvelope.cs",
+      "rationale": "Wave 0 Contracts freeze (DRG-735 / AiContractSchema v1): positional DTO properties and System.Runtime.CompilerServices.IsExternalInit polyfill are intentional serialization/compiler contracts. First-scan after sln add; accepted-exception, not product defect.",
+      "resolutionRevision": "",
+      "reviewCondition": "Review when AiContractSchema.Version bumps or polyfill/TFM contract changes.",
+      "ruleId": "NotAccessedPositionalProperty.Global",
+      "status": "accepted-exception",
+      "verification": "2026-11-15 DRG-735 inspect #855 @ b39867f4; Decision hybrid Surface expansion"
+    },
+    {
+      "frameworkTags": [
+        ".NET 11.0",
+        ".NETStandard 2.1"
+      ],
+      "identity": "[\"NotAccessedPositionalProperty.Global\",\"src/ProjectAegis.Ai.Contracts/EvidenceDocument.cs\",{\"contextRegionHash/v1\":\"84C94A3F9F2191E974F4CF2751F9C0282B3E12CD8849AFD0F24B6CCD0365AB35\"}]",
+      "level": "warning",
+      "location": {
+        "endColumn": 41,
+        "endLine": 6,
+        "startColumn": 34,
+        "startLine": 6
+      },
+      "message": "Positional property 'ProjectAegis.Ai.Contracts.EvidenceDocument.Entries' is never accessed (except in implicit Equals/ToString implementations)",
+      "occurrence": 1,
+      "originalFingerprint": "7CEAE82305A3A055FE0100B3BC94A47D85B988A27B5044BB720D4B81A8FA66B7",
+      "owner": "ai-wave0-contracts",
+      "partialFingerprints": {
+        "contextRegionHash/v1": "84C94A3F9F2191E974F4CF2751F9C0282B3E12CD8849AFD0F24B6CCD0365AB35"
+      },
+      "path": "src/ProjectAegis.Ai.Contracts/EvidenceDocument.cs",
+      "rationale": "Wave 0 Contracts freeze (DRG-735 / AiContractSchema v1): positional DTO properties and System.Runtime.CompilerServices.IsExternalInit polyfill are intentional serialization/compiler contracts. First-scan after sln add; accepted-exception, not product defect.",
+      "resolutionRevision": "",
+      "reviewCondition": "Review when AiContractSchema.Version bumps or polyfill/TFM contract changes.",
+      "ruleId": "NotAccessedPositionalProperty.Global",
+      "status": "accepted-exception",
+      "verification": "2026-11-15 DRG-735 inspect #855 @ b39867f4; Decision hybrid Surface expansion"
+    },
+    {
+      "frameworkTags": [
+        ".NET 11.0",
+        ".NETStandard 2.1"
+      ],
+      "identity": "[\"NotAccessedPositionalProperty.Global\",\"src/ProjectAegis.Ai.Contracts/EvidenceDocument.cs\",{\"contextRegionHash/v1\":\"7C640589281B1C1232D9BDB955B6E788AC2DE26386DB74DD3B64226DA1F51710\"}]",
+      "level": "warning",
+      "location": {
+        "endColumn": 26,
+        "endLine": 5,
+        "startColumn": 20,
+        "startLine": 5
+      },
+      "message": "Positional property 'ProjectAegis.Ai.Contracts.EvidenceDocument.Header' is never accessed (except in implicit Equals/ToString implementations)",
+      "occurrence": 1,
+      "originalFingerprint": "BBFD6CB1E821B4DF535B014DBE9A8081A58735C8E2A88C9DA99B80F11119CF49",
+      "owner": "ai-wave0-contracts",
+      "partialFingerprints": {
+        "contextRegionHash/v1": "7C640589281B1C1232D9BDB955B6E788AC2DE26386DB74DD3B64226DA1F51710"
+      },
+      "path": "src/ProjectAegis.Ai.Contracts/EvidenceDocument.cs",
+      "rationale": "Wave 0 Contracts freeze (DRG-735 / AiContractSchema v1): positional DTO properties and System.Runtime.CompilerServices.IsExternalInit polyfill are intentional serialization/compiler contracts. First-scan after sln add; accepted-exception, not product defect.",
+      "resolutionRevision": "",
+      "reviewCondition": "Review when AiContractSchema.Version bumps or polyfill/TFM contract changes.",
+      "ruleId": "NotAccessedPositionalProperty.Global",
+      "status": "accepted-exception",
+      "verification": "2026-11-15 DRG-735 inspect #855 @ b39867f4; Decision hybrid Surface expansion"
+    },
+    {
+      "frameworkTags": [
+        ".NET 11.0",
+        ".NETStandard 2.1"
+      ],
+      "identity": "[\"NotAccessedPositionalProperty.Global\",\"src/ProjectAegis.Ai.Contracts/EvidenceEntry.cs\",{\"contextRegionHash/v1\":\"B792D15A46ABA5D544EAF5683692CC78A0CABBAF958EF4ABD097E87099E13123\"}]",
+      "level": "warning",
+      "location": {
+        "endColumn": 52,
+        "endLine": 15,
+        "startColumn": 42,
+        "startLine": 15
+      },
+      "message": "Positional property 'ProjectAegis.Ai.Contracts.EvidenceEntry.Attributes' is never accessed (except in implicit Equals/ToString implementations)",
+      "occurrence": 1,
+      "originalFingerprint": "5E39E98CCB4FD0E549748813106F5587E7ACA8BE6BB0CE1CC63685CC352FEF35",
+      "owner": "ai-wave0-contracts",
+      "partialFingerprints": {
+        "contextRegionHash/v1": "B792D15A46ABA5D544EAF5683692CC78A0CABBAF958EF4ABD097E87099E13123"
+      },
+      "path": "src/ProjectAegis.Ai.Contracts/EvidenceEntry.cs",
+      "rationale": "Wave 0 Contracts freeze (DRG-735 / AiContractSchema v1): positional DTO properties and System.Runtime.CompilerServices.IsExternalInit polyfill are intentional serialization/compiler contracts. First-scan after sln add; accepted-exception, not product defect.",
+      "resolutionRevision": "",
+      "reviewCondition": "Review when AiContractSchema.Version bumps or polyfill/TFM contract changes.",
+      "ruleId": "NotAccessedPositionalProperty.Global",
+      "status": "accepted-exception",
+      "verification": "2026-11-15 DRG-735 inspect #855 @ b39867f4; Decision hybrid Surface expansion"
+    },
+    {
+      "frameworkTags": [
+        ".NET 11.0",
+        ".NETStandard 2.1"
+      ],
+      "identity": "[\"NotAccessedPositionalProperty.Global\",\"src/ProjectAegis.Ai.Contracts/EvidenceEntry.cs\",{\"contextRegionHash/v1\":\"5EEF8BA8160AAD19457EE95DC06A64FA2C56F2970EC1D219A4F8312921FA1D92\"}]",
+      "level": "warning",
+      "location": {
+        "endColumn": 22,
+        "endLine": 8,
+        "startColumn": 12,
+        "startLine": 8
+      },
+      "message": "Positional property 'ProjectAegis.Ai.Contracts.EvidenceEntry.EvidenceId' is never accessed (except in implicit Equals/ToString implementations)",
+      "occurrence": 1,
+      "originalFingerprint": "8770DFD41B996C341C924A79530EA900AC1C752E7887A1F7094C37E9AACF53F8",
+      "owner": "ai-wave0-contracts",
+      "partialFingerprints": {
+        "contextRegionHash/v1": "5EEF8BA8160AAD19457EE95DC06A64FA2C56F2970EC1D219A4F8312921FA1D92"
+      },
+      "path": "src/ProjectAegis.Ai.Contracts/EvidenceEntry.cs",
+      "rationale": "Wave 0 Contracts freeze (DRG-735 / AiContractSchema v1): positional DTO properties and System.Runtime.CompilerServices.IsExternalInit polyfill are intentional serialization/compiler contracts. First-scan after sln add; accepted-exception, not product defect.",
+      "resolutionRevision": "",
+      "reviewCondition": "Review when AiContractSchema.Version bumps or polyfill/TFM contract changes.",
+      "ruleId": "NotAccessedPositionalProperty.Global",
+      "status": "accepted-exception",
+      "verification": "2026-11-15 DRG-735 inspect #855 @ b39867f4; Decision hybrid Surface expansion"
+    },
+    {
+      "frameworkTags": [
+        ".NET 11.0",
+        ".NETStandard 2.1"
+      ],
+      "identity": "[\"NotAccessedPositionalProperty.Global\",\"src/ProjectAegis.Ai.Contracts/EvidenceEntry.cs\",{\"contextRegionHash/v1\":\"96EADDA23A9C0773ACE7139BF90201CA80F251A5324F64CFDB59D93CC2116363\"}]",
+      "level": "warning",
+      "location": {
+        "endColumn": 27,
+        "endLine": 10,
+        "startColumn": 23,
+        "startLine": 10
+      },
+      "message": "Positional property 'ProjectAegis.Ai.Contracts.EvidenceEntry.Kind' is never accessed (except in implicit Equals/ToString implementations)",
+      "occurrence": 1,
+      "originalFingerprint": "5AE5BF4D4A5E3BD3960D57883AB4087CF83ADBC7902CD94E7C7D90FE3439BD3F",
+      "owner": "ai-wave0-contracts",
+      "partialFingerprints": {
+        "contextRegionHash/v1": "96EADDA23A9C0773ACE7139BF90201CA80F251A5324F64CFDB59D93CC2116363"
+      },
+      "path": "src/ProjectAegis.Ai.Contracts/EvidenceEntry.cs",
+      "rationale": "Wave 0 Contracts freeze (DRG-735 / AiContractSchema v1): positional DTO properties and System.Runtime.CompilerServices.IsExternalInit polyfill are intentional serialization/compiler contracts. First-scan after sln add; accepted-exception, not product defect.",
+      "resolutionRevision": "",
+      "reviewCondition": "Review when AiContractSchema.Version bumps or polyfill/TFM contract changes.",
+      "ruleId": "NotAccessedPositionalProperty.Global",
+      "status": "accepted-exception",
+      "verification": "2026-11-15 DRG-735 inspect #855 @ b39867f4; Decision hybrid Surface expansion"
+    },
+    {
+      "frameworkTags": [
+        ".NET 11.0",
+        ".NETStandard 2.1"
+      ],
+      "identity": "[\"NotAccessedPositionalProperty.Global\",\"src/ProjectAegis.Ai.Contracts/EvidenceEntry.cs\",{\"contextRegionHash/v1\":\"2B144EAFDC958CF425AD1A05C01A1974B130BEBEC976CCE6BF2D8AE0656CD00A\"}]",
+      "level": "warning",
+      "location": {
+        "endColumn": 21,
+        "endLine": 9,
+        "startColumn": 11,
+        "startLine": 9
+      },
+      "message": "Positional property 'ProjectAegis.Ai.Contracts.EvidenceEntry.SequenceId' is never accessed (except in implicit Equals/ToString implementations)",
+      "occurrence": 1,
+      "originalFingerprint": "01067CCAD94131E980D28DF3B765801BF605F6EEDD1EA07EB6B2E76E7924D4CF",
+      "owner": "ai-wave0-contracts",
+      "partialFingerprints": {
+        "contextRegionHash/v1": "2B144EAFDC958CF425AD1A05C01A1974B130BEBEC976CCE6BF2D8AE0656CD00A"
+      },
+      "path": "src/ProjectAegis.Ai.Contracts/EvidenceEntry.cs",
+      "rationale": "Wave 0 Contracts freeze (DRG-735 / AiContractSchema v1): positional DTO properties and System.Runtime.CompilerServices.IsExternalInit polyfill are intentional serialization/compiler contracts. First-scan after sln add; accepted-exception, not product defect.",
+      "resolutionRevision": "",
+      "reviewCondition": "Review when AiContractSchema.Version bumps or polyfill/TFM contract changes.",
+      "ruleId": "NotAccessedPositionalProperty.Global",
+      "status": "accepted-exception",
+      "verification": "2026-11-15 DRG-735 inspect #855 @ b39867f4; Decision hybrid Surface expansion"
+    },
+    {
+      "frameworkTags": [
+        ".NET 11.0",
+        ".NETStandard 2.1"
+      ],
+      "identity": "[\"NotAccessedPositionalProperty.Global\",\"src/ProjectAegis.Ai.Contracts/EvidenceEntry.cs\",{\"contextRegionHash/v1\":\"37B5E0FDA927FBAC933CFEC14F748BED097262F2177FDC207C6F360A047853C0\"}]",
+      "level": "warning",
+      "location": {
+        "endColumn": 19,
+        "endLine": 11,
+        "startColumn": 12,
+        "startLine": 11
+      },
+      "message": "Positional property 'ProjectAegis.Ai.Contracts.EvidenceEntry.SimTime' is never accessed (except in implicit Equals/ToString implementations)",
+      "occurrence": 1,
+      "originalFingerprint": "9EA0599BFFD1CCBC2DBEB48E42065F4B0FEE5893E9562B6C8AAEA1FB59DEBFA7",
+      "owner": "ai-wave0-contracts",
+      "partialFingerprints": {
+        "contextRegionHash/v1": "37B5E0FDA927FBAC933CFEC14F748BED097262F2177FDC207C6F360A047853C0"
+      },
+      "path": "src/ProjectAegis.Ai.Contracts/EvidenceEntry.cs",
+      "rationale": "Wave 0 Contracts freeze (DRG-735 / AiContractSchema v1): positional DTO properties and System.Runtime.CompilerServices.IsExternalInit polyfill are intentional serialization/compiler contracts. First-scan after sln add; accepted-exception, not product defect.",
+      "resolutionRevision": "",
+      "reviewCondition": "Review when AiContractSchema.Version bumps or polyfill/TFM contract changes.",
+      "ruleId": "NotAccessedPositionalProperty.Global",
+      "status": "accepted-exception",
+      "verification": "2026-11-15 DRG-735 inspect #855 @ b39867f4; Decision hybrid Surface expansion"
+    },
+    {
+      "frameworkTags": [
+        ".NET 11.0",
+        ".NETStandard 2.1"
+      ],
+      "identity": "[\"NotAccessedPositionalProperty.Global\",\"src/ProjectAegis.Ai.Contracts/EvidenceEntry.cs\",{\"contextRegionHash/v1\":\"35D27450A7B3E3A1ED9D7DF269A77669B3D34EF57CD4CA825952B26305DE3EAC\"}]",
+      "level": "warning",
+      "location": {
+        "endColumn": 20,
+        "endLine": 14,
+        "startColumn": 13,
+        "startLine": 14
+      },
+      "message": "Positional property 'ProjectAegis.Ai.Contracts.EvidenceEntry.Summary' is never accessed (except in implicit Equals/ToString implementations)",
+      "occurrence": 1,
+      "originalFingerprint": "4D5380FE9007C535E9CA3FE2875369199DD2BA9F05D59F964A3A3EDDB09781F1",
+      "owner": "ai-wave0-contracts",
+      "partialFingerprints": {
+        "contextRegionHash/v1": "35D27450A7B3E3A1ED9D7DF269A77669B3D34EF57CD4CA825952B26305DE3EAC"
+      },
+      "path": "src/ProjectAegis.Ai.Contracts/EvidenceEntry.cs",
+      "rationale": "Wave 0 Contracts freeze (DRG-735 / AiContractSchema v1): positional DTO properties and System.Runtime.CompilerServices.IsExternalInit polyfill are intentional serialization/compiler contracts. First-scan after sln add; accepted-exception, not product defect.",
+      "resolutionRevision": "",
+      "reviewCondition": "Review when AiContractSchema.Version bumps or polyfill/TFM contract changes.",
+      "ruleId": "NotAccessedPositionalProperty.Global",
+      "status": "accepted-exception",
+      "verification": "2026-11-15 DRG-735 inspect #855 @ b39867f4; Decision hybrid Surface expansion"
+    },
+    {
+      "frameworkTags": [
+        ".NET 11.0",
+        ".NETStandard 2.1"
+      ],
+      "identity": "[\"NotAccessedPositionalProperty.Global\",\"src/ProjectAegis.Ai.Contracts/EvidenceEntry.cs\",{\"contextRegionHash/v1\":\"A52EE8F563968BF207609C98AD4D7CC518B4852162956F2149422BBF7C2149C9\"}]",
+      "level": "warning",
+      "location": {
+        "endColumn": 19,
+        "endLine": 13,
+        "startColumn": 13,
+        "startLine": 13
+      },
+      "message": "Positional property 'ProjectAegis.Ai.Contracts.EvidenceEntry.UnitId' is never accessed (except in implicit Equals/ToString implementations)",
+      "occurrence": 1,
+      "originalFingerprint": "0A9DC3CDC0277D53290BA612A98A6126F351FB1ADC143677DDCD979CE0C0AABB",
+      "owner": "ai-wave0-contracts",
+      "partialFingerprints": {
+        "contextRegionHash/v1": "A52EE8F563968BF207609C98AD4D7CC518B4852162956F2149422BBF7C2149C9"
+      },
+      "path": "src/ProjectAegis.Ai.Contracts/EvidenceEntry.cs",
+      "rationale": "Wave 0 Contracts freeze (DRG-735 / AiContractSchema v1): positional DTO properties and System.Runtime.CompilerServices.IsExternalInit polyfill are intentional serialization/compiler contracts. First-scan after sln add; accepted-exception, not product defect.",
+      "resolutionRevision": "",
+      "reviewCondition": "Review when AiContractSchema.Version bumps or polyfill/TFM contract changes.",
+      "ruleId": "NotAccessedPositionalProperty.Global",
+      "status": "accepted-exception",
+      "verification": "2026-11-15 DRG-735 inspect #855 @ b39867f4; Decision hybrid Surface expansion"
+    },
+    {
+      "frameworkTags": [
+        ".NET 11.0",
+        ".NETStandard 2.1"
+      ],
+      "identity": "[\"NotAccessedPositionalProperty.Global\",\"src/ProjectAegis.Ai.Contracts/EvidenceEntry.cs\",{\"contextRegionHash/v1\":\"7BD4D9D19AAB043E39C2A0E44CB653E2E938A8DC4F980527BE703CA5409E53F2\"}]",
+      "level": "warning",
+      "location": {
+        "endColumn": 28,
+        "endLine": 12,
+        "startColumn": 17,
+        "startLine": 12
+      },
+      "message": "Positional property 'ProjectAegis.Ai.Contracts.EvidenceEntry.ViewingSide' is never accessed (except in implicit Equals/ToString implementations)",
+      "occurrence": 1,
+      "originalFingerprint": "A43FF48CE8EC6A6824FC030D76E92EDB20E714DF896C151262BD7E018DD59CC5",
+      "owner": "ai-wave0-contracts",
+      "partialFingerprints": {
+        "contextRegionHash/v1": "7BD4D9D19AAB043E39C2A0E44CB653E2E938A8DC4F980527BE703CA5409E53F2"
+      },
+      "path": "src/ProjectAegis.Ai.Contracts/EvidenceEntry.cs",
+      "rationale": "Wave 0 Contracts freeze (DRG-735 / AiContractSchema v1): positional DTO properties and System.Runtime.CompilerServices.IsExternalInit polyfill are intentional serialization/compiler contracts. First-scan after sln add; accepted-exception, not product defect.",
+      "resolutionRevision": "",
+      "reviewCondition": "Review when AiContractSchema.Version bumps or polyfill/TFM contract changes.",
+      "ruleId": "NotAccessedPositionalProperty.Global",
+      "status": "accepted-exception",
+      "verification": "2026-11-15 DRG-735 inspect #855 @ b39867f4; Decision hybrid Surface expansion"
+    },
+    {
+      "frameworkTags": [
+        ".NET 11.0",
+        ".NETStandard 2.1"
+      ],
+      "identity": "[\"NotAccessedPositionalProperty.Global\",\"src/ProjectAegis.Ai.Contracts/EvidenceHeader.cs\",{\"contextRegionHash/v1\":\"E2E407285F48C2152C859273934C3A8A536B536AD980C01A48C13F77109AA5C3\"}]",
+      "level": "warning",
+      "location": {
+        "endColumn": 25,
+        "endLine": 6,
+        "startColumn": 12,
+        "startLine": 6
+      },
+      "message": "Positional property 'ProjectAegis.Ai.Contracts.EvidenceHeader.BuildIdentity' is never accessed (except in implicit Equals/ToString implementations)",
+      "occurrence": 1,
+      "originalFingerprint": "1B93A35055AD3138912880C381B07A8EEE781046DB39A3C2F9E97E943B1A51CF",
+      "owner": "ai-wave0-contracts",
+      "partialFingerprints": {
+        "contextRegionHash/v1": "E2E407285F48C2152C859273934C3A8A536B536AD980C01A48C13F77109AA5C3"
+      },
+      "path": "src/ProjectAegis.Ai.Contracts/EvidenceHeader.cs",
+      "rationale": "Wave 0 Contracts freeze (DRG-735 / AiContractSchema v1): positional DTO properties and System.Runtime.CompilerServices.IsExternalInit polyfill are intentional serialization/compiler contracts. First-scan after sln add; accepted-exception, not product defect.",
+      "resolutionRevision": "",
+      "reviewCondition": "Review when AiContractSchema.Version bumps or polyfill/TFM contract changes.",
+      "ruleId": "NotAccessedPositionalProperty.Global",
+      "status": "accepted-exception",
+      "verification": "2026-11-15 DRG-735 inspect #855 @ b39867f4; Decision hybrid Surface expansion"
+    },
+    {
+      "frameworkTags": [
+        ".NET 11.0",
+        ".NETStandard 2.1"
+      ],
+      "identity": "[\"NotAccessedPositionalProperty.Global\",\"src/ProjectAegis.Ai.Contracts/EvidenceHeader.cs\",{\"contextRegionHash/v1\":\"98C18C2385575725C9779E677E8FA6BD87E72334DA85C0C188FDB65A38ABF2FA\"}]",
+      "level": "warning",
+      "location": {
+        "endColumn": 27,
+        "endLine": 8,
+        "startColumn": 12,
+        "startLine": 8
+      },
+      "message": "Positional property 'ProjectAegis.Ai.Contracts.EvidenceHeader.CatalogRevision' is never accessed (except in implicit Equals/ToString implementations)",
+      "occurrence": 1,
+      "originalFingerprint": "CE3730972EC153659DDE2BDEC07FFFADDE36C7A0291C9F9200A9C348C5BCBDF3",
+      "owner": "ai-wave0-contracts",
+      "partialFingerprints": {
+        "contextRegionHash/v1": "98C18C2385575725C9779E677E8FA6BD87E72334DA85C0C188FDB65A38ABF2FA"
+      },
+      "path": "src/ProjectAegis.Ai.Contracts/EvidenceHeader.cs",
+      "rationale": "Wave 0 Contracts freeze (DRG-735 / AiContractSchema v1): positional DTO properties and System.Runtime.CompilerServices.IsExternalInit polyfill are intentional serialization/compiler contracts. First-scan after sln add; accepted-exception, not product defect.",
+      "resolutionRevision": "",
+      "reviewCondition": "Review when AiContractSchema.Version bumps or polyfill/TFM contract changes.",
+      "ruleId": "NotAccessedPositionalProperty.Global",
+      "status": "accepted-exception",
+      "verification": "2026-11-15 DRG-735 inspect #855 @ b39867f4; Decision hybrid Surface expansion"
+    },
+    {
+      "frameworkTags": [
+        ".NET 11.0",
+        ".NETStandard 2.1"
+      ],
+      "identity": "[\"NotAccessedPositionalProperty.Global\",\"src/ProjectAegis.Ai.Contracts/EvidenceHeader.cs\",{\"contextRegionHash/v1\":\"17D3BAF5BF166F8B774B8FB964B3217A9862F6089407085F250DB2B386F0E82D\"}]",
+      "level": "warning",
+      "location": {
+        "endColumn": 21,
+        "endLine": 11,
+        "startColumn": 10,
+        "startLine": 11
+      },
+      "message": "Positional property 'ProjectAegis.Ai.Contracts.EvidenceHeader.DebriefMode' is never accessed (except in implicit Equals/ToString implementations)",
+      "occurrence": 1,
+      "originalFingerprint": "D9E21C45654BB06A89D5599ECF86036E4F93CA8BDFB4F3FB566F1B201F6FF05B",
+      "owner": "ai-wave0-contracts",
+      "partialFingerprints": {
+        "contextRegionHash/v1": "17D3BAF5BF166F8B774B8FB964B3217A9862F6089407085F250DB2B386F0E82D"
+      },
+      "path": "src/ProjectAegis.Ai.Contracts/EvidenceHeader.cs",
+      "rationale": "Wave 0 Contracts freeze (DRG-735 / AiContractSchema v1): positional DTO properties and System.Runtime.CompilerServices.IsExternalInit polyfill are intentional serialization/compiler contracts. First-scan after sln add; accepted-exception, not product defect.",
+      "resolutionRevision": "",
+      "reviewCondition": "Review when AiContractSchema.Version bumps or polyfill/TFM contract changes.",
+      "ruleId": "NotAccessedPositionalProperty.Global",
+      "status": "accepted-exception",
+      "verification": "2026-11-15 DRG-735 inspect #855 @ b39867f4; Decision hybrid Surface expansion"
+    },
+    {
+      "frameworkTags": [
+        ".NET 11.0",
+        ".NETStandard 2.1"
+      ],
+      "identity": "[\"NotAccessedPositionalProperty.Global\",\"src/ProjectAegis.Ai.Contracts/EvidenceHeader.cs\",{\"contextRegionHash/v1\":\"42A35BAEF632004B947317DF39D9F4976B052E994458D1E52198E927DAC2C6C3\"}]",
+      "level": "warning",
+      "location": {
+        "endColumn": 38,
+        "endLine": 12,
+        "startColumn": 27,
+        "startLine": 12
+      },
+      "message": "Positional property 'ProjectAegis.Ai.Contracts.EvidenceHeader.EvidenceIds' is never accessed (except in implicit Equals/ToString implementations)",
+      "occurrence": 1,
+      "originalFingerprint": "B0A613EAED81D6B28B9FB1E8308645369ACCB76E44DB8B225935221D07F35DD2",
+      "owner": "ai-wave0-contracts",
+      "partialFingerprints": {
+        "contextRegionHash/v1": "42A35BAEF632004B947317DF39D9F4976B052E994458D1E52198E927DAC2C6C3"
+      },
+      "path": "src/ProjectAegis.Ai.Contracts/EvidenceHeader.cs",
+      "rationale": "Wave 0 Contracts freeze (DRG-735 / AiContractSchema v1): positional DTO properties and System.Runtime.CompilerServices.IsExternalInit polyfill are intentional serialization/compiler contracts. First-scan after sln add; accepted-exception, not product defect.",
+      "resolutionRevision": "",
+      "reviewCondition": "Review when AiContractSchema.Version bumps or polyfill/TFM contract changes.",
+      "ruleId": "NotAccessedPositionalProperty.Global",
+      "status": "accepted-exception",
+      "verification": "2026-11-15 DRG-735 inspect #855 @ b39867f4; Decision hybrid Surface expansion"
+    },
+    {
+      "frameworkTags": [
+        ".NET 11.0",
+        ".NETStandard 2.1"
+      ],
+      "identity": "[\"NotAccessedPositionalProperty.Global\",\"src/ProjectAegis.Ai.Contracts/EvidenceHeader.cs\",{\"contextRegionHash/v1\":\"B94CDBD0A2561BBE8A69D2A5782B1BA06C2E45CEEFCD62F9AC45A8B0C9F982B7\"}]",
+      "level": "warning",
+      "location": {
+        "endColumn": 31,
+        "endLine": 9,
+        "startColumn": 12,
+        "startLine": 9
+      },
+      "message": "Positional property 'ProjectAegis.Ai.Contracts.EvidenceHeader.OrderLogFingerprint' is never accessed (except in implicit Equals/ToString implementations)",
+      "occurrence": 1,
+      "originalFingerprint": "E2ACFA60322E5DEAD8B340FE88148EF1B5D1F6694643E4E214C9DB10A4E98A4A",
+      "owner": "ai-wave0-contracts",
+      "partialFingerprints": {
+        "contextRegionHash/v1": "B94CDBD0A2561BBE8A69D2A5782B1BA06C2E45CEEFCD62F9AC45A8B0C9F982B7"
+      },
+      "path": "src/ProjectAegis.Ai.Contracts/EvidenceHeader.cs",
+      "rationale": "Wave 0 Contracts freeze (DRG-735 / AiContractSchema v1): positional DTO properties and System.Runtime.CompilerServices.IsExternalInit polyfill are intentional serialization/compiler contracts. First-scan after sln add; accepted-exception, not product defect.",
+      "resolutionRevision": "",
+      "reviewCondition": "Review when AiContractSchema.Version bumps or polyfill/TFM contract changes.",
+      "ruleId": "NotAccessedPositionalProperty.Global",
+      "status": "accepted-exception",
+      "verification": "2026-11-15 DRG-735 inspect #855 @ b39867f4; Decision hybrid Surface expansion"
+    },
+    {
+      "frameworkTags": [
+        ".NET 11.0",
+        ".NETStandard 2.1"
+      ],
+      "identity": "[\"NotAccessedPositionalProperty.Global\",\"src/ProjectAegis.Ai.Contracts/EvidenceHeader.cs\",{\"contextRegionHash/v1\":\"09C72945ABBC6D8F3C299DB0807EA5CDB3FD01CF5FC2E7F7E60B2995F1E528DC\"}]",
+      "level": "warning",
+      "location": {
+        "endColumn": 22,
+        "endLine": 7,
+        "startColumn": 12,
+        "startLine": 7
+      },
+      "message": "Positional property 'ProjectAegis.Ai.Contracts.EvidenceHeader.ScenarioId' is never accessed (except in implicit Equals/ToString implementations)",
+      "occurrence": 1,
+      "originalFingerprint": "9B3EE536314EED874C93B64D925A836499640E18FF606338DC35FE5503E986EF",
+      "owner": "ai-wave0-contracts",
+      "partialFingerprints": {
+        "contextRegionHash/v1": "09C72945ABBC6D8F3C299DB0807EA5CDB3FD01CF5FC2E7F7E60B2995F1E528DC"
+      },
+      "path": "src/ProjectAegis.Ai.Contracts/EvidenceHeader.cs",
+      "rationale": "Wave 0 Contracts freeze (DRG-735 / AiContractSchema v1): positional DTO properties and System.Runtime.CompilerServices.IsExternalInit polyfill are intentional serialization/compiler contracts. First-scan after sln add; accepted-exception, not product defect.",
+      "resolutionRevision": "",
+      "reviewCondition": "Review when AiContractSchema.Version bumps or polyfill/TFM contract changes.",
+      "ruleId": "NotAccessedPositionalProperty.Global",
+      "status": "accepted-exception",
+      "verification": "2026-11-15 DRG-735 inspect #855 @ b39867f4; Decision hybrid Surface expansion"
+    },
+    {
+      "frameworkTags": [
+        ".NET 11.0",
+        ".NETStandard 2.1"
+      ],
+      "identity": "[\"NotAccessedPositionalProperty.Global\",\"src/ProjectAegis.Ai.Contracts/EvidenceHeader.cs\",{\"contextRegionHash/v1\":\"DA3DC00C3D234623798619FF2E7D15D3A92F5FDE787F4A7C1132AB5927457B8C\"}]",
+      "level": "warning",
+      "location": {
+        "endColumn": 22,
+        "endLine": 5,
+        "startColumn": 9,
+        "startLine": 5
+      },
+      "message": "Positional property 'ProjectAegis.Ai.Contracts.EvidenceHeader.SchemaVersion' is never accessed (except in implicit Equals/ToString implementations)",
+      "occurrence": 1,
+      "originalFingerprint": "A594EB2C58A8D8B022A0397C71BAAF3E8D4BA016A9F902EF4B50F08FB6594C11",
+      "owner": "ai-wave0-contracts",
+      "partialFingerprints": {
+        "contextRegionHash/v1": "DA3DC00C3D234623798619FF2E7D15D3A92F5FDE787F4A7C1132AB5927457B8C"
+      },
+      "path": "src/ProjectAegis.Ai.Contracts/EvidenceHeader.cs",
+      "rationale": "Wave 0 Contracts freeze (DRG-735 / AiContractSchema v1): positional DTO properties and System.Runtime.CompilerServices.IsExternalInit polyfill are intentional serialization/compiler contracts. First-scan after sln add; accepted-exception, not product defect.",
+      "resolutionRevision": "",
+      "reviewCondition": "Review when AiContractSchema.Version bumps or polyfill/TFM contract changes.",
+      "ruleId": "NotAccessedPositionalProperty.Global",
+      "status": "accepted-exception",
+      "verification": "2026-11-15 DRG-735 inspect #855 @ b39867f4; Decision hybrid Surface expansion"
+    },
+    {
+      "frameworkTags": [
+        ".NET 11.0",
+        ".NETStandard 2.1"
+      ],
+      "identity": "[\"NotAccessedPositionalProperty.Global\",\"src/ProjectAegis.Ai.Contracts/EvidenceHeader.cs\",{\"contextRegionHash/v1\":\"D1FA3D16484DED788C7F7AA52162819A7335617484E1090FFA8D0078EF4010B8\"}]",
+      "level": "warning",
+      "location": {
+        "endColumn": 28,
+        "endLine": 10,
+        "startColumn": 17,
+        "startLine": 10
+      },
+      "message": "Positional property 'ProjectAegis.Ai.Contracts.EvidenceHeader.ViewingSide' is never accessed (except in implicit Equals/ToString implementations)",
+      "occurrence": 1,
+      "originalFingerprint": "5E63FC0E42C65479B55B2026B2203A01DE243A9389DAB92E5868FDE83D4A6201",
+      "owner": "ai-wave0-contracts",
+      "partialFingerprints": {
+        "contextRegionHash/v1": "D1FA3D16484DED788C7F7AA52162819A7335617484E1090FFA8D0078EF4010B8"
+      },
+      "path": "src/ProjectAegis.Ai.Contracts/EvidenceHeader.cs",
+      "rationale": "Wave 0 Contracts freeze (DRG-735 / AiContractSchema v1): positional DTO properties and System.Runtime.CompilerServices.IsExternalInit polyfill are intentional serialization/compiler contracts. First-scan after sln add; accepted-exception, not product defect.",
+      "resolutionRevision": "",
+      "reviewCondition": "Review when AiContractSchema.Version bumps or polyfill/TFM contract changes.",
+      "ruleId": "NotAccessedPositionalProperty.Global",
+      "status": "accepted-exception",
+      "verification": "2026-11-15 DRG-735 inspect #855 @ b39867f4; Decision hybrid Surface expansion"
     }
   ],
   "schemaVersion": 1,

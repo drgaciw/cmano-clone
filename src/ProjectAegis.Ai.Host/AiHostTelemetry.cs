@@ -1,6 +1,6 @@
-namespace ProjectAegis.Ai.Host;
-
 using ProjectAegis.Ai.Contracts;
+
+namespace ProjectAegis.Ai.Host;
 
 /// <summary>
 /// Default host telemetry. Never records secrets or full prompt bodies.

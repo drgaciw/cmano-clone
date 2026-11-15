@@ -1,7 +1,7 @@
 # Architecture Traceability Index
 
-**Last Updated:** 2026-08-09 (swarm TR rows stub) (header + gate floors refreshed; requirement rows unchanged — see note)
-**Engine:** Unity 6.3 LTS (6000.3.14f1) + .NET 8  
+**Last Updated:** 2026-11-15 (ADR-030 + Wave 0 AI contracts freeze — DRG-735; requirement rows unchanged — see note)
+**Engine:** Unity 6.3 LTS (6000.3.14f1) + .NET 8 / .NET 11 (AI host)  
 **Authority:** [architecture-re-matrix-post-s93-s96-2026-07-15.md](architecture-re-matrix-post-s93-s96-2026-07-15.md) (layer verdicts) · [architecture-review-2026-06-02.md](architecture-review-2026-06-02.md) (historical)  
 **TR IDs:** [tr-registry.yaml](tr-registry.yaml)
 
@@ -16,7 +16,8 @@
 - **Partial:** 20 (43%) — *as of 2026-07-08, not re-assessed*
 - **Gaps:** 12 (25%) — *as of 2026-07-08, not re-assessed*
 - **Current gates (2026-07-24):** solution tests **≥1638/0f**; ReplayGolden **6/6**; C2 proxy **≥20/20**; PlayModeSmoke 18/18; hash `17144800277401907079` (18 paths) — see [requirements-traceability.md](requirements-traceability.md) header.
-- **ADR inventory (updated 2026-07-26):** **22 ADRs present** — ADR-001…ADR-011, ADR-013…ADR-022, plus `adr-simulation-session-frozen-hub-spirit1`. **ADR-012 is absent — a numbering gap, not a missing decision.** New this cycle: **018** sensor side picture / datalink · **019** agentic AAR read-only order log · **020** logistics fuel model · **021** mission timeline runtime · **022** target OS and CPU architectures (renumbered from a duplicate 018; see that ADR's Status note). Historical Sprint 11–15 closeout (2026-06-08) cited `403/403` / PlayMode **7/7** only as program evidence, not live floors.
+- **ADR inventory (updated 2026-11-15):** **23 ADRs present** — ADR-001…ADR-011, ADR-013…ADR-022, **ADR-030**, plus `adr-simulation-session-frozen-hub-spirit1`. **ADR-012 is absent — a numbering gap, not a missing decision.** **ADR-030** ([adr-030-ai-host-boundary.md](adr-030-ai-host-boundary.md)) — AI host boundary **Accepted** 2026-11-15 (owner/TD via PM + Decision): separate `net11.0` host, zero Packages in Contracts, no AI packages/DLLs in Unity-bound `netstandard2.1` / Plugins, Sim/Delegation free of network/LLM on the tick path. Historical Sprint 11–15 closeout (2026-06-08) cited `403/403` / PlayMode **7/7** only as program evidence, not live floors.
+- **Wave 0 AI contracts freeze (DRG-735):** `ProjectAegis.Ai.Contracts` schema **`AiContractSchema.Version = 1`** is **frozen**. Additive bumps must increment the version; breaking renames are forbidden while Host/fixtures consumers exist. Solution now includes `Ai.Contracts`, `Ai.Host`, `Ai.Host.Tests` (not `Ai.LiveEval`).
 - **Sprint 11–15 program:** **CLOSED** @ 2026-06-08 — requirements maturity (docs 01–12) + Wave 5 on `main`; tracker rows **14/16/19/20** at **Partial+** with automated AC (**historical** `403/403` / **7/7**). See [requirements-traceability.md](requirements-traceability.md) Wave 5 overlap spine.
 - **Platform editor (FR-19 / req 21):** ADR-011 Partial — see [requirements-traceability.md](requirements-traceability.md) § Platform editor.
 

@@ -1,8 +1,8 @@
-namespace ProjectAegis.Ai.Host;
-
 using System.Text;
 using System.Text.Json;
 using ProjectAegis.Ai.Contracts;
+
+namespace ProjectAegis.Ai.Host;
 
 /// <summary>
 /// Publishes <see cref="ArtifactEnvelope"/> JSON via temp write + validate + atomic rename.

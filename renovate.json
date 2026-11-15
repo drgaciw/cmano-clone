@@ -62,6 +62,19 @@
       ],
       "groupName": null,
       "enabled": false
+    },
+    {
+      "description": "Microsoft.Extensions.AI* (and later provider SDKs) out of the weekly minor/patch group — reviewed PR only (DRG-735 / ADR-030)",
+      "matchManagers": [
+        "nuget"
+      ],
+      "matchPackagePatterns": [
+        "^Microsoft\\.Extensions\\.AI"
+      ],
+      "groupName": "microsoft-extensions-ai reviewed",
+      "groupSlug": "microsoft-extensions-ai-reviewed",
+      "automerge": false,
+      "dependencyDashboardApproval": true
     }
   ],
   "vulnerabilityAlerts": {

@@ -1,9 +1,9 @@
-namespace ProjectAegis.Ai.Host;
-
 using System.Runtime.CompilerServices;
 using System.Threading.Channels;
 using Microsoft.Extensions.AI;
 using ProjectAegis.Ai.Contracts;
+
+namespace ProjectAegis.Ai.Host;
 
 /// <summary>
 /// Offline <see cref="IChatClient"/> with a FIFO script of deterministic responses.
@@ -84,6 +84,7 @@ public sealed class FakeChatClient : IChatClient
     }
 
     /// <summary>Maps a completed fake response to a <see cref="GenerationStatus"/>.</summary>
+#pragma warning disable CS8524 // unnamed enum values; keep arms exhaustive for named FakeChatScript (no redundant _)
     public static GenerationStatus ToGenerationStatus(FakeChatScript script) => script switch
     {
         FakeChatScript.Success => GenerationStatus.Succeeded,
@@ -91,8 +92,8 @@ public sealed class FakeChatClient : IChatClient
         FakeChatScript.Timeout => GenerationStatus.TimedOut,
         FakeChatScript.Cancellation => GenerationStatus.Cancelled,
         FakeChatScript.ProviderUnavailable => GenerationStatus.ProviderUnavailable,
-        _ => GenerationStatus.ProviderUnavailable,
     };
+#pragma warning restore CS8524
 
     private static async Task<ChatResponse> ExecuteAsync(
         FakeChatScript script,
