@@ -1,0 +1,19 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+  <PropertyGroup>
+    <TargetFrameworks>netstandard2.1;net11.0</TargetFrameworks>
+    <!-- C# 12 pin. Do not raise. See Directory.Build.props. -->
+    <LangVersion>12.0</LangVersion>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <Nullable>enable</Nullable>
+    <RootNamespace>ProjectAegis.Ai.Contracts</RootNamespace>
+    <Description>AI evidence DTOs, artifact envelope, and transport contracts (no package references; Unity-readable).</Description>
+    <IsPackable>false</IsPackable>
+    <!-- DRG-730: zero package references by design — do not add PackageReference items. -->
+    <DisableImplicitFrameworkReferences Condition="'$(TargetFramework)' == 'netstandard2.1'">false</DisableImplicitFrameworkReferences>
+  </PropertyGroup>
+  <!-- Intentionally empty: no PackageReference. System.Text.Json consumers live in Ai.Host / tests on net11.0. -->
+  <ItemGroup>
+    <Compile Remove="test/**" />
+    <None Include="test/**" />
+  </ItemGroup>
+</Project>
