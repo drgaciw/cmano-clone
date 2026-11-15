@@ -91,6 +91,18 @@ public sealed class AiHostBoundaryGateTests
         "SafeProcessHandle.Start",
     };
 
+    /// <summary>
+    /// Network / LLM call markers forbidden on Sim and Delegation tick paths
+    /// (ADR-030 Decision). Optional <c>Delegation/Hindsight/</c> sidecar is excluded.
+    /// </summary>
+    private static readonly string[] ForbiddenNetworkSubstrings =
+    {
+        "System.Net.Http",
+        "HttpClient",
+        "System.Net.Sockets",
+        "new Socket",
+    };
+
     [Theory]
     [MemberData(nameof(UnityBoundNetstandardProjectPaths))]
     public void Unity_bound_netstandard_csproj_has_no_ai_or_provider_package(string relativePath)
@@ -207,6 +219,55 @@ public sealed class AiHostBoundaryGateTests
     }
 
     [Fact]
+    public void Sim_and_delegation_tick_path_have_no_http_client_or_socket()
+    {
+        var simRoot = ResolveRepoDirectory("src", "ProjectAegis.Sim");
+        if (simRoot is null)
+        {
+            Assert.Fail("Missing src/ProjectAegis.Sim.");
+            return;
+        }
+
+        var delegationRoot = ResolveRepoDirectory("src", "ProjectAegis.Delegation");
+        if (delegationRoot is null)
+        {
+            Assert.Fail("Missing src/ProjectAegis.Delegation.");
+            return;
+        }
+
+        foreach (var file in EnumerateCsSources(simRoot))
+        {
+            AssertNoForbiddenNetwork(file);
+        }
+
+        foreach (var file in EnumerateCsSources(delegationRoot))
+        {
+            // Optional non-tick Hindsight memory sidecar may use HttpClient; not LLM / not tick.
+            if (file.Contains($"{Path.DirectorySeparatorChar}Hindsight{Path.DirectorySeparatorChar}", StringComparison.Ordinal)
+                || file.Contains("/Hindsight/", StringComparison.Ordinal)
+                || file.Contains("\\Hindsight\\", StringComparison.Ordinal))
+            {
+                continue;
+            }
+
+            AssertNoForbiddenNetwork(file);
+        }
+    }
+
+    [Theory]
+    [InlineData("var http = new HttpClient();", true)]
+    [InlineData("using System.Net.Http;", true)]
+    [InlineData("using System.Net.Sockets;", true)]
+    [InlineData("var s = new Socket(AddressFamily.InterNetwork, SocketType.Stream, ProtocolType.Tcp);", true)]
+    [InlineData("File.ReadAllText(path);", false)]
+    public void Forbidden_network_matcher_detects_violations(string sourceSnippet, bool expectForbidden)
+    {
+        var hit = ForbiddenNetworkSubstrings.Any(f =>
+            sourceSnippet.Contains(f, StringComparison.Ordinal));
+        Assert.Equal(expectForbidden, hit);
+    }
+
+    [Fact]
     public void Unity_bound_project_list_matches_copy_surface()
     {
         Assert.Equal(4, UnityBoundNetstandardProjects.Length);
@@ -214,6 +275,23 @@ public sealed class AiHostBoundaryGateTests
         Assert.Equal(4, UnityBoundNetstandardProjectPaths().Count<object[]>());
         Assert.Equal(7, AuthoringPathSourcePaths().Count<object[]>());
     }
+
+    private static void AssertNoForbiddenNetwork(string path)
+    {
+        var source = File.ReadAllText(path);
+        foreach (var forbidden in ForbiddenNetworkSubstrings)
+        {
+            Assert.True(
+                !source.Contains(forbidden, StringComparison.Ordinal),
+                $"'{path}' contains forbidden network/LLM-path substring '{forbidden}'. " +
+                "Per ADR-030, Sim and Delegation tick paths make no network or LLM calls.");
+        }
+    }
+
+    private static IEnumerable<string> EnumerateCsSources(string root) =>
+        Directory.EnumerateFiles(root, "*.cs", SearchOption.AllDirectories)
+            .Where(p => !p.Contains($"{Path.DirectorySeparatorChar}obj{Path.DirectorySeparatorChar}", StringComparison.Ordinal)
+                        && !p.Contains($"{Path.DirectorySeparatorChar}bin{Path.DirectorySeparatorChar}", StringComparison.Ordinal));
 
     private static List<string> LoadPackageReferenceIncludes(string csprojPath)
     {
