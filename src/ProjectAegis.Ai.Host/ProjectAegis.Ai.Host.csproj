@@ -1,0 +1,19 @@
+<Project Sdk="Microsoft.NET.Sdk">
+  <PropertyGroup>
+    <TargetFramework>net11.0</TargetFramework>
+    <!-- C# 12 pin. Do not raise. See Directory.Build.props. -->
+    <LangVersion>12.0</LangVersion>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <Nullable>enable</Nullable>
+    <RootNamespace>ProjectAegis.Ai.Host</RootNamespace>
+    <Description>AI host skeleton: DI root, FakeChatClient, atomic artifact store (no paid providers).</Description>
+    <IsPackable>false</IsPackable>
+  </PropertyGroup>
+  <ItemGroup>
+    <PackageReference Include="Microsoft.Extensions.AI" Version="11.0.0" />
+    <PackageReference Include="Microsoft.Extensions.DependencyInjection" Version="10.0.0" />
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\ProjectAegis.Ai.Contracts\ProjectAegis.Ai.Contracts.csproj" />
+  </ItemGroup>
+</Project>
