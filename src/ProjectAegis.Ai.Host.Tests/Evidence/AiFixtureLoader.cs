@@ -1,5 +1,4 @@
 using System.Text.Json;
-using System.Text.Json.Serialization;
 using ProjectAegis.Ai.Contracts;
 using ProjectAegis.Ai.Host.Evidence;
 using ProjectAegis.Delegation.Decision;
@@ -9,11 +8,6 @@ namespace ProjectAegis.Ai.Host.Tests.Evidence;
 /// <summary>Loads DRG-732 ai-fixtures into a stub order log + side annotations.</summary>
 internal static class AiFixtureLoader
 {
-    private static readonly JsonSerializerOptions JsonOptions = new()
-    {
-        PropertyNameCaseInsensitive = true,
-    };
-
     public static string ResolveFixturesRoot()
     {
         var dir = new DirectoryInfo(AppContext.BaseDirectory);
@@ -49,15 +43,32 @@ internal static class AiFixtureLoader
     public static LoadedAiFixture LoadCase(string fixturesRoot, string caseId)
     {
         var caseDir = Path.Combine(fixturesRoot, caseId);
-        var caseJson = JsonSerializer.Deserialize<CaseJson>(
-            File.ReadAllText(Path.Combine(caseDir, "case.json")),
-            JsonOptions) ?? throw new InvalidOperationException("case.json missing");
-        var orderLog = JsonSerializer.Deserialize<OrderLogJson>(
-            File.ReadAllText(Path.Combine(caseDir, "order-log.json")),
-            JsonOptions) ?? throw new InvalidOperationException("order-log.json missing");
-        var expectedIds = JsonSerializer.Deserialize<ExpectedIdsJson>(
-            File.ReadAllText(Path.Combine(caseDir, "expected-evidence-ids.json")),
-            JsonOptions) ?? throw new InvalidOperationException("expected-evidence-ids.json missing");
+
+        using var caseDoc = JsonDocument.Parse(File.ReadAllText(Path.Combine(caseDir, "case.json")));
+        var caseRoot = caseDoc.RootElement;
+        var caseIdentity = caseRoot.GetProperty("id").GetString()
+            ?? throw new InvalidOperationException("case.json missing id");
+        var defaultViewingSide = ParseSide(GetStringOrNull(caseRoot, "defaultViewingSide") ?? "Blue");
+        var debriefRevealsAll = caseRoot.TryGetProperty("debriefRevealsAll", out var debriefEl)
+            && debriefEl.ValueKind == JsonValueKind.True;
+
+        using var orderDoc = JsonDocument.Parse(File.ReadAllText(Path.Combine(caseDir, "order-log.json")));
+        var orderRoot = orderDoc.RootElement;
+        var fingerprintPrefix = orderRoot.GetProperty("fingerprintPrefix").GetString()
+            ?? throw new InvalidOperationException("order-log.json missing fingerprintPrefix");
+
+        using var expectedDoc = JsonDocument.Parse(
+            File.ReadAllText(Path.Combine(caseDir, "expected-evidence-ids.json")));
+        var expectedRoot = expectedDoc.RootElement;
+        var expectedIds = expectedRoot.GetProperty("ids").EnumerateArray()
+            .Select(e => e.GetString()!)
+            .ToArray();
+        string[]? blueVisibleIds = null;
+        if (expectedRoot.TryGetProperty("blueVisibleIds", out var blueEl)
+            && blueEl.ValueKind == JsonValueKind.Array)
+        {
+            blueVisibleIds = blueEl.EnumerateArray().Select(e => e.GetString()!).ToArray();
+        }
 
         IReadOnlyDictionary<string, string>? facts = null;
         var factsPath = Path.Combine(caseDir, "expected-facts.json");
@@ -69,78 +80,72 @@ internal static class AiFixtureLoader
             facts = map;
         }
 
-        var entries = new List<OrderLogEntry>(orderLog.Entries.Count);
+        var entries = new List<OrderLogEntry>();
         var annotations = new Dictionary<ulong, EvidenceSourceAnnotation>();
-        foreach (var raw in orderLog.Entries.OrderBy(e => e.SequenceId))
+        foreach (var raw in orderRoot.GetProperty("entries").EnumerateArray()
+                     .OrderBy(e => e.GetProperty("sequenceId").GetUInt64()))
         {
-            if (!Enum.TryParse(raw.Kind, ignoreCase: true, out OrderLogEntryKind kind))
+            var sequenceId = raw.GetProperty("sequenceId").GetUInt64();
+            var kindRaw = raw.GetProperty("kind").GetString()
+                ?? throw new InvalidOperationException($"Missing kind in {caseId}");
+            if (!Enum.TryParse(kindRaw, ignoreCase: true, out OrderLogEntryKind kind))
             {
-                throw new InvalidOperationException($"Unknown kind '{raw.Kind}' in {caseId}");
+                throw new InvalidOperationException($"Unknown kind '{kindRaw}' in {caseId}");
             }
 
-            var side = ParseSide(raw.Side);
-            var hidden = (raw.HiddenFrom ?? Array.Empty<string>())
-                .Select(ParseSide)
-                .ToArray();
-            annotations[raw.SequenceId] = new EvidenceSourceAnnotation(side, hidden);
+            var simTime = raw.GetProperty("simTime").GetDouble();
+            var side = ParseSide(GetStringOrNull(raw, "side"));
+            var hidden = Array.Empty<ViewingSide>();
+            if (raw.TryGetProperty("hiddenFrom", out var hiddenEl)
+                && hiddenEl.ValueKind == JsonValueKind.Array)
+            {
+                hidden = hiddenEl.EnumerateArray()
+                    .Select(e => ParseSide(e.GetString()))
+                    .ToArray();
+            }
+
+            annotations[sequenceId] = new EvidenceSourceAnnotation(side, hidden);
 
             var bag = new Dictionary<string, string>(StringComparer.Ordinal);
-            if (raw.ExtensionData is not null)
+            foreach (var prop in raw.EnumerateObject())
             {
-                foreach (var prop in raw.ExtensionData)
+                if (IsReservedEntryProperty(prop.Name))
                 {
-                    bag[prop.Key] = prop.Value.ValueKind switch
-                    {
-                        JsonValueKind.String => prop.Value.GetString() ?? string.Empty,
-                        JsonValueKind.Number or JsonValueKind.True or JsonValueKind.False =>
-                            prop.Value.GetRawText(),
-                        _ => prop.Value.GetRawText(),
-                    };
+                    continue;
                 }
-            }
 
-            if (!string.IsNullOrEmpty(raw.UnitId))
-            {
-                bag["unitId"] = raw.UnitId;
-            }
-
-            if (!string.IsNullOrEmpty(raw.ShooterUnitId))
-            {
-                bag["shooterUnitId"] = raw.ShooterUnitId;
-            }
-
-            if (!string.IsNullOrEmpty(raw.TargetId))
-            {
-                bag["targetId"] = raw.TargetId;
-            }
-
-            if (!string.IsNullOrEmpty(raw.VictimUnitId))
-            {
-                bag["victimUnitId"] = raw.VictimUnitId;
-            }
-
-            if (!string.IsNullOrEmpty(raw.Summary))
-            {
-                bag["summary"] = raw.Summary;
+                bag[prop.Name] = JsonElementToString(prop.Value);
             }
 
             bag["side"] = side.ToString();
-            entries.Add(new OrderLogEntry(raw.SequenceId, kind, raw.SimTime, bag));
+            entries.Add(new OrderLogEntry(sequenceId, kind, simTime, bag));
         }
 
-        var log = new StubReadOnlyOrderLog(entries, orderLog.FingerprintPrefix);
-        var viewingSide = ParseSide(caseJson.DefaultViewingSide);
+        var log = new StubReadOnlyOrderLog(entries, fingerprintPrefix);
         return new LoadedAiFixture(
-            caseJson.Id,
-            orderLog.FingerprintPrefix,
-            viewingSide,
-            caseJson.DebriefRevealsAll,
+            caseIdentity,
+            fingerprintPrefix,
+            defaultViewingSide,
+            debriefRevealsAll,
             log,
             annotations,
-            expectedIds.Ids,
-            expectedIds.BlueVisibleIds,
+            expectedIds,
+            blueVisibleIds,
             facts);
     }
+
+    private static bool IsReservedEntryProperty(string name) =>
+        name is "sequenceId" or "kind" or "simTime" or "side" or "hiddenFrom";
+
+    private static string JsonElementToString(JsonElement value) =>
+        value.ValueKind == JsonValueKind.String
+            ? value.GetString() ?? string.Empty
+            : value.GetRawText();
+
+    private static string? GetStringOrNull(JsonElement element, string name) =>
+        element.TryGetProperty(name, out var prop) && prop.ValueKind == JsonValueKind.String
+            ? prop.GetString()
+            : null;
 
     private static void FlattenFacts(JsonElement element, string? prefix, Dictionary<string, string> map)
     {
@@ -184,42 +189,6 @@ internal static class AiFixtureLoader
         }
 
         return Enum.Parse<ViewingSide>(raw, ignoreCase: true);
-    }
-
-    private sealed class CaseJson
-    {
-        public string Id { get; set; } = string.Empty;
-        public string DefaultViewingSide { get; set; } = "Blue";
-        public bool DebriefRevealsAll { get; set; }
-    }
-
-    private sealed class OrderLogJson
-    {
-        public string FingerprintPrefix { get; set; } = string.Empty;
-        public List<OrderEntryJson> Entries { get; set; } = new();
-    }
-
-    private sealed class OrderEntryJson
-    {
-        public ulong SequenceId { get; set; }
-        public string Kind { get; set; } = string.Empty;
-        public double SimTime { get; set; }
-        public string? Side { get; set; }
-        public string[]? HiddenFrom { get; set; }
-        public string? UnitId { get; set; }
-        public string? ShooterUnitId { get; set; }
-        public string? VictimUnitId { get; set; }
-        public string? TargetId { get; set; }
-        public string? Summary { get; set; }
-
-        [JsonExtensionData]
-        public Dictionary<string, JsonElement>? ExtensionData { get; set; }
-    }
-
-    private sealed class ExpectedIdsJson
-    {
-        public string[] Ids { get; set; } = Array.Empty<string>();
-        public string[]? BlueVisibleIds { get; set; }
     }
 }
 

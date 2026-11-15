@@ -72,7 +72,41 @@ public sealed class EvidenceProjectorFixtureTests
 
         Assert.Empty(result.Document.Header.EvidenceIds);
         Assert.Empty(result.Document.Entries);
+        Assert.Equal(0, result.Quantitative.DecisionCount);
+        Assert.Equal(0, result.Quantitative.PolicyDenialCount);
         Assert.Equal(0, result.Quantitative.EngagementCount);
+        Assert.Equal(0, result.Quantitative.ControllerChangeCount);
+        Assert.Null(result.Quantitative.ObjectivesRatio);
+        Assert.NotNull(result.AarSection);
+        Assert.Empty(result.AarSection.Rows);
+        Assert.NotNull(result.AuthoritativeFacts);
+    }
+
+    [Fact]
+    public void Success_fixture_exposes_quantitative_and_facts()
+    {
+        var fixture = AiFixtureLoader.LoadCase(_fixturesRoot, "success");
+        var result = Project(fixture, ViewingSide.Blue, debrief: false);
+
+        Assert.Equal(0, result.Quantitative.DecisionCount);
+        Assert.Equal(0, result.Quantitative.PolicyDenialCount);
+        Assert.Equal(1, result.Quantitative.EngagementCount);
+        Assert.Equal(1, result.Quantitative.ControllerChangeCount);
+        Assert.NotNull(result.AarSection);
+        Assert.NotNull(result.AuthoritativeFacts);
+        Assert.Equal(fixture.Facts, result.AuthoritativeFacts);
+    }
+
+    [Fact]
+    public void Policy_denials_fixture_counts_denials()
+    {
+        var fixture = AiFixtureLoader.LoadCase(_fixturesRoot, "policy-denials");
+        var result = Project(fixture, ViewingSide.Blue, debrief: false);
+
+        Assert.Equal(2, result.Quantitative.PolicyDenialCount);
+        Assert.Equal(2, result.Document.Entries.Count);
+        Assert.NotNull(result.AarSection);
+        Assert.NotNull(result.AuthoritativeFacts);
     }
 
     private EvidenceProjectionResult Project(
