@@ -19,5 +19,11 @@
   <ItemGroup>
     <ProjectReference Include="..\ProjectAegis.Ai.Host\ProjectAegis.Ai.Host.csproj" />
     <ProjectReference Include="..\ProjectAegis.Ai.Contracts\ProjectAegis.Ai.Contracts.csproj" />
+    <ProjectReference Include="..\ProjectAegis.Delegation\ProjectAegis.Delegation.csproj" />
+  </ItemGroup>
+  <ItemGroup>
+    <Content Include="..\..\tests\ai-fixtures\**\*"
+             Link="ai-fixtures\%(RecursiveDir)%(Filename)%(Extension)"
+             CopyToOutputDirectory="PreserveNewest" />
   </ItemGroup>
 </Project>
