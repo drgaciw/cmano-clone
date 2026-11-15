@@ -1,0 +1,7 @@
+{
+  "fingerprintPrefix": "aifix-nomemory",
+  "entries": [
+    {"sequenceId": 1, "kind": "Engagement", "simTime": 10.0, "side": "Blue", "shooterUnitId": "u1", "victimUnitId": "hostile-1", "engagementId": 3001, "launched": true, "salvoSize": 1},
+    {"sequenceId": 2, "kind": "EngagementOutcome", "simTime": 14.0, "side": "Blue", "engagementId": 3001, "result": "Hit", "damageFraction": 0.5}
+  ]
+}
