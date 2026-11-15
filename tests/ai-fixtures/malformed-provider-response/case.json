@@ -1,0 +1,1 @@
+{"id":"malformed-provider-response","seed":2026111506,"purpose":"Scripted malformed provider output; expected GenerationStatus MalformedOutput","defaultViewingSide":"Blue","fingerprintPrefix":"aifix-malformed","outcome":"Success","providerScript":"MalformedOutput"}

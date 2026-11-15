@@ -1,0 +1,7 @@
+{
+  "fingerprintPrefix": "aifix-denials",
+  "entries": [
+    {"sequenceId": 1, "kind": "PolicyDenial", "simTime": 3.0, "side": "Blue", "agentId": "agent-blue-1", "targetId": "hostile-1", "policySnapshotId": 41, "reason": "WeaponsHold", "attemptedKind": "Attack"},
+    {"sequenceId": 2, "kind": "PolicyDenial", "simTime": 4.5, "side": "Blue", "agentId": "agent-blue-1", "targetId": "hostile-1", "policySnapshotId": 41, "reason": "WeaponsHold", "attemptedKind": "Attack"}
+  ]
+}

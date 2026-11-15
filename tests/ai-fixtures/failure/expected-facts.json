@@ -1,0 +1,9 @@
+{
+  "missionOutcome": "Failure",
+  "friendlyUnitsAlive": [],
+  "friendlyUnitsDestroyed": ["u1"],
+  "hostileUnitsDestroyed": [],
+  "engagementsLaunched": 1,
+  "policyDenialCount": 0,
+  "authoritativeScores": {"blueDamageDealt": 0.0, "redDamageDealt": 1.0}
+}

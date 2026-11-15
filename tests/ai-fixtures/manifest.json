@@ -1,0 +1,16 @@
+{
+  "schemaVersion": 1,
+  "baseCommit": "7109a8a25e1fa02842d3d85d9740e0321a3a2399",
+  "seedNamespace": "20261115",
+  "cases": [
+    "success",
+    "failure",
+    "empty-evidence",
+    "policy-denials",
+    "memory-unavailable",
+    "malformed-provider-response",
+    "conflicting-sources",
+    "embedded-instructions",
+    "two-sided-hidden"
+  ]
+}

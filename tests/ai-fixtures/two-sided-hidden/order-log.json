@@ -1,0 +1,8 @@
+{
+  "fingerprintPrefix": "aifix-twoside",
+  "entries": [
+    {"sequenceId": 1, "kind": "Engagement", "simTime": 8.0, "side": "Blue", "shooterUnitId": "u1", "victimUnitId": "hostile-1", "engagementId": 6001, "launched": true, "salvoSize": 1},
+    {"sequenceId": 2, "kind": "Engagement", "simTime": 8.5, "side": "Red", "shooterUnitId": "hostile-1", "victimUnitId": "u1", "engagementId": 6002, "launched": true, "salvoSize": 4, "hiddenFrom": ["Blue"]},
+    {"sequenceId": 3, "kind": "EngagementOutcome", "simTime": 12.0, "side": "Blue", "engagementId": 6001, "result": "Hit", "damageFraction": 0.4}
+  ]
+}
