@@ -2,7 +2,7 @@
 
 ## Status
 
-**Proposed** — conditional owner ACCEPT recorded via Projects Manager + Decision (2026-11-15) is **not** applied as Accepted on this draft. Status stays **Proposed** until Projects Manager confirms acceptance with the owner and an authorized follow-up lands. This draft does **not** invent or flip owner acceptance.
+**Accepted** — 2026-11-15, under owner / Technical Director (drg amtd)'s delegation to Projects Manager + Decision bot. Waive was not chosen.
 
 ## Date
 
@@ -10,11 +10,11 @@
 
 ## Last Verified
 
-2026-11-15 — gates under DRG-733 (`AiHostBoundaryGateTests`); Baltic hash / `DelegationBridge` hotpath untouched. Owner sign-off: **conditional ACCEPT pending Projects Manager confirmation** — document remains Proposed on draft PR #853.
+2026-11-15 — gates under DRG-733 (`AiHostBoundaryGateTests`) green on draft [#853](https://github.com/drgaciw/cmano-clone/pull/853) (`68dc0ad0` CI incl. inspect); Baltic hash `17144800277401907079` / `DelegationBridge` hotpath untouched. Owner sign-off: **accepted 2026-11-15** (drg → Projects Manager + Decision).
 
 ## Decision Makers
 
-Owner / Technical Director (drg amtd) — sole accept/waive authority. Linear: [DRG-733](https://linear.app/drgamtd-workspace/issue/DRG-733). Parent epic [DRG-723](https://linear.app/drgamtd-workspace/issue/DRG-723). Conditional ACCEPT channel: Projects Manager + Decision bot (confirmation later).
+Owner / Technical Director (drg amtd). Acceptance executed 2026-11-15 under explicit delegation to Projects Manager, reviewed jointly with Decision bot. Linear: [DRG-733](https://linear.app/drgamtd-workspace/issue/DRG-733). Parent epic [DRG-723](https://linear.app/drgamtd-workspace/issue/DRG-723).
 
 ## Summary
 
@@ -93,13 +93,21 @@ Order-log fields, scenario names, briefs, and unit names may embed instructions.
 
 ## Consequences
 
-- Draft PR may land gates + this **Proposed** ADR; Wave 0 exit still needs confirmed owner Accept or explicit Waive (Projects Manager confirms with owner — not claimed here).
+- Wave 0 ADR-030 exit item is **satisfied** (Accepted 2026-11-15). Draft #853 may still require owner merge authorization for the gates + ADR file.
 - Slice hosts land later; Contracts may merge before Host.
 - Traceability index update is owned by the integration issue (DRG-735), not this ADR PR.
 
-## Owner action required
+## Follow-ups (not blockers)
 
-Status remains **Proposed** on draft #853. Projects Manager will confirm acceptance with the owner later. Do not treat conditional ACCEPT chat as Status = Accepted until that confirmation and an authorized status flip.
+1. **Hindsight sidecar hygiene** — keep `Delegation/Hindsight/` free of AI provider packages and off the tick path (current exclusion is HTTP memory sidecar only; strengthen/gate if needed).
+2. **Contracts / Plugins no-op gates** — `Ai.Contracts` zero-PackageReference and Plugins AI-DLL scans arm fully once DRG-730 (`Ai.Contracts`) lands and the Plugins folder is present in the tree under test.
+
+## Decision record
+
+| Choice | Result |
+|--------|--------|
+| **Accept** | Chosen — 2026-11-15 (drg delegated to Projects Manager; PM + Decision joint review) |
+| **Waive** | Not chosen |
 
 ## References
 
