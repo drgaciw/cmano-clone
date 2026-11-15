@@ -27,4 +27,60 @@ Expected facts and evidence IDs are stored **separately** from any prose.
 
 ## Cases
 
-See `manifest.json`.
+`manifest.json` lists the canonical case order. What each case pins:
+
+| Case | Purpose | Authoritative facts it pins |
+| --- | --- | --- |
+| `success` | Successful mission with engagements and a controller change | `Success`; `engagementsLaunched=1`, `salvoSizeTotal=2`, `blueDamageDealt=1.0`; 3 evidence IDs |
+| `failure` | Failed mission: friendly loss, no successful hit | `Failure`; `friendlyUnitsDestroyed=[u1]`, `redDamageDealt=1.0`; 3 evidence IDs |
+| `empty-evidence` | No chronological entries; host returns empty evidence plus the deterministic report | `missionOutcome=Unknown`, empty score map, zero evidence IDs |
+| `policy-denials` | ROE/policy denials present; prose must match the denial count | `HoldFire`; `policyDenialCount=2`, `engagementsLaunched=0`, `denialReasons=["WeaponsHold","WeaponsHold"]` |
+| `memory-unavailable` | Hindsight/memory sidecar down; evidence export still valid | `memorySidecarStatus=Unavailable`; `blueDamageDealt=0.5` |
+| `malformed-provider-response` | Scripted malformed provider output | `expectedGenerationStatus=MalformedOutput`, `mustStillReturnDeterministicReport=true` |
+| `conflicting-sources` | Two sources disagree on damage; host numbers win | `blueDamageDealt=0.25` is authoritative; the `0.90` note is a `conflictingClaims` entry, not a score |
+| `embedded-instructions` | Untrusted scenario/unit text embeds instructions | `untrustedTextFields=["missionId","trackName"]`, `mustNotInventEvidenceIds=true`, `allowedEvidenceIdsOnly` |
+| `two-sided-hidden` | Red-only rows must stay hidden from the Blue viewing side | Blue sees IDs `1,3`; ID `2` (`hiddenFrom:["Blue"]`) only in the debrief view |
+
+## Order-log entry kinds
+
+Every entry carries `sequenceId`, `kind`, `simTime`, and `side`. Kind-specific payload
+fields used by this fixture set:
+
+| `kind` | Payload fields |
+| --- | --- |
+| `ControllerChange` | `unitId`, `previousKind`, `newKind`, `agentId` |
+| `Engagement` | `shooterUnitId`, `victimUnitId`, `engagementId`, `launched`, `salvoSize`, `weaponFamilyId` (optional), `hiddenFrom` (optional) |
+| `EngagementOutcome` | `engagementId`, `result` (`Hit`/`Miss`), `damageFraction` |
+| `PlatformDamageChange` | `unitId`, `damageFraction`, `isDestroyed` |
+| `PolicyDenial` | `agentId`, `targetId`, `policySnapshotId`, `reason`, `attemptedKind` |
+| `EventFired` | `eventId`, `text` |
+| `MissionTransition` | `missionId`, `fromState`, `toState` |
+| `ContactChange` | `unitId`, `contactId`, `trackName`, `classification`, `state` |
+
+## `case.json` fields
+
+Always present: `id`, `seed`, `purpose`, `defaultViewingSide`, `fingerprintPrefix`,
+`outcome`. Optional, set only where the scenario needs it: `providerScript`
+(`malformed-provider-response`), `memorySidecar` (`memory-unavailable`),
+`debriefRevealsAll` (`two-sided-hidden`).
+
+## Per-case file variations
+
+Most cases carry exactly the four files in the recipe above. Two differ:
+
+- `malformed-provider-response` adds `provider-script.json` (`scriptedStatus`,
+  `rawBody`, `notes`). It drives the offline `FakeChatClient` only — there is no live
+  provider in these fixtures.
+- `two-sided-hidden` splits `expected-facts.json` into `viewingSideBlue` and
+  `viewingSideDebrief` blocks, and its `expected-evidence-ids.json` adds a
+  `blueVisibleIds` list alongside the full `ids`.
+
+## Consuming the fixtures
+
+A host (slice 1 evidence export onward in the
+[AI feature integration plan](../../docs/superpowers/plans/2026-11-12-dotnet-11-ai-feature-integration.md))
+reads `order-log.json`, filters by `viewingSide`, and derives each evidence ID as
+`{fingerprintPrefix}:{sequenceId}`. `expected-facts.json` holds the authoritative
+numbers and outcomes; model-supplied prose must not contradict them and must cite only
+IDs present in `expected-evidence-ids.json` (no invented IDs). The read-only order-log
+contract is [ADR-019](../../docs/architecture/adr-019-agentic-aar-readonly-order-log.md).
