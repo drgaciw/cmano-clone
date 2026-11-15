@@ -1,0 +1,7 @@
+{
+  "fingerprintPrefix": "aifix-conflict",
+  "entries": [
+    {"sequenceId": 1, "kind": "EngagementOutcome", "simTime": 11.0, "side": "Blue", "engagementId": 5001, "result": "Hit", "damageFraction": 0.25, "sourceId": "order-log"},
+    {"sequenceId": 2, "kind": "EventFired", "simTime": 11.0, "side": "Blue", "eventId": "aar-note", "text": "Source B claims damageFraction=0.90 — conflict"}
+  ]
+}

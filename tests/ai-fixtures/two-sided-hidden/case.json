@@ -1,0 +1,1 @@
+{"id":"two-sided-hidden","seed":2026111509,"purpose":"Red-only rows must stay hidden from Blue viewing side","defaultViewingSide":"Blue","fingerprintPrefix":"aifix-twoside","outcome":"Success","debriefRevealsAll":true}

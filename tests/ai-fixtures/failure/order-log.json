@@ -1,0 +1,8 @@
+{
+  "fingerprintPrefix": "aifix-failure",
+  "entries": [
+    {"sequenceId": 1, "kind": "Engagement", "simTime": 5.0, "side": "Red", "shooterUnitId": "hostile-1", "victimUnitId": "u1", "engagementId": 2001, "launched": true, "weaponFamilyId": "asm-fixture", "salvoSize": 1},
+    {"sequenceId": 2, "kind": "EngagementOutcome", "simTime": 9.0, "side": "Red", "engagementId": 2001, "result": "Hit", "damageFraction": 1.0},
+    {"sequenceId": 3, "kind": "PlatformDamageChange", "simTime": 9.0, "side": "Blue", "unitId": "u1", "damageFraction": 1.0, "isDestroyed": true}
+  ]
+}
