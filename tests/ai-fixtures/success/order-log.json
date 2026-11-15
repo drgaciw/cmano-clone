@@ -1,0 +1,8 @@
+{
+  "fingerprintPrefix": "aifix-success",
+  "entries": [
+    {"sequenceId": 1, "kind": "ControllerChange", "simTime": 0.0, "side": "Blue", "unitId": "u1", "previousKind": "Human", "newKind": "Agent", "agentId": "agent-blue-1"},
+    {"sequenceId": 2, "kind": "Engagement", "simTime": 12.0, "side": "Blue", "shooterUnitId": "u1", "victimUnitId": "hostile-1", "engagementId": 1001, "launched": true, "weaponFamilyId": "asm-fixture", "salvoSize": 2},
+    {"sequenceId": 3, "kind": "EngagementOutcome", "simTime": 18.5, "side": "Blue", "engagementId": 1001, "result": "Hit", "damageFraction": 1.0}
+  ]
+}

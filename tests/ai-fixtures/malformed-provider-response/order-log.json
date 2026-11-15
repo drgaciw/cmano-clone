@@ -1,0 +1,6 @@
+{
+  "fingerprintPrefix": "aifix-malformed",
+  "entries": [
+    {"sequenceId": 1, "kind": "EngagementOutcome", "simTime": 20.0, "side": "Blue", "engagementId": 4001, "result": "Miss", "damageFraction": 0.0}
+  ]
+}

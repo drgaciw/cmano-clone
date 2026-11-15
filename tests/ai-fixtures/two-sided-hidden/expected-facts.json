@@ -1,0 +1,11 @@
+{
+  "missionOutcome": "Success",
+  "viewingSideBlue": {
+    "visibleEvidenceIds": ["aifix-twoside:1", "aifix-twoside:3"],
+    "hiddenEvidenceIds": ["aifix-twoside:2"],
+    "authoritativeScores": {"blueDamageDealt": 0.4}
+  },
+  "viewingSideDebrief": {
+    "visibleEvidenceIds": ["aifix-twoside:1", "aifix-twoside:2", "aifix-twoside:3"]
+  }
+}
