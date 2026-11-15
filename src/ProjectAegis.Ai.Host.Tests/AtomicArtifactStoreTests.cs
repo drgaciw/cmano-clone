@@ -1,5 +1,4 @@
 using ProjectAegis.Ai.Contracts;
-using ProjectAegis.Ai.Host;
 using Xunit;
 
 namespace ProjectAegis.Ai.Host.Tests;
