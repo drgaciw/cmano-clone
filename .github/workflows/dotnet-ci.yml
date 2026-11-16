@@ -58,6 +58,6 @@ jobs:
       - name: Run the blocking gate
         run: bash tools/buildkite/dotnet-ci.sh
 
-      - name: Clean workspace and Docker
+      - name: Clean workspace
         if: always()
         run: bash tools/ci/selfhosted-cleanup.sh

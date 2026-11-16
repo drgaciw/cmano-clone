@@ -205,6 +205,6 @@ jobs:
           name: gauntlet-oracle
           path: artifacts/gauntlet-oracle/
 
-      - name: Clean workspace and Docker
+      - name: Clean workspace
         if: always()
         run: bash tools/ci/selfhosted-cleanup.sh

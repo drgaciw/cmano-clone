@@ -61,7 +61,7 @@ jobs:
             bash tools/buildkite/agent-dotnet-ci.sh
           fi
 
-      - name: Clean workspace and Docker
+      - name: Clean workspace
         if: always()
         run: bash tools/ci/selfhosted-cleanup.sh
 
@@ -85,7 +85,7 @@ jobs:
         continue-on-error: true
         run: bash tools/buildkite/agent-gitleaks.sh
 
-      - name: Clean workspace and Docker
+      - name: Clean workspace
         if: always()
         run: bash tools/ci/selfhosted-cleanup.sh
 
@@ -114,7 +114,7 @@ jobs:
       - name: Baltic replay golden
         run: bash tools/buildkite/agent-baltic-replay.sh
 
-      - name: Clean workspace and Docker
+      - name: Clean workspace
         if: always()
         run: bash tools/ci/selfhosted-cleanup.sh
 
@@ -145,7 +145,7 @@ jobs:
         continue-on-error: true
         run: bash tools/buildkite/agent-gitnexus-pr-analysis.sh
 
-      - name: Clean workspace and Docker
+      - name: Clean workspace
         if: always()
         run: bash tools/ci/selfhosted-cleanup.sh
 
@@ -175,6 +175,6 @@ jobs:
         continue-on-error: true
         run: bash tools/buildkite/agent-gitnexus-reindex.sh
 
-      - name: Clean workspace and Docker
+      - name: Clean workspace
         if: always()
         run: bash tools/ci/selfhosted-cleanup.sh

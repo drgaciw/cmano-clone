@@ -51,6 +51,6 @@ jobs:
       - name: Test GitNexus reindex guard
         run: python3 -B -m unittest discover -s tools -p test_gitnexus_safe_reindex.py -v
 
-      - name: Clean workspace and Docker
+      - name: Clean workspace
         if: always()
         run: bash tools/ci/selfhosted-cleanup.sh

@@ -6,15 +6,9 @@
 #     repository. Later steps inherit them through $GITHUB_ENV.
 #
 #   bash tools/ci/selfhosted-cleanup.sh
-# Docker: remove only containers, networks, and volumes labeled for this
-# GitHub run. Both labels are required:
-#   aegis.ci.repository=<owner>/<repo>
-#   aegis.ci.run=<run_id>-<run_attempt>
-# There is no prune. A shared label such as org.testcontainers=true is not
-# a filter, so another repo's containers stay in place.
-#
 # Work: delete this job's repository directory under the runner _work folder.
 # _work/_tool (NuGet and pip caches) and _work/_temp are left in place.
+# These jobs do not start containers, so there is no Docker cleanup.
 
 set -u
 
@@ -44,40 +38,6 @@ if [[ "${1:-}" == "prepare-caches" ]]; then
   prepare_caches
   exit 0
 fi
-
-cleanup_docker() {
-  if ! command -v docker >/dev/null 2>&1; then
-    echo "cleanup: docker not installed; skipping"
-    return 0
-  fi
-  if ! docker info >/dev/null 2>&1; then
-    echo "cleanup: docker daemon not reachable; skipping"
-    return 0
-  fi
-
-  local run_id="${GITHUB_RUN_ID:-}"
-  local run_attempt="${GITHUB_RUN_ATTEMPT:-}"
-  local repo="${GITHUB_REPOSITORY:-}"
-  if [[ ! "$run_id" =~ ^[0-9]+$ || ! "$run_attempt" =~ ^[0-9]+$ ]]; then
-    echo "cleanup: run id is not numeric; skipping docker"
-    return 0
-  fi
-  if [[ ! "$repo" =~ ^[A-Za-z0-9._-]+/[A-Za-z0-9._-]+$ ]]; then
-    echo "cleanup: repository is not owner/name; skipping docker"
-    return 0
-  fi
-
-  local repo_label="aegis.ci.repository=${repo}"
-  local run_label="aegis.ci.run=${run_id}-${run_attempt}"
-  echo "cleanup: docker resources with ${repo_label} and ${run_label}"
-
-  docker ps -aq --filter "label=${repo_label}" --filter "label=${run_label}" \
-    | xargs -r docker rm -f >/dev/null 2>&1 || true
-  docker network ls -q --filter "label=${repo_label}" --filter "label=${run_label}" \
-    | xargs -r docker network rm >/dev/null 2>&1 || true
-  docker volume ls -q --filter "label=${repo_label}" --filter "label=${run_label}" \
-    | xargs -r docker volume rm >/dev/null 2>&1 || true
-}
 
 cleanup_work() {
   local workspace="${GITHUB_WORKSPACE:-}"
@@ -111,7 +71,6 @@ cleanup_work() {
   rm -rf "$parent"
 }
 
-cleanup_docker
 cleanup_work
 echo "cleanup: done"
 exit 0

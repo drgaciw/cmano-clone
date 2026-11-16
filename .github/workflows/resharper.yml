@@ -36,11 +36,20 @@ jobs:
       - uses: actions/setup-python@v7
         with:
           python-version: '3.15'
+      - name: Install pinned PowerShell and verify dotnet-install.ps1
+        shell: bash
+        run: |
+          set -euo pipefail
+          bash tools/ci/install-pinned-pwsh.sh
+          ps1="${RUNNER_TEMP}/dotnet-install.ps1"
+          curl -fsSL https://dot.net/v1/dotnet-install.ps1 -o "$ps1"
+          echo "e8b873e18a81e5c4cd8ab69d84dac8fead291d50b3c44633cd7fddad709a13d6  ${ps1}" | sha256sum -c -
       - name: Install isolated SDK and pinned ReSharper CLI
         shell: pwsh
         run: |
-          Invoke-WebRequest https://dot.net/v1/dotnet-install.ps1 -OutFile "$env:RUNNER_TEMP/dotnet-install.ps1"
-          & "$env:RUNNER_TEMP/dotnet-install.ps1" -Version 11.0.100 -InstallDir "$env:RUNNER_TEMP/aegis-dotnet" -NoPath
+          $ps1 = Join-Path $env:RUNNER_TEMP 'dotnet-install.ps1'
+          if (-not (Test-Path -LiteralPath $ps1)) { throw 'Verified dotnet-install.ps1 is missing.' }
+          & $ps1 -Version 11.0.100 -InstallDir (Join-Path $env:RUNNER_TEMP 'aegis-dotnet') -NoPath
           $env:DOTNET_ROOT = "$env:RUNNER_TEMP/aegis-dotnet"
           $env:PATH = "$env:DOTNET_ROOT$([IO.Path]::PathSeparator)$env:PATH"
           dotnet tool install JetBrains.ReSharper.GlobalTools --version 2026.3.0 --tool-path "$env:RUNNER_TEMP/resharper-cli"
@@ -67,7 +76,7 @@ jobs:
             artifacts/resharper/*.run.json
             artifacts/resharper/*.comparison.json
           if-no-files-found: warn
-      - name: Clean workspace and Docker
+      - name: Clean workspace
         if: always()
         shell: bash
         run: bash tools/ci/selfhosted-cleanup.sh
