@@ -150,7 +150,7 @@ public sealed class AarAssistantPipelineTests
         Assert.Equal(GenerationStatus.Succeeded, ok.Status);
 
         var messages = new AarPromptBuilder().Build(projection.Document, ok.DeterministicReport);
-        var user = messages.Single(m => m.Role == ChatRole.User).Text!;
+        var user = messages.Single(m => m.Role == ChatRole.User).Text;
         Assert.Contains("<<<EVIDENCE_DATA_BEGIN>>>", user, StringComparison.Ordinal);
         Assert.Contains("<<<EVIDENCE_DATA_END>>>", user, StringComparison.Ordinal);
         scripted.Dispose();
