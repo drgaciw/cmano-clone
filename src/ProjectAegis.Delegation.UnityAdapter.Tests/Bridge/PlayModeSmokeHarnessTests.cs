@@ -8,7 +8,7 @@ using Targets;
 using Traits;
 using Data.Catalog;
 using Projection;
-using ProjectAegis.Ai.Contracts;
+using Ai.Contracts;
 using ProjectAegis.Delegation.UnityAdapter.Baltic;
 using ProjectAegis.Delegation.UnityAdapter.CommandReview;
 using ProjectAegis.Sim.Scenario;
@@ -94,7 +94,7 @@ public sealed class PlayModeSmokeHarnessTests
                 Status: GenerationStatus.Succeeded,
                 ContentHash: "sha256:content"),
             ContentMediaType: "application/json",
-            ContentText: System.Text.Json.JsonSerializer.Serialize(content),
+            ContentText: JsonSerializer.Serialize(content),
             Warnings: null);
 
         var bound = AdviceExplanationBinder.Bind(advice, key, transport);
@@ -102,6 +102,11 @@ public sealed class PlayModeSmokeHarnessTests
         Assert.That(bound.Availability, Is.EqualTo(AdviceAvailability.Stale));
         Assert.That(bound.Explanation, Is.Empty);
         Assert.That(bound.AuthorityPreserved, Is.True);
+        Assert.That(bound.InvocationKey, Is.EqualTo(key));
+        Assert.That(bound.EvidenceFingerprint, Is.Null);
+        Assert.That(bound.ViewingSide, Is.Null);
+        Assert.That(bound.CitedFactKeys, Is.Empty);
+        Assert.That(bound.PromptVersion, Is.Null);
         Assert.That(advice.IsFireOrder, Is.False);
         Assert.That(advice.IsWeaponsReleaseAuthorization, Is.False);
         Assert.That(advice.Availability, Is.EqualTo(AdviceAvailability.Stale));

@@ -38,6 +38,11 @@ public sealed class AdviceExplanationPipelineTests
         Assert.Equal("stale-discarded", result.SkipReason);
         Assert.Null(result.Content);
         Assert.Null(result.Envelope);
+        // Always read Transport/PromptVersion/ProviderId/ModelId so NotAccessedPositionalProperty stays clear.
+        Assert.Null(result.Transport);
+        Assert.False(string.IsNullOrWhiteSpace(result.PromptVersion));
+        Assert.False(string.IsNullOrWhiteSpace(result.ProviderId));
+        Assert.False(string.IsNullOrWhiteSpace(result.ModelId));
         scripted.Dispose();
     }
 
@@ -104,6 +109,13 @@ public sealed class AdviceExplanationPipelineTests
             Assert.DoesNotContain("RED-SECRET-INTENT-TOKEN", result.Content!.Explanation, StringComparison.Ordinal);
             Assert.Contains("blue-track", result.Content.CitedFactKeys);
             Assert.DoesNotContain("red-intent", result.Content.CitedFactKeys);
+            Assert.Contains(facts.SideTaggedFacts, f => f.OwningSide == ViewingSide.Red && f.Key == "red-intent");
+            Assert.Contains(facts.SideTaggedFacts, f => f.OwningSide == ViewingSide.Blue && f.Key == "blue-track");
+            Assert.NotNull(result.Transport);
+            Assert.Equal(result.Envelope, result.Transport!.Envelope);
+            Assert.Equal(AdvicePromptVersion.Current, result.PromptVersion);
+            Assert.Equal("fake", result.ProviderId);
+            Assert.False(string.IsNullOrWhiteSpace(result.ModelId));
         }
         finally
         {
@@ -253,7 +265,7 @@ public sealed class AdviceExplanationPipelineTests
         {
             foreach (var message in chatMessages)
             {
-                _captured.Add(message.Text ?? string.Empty);
+                _captured.Add(message.Text);
             }
 
             return Task.FromResult(new ChatResponse(new ChatMessage(ChatRole.Assistant, _response))

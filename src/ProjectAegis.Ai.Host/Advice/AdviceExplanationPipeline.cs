@@ -113,7 +113,7 @@ public sealed class AdviceExplanationPipeline : IAdviceExplanationPipeline
             }
         }
 
-        var explanation = (response.Text ?? string.Empty).Trim();
+        var explanation = response.Text.Trim();
         if (explanation.Length == 0)
         {
             return Finish(

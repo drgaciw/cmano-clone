@@ -1,7 +1,7 @@
 namespace ProjectAegis.Delegation.UnityAdapter.CommandReview;
 
 using System.Text.Json;
-using ProjectAegis.Ai.Contracts;
+using Ai.Contracts;
 
 /// <summary>
 /// Presentation bind for host-published AdviceFrame explanations (ADR-010 client).

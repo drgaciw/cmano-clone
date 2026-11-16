@@ -60,6 +60,12 @@ public sealed class AdviceExplanationBinderTests
         Assert.That(bound.Availability, Is.EqualTo(AdviceAvailability.Available));
         Assert.That(bound.Explanation, Is.EqualTo("Shooter ranking is advisory-only."));
         Assert.That(bound.AuthorityPreserved, Is.True);
+        // Always read presentation fields so NotAccessedPositionalProperty stays clear.
+        Assert.That(bound.InvocationKey, Is.EqualTo(key));
+        Assert.That(bound.EvidenceFingerprint, Is.EqualTo("sha256:ev"));
+        Assert.That(bound.ViewingSide, Is.EqualTo(ViewingSide.Blue));
+        Assert.That(bound.CitedFactKeys, Does.Contain("rationale"));
+        Assert.That(bound.PromptVersion, Is.EqualTo("advice-explain/v1"));
         Assert.That(advice.IsFireOrder, Is.False);
         Assert.That(advice.IsWeaponsReleaseAuthorization, Is.False);
     }
