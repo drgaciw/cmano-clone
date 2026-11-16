@@ -1,0 +1,13 @@
+{
+  "id": "ambiguous-request",
+  "seed": 2026111603,
+  "purpose": "Brief under-specifies mission type and units; refuse to guess",
+  "outcomeClass": "Diagnostics",
+  "openScenario": {
+    "dbRef": "baltic_patrol",
+    "allowedUnitIds": ["u1", "ucav-blue"],
+    "allowedTargetIds": ["hostile-1"],
+    "supportedMissionTypes": ["Patrol", "Strike"],
+    "currentEditVersion": 3
+  }
+}

@@ -1,0 +1,6 @@
+{
+  "brief": "Assign tanker support mission to surface unit u1",
+  "expectedEditVersion": 3,
+  "idempotencyKey": "auth-unsupported-role-2026111604",
+  "lane": "Propose"
+}

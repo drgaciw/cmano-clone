@@ -1,0 +1,9 @@
+{
+  "outcomeClass": "Diagnostics",
+  "missions": [],
+  "diagnostics": [
+    { "code": "AMBIGUOUS_REQUEST", "messageContains": "mission type" }
+  ],
+  "apply": false,
+  "submitAllowedWithoutHuman": false
+}

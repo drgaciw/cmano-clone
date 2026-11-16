@@ -1,0 +1,6 @@
+{
+  "brief": "Assign strike mission to ghost-42 against phantom-99",
+  "expectedEditVersion": 3,
+  "idempotencyKey": "auth-unknown-ids-2026111602",
+  "lane": "Propose"
+}

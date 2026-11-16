@@ -1,0 +1,17 @@
+{
+  "scriptedStatus": "Ok",
+  "notes": "Proposes Support role unsupported for u1 in this pin",
+  "proposedOperations": [
+    {
+      "op": "AddSupportMission",
+      "missionId": "support-1",
+      "assignedUnitIds": ["u1"],
+      "role": "Tanker"
+    }
+  ],
+  "provenance": {
+    "source": "ai",
+    "tool": "authoring-fake-v0",
+    "detail": "unsupported-role fixture"
+  }
+}

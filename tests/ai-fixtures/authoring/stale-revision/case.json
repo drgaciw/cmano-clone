@@ -1,0 +1,13 @@
+{
+  "id": "stale-revision",
+  "seed": 2026111606,
+  "purpose": "Proposal pinned to stale editVersion must be refused with CONFLICT",
+  "outcomeClass": "Conflict",
+  "openScenario": {
+    "dbRef": "baltic_patrol",
+    "allowedUnitIds": ["u1"],
+    "allowedTargetIds": ["hostile-1"],
+    "supportedMissionTypes": ["Patrol"],
+    "currentEditVersion": 7
+  }
+}

@@ -1,0 +1,16 @@
+{
+  "id": "unsupported-role",
+  "seed": 2026111604,
+  "purpose": "Request mission role not in capability manifest for assigned unit",
+  "outcomeClass": "Diagnostics",
+  "openScenario": {
+    "dbRef": "baltic_patrol",
+    "allowedUnitIds": ["u1"],
+    "allowedTargetIds": ["hostile-1"],
+    "supportedMissionTypes": ["Patrol"],
+    "unitCapabilities": {
+      "u1": ["Patrol"]
+    },
+    "currentEditVersion": 3
+  }
+}

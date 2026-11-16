@@ -1,0 +1,8 @@
+{
+  "outcomeClass": "ValidDraft",
+  "missions": ["patrol-blue-1"],
+  "diagnostics": [],
+  "mustNotContain": ["WeaponsFree", "API_KEY", "IGNORE PREVIOUS"],
+  "treatAnnotationsAsData": true,
+  "submitAllowedWithoutHuman": false
+}

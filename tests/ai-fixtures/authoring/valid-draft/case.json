@@ -1,0 +1,13 @@
+{
+  "id": "valid-draft",
+  "seed": 2026111601,
+  "purpose": "Recognized patrol brief against open Baltic-style scenario yields validated draft",
+  "outcomeClass": "ValidDraft",
+  "openScenario": {
+    "dbRef": "baltic_patrol",
+    "allowedUnitIds": ["u1"],
+    "allowedTargetIds": ["hostile-1"],
+    "supportedMissionTypes": ["Patrol", "Strike"],
+    "currentEditVersion": 3
+  }
+}

@@ -1,0 +1,14 @@
+{
+  "id": "duplicate-op",
+  "seed": 2026111605,
+  "purpose": "Retrying an accepted proposal with the same idempotency key must not apply twice",
+  "outcomeClass": "IdempotentNoOp",
+  "openScenario": {
+    "dbRef": "baltic_patrol",
+    "allowedUnitIds": ["u1"],
+    "allowedTargetIds": ["hostile-1"],
+    "supportedMissionTypes": ["Patrol"],
+    "currentEditVersion": 4,
+    "priorAcceptedIdempotencyKeys": ["auth-duplicate-op-2026111605"]
+  }
+}
