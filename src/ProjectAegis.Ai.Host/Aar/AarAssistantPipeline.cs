@@ -56,7 +56,7 @@ public sealed class AarAssistantPipeline : IAarAssistantPipeline
                 Envelope: null);
         }
 
-        ChatResponse? response = null;
+        ChatResponse response;
         try
         {
             var messages = _promptBuilder.Build(request.Document, report);

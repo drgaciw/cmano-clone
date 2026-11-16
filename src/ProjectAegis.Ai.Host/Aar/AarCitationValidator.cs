@@ -18,7 +18,7 @@ public static class AarCitationValidator
         {
             if (string.IsNullOrWhiteSpace(citation) || !allowed.Contains(citation))
             {
-                return citation ?? string.Empty;
+                return citation;
             }
         }
 

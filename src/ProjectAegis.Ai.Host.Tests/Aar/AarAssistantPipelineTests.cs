@@ -38,9 +38,13 @@ public sealed class AarAssistantPipelineTests
             Assert.All(result.ModelDraft.Citations, id => Assert.Contains(id, ids));
             Assert.Equal(projection.Quantitative.EngagementCount, result.DeterministicReport.EngagementCount);
             Assert.Equal(AarPromptVersion.Current, result.PromptVersion);
+            Assert.Equal("fake", result.ProviderId);
+            Assert.Equal("aar-scripted", result.ModelId);
             Assert.NotNull(result.Envelope);
             Assert.Equal(GenerationStatus.Succeeded, result.Envelope!.Status);
             Assert.Equal(AarPromptVersion.Current, result.Envelope.PromptVersion);
+            Assert.Equal("fake", result.Envelope.ProviderId);
+            Assert.Equal("aar-scripted", result.Envelope.ModelId);
             Assert.True(store.Exists("aar-explain.envelope.json"));
         }
         finally
@@ -146,7 +150,7 @@ public sealed class AarAssistantPipelineTests
         Assert.Equal(GenerationStatus.Succeeded, ok.Status);
 
         var messages = new AarPromptBuilder().Build(projection.Document, ok.DeterministicReport);
-        var user = messages.Single(m => m.Role == ChatRole.User).Text ?? string.Empty;
+        var user = messages.Single(m => m.Role == ChatRole.User).Text!;
         Assert.Contains("<<<EVIDENCE_DATA_BEGIN>>>", user, StringComparison.Ordinal);
         Assert.Contains("<<<EVIDENCE_DATA_END>>>", user, StringComparison.Ordinal);
         scripted.Dispose();
