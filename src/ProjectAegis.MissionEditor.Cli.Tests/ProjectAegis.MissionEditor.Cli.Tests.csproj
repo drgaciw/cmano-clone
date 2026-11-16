@@ -22,5 +22,6 @@
   </ItemGroup>
   <ItemGroup>
     <Content Include="..\..\assets\data\scenarios\validation\**\*" Link="assets\data\scenarios\validation\%(RecursiveDir)%(Filename)%(Extension)" CopyToOutputDirectory="PreserveNewest" />
+    <Content Include="..\..\tests\ai-fixtures\authoring\**\*" Link="ai-fixtures\authoring\%(RecursiveDir)%(Filename)%(Extension)" CopyToOutputDirectory="PreserveNewest" />
   </ItemGroup>
 </Project>

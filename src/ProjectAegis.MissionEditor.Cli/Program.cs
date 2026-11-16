@@ -662,7 +662,72 @@ static int RunMissionPlanSuggest(string[] args)
         return 1;
     }
 
-    return MissionPlanSuggestCommand.Run(intent, Console.Out);
+    // DRG-747: opt-in --provider fake; keyword path remains default (byte-identical).
+    if (!HasProviderSwitch(args))
+    {
+        return MissionPlanSuggestCommand.Run(intent, Console.Out);
+    }
+
+    var providerValue = GetOptionalFlagValue(args, "--provider") ?? "fake";
+    if (!string.Equals(providerValue, "fake", StringComparison.OrdinalIgnoreCase))
+    {
+        return McpToolResult.WriteError(
+            Console.Out,
+            "PROVIDER_NOT_CONFIGURED",
+            "Only --provider fake is supported in this slice; live providers/model/budget remain owner-TBD.");
+    }
+
+    var expectedRaw = CliArgParser.GetFlag(args, "--expected-edit-version");
+    var currentRaw = CliArgParser.GetFlag(args, "--current-edit-version");
+    int? expected = int.TryParse(expectedRaw, out var e) ? e : null;
+    int? current = int.TryParse(currentRaw, out var c) ? c : null;
+
+    return MissionPlanSuggestCommand.RunProviderFake(
+        intent: intent,
+        fixtureCaseId: CliArgParser.GetFlag(args, "--fixture"),
+        scriptPath: CliArgParser.GetFlag(args, "--script"),
+        expectedEditVersion: expected,
+        currentEditVersion: current,
+        allowedUnitIds: CliArgParser.GetRepeated(args, "--allowed-unit"),
+        allowedTargetIds: CliArgParser.GetRepeated(args, "--allowed-target"),
+        supportedMissionTypes: CliArgParser.GetRepeated(args, "--supported-mission-type"),
+        idempotencyKey: CliArgParser.GetFlag(args, "--idempotency-key"),
+        dbRef: CliArgParser.GetFlag(args, "--db-ref"),
+        output: Console.Out);
+}
+
+static bool HasProviderSwitch(string[] args)
+{
+    for (var i = 0; i < args.Length; i++)
+    {
+        if (string.Equals(args[i], "--provider", StringComparison.Ordinal))
+        {
+            return true;
+        }
+    }
+
+    return false;
+}
+
+/// <summary>Reads an optional value after a switch when the next token is not another flag.</summary>
+static string? GetOptionalFlagValue(string[] args, string name)
+{
+    for (var i = 0; i < args.Length; i++)
+    {
+        if (!string.Equals(args[i], name, StringComparison.Ordinal))
+        {
+            continue;
+        }
+
+        if (i + 1 < args.Length && !args[i + 1].StartsWith('-'))
+        {
+            return args[i + 1];
+        }
+
+        return null;
+    }
+
+    return null;
 }
 
 static int RunScenarioCommsStatus(string[] args)
@@ -936,6 +1001,7 @@ static void PrintUsage()
     Console.WriteLine("  dotnet run --project src/ProjectAegis.MissionEditor.Cli -- scenario_diff_summary --before <a.json> --after <b.json>");
     Console.WriteLine("  dotnet run --project src/ProjectAegis.MissionEditor.Cli -- scenario_simulate_sample --path <scenario.json> [--ticks N]");
     Console.WriteLine("  dotnet run --project src/ProjectAegis.MissionEditor.Cli -- mission_plan_suggest --intent \"patrol and strike baltic\"");
+    Console.WriteLine("  dotnet run --project src/ProjectAegis.MissionEditor.Cli -- mission_plan_suggest --intent \"Blue patrol u1\" --provider fake --fixture valid-draft  (DRG-747; fake only; proposal+diff; no apply)");
     Console.WriteLine("  dotnet run --project src/ProjectAegis.MissionEditor.Cli -- scenario_comms_status --policy baltic-patrol-comms");
     Console.WriteLine("  dotnet run --project src/ProjectAegis.MissionEditor.Cli -- scenario_cyber_status --policy baltic-patrol-comms");
     Console.WriteLine("  dotnet run --project src/ProjectAegis.MissionEditor.Cli -- scenario_near_future_spawn --path <scenario.json>");
