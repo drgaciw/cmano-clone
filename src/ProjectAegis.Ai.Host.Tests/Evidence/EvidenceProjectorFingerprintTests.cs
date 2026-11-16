@@ -239,8 +239,16 @@ public sealed class EvidenceProjectorFingerprintTests
     public void Source_fence_Evidence_files_do_not_reference_forbidden_symbols()
     {
         var hostRoot = FindHostEvidenceRoot();
+        // Projector Surface only — JSONL writer (DRG-743) owns SerializeAsyncEnumerable.
         foreach (var path in Directory.EnumerateFiles(hostRoot, "*.cs", SearchOption.AllDirectories))
         {
+            var name = Path.GetFileName(path);
+            if (name.StartsWith("Jsonl", StringComparison.Ordinal)
+                || name.StartsWith("EvidenceJsonl", StringComparison.Ordinal))
+            {
+                continue;
+            }
+
             var code = string.Join(
                 '\n',
                 File.ReadLines(path).Where(line =>
