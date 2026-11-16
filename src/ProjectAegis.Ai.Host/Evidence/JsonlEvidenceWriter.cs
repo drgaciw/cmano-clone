@@ -9,8 +9,8 @@ namespace ProjectAegis.Ai.Host.Evidence;
 
 /// <summary>
 /// DRG-743: atomic JSONL evidence export via
-/// <see cref="JsonSerializer.SerializeAsyncEnumerable{TValue}(Stream, IAsyncEnumerable{TValue}, System.Text.Json.Serialization.Metadata.JsonTypeInfo{TValue}, bool, CancellationToken)"/>
-/// with <c>topLevelValues: true</c> (always LF / compact).
+/// <c>JsonSerializer.SerializeAsyncEnumerable(..., topLevelValues: true)</c>
+/// (always LF / compact).
 /// </summary>
 public sealed class JsonlEvidenceWriter : IJsonlEvidenceWriter
 {
@@ -57,7 +57,6 @@ public sealed class JsonlEvidenceWriter : IJsonlEvidenceWriter
             "." + fileName + "." + Guid.NewGuid().ToString("N", CultureInfo.InvariantCulture) + ".tmp");
 
         var memoryBefore = GC.GetTotalMemory(forceFullCollection: false);
-        long peakDelta = 0;
 
         try
         {
@@ -93,7 +92,7 @@ public sealed class JsonlEvidenceWriter : IJsonlEvidenceWriter
             }
 
             var memoryAfter = GC.GetTotalMemory(forceFullCollection: false);
-            peakDelta = Math.Max(0, memoryAfter - memoryBefore);
+            var peakDelta = Math.Max(0, memoryAfter - memoryBefore);
 
             cancellationToken.ThrowIfCancellationRequested();
 
@@ -204,7 +203,7 @@ public sealed class JsonlEvidenceWriter : IJsonlEvidenceWriter
 
     /// <summary>
     /// Defense-in-depth: reject CR so Windows/Linux hashes stay identical.
-    /// <see cref="JsonSerializer.SerializeAsyncEnumerable"/> with topLevelValues uses LF already.
+    /// SerializeAsyncEnumerable with topLevelValues already emits LF.
     /// </summary>
     private static void EnsureUnixNewlines(string path)
     {
