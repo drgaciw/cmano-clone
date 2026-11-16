@@ -13,5 +13,6 @@
     <ProjectReference Include="..\ProjectAegis.Data\ProjectAegis.Data.csproj" />
     <ProjectReference Include="..\ProjectAegis.Data.Excel\ProjectAegis.Data.Excel.csproj" />
     <ProjectReference Include="..\ProjectAegis.Delegation.UnityAdapter\ProjectAegis.Delegation.UnityAdapter.csproj" />
+    <ProjectReference Include="..\ProjectAegis.Ai.Host\ProjectAegis.Ai.Host.csproj" />
   </ItemGroup>
 </Project>

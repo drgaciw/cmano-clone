@@ -30,6 +30,8 @@ switch (command)
         return RunScenarioUmpireSnapshot(args.Skip(1).ToArray());
     case "scenario_ai_scaffold":
         return RunScenarioAiScaffold(args.Skip(1).ToArray());
+    case "aar_explain":
+        return RunAarExplain(args.Skip(1).ToArray());
     case "scenario_publish":
         return RunScenarioPublish(args.Skip(1).ToArray());
     case "mission_add_patrol":
@@ -938,6 +940,7 @@ static void PrintUsage()
     Console.WriteLine("  dotnet run --project src/ProjectAegis.MissionEditor.Cli -- scenario_cyber_status --policy baltic-patrol-comms");
     Console.WriteLine("  dotnet run --project src/ProjectAegis.MissionEditor.Cli -- scenario_near_future_spawn --path <scenario.json>");
     Console.WriteLine("  dotnet run --project src/ProjectAegis.MissionEditor.Cli -- scenario_event_trace --path <scenario.json> [--event ID]");
+    Console.WriteLine("  dotnet run --project src/ProjectAegis.MissionEditor.Cli -- aar_explain --evidence <evidence.jsonl> [--enabled true] [--artifact-root DIR] [--script draft.json]  (opt-in; fake client; exit 0=structured result incl. failure statuses, 1=usage/IO)");
     Console.WriteLine("  dotnet run --project src/ProjectAegis.MissionEditor.Cli -- catalog_intelligence_run [--db <catalog.db>]");
     Console.WriteLine("  dotnet run --project src/ProjectAegis.MissionEditor.Cli -- catalog_entity_map");
     Console.WriteLine("  dotnet run --project src/ProjectAegis.MissionEditor.Cli -- catalog_write_propose --db <catalog.db> --platform P --sensor S --base-pd 0.7");
@@ -1326,6 +1329,19 @@ static int RunScenarioAiScaffold(string[] args)
     Console.WriteLine(editor.ExplainProvenance("mission-1"));
     Console.WriteLine(editor.BuildManifest("Baltic Defense", brief, editor.Metadata.DbRef ?? "baltic"));
     return 0;
+}
+
+static int RunAarExplain(string[] args)
+{
+    var evidence = CliArgParser.GetFlag(args, "--evidence");
+    var enabledRaw = CliArgParser.GetFlag(args, "--enabled");
+    var enabled = string.Equals(enabledRaw, "true", StringComparison.OrdinalIgnoreCase)
+        || string.Equals(enabledRaw, "1", StringComparison.OrdinalIgnoreCase);
+    var artifactRoot = CliArgParser.GetFlag(args, "--artifact-root");
+    var script = CliArgParser.GetFlag(args, "--script");
+    return AarExplainCommand.RunAsync(evidence, enabled, artifactRoot, script, Console.Out)
+        .GetAwaiter()
+        .GetResult();
 }
 
 static int RunScenarioEventTrace(string[] args)
