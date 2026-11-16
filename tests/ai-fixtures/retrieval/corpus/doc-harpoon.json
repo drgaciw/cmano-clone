@@ -1,0 +1,18 @@
+{
+  "id": "doc-harpoon",
+  "title": "RGM-84 Harpoon",
+  "text": "USA RGM-84 Harpoon for long-range anti-shipping surface strike.",
+  "revision": 1,
+  "sourceHash": "5636ec7b8f2f3f1d3df6b6a12b5aac75e7049da2341f9bf24b70103e901ef697",
+  "concepts": [
+    "src_doc-harpoon",
+    "anti_ship_missile",
+    "side_blue"
+  ],
+  "sourceClass": "catalog-description",
+  "track": "B",
+  "metadata": {
+    "provenance": "repo-public-fixture",
+    "paidProviders": "false"
+  }
+}

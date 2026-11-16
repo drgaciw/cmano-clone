@@ -1,0 +1,18 @@
+{
+  "id": "doc-roe-weapons-free",
+  "title": "Baltic ROE Weapons Free trigger",
+  "text": "Contact-triggered ROE escalation to Weapons Free on recon detection for ASuW/AAA.",
+  "revision": 1,
+  "sourceHash": "626f81ed9779309ccc81131ed83e6a098542d68dfe52f2396a77e6973ab5448e",
+  "concepts": [
+    "src_doc-roe-weapons-free",
+    "rules_of_engagement",
+    "theater_baltic"
+  ],
+  "sourceClass": "catalog-description",
+  "track": "B",
+  "metadata": {
+    "provenance": "repo-public-fixture",
+    "paidProviders": "false"
+  }
+}

@@ -1,0 +1,18 @@
+{
+  "id": "doc-torpedo-mk48",
+  "title": "Mk 48 torpedo",
+  "text": "Mk 48 heavyweight torpedo for ASW and undersea engagement.",
+  "revision": 1,
+  "sourceHash": "d35387d4aab49ff675469c469f386730a3f509748c5749806bb3edf3074375e4",
+  "concepts": [
+    "src_doc-torpedo-mk48",
+    "anti_submarine",
+    "undersea"
+  ],
+  "sourceClass": "catalog-description",
+  "track": "B",
+  "metadata": {
+    "provenance": "repo-public-fixture",
+    "paidProviders": "false"
+  }
+}

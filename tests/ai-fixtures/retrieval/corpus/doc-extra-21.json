@@ -1,0 +1,18 @@
+{
+  "id": "doc-extra-21",
+  "title": "Point defense card U",
+  "text": "Card U assigns short-range flak sectors for point defense.",
+  "revision": 1,
+  "sourceHash": "3b8fc25563d7a2102aa5cb568c72cf5516e906e3972fc53e1ed9562530a36591",
+  "concepts": [
+    "src_doc-extra-21",
+    "pointdef_u",
+    "surface_to_air"
+  ],
+  "sourceClass": "catalog-description",
+  "track": "B",
+  "metadata": {
+    "provenance": "repo-public-fixture",
+    "paidProviders": "false"
+  }
+}

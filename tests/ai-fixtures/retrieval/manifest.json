@@ -1,0 +1,22 @@
+{
+  "schemaVersion": 1,
+  "kind": "retrieval",
+  "linearIssue": "DRG-741",
+  "baseCommit": "76bf1cdd",
+  "paidProviders": false,
+  "offlineEmbeddingsOnly": true,
+  "corpusCount": 48,
+  "queryCount": 42,
+  "files": {
+    "queries": "queries.json",
+    "synonyms": "synonyms.json",
+    "trackARefuse": "track-a-refuse.json",
+    "revisionBump": "revision-bump-ucav-blue.json",
+    "corpusDir": "corpus/"
+  },
+  "notes": [
+    "Offline embeddings = deterministic concept vectors + synonym map; no paid API.",
+    "Track A / *.db3 refused.",
+    "Embedded-instruction docs indexed as data."
+  ]
+}

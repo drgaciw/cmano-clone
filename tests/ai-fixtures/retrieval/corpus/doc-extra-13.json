@@ -1,0 +1,18 @@
+{
+  "id": "doc-extra-13",
+  "title": "EW window tasking M",
+  "text": "Tasking M schedules a second jamming window after sunset.",
+  "revision": 1,
+  "sourceHash": "0cde0def7be5ec858d1b9bad6117c684ed41f2dfb6eff7cf8041f7994870f269",
+  "concepts": [
+    "src_doc-extra-13",
+    "ew_window_m",
+    "electronic_warfare"
+  ],
+  "sourceClass": "catalog-description",
+  "track": "B",
+  "metadata": {
+    "provenance": "repo-public-fixture",
+    "paidProviders": "false"
+  }
+}

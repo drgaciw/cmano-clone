@@ -1,0 +1,18 @@
+{
+  "id": "doc-extra-19",
+  "title": "AIP boat posture S",
+  "text": "Posture S keeps the AIP boat quiet on the undersea lane.",
+  "revision": 1,
+  "sourceHash": "fe7743646e327709aa008784ceea786f277793e3e62583aa2d74d5ce871b74bf",
+  "concepts": [
+    "src_doc-extra-19",
+    "aip_posture_s",
+    "undersea"
+  ],
+  "sourceClass": "catalog-description",
+  "track": "B",
+  "metadata": {
+    "provenance": "repo-public-fixture",
+    "paidProviders": "false"
+  }
+}

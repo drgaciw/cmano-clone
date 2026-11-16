@@ -1,0 +1,19 @@
+{
+  "id": "doc-extra-08",
+  "title": "Blue track-share memo H",
+  "text": "Memo H reminds blue units to push tracks on the tactical net.",
+  "revision": 1,
+  "sourceHash": "51411876b55208a3a888fa1b3009a3d18d99e4f77625985cde4c0e86ad2e9f63",
+  "concepts": [
+    "src_doc-extra-08",
+    "track_share_h",
+    "c2_datalink",
+    "side_blue"
+  ],
+  "sourceClass": "catalog-description",
+  "track": "B",
+  "metadata": {
+    "provenance": "repo-public-fixture",
+    "paidProviders": "false"
+  }
+}

@@ -1,0 +1,18 @@
+{
+  "id": "doc-patrol-boat",
+  "title": "Coastal patrol craft",
+  "text": "Fast coastal patrol craft for littoral Baltic archipelago surface patrol.",
+  "revision": 1,
+  "sourceHash": "ceb3ff34c175400f547bb88056a1ae7a2f6ec84f2b7ac933cba51a4ebc5e4f86",
+  "concepts": [
+    "src_doc-patrol-boat",
+    "surface_patrol",
+    "theater_baltic"
+  ],
+  "sourceClass": "catalog-description",
+  "track": "B",
+  "metadata": {
+    "provenance": "repo-public-fixture",
+    "paidProviders": "false"
+  }
+}

@@ -1,0 +1,18 @@
+{
+  "id": "doc-ssn25",
+  "title": "SS-N-25 Switchblade",
+  "text": "Russia SS-N-25 Switchblade. Surface Max 130 km. Weight 630 kg.",
+  "revision": 1,
+  "sourceHash": "23b5219348c310f9fa09af54972f5826666b992c5feeaa061a126ba503fdd0f3",
+  "concepts": [
+    "src_doc-ssn25",
+    "anti_ship_missile",
+    "side_red"
+  ],
+  "sourceClass": "catalog-description",
+  "track": "B",
+  "metadata": {
+    "provenance": "repo-public-fixture",
+    "paidProviders": "false"
+  }
+}

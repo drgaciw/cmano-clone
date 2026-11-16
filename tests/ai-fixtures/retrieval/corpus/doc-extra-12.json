@@ -1,0 +1,18 @@
+{
+  "id": "doc-extra-12",
+  "title": "ASW barrier plan L",
+  "text": "Barrier plan L densifies the western sonar picket line.",
+  "revision": 1,
+  "sourceHash": "6e7ea531534e5b55102f03df907940596b639cc29a42607272fa3fb0ef834331",
+  "concepts": [
+    "src_doc-extra-12",
+    "asw_barrier_l",
+    "anti_submarine"
+  ],
+  "sourceClass": "catalog-description",
+  "track": "B",
+  "metadata": {
+    "provenance": "repo-public-fixture",
+    "paidProviders": "false"
+  }
+}

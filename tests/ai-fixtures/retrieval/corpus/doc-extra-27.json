@@ -1,0 +1,19 @@
+{
+  "id": "doc-extra-27",
+  "title": "Standard MR tip AA",
+  "text": "Tip AA reminds watch teams about Standard MR envelopes.",
+  "revision": 1,
+  "sourceHash": "182cfdfc5cb00eed3379bf08200601befb1c1d31ca8731fb7d1fdac3b7693f22",
+  "concepts": [
+    "src_doc-extra-27",
+    "standard_tip_aa",
+    "surface_to_air",
+    "side_blue"
+  ],
+  "sourceClass": "catalog-description",
+  "track": "B",
+  "metadata": {
+    "provenance": "repo-public-fixture",
+    "paidProviders": "false"
+  }
+}

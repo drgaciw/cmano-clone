@@ -1,0 +1,18 @@
+{
+  "id": "doc-extra-05",
+  "title": "EW window tasking E",
+  "text": "Tasking E opens a narrow jamming window against hostile emitters.",
+  "revision": 1,
+  "sourceHash": "e25ba1c8cbdf6d811f01fb5c74bbf3da585e4e437de61cce7d89af75a5c40c5d",
+  "concepts": [
+    "src_doc-extra-05",
+    "ew_window_e",
+    "electronic_warfare"
+  ],
+  "sourceClass": "catalog-description",
+  "track": "B",
+  "metadata": {
+    "provenance": "repo-public-fixture",
+    "paidProviders": "false"
+  }
+}

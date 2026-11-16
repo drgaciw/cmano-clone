@@ -1,0 +1,349 @@
+{
+  "schemaVersion": 1,
+  "linearIssue": "DRG-741",
+  "k": 5,
+  "thresholds": {
+    "deltaRecallAt5": 0.1,
+    "citationPrecisionAt5": 0.85,
+    "provisionalBelowQueryCount": 40
+  },
+  "queryCount": 42,
+  "queries": [
+    {
+      "id": "q01",
+      "text": "UCAV Blue Baltic Patrol Recon Internal IR",
+      "expectedSourceIds": [
+        "doc-ucav-blue"
+      ],
+      "paraphrase": false
+    },
+    {
+      "id": "q02",
+      "text": "SS-N-25 Switchblade",
+      "expectedSourceIds": [
+        "doc-ssn25"
+      ],
+      "paraphrase": false
+    },
+    {
+      "id": "q03",
+      "text": "RIM-66 Standard MR",
+      "expectedSourceIds": [
+        "doc-rim66"
+      ],
+      "paraphrase": false
+    },
+    {
+      "id": "q04",
+      "text": "76mm OTO Melara naval gun",
+      "expectedSourceIds": [
+        "doc-oto76"
+      ],
+      "paraphrase": false
+    },
+    {
+      "id": "q05",
+      "text": "Visby-class corvette Baltic ASW",
+      "expectedSourceIds": [
+        "doc-visby"
+      ],
+      "paraphrase": false
+    },
+    {
+      "id": "q06",
+      "text": "Gotland-class submarine AIP",
+      "expectedSourceIds": [
+        "doc-gotland-sub"
+      ],
+      "paraphrase": false
+    },
+    {
+      "id": "q07",
+      "text": "Link-16 C2 datalink",
+      "expectedSourceIds": [
+        "doc-datalink-16"
+      ],
+      "paraphrase": false
+    },
+    {
+      "id": "q08",
+      "text": "u1 engaged hostile-1 ASM salvo Hit",
+      "expectedSourceIds": [
+        "doc-aar-u1-engage"
+      ],
+      "paraphrase": false
+    },
+    {
+      "id": "q09",
+      "text": "ControllerChange Human to Agent u1",
+      "expectedSourceIds": [
+        "doc-aar-controller"
+      ],
+      "paraphrase": false
+    },
+    {
+      "id": "q10",
+      "text": "BDA kill hostile-1 damage assessment",
+      "expectedSourceIds": [
+        "doc-aar-bda"
+      ],
+      "paraphrase": false
+    },
+    {
+      "id": "q11",
+      "text": "thermal-camera-baltic-drone scouting lane",
+      "expectedSourceIds": [
+        "doc-ucav-blue"
+      ],
+      "paraphrase": true
+    },
+    {
+      "id": "q12",
+      "text": "russian-sea-skimming-ship-killer inbound warning",
+      "expectedSourceIds": [
+        "doc-ssn25"
+      ],
+      "paraphrase": true
+    },
+    {
+      "id": "q13",
+      "text": "american-medium-range-shipboard-sam envelope",
+      "expectedSourceIds": [
+        "doc-rim66"
+      ],
+      "paraphrase": true
+    },
+    {
+      "id": "q14",
+      "text": "italian-rapid-fire-naval-artillery mount",
+      "expectedSourceIds": [
+        "doc-oto76"
+      ],
+      "paraphrase": true
+    },
+    {
+      "id": "q15",
+      "text": "swedish-stealth-surface-combatant sea control",
+      "expectedSourceIds": [
+        "doc-visby"
+      ],
+      "paraphrase": true
+    },
+    {
+      "id": "q16",
+      "text": "aip-boat-undersea-baltic quiet lane",
+      "expectedSourceIds": [
+        "doc-gotland-sub"
+      ],
+      "paraphrase": true
+    },
+    {
+      "id": "q17",
+      "text": "blue-share-tracks-network reminder",
+      "expectedSourceIds": [
+        "doc-datalink-16"
+      ],
+      "paraphrase": true
+    },
+    {
+      "id": "q18",
+      "text": "weapons-release-after-recon-contact policy",
+      "expectedSourceIds": [
+        "doc-roe-weapons-free"
+      ],
+      "paraphrase": true
+    },
+    {
+      "id": "q19",
+      "text": "blue-shooter-hit-red-contact after action",
+      "expectedSourceIds": [
+        "doc-aar-u1-engage"
+      ],
+      "paraphrase": true
+    },
+    {
+      "id": "q20",
+      "text": "jamming-esm-contested-emcon posture",
+      "expectedSourceIds": [
+        "doc-ew-suite"
+      ],
+      "paraphrase": true
+    },
+    {
+      "id": "q21",
+      "text": "document-jailbreak-system-prompt flavor text",
+      "expectedSourceIds": [
+        "doc-embedded-ignore"
+      ],
+      "paraphrase": true
+    },
+    {
+      "id": "q22",
+      "text": "opfor-ir-only-drone lookout",
+      "expectedSourceIds": [
+        "doc-ucav-red"
+      ],
+      "paraphrase": true
+    },
+    {
+      "id": "q23",
+      "text": "us-anti-shipping-cruise-missile shooters",
+      "expectedSourceIds": [
+        "doc-harpoon"
+      ],
+      "paraphrase": true
+    },
+    {
+      "id": "q24",
+      "text": "listening-gear-hunting-subs ranges",
+      "expectedSourceIds": [
+        "doc-sonar-hull"
+      ],
+      "paraphrase": true
+    },
+    {
+      "id": "q25",
+      "text": "point-defense-flak-aircraft sectors",
+      "expectedSourceIds": [
+        "doc-aaa-short"
+      ],
+      "paraphrase": true
+    },
+    {
+      "id": "q26",
+      "text": "littoral-fast-boat-archipelago lanes",
+      "expectedSourceIds": [
+        "doc-patrol-boat"
+      ],
+      "paraphrase": true
+    },
+    {
+      "id": "q27",
+      "text": "heavyweight-fish-undersea-targets card",
+      "expectedSourceIds": [
+        "doc-torpedo-mk48"
+      ],
+      "paraphrase": true
+    },
+    {
+      "id": "q28",
+      "text": "external-thermal-targeting-pod checklist",
+      "expectedSourceIds": [
+        "doc-ir-pod"
+      ],
+      "paraphrase": true
+    },
+    {
+      "id": "q29",
+      "text": "quiet-unmanned-lookout lane north",
+      "expectedSourceIds": [
+        "doc-extra-01"
+      ],
+      "paraphrase": true
+    },
+    {
+      "id": "q30",
+      "text": "outer-screen-shooters package brief",
+      "expectedSourceIds": [
+        "doc-extra-02"
+      ],
+      "paraphrase": true
+    },
+    {
+      "id": "q31",
+      "text": "anchorage-umbrellas air-defense sheet",
+      "expectedSourceIds": [
+        "doc-extra-03"
+      ],
+      "paraphrase": true
+    },
+    {
+      "id": "q32",
+      "text": "ready-heavyweight-fish barrier plan",
+      "expectedSourceIds": [
+        "doc-extra-04"
+      ],
+      "paraphrase": true
+    },
+    {
+      "id": "q33",
+      "text": "narrow-jamming-window tasking",
+      "expectedSourceIds": [
+        "doc-extra-05"
+      ],
+      "paraphrase": true
+    },
+    {
+      "id": "q34",
+      "text": "debrief-hit-marks salvo ledger",
+      "expectedSourceIds": [
+        "doc-extra-06"
+      ],
+      "paraphrase": true
+    },
+    {
+      "id": "q35",
+      "text": "baltic-shooters-weapons-free release card",
+      "expectedSourceIds": [
+        "doc-extra-07"
+      ],
+      "paraphrase": true
+    },
+    {
+      "id": "q36",
+      "text": "push-tracks-tactical-net memo",
+      "expectedSourceIds": [
+        "doc-extra-08"
+      ],
+      "paraphrase": true
+    },
+    {
+      "id": "q37",
+      "text": "southern-unmanned-lookout orbit card",
+      "expectedSourceIds": [
+        "doc-extra-09"
+      ],
+      "paraphrase": true
+    },
+    {
+      "id": "q38",
+      "text": "inner-screen-anti-shipping package",
+      "expectedSourceIds": [
+        "doc-extra-10"
+      ],
+      "paraphrase": true
+    },
+    {
+      "id": "q39",
+      "text": "inland-approach-corridor sam sheet",
+      "expectedSourceIds": [
+        "doc-extra-11"
+      ],
+      "paraphrase": true
+    },
+    {
+      "id": "q40",
+      "text": "western-sonar-picket barrier",
+      "expectedSourceIds": [
+        "doc-extra-12"
+      ],
+      "paraphrase": true
+    },
+    {
+      "id": "q41",
+      "text": "second-jamming-window after sunset",
+      "expectedSourceIds": [
+        "doc-extra-13"
+      ],
+      "paraphrase": true
+    },
+    {
+      "id": "q42",
+      "text": "alternate-debrief-sheet hit marks",
+      "expectedSourceIds": [
+        "doc-extra-14"
+      ],
+      "paraphrase": true
+    }
+  ]
+}

@@ -1,0 +1,19 @@
+{
+  "id": "doc-gotland-sub",
+  "title": "Gotland-class submarine",
+  "text": "Swedish Gotland-class AIP submarine for undersea Baltic operations.",
+  "revision": 1,
+  "sourceHash": "b6b987a84465050bf2147a94c2cfa8cb2dd08d6d6fd6138e5b162a02c1158abf",
+  "concepts": [
+    "src_doc-gotland-sub",
+    "undersea",
+    "theater_baltic",
+    "side_blue"
+  ],
+  "sourceClass": "catalog-description",
+  "track": "B",
+  "metadata": {
+    "provenance": "repo-public-fixture",
+    "paidProviders": "false"
+  }
+}

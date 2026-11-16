@@ -1,0 +1,19 @@
+{
+  "id": "doc-extra-02",
+  "title": "Blue ASM package brief B",
+  "text": "Package brief B authorizes blue anti-shipping shooters for the outer screen.",
+  "revision": 1,
+  "sourceHash": "944f156fcd7c2a25864c9252b3c7593322157d5344f7b8cb789df559b9596a05",
+  "concepts": [
+    "src_doc-extra-02",
+    "asm_package_b",
+    "anti_ship_missile",
+    "side_blue"
+  ],
+  "sourceClass": "catalog-description",
+  "track": "B",
+  "metadata": {
+    "provenance": "repo-public-fixture",
+    "paidProviders": "false"
+  }
+}

@@ -1,0 +1,19 @@
+{
+  "id": "doc-extra-28",
+  "title": "Harpoon employment AB",
+  "text": "Employment AB covers Harpoon shooters on the outer screen.",
+  "revision": 1,
+  "sourceHash": "5a3130c9b9a25b1259cab2e5bb19b43349f92560af941244f7e0679251b78cc4",
+  "concepts": [
+    "src_doc-extra-28",
+    "harpoon_emp_ab",
+    "anti_ship_missile",
+    "side_blue"
+  ],
+  "sourceClass": "catalog-description",
+  "track": "B",
+  "metadata": {
+    "provenance": "repo-public-fixture",
+    "paidProviders": "false"
+  }
+}

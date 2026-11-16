@@ -1,0 +1,18 @@
+{
+  "id": "doc-extra-18",
+  "title": "Thermal pod checklist R",
+  "text": "Checklist R verifies external thermal cueing before ingress.",
+  "revision": 1,
+  "sourceHash": "ffe21ef3d43fa3a3ba7ddd3c27a0db1df7cef8c224b05339a3e7746af2447662",
+  "concepts": [
+    "src_doc-extra-18",
+    "thermal_check_r",
+    "ir_sensor"
+  ],
+  "sourceClass": "catalog-description",
+  "track": "B",
+  "metadata": {
+    "provenance": "repo-public-fixture",
+    "paidProviders": "false"
+  }
+}

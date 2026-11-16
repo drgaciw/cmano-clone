@@ -1,0 +1,19 @@
+{
+  "id": "doc-extra-22",
+  "title": "Heavyweight fish card V",
+  "text": "Card V authorizes heavyweight fish against undersea contacts.",
+  "revision": 1,
+  "sourceHash": "482c4d6a41fb61bcb2ccd4f15561536fc4fc6fc3d5c74494d51518c02d866054",
+  "concepts": [
+    "src_doc-extra-22",
+    "fish_card_v",
+    "anti_submarine",
+    "undersea"
+  ],
+  "sourceClass": "catalog-description",
+  "track": "B",
+  "metadata": {
+    "provenance": "repo-public-fixture",
+    "paidProviders": "false"
+  }
+}

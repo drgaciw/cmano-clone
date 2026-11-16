@@ -1,0 +1,18 @@
+{
+  "id": "doc-extra-06",
+  "title": "AAR salvo ledger F",
+  "text": "Salvo ledger F tallies launched rounds and hit marks for debrief.",
+  "revision": 1,
+  "sourceHash": "7b3c01ac7af9aa6724509d75de61b8cbe565cbd5ca0032e10ec3003f4d83c652",
+  "concepts": [
+    "src_doc-extra-06",
+    "aar_ledger_f",
+    "aar_engagement"
+  ],
+  "sourceClass": "catalog-description",
+  "track": "B",
+  "metadata": {
+    "provenance": "repo-public-fixture",
+    "paidProviders": "false"
+  }
+}

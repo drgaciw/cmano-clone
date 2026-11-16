@@ -1,0 +1,18 @@
+{
+  "id": "doc-datalink-16",
+  "title": "Link-16 C2 datalink",
+  "text": "Link-16 tactical datalink for blue-force C2 track sharing.",
+  "revision": 1,
+  "sourceHash": "b9fd9246710555e6deff61986b62139818ee53f23277b53757a25195a96dad5f",
+  "concepts": [
+    "src_doc-datalink-16",
+    "c2_datalink",
+    "side_blue"
+  ],
+  "sourceClass": "catalog-description",
+  "track": "B",
+  "metadata": {
+    "provenance": "repo-public-fixture",
+    "paidProviders": "false"
+  }
+}

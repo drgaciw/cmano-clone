@@ -1,0 +1,20 @@
+{
+  "id": "doc-ucav-red",
+  "title": "UCAV Red Baltic OPFOR Recon",
+  "text": "OPFOR UCAV for Baltic reconnaissance using Internal IR only. Max speed 315 kt.",
+  "revision": 1,
+  "sourceHash": "429c14cdf7926d1f8188f7aad404c1ba807d6be6ed17a771608209ef77bc594b",
+  "concepts": [
+    "src_doc-ucav-red",
+    "unmanned_recon",
+    "ir_sensor",
+    "theater_baltic",
+    "side_red"
+  ],
+  "sourceClass": "catalog-description",
+  "track": "B",
+  "metadata": {
+    "provenance": "repo-public-fixture",
+    "paidProviders": "false"
+  }
+}

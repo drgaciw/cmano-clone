@@ -1,0 +1,18 @@
+{
+  "id": "doc-rim66",
+  "title": "RIM-66 Standard MR",
+  "text": "USA guided weapon RIM-66 Standard MR. Air Max 74 km. Surface Max 74 km. Weight 615 kg.",
+  "revision": 1,
+  "sourceHash": "4c28b5b5df0c80272a0e58347a1544dff36b51346eb621c15b871a58198092cb",
+  "concepts": [
+    "src_doc-rim66",
+    "surface_to_air",
+    "side_blue"
+  ],
+  "sourceClass": "catalog-description",
+  "track": "B",
+  "metadata": {
+    "provenance": "repo-public-fixture",
+    "paidProviders": "false"
+  }
+}

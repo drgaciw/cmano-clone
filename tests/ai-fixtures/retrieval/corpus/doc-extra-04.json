@@ -1,0 +1,18 @@
+{
+  "id": "doc-extra-04",
+  "title": "ASW barrier plan D",
+  "text": "Barrier plan D stations sonar pickets and ready heavyweight fish.",
+  "revision": 1,
+  "sourceHash": "7af5233e4b62365f27c8a77ccb561e5ebf51fd63db7aaf91b57c5b3b851c378f",
+  "concepts": [
+    "src_doc-extra-04",
+    "asw_barrier_d",
+    "anti_submarine"
+  ],
+  "sourceClass": "catalog-description",
+  "track": "B",
+  "metadata": {
+    "provenance": "repo-public-fixture",
+    "paidProviders": "false"
+  }
+}

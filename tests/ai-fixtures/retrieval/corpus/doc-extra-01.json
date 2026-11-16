@@ -1,0 +1,19 @@
+{
+  "id": "doc-extra-01",
+  "title": "Baltic ISR orbit card A",
+  "text": "ISR orbit card A assigns a quiet unmanned lookout lane north of Gotland.",
+  "revision": 1,
+  "sourceHash": "91115530921f02e1b1c68f7e012344f8b37c66874888a241a1e4f56da8e04a81",
+  "concepts": [
+    "src_doc-extra-01",
+    "isr_orbit_a",
+    "unmanned_recon",
+    "theater_baltic"
+  ],
+  "sourceClass": "catalog-description",
+  "track": "B",
+  "metadata": {
+    "provenance": "repo-public-fixture",
+    "paidProviders": "false"
+  }
+}
