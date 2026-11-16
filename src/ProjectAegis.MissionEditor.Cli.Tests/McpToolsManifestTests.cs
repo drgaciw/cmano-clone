@@ -48,6 +48,7 @@ public sealed class McpToolsManifestTests
         "scenario_event_trace",  // S86-01: added for Program.cs parity (active headless verb via ScenarioDocumentEditor.ExplainEventTrace)
         "scenario_publish",
         "scenario_ai_scaffold",
+        "aar_explain",
         "osint_search",
         "osint_digest",
         "osint_list_staging_proposals",

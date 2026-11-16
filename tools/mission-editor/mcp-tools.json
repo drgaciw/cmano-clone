@@ -1318,6 +1318,52 @@
       }
     },
     {
+      "name": "aar_explain",
+      "description": "Opt-in AAR explain against exported JSONL evidence (DRG-744 / CMA-15). Fake client only; off by default. Exit 0=structured result (any GenerationStatus); 1=usage/IO.",
+      "command": "pwsh",
+      "args": [
+        "-File",
+        "tools/mission-editor/Invoke-MissionEditorMcp.ps1",
+        "-Command",
+        "aar_explain",
+        "-ExtraArgs",
+        "--evidence",
+        "${evidencePath}",
+        "--enabled",
+        "${enabled}",
+        "--artifact-root",
+        "${artifactRoot}",
+        "--script",
+        "${scriptPath}"
+      ],
+      "inputSchema": {
+        "type": "object",
+        "required": [
+          "evidencePath"
+        ],
+        "properties": {
+          "evidencePath": {
+            "type": "string",
+            "description": "Path to JSONL evidence file from Slice 1 export"
+          },
+          "enabled": {
+            "type": "string",
+            "default": "false",
+            "description": "Set true to invoke the offline fake AAR client"
+          },
+          "artifactRoot": {
+            "type": "string",
+            "description": "Optional directory for atomic envelope publish"
+          },
+          "scriptPath": {
+            "type": "string",
+            "description": "Optional path to assistant JSON draft for AarScriptedChatClient"
+          }
+        }
+      },
+      "returns": "JSON: ok, status, deterministicReport, modelDraft?, envelopePublished, exitCodeNotes"
+    },
+    {
       "name": "osint_search",
       "command": "pwsh",
       "args": [

@@ -40,8 +40,9 @@ McpToolResult.WriteOk / WriteError          ← single-line camelCase JSON on st
 - **`McpToolResult.cs`** — serializes results as one camelCase JSON line and maps error codes to exit codes.
 
 The project references `ProjectAegis.Data`, `ProjectAegis.Data.Excel` (the ClosedXML edge adapter,
-wired for the `platform_*_xlsx` verbs), and `ProjectAegis.Delegation.UnityAdapter` (the Baltic harness
-used by `scenario_simulate_sample`). Targets `net11.0`.
+wired for the `platform_*_xlsx` verbs), `ProjectAegis.Delegation.UnityAdapter` (the Baltic harness
+used by `scenario_simulate_sample`), and `ProjectAegis.Ai.Host` (fake-client AAR pipeline for
+`aar_explain`). Targets `net11.0`.
 
 ---
 
@@ -50,6 +51,7 @@ used by `scenario_simulate_sample`). Targets `net11.0`.
 | Family | Verbs (prefix) | Purpose |
 |--------|----------------|---------|
 | Scenario lifecycle | `scenario_create` · `scenario_validate` · `scenario_export[_brief]` · `scenario_publish` · `scenario_simulate_sample` · `scenario_undo` · `scenario_event_trace` · `scenario_comms_status` · `scenario_cyber_status` · `scenario_near_future_spawn` · `scenario_ai_scaffold` · `scenario_migrate_preview` · `scenario_umpire_snapshot` | Create, validate, simulate, and publish scenario documents. |
+| AAR (AI host) | `aar_explain` | Opt-in after-action explain against exported JSONL evidence (DRG-744). Fake client only; off unless `--enabled true`. Exit `0` = structured result (any `GenerationStatus`); `1` = usage/missing evidence. |
 | Mission authoring | `mission_add_{patrol,strike,ferry,support}` · `mission_update_{patrol,strike,ferry}` · `mission_delete` · `mission_plan_suggest` | Mutate missions inside a scenario (all mutations require `--edit-version`). |
 | Catalog | `catalog_platform_browse` · `catalog_entity_map` · `catalog_intelligence_run` · `catalog_dependency_graph` · `catalog_kill_chain_report` · `catalog_link_report` · `catalog_release_diff` · `catalog_write_{propose,approve}` · `catalog_import_markdown` · `catalog_mount_loadout_quarantine_triage` | Read the catalog and stage/approve **extend-only** write-gate batches. |
 | Platform Excel (ADR-011) | `platform_export_xlsx` · `platform_import_xlsx` · `platform_diff_xlsx` | Round-trip the platform workbook via the [`ProjectAegis.Data.Excel`](../ProjectAegis.Data.Excel/README.md) adapter (`--io closedxml\|canonical`). |
