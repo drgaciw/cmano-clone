@@ -1,4 +1,5 @@
 using ProjectAegis.Ai.Host.Authoring;
+using ProjectAegis.Data.Scenario.Authoring;
 using Xunit;
 
 namespace ProjectAegis.Ai.Host.Tests.Authoring;
@@ -17,19 +18,25 @@ public sealed class AuthoringProposePipelineFixtureTests
     public void Fixture_yields_expected_outcome(string caseId)
     {
         var (request, draft, expected) = AuthoringFixtureLoader.Load(caseId);
-        var pipeline = new AuthoringProposePipeline();
+        Assert.Equal(string.Equals(caseId, "duplicate-op", StringComparison.Ordinal), request.IsRetry);
 
+        var pipeline = new AuthoringProposePipeline();
         var result = pipeline.Propose(request, draft);
 
         Assert.Equal(expected.OutcomeClass, result.OutcomeClass.ToString());
         Assert.False(result.SubmitAllowedWithoutHuman);
+        Assert.NotNull(result.Metrics);
+        Assert.True(result.Metrics.ValidDraftCount >= 0);
+        Assert.True(result.Metrics.DiagnosticCount >= 0);
+        Assert.True(result.Metrics.ConflictCount >= 0);
+        Assert.True(result.Metrics.IdempotentNoOpCount >= 0);
 
         if (expected.ConflictCode is not null)
         {
             Assert.Equal(expected.ConflictCode, result.ConflictCode);
         }
 
-        if (expected.Diagnostics is { Count: > 0 })
+        if (expected.Diagnostics.Count > 0)
         {
             foreach (var d in expected.Diagnostics)
             {
@@ -44,6 +51,8 @@ public sealed class AuthoringProposePipelineFixtureTests
         if (string.Equals(expected.OutcomeClass, "ValidDraft", StringComparison.Ordinal))
         {
             Assert.NotNull(result.DraftDocument);
+            Assert.NotNull(result.ValidationReport);
+            Assert.Equal(1, result.Metrics.ValidDraftCount);
             Assert.Equal("ai", result.ProvenanceTags.Single().Source);
             Assert.Equal(AuthoringTransparencyLabel.AgentAssisted, result.TransparencyLabel);
             if (expected.Missions is not null)
@@ -67,6 +76,18 @@ public sealed class AuthoringProposePipelineFixtureTests
         {
             Assert.Null(result.DraftDocument);
             Assert.Empty(result.Missions);
+            if (result.OutcomeClass == AuthoringOutcomeClass.Diagnostics)
+            {
+                Assert.True(result.Metrics.DiagnosticCount >= 1);
+            }
+            else if (result.OutcomeClass == AuthoringOutcomeClass.Conflict)
+            {
+                Assert.Equal(1, result.Metrics.ConflictCount);
+            }
+            else if (result.OutcomeClass == AuthoringOutcomeClass.IdempotentNoOp)
+            {
+                Assert.Equal(1, result.Metrics.IdempotentNoOpCount);
+            }
         }
 
         if (expected.MissionCountDelta is 0)
@@ -84,9 +105,12 @@ public sealed class AuthoringProposePipelineFixtureTests
 
         var first = pipeline.Propose(request, draft);
         Assert.Equal(AuthoringOutcomeClass.ValidDraft, first.OutcomeClass);
+        Assert.Equal(1, first.Metrics.ValidDraftCount);
+        Assert.NotNull(first.ValidationReport);
 
         var second = pipeline.Propose(request, draft);
         Assert.Equal(AuthoringOutcomeClass.IdempotentNoOp, second.OutcomeClass);
+        Assert.Equal(1, second.Metrics.IdempotentNoOpCount);
         Assert.Contains(second.Diagnostics, d => d.Code == "DUPLICATE_IDEMPOTENCY_KEY");
     }
 
@@ -94,7 +118,7 @@ public sealed class AuthoringProposePipelineFixtureTests
     public void Keyword_stub_baseline_still_available_unmodified()
     {
         // Pin: AiAuthoringServices remains the Data-layer fallback; Host does not replace it.
-        var stub = ProjectAegis.Data.Scenario.Authoring.AiAuthoringServices.NlScaffold(
+        var stub = AiAuthoringServices.NlScaffold(
             "Blue forces patrol the Baltic strait chokepoint");
         Assert.Contains("patrol-blue-1", stub.Missions);
         Assert.StartsWith("Scaffolded from NL brief using keyword parse.", stub.Explanation);
