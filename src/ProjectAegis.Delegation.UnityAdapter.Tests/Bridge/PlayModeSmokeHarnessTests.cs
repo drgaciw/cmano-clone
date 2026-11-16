@@ -8,7 +8,9 @@ using Targets;
 using Traits;
 using Data.Catalog;
 using Projection;
+using ProjectAegis.Ai.Contracts;
 using ProjectAegis.Delegation.UnityAdapter.Baltic;
+using ProjectAegis.Delegation.UnityAdapter.CommandReview;
 using ProjectAegis.Sim.Scenario;
 using ProjectAegis.Delegation.UnityAdapter.Bridge;
 using ProjectAegis.Sim.Engage;
@@ -50,6 +52,59 @@ public sealed class PlayModeSmokeHarnessTests
 
         Assert.That(harness.AppliedOrders, Is.Not.Empty);
         Assert.That(harness.SimTime, Is.EqualTo(30.0 / 60.0).Within(1e-6));
+    }
+
+    /// <summary>
+    /// DRG-749 headless smoke: AdviceFrame explanation bind stays presentation-only.
+    /// Human Play Mode walk item: <c>PLAYMODE-WALK-DRG-749-advice-explain</c> —
+    /// open Command Review on hostile-1, toggle explanation on/off, confirm stale discard
+    /// when switching contacts before the host artifact returns, and confirm authority
+    /// chips remain advisory-only (no fire-order / weapons-release).
+    /// </summary>
+    [Test]
+    public void Smoke_advice_explanation_bind_discards_stale_and_preserves_authority()
+    {
+        var advice = AdviceFrame.Unavailable(
+            tick: 1,
+            time: 1.0,
+            availability: AdviceAvailability.Stale,
+            fallback: "refresh the contact frame before review",
+            contactId: PlayModeSmokeOrbatSeeder.HostileUnitId);
+        const string key = "c2.advice.datalink.assess:1:1:hostile-1";
+        var content = new AdviceExplanationContent(
+            InvocationKey: key,
+            EvidenceFingerprint: "sha256:smoke",
+            ViewingSide: ViewingSide.Blue,
+            Explanation: "late host prose must not override stale advice",
+            CitedFactKeys: ["rationale"],
+            PromptVersion: "advice-explain/v1");
+        var transport = new AiArtifactTransport(
+            new ArtifactEnvelope(
+                SchemaVersion: AiContractSchema.Version,
+                BuildIdentity: "smoke",
+                ScenarioId: "baltic-patrol",
+                CatalogRevision: "n/a",
+                OrderLogFingerprint: "n/a",
+                ProviderId: "fake",
+                ModelId: "fake-advice",
+                PromptVersion: "advice-explain/v1",
+                EvidenceIds: ["sha256:smoke"],
+                ViewingSide: ViewingSide.Blue,
+                DebriefMode: false,
+                Status: GenerationStatus.Succeeded,
+                ContentHash: "sha256:content"),
+            ContentMediaType: "application/json",
+            ContentText: System.Text.Json.JsonSerializer.Serialize(content),
+            Warnings: null);
+
+        var bound = AdviceExplanationBinder.Bind(advice, key, transport);
+
+        Assert.That(bound.Availability, Is.EqualTo(AdviceAvailability.Stale));
+        Assert.That(bound.Explanation, Is.Empty);
+        Assert.That(bound.AuthorityPreserved, Is.True);
+        Assert.That(advice.IsFireOrder, Is.False);
+        Assert.That(advice.IsWeaponsReleaseAuthorization, Is.False);
+        Assert.That(advice.Availability, Is.EqualTo(AdviceAvailability.Stale));
     }
 
     /// <summary>

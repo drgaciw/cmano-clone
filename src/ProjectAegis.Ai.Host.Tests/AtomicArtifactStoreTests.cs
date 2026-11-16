@@ -19,7 +19,10 @@ public sealed class AtomicArtifactStoreTests
             Assert.True(store.Exists("artifact.json"));
             Assert.Empty(Directory.GetFiles(root, "*.tmp"));
             var text = await File.ReadAllTextAsync(Path.Combine(root, "artifact.json"));
-            Assert.Contains("\"schemaVersion\":1", text, StringComparison.Ordinal);
+            Assert.Contains(
+                "\"schemaVersion\":" + AiContractSchema.Version.ToString(System.Globalization.CultureInfo.InvariantCulture),
+                text,
+                StringComparison.Ordinal);
             Assert.Contains("\"providerId\":\"fake\"", text, StringComparison.Ordinal);
         }
         finally

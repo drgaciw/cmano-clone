@@ -14,10 +14,31 @@ public sealed class ContractRoundTripTests
     };
 
     [Fact]
-    public void Schema_version_is_one()
+    public void Schema_version_is_current()
     {
-        Assert.Equal(1, AiContractSchema.Version);
-        Assert.Equal("1", AiContractSchema.VersionString);
+        Assert.Equal(2, AiContractSchema.Version);
+        Assert.Equal("2", AiContractSchema.VersionString);
+    }
+
+    [Fact]
+    public void AdviceExplanationContent_round_trip_preserves_property_order()
+    {
+        var content = new AdviceExplanationContent(
+            InvocationKey: "c2.advice.datalink.assess:1:1.5:hostile-1",
+            EvidenceFingerprint: "ev-fp-1",
+            ViewingSide: ViewingSide.Blue,
+            Explanation: "Contact remains advisory-only.",
+            CitedFactKeys: new[] { "rationale", "hardConstraints" },
+            PromptVersion: "advice-explain/v1");
+
+        RoundTripAndAssertOrder(
+            content,
+            "InvocationKey",
+            "EvidenceFingerprint",
+            "ViewingSide",
+            "Explanation",
+            "CitedFactKeys",
+            "PromptVersion");
     }
 
     [Fact]
