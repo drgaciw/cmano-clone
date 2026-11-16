@@ -1,4 +1,4 @@
-# AI evidence & artifact contracts — `ProjectAegis.Ai.Contracts` (schema v1)
+# AI evidence & artifact contracts — `ProjectAegis.Ai.Contracts` (schema v2)
 
 > **ADR:** these DTOs cross the **process boundary to Unity / CLI clients**, so they sit under the
 > [`adr-010-headless-first-command-driven-ui.md`](../architecture/adr-010-headless-first-command-driven-ui.md) §2–3
@@ -57,8 +57,8 @@ truth for the version:
 
 | Member | Value | Use |
 |--------|-------|-----|
-| `AiContractSchema.Version` | `1` (int) | Stamped into `EvidenceHeader.SchemaVersion` and `ArtifactEnvelope.SchemaVersion`. |
-| `AiContractSchema.VersionString` | `"1"` | String form for envelopes and transport headers. |
+| `AiContractSchema.Version` | `2` (int) | Stamped into `EvidenceHeader.SchemaVersion` and `ArtifactEnvelope.SchemaVersion` (EvidenceProjector / JsonlEvidenceEnvelopePublisher / AarAssistantPipeline / AdviceExplanationPipeline). Wave 0 froze at `1`; DRG-749 additive `AdviceExplanationContent` bumped to `2`. |
+| `AiContractSchema.VersionString` | `"2"` | String form for envelopes and transport headers. |
 
 **Freeze rule** (effective at end of Wave 0):
 
@@ -258,11 +258,12 @@ as a well-formed transport whose `Envelope.Status` names the failure (e.g. `Time
 ## Tests (pins)
 
 All in [`ContractRoundTripTests`](../../src/ProjectAegis.Ai.Contracts/test/ContractRoundTripTests.cs)
-(xUnit, `net11.0`, **14** tests = 7 facts + a 7-case `GenerationStatus` theory):
+(xUnit, `net11.0`, **15** tests = 8 facts + a 7-case `GenerationStatus` theory):
 
 | Test | Covers |
 |------|--------|
-| `Schema_version_is_one` | `AiContractSchema.Version == 1`, `VersionString == "1"`. |
+| `Schema_version_is_current` | `AiContractSchema.Version == 2`, `VersionString == "2"`. |
+| `AdviceExplanationContent_round_trip_preserves_property_order` | DRG-749 additive explanation content JSON key order == declaration order. |
 | `EvidenceId_format_is_prefix_colon_sequence` | `From("abc123", 42) == "abc123:42"`. |
 | `EvidenceHeader_round_trip_preserves_property_order` | Header JSON key order == declaration order. |
 | `EvidenceEntry_round_trip_preserves_property_order` | Entry JSON key order == declaration order. |
