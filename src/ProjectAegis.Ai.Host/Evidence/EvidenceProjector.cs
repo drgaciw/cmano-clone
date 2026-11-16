@@ -1,4 +1,6 @@
 using System.Globalization;
+using System.Security.Cryptography;
+using System.Text;
 using ProjectAegis.Ai.Contracts;
 using ProjectAegis.Delegation.AfterAction;
 using ProjectAegis.Delegation.Decision;
@@ -11,6 +13,17 @@ namespace ProjectAegis.Ai.Host.Evidence;
 /// </summary>
 public sealed class EvidenceProjector : IEvidenceProjector
 {
+    /// <summary>
+    /// Opaque SHA-256 hex digest of <see cref="IReadOnlyOrderLog.ComputeFingerprint"/> text.
+    /// Exported headers must not embed the plaintext fingerprint (it serializes all rows).
+    /// </summary>
+    public static string DigestOrderLogFingerprint(string fingerprint)
+    {
+        ArgumentNullException.ThrowIfNull(fingerprint);
+        var hash = SHA256.HashData(Encoding.UTF8.GetBytes(fingerprint));
+        return Convert.ToHexString(hash).ToLowerInvariant();
+    }
+
     /// <inheritdoc />
     public EvidenceProjectionResult Project(
         IReadOnlyOrderLog log,
@@ -28,9 +41,23 @@ public sealed class EvidenceProjector : IEvidenceProjector
             .OrderBy(e => e.SequenceId)
             .ToArray();
 
+        var debrief = request.DebriefMode || request.ViewingSide == ViewingSide.Debrief;
         var quantitative = BuildQuantitative(log, chronological, request.AuthoritativeFacts);
-        var aar = request.AarSection ?? AgentPerformanceAarProjection.Project(log);
-        var aarAttributes = BuildAarAttributeMap(aar);
+
+        // Full-log AAR (and entry aar.* attributes) only in explicit debrief — otherwise
+        // hidden-side agent ids leak onto visible rows.
+        AgentPerformanceSection exportedAar;
+        IReadOnlyDictionary<string, string> aarAttributes;
+        if (debrief)
+        {
+            exportedAar = request.AarSection ?? AgentPerformanceAarProjection.Project(log);
+            aarAttributes = BuildAarAttributeMap(exportedAar);
+        }
+        else
+        {
+            exportedAar = AgentPerformanceSection.Empty;
+            aarAttributes = new Dictionary<string, string>(StringComparer.Ordinal);
+        }
 
         var entries = new List<EvidenceEntry>(chronological.Length);
         var stampedFacts = false;
@@ -58,13 +85,13 @@ public sealed class EvidenceProjector : IEvidenceProjector
         }
 
         var evidenceIds = entries.Select(e => e.EvidenceId).ToArray();
-        var debrief = request.DebriefMode || request.ViewingSide == ViewingSide.Debrief;
+        var rawFingerprint = log.ComputeFingerprint();
         var header = new EvidenceHeader(
             SchemaVersion: AiContractSchema.Version,
             BuildIdentity: request.BuildIdentity,
             ScenarioId: request.ScenarioId,
             CatalogRevision: request.CatalogRevision,
-            OrderLogFingerprint: log.ComputeFingerprint(),
+            OrderLogFingerprint: DigestOrderLogFingerprint(rawFingerprint),
             ViewingSide: request.ViewingSide,
             DebriefMode: debrief,
             EvidenceIds: evidenceIds);
@@ -73,7 +100,7 @@ public sealed class EvidenceProjector : IEvidenceProjector
         return new EvidenceProjectionResult(
             document,
             quantitative,
-            aar,
+            exportedAar,
             request.AuthoritativeFacts);
     }
 
@@ -216,19 +243,82 @@ public sealed class EvidenceProjector : IEvidenceProjector
                     ("attemptedKind", d.AttemptedKind.ToString()),
                     ("policySnapshotId", d.PolicySnapshotId.ToString(CultureInfo.InvariantCulture)))),
             AgentDecisionPayload a => (
-                null,
+                a.TargetId.Value,
                 a.ChosenOrderKind.ToString(),
                 Dict(
                     ("agentId", a.AgentId.Value),
                     ("chosenOrderKind", a.ChosenOrderKind.ToString()),
                     ("simTick", a.SimTick.ToString(CultureInfo.InvariantCulture)))),
             DecisionRecord r => (
-                null,
+                r.TargetId.Value,
                 r.ChosenKind.ToString(),
                 Dict(
                     ("agentId", r.AgentId.Value),
                     ("chosenKind", r.ChosenKind.ToString()),
                     ("simTick", r.SimTick.ToString(CultureInfo.InvariantCulture)))),
+            ContactChangeRecord contact => (
+                contact.TargetId,
+                $"{contact.PreviousState}->{contact.NewState}",
+                Dict(
+                    ("observerId", contact.ObserverId),
+                    ("contactId", contact.ContactId),
+                    ("targetId", contact.TargetId),
+                    ("previousState", contact.PreviousState),
+                    ("newState", contact.NewState),
+                    ("simTick", contact.SimTick.ToString(CultureInfo.InvariantCulture)))),
+            PlayerOrderRecord player => (
+                player.UnitId.Value,
+                player.Kind.ToString(),
+                Dict(
+                    ("unitId", player.UnitId.Value),
+                    ("orderKind", player.Kind.ToString()),
+                    ("source", player.Source),
+                    ("simTick", player.SimTick.ToString(CultureInfo.InvariantCulture)),
+                    ("executeSimTick", player.ResolvedExecuteSimTick.ToString(CultureInfo.InvariantCulture)))),
+            PlatformDamageChangeRecord damage => (
+                damage.UnitId.Value,
+                damage.ReasonCode,
+                Dict(
+                    ("unitId", damage.UnitId.Value),
+                    ("previousHpPct", damage.PreviousHpPct.ToString(CultureInfo.InvariantCulture)),
+                    ("newHpPct", damage.NewHpPct.ToString(CultureInfo.InvariantCulture)),
+                    ("reasonCode", damage.ReasonCode),
+                    ("damageLevel", damage.DamageLevel.ToString(CultureInfo.InvariantCulture)),
+                    ("simTick", damage.SimTick.ToString(CultureInfo.InvariantCulture)))),
+            MagazineChangeRecord mag => (
+                mag.ShooterTargetId.Value,
+                mag.ReasonCode,
+                Dict(
+                    ("shooterUnitId", mag.ShooterTargetId.Value),
+                    ("mountId", mag.MountId.ToString(CultureInfo.InvariantCulture)),
+                    ("delta", mag.Delta.ToString(CultureInfo.InvariantCulture)),
+                    ("reasonCode", mag.ReasonCode))),
+            GroupMemberDetachRecord detach => (
+                detach.UnitId.Value,
+                "detach",
+                Dict(
+                    ("groupId", detach.GroupId.Value),
+                    ("unitId", detach.UnitId.Value))),
+            GroupMemberRejoinRecord rejoin => (
+                rejoin.UnitId.Value,
+                "rejoin",
+                Dict(
+                    ("groupId", rejoin.GroupId.Value),
+                    ("unitId", rejoin.UnitId.Value))),
+            MissionTransitionRecord mission => (
+                null,
+                mission.PhaseCode,
+                Dict(
+                    ("eventId", mission.EventId),
+                    ("phaseCode", mission.PhaseCode),
+                    ("simTick", mission.SimTick.ToString(CultureInfo.InvariantCulture)))),
+            EventFiredRecord fired => (
+                null,
+                fired.EventCode,
+                Dict(
+                    ("eventId", fired.EventId),
+                    ("eventCode", fired.EventCode),
+                    ("simTick", fired.SimTick.ToString(CultureInfo.InvariantCulture)))),
             IReadOnlyDictionary<string, string> bag => (
                 bag.TryGetValue("unitId", out var u) ? u
                     : bag.TryGetValue("shooterUnitId", out var s) ? s
