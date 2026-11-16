@@ -17,12 +17,24 @@ public enum MessageLogBindingSource
     LiveOrderLogView = 1,
 }
 
+/// <summary>Categorized HUD rows vs CMO-style raw chronological text (DRG-412).</summary>
+public enum MessageLogPanelViewMode
+{
+    /// <summary>Interactive categorized rows: <c>[CATEGORY] text</c>.</summary>
+    Categorized = 0,
+
+    /// <summary>Raw chronological text matching <see cref="MessageLogTextExport"/> line format.</summary>
+    Raw = 1,
+}
+
 /// <summary>UI Toolkit–friendly message log rows (GDD order-log-replay §3, requirements C2).</summary>
 /// <param name="Rows">Display rows in log order.</param>
 /// <param name="Source">Order-log view the rows were projected from (live vs full).</param>
+/// <param name="ViewMode">Categorized vs raw text presentation (DRG-412).</param>
 public sealed record MessageLogPanelState(
     IReadOnlyList<MessageLogDisplayRow> Rows,
-    MessageLogBindingSource Source = MessageLogBindingSource.FullDecisionLog);
+    MessageLogBindingSource Source = MessageLogBindingSource.FullDecisionLog,
+    MessageLogPanelViewMode ViewMode = MessageLogPanelViewMode.Categorized);
 
 /// <summary>Display row with order-log deep-link fields for CMD-05 selection.</summary>
 public sealed record MessageLogDisplayRow(
