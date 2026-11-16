@@ -2,7 +2,7 @@
 
 ## Status
 
-**Proposed**
+**Accepted**
 
 ## Date
 
@@ -10,15 +10,15 @@
 
 ## Last Verified
 
-2026-07-01
+2026-11-15
 
 ## Decision Makers
 
-Enterprise architect (DRGAMTD); milsim architecture review. **Resolution owner: Design.** **Target decision date: 2026-09-01.** Resolves Open Question 3 of requirement [11-Agentic-Mission-Editor](../../Game-Requirements/requirements/11-Agentic-Mission-Editor.md).
+Enterprise architect (DRGAMTD); milsim architecture review. **Resolution owner: Design.** **Accepted by owner (drg) 2026-11-15 20:30 CT** — Linear [DRG-727](https://linear.app/drgamtd-workspace/issue/DRG-727/ai-dec-1-owner-decision-adr-015-labelling-of-agent-authored-scenario). Resolves Open Question 3 of requirement [11-Agentic-Mission-Editor](../../Game-Requirements/requirements/11-Agentic-Mission-Editor.md).
 
 ## Summary
 
-Phase 2/3 introduces LLM authoring agents (Mission Planner, Red Force, Briefing Writer, Balance) that draft scenario content as reviewable proposals. This ADR proposes — leaning **yes** — that agent-authored or agent-assisted scenarios be **labeled for transparency** in multiplayer and briefing surfaces, backed by the provenance record the GDD already mandates (prompt, rationale, diff hash, approving id).
+Phase 2/3 introduces LLM authoring agents (Mission Planner, Red Force, Briefing Writer, Balance) that draft scenario content as reviewable proposals. **Accepted:** agent-authored or agent-assisted scenarios are **labeled for transparency** in multiplayer and briefing surfaces, backed by the provenance record the GDD already mandates (prompt, rationale, diff hash, approving id).
 
 ## Engine Compatibility
 
@@ -65,7 +65,7 @@ v1 ships **no** authoring agents (GDD §2 — "Agent" is reserved for Phase 2/3 
 
 ## Decision
 
-**Proposed, leaning yes.** Recommend that Project Aegis label agent-authored and agent-assisted scenarios for transparency, subject to Design sign-off:
+**Accepted.** Project Aegis labels agent-authored and agent-assisted scenarios for transparency:
 
 1. **Derive labeling from existing provenance.** The label is computed from the GDD §3.6 provenance records (which agent, what edits, approving id) — no new authoritative store. A denormalized summary in `metadata` (e.g. an `authoringProvenance` block) may cache it for cheap display, consistent with the derived-only discipline (GDD §3.3: `metadata` summary must not become a validation/sim input).
 2. **Express role and degree, not a binary.** Distinguish "agent-assisted" (human-driven with agent proposals accepted) from "agent-authored" (predominantly agent-drafted), because agents propose and humans approve.
@@ -129,7 +129,7 @@ No migration in v1. When Phase 2/3 agents ship, compute labels from provenance a
 
 ## Validation Criteria
 
-- [ ] Design records an accept/reject decision by 2026-09-01.
+- [x] Design/owner records an accept/reject decision (Accepted 2026-11-15, DRG-727).
 - [ ] When agents ship, an agent-assisted scenario surfaces an accurate indicator in multiplayer listing and briefing.
 - [ ] The indicator is derived from the provenance/edit log and cannot be set to "human-only" while provenance shows agent edits.
 - [ ] Label strings are externalized for localization.
