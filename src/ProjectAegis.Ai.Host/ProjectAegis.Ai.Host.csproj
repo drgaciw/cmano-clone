@@ -15,5 +15,6 @@
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\ProjectAegis.Ai.Contracts\ProjectAegis.Ai.Contracts.csproj" />
+    <ProjectReference Include="..\ProjectAegis.Delegation\ProjectAegis.Delegation.csproj" />
   </ItemGroup>
 </Project>
