@@ -1,0 +1,18 @@
+{
+  "schemaVersion": 1,
+  "kind": "authoring",
+  "baseCommit": "ab90063b4adfa074ed7873765daf3cba905bdf51",
+  "seedNamespace": "20261116",
+  "linearIssue": "DRG-763",
+  "paidProviders": false,
+  "ownerTbd": ["provider", "model", "budget", "credentials", "adr015"],
+  "cases": [
+    "valid-draft",
+    "unknown-ids",
+    "ambiguous-request",
+    "unsupported-role",
+    "duplicate-op",
+    "stale-revision",
+    "embedded-instructions"
+  ]
+}

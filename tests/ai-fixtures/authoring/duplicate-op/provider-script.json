@@ -1,0 +1,20 @@
+{
+  "scriptedStatus": "Ok",
+  "notes": "Same ops as prior accept; host key-gate must short-circuit before re-apply",
+  "proposedOperations": [
+    {
+      "op": "AddPatrolMission",
+      "missionId": "patrol-blue-1",
+      "assignedUnitIds": ["u1"],
+      "waypoints": [
+        { "lat": 57.0, "lon": 20.0 },
+        { "lat": 57.1, "lon": 20.1 }
+      ]
+    }
+  ],
+  "provenance": {
+    "source": "ai",
+    "tool": "authoring-fake-v0",
+    "detail": "duplicate-op fixture"
+  }
+}

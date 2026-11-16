@@ -1,0 +1,6 @@
+{
+  "brief": "Blue patrol with u1",
+  "expectedEditVersion": 3,
+  "idempotencyKey": "auth-stale-revision-2026111606",
+  "lane": "Propose"
+}

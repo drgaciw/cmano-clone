@@ -1,0 +1,7 @@
+{
+  "brief": "Blue patrol with u1 (retry)",
+  "expectedEditVersion": 4,
+  "idempotencyKey": "auth-duplicate-op-2026111605",
+  "lane": "Propose",
+  "isRetry": true
+}

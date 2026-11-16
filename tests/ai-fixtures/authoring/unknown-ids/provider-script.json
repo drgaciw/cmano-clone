@@ -1,0 +1,17 @@
+{
+  "scriptedStatus": "Ok",
+  "notes": "Script deliberately proposes unknown IDs; host must diagnose, not invent",
+  "proposedOperations": [
+    {
+      "op": "AddStrikeMission",
+      "missionId": "strike-ghost-1",
+      "assignedUnitIds": ["ghost-42"],
+      "targetIds": ["phantom-99"]
+    }
+  ],
+  "provenance": {
+    "source": "ai",
+    "tool": "authoring-fake-v0",
+    "detail": "unknown-ids fixture"
+  }
+}

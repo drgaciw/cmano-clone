@@ -1,0 +1,9 @@
+{
+  "outcomeClass": "Diagnostics",
+  "missions": [],
+  "diagnostics": [
+    { "code": "UNSUPPORTED_ROLE", "messageContains": "Tanker" }
+  ],
+  "apply": false,
+  "submitAllowedWithoutHuman": false
+}

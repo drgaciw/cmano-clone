@@ -1,0 +1,10 @@
+{
+  "outcomeClass": "Diagnostics",
+  "missions": [],
+  "diagnostics": [
+    { "code": "UNKNOWN_UNIT_ID", "messageContains": "ghost-42" },
+    { "code": "UNKNOWN_TARGET_ID", "messageContains": "phantom-99" }
+  ],
+  "apply": false,
+  "submitAllowedWithoutHuman": false
+}

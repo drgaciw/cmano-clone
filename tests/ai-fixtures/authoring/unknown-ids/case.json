@@ -1,0 +1,13 @@
+{
+  "id": "unknown-ids",
+  "seed": 2026111602,
+  "purpose": "Brief references unit/target IDs not in open scenario; refuse silent invention",
+  "outcomeClass": "Diagnostics",
+  "openScenario": {
+    "dbRef": "baltic_patrol",
+    "allowedUnitIds": ["u1"],
+    "allowedTargetIds": ["hostile-1"],
+    "supportedMissionTypes": ["Patrol", "Strike"],
+    "currentEditVersion": 3
+  }
+}

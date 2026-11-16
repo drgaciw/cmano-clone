@@ -1,0 +1,8 @@
+{
+  "outcomeClass": "ValidDraft",
+  "missions": ["patrol-blue-1"],
+  "assignedUnitIds": ["u1"],
+  "diagnostics": [],
+  "provenanceSource": "ai",
+  "submitAllowedWithoutHuman": false
+}

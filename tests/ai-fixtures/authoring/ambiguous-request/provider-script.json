@@ -1,0 +1,11 @@
+{
+  "scriptedStatus": "ClarificationNeeded",
+  "notes": "Fake client returns clarification; host must not invent a default mission",
+  "clarificationPrompt": "Specify mission type (Patrol|Strike) and unit id from allowed set.",
+  "proposedOperations": [],
+  "provenance": {
+    "source": "ai",
+    "tool": "authoring-fake-v0",
+    "detail": "ambiguous-request fixture"
+  }
+}

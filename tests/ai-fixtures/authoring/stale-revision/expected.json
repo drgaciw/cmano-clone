@@ -1,0 +1,14 @@
+{
+  "outcomeClass": "Conflict",
+  "conflictCode": "CONFLICT",
+  "diagnostics": [
+    {
+      "code": "CONFLICT",
+      "messageContains": "editVersion mismatch",
+      "expectedEditVersion": 3,
+      "currentEditVersion": 7
+    }
+  ],
+  "apply": false,
+  "submitAllowedWithoutHuman": false
+}

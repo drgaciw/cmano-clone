@@ -1,0 +1,6 @@
+{
+  "brief": "Do something useful with the ships near the middle",
+  "expectedEditVersion": 3,
+  "idempotencyKey": "auth-ambiguous-2026111603",
+  "lane": "Propose"
+}

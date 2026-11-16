@@ -1,0 +1,9 @@
+{
+  "outcomeClass": "IdempotentNoOp",
+  "diagnostics": [
+    { "code": "DUPLICATE_IDEMPOTENCY_KEY", "messageContains": "auth-duplicate-op-2026111605" }
+  ],
+  "apply": false,
+  "missionCountDelta": 0,
+  "submitAllowedWithoutHuman": false
+}
