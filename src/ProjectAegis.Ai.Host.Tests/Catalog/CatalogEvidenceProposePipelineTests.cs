@@ -39,8 +39,15 @@ public sealed class CatalogEvidenceProposePipelineTests
 
             Assert.Equal(CatalogEvidenceOutcome.ValidDraft, result.Outcome);
             Assert.False(result.SubmitAllowedWithoutHuman);
+            // Always read Brief/Proposal/MobilityBatchId so NotAccessedPositionalProperty stays clear.
+            Assert.NotNull(result.Brief);
+            Assert.NotNull(result.Proposal);
+            Assert.Contains("coastal patrol", result.Brief.Concept, StringComparison.Ordinal);
+            Assert.Equal("opv-evidence-scout", result.Proposal.Binding.PlatformId);
             Assert.False(string.IsNullOrWhiteSpace(result.PlatformBatchId));
             Assert.False(string.IsNullOrWhiteSpace(result.DamageBatchId));
+            Assert.True(result.MobilityBatchId is null
+                        || !string.IsNullOrWhiteSpace(result.MobilityBatchId));
             Assert.Contains(result.Citations, c => c.Field == "platform.binding");
             Assert.All(
                 result.Citations,
@@ -49,6 +56,7 @@ public sealed class CatalogEvidenceProposePipelineTests
                     Assert.False(string.IsNullOrWhiteSpace(c.SourceId));
                     Assert.False(string.IsNullOrWhiteSpace(c.SourceHash));
                     Assert.True(c.Revision >= 1);
+                    Assert.False(string.IsNullOrWhiteSpace(c.Assumption));
                 });
 
             using var gate = new CatalogWriteGate(dbPath, new FixedCatalogClock(74_802));
@@ -137,7 +145,13 @@ public sealed class CatalogEvidenceProposePipelineTests
                 ViewingSide: ViewingSide.Blue));
 
             Assert.Equal(CatalogEvidenceOutcome.Diagnostics, result.Outcome);
-            Assert.Contains(result.Diagnostics, d => d.Code == "VIEWING_SIDE_ISOLATION");
+            Assert.Contains(
+                result.Diagnostics,
+                d => d.Code == "VIEWING_SIDE_ISOLATION"
+                     && d.Message.Contains("doc-red-only", StringComparison.Ordinal));
+            Assert.Null(result.Brief);
+            Assert.Null(result.Proposal);
+            Assert.Null(result.MobilityBatchId);
             Assert.Null(result.PlatformBatchId);
         }
         finally
@@ -172,7 +186,13 @@ public sealed class CatalogEvidenceProposePipelineTests
                 ViewingSide: ViewingSide.Blue));
 
             Assert.Equal(CatalogEvidenceOutcome.Diagnostics, result.Outcome);
-            Assert.Contains(result.Diagnostics, d => d.Code == "EMBEDDED_INSTRUCTION_REJECTED");
+            Assert.Contains(
+                result.Diagnostics,
+                d => d.Code == "EMBEDDED_INSTRUCTION_REJECTED"
+                     && d.Message.Contains("doc-embedded-ignore", StringComparison.Ordinal));
+            Assert.Null(result.Brief);
+            Assert.Null(result.Proposal);
+            Assert.Null(result.MobilityBatchId);
             Assert.Null(result.PlatformBatchId);
         }
         finally
@@ -212,8 +232,17 @@ public sealed class CatalogEvidenceProposePipelineTests
                 ViewingSide: ViewingSide.Blue));
 
             Assert.Equal(CatalogEvidenceOutcome.Diagnostics, result.Outcome);
-            Assert.Contains(result.Diagnostics, d => d.Code == "TRACK_A_REFUSED");
-            Assert.Contains(result.Diagnostics, d => d.Code == "DB3_REFUSED");
+            Assert.Contains(
+                result.Diagnostics,
+                d => d.Code == "TRACK_A_REFUSED"
+                     && d.Message.Contains("doc-track-a-refuse", StringComparison.Ordinal));
+            Assert.Contains(
+                result.Diagnostics,
+                d => d.Code == "DB3_REFUSED"
+                     && d.Message.Contains("*.db3", StringComparison.Ordinal));
+            Assert.Null(result.Brief);
+            Assert.Null(result.Proposal);
+            Assert.Null(result.MobilityBatchId);
             Assert.Null(result.PlatformBatchId);
         }
         finally

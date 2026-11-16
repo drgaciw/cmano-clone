@@ -201,7 +201,7 @@ public static partial class CatalogEvidenceValidator
 
     private static string ComputeSha256Hex(string text)
     {
-        var bytes = SHA256.HashData(Encoding.UTF8.GetBytes(text ?? string.Empty));
+        var bytes = SHA256.HashData(Encoding.UTF8.GetBytes(text));
         return Convert.ToHexString(bytes).ToLowerInvariant();
     }
 

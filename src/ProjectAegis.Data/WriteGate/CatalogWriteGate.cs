@@ -581,7 +581,7 @@ public sealed class CatalogWriteGate : IWriteGate, IDisposable
             cmd.Parameters.AddWithValue("$source", cite.SourceId);
             cmd.Parameters.AddWithValue("$hash", cite.SourceHash);
             cmd.Parameters.AddWithValue("$rev", cite.Revision);
-            cmd.Parameters.AddWithValue("$assumption", cite.Assumption ?? "");
+            cmd.Parameters.AddWithValue("$assumption", cite.Assumption);
             cmd.ExecuteNonQuery();
         }
 
