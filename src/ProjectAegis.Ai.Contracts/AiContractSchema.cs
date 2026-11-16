@@ -7,8 +7,8 @@ namespace ProjectAegis.Ai.Contracts;
 public static class AiContractSchema
 {
     /// <summary>Current artifact / evidence schema version (integer; bump on additive shape changes).</summary>
-    public const int Version = 1;
+    public const int Version = 2;
 
     /// <summary>Stable string form used in envelopes and transport headers.</summary>
-    public const string VersionString = "1";
+    public const string VersionString = "2";
 }
