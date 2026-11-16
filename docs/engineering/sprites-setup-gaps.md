@@ -9,7 +9,7 @@ The default Sprite image (Ubuntu, x86_64, 8 vCPU / 15 GiB in the trial) has
 | Gap | Symptom | Fix |
 | --- | --- | --- |
 | `libicu` | `dotnet` aborts: "Couldn't find a valid ICU package" | `sudo apt-get install -y libicu-dev` |
-| .NET 10 SDK | not installed | install the SDK selected by [`global.json`](../../global.json) with `dotnet-install.sh --version 10.0.403 --install-dir ~/.dotnet`, then add `~/.dotnet` and `~/.dotnet/tools` to `PATH` |
+| .NET 11 SDK | not installed | install the SDK selected by [`global.json`](../../global.json) with `dotnet-install.sh --version 11.0.100 --install-dir ~/.dotnet`, then add `~/.dotnet` and `~/.dotnet/tools` to `PATH` |
 | ReSharper CLI | `jb` not found | `dotnet tool install -g JetBrains.ReSharper.GlobalTools` |
 | `ripgrep` | `rg: command not found` | `sudo apt-get install -y ripgrep` |
 | `pwsh` | `tools/*.ps1` cannot run | run `bash tools/copy-delegation-assemblies.sh`; see [delegation-plugin-dll-copy.md](delegation-plugin-dll-copy.md) |
