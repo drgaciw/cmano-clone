@@ -1,12 +1,14 @@
 # Buildkite CI
 
-> **Last updated:** 2026-07-13
+> **Last updated:** 2026-11-16
 > **Replaces:** `.NET CI`, `Graphite CI`, `Post-Merge CI`, and Gitleaks in GitHub Actions
 > **Graphite workflow:** [graphite-github-substitute-plan.md](./graphite-github-substitute-plan.md)
 
 ## Overview
 
 Primary blocking CI runs on **Buildkite hosted Linux agents** using repo-committed steps in [`.buildkite/pipeline.yml`](../../.buildkite/pipeline.yml). Build and scan steps invoke bash wrappers under `tools/buildkite/` (SDK and gitleaks are installed on the agent when missing).
+
+**Parallel port (DRG-766):** [`.github/workflows/selfhosted-ci.yml`](../../.github/workflows/selfhosted-ci.yml) runs these same `tools/buildkite/*.sh` steps on GitHub Actions. The self-hosted labels (`self-hosted`, `linux`, `aegis`) are used for a push to `main` only. Pull requests run on GitHub-hosted runners. Buildkite stays the primary gate until the owner cuts over.
 
 **Agent skills:** Official Buildkite skills and project agents are documented in [buildkite-agent-skills.md](./buildkite-agent-skills.md). Refresh skills with `bash tools/buildkite/install-buildkite-skills.sh`.
 

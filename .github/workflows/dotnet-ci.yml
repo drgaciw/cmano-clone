@@ -16,19 +16,26 @@ on:
     branches: [main]
   workflow_dispatch:
 
+permissions:
+  contents: read
+
 concurrency:
   group: dotnet-ci-${{ github.ref }}
-  cancel-in-progress: true
+  cancel-in-progress: ${{ github.event_name == 'pull_request' }}
 
 jobs:
   build-and-test:
     name: Build and test
-    runs-on: ubuntu-latest
+    # Self-hosted only for push to main and schedule. pull_request, including
+    # a fork that rewrites this file's runs-on on its own head, is not the
+    # selector: every pull_request and every non-main push uses ubuntu-latest.
+    runs-on: ${{ ((github.event_name == 'push' && github.ref == 'refs/heads/main') || github.event_name == 'schedule') && fromJSON('["self-hosted","linux","aegis"]') || 'ubuntu-latest' }}
     timeout-minutes: 30
     steps:
       - name: Checkout
         uses: actions/checkout@v7
         with:
+          persist-credentials: false
           # actions/checkout does NOT fetch Git LFS objects by default — without this,
           # LFS-tracked files arrive as ~133-byte pointer stubs. assets/data/catalog/
           # aegis_public_corpus.db (~65 MB, LFS-tracked) then fails to open with
@@ -36,6 +43,9 @@ jobs:
           # Buildkite's checkout does fetch LFS, so omitting this made the two providers
           # disagree on the same commit (seen on PR #336).
           lfs: true
+
+      - name: Use repo-scoped package caches
+        run: bash tools/ci/selfhosted-cleanup.sh prepare-caches
 
       - name: Setup .NET
         uses: actions/setup-dotnet@v6
@@ -47,3 +57,7 @@ jobs:
       # 1792 tests / 0 failures, ReplayGolden 6/6, PlayModeSmoke 21/21.
       - name: Run the blocking gate
         run: bash tools/buildkite/dotnet-ci.sh
+
+      - name: Clean workspace and Docker
+        if: always()
+        run: bash tools/ci/selfhosted-cleanup.sh

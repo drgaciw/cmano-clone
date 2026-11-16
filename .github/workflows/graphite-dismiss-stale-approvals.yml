@@ -17,6 +17,9 @@ name: Dismiss Stale Approvals (Graphite-compatible)
 on:
   workflow_dispatch:
 
+permissions:
+  contents: read
+
 concurrency:
   group: ${{ github.repository }}-${{ github.workflow }}-${{ github.ref }}
   cancel-in-progress: true
@@ -24,6 +27,7 @@ concurrency:
 jobs:
   dismiss_stale_approvals:
     runs-on: ubuntu-latest
+    timeout-minutes: 10
     permissions:
       contents: read
       pull-requests: write
