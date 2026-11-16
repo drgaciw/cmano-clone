@@ -49,7 +49,16 @@ jobs:
         run: |
           $ps1 = Join-Path $env:RUNNER_TEMP 'dotnet-install.ps1'
           if (-not (Test-Path -LiteralPath $ps1)) { throw 'Verified dotnet-install.ps1 is missing.' }
-          & $ps1 -Version 11.0.100 -InstallDir (Join-Path $env:RUNNER_TEMP 'aegis-dotnet') -NoPath
+          # Linux pwsh has no PROCESSOR_ARCHITECTURE, so the script's <auto>
+          # detection throws "Architecture '' not supported".
+          $dotnetArch = switch ([System.Runtime.InteropServices.RuntimeInformation]::OSArchitecture.ToString()) {
+            'X64' { 'x64' }
+            'Arm64' { 'arm64' }
+            'X86' { 'x86' }
+            'Arm' { 'arm' }
+            default { throw "Unsupported OS architecture." }
+          }
+          & $ps1 -Version 11.0.100 -Architecture $dotnetArch -InstallDir (Join-Path $env:RUNNER_TEMP 'aegis-dotnet') -NoPath
           $env:DOTNET_ROOT = "$env:RUNNER_TEMP/aegis-dotnet"
           $env:PATH = "$env:DOTNET_ROOT$([IO.Path]::PathSeparator)$env:PATH"
           dotnet tool install JetBrains.ReSharper.GlobalTools --version 2026.3.0 --tool-path "$env:RUNNER_TEMP/resharper-cli"
