@@ -24,7 +24,10 @@ public sealed class AuthoringProposePipelineFixtureTests
         var result = pipeline.Propose(request, draft);
 
         Assert.Equal(expected.OutcomeClass, result.OutcomeClass.ToString());
+        Assert.Equal(expected.SubmitAllowedWithoutHuman, result.SubmitAllowedWithoutHuman);
         Assert.False(result.SubmitAllowedWithoutHuman);
+        // Always read ProvenanceSource so NotAccessedPositionalProperty stays clear.
+        var expectedProvenance = expected.ProvenanceSource;
         Assert.NotNull(result.Metrics);
         Assert.True(result.Metrics.ValidDraftCount >= 0);
         Assert.True(result.Metrics.DiagnosticCount >= 0);
@@ -54,6 +57,7 @@ public sealed class AuthoringProposePipelineFixtureTests
             Assert.NotNull(result.ValidationReport);
             Assert.Equal(1, result.Metrics.ValidDraftCount);
             Assert.Equal("ai", result.ProvenanceTags.Single().Source);
+            Assert.Equal(expectedProvenance ?? "ai", result.ProvenanceTags.Single().Source);
             Assert.Equal(AuthoringTransparencyLabel.AgentAssisted, result.TransparencyLabel);
             if (expected.Missions is not null)
             {
@@ -76,6 +80,7 @@ public sealed class AuthoringProposePipelineFixtureTests
         {
             Assert.Null(result.DraftDocument);
             Assert.Empty(result.Missions);
+            Assert.Null(expectedProvenance);
             if (result.OutcomeClass == AuthoringOutcomeClass.Diagnostics)
             {
                 Assert.True(result.Metrics.DiagnosticCount >= 1);
