@@ -5,6 +5,20 @@ using ProjectAegis.Data.Catalog;
 using ProjectAegis.Data.Snapshots;
 using ProjectAegis.Data.Validation;
 
+/// <summary>
+/// Evidence citation for a proposed catalog field. Every proposed value must cite a
+/// resolvable source id with content hash and revision (DRG-748 additive).
+/// </summary>
+public sealed record CatalogEvidenceCitation(
+    string Field,
+    string SourceId,
+    string SourceHash,
+    int Revision,
+    string Assumption = "");
+
+/// <summary>Current registry revision for a source id (used by evidence-aware Approve).</summary>
+public sealed record CatalogEvidenceSourceRevision(string SourceHash, int Revision);
+
 /// <summary>SQLite-backed write gate for sensor catalog rows (req-06 P0).</summary>
 public sealed class CatalogWriteGate : IWriteGate, IDisposable
 {
@@ -346,6 +360,281 @@ public sealed class CatalogWriteGate : IWriteGate, IDisposable
 
         tx.Commit();
         return batchId;
+    }
+
+    // --- DRG-748 additive evidence-aware Propose*/Approve* overloads (extend-only) ---
+
+    /// <summary>
+    /// Propose platform metadata with evidence citations. Wraps the existing propose path;
+    /// does not alter its body. Citations are stored for revision invalidation.
+    /// </summary>
+    public string ProposePlatformBatch(
+        IReadOnlyList<CatalogPlatformBinding> proposed,
+        string actorType,
+        string actorId,
+        string rationale,
+        IReadOnlyList<CatalogEvidenceCitation> evidenceCitations)
+    {
+        ValidateEvidenceCitations(evidenceCitations);
+        var batchId = ProposePlatformBatch(proposed, actorType, actorId, rationale);
+        AttachEvidenceCitations(batchId, evidenceCitations);
+        return batchId;
+    }
+
+    /// <summary>
+    /// Propose platform damage with evidence citations. Wraps the existing propose path.
+    /// </summary>
+    public string ProposePlatformDamageBatch(
+        IReadOnlyList<CatalogPlatformDamage> proposed,
+        string actorType,
+        string actorId,
+        string rationale,
+        IReadOnlyList<CatalogEvidenceCitation> evidenceCitations)
+    {
+        ValidateEvidenceCitations(evidenceCitations);
+        var batchId = ProposePlatformDamageBatch(proposed, actorType, actorId, rationale);
+        AttachEvidenceCitations(batchId, evidenceCitations);
+        return batchId;
+    }
+
+    /// <summary>
+    /// Propose mobility with evidence citations. Wraps the existing propose path.
+    /// </summary>
+    public string ProposeMobilityBatch(
+        IReadOnlyList<CatalogMobility> proposed,
+        string actorType,
+        string actorId,
+        string rationale,
+        IReadOnlyList<CatalogEvidenceCitation> evidenceCitations)
+    {
+        ValidateEvidenceCitations(evidenceCitations);
+        var batchId = ProposeMobilityBatch(proposed, actorType, actorId, rationale);
+        AttachEvidenceCitations(batchId, evidenceCitations);
+        return batchId;
+    }
+
+    /// <summary>
+    /// Approve a staging batch only when every attached evidence citation still matches
+    /// the supplied current source hash+revision. On mismatch, rejects the batch
+    /// (revision invalidation) and returns a failed decision — never writes live rows.
+    /// </summary>
+    public WriteGateDecision ApproveBatch(
+        string batchId,
+        string actorType,
+        string actorId,
+        IReadOnlyDictionary<string, CatalogEvidenceSourceRevision> currentSourceRevisions)
+    {
+        if (currentSourceRevisions is null)
+        {
+            throw new ArgumentNullException(nameof(currentSourceRevisions));
+        }
+
+        var stale = FindStaleEvidenceCitations(batchId, currentSourceRevisions);
+        if (stale.Count > 0)
+        {
+            _ = RejectBatch(
+                batchId,
+                actorType,
+                actorId,
+                "evidence_revision_invalidated:" + string.Join(",", stale));
+            var reasons = new List<string> { "evidence_revision_invalidated" };
+            reasons.AddRange(stale);
+            return new WriteGateDecision(false, batchId, reasons);
+        }
+
+        return ApproveBatch(batchId, actorType, actorId);
+    }
+
+    /// <summary>
+    /// Reject every pending batch that cites <paramref name="sourceId"/> with a different
+    /// hash or revision than the current values. Returns invalidated batch ids.
+    /// </summary>
+    public IReadOnlyList<string> InvalidateDependentsForSourceRevision(
+        string sourceId,
+        string currentSourceHash,
+        int currentRevision,
+        string actorType,
+        string actorId)
+    {
+        if (string.IsNullOrWhiteSpace(sourceId))
+        {
+            throw new ArgumentException("Source id is required.", nameof(sourceId));
+        }
+
+        EnsureEvidenceCiteSchema();
+        var invalidated = new List<string>();
+        using var cmd = _connection.CreateCommand();
+        cmd.CommandText =
+            """
+            SELECT DISTINCT c.batch_id, c.source_hash, c.revision
+            FROM catalog_staging_evidence_cite c
+            INNER JOIN catalog_staging_batch b ON b.batch_id = c.batch_id
+            WHERE c.source_id = $source
+              AND b.approval_state = 'proposed'
+            """;
+        cmd.Parameters.AddWithValue("$source", sourceId);
+        using var reader = cmd.ExecuteReader();
+        var candidates = new List<(string BatchId, string Hash, int Revision)>();
+        while (reader.Read())
+        {
+            candidates.Add((reader.GetString(0), reader.GetString(1), reader.GetInt32(2)));
+        }
+
+        reader.Close();
+
+        foreach (var (batchId, hash, revision) in candidates)
+        {
+            if (!string.Equals(hash, currentSourceHash, StringComparison.Ordinal)
+                || revision != currentRevision)
+            {
+                _ = RejectBatch(
+                    batchId,
+                    actorType,
+                    actorId,
+                    $"evidence_revision_invalidated:{sourceId}@{currentRevision}");
+                invalidated.Add(batchId);
+            }
+        }
+
+        return invalidated;
+    }
+
+    /// <summary>List evidence citations attached to a staging batch (DRG-748).</summary>
+    public IReadOnlyList<CatalogEvidenceCitation> ListEvidenceCitations(string batchId)
+    {
+        if (string.IsNullOrWhiteSpace(batchId))
+        {
+            return [];
+        }
+
+        EnsureEvidenceCiteSchema();
+        var list = new List<CatalogEvidenceCitation>();
+        using var cmd = _connection.CreateCommand();
+        cmd.CommandText =
+            """
+            SELECT field, source_id, source_hash, revision, assumption
+            FROM catalog_staging_evidence_cite
+            WHERE batch_id = $batch
+            ORDER BY field ASC, source_id ASC
+            """;
+        cmd.Parameters.AddWithValue("$batch", batchId);
+        using var reader = cmd.ExecuteReader();
+        while (reader.Read())
+        {
+            list.Add(new CatalogEvidenceCitation(
+                reader.GetString(0),
+                reader.GetString(1),
+                reader.GetString(2),
+                reader.GetInt32(3),
+                reader.IsDBNull(4) ? "" : reader.GetString(4)));
+        }
+
+        return list;
+    }
+
+    private static void ValidateEvidenceCitations(IReadOnlyList<CatalogEvidenceCitation> evidenceCitations)
+    {
+        if (evidenceCitations is null)
+        {
+            throw new ArgumentNullException(nameof(evidenceCitations));
+        }
+
+        if (evidenceCitations.Count == 0)
+        {
+            throw new ArgumentException(
+                "At least one evidence citation (source hash+revision) is required.",
+                nameof(evidenceCitations));
+        }
+
+        foreach (var cite in evidenceCitations)
+        {
+            if (string.IsNullOrWhiteSpace(cite.Field)
+                || string.IsNullOrWhiteSpace(cite.SourceId)
+                || string.IsNullOrWhiteSpace(cite.SourceHash)
+                || cite.Revision < 1)
+            {
+                throw new ArgumentException(
+                    "Each evidence citation requires field, source id, hash, and revision ≥ 1.",
+                    nameof(evidenceCitations));
+            }
+        }
+    }
+
+    private void AttachEvidenceCitations(
+        string batchId,
+        IReadOnlyList<CatalogEvidenceCitation> evidenceCitations)
+    {
+        EnsureEvidenceCiteSchema();
+        using var tx = _connection.BeginTransaction();
+        foreach (var cite in evidenceCitations)
+        {
+            using var cmd = _connection.CreateCommand();
+            cmd.Transaction = tx;
+            cmd.CommandText =
+                """
+                INSERT OR REPLACE INTO catalog_staging_evidence_cite
+                    (batch_id, field, source_id, source_hash, revision, assumption)
+                VALUES ($batch, $field, $source, $hash, $rev, $assumption)
+                """;
+            cmd.Parameters.AddWithValue("$batch", batchId);
+            cmd.Parameters.AddWithValue("$field", cite.Field);
+            cmd.Parameters.AddWithValue("$source", cite.SourceId);
+            cmd.Parameters.AddWithValue("$hash", cite.SourceHash);
+            cmd.Parameters.AddWithValue("$rev", cite.Revision);
+            cmd.Parameters.AddWithValue("$assumption", cite.Assumption);
+            cmd.ExecuteNonQuery();
+        }
+
+        tx.Commit();
+    }
+
+    private IReadOnlyList<string> FindStaleEvidenceCitations(
+        string batchId,
+        IReadOnlyDictionary<string, CatalogEvidenceSourceRevision> current)
+    {
+        var cites = ListEvidenceCitations(batchId);
+        if (cites.Count == 0)
+        {
+            return [];
+        }
+
+        var stale = new List<string>();
+        foreach (var cite in cites)
+        {
+            if (!current.TryGetValue(cite.SourceId, out var now))
+            {
+                stale.Add($"missing_source:{cite.SourceId}");
+                continue;
+            }
+
+            if (!string.Equals(cite.SourceHash, now.SourceHash, StringComparison.Ordinal)
+                || cite.Revision != now.Revision)
+            {
+                stale.Add($"stale:{cite.SourceId}@{cite.Revision}->{now.Revision}");
+            }
+        }
+
+        return stale;
+    }
+
+    private void EnsureEvidenceCiteSchema()
+    {
+        using var cmd = _connection.CreateCommand();
+        cmd.CommandText =
+            """
+            CREATE TABLE IF NOT EXISTS catalog_staging_evidence_cite (
+                batch_id TEXT NOT NULL,
+                field TEXT NOT NULL,
+                source_id TEXT NOT NULL,
+                source_hash TEXT NOT NULL,
+                revision INTEGER NOT NULL,
+                assumption TEXT NOT NULL DEFAULT '',
+                PRIMARY KEY (batch_id, field, source_id)
+            );
+            CREATE INDEX IF NOT EXISTS ix_catalog_staging_evidence_cite_source
+                ON catalog_staging_evidence_cite (source_id);
+            """;
+        cmd.ExecuteNonQuery();
     }
 
     public WriteGateDecision ApproveBatch(string batchId, string actorType, string actorId)
