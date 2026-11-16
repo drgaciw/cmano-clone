@@ -5,10 +5,22 @@
     {
       "op": "AddPatrolMission",
       "missionId": "patrol-blue-1",
-      "assignedUnitIds": ["u1"],
+      "assignedUnitIds": [
+        "u1"
+      ],
       "waypoints": [
-        { "lat": 57.0, "lon": 20.0 },
-        { "lat": 57.1, "lon": 20.1 }
+        {
+          "lat": 57.0,
+          "lon": 20.0
+        },
+        {
+          "lat": 57.1,
+          "lon": 20.1
+        },
+        {
+          "lat": 57.2,
+          "lon": 20.2
+        }
       ]
     }
   ],

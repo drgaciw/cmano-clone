@@ -32,7 +32,7 @@ Unset until owner decides. Do **not** copy LiveEval choices.
 | Chat / authoring model | **owner-TBD** |
 | Budget ceiling (USD) | **owner-TBD** |
 | Credential store | **owner-TBD** (env / user-secrets only) |
-| ADR-015 outcome | **owner-TBD** (Accept / Reject) — blocks ship of 740/747 |
+| ADR-015 outcome | **Accepted** (drg 2026-11-15; DRG-727) — label agent-assisted / agent-authored from provenance |
 | Allow paid switch | Not defined for authoring yet |
 
 ## Target host shape (future DRG-740 — not implemented here)
