@@ -1,3 +1,4 @@
+using System.Diagnostics;
 using System.Globalization;
 using System.Runtime.CompilerServices;
 using System.Security.Cryptography;
@@ -56,7 +57,21 @@ public sealed class JsonlEvidenceWriter : IJsonlEvidenceWriter
             artifactRoot,
             "." + fileName + "." + Guid.NewGuid().ToString("N", CultureInfo.InvariantCulture) + ".tmp");
 
-        var memoryBefore = GC.GetTotalMemory(forceFullCollection: false);
+        // CMA-13: observational working-set high-water across write + validation (not GC heap delta).
+        var process = Process.GetCurrentProcess();
+        process.Refresh();
+        var workingSetBaseline = process.WorkingSet64;
+        var workingSetPeak = workingSetBaseline;
+
+        void SampleWorkingSetPeak()
+        {
+            process.Refresh();
+            var sample = process.WorkingSet64;
+            if (sample > workingSetPeak)
+            {
+                workingSetPeak = sample;
+            }
+        }
 
         try
         {
@@ -91,8 +106,7 @@ public sealed class JsonlEvidenceWriter : IJsonlEvidenceWriter
                 await stream.FlushAsync(cancellationToken).ConfigureAwait(false);
             }
 
-            var memoryAfter = GC.GetTotalMemory(forceFullCollection: false);
-            var peakDelta = Math.Max(0, memoryAfter - memoryBefore);
+            SampleWorkingSetPeak();
 
             cancellationToken.ThrowIfCancellationRequested();
 
@@ -109,9 +123,14 @@ public sealed class JsonlEvidenceWriter : IJsonlEvidenceWriter
             }
 
             var hash = await HashFileSha256HexAsync(tempPath, cancellationToken).ConfigureAwait(false);
+            SampleWorkingSetPeak();
             EnsureUnixNewlines(tempPath);
+            SampleWorkingSetPeak();
 
             File.Move(tempPath, publishedPath);
+            SampleWorkingSetPeak();
+
+            var peakDelta = Math.Max(0, workingSetPeak - workingSetBaseline);
 
             return new JsonlEvidenceWriteResult(
                 Published: true,

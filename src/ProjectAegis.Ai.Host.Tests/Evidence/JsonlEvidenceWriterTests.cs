@@ -197,7 +197,7 @@ public sealed class JsonlEvidenceWriterTests
             Assert.True(small.Published);
             Assert.True(large.Published);
             Assert.True(large.ByteLength > small.ByteLength);
-            // Peak delta is observational (may be 0 under GC timing); field must be present and non-negative.
+            // CMA-13: working-set high-water delta across write+validation (observational; may be 0).
             Assert.True(small.PeakWorkingSetBytesDelta >= 0);
             Assert.True(large.PeakWorkingSetBytesDelta >= 0);
         }
@@ -205,6 +205,26 @@ public sealed class JsonlEvidenceWriterTests
         {
             TryDeleteTree(root);
         }
+    }
+
+    [Fact]
+    public void Source_fence_WriteAsync_does_not_use_gc_heap_delta_for_peak()
+    {
+        var hostRoot = FindHostEvidenceRoot();
+        var writerPath = Path.Combine(hostRoot, "JsonlEvidenceWriter.cs");
+        Assert.True(File.Exists(writerPath));
+        var code = string.Join(
+            '\n',
+            File.ReadLines(writerPath).Where(line =>
+            {
+                var trimmed = line.TrimStart();
+                return !trimmed.StartsWith("//", StringComparison.Ordinal)
+                    && !trimmed.StartsWith("///", StringComparison.Ordinal)
+                    && !trimmed.StartsWith("*", StringComparison.Ordinal);
+            }));
+
+        Assert.DoesNotContain("GC.GetTotalMemory", code);
+        Assert.Contains("WorkingSet64", code);
     }
 
     [Fact]
