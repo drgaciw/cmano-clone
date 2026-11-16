@@ -1029,7 +1029,7 @@
     },
     {
       "name": "mission_plan_suggest",
-      "description": "Heuristic intent-to-mission suggestions (stub; no LLM in blocking path per doc 11). S86-01 verb polish.",
+      "description": "Heuristic intent-to-mission suggestions (keyword default). Opt-in --provider fake runs AuthoringProposePipeline against a fixture/script (DRG-747); proposal+diff only — apply via mission verbs. Live providers owner-TBD.",
       "command": "pwsh",
       "args": [
         "-File",
@@ -1038,7 +1038,8 @@
         "mission_plan_suggest",
         "-ExtraArgs",
         "--intent",
-        "${intent}"
+        "${intent}",
+        "${providerArgs}"
       ],
       "inputSchema": {
         "type": "object",
@@ -1049,10 +1050,37 @@
           "intent": {
             "type": "string",
             "description": "Natural language intent (e.g. 'patrol and strike baltic')"
+          },
+          "provider": {
+            "type": "string",
+            "description": "Opt-in provider mode. Only 'fake' is supported; omit for keyword default.",
+            "enum": [
+              "fake"
+            ]
+          },
+          "fixture": {
+            "type": "string",
+            "description": "Authoring fixture case id under tests/ai-fixtures/authoring (e.g. valid-draft, stale-revision)"
+          },
+          "script": {
+            "type": "string",
+            "description": "Path to provider-script.json when not using --fixture"
+          },
+          "expectedEditVersion": {
+            "type": "integer",
+            "description": "Pinned expected scenario editVersion (required with --script; optional override with --fixture)"
+          },
+          "currentEditVersion": {
+            "type": "integer",
+            "description": "Open scenario current editVersion (required with --script; optional override with --fixture)"
+          },
+          "providerArgs": {
+            "type": "string",
+            "description": "Optional ExtraArgs fragment for provider mode (e.g. '--provider fake --fixture valid-draft'); empty for keyword default"
           }
         }
       },
-      "returns": "JSON suggestions for mission_add_* tools (stub per AME-8.6 / qa-plan #17)"
+      "returns": "Keyword: JSON suggestions. Provider fake: validated draft + proposedOperationsDiff + ai provenance / agent-assisted label; apply=false"
     },
     {
       "name": "scenario_cyber_status",

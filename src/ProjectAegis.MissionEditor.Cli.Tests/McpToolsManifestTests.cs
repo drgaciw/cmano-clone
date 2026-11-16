@@ -90,6 +90,16 @@ public sealed class McpToolsManifestTests
                 Assert.True(tool.TryGetProperty("inputSchema", out _), $"MCP tool '{name}' missing inputSchema in manifest.");
             }
         }
+
+        // DRG-747: mission_plan_suggest exposes opt-in provider fake args in the schema.
+        var suggest = tools.Single(t => t.GetProperty("name").GetString() == "mission_plan_suggest");
+        var props = suggest.GetProperty("inputSchema").GetProperty("properties");
+        Assert.True(props.TryGetProperty("provider", out var providerProp));
+        Assert.Equal("fake", providerProp.GetProperty("enum")[0].GetString());
+        Assert.True(props.TryGetProperty("fixture", out _));
+        Assert.True(props.TryGetProperty("script", out _));
+        Assert.True(props.TryGetProperty("expectedEditVersion", out _));
+        Assert.True(props.TryGetProperty("currentEditVersion", out _));
     }
 
     private static string ResolveManifestPath()
