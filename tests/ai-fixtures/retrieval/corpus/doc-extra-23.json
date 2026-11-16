@@ -1,0 +1,18 @@
+{
+  "id": "doc-extra-23",
+  "title": "BDA worksheet W",
+  "text": "Worksheet W captures kill confirmation fields after hits.",
+  "revision": 1,
+  "sourceHash": "5057913c024edaa0f8af04fc915873ee0abf35d64a3772c2ae045819a2e249fb",
+  "concepts": [
+    "src_doc-extra-23",
+    "bda_sheet_w",
+    "battle_damage"
+  ],
+  "sourceClass": "catalog-description",
+  "track": "B",
+  "metadata": {
+    "provenance": "repo-public-fixture",
+    "paidProviders": "false"
+  }
+}

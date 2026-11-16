@@ -1,0 +1,19 @@
+{
+  "id": "doc-extra-26",
+  "title": "Switchblade threat tip Z",
+  "text": "Tip Z warns of Switchblade-class ship killers inbound.",
+  "revision": 1,
+  "sourceHash": "92d9f0dcfb6bf7ad1f6c6be9d46de6ca654aaffdcf48ea7633cf935878ffb3a9",
+  "concepts": [
+    "src_doc-extra-26",
+    "switchblade_tip_z",
+    "anti_ship_missile",
+    "side_red"
+  ],
+  "sourceClass": "catalog-description",
+  "track": "B",
+  "metadata": {
+    "provenance": "repo-public-fixture",
+    "paidProviders": "false"
+  }
+}

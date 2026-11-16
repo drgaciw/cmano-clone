@@ -1,0 +1,17 @@
+{
+  "id": "doc-ew-suite",
+  "title": "Shipboard EW suite",
+  "text": "Shipboard electronic warfare suite for jamming and ESM under EMCON.",
+  "revision": 1,
+  "sourceHash": "9cc245f83fcbc4c94a658c051e30b84dde4595041a4f883689ada4d72f56ba39",
+  "concepts": [
+    "src_doc-ew-suite",
+    "electronic_warfare"
+  ],
+  "sourceClass": "catalog-description",
+  "track": "B",
+  "metadata": {
+    "provenance": "repo-public-fixture",
+    "paidProviders": "false"
+  }
+}

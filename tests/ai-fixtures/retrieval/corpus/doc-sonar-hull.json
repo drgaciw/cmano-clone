@@ -1,0 +1,17 @@
+{
+  "id": "doc-sonar-hull",
+  "title": "Hull-mounted sonar suite",
+  "text": "Active/passive hull sonar suite for ASW detection ranges.",
+  "revision": 1,
+  "sourceHash": "b5496eee3bc5f64b11c93042657e970805c25c18040d244e9d1ba35bc8daec26",
+  "concepts": [
+    "src_doc-sonar-hull",
+    "anti_submarine"
+  ],
+  "sourceClass": "catalog-description",
+  "track": "B",
+  "metadata": {
+    "provenance": "repo-public-fixture",
+    "paidProviders": "false"
+  }
+}

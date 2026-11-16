@@ -1,0 +1,19 @@
+{
+  "id": "doc-aar-u1-engage",
+  "title": "AAR u1 engagement hit",
+  "text": "Blue unit u1 engaged hostile-1 with ASM salvo size 2; outcome Hit damageFraction 1.0 at simTime 18.5.",
+  "revision": 1,
+  "sourceHash": "8ba541a82c69d31e9e289b4e9648670aebbc419c12e8f9124c025d1badec2cbb",
+  "concepts": [
+    "src_doc-aar-u1-engage",
+    "aar_engagement",
+    "battle_damage",
+    "anti_ship_missile"
+  ],
+  "sourceClass": "aar",
+  "track": "B",
+  "metadata": {
+    "provenance": "repo-public-fixture",
+    "paidProviders": "false"
+  }
+}

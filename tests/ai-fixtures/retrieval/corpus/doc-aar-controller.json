@@ -1,0 +1,18 @@
+{
+  "id": "doc-aar-controller",
+  "title": "AAR controller handoff",
+  "text": "ControllerChange on u1 from Human to Agent agent-blue-1 at simTime 0.",
+  "revision": 1,
+  "sourceHash": "ecfcb1869d505d90eb3fb6ca18383eaab488ebf3e4c98e8ca84874d25508bb1e",
+  "concepts": [
+    "src_doc-aar-controller",
+    "c2_datalink",
+    "controller_handoff"
+  ],
+  "sourceClass": "aar",
+  "track": "B",
+  "metadata": {
+    "provenance": "repo-public-fixture",
+    "paidProviders": "false"
+  }
+}

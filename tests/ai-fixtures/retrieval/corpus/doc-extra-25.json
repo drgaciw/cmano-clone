@@ -1,0 +1,19 @@
+{
+  "id": "doc-extra-25",
+  "title": "Gotland ISR note Y",
+  "text": "Note Y ties Gotland lookouts to unmanned ISR lanes.",
+  "revision": 1,
+  "sourceHash": "edef260f0fb845c72e773b636a7435d755a0391efdaac94d8ba246784eed9b51",
+  "concepts": [
+    "src_doc-extra-25",
+    "gotland_isr_y",
+    "theater_baltic",
+    "unmanned_recon"
+  ],
+  "sourceClass": "catalog-description",
+  "track": "B",
+  "metadata": {
+    "provenance": "repo-public-fixture",
+    "paidProviders": "false"
+  }
+}

@@ -1,0 +1,18 @@
+{
+  "id": "doc-extra-24",
+  "title": "EMCON posture X",
+  "text": "Posture X tightens emissions while EW listens.",
+  "revision": 1,
+  "sourceHash": "cd6f1f9d0b7e5b86f72b073d1e38c14905b85b6cbaaa31dc72cc3c761531d627",
+  "concepts": [
+    "src_doc-extra-24",
+    "emcon_x",
+    "electronic_warfare"
+  ],
+  "sourceClass": "catalog-description",
+  "track": "B",
+  "metadata": {
+    "provenance": "repo-public-fixture",
+    "paidProviders": "false"
+  }
+}

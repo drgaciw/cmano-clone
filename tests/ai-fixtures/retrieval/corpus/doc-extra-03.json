@@ -1,0 +1,19 @@
+{
+  "id": "doc-extra-03",
+  "title": "OPFOR SAM arc sheet C",
+  "text": "SAM arc sheet C draws OPFOR air-defense umbrellas over the anchorage.",
+  "revision": 1,
+  "sourceHash": "e6c0f1afe7bbce514993832b240cea7a11f2fdf76f14dc90aa4917afb76af893",
+  "concepts": [
+    "src_doc-extra-03",
+    "sam_arc_c",
+    "surface_to_air",
+    "side_red"
+  ],
+  "sourceClass": "catalog-description",
+  "track": "B",
+  "metadata": {
+    "provenance": "repo-public-fixture",
+    "paidProviders": "false"
+  }
+}

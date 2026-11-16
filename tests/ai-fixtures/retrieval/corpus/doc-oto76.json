@@ -1,0 +1,17 @@
+{
+  "id": "doc-oto76",
+  "title": "76mm OTO Melara",
+  "text": "Italy 76mm OTO Melara naval gun mount for surface and air targets.",
+  "revision": 1,
+  "sourceHash": "c7e4f4490a802e538b8f9b4afe60a112b8d9e3a1356888877207b4ea8509fd7b",
+  "concepts": [
+    "src_doc-oto76",
+    "naval_gun"
+  ],
+  "sourceClass": "catalog-description",
+  "track": "B",
+  "metadata": {
+    "provenance": "repo-public-fixture",
+    "paidProviders": "false"
+  }
+}

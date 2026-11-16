@@ -1,0 +1,19 @@
+{
+  "id": "doc-extra-10",
+  "title": "Blue ASM package brief J",
+  "text": "Package brief J covers the inner-screen anti-shipping shooters.",
+  "revision": 1,
+  "sourceHash": "89cb23ac72262979b8abc1d0b4a49dd4407622f3a6fd4cabd2a25b10db3fe9ee",
+  "concepts": [
+    "src_doc-extra-10",
+    "asm_package_j",
+    "anti_ship_missile",
+    "side_blue"
+  ],
+  "sourceClass": "catalog-description",
+  "track": "B",
+  "metadata": {
+    "provenance": "repo-public-fixture",
+    "paidProviders": "false"
+  }
+}

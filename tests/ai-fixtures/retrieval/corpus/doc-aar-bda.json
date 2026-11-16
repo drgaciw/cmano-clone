@@ -1,0 +1,18 @@
+{
+  "id": "doc-aar-bda",
+  "title": "AAR battle damage assessment",
+  "text": "Post-hit BDA confirms kill on hostile-1; damage assessment complete.",
+  "revision": 1,
+  "sourceHash": "08c84c6587e1754afd5787f48818d8ab39a8f7919699db252d9d486f421bc1f1",
+  "concepts": [
+    "src_doc-aar-bda",
+    "battle_damage",
+    "aar_engagement"
+  ],
+  "sourceClass": "aar",
+  "track": "B",
+  "metadata": {
+    "provenance": "repo-public-fixture",
+    "paidProviders": "false"
+  }
+}

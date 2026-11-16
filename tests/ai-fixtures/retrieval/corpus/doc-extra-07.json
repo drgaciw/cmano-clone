@@ -1,0 +1,19 @@
+{
+  "id": "doc-extra-07",
+  "title": "ROE release card G",
+  "text": "Release card G states when Baltic shooters may go weapons-free.",
+  "revision": 1,
+  "sourceHash": "36c1907db15c80f7270021544c35fddfb8bfe46678cca28d4fde788361d6ed16",
+  "concepts": [
+    "src_doc-extra-07",
+    "roe_card_g",
+    "rules_of_engagement",
+    "theater_baltic"
+  ],
+  "sourceClass": "catalog-description",
+  "track": "B",
+  "metadata": {
+    "provenance": "repo-public-fixture",
+    "paidProviders": "false"
+  }
+}

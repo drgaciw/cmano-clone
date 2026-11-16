@@ -1,0 +1,17 @@
+{
+  "id": "doc-track-a-refuse",
+  "title": "Track A proprietary extract",
+  "text": "Extracted from licensed CMO database file scenario.db3 for Track A analysis only.",
+  "revision": 1,
+  "sourceHash": "cd43320b3072324f554a28219d412ecab56072dc5af5ff9ebf9250d49d498f44",
+  "concepts": [
+    "undersea"
+  ],
+  "sourceClass": "track-a-tagged",
+  "track": "A",
+  "metadata": {
+    "trackA": "true",
+    "provenance": "proprietary-cmo-db3",
+    "pathHint": "local/scenario.db3"
+  }
+}

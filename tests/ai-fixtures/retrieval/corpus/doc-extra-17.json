@@ -1,0 +1,18 @@
+{
+  "id": "doc-extra-17",
+  "title": "Coastal gun range card Q",
+  "text": "Range card Q lists OTO-class gun employment brackets.",
+  "revision": 1,
+  "sourceHash": "fca8bee58274d1352aadae28fff01a39dc30f02c51e758ae3a791c195d198540",
+  "concepts": [
+    "src_doc-extra-17",
+    "gun_range_q",
+    "naval_gun"
+  ],
+  "sourceClass": "catalog-description",
+  "track": "B",
+  "metadata": {
+    "provenance": "repo-public-fixture",
+    "paidProviders": "false"
+  }
+}

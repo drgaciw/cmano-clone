@@ -1,0 +1,17 @@
+{
+  "id": "doc-ir-pod",
+  "title": "External IR targeting pod",
+  "text": "External IR targeting pod for thermal cueing air-to-surface.",
+  "revision": 1,
+  "sourceHash": "4f43a08e085714a61d937a6e45e046ccd7cff3194cb32935f8902ab99e1cd852",
+  "concepts": [
+    "src_doc-ir-pod",
+    "ir_sensor"
+  ],
+  "sourceClass": "catalog-description",
+  "track": "B",
+  "metadata": {
+    "provenance": "repo-public-fixture",
+    "paidProviders": "false"
+  }
+}

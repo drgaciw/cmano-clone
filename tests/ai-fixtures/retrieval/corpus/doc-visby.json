@@ -1,0 +1,20 @@
+{
+  "id": "doc-visby",
+  "title": "Visby-class corvette",
+  "text": "Swedish Visby-class stealth corvette for Baltic surface patrol and ASW screen.",
+  "revision": 1,
+  "sourceHash": "4145d4592f88e1572aab63e7d1c4eb628af6f34d65af001ad2f279de0fbf1e98",
+  "concepts": [
+    "src_doc-visby",
+    "surface_patrol",
+    "anti_submarine",
+    "theater_baltic",
+    "side_blue"
+  ],
+  "sourceClass": "catalog-description",
+  "track": "B",
+  "metadata": {
+    "provenance": "repo-public-fixture",
+    "paidProviders": "false"
+  }
+}

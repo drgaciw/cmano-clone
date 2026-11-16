@@ -1,0 +1,18 @@
+{
+  "id": "doc-extra-14",
+  "title": "AAR salvo ledger N",
+  "text": "Salvo ledger N is the alternate debrief sheet for hit marks.",
+  "revision": 1,
+  "sourceHash": "80c445ecfe40c09f2652fb9090e927807489a76f4341f3f8e99ec73211480698",
+  "concepts": [
+    "src_doc-extra-14",
+    "aar_ledger_n",
+    "aar_engagement"
+  ],
+  "sourceClass": "catalog-description",
+  "track": "B",
+  "metadata": {
+    "provenance": "repo-public-fixture",
+    "paidProviders": "false"
+  }
+}

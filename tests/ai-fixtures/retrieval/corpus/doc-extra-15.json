@@ -1,0 +1,18 @@
+{
+  "id": "doc-extra-15",
+  "title": "ROE release card O",
+  "text": "Release card O is the alternate Baltic weapons-free card.",
+  "revision": 1,
+  "sourceHash": "dc8b9cfec6aead51244616dd367fbab4199fef5b6387f6e33e196db5e28fcea8",
+  "concepts": [
+    "src_doc-extra-15",
+    "roe_card_o",
+    "rules_of_engagement"
+  ],
+  "sourceClass": "catalog-description",
+  "track": "B",
+  "metadata": {
+    "provenance": "repo-public-fixture",
+    "paidProviders": "false"
+  }
+}

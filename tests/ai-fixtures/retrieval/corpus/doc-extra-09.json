@@ -1,0 +1,19 @@
+{
+  "id": "doc-extra-09",
+  "title": "ISR orbit card I",
+  "text": "ISR orbit card I covers the southern unmanned lookout lane.",
+  "revision": 1,
+  "sourceHash": "a0f6de1e70d8a87de77da044647531fa44e811d09bef692d41dc5190234b1059",
+  "concepts": [
+    "src_doc-extra-09",
+    "isr_orbit_i",
+    "unmanned_recon",
+    "theater_baltic"
+  ],
+  "sourceClass": "catalog-description",
+  "track": "B",
+  "metadata": {
+    "provenance": "repo-public-fixture",
+    "paidProviders": "false"
+  }
+}

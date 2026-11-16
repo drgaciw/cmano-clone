@@ -1,0 +1,18 @@
+{
+  "id": "doc-extra-16",
+  "title": "Blue track-share memo P",
+  "text": "Memo P covers late joiners for tactical-net track push.",
+  "revision": 1,
+  "sourceHash": "d9b4d24482f424d3071a12c72f3c4af3b7ea868a217f31d113ab42ed7d43e26b",
+  "concepts": [
+    "src_doc-extra-16",
+    "track_share_p",
+    "c2_datalink"
+  ],
+  "sourceClass": "catalog-description",
+  "track": "B",
+  "metadata": {
+    "provenance": "repo-public-fixture",
+    "paidProviders": "false"
+  }
+}

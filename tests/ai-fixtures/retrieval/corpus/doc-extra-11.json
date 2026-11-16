@@ -1,0 +1,19 @@
+{
+  "id": "doc-extra-11",
+  "title": "OPFOR SAM arc sheet K",
+  "text": "SAM arc sheet K covers the inland approach corridor.",
+  "revision": 1,
+  "sourceHash": "4a38acf0f1a37416704116bc8b34f3cfc1aa0b7e8222569a13de73ec523fb3f2",
+  "concepts": [
+    "src_doc-extra-11",
+    "sam_arc_k",
+    "surface_to_air",
+    "side_red"
+  ],
+  "sourceClass": "catalog-description",
+  "track": "B",
+  "metadata": {
+    "provenance": "repo-public-fixture",
+    "paidProviders": "false"
+  }
+}

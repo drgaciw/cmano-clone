@@ -1,0 +1,20 @@
+{
+  "id": "doc-ucav-blue",
+  "title": "UCAV Blue Baltic Patrol Recon",
+  "text": "NATO UCAV for Baltic patrol reconnaissance with Internal IR sensor and recon radar. Max speed 320 kt. Revision bump adds IR cueing note.",
+  "revision": 2,
+  "sourceHash": "9f916fd722618d62073123a49b052951ea908a521f0e14f58b82054286a5fdc9",
+  "concepts": [
+    "src_doc-ucav-blue",
+    "unmanned_recon",
+    "ir_sensor",
+    "theater_baltic",
+    "side_blue"
+  ],
+  "sourceClass": "catalog-description",
+  "track": "B",
+  "metadata": {
+    "provenance": "repo-public-fixture",
+    "paidProviders": "false"
+  }
+}

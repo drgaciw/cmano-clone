@@ -1,0 +1,18 @@
+{
+  "id": "doc-extra-20",
+  "title": "Littoral craft plan T",
+  "text": "Plan T assigns fast littoral craft to archipelago lanes.",
+  "revision": 1,
+  "sourceHash": "f2fb7a6928dffb9981eae0ba133143001ba1e5babfa5c726a3fd12441da4e8e3",
+  "concepts": [
+    "src_doc-extra-20",
+    "littoral_plan_t",
+    "surface_patrol"
+  ],
+  "sourceClass": "catalog-description",
+  "track": "B",
+  "metadata": {
+    "provenance": "repo-public-fixture",
+    "paidProviders": "false"
+  }
+}

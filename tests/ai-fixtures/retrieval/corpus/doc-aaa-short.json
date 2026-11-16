@@ -1,0 +1,17 @@
+{
+  "id": "doc-aaa-short",
+  "title": "Short-range AAA mount",
+  "text": "Short-range AAA point-defense mount against aircraft.",
+  "revision": 1,
+  "sourceHash": "4b9c0f27bf1e0d36e4df6e321b9f9ac18647c0d37c0f62b6002eea341587a49a",
+  "concepts": [
+    "src_doc-aaa-short",
+    "surface_to_air"
+  ],
+  "sourceClass": "catalog-description",
+  "track": "B",
+  "metadata": {
+    "provenance": "repo-public-fixture",
+    "paidProviders": "false"
+  }
+}
