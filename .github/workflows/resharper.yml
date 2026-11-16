@@ -36,32 +36,22 @@ jobs:
       - uses: actions/setup-python@v7
         with:
           python-version: '3.15'
-      - name: Install pinned PowerShell and verify dotnet-install.ps1
+      - name: Install pinned PowerShell and the Linux .NET SDK
         shell: bash
         run: |
           set -euo pipefail
           bash tools/ci/install-pinned-pwsh.sh
-          ps1="${RUNNER_TEMP}/dotnet-install.ps1"
-          curl -fsSL https://dot.net/v1/dotnet-install.ps1 -o "$ps1"
-          echo "e8b873e18a81e5c4cd8ab69d84dac8fead291d50b3c44633cd7fddad709a13d6  ${ps1}" | sha256sum -c -
-      - name: Install isolated SDK and pinned ReSharper CLI
+          # dotnet-install.ps1 under Linux pwsh downloads the Windows SDK
+          # (win-x64). The checksummed shell installer fetches linux-x64.
+          bash tools/buildkite/agent-bootstrap-dotnet.sh
+          echo "${RUNNER_TEMP}/aegis-dotnet" >> "$GITHUB_PATH"
+          echo "DOTNET_ROOT=${RUNNER_TEMP}/aegis-dotnet" >> "$GITHUB_ENV"
+      - name: Install pinned ReSharper CLI
         shell: pwsh
         run: |
-          $ps1 = Join-Path $env:RUNNER_TEMP 'dotnet-install.ps1'
-          if (-not (Test-Path -LiteralPath $ps1)) { throw 'Verified dotnet-install.ps1 is missing.' }
-          # Linux pwsh has no PROCESSOR_ARCHITECTURE, so the script's <auto>
-          # detection throws "Architecture '' not supported".
-          $dotnetArch = switch ([System.Runtime.InteropServices.RuntimeInformation]::OSArchitecture.ToString()) {
-            'X64' { 'x64' }
-            'Arm64' { 'arm64' }
-            'X86' { 'x86' }
-            'Arm' { 'arm' }
-            default { throw "Unsupported OS architecture." }
-          }
-          & $ps1 -Version 11.0.100 -Architecture $dotnetArch -InstallDir (Join-Path $env:RUNNER_TEMP 'aegis-dotnet') -NoPath
-          $env:DOTNET_ROOT = "$env:RUNNER_TEMP/aegis-dotnet"
-          $env:PATH = "$env:DOTNET_ROOT$([IO.Path]::PathSeparator)$env:PATH"
-          dotnet tool install JetBrains.ReSharper.GlobalTools --version 2026.3.0 --tool-path "$env:RUNNER_TEMP/resharper-cli"
+          $dotnet = Join-Path $env:DOTNET_ROOT 'dotnet'
+          if (-not (Test-Path -LiteralPath $dotnet)) { throw "Linux dotnet not found at $dotnet" }
+          & $dotnet tool install JetBrains.ReSharper.GlobalTools --version 2026.3.0 --tool-path "$env:RUNNER_TEMP/resharper-cli"
           if ($LASTEXITCODE -ne 0) { throw 'ReSharper installation failed.' }
       - name: Verify comparison tests and inspect all frameworks
         shell: pwsh
@@ -71,7 +61,7 @@ jobs:
           python -m unittest discover -s tools/resharper -p 'test_*.py' -v
           if ($LASTEXITCODE -ne 0) { throw 'SARIF comparison tests failed.' }
           $dotnet = Join-Path $env:DOTNET_ROOT 'dotnet'
-          if (-not (Test-Path -LiteralPath $dotnet)) { $dotnet = Join-Path $env:DOTNET_ROOT 'dotnet.exe' }
+          if (-not (Test-Path -LiteralPath $dotnet)) { throw "Linux dotnet not found at $dotnet" }
           $jb = Join-Path $env:RUNNER_TEMP 'resharper-cli/jb'
           if (-not (Test-Path -LiteralPath $jb)) { $jb = Join-Path $env:RUNNER_TEMP 'resharper-cli/jb.exe' }
           ./tools/resharper/inspect.ps1 -DotnetPath $dotnet -ToolPath $jb -Check
