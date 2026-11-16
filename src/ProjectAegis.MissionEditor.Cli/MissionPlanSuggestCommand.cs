@@ -2,9 +2,9 @@ namespace ProjectAegis.MissionEditor.Cli;
 
 using System.Text.Json;
 using Microsoft.Extensions.AI;
-using ProjectAegis.Ai.Host;
-using ProjectAegis.Ai.Host.Authoring;
-using ProjectAegis.Data.Scenario.Authoring;
+using Ai.Host;
+using Ai.Host.Authoring;
+using Data.Scenario.Authoring;
 
 /// <summary>
 /// Headless NL plan stub — suggests patrol/strike/ferry/support ops from keywords (req 11).

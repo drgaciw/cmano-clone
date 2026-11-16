@@ -709,7 +709,7 @@ static bool HasProviderSwitch(string[] args)
     return false;
 }
 
-/// <summary>Reads an optional value after a switch when the next token is not another flag.</summary>
+// Reads an optional value after a switch when the next token is not another flag.
 static string? GetOptionalFlagValue(string[] args, string name)
 {
     for (var i = 0; i < args.Length; i++)
