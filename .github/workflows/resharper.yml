@@ -11,60 +11,40 @@ permissions:
 
 concurrency:
   group: resharper-${{ github.ref }}
-  cancel-in-progress: ${{ github.event_name == 'pull_request' }}
+  cancel-in-progress: true
 
 jobs:
   inspect:
-    # Self-hosted only for push to main and schedule. Every pull_request and
-    # every non-main push uses ubuntu-latest. Both of those runners are Linux,
-    # so PATH and the jb/dotnet filenames below follow the runner OS.
-    # The check name stays `inspect`.
-    runs-on: ${{ ((github.event_name == 'push' && github.ref == 'refs/heads/main') || github.event_name == 'schedule') && fromJSON('["self-hosted","linux","aegis"]') || 'ubuntu-latest' }}
+    runs-on: windows-latest
     timeout-minutes: 30
     steps:
       - uses: actions/checkout@v7
         with:
-          persist-credentials: false
           # The legacy roadmap alias cannot be materialized as a Windows symlink.
           sparse-checkout-cone-mode: false
           sparse-checkout: |
             /*
             !/docs/reports/future-sprint-roadpmap.md
-      - name: Use repo-scoped package caches
-        shell: bash
-        run: bash tools/ci/selfhosted-cleanup.sh prepare-caches
       - uses: actions/setup-python@v7
         with:
           python-version: '3.15'
-      - name: Install pinned PowerShell and the Linux .NET SDK
-        shell: bash
-        run: |
-          set -euo pipefail
-          bash tools/ci/install-pinned-pwsh.sh
-          # dotnet-install.ps1 under Linux pwsh downloads the Windows SDK
-          # (win-x64). The checksummed shell installer fetches linux-x64.
-          bash tools/buildkite/agent-bootstrap-dotnet.sh
-          echo "${RUNNER_TEMP}/aegis-dotnet" >> "$GITHUB_PATH"
-          echo "DOTNET_ROOT=${RUNNER_TEMP}/aegis-dotnet" >> "$GITHUB_ENV"
-      - name: Install pinned ReSharper CLI
+      - name: Install isolated SDK and pinned ReSharper CLI
         shell: pwsh
         run: |
-          $dotnet = Join-Path $env:DOTNET_ROOT 'dotnet'
-          if (-not (Test-Path -LiteralPath $dotnet)) { throw "Linux dotnet not found at $dotnet" }
-          & $dotnet tool install JetBrains.ReSharper.GlobalTools --version 2026.3.0 --tool-path "$env:RUNNER_TEMP/resharper-cli"
+          Invoke-WebRequest https://dot.net/v1/dotnet-install.ps1 -OutFile "$env:RUNNER_TEMP/dotnet-install.ps1"
+          & "$env:RUNNER_TEMP/dotnet-install.ps1" -Version 11.0.100 -InstallDir "$env:RUNNER_TEMP/aegis-dotnet" -NoPath
+          $env:DOTNET_ROOT = "$env:RUNNER_TEMP/aegis-dotnet"
+          $env:PATH = "$env:DOTNET_ROOT;$env:PATH"
+          dotnet tool install JetBrains.ReSharper.GlobalTools --version 2026.3.0 --tool-path "$env:RUNNER_TEMP/resharper-cli"
           if ($LASTEXITCODE -ne 0) { throw 'ReSharper installation failed.' }
       - name: Verify comparison tests and inspect all frameworks
         shell: pwsh
         run: |
           $env:DOTNET_ROOT = "$env:RUNNER_TEMP/aegis-dotnet"
-          $env:PATH = "$env:DOTNET_ROOT$([IO.Path]::PathSeparator)$env:PATH"
+          $env:PATH = "$env:DOTNET_ROOT;$env:PATH"
           python -m unittest discover -s tools/resharper -p 'test_*.py' -v
           if ($LASTEXITCODE -ne 0) { throw 'SARIF comparison tests failed.' }
-          $dotnet = Join-Path $env:DOTNET_ROOT 'dotnet'
-          if (-not (Test-Path -LiteralPath $dotnet)) { throw "Linux dotnet not found at $dotnet" }
-          $jb = Join-Path $env:RUNNER_TEMP 'resharper-cli/jb'
-          if (-not (Test-Path -LiteralPath $jb)) { $jb = Join-Path $env:RUNNER_TEMP 'resharper-cli/jb.exe' }
-          ./tools/resharper/inspect.ps1 -DotnetPath $dotnet -ToolPath $jb -Check
+          ./tools/resharper/inspect.ps1 -DotnetPath "$env:DOTNET_ROOT/dotnet.exe" -ToolPath "$env:RUNNER_TEMP/resharper-cli/jb.exe" -Check
       - name: Preserve inspection evidence
         if: always()
         uses: actions/upload-artifact@v7
@@ -75,7 +55,3 @@ jobs:
             artifacts/resharper/*.run.json
             artifacts/resharper/*.comparison.json
           if-no-files-found: warn
-      - name: Clean workspace
-        if: always()
-        shell: bash
-        run: bash tools/ci/selfhosted-cleanup.sh

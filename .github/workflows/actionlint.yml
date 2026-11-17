@@ -24,11 +24,8 @@ jobs:
   actionlint:
     name: Lint workflows
     runs-on: ubuntu-latest
-    timeout-minutes: 10
     steps:
       - uses: actions/checkout@v7
-        with:
-          persist-credentials: false
 
       - name: Run actionlint
         uses: raven-actions/actionlint@v2
