@@ -35,9 +35,13 @@ Project Aegis will host Microsoft.Extensions.AI and related packages only in ded
 
 | Relationship | ADR / artifact |
 |--------------|----------------|
-| **Depends on** | ADR-001 (assembly boundary), ADR-006 (data read/write split), ADR-013 (dual-track CMO import firewall), ADR-014 (no Lua / no arbitrary execution on authoring path), ADR-015 (agent-authored scenario transparency — referenced for envelope provenance / agent-authored label; **do not block** Wave 0 on ADR-015 status), ADR-019 (read-only order log for AAR) |
+| **Depends on** | ADR-001 (assembly boundary), ADR-006 (data read/write split), ADR-013 (dual-track CMO import firewall) — **provisional pending owner decision** (see note), ADR-014 (no Lua / no arbitrary execution on authoring path), ADR-015 (agent-authored scenario transparency — referenced for envelope provenance / agent-authored label; **do not block** Wave 0 on ADR-015 status), ADR-019 (read-only order log for AAR) |
 | **Enables** | Wave 1+ AI slices (provider adapters, retrieval, evaluation lanes) |
 | **Conflicts with** | None — additive. Does not authorize paid provider calls in CI |
+
+### Note 2026-11-16 (DRG-771 Lane A) — ADR-013 dependency provisional
+
+ADR-030 (Accepted 2026-11-15) cites ADR-013’s dual-track CMO firewall for egress / prompt content rules. **ADR-013 remains Proposed** (not Accepted in this PR). Per DRG-771 §8 item 2 and owner go *"Accept jev's calls"*, treat the ADR-013 dependency as **provisional pending owner decision** (accept ADR-013, amend ADR-030, or otherwise record the firewall stance). This note does **not** accept ADR-013 and does **not** change ADR-030 Status.
 
 ## Decision
 
