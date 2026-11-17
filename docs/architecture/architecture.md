@@ -187,7 +187,7 @@ Full matrix: expand as each GDD is approved (`/create-architecture` continuation
 
 ## ADR Index
 
-Index refreshed **2026-11-16** (DRG-771 Lane A / CMA-28 docs-sync). Status values below mirror each ADR file as of base `1552311d`; this PR does **not** flip Status fields. ADR status changes must use a separate docs-only PR — see [README.md](README.md).
+Index refreshed **2026-11-16** (DRG-771 Lane A / CMA-28 docs-sync). Status values below mirror each ADR file on this branch (ADR-023…026 **Deferred** via merged #875 / Lane B — index rows updated to match; this PR still does **not** edit those ADR Status lines). ADR status changes must use a separate docs-only PR — see [README.md](README.md).
 
 | ADR | Title | Status |
 |-----|-------|--------|
@@ -213,10 +213,10 @@ Index refreshed **2026-11-16** (DRG-771 Lane A / CMA-28 docs-sync). Status value
 | [ADR-020](adr-020-logistics-fuel-model.md) | Deterministic fuel burn model | **Accepted** |
 | [ADR-021](adr-021-mission-timeline-runtime.md) | Mission timeline & contact-trigger runtime | **Accepted** |
 | [ADR-022](adr-022-target-os-and-cpu-architectures.md) | Target OS and CPU architectures (v1) | **Accepted** |
-| [ADR-023](adr-023-descope-lethal-autonomy-phase-optin.md) | De-scope lethal autonomy phase opt-in (HOL-04) | **Proposed** |
-| [ADR-024](adr-024-descope-balance-critical-gate.md) | De-scope balance-critical catalog gate | **Proposed** |
-| [ADR-025](adr-025-tl5-black-project-alignment.md) | TL5 / black-project mode alignment | **Proposed** |
-| [ADR-026](adr-026-descope-nationality-cec-gate.md) | De-scope runtime nationality CEC validation | **Proposed** |
+| [ADR-023](adr-023-descope-lethal-autonomy-phase-optin.md) | De-scope lethal autonomy phase opt-in (HOL-04) | **Deferred** (2026-11-16; revisit 2027-01-15) |
+| [ADR-024](adr-024-descope-balance-critical-gate.md) | De-scope balance-critical catalog gate | **Deferred** (2026-11-16; revisit 2027-01-15) |
+| [ADR-025](adr-025-tl5-black-project-alignment.md) | TL5 / black-project mode alignment | **Deferred** (2026-11-16; revisit 2027-01-15) |
+| [ADR-026](adr-026-descope-nationality-cec-gate.md) | De-scope runtime nationality CEC validation | **Deferred** (2026-11-16; revisit 2027-01-15) |
 | [ADR-027](adr-027-unity-editor-mcp-stack.md) | Unity Editor MCP stack (Ivan Murzak) | **Accepted** |
 | [ADR-028](adr-028-content-pipeline-addressables.md) | H5 content pipeline — Addressables (local) | **Accepted** |
 | [ADR-029](adr-029-h6-save-resume.md) | H6 save/resume vs DelegationBridge / SimulationSession | **Accepted** |

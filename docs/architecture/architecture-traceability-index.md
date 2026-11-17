@@ -117,16 +117,16 @@ Phase A code landed 2026-08-09 (H8 waves 0–4). Proposed TR IDs (stubs; not all
 
 Docs-sync only — no Status flips. Requirement matrix above is unchanged; these rows close the inventory gap for ADRs that previously lacked dedicated index entries (audit: ADR-014–017, ADR-023–029).
 
-| ADR | Title | Primary systems / GDD | Status (as of `1552311d`) | Notes |
+| ADR | Title | Primary systems / GDD | Status (mirrored) | Notes |
 |-----|-------|------------------------|---------------------------|-------|
 | [ADR-014](adr-014-lua-compatibility-scope.md) | Lua compatibility — typed DSL first | Mission editor / req 11 | **Accepted** | No Lua in v1; curated shim later |
 | [ADR-015](adr-015-agent-authored-scenario-transparency.md) | Agent-authored scenario transparency | Mission editor / authoring | **Accepted** | Labeling / provenance for agent-authored content |
 | [ADR-016](adr-016-event-graph-complexity-caps.md) | Event-graph complexity caps | Mission editor / events | **Accepted** | Soft warnings + hard per-event cap |
 | [ADR-017](adr-017-editor-topology-client-vs-scenario-lab.md) | Editor topology — client vs scenario lab | Editors / H4 | **Accepted** | Shared core; in-client v1 |
-| [ADR-023](adr-023-descope-lethal-autonomy-phase-optin.md) | De-scope lethal autonomy phase opt-in | Delegation / HOL-04 | **Proposed** | Status revisit owned separately (Lane B) |
-| [ADR-024](adr-024-descope-balance-critical-gate.md) | De-scope balance-critical catalog gate | Data / write gate | **Proposed** | Status revisit owned separately (Lane B) |
-| [ADR-025](adr-025-tl5-black-project-alignment.md) | TL5 / black-project alignment | Catalog / speculative | **Proposed** | Status revisit owned separately (Lane B) |
-| [ADR-026](adr-026-descope-nationality-cec-gate.md) | De-scope runtime nationality CEC gate | CEC / catalog | **Proposed** | Status revisit owned separately (Lane B) |
+| [ADR-023](adr-023-descope-lethal-autonomy-phase-optin.md) | De-scope lethal autonomy phase opt-in | Delegation / HOL-04 | **Deferred** | Lane B #875; revisit 2027-01-15 — index synced after merge |
+| [ADR-024](adr-024-descope-balance-critical-gate.md) | De-scope balance-critical catalog gate | Data / write gate | **Deferred** | Lane B #875; revisit 2027-01-15 — index synced after merge |
+| [ADR-025](adr-025-tl5-black-project-alignment.md) | TL5 / black-project alignment | Catalog / speculative | **Deferred** | Lane B #875; revisit 2027-01-15 — index synced after merge |
+| [ADR-026](adr-026-descope-nationality-cec-gate.md) | De-scope runtime nationality CEC gate | CEC / catalog | **Deferred** | Lane B #875; revisit 2027-01-15 — index synced after merge |
 | [ADR-027](adr-027-unity-editor-mcp-stack.md) | Unity Editor MCP stack | Editor tooling | **Accepted** | Ivan Murzak Unity-MCP; not CoplayDev |
 | [ADR-028](adr-028-content-pipeline-addressables.md) | H5 Addressables content pipeline | Presentation / H5 | **Accepted** | Local presentation-only content |
 | [ADR-029](adr-029-h6-save-resume.md) | H6 save/resume boundary | Persistence / H6 | **Accepted** | ZERO-touch DelegationBridge / SimulationSession |
