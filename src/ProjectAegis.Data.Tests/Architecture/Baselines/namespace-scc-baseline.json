@@ -1,14 +1,13 @@
 {
   "ProjectAegis.Data": [
     [
+      "ProjectAegis.Data.Agents",
       "ProjectAegis.Data.Catalog",
       "ProjectAegis.Data.Platform",
-      "ProjectAegis.Data.Snapshots",
-      "ProjectAegis.Data.WriteGate"
-    ],
-    [
       "ProjectAegis.Data.Scenario.Authoring",
-      "ProjectAegis.Data.Validation"
+      "ProjectAegis.Data.Snapshots",
+      "ProjectAegis.Data.Validation",
+      "ProjectAegis.Data.WriteGate"
     ]
   ],
   "ProjectAegis.Sim": [
@@ -25,9 +24,11 @@
   "ProjectAegis.Delegation": [
     [
       "ProjectAegis.Delegation.Attention",
+      "ProjectAegis.Delegation.Comms",
       "ProjectAegis.Delegation.Decision",
       "ProjectAegis.Delegation.Hindsight",
-      "ProjectAegis.Delegation.Sim"
+      "ProjectAegis.Delegation.Sim",
+      "ProjectAegis.Delegation.Trust"
     ],
     [
       "ProjectAegis.Delegation.CombatEvents",

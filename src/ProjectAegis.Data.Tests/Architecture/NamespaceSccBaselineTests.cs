@@ -81,6 +81,11 @@ public sealed class NamespaceSccBaselineTests
         }
     }
 
+    /// <summary>
+    /// Resolves sibling product DLLs using the running test configuration and TFM
+    /// (from <see cref="AppContext.BaseDirectory"/>), so a Release verify after a Debug build
+    /// does not accidentally inspect a stale Debug output.
+    /// </summary>
     private static string? ResolveBuiltAssembly(string projectDir)
     {
         var repoRoot = ResolveRepoRoot();
@@ -89,15 +94,43 @@ public sealed class NamespaceSccBaselineTests
             return null;
         }
 
-        var candidates = new[]
+        var (configuration, tfm) = ResolveActiveBuildContext();
+        var preferred = Path.Combine(
+            repoRoot, "src", projectDir, "bin", configuration, tfm, projectDir + ".dll");
+        if (File.Exists(preferred))
         {
-            Path.Combine(repoRoot, "src", projectDir, "bin", "Debug", "net11.0", projectDir + ".dll"),
-            Path.Combine(repoRoot, "src", projectDir, "bin", "Release", "net11.0", projectDir + ".dll"),
-            Path.Combine(repoRoot, "src", projectDir, "bin", "Debug", "netstandard2.1", projectDir + ".dll"),
-            Path.Combine(repoRoot, "src", projectDir, "bin", "Release", "netstandard2.1", projectDir + ".dll"),
-        };
+            return preferred;
+        }
 
-        return candidates.FirstOrDefault(File.Exists);
+        // Multi-targeted libraries may only publish netstandard2.1 for the active config.
+        if (!string.Equals(tfm, "netstandard2.1", StringComparison.OrdinalIgnoreCase))
+        {
+            var ns21 = Path.Combine(
+                repoRoot, "src", projectDir, "bin", configuration, "netstandard2.1", projectDir + ".dll");
+            if (File.Exists(ns21))
+            {
+                return ns21;
+            }
+        }
+
+        return null;
+    }
+
+    private static (string Configuration, string Tfm) ResolveActiveBuildContext()
+    {
+        // Typical: .../ProjectAegis.Data.Tests/bin/Debug/net11.0/
+        var dir = new DirectoryInfo(AppContext.BaseDirectory);
+        var tfm = dir.Name;
+        var configuration = dir.Parent?.Name;
+        if (string.IsNullOrEmpty(configuration)
+            || string.IsNullOrEmpty(tfm)
+            || (!string.Equals(configuration, "Debug", StringComparison.OrdinalIgnoreCase)
+                && !string.Equals(configuration, "Release", StringComparison.OrdinalIgnoreCase)))
+        {
+            return ("Debug", "net11.0");
+        }
+
+        return (configuration, tfm);
     }
 
     private static string? ResolveRepoRoot()

@@ -52,12 +52,12 @@ internal static class NamespaceSccAnalyzer
                 graph[ns] = new HashSet<string>(StringComparer.Ordinal);
             }
 
-            AddEdge(graph, ns, ResolveNs(reader, td.BaseType));
+            AddEdgesFromTypeHandle(graph, ns, reader, td.BaseType);
 
             foreach (var iface in td.GetInterfaceImplementations())
             {
                 var impl = reader.GetInterfaceImplementation(iface);
-                AddEdge(graph, ns, ResolveNs(reader, impl.Interface));
+                AddEdgesFromTypeHandle(graph, ns, reader, impl.Interface);
             }
 
             foreach (var fh in td.GetFields())
@@ -65,7 +65,7 @@ internal static class NamespaceSccAnalyzer
                 var field = reader.GetFieldDefinition(fh);
                 var blob = reader.GetBlobReader(field.Signature);
                 blob.ReadByte();
-                AddEdge(graph, ns, DecodeTypeSigNs(reader, ref blob));
+                AddEdgesFromTypeSig(graph, ns, reader, ref blob);
             }
 
             foreach (var mh in td.GetMethods())
@@ -79,10 +79,10 @@ internal static class NamespaceSccAnalyzer
                 }
 
                 var paramCount = blob.ReadCompressedInteger();
-                AddEdge(graph, ns, DecodeTypeSigNs(reader, ref blob));
+                AddEdgesFromTypeSig(graph, ns, reader, ref blob);
                 for (var i = 0; i < paramCount; i++)
                 {
-                    AddEdge(graph, ns, DecodeTypeSigNs(reader, ref blob));
+                    AddEdgesFromTypeSig(graph, ns, reader, ref blob);
                 }
             }
 
@@ -92,10 +92,10 @@ internal static class NamespaceSccAnalyzer
                 var blob = reader.GetBlobReader(prop.Signature);
                 blob.ReadSignatureHeader();
                 var paramCount = blob.ReadCompressedInteger();
-                AddEdge(graph, ns, DecodeTypeSigNs(reader, ref blob));
+                AddEdgesFromTypeSig(graph, ns, reader, ref blob);
                 for (var i = 0; i < paramCount; i++)
                 {
-                    AddEdge(graph, ns, DecodeTypeSigNs(reader, ref blob));
+                    AddEdgesFromTypeSig(graph, ns, reader, ref blob);
                 }
             }
         }
@@ -189,16 +189,64 @@ internal static class NamespaceSccAnalyzer
             }
             case HandleKind.TypeSpecification:
             {
+                // Single-ns ResolveNs is only used for base/iface handles; TypeSpecs with
+                // generic args are decoded via AddEdgesFromTypeSig at signature sites.
                 var ts = reader.GetTypeSpecification((TypeSpecificationHandle)handle);
                 var blob = reader.GetBlobReader(ts.Signature);
-                return DecodeTypeSigNs(reader, ref blob);
+                var collected = new HashSet<string>(StringComparer.Ordinal);
+                CollectTypeSigNamespaces(reader, ref blob, collected);
+                return collected.FirstOrDefault();
             }
             default:
                 return null;
         }
     }
 
-    private static string? DecodeTypeSigNs(MetadataReader reader, ref BlobReader blob)
+    private static void AddEdgesFromTypeHandle(
+        Dictionary<string, HashSet<string>> graph,
+        string from,
+        MetadataReader reader,
+        EntityHandle handle)
+    {
+        if (handle.IsNil)
+        {
+            return;
+        }
+
+        if (handle.Kind == HandleKind.TypeSpecification)
+        {
+            var ts = reader.GetTypeSpecification((TypeSpecificationHandle)handle);
+            var blob = reader.GetBlobReader(ts.Signature);
+            AddEdgesFromTypeSig(graph, from, reader, ref blob);
+            return;
+        }
+
+        AddEdge(graph, from, ResolveNs(reader, handle));
+    }
+
+    private static void AddEdgesFromTypeSig(
+        Dictionary<string, HashSet<string>> graph,
+        string from,
+        MetadataReader reader,
+        ref BlobReader blob)
+    {
+        var namespaces = new HashSet<string>(StringComparer.Ordinal);
+        CollectTypeSigNamespaces(reader, ref blob, namespaces);
+        foreach (var ns in namespaces)
+        {
+            AddEdge(graph, from, ns);
+        }
+    }
+
+    /// <summary>
+    /// Collects every namespace referenced by a type signature, including constructed
+    /// generic type arguments (e.g. <c>IReadOnlyList&lt;ValidationFinding&gt;</c> yields both
+    /// the collection type ns and <c>ValidationFinding</c>'s ns).
+    /// </summary>
+    private static void CollectTypeSigNamespaces(
+        MetadataReader reader,
+        ref BlobReader blob,
+        HashSet<string> sink)
     {
         var code = blob.ReadByte();
         switch ((SignatureTypeCode)code)
@@ -208,21 +256,27 @@ internal static class NamespaceSccAnalyzer
                 blob.ReadByte();
                 var typeHandle = blob.ReadTypeHandle();
                 var typeNs = ResolveNs(reader, typeHandle);
+                if (!string.IsNullOrEmpty(typeNs))
+                {
+                    sink.Add(typeNs);
+                }
+
                 var argCount = blob.ReadCompressedInteger();
                 for (var i = 0; i < argCount; i++)
                 {
-                    _ = DecodeTypeSigNs(reader, ref blob);
+                    CollectTypeSigNamespaces(reader, ref blob, sink);
                 }
 
-                return typeNs;
+                return;
             }
             case SignatureTypeCode.SZArray:
             case SignatureTypeCode.Pointer:
             case SignatureTypeCode.ByReference:
-                return DecodeTypeSigNs(reader, ref blob);
+                CollectTypeSigNamespaces(reader, ref blob, sink);
+                return;
             case SignatureTypeCode.Array:
             {
-                var ns = DecodeTypeSigNs(reader, ref blob);
+                CollectTypeSigNamespaces(reader, ref blob, sink);
                 blob.ReadCompressedInteger(); // rank
                 var sizes = blob.ReadCompressedInteger();
                 for (var i = 0; i < sizes; i++)
@@ -236,20 +290,24 @@ internal static class NamespaceSccAnalyzer
                     blob.ReadCompressedSignedInteger();
                 }
 
-                return ns;
+                return;
             }
             case SignatureTypeCode.GenericTypeParameter:
             case SignatureTypeCode.GenericMethodParameter:
                 blob.ReadCompressedInteger();
-                return null;
+                return;
             default:
                 if (code is 0x11 or 0x12)
                 {
                     var typeHandle = blob.ReadTypeHandle();
-                    return ResolveNs(reader, typeHandle);
+                    var ns = ResolveNs(reader, typeHandle);
+                    if (!string.IsNullOrEmpty(ns))
+                    {
+                        sink.Add(ns);
+                    }
                 }
 
-                return null;
+                return;
         }
     }
 
