@@ -2,7 +2,7 @@
 
 ## Status
 
-**Proposed** (2026-09-02)
+**Deferred** (2026-11-16 CT) — Previously **Proposed** (2026-09-02). Parked pending revisit on **2027-01-15** (DRG-771 Lane B / CMA-29; owner go "Accept jev's calls"). Not accepted; status is not backdated.
 
 ## Date
 
