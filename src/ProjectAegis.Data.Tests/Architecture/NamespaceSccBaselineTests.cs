@@ -22,24 +22,33 @@ public sealed class NamespaceSccBaselineTests
     {
         var baselinePath = ResolveRepoFile(
             "src", "ProjectAegis.Data.Tests", "Architecture", "Baselines", "namespace-scc-baseline.json");
-        Assert.True(baselinePath != null, "Missing Architecture/Baselines/namespace-scc-baseline.json.");
+        if (baselinePath is null)
+        {
+            Assert.Fail("Missing Architecture/Baselines/namespace-scc-baseline.json.");
+            return;
+        }
 
-        var baseline = NamespaceSccAnalyzer.LoadBaseline(baselinePath!);
+        var baseline = NamespaceSccAnalyzer.LoadBaseline(baselinePath);
         var novelAll = new List<string>();
 
         foreach (var projectDir in AssemblyProjectDirs)
         {
             var dll = ResolveBuiltAssembly(projectDir);
-            Assert.True(
-                dll != null,
-                $"Missing built assembly for '{projectDir}'. Build the solution (or that project) before running this gate.");
+            if (dll is null)
+            {
+                Assert.Fail(
+                    $"Missing built assembly for '{projectDir}'. Build the solution (or that project) before running this gate.");
+                return;
+            }
 
-            Assert.True(
-                baseline.TryGetValue(projectDir, out var expected) && expected != null,
-                $"Baseline JSON missing assembly key '{projectDir}'.");
+            if (!baseline.TryGetValue(projectDir, out var expected))
+            {
+                Assert.Fail($"Baseline JSON missing assembly key '{projectDir}'.");
+                return;
+            }
 
-            var actual = NamespaceSccAnalyzer.AnalyzeAssembly(dll!);
-            var novel = NamespaceSccAnalyzer.FindNewCycles(expected!, actual);
+            var actual = NamespaceSccAnalyzer.AnalyzeAssembly(dll);
+            var novel = NamespaceSccAnalyzer.FindNewCycles(expected, actual);
             foreach (var scc in novel)
             {
                 novelAll.Add($"{projectDir}: [{string.Join(", ", scc)}]");
@@ -59,8 +68,13 @@ public sealed class NamespaceSccBaselineTests
     {
         var baselinePath = ResolveRepoFile(
             "src", "ProjectAegis.Data.Tests", "Architecture", "Baselines", "namespace-scc-baseline.json");
-        Assert.True(baselinePath != null);
-        var baseline = NamespaceSccAnalyzer.LoadBaseline(baselinePath!);
+        if (baselinePath is null)
+        {
+            Assert.Fail("Missing Architecture/Baselines/namespace-scc-baseline.json.");
+            return;
+        }
+
+        var baseline = NamespaceSccAnalyzer.LoadBaseline(baselinePath);
         foreach (var projectDir in AssemblyProjectDirs)
         {
             Assert.True(baseline.ContainsKey(projectDir), $"Missing baseline key '{projectDir}'.");

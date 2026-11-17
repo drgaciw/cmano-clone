@@ -33,8 +33,13 @@ public sealed class UnitySimImportForbidTests
         foreach (var relative in BaselineRelativePaths)
         {
             var path = ResolveRepoFile(relative.Split('/'));
-            Assert.True(path != null, $"Missing baseline host '{relative}'.");
-            var source = File.ReadAllText(path!);
+            if (path is null)
+            {
+                Assert.Fail($"Missing baseline host '{relative}'.");
+                return;
+            }
+
+            var source = File.ReadAllText(path);
             Assert.True(
                 SimUsingRegex.IsMatch(source),
                 $"Baseline host '{relative}' no longer imports ProjectAegis.Sim — update allowlist deliberately.");
@@ -45,7 +50,11 @@ public sealed class UnitySimImportForbidTests
     public void No_new_unity_runtime_scripts_import_projectaegis_sim()
     {
         var runtimeRoot = ResolveRepoDirectory("unity", "ProjectAegis", "Assets", "Scripts", "Runtime");
-        Assert.True(runtimeRoot != null, "Missing unity/ProjectAegis/Assets/Scripts/Runtime.");
+        if (runtimeRoot is null)
+        {
+            Assert.Fail("Missing unity/ProjectAegis/Assets/Scripts/Runtime.");
+            return;
+        }
 
         var baselineFull = new HashSet<string>(
             BaselineRelativePaths
@@ -57,7 +66,7 @@ public sealed class UnitySimImportForbidTests
         Assert.Equal(3, baselineFull.Count);
 
         var offenders = new List<string>();
-        foreach (var file in Directory.EnumerateFiles(runtimeRoot!, "*.cs", SearchOption.AllDirectories))
+        foreach (var file in Directory.EnumerateFiles(runtimeRoot, "*.cs", SearchOption.AllDirectories))
         {
             if (file.Contains($"{Path.DirectorySeparatorChar}obj{Path.DirectorySeparatorChar}", StringComparison.Ordinal)
                 || file.Contains($"{Path.DirectorySeparatorChar}bin{Path.DirectorySeparatorChar}", StringComparison.Ordinal))

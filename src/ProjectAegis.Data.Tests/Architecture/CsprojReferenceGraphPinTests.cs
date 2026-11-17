@@ -98,9 +98,13 @@ public sealed class CsprojReferenceGraphPinTests
     public void Project_reference_set_matches_adr_pin(string relativePath)
     {
         var path = ResolveRepoFile(relativePath.Split('/'));
-        Assert.True(path != null, $"Missing '{relativePath}'.");
+        if (path is null)
+        {
+            Assert.Fail($"Missing '{relativePath}'.");
+            return;
+        }
 
-        var actual = LoadProjectReferenceBasenames(path!)
+        var actual = LoadProjectReferenceBasenames(path)
             .OrderBy(s => s, StringComparer.Ordinal)
             .ToArray();
         var expected = AllowedProjectReferenceBasenames[relativePath]
@@ -124,9 +128,13 @@ public sealed class CsprojReferenceGraphPinTests
         }
 
         var path = ResolveRepoFile(relativePath.Split('/'));
-        Assert.True(path != null, $"Missing '{relativePath}'.");
+        if (path is null)
+        {
+            Assert.Fail($"Missing '{relativePath}'.");
+            return;
+        }
 
-        var xml = XDocument.Load(path!);
+        var xml = XDocument.Load(path);
         var packageHits = xml.Descendants("PackageReference")
             .Select(el => el.Attribute("Include")?.Value ?? string.Empty)
             .Where(v => v.Contains("UnityEngine", StringComparison.OrdinalIgnoreCase)
@@ -153,8 +161,13 @@ public sealed class CsprojReferenceGraphPinTests
     public void Ai_contracts_has_zero_package_references()
     {
         var path = ResolveRepoFile("src", "ProjectAegis.Ai.Contracts", "ProjectAegis.Ai.Contracts.csproj");
-        Assert.True(path != null, "Missing Ai.Contracts csproj.");
-        var includes = LoadPackageReferenceIncludes(path!);
+        if (path is null)
+        {
+            Assert.Fail("Missing Ai.Contracts csproj.");
+            return;
+        }
+
+        var includes = LoadPackageReferenceIncludes(path);
         Assert.True(
             includes.Count == 0,
             $"Ai.Contracts must have zero PackageReference (ADR-030). Found: {string.Join(", ", includes)}");
@@ -170,8 +183,13 @@ public sealed class CsprojReferenceGraphPinTests
     {
         Assert.Contains(relativePath, UnityBoundNetstandardProjects);
         var path = ResolveRepoFile(relativePath.Split('/'));
-        Assert.True(path != null, $"Missing '{relativePath}'.");
-        var includes = LoadPackageReferenceIncludes(path!);
+        if (path is null)
+        {
+            Assert.Fail($"Missing '{relativePath}'.");
+            return;
+        }
+
+        var includes = LoadPackageReferenceIncludes(path);
         foreach (var forbidden in ForbiddenAiPackageSubstrings)
         {
             var offending = includes
@@ -187,8 +205,13 @@ public sealed class CsprojReferenceGraphPinTests
     public void Data_has_no_project_references()
     {
         var path = ResolveRepoFile("src", "ProjectAegis.Data", "ProjectAegis.Data.csproj");
-        Assert.True(path != null);
-        Assert.Empty(LoadProjectReferenceBasenames(path!));
+        if (path is null)
+        {
+            Assert.Fail("Missing ProjectAegis.Data.csproj.");
+            return;
+        }
+
+        Assert.Empty(LoadProjectReferenceBasenames(path));
     }
 
     private static List<string> LoadProjectReferenceBasenames(string csprojPath)
