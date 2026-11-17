@@ -1,7 +1,7 @@
 # Architecture Traceability Index
 
-**Last Updated:** 2026-11-16 (DRG-749 AiContractSchema v2 additive bump; requirement rows unchanged — see note)
-**Engine:** Unity 6.3 LTS (6000.3.14f1) + .NET 8 / .NET 11 (AI host)  
+**Last Updated:** 2026-11-16 (DRG-771 Lane A: ADR inventory + rows for ADR-014–017 / ADR-023–029; prior same-day note: DRG-749 AiContractSchema v2 additive bump — requirement rows unchanged — see note)
+**Engine:** Unity 6.3 LTS (6000.3.14f1) + .NET 11 headless (multi-TFM; see ADR-006 amendment) / .NET 11 (AI host)  
 **Authority:** [architecture-re-matrix-post-s93-s96-2026-07-15.md](architecture-re-matrix-post-s93-s96-2026-07-15.md) (layer verdicts) · [architecture-review-2026-06-02.md](architecture-review-2026-06-02.md) (historical)  
 **TR IDs:** [tr-registry.yaml](tr-registry.yaml)
 
@@ -16,7 +16,7 @@
 - **Partial:** 20 (43%) — *as of 2026-07-08, not re-assessed*
 - **Gaps:** 12 (25%) — *as of 2026-07-08, not re-assessed*
 - **Current gates (2026-07-24):** solution tests **≥1638/0f**; ReplayGolden **6/6**; C2 proxy **≥20/20**; PlayModeSmoke 18/18; hash `17144800277401907079` (18 paths) — see [requirements-traceability.md](requirements-traceability.md) header.
-- **ADR inventory (updated 2026-11-15):** **23 ADRs present** — ADR-001…ADR-011, ADR-013…ADR-022, **ADR-030**, plus `adr-simulation-session-frozen-hub-spirit1`. **ADR-012 is absent — a numbering gap, not a missing decision.** **ADR-030** ([adr-030-ai-host-boundary.md](adr-030-ai-host-boundary.md)) — AI host boundary **Accepted** 2026-11-15 (owner/TD via PM + Decision): separate `net11.0` host, zero Packages in Contracts, no AI packages/DLLs in Unity-bound `netstandard2.1` / Plugins, Sim/Delegation free of network/LLM on the tick path. Historical Sprint 11–15 closeout (2026-06-08) cited `403/403` / PlayMode **7/7** only as program evidence, not live floors.
+- **ADR inventory (updated 2026-11-16, DRG-771 Lane A):** **30 numbered ADRs present** — ADR-001…ADR-011, ADR-013…ADR-030, plus `adr-simulation-session-frozen-hub-spirit1`. **ADR-012 is absent — a numbering gap, not a missing decision.** Prior inventory (2026-11-15) omitted ADR-023…029 from the count and lacked dedicated rows for ADR-014…017 / ADR-023…029 (see table below). **ADR-030** ([adr-030-ai-host-boundary.md](adr-030-ai-host-boundary.md)) — AI host boundary **Accepted** 2026-11-15 (owner/TD via PM + Decision): separate `net11.0` host, zero Packages in Contracts, no AI packages/DLLs in Unity-bound `netstandard2.1` / Plugins, Sim/Delegation free of network/LLM on the tick path. ADR-030’s ADR-013 firewall dependency is **provisional** pending owner decision (ADR-013 remains **Proposed**). Historical Sprint 11–15 closeout (2026-06-08) cited `403/403` / PlayMode **7/7** only as program evidence, not live floors.
 - **Wave 0 AI contracts freeze (DRG-735) + Slice 5 bump (DRG-749):** `ProjectAegis.Ai.Contracts` schema is **additive-only**. Wave 0 froze at **`AiContractSchema.Version = 1`**; DRG-749 bumped to **`Version = 2`** / `VersionString = "2"` for additive `AdviceExplanationContent` (EvidenceProjector / JsonlEvidenceEnvelopePublisher / AarAssistantPipeline stamp the current version). Breaking renames remain forbidden while Host/fixtures consumers exist. Solution includes `Ai.Contracts`, `Ai.Host`, `Ai.Host.Tests` (not `Ai.LiveEval`).
 - **Sprint 11–15 program:** **CLOSED** @ 2026-06-08 — requirements maturity (docs 01–12) + Wave 5 on `main`; tracker rows **14/16/19/20** at **Partial+** with automated AC (**historical** `403/403` / **7/7**). See [requirements-traceability.md](requirements-traceability.md) Wave 5 overlap spine.
 - **Platform editor (FR-19 / req 21):** ADR-011 Partial — see [requirements-traceability.md](requirements-traceability.md) § Platform editor.
@@ -112,6 +112,26 @@ Phase A code landed 2026-08-09 (H8 waves 0–4). Proposed TR IDs (stubs; not all
 | 15 | Near-Future Systems | — | Vertical slice |
 | 19 | Speculative Systems | — | Full vision |
 | 20 | Database Intelligence Pipeline | ADR-006 Accepted | Tied to #4 |
+
+## ADR rows added 2026-11-16 (DRG-771 Lane A)
+
+Docs-sync only — no Status flips. Requirement matrix above is unchanged; these rows close the inventory gap for ADRs that previously lacked dedicated index entries (audit: ADR-014–017, ADR-023–029).
+
+| ADR | Title | Primary systems / GDD | Status (as of `1552311d`) | Notes |
+|-----|-------|------------------------|---------------------------|-------|
+| [ADR-014](adr-014-lua-compatibility-scope.md) | Lua compatibility — typed DSL first | Mission editor / req 11 | **Accepted** | No Lua in v1; curated shim later |
+| [ADR-015](adr-015-agent-authored-scenario-transparency.md) | Agent-authored scenario transparency | Mission editor / authoring | **Accepted** | Labeling / provenance for agent-authored content |
+| [ADR-016](adr-016-event-graph-complexity-caps.md) | Event-graph complexity caps | Mission editor / events | **Accepted** | Soft warnings + hard per-event cap |
+| [ADR-017](adr-017-editor-topology-client-vs-scenario-lab.md) | Editor topology — client vs scenario lab | Editors / H4 | **Accepted** | Shared core; in-client v1 |
+| [ADR-023](adr-023-descope-lethal-autonomy-phase-optin.md) | De-scope lethal autonomy phase opt-in | Delegation / HOL-04 | **Proposed** | Status revisit owned separately (Lane B) |
+| [ADR-024](adr-024-descope-balance-critical-gate.md) | De-scope balance-critical catalog gate | Data / write gate | **Proposed** | Status revisit owned separately (Lane B) |
+| [ADR-025](adr-025-tl5-black-project-alignment.md) | TL5 / black-project alignment | Catalog / speculative | **Proposed** | Status revisit owned separately (Lane B) |
+| [ADR-026](adr-026-descope-nationality-cec-gate.md) | De-scope runtime nationality CEC gate | CEC / catalog | **Proposed** | Status revisit owned separately (Lane B) |
+| [ADR-027](adr-027-unity-editor-mcp-stack.md) | Unity Editor MCP stack | Editor tooling | **Accepted** | Ivan Murzak Unity-MCP; not CoplayDev |
+| [ADR-028](adr-028-content-pipeline-addressables.md) | H5 Addressables content pipeline | Presentation / H5 | **Accepted** | Local presentation-only content |
+| [ADR-029](adr-029-h6-save-resume.md) | H6 save/resume boundary | Persistence / H6 | **Accepted** | ZERO-touch DelegationBridge / SimulationSession |
+
+Master index (ADR-001…030): [architecture.md](architecture.md) § ADR Index. Contributing convention for Status changes: [README.md](README.md).
 
 ## Superseded Requirements
 
