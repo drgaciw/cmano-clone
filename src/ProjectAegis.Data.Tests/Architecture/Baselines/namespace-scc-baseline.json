@@ -1,0 +1,53 @@
+{
+  "ProjectAegis.Data": [
+    [
+      "ProjectAegis.Data.Catalog",
+      "ProjectAegis.Data.Platform",
+      "ProjectAegis.Data.Snapshots",
+      "ProjectAegis.Data.WriteGate"
+    ],
+    [
+      "ProjectAegis.Data.Scenario.Authoring",
+      "ProjectAegis.Data.Validation"
+    ]
+  ],
+  "ProjectAegis.Sim": [
+    [
+      "ProjectAegis.Sim.Core",
+      "ProjectAegis.Sim.Engage",
+      "ProjectAegis.Sim.Policy",
+      "ProjectAegis.Sim.Scenario",
+      "ProjectAegis.Sim.Sensors",
+      "ProjectAegis.Sim.Swarm",
+      "ProjectAegis.Sim.Swarm.Expend"
+    ]
+  ],
+  "ProjectAegis.Delegation": [
+    [
+      "ProjectAegis.Delegation.Attention",
+      "ProjectAegis.Delegation.Decision",
+      "ProjectAegis.Delegation.Hindsight",
+      "ProjectAegis.Delegation.Sim"
+    ],
+    [
+      "ProjectAegis.Delegation.CombatEvents",
+      "ProjectAegis.Delegation.Projection",
+      "ProjectAegis.Delegation.SensorToShooter",
+      "ProjectAegis.Delegation.TargetabilityAccept",
+      "ProjectAegis.Delegation.ThreatAssessment"
+    ],
+    [
+      "ProjectAegis.Delegation.Controllers",
+      "ProjectAegis.Delegation.Groups",
+      "ProjectAegis.Delegation.Orchestration",
+      "ProjectAegis.Delegation.Targets",
+      "ProjectAegis.Delegation.Watch"
+    ]
+  ],
+  "ProjectAegis.Delegation.UnityAdapter": [
+    [
+      "ProjectAegis.Delegation.UnityAdapter.CommandReview",
+      "ProjectAegis.Delegation.UnityAdapter.Presentation"
+    ]
+  ]
+}
