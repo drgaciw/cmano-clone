@@ -32,12 +32,46 @@ public static class ScenarioSaveExportGate
     /// <summary>Suffix appended to the draft file name for the validated export artifact.</summary>
     public const string ExportArtifactSuffix = ".export.json";
 
+    /// <summary>
+    /// Stable finding when SaveDraft / <see cref="LiveValidate"/> has no bound catalog.
+    /// Replaces the former silent <c>InMemoryCatalogReader.BalticPatrolFixture</c> fallback (DRG-372).
+    /// </summary>
+    public const string CatalogUnboundFindingCode = "CATALOG_UNBOUND";
+
     public static string ExportArtifactPathFor(string draftPath)
     {
         if (string.IsNullOrWhiteSpace(draftPath)) throw new ArgumentException("Draft path is required.", nameof(draftPath));
 
         var dir = Path.GetDirectoryName(draftPath) ?? string.Empty;
         return Path.Combine(dir, Path.GetFileNameWithoutExtension(draftPath) + ExportArtifactSuffix);
+    }
+
+    /// <summary>
+    /// DRG-372 additive overload: validate a draft document against its bound catalog.
+    /// When <paramref name="boundCatalog"/> is null, returns a single stable
+    /// <see cref="CatalogUnboundFindingCode"/> finding — never the Baltic fixture.
+    /// </summary>
+    public static ValidationReport LiveValidate(
+        ScenarioDocumentDto document,
+        ICatalogReader? boundCatalog,
+        ValidationConfig? config = null)
+    {
+        if (document is null) throw new ArgumentNullException(nameof(document));
+
+        config ??= new ValidationConfig();
+        if (boundCatalog is null)
+        {
+            return ValidationReport.FromFindings(
+            [
+                new ValidationFinding(
+                    CatalogUnboundFindingCode,
+                    ValidationSeverity.Error,
+                    "No catalog is bound for this draft. Bind a catalog (dbRef/binding) before treating save findings as export authority. Save draft remains allowed; Export stays gated.",
+                    Data: new Dictionary<string, string> { ["field"] = "catalog" }),
+            ]);
+        }
+
+        return new ScenarioValidationEngine().Validate(document, boundCatalog, config);
     }
 
     /// <summary>Persists the session draft; reports (but never enforces) blocking findings.</summary>
@@ -50,12 +84,7 @@ public static class ScenarioSaveExportGate
 
         config ??= new ValidationConfig();
         session.Save();
-        // Follow-up (not fixed here): LiveValidate always uses InMemoryCatalogReader.BalticPatrolFixture
-        // when no catalog is passed. A non-Baltic dbRef can pick up fixture findings and a false
-        // "Export stays blocked" count. See docs/engineering/editor-verb-honesty.md.
-        var report = catalog is null
-            ? session.Editor.LiveValidate()
-            : new ScenarioValidationEngine().Validate(session.Editor.ToDto(), catalog, config);
+        var report = LiveValidate(session.Editor.ToDto(), catalog, config);
         var blocking = BlockingFindings(report, config).Count;
         var status = blocking == 0
             ? "Draft saved — not exported. Export to produce the validated artifact."
