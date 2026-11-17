@@ -11,7 +11,9 @@
 set -euo pipefail
 
 PINNED_SDK="11.0.100"
-# sha256 of https://dot.net/v1/dotnet-install.sh captured 2026-11-16.
+# Immutable copy of src/dotnet-install.sh. The moving alias https://dot.net/v1/dotnet-install.sh
+# is not used: a later edit there would fail this checksum and block every gate.
+DOTNET_INSTALL_URL="https://raw.githubusercontent.com/dotnet/install-scripts/5147e32300a8e908f5d737c8cff63a76b4b63531/src/dotnet-install.sh"
 DOTNET_INSTALL_SHA256="082f7685e156738a1b2e2ed8381a621870d4ce8e8c59278034556f05c186eb2e"
 
 if [[ -n "${RUNNER_TEMP:-}" ]]; then
@@ -25,7 +27,7 @@ export DOTNET_ROOT
 mkdir -p "$DOTNET_ROOT" "$(dirname "$install_script")"
 
 echo "=== Installing .NET SDK ${PINNED_SDK} via checksummed dotnet-install.sh ==="
-if ! curl -fsSL https://dot.net/v1/dotnet-install.sh -o "$install_script"; then
+if ! curl -fsSL "$DOTNET_INSTALL_URL" -o "$install_script"; then
   echo "ERROR: dotnet-install.sh download failed" >&2
   exit 1
 fi
