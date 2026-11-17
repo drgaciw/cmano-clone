@@ -44,14 +44,26 @@
 
 | Field | Value |
 |-------|-------|
-| **Engine** | Unity 6.3 LTS (6000.3.14f1) + .NET 8 headless |
+| **Engine** | Unity 6.3 LTS (6000.3.14f1) + .NET 11 headless (see amendment below) |
 | **Domain** | Core / Data |
 | **Knowledge Risk** | LOW — Data assembly has no UnityEngine dependency |
 | **References Consulted** | `docs/engine-reference/unity/VERSION.md`, `docs/engine-reference/dotnet/README.md` |
 | **Post-Cutoff APIs Used** | None in Data layer |
 | **Verification Required** | Deterministic catalog iteration order; injectable clock on snapshot commit |
 
-`ProjectAegis.Data` targets **net8.0** for headless CI; **netstandard2.1** build exists only so `ProjectAegis.Delegation.UnityAdapter` can reference catalog readers without pulling Unity into Sim.
+`ProjectAegis.Data` targets **`net11.0;netstandard2.1`** for headless CI and UnityAdapter consumers (see **Amendment 2026-11-16**). The **netstandard2.1** TFM exists so `ProjectAegis.Delegation.UnityAdapter` can reference catalog readers without pulling Unity into Sim.
+
+### Amendment 2026-11-16 (DRG-771 Lane A — factual TFM sync)
+
+**Dated factual amendment** (not a silent rewrite of history; Status unchanged: **Accepted**).
+
+| Field | Historical text (ADR as written 2026-05-30 / verified 2026-06-02) | Current on `main` @ `1552311d` |
+|-------|------------------------------------------------------------------|-------------------------------|
+| Headless TFM | `net8.0` | `net11.0` (`src/ProjectAegis.Data/ProjectAegis.Data.csproj` `<TargetFrameworks>net11.0;netstandard2.1</TargetFrameworks>`) |
+| SDK pin | .NET 8 headless | .NET SDK **11.0.100** (`global.json`, `rollForward: latestFeature`) |
+| Unity-facing TFM | `netstandard2.1` (unchanged role) | `netstandard2.1` (unchanged role) |
+
+Code ahead of this ADR line landed via the .NET 11 retarget train (ADR-022 amendment / DRG-764 eng-doc scrub). This amendment records the as-built TFM only; it does **not** reopen the Data-layer boundary decision.
 
 ## ADR Dependencies
 

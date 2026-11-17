@@ -187,6 +187,8 @@ Full matrix: expand as each GDD is approved (`/create-architecture` continuation
 
 ## ADR Index
 
+Index refreshed **2026-11-16** (DRG-771 Lane A / CMA-28 docs-sync). Status values below mirror each ADR file on this branch (ADR-023…026 **Deferred** via merged #875 / Lane B — index rows updated to match; this PR still does **not** edit those ADR Status lines). ADR status changes must use a separate docs-only PR — see [README.md](README.md).
+
 | ADR | Title | Status |
 |-----|-------|--------|
 | [ADR-001](adr-001-sim-assembly-boundary.md) | Simulation vs Delegation assembly boundary | **Accepted** |
@@ -199,6 +201,27 @@ Full matrix: expand as each GDD is approved (`/create-architecture` continuation
 | [ADR-008](adr-008-mission-editor-validation-engine.md) | Mission editor deterministic validation | **Accepted** |
 | [ADR-009](adr-009-combat-domain-validators.md) | Combat domain validators & damage order | **Accepted** (S26-09 stubs) |
 | [ADR-010](adr-010-headless-first-command-driven-ui.md) | Headless-first command-driven UI | **Accepted** |
+| [ADR-011](adr-011-platform-editor-excel-roundtrip.md) | Platform Editor — Excel round-trip on the write gate | **Accepted** |
+| ADR-012 | *(numbering gap — not a missing decision)* | — |
+| [ADR-013](adr-013-cmo-scenario-import-policy.md) | CMO scenario import — legal/policy stance | **Proposed** |
+| [ADR-014](adr-014-lua-compatibility-scope.md) | Lua compatibility scope — typed DSL first | **Accepted** |
+| [ADR-015](adr-015-agent-authored-scenario-transparency.md) | Agent-authored scenario transparency labeling | **Accepted** |
+| [ADR-016](adr-016-event-graph-complexity-caps.md) | Event-graph complexity caps | **Accepted** |
+| [ADR-017](adr-017-editor-topology-client-vs-scenario-lab.md) | Editor topology — client vs scenario lab | **Accepted** |
+| [ADR-018](adr-018-sensor-side-picture-datalink.md) | Sensor side picture & datalink sharing | **Accepted** |
+| [ADR-019](adr-019-agentic-aar-readonly-order-log.md) | Agentic AAR — read-only order log boundary | **Accepted** |
+| [ADR-020](adr-020-logistics-fuel-model.md) | Deterministic fuel burn model | **Accepted** |
+| [ADR-021](adr-021-mission-timeline-runtime.md) | Mission timeline & contact-trigger runtime | **Accepted** |
+| [ADR-022](adr-022-target-os-and-cpu-architectures.md) | Target OS and CPU architectures (v1) | **Accepted** |
+| [ADR-023](adr-023-descope-lethal-autonomy-phase-optin.md) | De-scope lethal autonomy phase opt-in (HOL-04) | **Deferred** (2026-11-16; revisit 2027-01-15) |
+| [ADR-024](adr-024-descope-balance-critical-gate.md) | De-scope balance-critical catalog gate | **Deferred** (2026-11-16; revisit 2027-01-15) |
+| [ADR-025](adr-025-tl5-black-project-alignment.md) | TL5 / black-project mode alignment | **Deferred** (2026-11-16; revisit 2027-01-15) |
+| [ADR-026](adr-026-descope-nationality-cec-gate.md) | De-scope runtime nationality CEC validation | **Deferred** (2026-11-16; revisit 2027-01-15) |
+| [ADR-027](adr-027-unity-editor-mcp-stack.md) | Unity Editor MCP stack (Ivan Murzak) | **Accepted** |
+| [ADR-028](adr-028-content-pipeline-addressables.md) | H5 content pipeline — Addressables (local) | **Accepted** |
+| [ADR-029](adr-029-h6-save-resume.md) | H6 save/resume vs DelegationBridge / SimulationSession | **Accepted** |
+| [ADR-030](adr-030-ai-host-boundary.md) | AI host boundary — assemblies, egress, envelope | **Accepted** |
+| [SimulationSession frozen hub](adr-simulation-session-frozen-hub-spirit1-2026-06-20.md) | SimulationSession frozen-hub addendum (Spirit 1) | Addendum |
 
 ## Engine Note
 
