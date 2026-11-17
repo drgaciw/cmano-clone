@@ -325,7 +325,7 @@ Checklist:
 | Build fails in ~3s with no step logs | Classic **pipeline upload rejection**. Most often invalid YAML attributes (historically `cache:` with `key`/`{{ checksum }}`, or native `cache:` when volumes are not enabled on the cluster). Diff against `main`'s `.buildkite/pipeline.yml` and remove unsupported fields |
 | `CmoCatalogExportTests` fails with `node` not found | Checked-in golden at `tools/cmano-db-crawler/fixtures/sensor-mini-export.golden.json` (copied to test output); live `node` export is optional |
 | Build fails ~1m with no `:hammer:` log | Graphite optimizer on **main** pipeline can `pipeline upload --replace` with empty steps; merge branch `.buildkite/pipeline.yml` to `main` or disable `GRAPHITE_CI_OPTIMIZER_TOKEN` until then |
-| Agent SDK does not satisfy `global.json` | `agent-bootstrap-dotnet.sh` checks `dotnet-install.sh` by sha256 and installs SDK 11.0.100. It does not use a `dotnet` already on PATH. GitHub Actions installs that SDK under `RUNNER_TEMP`. |
+| Agent SDK does not satisfy `global.json` | `agent-bootstrap-dotnet.sh` downloads `dotnet-install.sh` from install-scripts commit `5147e323`, checks its sha256, and installs SDK 11.0.100. It does not use a `dotnet` already on PATH. GitHub Actions installs that SDK under `RUNNER_TEMP`. |
 | Required check name mismatch | Copy exact context from GitHub PR checks tab after first build |
 | Gitleaks false positive | Add allowlist in `.gitleaks.toml` if needed (not present today) |
 
