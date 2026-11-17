@@ -1,12 +1,14 @@
 # Buildkite CI
 
-> **Last updated:** 2026-07-13
+> **Last updated:** 2026-11-16
 > **Replaces:** `.NET CI`, `Graphite CI`, `Post-Merge CI`, and Gitleaks in GitHub Actions
 > **Graphite workflow:** [graphite-github-substitute-plan.md](./graphite-github-substitute-plan.md)
 
 ## Overview
 
 Primary blocking CI runs on **Buildkite hosted Linux agents** using repo-committed steps in [`.buildkite/pipeline.yml`](../../.buildkite/pipeline.yml). Build and scan steps invoke bash wrappers under `tools/buildkite/` (SDK and gitleaks are installed on the agent when missing).
+
+**Parallel port (DRG-766):** [`.github/workflows/selfhosted-ci.yml`](../../.github/workflows/selfhosted-ci.yml) runs these same `tools/buildkite/*.sh` steps on GitHub Actions. The self-hosted labels (`self-hosted`, `linux`, `aegis`) are used for a push to `main` only. Pull requests run on GitHub-hosted runners. Buildkite stays the primary gate until the owner cuts over.
 
 **Agent skills:** Official Buildkite skills and project agents are documented in [buildkite-agent-skills.md](./buildkite-agent-skills.md). Refresh skills with `bash tools/buildkite/install-buildkite-skills.sh`.
 
@@ -323,7 +325,7 @@ Checklist:
 | Build fails in ~3s with no step logs | Classic **pipeline upload rejection**. Most often invalid YAML attributes (historically `cache:` with `key`/`{{ checksum }}`, or native `cache:` when volumes are not enabled on the cluster). Diff against `main`'s `.buildkite/pipeline.yml` and remove unsupported fields |
 | `CmoCatalogExportTests` fails with `node` not found | Checked-in golden at `tools/cmano-db-crawler/fixtures/sensor-mini-export.golden.json` (copied to test output); live `node` export is optional |
 | Build fails ~1m with no `:hammer:` log | Graphite optimizer on **main** pipeline can `pipeline upload --replace` with empty steps; merge branch `.buildkite/pipeline.yml` to `main` or disable `GRAPHITE_CI_OPTIMIZER_TOKEN` until then |
-| Agent SDK does not satisfy `global.json` | `agent-bootstrap-dotnet.sh` installs 11.0.100 when `dotnet --version` cannot resolve the pin (`rollForward: latestFeature`) |
+| Agent SDK does not satisfy `global.json` | `agent-bootstrap-dotnet.sh` downloads `dotnet-install.sh` from install-scripts commit `5147e323`, checks its sha256, and installs SDK 11.0.100. It does not use a `dotnet` already on PATH. GitHub Actions installs that SDK under `RUNNER_TEMP`. |
 | Required check name mismatch | Copy exact context from GitHub PR checks tab after first build |
 | Gitleaks false positive | Add allowlist in `.gitleaks.toml` if needed (not present today) |
 
