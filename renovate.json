@@ -35,9 +35,6 @@
       "matchFileNames": [
         "global.json"
       ],
-      "matchUpdateTypes": [
-        "major"
-      ],
       "allowedVersions": "/^11\\.0\\./",
       "enabled": true,
       "automerge": false,
