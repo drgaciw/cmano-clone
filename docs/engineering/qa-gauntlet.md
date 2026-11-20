@@ -247,7 +247,7 @@ Run from repo root. (`-c Release` matches CI; omit for a quicker debug build.)
 dotnet run --project src/ProjectAegis.Delegation.Demo -- --batch \
   --scenarios gauntlet-t3-emcon-phases,gauntlet-t3-escort-strike,gauntlet-t3-event-chain,gauntlet-t3-id-roe \
   --seeds 42,7,123 --ticks 16 \
-  --csv-out production/qa/gauntlet/<RUN_ID>/tier-3/results.csv
+  --csv-out artifacts/gauntlet/<RUN_ID>/tier-3/results.csv
 ```
 
 **Evaluate the oracle** — a whole directory of `*.policy.json`, or a single policy:
@@ -255,9 +255,9 @@ dotnet run --project src/ProjectAegis.Delegation.Demo -- --batch \
 ```bash
 # Directory: every *.policy.json in the dir, each filtered to its own id
 dotnet run --project src/ProjectAegis.MissionEditor.Cli -- gauntlet_oracle_eval \
-  --policy-dir production/qa/gauntlet/<RUN_ID>/tier-3 \
-  --csv production/qa/gauntlet/<RUN_ID>/tier-3/results.csv \
-  --out production/qa/gauntlet/<RUN_ID>/tier-3/oracle-eval.json
+  --policy-dir artifacts/gauntlet/<RUN_ID>/tier-3 \
+  --csv artifacts/gauntlet/<RUN_ID>/tier-3/results.csv \
+  --out artifacts/gauntlet/<RUN_ID>/tier-3/oracle-eval.json
 
 # Single policy
 dotnet run --project src/ProjectAegis.MissionEditor.Cli -- gauntlet_oracle_eval \
@@ -290,7 +290,17 @@ in the CSV.
 
 ## Run artifacts
 
-Each run writes to `production/qa/gauntlet/<RUN_ID>/` where `RUN_ID = gauntlet-YYYYMMDD-HHMM`:
+`tools/qa-gauntlet/run-gauntlet.sh` defaults `--out-root` to `artifacts/gauntlet` (gitignored). Each run writes to `artifacts/gauntlet/<RUN_ID>/` where `RUN_ID = gauntlet-YYYYMMDD-HHMM`. `saboteur.py` writes its disposable ladder subset under `artifacts/gauntlet/saboteur-tmp/` and its calibration report under `artifacts/gauntlet/calibration-<YYYY-MM-DD>/`.
+
+Historical `production/qa/gauntlet/gauntlet-*/` and `calibration-*/` dumps, plus `.current-run-id`, last appear on commit `99a4d6e4`. Recover them with:
+
+```bash
+git checkout 99a4d6e4 -- production/qa/gauntlet/
+```
+
+The live corpus (`production/qa/gauntlet/corpus/`) and the `oracle-expect-*.json` files stay in the tree. Corpus defaults in `forge_scorecard.py` and `verify_stress_axes.py` are unchanged.
+
+Layout inside a run directory:
 
 ```
 manifest.yaml            # run plan: seeds, tiers, per-tier tick map, preflight PASS/FAIL, tier_plan, result summary

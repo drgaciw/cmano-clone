@@ -91,9 +91,12 @@ python3 tools/qa-gauntlet/gate_stress_proof.py \
 
 # Shell wrapper (same flags; also accepts STRESS_PROOF_EVIDENCE)
 tools/qa-gauntlet/run-stress-proof-gate.sh --evidence path/to/evidence.json \
-  --out production/qa/gauntlet/<run-id>/stress-proof-report.json
+  --out artifacts/gauntlet/<run-id>/stress-proof-report.json
 
-# Opt-in after a ladder run (default ladder unchanged when unset)
+# Opt-in after a ladder run (default ladder unchanged when unset).
+# Default --out-root is artifacts/gauntlet (gitignored). Historical
+# production/qa/gauntlet/gauntlet-* dumps last appear on 99a4d6e4;
+# recover with: git checkout 99a4d6e4 -- production/qa/gauntlet/
 STRESS_PROOF_EVIDENCE=path/to/evidence.json \
   tools/qa-gauntlet/run-gauntlet.sh --run-id <id>
 # or
