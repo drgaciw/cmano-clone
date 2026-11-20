@@ -6,7 +6,7 @@
 
 **Cites (mandatory on all artifacts):**  
 - `production/commercial-launch-scope-boundary-2026-06-25.md` (i18n extraction plan deliverable; P0 en-US prep; in-scope i18n spec only; GitNexus pre + verif-before 0e/1232/0f/6/6/18/18/hash `17144800277401907079`/ZERO; docs-only; stage Release)  
-- `docs/reports/future-sprint-roadpmap-062526.md` §3/§6/§7/§10 (S71 i18n pipeline + extraction)  
+- `docs/reports/archive/roadmaps/future-sprint-roadmap-062526.md` §3/§6/§7/§10 (S71 i18n pipeline + extraction)  
 - `docs/reports/roadmap-execute-plan-062526.md` §3/§4 (S71-01/02: extraction-plan.md; cite Game-Requirements/requirements/; Unity UI Toolkit vs UGUI)  
 - `AGENTS.md` (GitNexus search+use list/detect/impact CRITICAL §5 exact before claims; detect before commit)  
 - S69/S70 complete: `production/sprints/sprint-69-commercial-launch-foundation.md` + kickoff + smoke-69-closeout, `production/sprints/sprint-70-store-community-prep.md` + kickoff + smoke-70 + `production/release/release-checklist-v3.md` (i18n sections skeleton)  

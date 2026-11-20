@@ -3,11 +3,11 @@
 **Date:** 2026-06-25  
 **Sprint:** 70 — Store + community prep (E7 per roadmap-execute-plan-062526.md §3/§4)  
 **Track:** S70-05 Closeout (local coordinator)  
-**Status:** S70-05 COMPLETE. S70 full COMPLETE. Gates PASS (0e/1232/0f/6/6/18/18/hash preserved `17144800277401907079`/ZERO=0). GitNexus pre 19962/37628/2462 @28c582d (list/detect/impact low for docs; CRITICALs 178/97/127/52 exact). All S70 tracks (store pages S70-01/02, community S70-03, checklist-v3 S70-04, closeout S70-05) COMPLETE. Phase 2 integrate complete; ready for S71 dispatch. GT: stack/sprint70/* (submit/restack notes below). Cite production/commercial-launch-scope-boundary-2026-06-25.md + docs/reports/future-sprint-roadpmap-062526.md §3/§6/§7/§10 + docs/reports/roadmap-execute-plan-062526.md §3/§4/§5/§9 + AGENTS.md + S69 complete + S66 v2 + sprint-status.
+**Status:** S70-05 COMPLETE. S70 full COMPLETE. Gates PASS (0e/1232/0f/6/6/18/18/hash preserved `17144800277401907079`/ZERO=0). GitNexus pre 19962/37628/2462 @28c582d (list/detect/impact low for docs; CRITICALs 178/97/127/52 exact). All S70 tracks (store pages S70-01/02, community S70-03, checklist-v3 S70-04, closeout S70-05) COMPLETE. Phase 2 integrate complete; ready for S71 dispatch. GT: stack/sprint70/* (submit/restack notes below). Cite production/commercial-launch-scope-boundary-2026-06-25.md + docs/reports/archive/roadmaps/future-sprint-roadmap-062526.md §3/§6/§7/§10 + docs/reports/roadmap-execute-plan-062526.md §3/§4/§5/§9 + AGENTS.md + S69 complete + S66 v2 + sprint-status.
 
 **Authority (MANDATORY citations):**  
 - `production/commercial-launch-scope-boundary-2026-06-25.md` (S69+ supersede; E7 prep in/out: store/community/checklist IN; submission/E9/multi/bridge OUT; invariants 1232/6/6/18/18/hash/ZERO; GitNexus; stage Release)  
-- `docs/reports/future-sprint-roadpmap-062526.md` §3/§6/§7/§10  
+- `docs/reports/archive/roadmaps/future-sprint-roadmap-062526.md` §3/§6/§7/§10  
 - `docs/reports/roadmap-execute-plan-062526.md` §3/§4/§5/§9 (S70 tracks table exact; wave baseline → (W1 store S70-01/02 ∥ W2 community S70-03 ∥ W3 checklist-v3 S70-04) → closeout S70-05; deliverables store/* + community-templates.md + release-checklist-v3.md; S66 v2 + manifest inputs)  
 - `AGENTS.md`  
 - `production/sprint-status.yaml` (S69 complete + S70 full COMPLETE update; gt notes)  
@@ -34,7 +34,7 @@ All S70 artifacts cite above. Independent subagent; dispatching-parallel-agents 
 ## Prereqs (S69 complete + gates; confirmed)
 - S69 full COMPLETE (smoke-69 + sprint-status s69_status)
 - Gates baseline @ S70 start + close (RUN+READ verification-before): build 0e/0w; test 1232/0f (279 Sim +43 Cli +247 Del +5 Excel +252 UA +406 Data); replay 6/6; C2 18/18; hash `17144800277401907079`; ZERO DelegationBridge; GitNexus low + CRIT impacts §5 exact (CatalogWriteGate 178, PatrolCandidateEngagePolicy 97, DelegationBridge 127 exact, BalticReplayHarness 52)
-- commercial-launch-scope-boundary-2026-06-25.md + future-sprint-roadpmap-062526.md + roadmap-execute-plan-062526.md + S66 checklist v2 + manifest/evidence
+- commercial-launch-scope-boundary-2026-06-25.md + docs/reports/archive/roadmaps/future-sprint-roadmap-062526.md + roadmap-execute-plan-062526.md + S66 checklist v2 + manifest/evidence
 - Worktrees + dispatch via dispatching-parallel-agents + gt stack/sprint70/*
 - Skills: sprint-plan (light), c-sharp-devops-engineer (closeout), GitNexus (search+use first), verification-before, gt (create/submit/restack), local-cloud-agent-routing
 
@@ -98,7 +98,7 @@ Use `stack/sprint70/{store-pages,community-templates,checklist-v3,closeout}` per
 ## S71 Closeout Prep / Stub Note (per execute-plan §3/§4/§5/§9 ; S71-06)
 S71 readiness: S70 COMPLETE (gates 0e/1232/0f/6/6/18/18/hash/ZERO/GitNexus low+CRIT exact). Next: S71 i18n S71-01/02 + launch-docs S71-03/04 + l10n-qa S71-05 + closeout S71-06 per roadmap-execute-plan-062526.md §4 (wave (W1 i18n ∥ W2 launch) → W3 l10n QA (post inventory) → W4 closeout). Prereqs: this S70 close + S70 complete in sprint-status; commercial-launch-scope-boundary + roadmaps + execute-plan + S66 v2 + release-checklist-v3 (i18n/launch sections) + S70 store/community as inputs. S71-06 will: gt submit for S71 tracks (stack/sprint71/*), closeout local, re-verif, expand smoke-sprint-71-closeout-2026-06-25.md, update status. Smoke stub + plan/kickoff/status/gt notes prepared.
 
-Cites: execute-plan §4 S70 (exact tracks + deliverables + wave + S66 v2 + manifest as inputs) + boundary + future-sprint-roadpmap-062526.md §3/§6/§7/§10 + roadmap-execute-plan-062526.md §3/§4/§5/§9 + S69 complete + AGENTS + sprint-status.
+Cites: execute-plan §4 S70 (exact tracks + deliverables + wave + S66 v2 + manifest as inputs) + boundary + docs/reports/archive/roadmaps/future-sprint-roadmap-062526.md §3/§6/§7/§10 + roadmap-execute-plan-062526.md §3/§4/§5/§9 + S69 complete + AGENTS + sprint-status.
 
 *Independent subagent for S70 Store + community prep tracks + closeout (cloud/local per execute-plan, dispatching-parallel-agents). Low risk docs. S70-05 populated at close. Ready S71.*
 

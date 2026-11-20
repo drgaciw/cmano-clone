@@ -84,7 +84,7 @@ These items block **Launch**, not Release continuity:
 - [architecture.md](architecture.md) — master living draft (S96 header + Post-S93 section)  
 - [architecture-review-post-s93-2026-07-14.md](architecture-review-post-s93-2026-07-14.md) — review authority  
 - [architecture-review-2026-06-25-post-s72-v3.md](architecture-review-2026-06-25-post-s72-v3.md) — historical; superseded for Release-hold purposes  
-- [`docs/reports/future-sprint-roadmap-07142026.md`](../reports/future-sprint-roadmap-07142026.md) — S94+ Release continuity program  
+- [`docs/reports/archive/roadmaps/future-sprint-roadmap-07142026.md`](../reports/archive/roadmaps/future-sprint-roadmap-07142026.md) — S94+ Release continuity program  
 
 ---
 

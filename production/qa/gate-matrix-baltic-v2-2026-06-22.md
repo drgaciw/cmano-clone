@@ -5,7 +5,7 @@
 **Story/Task:** S57-01 (must-have; re-baseline + Baltic v2 gate matrix per sprint plan)  
 **Branch:** `main`  
 **Worktree:** baseline-qa track (per sprint-57 plan)  
-**Authority:** [`production/baltic-v2-scope-boundary-2026-06-22.md`](../baltic-v2-scope-boundary-2026-06-22.md) (PUBLISHED); [`docs/reports/future-sprint-roadpmap-062226.md`](../../docs/reports/future-sprint-roadpmap-062226.md) §0/§10 S57; [`production/sprints/sprint-57-aar-playtest-foundations.md`](../sprints/sprint-57-aar-playtest-foundations.md)  
+**Authority:** [`production/baltic-v2-scope-boundary-2026-06-22.md`](../baltic-v2-scope-boundary-2026-06-22.md) (PUBLISHED); [`docs/reports/archive/roadmaps/future-sprint-roadmap-062226.md`](../../docs/reports/archive/roadmaps/future-sprint-roadmap-062226.md) §0/§10 S57; [`production/sprints/sprint-57-aar-playtest-foundations.md`](../sprints/sprint-57-aar-playtest-foundations.md)  
 
 > **Every S57+ artifact MUST cite `production/baltic-v2-scope-boundary-2026-06-22.md` + roadmap-062226.md §0/§10 S57 (per boundary). This matrix produced by S57-01.**
 
@@ -53,4 +53,4 @@ dotnet test ProjectAegis.sln --no-build -v minimal ...  # 1228/0f
 # replay + proxy filters as above
 ```
 
-**Cites:** `production/baltic-v2-scope-boundary-2026-06-22.md` + `docs/reports/future-sprint-roadpmap-062226.md` §0/§10 S57 on every section. Baseline delta from S56: Cli +1 (43). Monotonic. S57-02 QA plan next. 
+**Cites:** `production/baltic-v2-scope-boundary-2026-06-22.md` + `docs/reports/archive/roadmaps/future-sprint-roadmap-062226.md` §0/§10 S57 on every section. Baseline delta from S56: Cli +1 (43). Monotonic. S57-02 QA plan next. 

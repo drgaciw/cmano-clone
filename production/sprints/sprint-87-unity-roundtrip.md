@@ -3,7 +3,7 @@
 **Dates:** Following S86 (est. 6–8 days)  
 **Lead:** E11 / unity-ui-specialist + qa-tester + c-sharp-devops-engineer  
 **Program:** S81–S88 Scenario Editor (req 11)  
-**Authority:** `roadmap-execute-plan-07042026.md` §3/§4 (S87), `future-sprint-roadpmap-07042026.md`, `scenario-editor-scope-boundary-2026-07-04.md`, `qa-plan-scenario-editor-2026-07-01.md`, `implementation-tracker-2026-07-04.md`, `Game-Requirements/requirements/11-Agentic-Mission-Editor.md` (AC-8), AGENTS.md
+**Authority:** `roadmap-execute-plan-07042026.md` §3/§4 (S87), `docs/reports/archive/roadmaps/future-sprint-roadmap-07042026.md`, `scenario-editor-scope-boundary-2026-07-04.md`, `qa-plan-scenario-editor-2026-07-01.md`, `implementation-tracker-2026-07-04.md`, `Game-Requirements/requirements/11-Agentic-Mission-Editor.md` (AC-8), AGENTS.md
 
 ## Sprint Goal
 Deliver Unity AC-8 round-trip evidence (S87 only): headless-authored `.scenario.json` (from `data/scenarios/examples/`) loads in the Unity host (via PlayModeSmokeHarnessTests extension or manual fallback) with ORBAT, missions, events intact and `editorState` populated with schema defaults (camera at theater centroid, all layers on). No map placement or visual editing (Phase 2 out of scope). All local tracks. Maintain standing invariants.
@@ -125,7 +125,7 @@ bash tools/ci/smoke-ac6.sh
 
 ## Cites (MANDATORY on all artifacts / commits / PRs)
 - `roadmap-execute-plan-07042026.md` §3/§4 (S87)
-- `future-sprint-roadpmap-07042026.md`
+- `docs/reports/archive/roadmaps/future-sprint-roadmap-07042026.md`
 - `scenario-editor-scope-boundary-2026-07-04.md`
 - `qa-plan-scenario-editor-2026-07-01.md` (unit #8 AC-8)
 - `implementation-tracker-2026-07-04.md`

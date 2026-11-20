@@ -8,7 +8,7 @@
 **Kickoff:** `production/agentic/sprint-41-parallel-kickoff-2026-06-20.md`  
 **Trunk:** `main` @ `c4d6e52` (post S40 + S41-01 baseline)  
 **Review mode:** Lean (per `production/review-mode.txt` — PR-SPRINT skipped; parallel domain agents; read-only/docs focus)  
-**Authority:** `production/polish-scope-boundary-2026-06-19.md` + [`docs/reports/future-sprint-roadpmap.md`](../../docs/reports/future-sprint-roadpmap.md) §Horizon 3 (S41). **Track A in-boundary only.** S42 dispatch blocked until S41 closeout + scope packet.
+**Authority:** `production/polish-scope-boundary-2026-06-19.md` + [`docs/reports/future-sprint-roadmap.md`](../../docs/reports/future-sprint-roadmap.md) §Horizon 3 (S41). **Track A in-boundary only.** S42 dispatch blocked until S41 closeout + scope packet.
 
 **Scope compliance (enforced):** Strictly inside polish-scope-boundary-2026-06-19.md (Baltic vertical slice + C2 18/18 + Platform Editor C–H polish only + replay maint + P0/P1 perf + determinism/evidence/ADR read-only + gap analysis; NO production refactor code, NO launch artifacts, NO src changes beyond isolated test fixtures if any; extend-only CatalogWriteGate; ZERO DelegationBridge.cs; production Baltic hash `17144800277401907079` immutable; ReplayGolden 6/6; headless primary; lean evidence). Every story/artifact cites boundary + roadmap §Horizon 3 + sprint-41 plan. **S41-02 (this plan) blocks all waves (S41-03+).** Test baseline ≥1226 (post S41-01); closeout target ≥1226 (no regression). GitNexus re-index mandatory in S41-04. Determinism/replay gates per S41-04 audit (0 issues). Evidence-Pack-QA + Evidence consolidation in S41-05.
 
@@ -41,7 +41,7 @@
 - Production Baltic world hash **`17144800277401907079`** immutable (except isolated golden fixture updates)
 - GitNexus **up-to-date @ HEAD** (S41-04 re-index via `node .gitnexus/run.cjs analyze`; `impact()` / `detect_changes()` discipline for any reads)
 - **ZERO touch** `DelegationBridge.cs`; **extend-only** `CatalogWriteGate`
-- All S41 artifacts cite `polish-scope-boundary-2026-06-19.md` + `docs/reports/future-sprint-roadpmap.md` §Horizon 3 + sprint-41 plan
+- All S41 artifacts cite `polish-scope-boundary-2026-06-19.md` + `docs/reports/future-sprint-roadmap.md` §Horizon 3 + sprint-41 plan
 - S41-02 plan + smoke closeout PASS required before S41-03+ waves
 - **Scope-expansion decision packet** ready in `production/gate-checks/` (blocks S42)
 - Determinism audit (S41-04) reports **0 CRITICAL/HIGH/MEDIUM** (per 2026-06-20 audit)
@@ -180,7 +180,7 @@ Per roadmap §Horizon 3 + S41-04 + determinism-audit-2026-06-20.md (0 issues, DE
 - Kickoff: `production/agentic/sprint-41-parallel-kickoff-2026-06-20.md`
 - Baseline smoke (S41-01): `production/qa/smoke-sprint-41-baseline-2026-06-20.md`
 - Boundary: `production/polish-scope-boundary-2026-06-19.md`
-- Roadmap: `docs/reports/future-sprint-roadpmap.md` (Horizon 3 §86–91; Track B §107+; invariants §122; S41 table)
+- Roadmap: `docs/reports/future-sprint-roadmap.md` (Horizon 3 §86–91; Track B §107+; invariants §122; S41 table)
 - Release boundary (post-gate): `production/release-enablement-scope-boundary-2026-06-20.md`
 - Scope gate: `production/gate-checks/scope-expansion-decision-2026-06-20.md` + template
 - Worktree manifest: `production/agentic/s39-s48-worktree-manifest.md` (S41 tracks)
@@ -197,7 +197,7 @@ Per roadmap §Horizon 3 + S41-04 + determinism-audit-2026-06-20.md (0 issues, DE
 
 ---
 
-*Generated per team-qa + sprint-plan + c-sharp-devops-engineer (QA harness) + csharpexpert + verification-before-completion. Follows Evidence-Pack-QA + S41 declarative manifests (sprint-41 plan, kickoff, polish-scope-boundary, future-sprint-roadpmap §Horizon 3). Planning/QA only. Independent of closeout/evidence final assembly. Cites all boundaries/roadmap. S41-02 AC: satisfied.*
+*Generated per team-qa + sprint-plan + c-sharp-devops-engineer (QA harness) + csharpexpert + verification-before-completion. Follows Evidence-Pack-QA + S41 declarative manifests (sprint-41 plan, kickoff, polish-scope-boundary, future-sprint-roadmap §Horizon 3). Planning/QA only. Independent of closeout/evidence final assembly. Cites all boundaries/roadmap. S41-02 AC: satisfied.*
 
 **QA plan path:** `production/qa/qa-plan-sprint-41-2026-06-20.md`
 

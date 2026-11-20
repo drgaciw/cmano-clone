@@ -6,7 +6,7 @@
 **Branches/WTs:** stack/sprint54/{orbital-dew, escalation} (parallel per roadmap §0/§10)  
 **Authority (mandatory citations):**  
 - `production/post-release-scope-boundary-2026-06-21.md` §S54 (Req 10 / E3; orbital DEW runtime; escalation ladder; KESSLER_RISK_METER scoped)  
-- `docs/reports/future-sprint-roadpmap-062126.md` §10 S54, §0 (parallel tracks, worktrees, preflight, verification-before), §3/§5 (Req10, GitNexus CRITICALs)  
+- `docs/reports/archive/roadmaps/future-sprint-roadmap-062126.md` §10 S54, §0 (parallel tracks, worktrees, preflight, verification-before), §3/§5 (Req10, GitNexus CRITICALs)  
 - `Game-Requirements/requirements/10-Speculative-Systems.md` + speculative-systems-research.md  
 - Prior: s52-merge-gate-prep, s48-release-gate, gate-matrix-post-release-2026-06-21.md, S53 DOTS/MASS closeouts  
 - Superpowers: dispatching-parallel-agents + using-git-worktrees + verification-before-completion (full run/read/claim)  

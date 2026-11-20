@@ -106,6 +106,6 @@
 - ADR-001 (sim boundary), ADR-004 (tick order), ADR-005 (DOTS).
 - design/gdd/simulation-core-time.md , agentic-infrastructure.md
 - production/determinism/ , production/perf/
-- `docs/reports/future-sprint-roadpmap-062126.md` §12 dep matrix: S51 corpora → S52 benchmark.
+- `docs/reports/archive/roadmaps/future-sprint-roadmap-062126.md` §12 dep matrix: S51 corpora → S52 benchmark.
 
 **Next (S52 impl):** After S51 close, dispatch to .worktrees/stack/sprint52/benchmark ; use team-simulation skill patterns; full story readiness.

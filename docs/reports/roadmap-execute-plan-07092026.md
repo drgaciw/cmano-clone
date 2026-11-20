@@ -8,7 +8,7 @@
 
 **Tech Stack:** .NET 8, Graphite (`gt`), GitNexus CLI (`node .gitnexus/run.cjs`), headless Play Mode harness.
 
-**Authority:** [`future-sprint-roadpmap-07092026.md`](future-sprint-roadpmap-07092026.md) §3/§10, [`post-editor-hygiene-scope-boundary-2026-07-09.md`](../../production/post-editor-hygiene-scope-boundary-2026-07-09.md), [`tech-stack-agent-skill-recommendations-2026-07-08.md`](tech-stack-agent-skill-recommendations-2026-07-08.md), [`design/assets/asset-manifest.md`](../../design/assets/asset-manifest.md), [`local-cloud-agent-routing.md`](../../production/agentic/local-cloud-agent-routing.md), [`graphite-github-substitute-plan.md`](../engineering/graphite-github-substitute-plan.md)
+**Authority:** [`docs/reports/archive/roadmaps/future-sprint-roadmap-07092026.md`](archive/roadmaps/future-sprint-roadmap-07092026.md) §3/§10, [`post-editor-hygiene-scope-boundary-2026-07-09.md`](../../production/post-editor-hygiene-scope-boundary-2026-07-09.md), [`tech-stack-agent-skill-recommendations-2026-07-08.md`](tech-stack-agent-skill-recommendations-2026-07-08.md), [`design/assets/asset-manifest.md`](../../design/assets/asset-manifest.md), [`local-cloud-agent-routing.md`](../../production/agentic/local-cloud-agent-routing.md), [`graphite-github-substitute-plan.md`](../engineering/graphite-github-substitute-plan.md)
 
 ---
 

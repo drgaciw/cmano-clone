@@ -1,6 +1,6 @@
 # Future sprint roadmap — requirements and delivery reconciliation
 
-**Date:** 2026-09-30. **Stage:** Release; Launch remains deferred. **Authority:** user authorized the review recommendations and artifact updates. This planning revision supersedes [2026-09-15](future-sprint-roadmap-09152026.md); it does not accept undelivered product features or the owner's Play Mode gate.
+**Date:** 2026-09-30. **Stage:** Release; Launch remains deferred. **Authority:** user authorized the review recommendations and artifact updates. This planning revision supersedes [2026-09-15](archive/roadmaps/future-sprint-roadmap-09152026.md); it does not accept undelivered product features or the owner's Play Mode gate.
 
 **Live cross-system record:** [Notion requirements/backlog/roadmap reconciliation](https://app.notion.com/p/3ebf7cb4e4df81cd80b7ff559888a0bd). Linear issues below carry scoped delivery criteria; this snapshot and Notion preserve planning maturity separately from implementation and owner acceptance.
 

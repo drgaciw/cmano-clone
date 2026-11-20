@@ -3,7 +3,7 @@
 **Dates:** 2026-07-14 → 2026-07-21 (est. 4–6 days)  
 **Lead:** art-director / producer (local closeout)  
 **Program:** S94–S97 Release Continuity — **S94 only** (Asset wave 2)  
-**Authority:** [`docs/reports/roadmap-execution-plan-071426.md`](../../docs/reports/roadmap-execution-plan-071426.md), [`docs/reports/future-sprint-roadmap-07142026.md`](../../docs/reports/future-sprint-roadmap-07142026.md), [`design/assets/asset-manifest.md`](../../design/assets/asset-manifest.md), [`critical-hub-merge-playbook-2026-07-14.md`](../agentic/critical-hub-merge-playbook-2026-07-14.md), AGENTS.md
+**Authority:** [`docs/reports/roadmap-execution-plan-071426.md`](../../docs/reports/roadmap-execution-plan-071426.md), [`docs/reports/archive/roadmaps/future-sprint-roadmap-07142026.md`](../../docs/reports/archive/roadmaps/future-sprint-roadmap-07142026.md), [`design/assets/asset-manifest.md`](../../design/assets/asset-manifest.md), [`critical-hub-merge-playbook-2026-07-14.md`](../agentic/critical-hub-merge-playbook-2026-07-14.md), AGENTS.md
 
 **Roadmap approval:** User approved 0714 roadmap + execute plan via roadmap protocol **2026-07-14** (“I approve via roadmap protocol, then /sprint-plan new for S94 only”).  
 **Plan approval:** S94 sprint package authored under that approval **2026-07-14**.  

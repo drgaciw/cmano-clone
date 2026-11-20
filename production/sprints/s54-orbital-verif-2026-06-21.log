@@ -44,7 +44,7 @@ Passed!  - Failed:     0, Passed:     9, Skipped:     0, Total:     9, Duration:
 === GITNEXUS DETECT (post run) ===
 === FRESH VERIFICATION RUN APPENDED 2026-06-21T13:54:03-05:00 ===
 Using using-git-worktrees (detected in wt on branch), verification-before-completion (evidence before any claim), dispatching-parallel-agents.
-Citations: post-release-scope-boundary-2026-06-21.md + Req10 / E3 / S54-orbital per future-sprint-roadpmap.md
+Citations: post-release-scope-boundary-2026-06-21.md + Req10 / E3 / S54-orbital per docs/reports/future-sprint-roadmap.md
 Build: dotnet build ProjectAegis.sln  -> succeeded 0w 0e
 Orbital tests (fresh): Passed 9/9 0f
 Replay Golden (BalticReplayHarnessScenarioGoldenTests): 3/3 (suite 6/6 per qa docs + 84 broader replay passed)

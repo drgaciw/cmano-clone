@@ -56,11 +56,11 @@ Evidence: [`production/qa/evidence/gates-post-editor-hygiene-2026-07-09.log`](..
 
 | Artifact | Path |
 |----------|------|
-| Dated roadmap | [`future-sprint-roadpmap-07092026.md`](../future-sprint-roadpmap-07092026.md) |
+| Dated roadmap | [`docs/reports/archive/roadmaps/future-sprint-roadmap-07092026.md`](../archive/roadmaps/future-sprint-roadmap-07092026.md) |
 | Execute plan | [`roadmap-execute-plan-07092026.md`](../roadmap-execute-plan-07092026.md) |
 | Scope boundary | [`post-editor-hygiene-scope-boundary-2026-07-09.md`](../../production/post-editor-hygiene-scope-boundary-2026-07-09.md) |
 | Status truth | [`post-editor-status-truth-2026-07-09.md`](../../production/agentic/post-editor-status-truth-2026-07-09.md) |
-| Stable alias | [`future-sprint-roadpmap.md`](../future-sprint-roadpmap.md) → **07092026** |
+| Stable alias | [`docs/reports/future-sprint-roadmap.md`](../future-sprint-roadmap.md) → **07092026** |
 | Tracker forward note | `Game-Requirements/implementation-tracker-2026-07-04.md` |
 | Sprint status block | `production/sprint-status.yaml` → `post_editor_forward_status` |
 | Stage note | `production/stage.txt` (remains **Release**) |

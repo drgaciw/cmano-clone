@@ -44,7 +44,7 @@ Every artifact dated **2026-07-14** that is cited but unresolvable traces to thi
 
 These are not incidental files:
 
-- **`post-s93-concerns-remediation-closeout`** is named by `future-sprint-roadmap-07142026.md` as a **primary authority for the S94+ program**.
+- **`post-s93-concerns-remediation-closeout`** is named by `docs/reports/archive/roadmaps/future-sprint-roadmap-07142026.md` as a **primary authority for the S94+ program**.
 - **`critical-hub-merge-playbook`** is the stated **enforcement mechanism** for the CRITICAL hub constraints (`ScenarioDocumentEditor` 233, `CatalogWriteGate` 186, `DelegationBridge` 142). It is cited by 8 documents including three sprint plans. The *constraints* are independently documented in `architecture.md` and the re-matrix, so the rules survive — but the playbook that operationalizes them does not resolve on `main`.
 - **`release-continuity-scope-boundary-2026-07-14.md`** is a **scope boundary** — this repo's core governance instrument — and was never committed at all. *(DRG-42, 2026-08-06: rewritten from surviving evidence and committed; it now bounds S94–S97 as intended.)*
 

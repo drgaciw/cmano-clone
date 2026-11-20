@@ -2,7 +2,7 @@
 
 **Date:** 2026-06-25  
 **Track:** S70 store assets (companion to store-page-draft S70-01/02)  
-**Authority / MANDATORY CITES:** production/commercial-launch-scope-boundary-2026-06-25.md ; future-sprint-roadpmap-062526.md §3/§6/§7/§10 ; roadmap-execute-plan-062526.md §3/§4 (S70 store pages); AGENTS.md ; S69 COMPLETE artifacts (smoke-sprint-69-closeout-2026-06-25.md + boundary + gate-matrix + sprint-69 foundation + kickoff) ; S66 release-checklist-v2.md (Baltic v2 input) + baltic-v2-scope-boundary + baltic-v2-scenario-manifest.yaml + production/playtests/ + qa/evidence/ . Pre: GitNexus 19962/37627/2462 low; gates PASS 0e/1232/0f/6/6/18/18/hash/ZERO ; verification-before applied.  
+**Authority / MANDATORY CITES:** production/commercial-launch-scope-boundary-2026-06-25.md ; docs/reports/archive/roadmaps/future-sprint-roadmap-062526.md §3/§6/§7/§10 ; roadmap-execute-plan-062526.md §3/§4 (S70 store pages); AGENTS.md ; S69 COMPLETE artifacts (smoke-sprint-69-closeout-2026-06-25.md + boundary + gate-matrix + sprint-69 foundation + kickoff) ; S66 release-checklist-v2.md (Baltic v2 input) + baltic-v2-scope-boundary + baltic-v2-scenario-manifest.yaml + production/playtests/ + qa/evidence/ . Pre: GitNexus 19962/37627/2462 low; gates PASS 0e/1232/0f/6/6/18/18/hash/ZERO ; verification-before applied.  
 
 **GitNexus pre (executed):** list_repos canonical 19962/37627/2462; detect_changes unstaged 24/0 low (docs); impact CatalogWriteGate 178 / Patrol 97 / DelegationBridge 127 (exact) / BalticReplayHarness 52 CRITICAL. Low for docs.  
 
@@ -48,6 +48,6 @@ From Baltic v2 corpus (policies + playtests + C2 thinkalouds per S57–S64 + man
 
 **S70 asset-checklist partial complete (list only).** Next community S70-03 + checklist-v3 S70-04. Closeout S70-05 later. All per execute-plan S70 table + boundary + roadmap. Low risk: docs.  
 
-Cites: commercial-launch-scope-boundary-2026-06-25.md + future-sprint-roadpmap-062526.md §3/§6/§7/§10 + roadmap-execute-plan-062526.md §3/§4 + AGENTS.md + S69 + S66 v2 + Baltic v2 manifest. GitNexus pre + verif-before RUN+READ.  
+Cites: commercial-launch-scope-boundary-2026-06-25.md + docs/reports/archive/roadmaps/future-sprint-roadmap-062526.md §3/§6/§7/§10 + roadmap-execute-plan-062526.md §3/§4 + AGENTS.md + S69 + S66 v2 + Baltic v2 manifest. GitNexus pre + verif-before RUN+READ.  
 
 *Self-contained independent subagent S70 Store tracks.*

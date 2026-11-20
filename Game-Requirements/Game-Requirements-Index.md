@@ -114,7 +114,7 @@ These documents remain **Draft**. Their code/test mappings show implemented subs
 - **H8 Drone Swarm Platforms (doc 22):** Phase A–C + PE residual **landed** (DRG-83 Done); Phase N SWARM-27…30 **post-release deferred** ([DRG-47](https://linear.app/drgamtd-workspace/issue/DRG-47) 2026-08-09)
 - **REQ-09/10 Phase N:** Owner decision recorded — no Phase N GDDs/runtime until product re-opens Phase N (`production/agentic/drg-47-phase-n-scoping-decision-2026-08-09.md`)
 - **Corpus maturity program closed** (W0–W4 complete 2026-07-08); no further corpus waves
-- **Scenario editor completion** (req 11): S81–S88 scenario editor, ME Phase 2, and PE complete on trunk; post-editor hygiene and forward roadmap at [`docs/reports/future-sprint-roadpmap.md`](../docs/reports/future-sprint-roadpmap.md) (stable alias)
+- **Scenario editor completion** (req 11): S81–S88 scenario editor, ME Phase 2, and PE complete on trunk; post-editor hygiene and forward roadmap at [`docs/reports/future-sprint-roadmap.md`](../docs/reports/future-sprint-roadmap.md) (stable alias)
 - Review drafts **23–27** against their criterion-level mappings; complete draft review and owner acceptance independently of historical MVP grades.
 - Run `/design-review` when mechanics change on **01, 04, 06–11, 13–27**
 - Run `/military-requirements-impact` before DB schema for JADC2, C-UAS, hypersonic defense

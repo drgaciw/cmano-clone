@@ -4,7 +4,7 @@
 **Status:** **PASS — VERIFIED + READY FOR HUMAN ACK** (E1 Playtest AAR sweep + proxy expand + internal gate; 21/21 MVP program exit per roadmap §10 S56) — verification-before + GitNexus + superpowers + worktree dispatch complete. All invariants held. AAR remediation documented from game-players-report; proxy matrix retained+noted expand-ready.  
 **Gate position:** After S55 (E4 Cesium/globe + hypersonic); S56 internal engineering exit per roadmap. Program exit when 21/21 tracker rows MVP (or documented Partial+ sufficient for Baltic ACs). Stage remains Release.  
 **Authority (mandatory cites):**  
-- `docs/reports/future-sprint-roadpmap-062126.md` §10 S56 (E1 + exit gate: Playtest AAR remediation || proxy expand || internal gate (21/21 rows MVP)), §0 (parallel dispatch, worktrees, merge gate protocol), §6 (scope)  
+- `docs/reports/archive/roadmaps/future-sprint-roadmap-062126.md` §10 S56 (E1 + exit gate: Playtest AAR remediation || proxy expand || internal gate (21/21 rows MVP)), §0 (parallel dispatch, worktrees, merge gate protocol), §6 (scope)  
 - `production/post-release-scope-boundary-2026-06-21.md` (S49+ program; 21 rows committed; standing invariants: ≥1227 tests monotonic, ReplayGolden 6/6, C2 proxy 18/18+, Baltic hash `17144800277401907079`, DelegationBridge ZERO, CatalogWriteGate extend-only, GitNexus impact()+detect_changes(), boundary cites on all)  
 - Prior gates: `production/gate-checks/s48-release-gate-2026-06-20.md`, `production/qa/gate-matrix-post-release-2026-06-21.md`, `production/qa/smoke-sprint-52-closeout-2026-06-21.md`  
 - S52/S55 closeouts + sprint-status.yaml (S48 program close + S49-01 baseline + S52 closeout PASS)  
@@ -12,7 +12,7 @@
 - Worktree: `stack/sprint56/gate` (this; siblings: aar-sweep S56-01/02, proxy-filter S56-03)  
 - Superpowers dispatching + using-git-worktrees + verification-before-completion (per roadmap §0 + .claude/skills/gate-check, replay-verify, smoke-check)  
 - GitNexus (MCP + .gitnexus/run.cjs; current index ~18k nodes / ~35k edges; reindex recommended)  
-**Cites in this gate (21/21 MVP + E1 + prior):** post-release-scope-boundary-2026-06-21.md §S56 E1 sweep + program exit; future-sprint-roadpmap-062126.md §10 S56 + all prior rows 21/21 MVP; s48-release-gate, smoke-s52, gate-matrix-post-release; implementation-tracker all 21 rows; verification-before on every read.  
+**Cites in this gate (21/21 MVP + E1 + prior):** post-release-scope-boundary-2026-06-21.md §S56 E1 sweep + program exit; docs/reports/archive/roadmaps/future-sprint-roadmap-062126.md §10 S56 + all prior rows 21/21 MVP; s48-release-gate, smoke-s52, gate-matrix-post-release; implementation-tracker all 21 rows; verification-before on every read.  
 
 **Prior:** S48 RC1 cut + "i provide the ack"; S49+ dispatch (E2 lead → E1 at S56); all S49-S55 tracks executed via parallel worktrees (fan-out, shadow, closeout merge per §0.4). S55 closeout in `stack/sprint55/closeout`.
 
@@ -44,7 +44,7 @@ Verification-before applied on all reads (roadmap, boundary, prior smokes/gates/
 | S48 gate / program close | `production/gate-checks/s48-release-gate-2026-06-20.md` (1227 tests, 6/6 replay, 18/18, GitNexus, ZERO bridge, hash, B1-B6) |
 | Scope / boundary | `production/post-release-scope-boundary-2026-06-21.md` (all 21 rows in-scope for S49-S56; invariants held) |
 | Tracker | `Game-Requirements/implementation-tracker-2026-06-04.md` (21 Req rows; MVP status Partial/Partial+; exit requires MVP-done or documented Partial+ with Baltic ACs) |
-| Other cross-refs | sprint-status.yaml (S49+ program_note, s52_closeout PASS, replay_golden 6/6, c2_proxy 18/18, tests_passed 1227); future-sprint-roadpmap-062126.md §10 S56; AGENTS.md; .claude/skills/* (replay-verify, smoke-check, gate-check); golden regression/*.txt |
+| Other cross-refs | sprint-status.yaml (S49+ program_note, s52_closeout PASS, replay_golden 6/6, c2_proxy 18/18, tests_passed 1227); docs/reports/archive/roadmaps/future-sprint-roadmap-062126.md §10 S56; AGENTS.md; .claude/skills/* (replay-verify, smoke-check, gate-check); golden regression/*.txt |
 
 ---
 
@@ -91,7 +91,7 @@ All standing invariants from post-release-scope-boundary-2026-06-21.md + roadmap
 **Evidence (verified pre-claim from proxy-filter/gate wts):**
 - Live: dotnet replay 6/6 + proxy 18/18 (proxy-filter wt)
 - Artifacts: smoke-sprint-52-closeout-2026-06-21.md (1227/6/6/18/18), gate-matrix-post-release-2026-06-21.md, s48-release-gate-2026-06-20.md, game-players-report-0620206.md, s56-aar-remediation-track-2026-06-21.md (aar-sweep), tracker (21/21), sprint-status (held), replay-golden-*.txt + policy (hash), GitNexus MCP (list_repos, detect_changes, impact)
-- Cites mandatory: future-sprint-roadpmap-062126.md §10 S56 + §0 (worktrees, preflight, verification-before); post-release-scope-boundary-2026-06-21.md (invariants, 21 rows, proxy filters, E1 sweep)
+- Cites mandatory: docs/reports/archive/roadmaps/future-sprint-roadmap-062126.md §10 S56 + §0 (worktrees, preflight, verification-before); post-release-scope-boundary-2026-06-21.md (invariants, 21 rows, proxy filters, E1 sweep)
 - Superpowers: .claude/skills/replay-verify/SKILL.md, smoke-check/SKILL.md, gate-check/SKILL.md followed (verification-before reads first, GitNexus first, report matrix)
 - Proxy/AAR: proxy-filter wt change (git diff: single comment S56-03 cite boundary+roadmap); aar-sweep doc analysis (extend-only, no hash/bridge touch)
 
@@ -162,7 +162,7 @@ grep -o '17144800277401907079' tests/regression/replay-golden-*.txt data/scenari
 
 # Worktree / dispatch hygiene
 git worktree list
-# cite: post-release-scope-boundary-2026-06-21.md + future-sprint-roadpmap-062126.md §10 S56
+# cite: post-release-scope-boundary-2026-06-21.md + docs/reports/archive/roadmaps/future-sprint-roadmap-062126.md §10 S56
 
 # Update tracker + sprint-status (post 21/21 ack)
 # Then: production/gate-checks/s56-internal-engineering-gate-2026-06-21.md (promote from gate/ prep)
@@ -218,7 +218,7 @@ From `Game-Requirements/implementation-tracker-2026-06-04.md` (21 rows) + verifi
 | BLOCK (e.g. regressions or missing) | [ ] |
 
 **Evidence aggregated (absolute paths; verified from sprint56/gate + proxy-filter wt):**
-- Roadmap: docs/reports/future-sprint-roadpmap-062126.md (§10 S56 + §0)
+- Roadmap: docs/reports/archive/roadmaps/future-sprint-roadmap-062126.md (§10 S56 + §0)
 - Boundary: production/post-release-scope-boundary-2026-06-21.md (invariants + 21 rows + proxy filters)
 - S56-GATE-VERIF section (this doc) + live proxy-filter runs
 - Prior: production/gate-checks/s48-release-gate-2026-06-20.md, s52-merge-gate-prep-2026-06-21.md, production/qa/smoke-sprint-52-closeout-2026-06-21.md, gate-matrix-post-release-2026-06-21.md
@@ -233,7 +233,7 @@ From `Game-Requirements/implementation-tracker-2026-06-04.md` (21 rows) + verifi
 
 **Next (post human ack):** Merge AAR/proxy if any → restack + re-verify (GitNexus detect_changes proxy-filter/main, dotnet test 1227, replay 6/6, proxy 18/18 from proxy-filter, git/bridge=0, hash grep) → promote/update status/tracker. GitNexus reindex. verification-before. Program exit 21/21 MVP achieved.
 
-**Cites (mandatory):** future-sprint-roadpmap-062126.md §10 S56 (exit criteria, tracks, 21/21) + §0 (dispatch, preflight, verification-before, worktrees, merge gate); post-release-scope-boundary-2026-06-21.md (standing invariants, 21 rows, C2 proxy filters retain/append, E1 sweep, program exit); s48/s52 prior gates/smokes; implementation-tracker; game-players-report-0620206.md; AGENTS.md + .claude/skills/*; GitNexus MCP. All S56 artifacts + this gate cite boundary + roadmap. verification-before + superpowers executed on full chain (reads pre-run, GitNexus pre-test, proxy-filter wt live + gate).
+**Cites (mandatory):** docs/reports/archive/roadmaps/future-sprint-roadmap-062126.md §10 S56 (exit criteria, tracks, 21/21) + §0 (dispatch, preflight, verification-before, worktrees, merge gate); post-release-scope-boundary-2026-06-21.md (standing invariants, 21 rows, C2 proxy filters retain/append, E1 sweep, program exit); s48/s52 prior gates/smokes; implementation-tracker; game-players-report-0620206.md; AGENTS.md + .claude/skills/*; GitNexus MCP. All S56 artifacts + this gate cite boundary + roadmap. verification-before + superpowers executed on full chain (reads pre-run, GitNexus pre-test, proxy-filter wt live + gate).
 
 (Internal gate prep coordinator — sprint56/gate + proxy-filter wts; docs/gate artifacts + verif runs. Proxy change: doc-only comment.)
 
@@ -249,7 +249,7 @@ From `Game-Requirements/implementation-tracker-2026-06-04.md` (21 rows) + verifi
 - detect_changes (worktree=/home/username01/projects/active/cmano-clone/.worktrees/stack/sprint56/proxy-filter , unstaged): changed_count=12, affected_count=0, risk=low. Changed: mostly production/ docs (scope-expansion, polish-scope-boundary, gate-matrix, release-enablement); + PlayModeSmokeHarnessTests.cs (class+1 method). No affected processes.
 - impact(SimulationSession): CRITICAL (228 impacted, direct 61, processes 3 incl RunBatch/EnableMvpEngagement/Run; modules Baltic/Orchestration etc.). Expected; no edit.
 - impact(DelegationBridge): CRITICAL (127 impacted, direct 30, processes 2; modules Baltic/Bridge etc.). Expected; no edit.
-**Risks:** Low for docs/AAR/proxy (extend-only, no hotpath/CRITICAL src). All per post-release-scope-boundary-2026-06-21.md + future-sprint-roadpmap-062126.md §10 S56 + E1. (Cites boundary + Req rows + roadmap §10 S56 + E1.)
+**Risks:** Low for docs/AAR/proxy (extend-only, no hotpath/CRITICAL src). All per post-release-scope-boundary-2026-06-21.md + docs/reports/archive/roadmaps/future-sprint-roadmap-062126.md §10 S56 + E1. (Cites boundary + Req rows + roadmap §10 S56 + E1.)
 
 **Invariants confirmed (fresh + prior):** 1227/0f monotonic; Replay 6/6; C2 18/18+ (24/24 combined); hash 17144800277401907079 exact; ZERO DelegationBridge (core); extend-only; GitNexus discipline. (Cites: post-release-scope-boundary-2026-06-21.md standing invariants; roadmap §10 S56; implementation-tracker-2026-06-04.md 21 rows; s48/s52 gates.)
 
@@ -285,7 +285,7 @@ From `Game-Requirements/implementation-tracker-2026-06-04.md` (21 rows) + verifi
 **AAR review (game-players-report re-engage etc):** 
 - game-players-report-0620206.md (TDR1: Persistent Re-Engagement of Neutralized Targets; TDR2: Communications Degradation).
 - aar-sweep/production/sprints/s56-aar-remediation-track-2026-06-21.md : doc-only (extend-only policy analysis; no core src; cites boundary+roadmap §10 S56; out of scope core edits to PatrolCandidateEngagePolicy.cs / SimulationSession.cs / KilledTargetRegistry etc). Recommendations documented for future (ADR+).
-- Proxy siblings: retain+append in PlayModeSmokeHarnessTests.cs comment: "// S56-03 (per future-sprint-roadpmap-062126.md §10 + post-release-scope-boundary-2026-06-21.md): retain DelegationBadge|SimulationMode matrix + append for new E1/UI (S55 hypersonic/Cesium) if applicable; 18/18+ baseline. Harness identified: PlayModeSmokeHarnessTests (C2 proxy). GitNexus impact pre-edit. Additive only." New test Baltic_graph... ; 18/18+ held.
+- Proxy siblings: retain+append in PlayModeSmokeHarnessTests.cs comment: "// S56-03 (per docs/reports/archive/roadmaps/future-sprint-roadmap-062126.md §10 + post-release-scope-boundary-2026-06-21.md): retain DelegationBadge|SimulationMode matrix + append for new E1/UI (S55 hypersonic/Cesium) if applicable; 18/18+ baseline. Harness identified: PlayModeSmokeHarnessTests (C2 proxy). GitNexus impact pre-edit. Additive only." New test Baltic_graph... ; 18/18+ held.
 
 **Proxy filters expand:** Confirmed in proxy-filter wt (additive comment + test; C2 proxy 18/18+); per boundary §C2 proxy filters "Retain S43 matrix ... append per sprint".
 
@@ -305,8 +305,8 @@ From `Game-Requirements/implementation-tracker-2026-06-04.md` (21 rows) + verifi
 | Proxy expand | retain+append | PASS | PlayMode test comment + 18/18 |
 | Extend-only / isolation | gate docs only | PASS | edits only to sprint56/gate/*.md ; proxy-filter/aar-sweep siblings doc+comment; no CRITICAL/hotpath |
 
-**Isolation / no hotpath / cites confirmed:** Gate wt isolated (only mds); cd to proxy for RUN only (no writes/edits to src); ZERO edits to SimulationSession.cs, DelegationBridge.cs etc. All docs cite post-release-scope-boundary-2026-06-21.md + future-sprint-roadpmap-062126.md §10 S56 + E1 + implementation-tracker rows + game-players-report. Verification-before + GitNexus first.
+**Isolation / no hotpath / cites confirmed:** Gate wt isolated (only mds); cd to proxy for RUN only (no writes/edits to src); ZERO edits to SimulationSession.cs, DelegationBridge.cs etc. All docs cite post-release-scope-boundary-2026-06-21.md + docs/reports/archive/roadmaps/future-sprint-roadmap-062126.md §10 S56 + E1 + implementation-tracker rows + game-players-report. Verification-before + GitNexus first.
 
-**S56-GATE-VERIF: PASS 1227/0f 6/6 18/18+ 21/21 MVP E1 (AAR/proxy) ... Evidence: s56-internal-engineering-gate-2026-06-21.md , s56-program-exit-status-snippet.md , proxy-filter/src/.../PlayModeSmokeHarnessTests.cs (S56-03 comment), aar-sweep/production/sprints/s56-aar-remediation-track-2026-06-21.md , game-players-report-0620206.md , Game-Requirements/implementation-tracker-2026-06-04.md , production/post-release-scope-boundary-2026-06-21.md , docs/reports/future-sprint-roadpmap-062126.md , production/sprint-status.yaml , tests/regression/replay-golden-*.txt ; fresh dotnet outputs + GitNexus MCP (sub ID: gate wt sprint56/gate). Cites boundary+roadmap+Req rows+ E1 everywhere. Ready human ack.**
+**S56-GATE-VERIF: PASS 1227/0f 6/6 18/18+ 21/21 MVP E1 (AAR/proxy) ... Evidence: s56-internal-engineering-gate-2026-06-21.md , s56-program-exit-status-snippet.md , proxy-filter/src/.../PlayModeSmokeHarnessTests.cs (S56-03 comment), aar-sweep/production/sprints/s56-aar-remediation-track-2026-06-21.md , game-players-report-0620206.md , Game-Requirements/implementation-tracker-2026-06-04.md , production/post-release-scope-boundary-2026-06-21.md , docs/reports/archive/roadmaps/future-sprint-roadmap-062126.md , production/sprint-status.yaml , tests/regression/replay-golden-*.txt ; fresh dotnet outputs + GitNexus MCP (sub ID: gate wt sprint56/gate). Cites boundary+roadmap+Req rows+ E1 everywhere. Ready human ack.**
 
 *All per dispatching-parallel-agents + using-git-worktrees + verification-before-completion. Isolated only.*

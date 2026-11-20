@@ -5,7 +5,7 @@
 **Scope**: 8 sprints (S81–S88) implementing the headless slice of the Scenario Editor (req 11 / E11). Tracks and deliverables from the sprint plans (sprint-81-scenario-editor-foundations.md through sprint-88-scenario-editor-gate.md). 19 QA units / ACs (from qa-plan-scenario-editor-2026-07-01.md and s88 gate).
 **Engine**: .NET 8 (headless) + Unity 6.3 LTS (6000.3.14f1) for AC-8 round-trip only. Primary work is in the CLI / Data / Validation layers.
 **Sprint Files**: production/sprints/sprint-8{1-8}-*.md (plus parallel kickoffs and closeouts)
-**Authority / Cites**: `production/scenario-editor-scope-boundary-2026-07-04.md` + `roadmap-execute-plan-07042026.md` §3/§4 + `future-sprint-roadpmap-07042026.md` + `production/qa/qa-plan-scenario-editor-2026-07-01.md` + `Game-Requirements/requirements/11-Agentic-Mission-Editor.md` + AGENTS.md + S81–S88 sprint plans/closeouts/gate.
+**Authority / Cites**: `production/scenario-editor-scope-boundary-2026-07-04.md` + `roadmap-execute-plan-07042026.md` §3/§4 + `docs/reports/archive/roadmaps/future-sprint-roadmap-07042026.md` + `production/qa/qa-plan-scenario-editor-2026-07-01.md` + `Game-Requirements/requirements/11-Agentic-Mission-Editor.md` + AGENTS.md + S81–S88 sprint plans/closeouts/gate.
 
 > **Note on stories**: No traditional `production/epics/*/story-*.md` files were created for this program. Work was tracked via sprint plans with parallel tracks + the 19 QA units in the original qa-plan and S88 gate. This plan treats the 19 units (and the concrete tracks that implemented them) as the story equivalents.
 

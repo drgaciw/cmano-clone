@@ -4,7 +4,7 @@
 **Worktree isolation:** /home/username01/projects/active/cmano-clone/.worktrees/stack/sprint52/closeout (shallow artifacts) + full source wts at /home/username01/projects/active/cmano-clone/cmano-clone/.worktrees/stack/sprint52/{closeout,benchmark,sim-api,dots-expand} @ be8dfb7195aa17ec6234914233180cc81d545d7a [stack/sprint52/closeout] (and siblings)  
 **Authority / Citations:**  
 - `production/post-release-scope-boundary-2026-06-21.md` §S52 E6 (Req 01/08)  
-- `docs/reports/future-sprint-roadpmap.md` (and dated 062126 refs) §0 (parallel), §10 S52, §12 (S52→S53)  
+- `docs/reports/future-sprint-roadmap.md` (and dated 062126 refs) §0 (parallel), §10 S52, §12 (S52→S53)  
 - `production/release-enablement-scope-boundary-2026-06-20.md` (B4 DOTS pilot)  
 - `production/qa/smoke-sprint-52-closeout-2026-06-21.md`  
 - `production/gate-checks/s52-0.4-merge-prep-2026-06-21.md` , `s52-merge-gate-prep-2026-06-21.md`  
@@ -121,7 +121,7 @@ dotnet test ... --filter "FullyQualifiedName~BalticBatchRunner"
 - benchmark multi-k green (BalticBatchRunner tests + Export* + Compute* ; entity scale via S51 corpora)
 - Evidence paths: listed absolute above + production/qa/ , sibling /.../sprint52/{benchmark,sim-api,dots-expand}/...
 - Gaps: 
-  - Cited post-release-scope-boundary-2026-06-21.md + future-sprint-roadpmap-062126.md not present on disk (referenced; use existing polish/release-enablement + smoke cites as proxy)
+  - Cited post-release-scope-boundary-2026-06-21.md + docs/reports/archive/roadmaps/future-sprint-roadmap-062126.md not present on disk (referenced; use existing polish/release-enablement + smoke cites as proxy)
   - S52-*.md prep docs (S52-01 etc) referenced in smoke/status but not located in top-level searches (may be planned/sibling-internal); verification relies on code + smoke aggregation
   - S52 is prep/skeleton phase (per scope: no full Req01 MVP, DOTS isolated only); full impl deferred to S53 per notes
   - Report generated in workspace closeout; recommend merge gate §0.4 follow-up (restack + re-verify)
@@ -142,7 +142,7 @@ Produced by verification subagent (superpowers: dispatching-parallel-agents, ver
 
 **Protocol followed exactly (superpowers + verification-before + GitNexus pre on CRITICAL):**  
 - Read boundary: production/post-release-scope-boundary-2026-06-21.md (invariants, 21 rows, §S52 E6 Req01/08 + §S56 E1) [read from sprint49 closeout + cited in all]  
-- Read roadmap: docs/reports/future-sprint-roadpmap.md (and 062126 refs) §10 S52 E6 + S56 E1 + all rows 21/21 [full § reads + gate syntheses]  
+- Read roadmap: docs/reports/future-sprint-roadmap.md (and 062126 refs) §10 S52 E6 + S56 E1 + all rows 21/21 [full § reads + gate syntheses]  
 - Read sprint-status.yaml (S52: complete; s52_closeout PASS, gates 1227/6/6/18/18; S56 aar_verif PASS noted; program post-S48 Release)  
 - Prior smoke/gate in production/qa/ : smoke-sprint-52-closeout-2026-06-21.md, S52-closeout-verif, s48-release-gate, gate-matrix-post-release, s56-*.md in qa/gate-checks (ALL logs/outputs read pre-claim)  
 - GitNexus pre (MCP search_tool first then use_tool): detect_changes (low/none on docs; changed_count=0/12 risk low); context/impact on CRITICAL:  
@@ -160,7 +160,7 @@ Produced by verification subagent (superpowers: dispatching-parallel-agents, ver
 - For S56 aggregate (aar-sweep + proxy-filter): 21/21 from Game-Requirements/implementation-tracker-2026-06-04.md (all rows Partial/Partial+ w/ Baltic ACs per gate; "COMPLETE" per tracker update in gate); AAR from game-players-report-0620206.md (via s56-aar-remediation-track: re-engage + comms doc-only remediation); proxy filter PlayModeSmokeHarnessTests (retain+append comment + 18/18+ held); prior gate doc s56-internal-engineering-gate-2026-06-21.md + s56-program-exit-status-snippet.md + s56-aar-verif logs (replay/c2 full outputs read). Program exit criteria confirmed met (per §10 S56 + boundary + 21/21 + invariants).  
 - Read EVERY log/output before PASS claim (build tail, test tails, GitNexus MCP full json, replay logs, aar logs, smoke/gate full files, yaml sections, tracker sections, boundary/roadmap sections).
 
-**Cites (mandatory):** `production/post-release-scope-boundary-2026-06-21.md` + `roadmap-062126` (future-sprint-roadpmap.md) §10 S52 E6 + S56 E1 + all rows 21/21. sprint-status.yaml (S52/S56 status), prior production/qa/ smokes/gates.
+**Cites (mandatory):** `production/post-release-scope-boundary-2026-06-21.md` + `roadmap-062126` (docs/reports/future-sprint-roadmap.md) §10 S52 E6 + S56 E1 + all rows 21/21. sprint-status.yaml (S52/S56 status), prior production/qa/ smokes/gates.
 
 **S52-S56 Cross Verdict: PASS** (invariants held exact across wts; isolation confirmed; 21/21 + E1 met; program exit ready).
 

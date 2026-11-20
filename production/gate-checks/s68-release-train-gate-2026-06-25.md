@@ -7,7 +7,7 @@
 
 ## S68 HUMAN ACK PACKAGE (concise ready-to-use summary)
 
-**Boundary cite (everywhere):** production/release-train-scope-boundary-2026-06-24.md (S68 section exactly: "Gate verification ∥ Human sign-off | Full verification; s68-release-train-gate-*.md; human ack; optional production/stage.txt → Launch" + S65/S66/S67 rows + standing invariants (tests ≥1229 monotonic, ReplayGolden 6/6, C2 18/18, hash `17144800277401907079` immutable, ZERO DelegationBridge, CatalogWriteGate extend-only, GitNexus impact()+detect_changes() pre) + §5 CRITICALs + GitNexus pre + verification-before on all claims) + AGENTS.md + future-sprint-roadpmap-062426.md §0/3/5/7/10 + roadmap-execute-plan-062426.md §4/5/6/8/9 + sprint-67-buildkite-baseline-protection.md + smoke-sprint-66-closeout.md + smoke-sprint-65-closeout-2026-06-24.md + s65-gate-matrix-2026-06-24.md
+**Boundary cite (everywhere):** production/release-train-scope-boundary-2026-06-24.md (S68 section exactly: "Gate verification ∥ Human sign-off | Full verification; s68-release-train-gate-*.md; human ack; optional production/stage.txt → Launch" + S65/S66/S67 rows + standing invariants (tests ≥1229 monotonic, ReplayGolden 6/6, C2 18/18, hash `17144800277401907079` immutable, ZERO DelegationBridge, CatalogWriteGate extend-only, GitNexus impact()+detect_changes() pre) + §5 CRITICALs + GitNexus pre + verification-before on all claims) + AGENTS.md + docs/reports/archive/roadmaps/future-sprint-roadmap-062426.md §0/3/5/7/10 + roadmap-execute-plan-062426.md §4/5/6/8/9 + sprint-67-buildkite-baseline-protection.md + smoke-sprint-66-closeout.md + smoke-sprint-65-closeout-2026-06-24.md + s65-gate-matrix-2026-06-24.md
 
 **GitNexus pre on ack files (Step 1, RUN 2026-06-25):**  
 - list_repos (canonical cmano-clone @/home/username01/projects/active/.../cmano-clone main): 19792 nodes / 37427 edges / 2455 files @28c582d 2026-06-25T13:34:18Z  
@@ -53,7 +53,7 @@ Date: ___________
 - `tests/regression/README.md` (S67-02 locked baselines)  
 - `production/release/release-checklist-v2.md` (S66 v2 + S67 readiness)  
 - `AGENTS.md` (GitNexus discipline, Graphite, verification-before, gt workflow)  
-- `docs/reports/future-sprint-roadpmap-062426.md` §0/3/5/7/10 + `roadmap-execute-plan-062426.md` §4/5/6/8/9  
+- `docs/reports/archive/roadmaps/future-sprint-roadmap-062426.md` §0/3/5/7/10 + `roadmap-execute-plan-062426.md` §4/5/6/8/9  
 - Prior S57-S64: s57-s64-program-closeout-*.md + baltic-v2-scope-boundary (superseded for S65+)
 
 **Cites boundary + S67/S66/S65 + verification-before everywhere. No new code. GitNexus pre on gate artifacts performed.**

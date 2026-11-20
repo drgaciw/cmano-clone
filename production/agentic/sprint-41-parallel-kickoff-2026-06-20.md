@@ -4,7 +4,7 @@
 **Trunk:** `main` @ (post-S40)  
 **Sprint plan:** `production/sprints/sprint-41-polish-hardening-release-preflight.md`  
 **QA plan:** `production/qa/qa-plan-sprint-41-*.md` (TBD)  
-**Authority:** `production/polish-scope-boundary-2026-06-19.md` + [`docs/reports/future-sprint-roadpmap.md`](../../docs/reports/future-sprint-roadpmap.md) §Horizon 3. **Read-only ADR — no production refactor code.**
+**Authority:** `production/polish-scope-boundary-2026-06-19.md` + [`docs/reports/future-sprint-roadmap.md`](../../docs/reports/future-sprint-roadmap.md) §Horizon 3. **Read-only ADR — no production refactor code.**
 
 ## Sprint Goal (recap)
 

@@ -10,7 +10,7 @@
 ## Authority (MANDATORY CITES — evidence-first)
 - [`production/post-release-scope-boundary-2026-06-21.md`](../../post-release-scope-boundary-2026-06-21.md) § S54 — E3 (Req 10): "Orbital DEW runtime; escalation ladder; `KESSLER_RISK_METER` where scoped."  
   Standing: ≥1227 tests, ReplayGolden 6/6, C2 18/18+, GitNexus impact/detect pre, ZERO DelegationBridge touch, monotonic, additive scoped.
-- [`docs/reports/future-sprint-roadpmap.md`](../../docs/reports/future-sprint-roadpmap.md) §10 S54: Parallel tracks escalation (ladder) ∥ orbital-dew; "KESSLER_RISK_METER is a new symbol — no blast radius." "Both tracks add speculative systems scoped behind feature flags; no production path regression."
+- [`docs/reports/future-sprint-roadmap.md`](../../docs/reports/future-sprint-roadmap.md) §10 S54: Parallel tracks escalation (ladder) ∥ orbital-dew; "KESSLER_RISK_METER is a new symbol — no blast radius." "Both tracks add speculative systems scoped behind feature flags; no production path regression."
 - [`Game-Requirements/requirements/10-Speculative-Systems.md`](../../../Game-Requirements/requirements/10-Speculative-Systems.md) § Escalation Ladder (5-tier): Conventional=1 ... SpaceDomain=3 ... NuclearThreshold=5. "Strong emphasis on political and escalation consequences." + research-traceability.md
 - Related: release-enablement-scope-boundary-2026-06-20.md, polish-scope-boundary-2026-06-19.md, AGENTS.md (GitNexus discipline), 00-Master-Index.md (S54 section), verification-s54-escalation-2026-06-21.log
 
@@ -58,7 +58,7 @@
 ## Confirmation checklist (per task)
 - [x] Isolation check: PASS (worktree)
 - [x] GitNexus pre: low/0/UNKNOWN; no CRITICAL
-- [x] Read S54 artifacts: escalation ladder (EscalationTier + settings + tests), KESSLER_RISK_METER (KesslerRiskMeter), 00-Master, prior log, post-release-2026-06-21.md, release-enablement, future-sprint-roadpmap.md, Req10, code
+- [x] Read S54 artifacts: escalation ladder (EscalationTier + settings + tests), KESSLER_RISK_METER (KesslerRiskMeter), 00-Master, prior log, post-release-2026-06-21.md, release-enablement, docs/reports/future-sprint-roadmap.md, Req10, code
 - [x] Fresh gates: build PASS; 1237/0f; replay 6/6 0f; C2 18/18+ 0f (exact outputs read)
 - [x] Additive, cites boundary + roadmap §10 S54 Req10 E3, no hash/bridge change: confirmed (git + tests + reads)
 - [x] Updated qa/s54-escalation-verif-2026-06-21.md + sprint-status.yaml s54_ with sub ID + results + cites

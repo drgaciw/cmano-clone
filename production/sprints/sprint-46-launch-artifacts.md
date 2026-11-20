@@ -4,7 +4,7 @@
 **Trunk:** `main` @ (post-S45)  
 **Predecessor:** Sprint 45 — COMPLETE; **B1+B2 complete required**  
 **Stage:** Release Enablement (Track B)  
-**Authority:** B5 epic — [`docs/reports/future-sprint-roadpmap.md`](../../docs/reports/future-sprint-roadpmap.md) §5, §9.
+**Authority:** B5 epic — [`docs/reports/future-sprint-roadmap.md`](../../docs/reports/future-sprint-roadmap.md) §5, §9.
 
 > **OUT-OF-BOUNDARY — PLANNING ONLY.**
 

@@ -2,7 +2,7 @@
 
 **Date:** 2026-07-04  
 **Sprint:** S83  
-**Authority:** `roadmap-execute-plan-07042026.md` §3/§4 (S83), `scenario-editor-scope-boundary-2026-07-04.md`, `future-sprint-roadpmap-07042026.md` §3/§4/§10, `qa-plan-scenario-editor-2026-07-01.md` (units #5, #13, #14), `implementation-tracker-2026-07-04.md`, `Game-Requirements/requirements/11-Agentic-Mission-Editor.md`, S81/S82 parallel kickoffs + sprint plans + closeouts, AGENTS.md + CLAUDE.md
+**Authority:** `roadmap-execute-plan-07042026.md` §3/§4 (S83), `scenario-editor-scope-boundary-2026-07-04.md`, `docs/reports/archive/roadmaps/future-sprint-roadmap-07042026.md` §3/§4/§10, `qa-plan-scenario-editor-2026-07-01.md` (units #5, #13, #14), `implementation-tracker-2026-07-04.md`, `Game-Requirements/requirements/11-Agentic-Mission-Editor.md`, S81/S82 parallel kickoffs + sprint plans + closeouts, AGENTS.md + CLAUDE.md
 
 ## Context
 S82 validation tracks A+C (doctrine, schema, save-vs-export) complete with editor subset green. In-flight work from `fix-scenario-publish-cli-wiring` @ 17d426c integrated or ready per S81-02 plan.
@@ -96,7 +96,7 @@ dotnet test src/ProjectAegis.MissionEditor.Cli.Tests/ProjectAegis.MissionEditor.
 
 ## References (cite in all work)
 - `docs/reports/roadmap-execute-plan-07042026.md` (S83 tables, primary files, wave, AME-8.5 note, Phase 0/1/2, hard gates, ownership matrix)
-- `docs/reports/future-sprint-roadpmap-07042026.md`
+- `docs/reports/archive/roadmaps/future-sprint-roadmap-07042026.md`
 - `production/scenario-editor-scope-boundary-2026-07-04.md` (standing invariants, scope in/out, file ownership, CRITICAL symbols)
 - `production/qa/qa-plan-scenario-editor-2026-07-01.md` (detailed #5 AC-5 sample, #13 ferry verbs, #14 undo wiring + open persistence item)
 - `Game-Requirements/implementation-tracker-2026-07-04.md` (track D partial status, CLI verbs inventory)

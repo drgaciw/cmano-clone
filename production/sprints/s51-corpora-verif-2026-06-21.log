@@ -7,7 +7,7 @@ Isolated: confirmed via .git file, git worktree list, separate stack/sprint50or5
 === CITATIONS (boundary + Req06/E5/S51) ===
 - release-enablement-scope-boundary-2026-06-20.md : Req06 (subset) "Full corpora in CI (7208/4844/4403); runtime TL fork selection | Post-release data epic"
 - post-release-scope-boundary-2026-06-21.md (referenced) Req06 (S51 E5): "Full corpora in CI + TL runtime fork selection"
-- future-sprint-roadpmap.md §10 S51 (and §0/§7 invariants): "TL runtime fork | S51-03, S51-04 | ... TL fork must not regress existing export metadata path. ... full parallel." + import-cohesion S51-05
+- docs/reports/future-sprint-roadmap.md §10 S51 (and §0/§7 invariants): "TL runtime fork | S51-03, S51-04 | ... TL fork must not regress existing export metadata path. ... full parallel." + import-cohesion S51-05
 - implementation-tracker-2026-06-04.md row 06: DBI history incl TL export + deferred full corpora CI
 - s51-corpora-ci-plan.md + verification-s51-tl-fork-2026-06-21.log (prior evidence)
 - AGENTS/CLAUDE/roadmap invariants: CatalogWriteGate extend-only, >=1227 tests, ReplayGolden 6/6 + C2 18/18+, Baltic hash immutable 17144800277401907079, ZERO DelegationBridge, GitNexus impact+detect pre, worktree isolation, verification-before-completion.
@@ -70,7 +70,7 @@ All pre-edit, repeated, outputs read. Matches s51-plan + tl-verif logs.
 - corpora-ci/tools/corpora-ci/corpora-ingest-pipeline.sh (cites + det block)
 - Source: OsintCatalogMapper.cs (S51 extension), TlForkSelector.cs (runtime fork), ScenarioPackage.cs (tl), tests
 - GitNexus outputs + cmd logs (this session read)
-- Boundary/release-enablement... + roadpmap.md + tracker read
+- Boundary/release-enablement... + roadmap.md + tracker read
 
 === INVARIANTS / BOUNDARY COMPLIANCE ===
 - CatalogWriteGate extend-only: yes

@@ -6,7 +6,7 @@ This snapshot supersedes the [September 8 Slice G snapshot](future-sprint-roadma
 
 ## Program
 
-Canonical sprint records: [`production/sprints/sprint-122-127-index.md`](../../production/sprints/sprint-122-127-index.md). Machine status: [`production/sprint-status-s122-s127.yaml`](../../production/sprint-status-s122-s127.yaml).
+Canonical sprint records: [`production/sprints/sprint-122-127-index.md`](../../../../production/sprints/sprint-122-127-index.md). Machine status: [`production/sprint-status-s122-s127.yaml`](../../../../production/sprint-status-s122-s127.yaml).
 
 | Sprint | Dates | Theme | Anchor issues | Must |
 | --- | --- | --- | --- | --- |
@@ -39,4 +39,4 @@ Source: [backlog review](https://claude.ai/artifact/QnFNFwjdKPQSiiFYqHteAb) (rev
 - Fourteen docs PRs (#628–#642) all edit `docs/engineering/README.md` and must merge serially in stack order.
 - Test floor is cited as 1232 / 1638 / 3062 / 3216 across documents; one source file is owed in S122.
 
-Prior numbered-sprint history remains in the dated snapshots listed on the [stable alias](future-sprint-roadpmap.md).
+Prior numbered-sprint history remains in the dated snapshots listed on the [stable alias](../../future-sprint-roadmap.md).

@@ -3,11 +3,11 @@
 **Date:** 2026-06-25  
 **Sprint:** 69 — Commercial Launch Foundation (E7)  
 **Track:** S69-04 Closeout (local coordinator per roadmap-execute-plan-062526.md §3/§4/§5/§9)  
-**Status:** S69-04 COMPLETE. S69 full COMPLETE. Gates PASS (0e/1232/0f/6/6/18/18/hash preserved/ZERO=0). GitNexus pre 19962/37628/2462 @28c582d (list/detect/impact low for docs). All S69 tracks (boundary S69-01 + gate-matrix S69-02 + re-index S69-03 + closeout S69-04) COMPLETE. Phase 2 integrate complete; ready for S70 dispatch. GT STAGED (prior S66/S67 payload 23 files medium risk + S69 docs untracked); USER RESOLVE separately: gt sync || pull, restack, verif, submit --stack for S69 stack. Do not mutate gt in this closeout. Cite production/commercial-launch-scope-boundary-2026-06-25.md + docs/reports/future-sprint-roadpmap-062526.md §3/§6/§7/§10 + docs/reports/roadmap-execute-plan-062526.md §3/§4/§5/§9 + AGENTS.md + gate matrix/kickoff/plan from S69.
+**Status:** S69-04 COMPLETE. S69 full COMPLETE. Gates PASS (0e/1232/0f/6/6/18/18/hash preserved/ZERO=0). GitNexus pre 19962/37628/2462 @28c582d (list/detect/impact low for docs). All S69 tracks (boundary S69-01 + gate-matrix S69-02 + re-index S69-03 + closeout S69-04) COMPLETE. Phase 2 integrate complete; ready for S70 dispatch. GT STAGED (prior S66/S67 payload 23 files medium risk + S69 docs untracked); USER RESOLVE separately: gt sync || pull, restack, verif, submit --stack for S69 stack. Do not mutate gt in this closeout. Cite production/commercial-launch-scope-boundary-2026-06-25.md + docs/reports/archive/roadmaps/future-sprint-roadmap-062526.md §3/§6/§7/§10 + docs/reports/roadmap-execute-plan-062526.md §3/§4/§5/§9 + AGENTS.md + gate matrix/kickoff/plan from S69.
 
 **Authority (MANDATORY citations on all output/artifacts):**  
 - `production/commercial-launch-scope-boundary-2026-06-25.md` (S69-01; supersedes release-train for S69+; in/out scope E7 prep only; invariants 1232/6/6/18/18/hash/ZERO; GitNexus list/detect/impact; stage Release)  
-- `docs/reports/future-sprint-roadpmap-062526.md` §3/§6/§7/§10 (S69 E7 prep serial; parallel tracks; docs-heavy)  
+- `docs/reports/archive/roadmaps/future-sprint-roadmap-062526.md` §3/§6/§7/§10 (S69 E7 prep serial; parallel tracks; docs-heavy)  
 - `docs/reports/roadmap-execute-plan-062526.md` §3/§4/§5/§9 (S69 tracks: boundary + gate-matrix + re-index + closeout S69-04; Phase 2 integrate, gt sync/restack/submit, verification)  
 - `AGENTS.md` (GitNexus, gt workflow, detect before commit)  
 - `production/sprint-status.yaml` (update with S69 complete)  
@@ -90,19 +90,19 @@ Use stack/sprint69/* (per kickoff table: commercial-boundary, gate-matrix, gitne
 - Closeout S69-04: this; full verif re-run+read; status update; artifacts notes.  
 - All gates PASS. GitNexus pre (list/detect/impact) confirmed low/docs + CRIT exact.  
 - Phase 2: "closeout complete", ready for S70 dispatch after.  
-- Cites: commercial-launch-scope-boundary-2026-06-25.md + future-sprint-roadpmap-062526.md §3/§6/§7/§10 + roadmap-execute-plan-062526.md §3/§4/§5/§9 + AGENTS.md + S69 kickoff/gate/plan + sprint-status.
+- Cites: commercial-launch-scope-boundary-2026-06-25.md + docs/reports/archive/roadmaps/future-sprint-roadmap-062526.md §3/§6/§7/§10 + roadmap-execute-plan-062526.md §3/§4/§5/§9 + AGENTS.md + S69 kickoff/gate/plan + sprint-status.
 
 **S69-04 COMPLETE. S69 full COMPLETE.**
 
 ## S70 Closeout Prep / Stub Note (per execute-plan §3/§4/§5/§9 ; S70-05 closeout track)
 S70 readiness: S69 COMPLETE (gates 0e/1232/0f/6/6/18/18/hash/ZERO/GitNexus low+CRIT exact). Next: S70 store/community/checklist per roadmap-execute-plan-062526.md §4 (tracks: store-pages, community-templates, checklist-v3, closeout S70-05). 
-- Prereqs for S70 dispatch: this S69 close + S69 complete in sprint-status; commercial-launch-scope-boundary + future-sprint-roadpmap-062526.md + execute-plan cites; S66 v2 checklist (release-checklist-v2.md) + baltic manifest/evidence as inputs.
+- Prereqs for S70 dispatch: this S69 close + S69 complete in sprint-status; commercial-launch-scope-boundary + docs/reports/archive/roadmaps/future-sprint-roadmap-062526.md + execute-plan cites; S66 v2 checklist (release-checklist-v2.md) + baltic manifest/evidence as inputs.
 - S70-05 closeout will: gt submit for S70 tracks (stack/sprint70/*), closeout local, re-verif gates, smoke-sprint-70-closeout-2026-06-25.md (to create), status update.
 - Smoke stub for S70 will be created at dispatch/close (see production/qa/smoke-sprint-70-closeout-2026-06-25.md stub).
 - GT for S70: use stack/sprint70/ (store-pages, community-templates, checklist-v3, closeout); gt create / submit --stack --no-interactive ; restack on close. 
 - Wave: S70 baseline (coordinator) → parallel W1 store ∥ W2 community ∥ W3 checklist → W4 closeout.
 - S70 plan + kickoff at dispatch: production/sprints/sprint-70-store-community-prep.md (light), production/agentic/sprint-70-parallel-kickoff-2026-06-25.md (tracks table exact §4, S69 prereqs, commands/skills).
-Cites: commercial-launch-scope-boundary-2026-06-25.md + roadmap-execute-plan-062526.md §3/§4/§5/§9 + future-sprint-roadpmap-062526.md §3/§6/§7/§10 + AGENTS.md + S66 release-checklist-v2.md + S69 artifacts. S70 dispatch ready post this.
+Cites: commercial-launch-scope-boundary-2026-06-25.md + roadmap-execute-plan-062526.md §3/§4/§5/§9 + docs/reports/archive/roadmaps/future-sprint-roadmap-062526.md §3/§6/§7/§10 + AGENTS.md + S66 release-checklist-v2.md + S69 artifacts. S70 dispatch ready post this.
 
 *Independent subagent per execute-plan. dispatching-parallel-agents + verif-before strictly. All RUN+READ. No gt mutation. Focus new S69. Ready S70.*
 

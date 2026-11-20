@@ -2,7 +2,7 @@
 
 **Date:** 2026-07-04 (post S83)  
 **Sprint:** S84  
-**Authority:** `roadmap-execute-plan-07042026.md` §4 (S84), `scenario-editor-scope-boundary-2026-07-04.md`, `qa-plan-scenario-editor-2026-07-01.md`, `future-sprint-roadpmap-07042026.md`, `implementation-tracker-2026-07-04.md`, `Game-Requirements/requirements/11-Agentic-Mission-Editor.md`
+**Authority:** `roadmap-execute-plan-07042026.md` §4 (S84), `scenario-editor-scope-boundary-2026-07-04.md`, `qa-plan-scenario-editor-2026-07-01.md`, `docs/reports/archive/roadmaps/future-sprint-roadmap-07042026.md`, `implementation-tracker-2026-07-04.md`, `Game-Requirements/requirements/11-Agentic-Mission-Editor.md`
 
 ## Context
 S83 (export/undo + ferry track D) complete. In-flight editor work integrated or ready.
@@ -105,7 +105,7 @@ bash tools/ci/smoke-ac6.sh
 - Never commit: `.cursor/hooks/`, `.pi/settings.json`, `.polly/`
 
 ## Cites (include in every commit message / doc / PR description)
-`roadmap-execute-plan-07042026.md` §4 S84 + `future-sprint-roadpmap-07042026.md` + `scenario-editor-scope-boundary-2026-07-04.md` + `qa-plan-scenario-editor-2026-07-01.md` (units #7,#11,#16) + `implementation-tracker-2026-07-04.md` + AGENTS.md + this kickoff + sprint-84-event-debugger.md
+`roadmap-execute-plan-07042026.md` §4 S84 + `docs/reports/archive/roadmaps/future-sprint-roadmap-07042026.md` + `scenario-editor-scope-boundary-2026-07-04.md` + `qa-plan-scenario-editor-2026-07-01.md` (units #7,#11,#16) + `implementation-tracker-2026-07-04.md` + AGENTS.md + this kickoff + sprint-84-event-debugger.md
 
 ## GitNexus Pre (per AGENTS.md — always before edit)
 Run `impact({target: "...", direction: "upstream"})` and report blast radius (direct callers, affected processes, risk HIGH/CRITICAL). Use `context()` for full callers/callees/flows on symbols. `detect_changes()` before any commit.

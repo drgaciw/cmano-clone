@@ -7,7 +7,7 @@
 **Sprint File:** `production/sprints/sprint-90-agent-skill-sync.md`  
 **Authority / MANDATORY Citations:**
 - [`post-editor-hygiene-scope-boundary-2026-07-09.md`](../post-editor-hygiene-scope-boundary-2026-07-09.md)
-- [`future-sprint-roadpmap-07092026.md`](../../docs/reports/future-sprint-roadpmap-07092026.md) §3/§6
+- [`docs/reports/archive/roadmaps/future-sprint-roadmap-07092026.md`](../../docs/reports/archive/roadmaps/future-sprint-roadmap-07092026.md) §3/§6
 - [`roadmap-execute-plan-07092026.md`](../../docs/reports/roadmap-execute-plan-07092026.md) §3/§4 (S90)
 - [`tech-stack-agent-skill-recommendations-2026-07-08.md`](../../docs/reports/tech-stack-agent-skill-recommendations-2026-07-08.md) P0 A1–A3 / B1–B3
 - [`Tech-Stack.md`](../../Tech-Stack.md)

@@ -3,7 +3,7 @@
 **Date:** 2026-06-24  
 **Sprint:** 65 — Release train foundation (E10)  
 **Status:** COMPLETE (foundation tracks)  
-**Authority:** production/release-train-scope-boundary-2026-06-24.md ; docs/reports/future-sprint-roadpmap-062426.md §3/5/7/10 ; roadmap-execute-plan-062426.md §4/5/6/8/9 ; superpowers dispatching-parallel-agents + verification-before  
+**Authority:** production/release-train-scope-boundary-2026-06-24.md ; docs/reports/archive/roadmaps/future-sprint-roadmap-062426.md §3/5/7/10 ; roadmap-execute-plan-062426.md §4/5/6/8/9 ; superpowers dispatching-parallel-agents + verification-before  
 
 ## Tracks Summary (parallel dispatch via dispatching-parallel-agents + worktrees + skills)
 

@@ -1,7 +1,7 @@
 # CI and branch protection
 
 > **Last updated:** 2026-07-17 (added QA Gauntlet oracle GitHub Actions row; #37 closed)  
-> **Cites:** production/release-train-scope-boundary-2026-06-24.md (S67 row: Buildkite preflight ∥ Regression baseline lock ∥ Branch-protection; .buildkite/ alignment with §7 gates; ci-and-branch-protection update) + future-sprint-roadpmap-062426.md §7 (standing invariants) + roadmap-execute-plan-062426.md §S67  
+> **Cites:** production/release-train-scope-boundary-2026-06-24.md (S67 row: Buildkite preflight ∥ Regression baseline lock ∥ Branch-protection; .buildkite/ alignment with §7 gates; ci-and-branch-protection update) + docs/reports/archive/roadmaps/future-sprint-roadmap-062426.md §7 (standing invariants) + roadmap-execute-plan-062426.md §S67  
 > **Graphite-first workflow:** [graphite-github-substitute-plan.md](./graphite-github-substitute-plan.md) — use `gt submit`, not `gh pr create`, for stack work.  
 > **Buildkite setup:** [buildkite-ci.md](./buildkite-ci.md)
 

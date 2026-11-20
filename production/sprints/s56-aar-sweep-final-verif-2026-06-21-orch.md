@@ -7,7 +7,7 @@
 **Date:** 2026-06-21  
 **Authority / Mandatory Citations (per superpowers + AGENTS.md + boundary):**  
 - `production/post-release-scope-boundary-2026-06-21.md` (S56 — E1 sweep + program gate; 21/21 rows; Playtest AAR remediation per `game-players-report-0620206.md`; standing invariants; cites required)  
-- `docs/reports/future-sprint-roadpmap-062126.md` §10 S56 E1 + exit gate (AAR remediation S56-01/02 || Proxy filter expand S56-03 || Internal gate S56-04 (21/21)) + §0 parallel/worktrees/GitNexus pre-flight model  
+- `docs/reports/archive/roadmaps/future-sprint-roadmap-062126.md` §10 S56 E1 + exit gate (AAR remediation S56-01/02 || Proxy filter expand S56-03 || Internal gate S56-04 (21/21)) + §0 parallel/worktrees/GitNexus pre-flight model  
 - `production/sprints/s56-aar-remediation-track-2026-06-21.md` (AAR remediation track, doc-only)  
 - `production/gate-checks/s56-internal-engineering-gate-2026-06-21.md`  
 - `production/qa/s56-aar-verif-2026-06-21.md` (prior AAR verif)  
@@ -221,7 +221,7 @@ Passed!  - Failed:     0, Passed:    18, Skipped:     0, Total:    18, Duration:
 
 - `production/post-release-scope-boundary-2026-06-21.md` (full relevant sections): Program map S56 E1 + gate (21/21); standing invariants (≥1227, 6/6, 18/18+, hash, ZERO Bridge, GitNexus impact/detect, cites required); out of scope includes "Playtest AAR gameplay fixes" deferred to S56; cut-line: cite this + roadmap.
 
-- `docs/reports/future-sprint-roadpmap-062126.md` (and symlink; §10 read verbatim):  
+- `docs/reports/archive/roadmaps/future-sprint-roadmap-062126.md` (and symlink; §10 read verbatim):  
   S56 — E1 + exit gate:  
   ```
   | AAR remediation | S56-01, S56-02 | team-gameplay | Cloud | `stack/sprint56/aar-sweep` | — |
@@ -297,7 +297,7 @@ All docs cite boundary + roadmap. **No contradictions found.**
 - All required docs read (remediation-track, gate, prior verif, boundaries, roadmap §10 S56 E1 verbatim, game-players-report, isolation logs).  
 - **Confirmed doc-only:** no src edits to sim/policy/bridge in this track (remediation analysis only; production/ only for docs/qa/gate).  
 - Proxy-filter sibling cross-ref: S56-03 test filter expand (PlayModeSmokeHarnessTests.cs additive); same gates/GitNexus held; parallel-safe.  
-- Cites: post-release-scope-boundary-2026-06-21.md + future-sprint-roadpmap-062126.md §10 S56 E1 + superpowers (verification-before-completion, using-git-worktrees, dispatching-parallel-agents) + AGENTS.md throughout.  
+- Cites: post-release-scope-boundary-2026-06-21.md + docs/reports/archive/roadmaps/future-sprint-roadmap-062126.md §10 S56 E1 + superpowers (verification-before-completion, using-git-worktrees, dispatching-parallel-agents) + AGENTS.md throughout.  
 - ZERO mutation confirmed (git cmds + detect_changes).  
 
 **Confirmation:** ZERO mutation to src/sim/policy/bridge (aar-sweep track). All verification-before rules followed (cmds fresh; full stdout read before claims). Ready for gate.

@@ -2,7 +2,7 @@
 
 **Date:** 2026-06-24  
 **Status:** COMPLETE (S65-S68 all COMPLETE per updates; publish @ S65-01 per roadmap-062426 §9; supersedes baltic-v2-scope-boundary-2026-06-22.md for S65+ only — archive prior; S68 gate verified; human ack ready; cite this boundary on all S65-S68 artifacts)  
-**Authority:** [`docs/reports/future-sprint-roadpmap-062426.md`](../docs/reports/future-sprint-roadpmap-062426.md) §3, §6, §7, §10; [`docs/reports/roadmap-execute-plan-062426.md`](../docs/reports/roadmap-execute-plan-062426.md); post S64 human ack + S57–S64 COMPLETE  
+**Authority:** [`docs/reports/archive/roadmaps/future-sprint-roadmap-062426.md`](../docs/reports/archive/roadmaps/future-sprint-roadmap-062426.md) §3, §6, §7, §10; [`docs/reports/roadmap-execute-plan-062426.md`](../docs/reports/roadmap-execute-plan-062426.md); post S64 human ack + S57–S64 COMPLETE  
 **Lead Epic:** E10 Release operations (S65–S68)  
 **Exit:** S68 release train gate (ops-complete for Baltic v2 shippable slice; optional Launch stage decision)  
 
@@ -56,7 +56,7 @@ Build 0e/0w; test 1229/0f; Replay 6/6; C2 18/18; hash preserved; ZERO bridge.
 
 ## References
 
-- Roadmap: future-sprint-roadpmap-062426.md §3 (scope), §5 (GitNexus map), §6 (decisions), §7 (invariants), §10 (decomp)
+- Roadmap: docs/reports/archive/roadmaps/future-sprint-roadmap-062426.md §3 (scope), §5 (GitNexus map), §6 (decisions), §7 (invariants), §10 (decomp)
 - Execute plan: roadmap-execute-plan-062426.md §4 (S65 tracks), §6 (hard gates), §8 (agent prompts)
 - Prior: baltic-v2-scope-boundary-2026-06-22.md (superseded for S65+); s57-s64-program-closeout
 

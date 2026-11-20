@@ -6,7 +6,7 @@
 
 **Superpowers:** dispatching-parallel-agents + verification-before-completion + using-git-worktrees
 
-**Cites:** post-release-scope-boundary-2026-06-21.md (S53 E3 Req09) + docs/reports/future-sprint-roadpmap-062126.md §10 S53 E3 Req09 + superpowers
+**Cites:** post-release-scope-boundary-2026-06-21.md (S53 E3 Req09) + docs/reports/archive/roadmaps/future-sprint-roadmap-062126.md §10 S53 E3 Req09 + superpowers
 
 ## Verification-before (all fresh RUN + full READ before any claim)
 - Polled sub via get_command_or_subagent_output: full detailed output read (isolation, 1227/0f, DOTS/MASS, GitNexus pre on CRITICALs CatalogWriteGate 176/SimSession 179, detect low, ZERO bridge, siblings absolute reads, reports produced, superpowers).

@@ -64,7 +64,7 @@ Evidence: [`production/qa/evidence/gates-sprint-91-closeout-2026-07-09.log`](evi
 
 ## Next
 
-**S92** — Post-editor hygiene program gate + human ack **"post-editor hygiene program complete"**. Plan: [`future-sprint-roadpmap-07092026.md`](../../docs/reports/future-sprint-roadpmap-07092026.md) §3.
+**S92** — Post-editor hygiene program gate + human ack **"post-editor hygiene program complete"**. Plan: [`docs/reports/archive/roadmaps/future-sprint-roadmap-07092026.md`](../../docs/reports/archive/roadmaps/future-sprint-roadmap-07092026.md) §3.
 
 ---
 *S91 closeout. Specs only; ZERO bridge; Baltic hash preserved.*

@@ -7,7 +7,7 @@
 
 **Cites (mandatory, referenced throughout):**  
 - production/post-release-scope-boundary-2026-06-21.md (S55 E4 Req20; invariants: ≥1227 tests, 0f, ZERO DelegationBridge.cs, GitNexus impact/detect before symbols, Baltic hash 17144800277401907079 pinned, CatalogWriteGate extend-only, worktree isolation, C2 proxy 18/18+ expand for new UI)  
-- docs/reports/future-sprint-roadpmap.md §10 S55 + roadmap-062126.md §10 S55 E4 Req20 (E4: Cesium/globe production + hypersonic C2 UI + Editor PNG evidence shadow)  
+- docs/reports/future-sprint-roadmap.md §10 S55 + roadmap-062126.md §10 S55 E4 Req20 (E4: Cesium/globe production + hypersonic C2 UI + Editor PNG evidence shadow)  
 - production/release-enablement-scope-boundary-2026-06-20.md (Req 20 globe/Cesium + HYPERSONIC_ALERT UI as post-v1.0 epic handoff; Track B)  
 - production/polish-scope-boundary-2026-06-19.md (handoff + scope)  
 - production/sprints/sprint-55-cesium-globe-production.md (cesium track plan)  
@@ -30,7 +30,7 @@
 - git status --porcelain (closeout): (uncommitted: production/sprint-status.yaml + 2 qa reports; no src, no sim)  
 - git diff --name-only | grep -E 'DelegationBridge|SimulationSession|src/ProjectAegis.Sim|CatalogWriteGate' || echo 'ZERO'  
 - Full cross-worktree: no bleed; changes confined (cesium wt: Globe* / CesiumGlobe*; hyp wt: C2TopBar* + HYPERSONIC tests/docs; editor-evidence: S55-EDITOR-VERIF + PNG protocol; closeout: verif/docs/status).  
-- Cites post-release-scope-boundary-2026-06-21.md + roadmap-062126.md §10 S55 E4 Req20 + future-sprint-roadpmap.md §10 S55 in every verification step and this file.  
+- Cites post-release-scope-boundary-2026-06-21.md + roadmap-062126.md §10 S55 E4 Req20 + docs/reports/future-sprint-roadmap.md §10 S55 in every verification step and this file.  
 
 **Isolation PASS (using-git-worktrees).**
 
@@ -97,7 +97,7 @@ Commands (from closeout wt; export PATH="$HOME/.dotnet:$PATH"; dotnet 8.0.422 me
 
 ## 4. Aggregate Evidence from Sibling Worktrees (protocol step 4; Cesium / Hyp / Editor)
 **Cesium track (cesium wt; GlobeBridge/CameraController):**
-- Plan: production/sprints/sprint-55-cesium-globe-production.md (cites post-release-scope-boundary-2026-06-21.md, release-enablement..., future-sprint-roadpmap.md §10 S55, roadmap-062126.md, Req20, ADR-007; Must: live sync, GlobeCameraController, additive only, no sim).  
+- Plan: production/sprints/sprint-55-cesium-globe-production.md (cites post-release-scope-boundary-2026-06-21.md, release-enablement..., docs/reports/future-sprint-roadmap.md §10 S55, roadmap-062126.md, Req20, ADR-007; Must: live sync, GlobeCameraController, additive only, no sim).  
 - Evidence: production/qa/cesium-s55-production-evidence.md (read full; preflight GitNexus, delivered: CesiumGlobeBridge enhanced + GlobeCameraController new + CesiumGlobeHost; build/test green; gaps: full Editor PNG needs local Unity+ion; shadow evidence parallel).  
 - Code (read from cesium wt):  
   - unity/ProjectAegis/Assets/Scripts/Runtime/CesiumGlobeBridge.cs: S55 comments cite boundaries + roadmap §10 S55 E4 Req20; DelegationBridgeHost wiring (preferred LastMapSymbols), live Update refresh 10hz, Select forwarding, GetBillboardMarkers/GetCurrentPositions, #if guards, Baltic bbox. No sim mutation.  
@@ -109,7 +109,7 @@ Commands (from closeout wt; export PATH="$HOME/.dotnet:$PATH"; dotnet 8.0.422 me
 **Hypersonic track (hypersonic wt; HYPERSONIC_ALERT C2TopBar):**
 - Progress + code (read): "Implemented HYPERSONIC_ALERT topbar UI + C2 tie-in"; cites all boundaries + roadmap + reqs 09/20 + design docs. New UI safe (no sim).  
 - Code (read from hyp wt):  
-  - src/ProjectAegis.Delegation/Projection/C2TopBarProjection.cs: added hypersonicAlertActive=false (compat default), alertLabel = "⚠ HYPERSONIC ALERT — T-xxx s" (tension clock stub per 09-Near-Future-Technologies.md); S55 comments cite post-release-scope-boundary-2026-06-21.md + future-sprint-roadpmap.md §10 S55 E4 Req20 + using-git-worktrees + dispatching-parallel-agents.  
+  - src/ProjectAegis.Delegation/Projection/C2TopBarProjection.cs: added hypersonicAlertActive=false (compat default), alertLabel = "⚠ HYPERSONIC ALERT — T-xxx s" (tension clock stub per 09-Near-Future-Technologies.md); S55 comments cite post-release-scope-boundary-2026-06-21.md + docs/reports/future-sprint-roadmap.md §10 S55 E4 Req20 + using-git-worktrees + dispatching-parallel-agents.  
   - src/ProjectAegis.Delegation/Projection/C2TopBarState.cs: added HypersonicAlertLabel; S55 notes + cites.  
   - unity/ProjectAegis/Assets/Scripts/Runtime/C2TopBarPanelHost.cs: HypersonicAlertName const, _hypersonicAlert query, display = None : Flex, --alert class; S55 comments cite boundaries + Req 09/20.  
   - unity/.../DelegationBridgeHost.cs (hyp): comment hypersonicAlertActive: false (S55, future wire); cites boundary + roadmap + reqs.  
@@ -151,7 +151,7 @@ Commands (from closeout wt; export PATH="$HOME/.dotnet:$PATH"; dotnet 8.0.422 me
 - Scope: narrow S55 (E4 Req20 per roadmap §10 S55 E4 Req20 + post-release-scope-boundary-2026-06-21.md + roadmap-062126.md); no creep into deferred (e.g. full hyp spawn, DOTS).  
 - detect_changes: 0 symbols, low.  
 - All verification outputs read fully before claims (build, test, replay, proxy, topbar, MCP, files).  
-- Citations to post-release-scope-boundary-2026-06-21.md + roadmap-062126.md §10 S55 E4 Req20 + future-sprint-roadpmap.md §10 S55 + Req20/E4/S55 + superpowers everywhere.  
+- Citations to post-release-scope-boundary-2026-06-21.md + roadmap-062126.md §10 S55 E4 Req20 + docs/reports/future-sprint-roadmap.md §10 S55 + Req20/E4/S55 + superpowers everywhere.  
 - sprint-status.yaml (in this wt): s55_status COMPLETE, s55_closeout PASS, s55_cites (already includes post-release... + roadmap).  
 
 **No regression PASS. Additive PASS. Scope citations complete. verification-before PASS.**

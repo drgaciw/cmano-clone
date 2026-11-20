@@ -1,7 +1,7 @@
 // S53 DOTS spawn + MASS tier full (Req09 E3).
 // After S52 DOTS expand skeleton. Isolated fixtures first. Determinism engineer notes: Burst det ready.
 // Cites: production/release-enablement-scope-boundary-2026-06-20.md (Req09 post; "isolated-fixture pilot only"; no hash w/o ADR), 
-// production/gate-checks/scope-expansion-decision-2026-06-20.md, docs/reports/future-sprint-roadpmap.md §10 S53 + S52 DOTS, 
+// production/gate-checks/scope-expansion-decision-2026-06-20.md, docs/reports/future-sprint-roadmap.md §10 S53 + S52 DOTS, 
 // §7 invariants (Baltic hash immutable 17144800277401907079, replay 6/6, GitNexus impact before symbols, detect before commit), 
 // §0 parallel (git worktrees + dispatching), ADR-005, dots-ecs-notes.md (BurstCompile FloatMode.Deterministic), 
 // implementation-tracker-2026-06-04.md, progress.md.

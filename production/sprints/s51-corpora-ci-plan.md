@@ -5,7 +5,7 @@
 - `production/release-enablement-scope-boundary-2026-06-20.md` (post-release-scope-boundary) § "Explicitly out of scope": row 06 (Database Intelligence) subset "Full corpora in CI (7208/4844/4403); runtime TL fork selection | Post-release data epic"
 - **Cite:** `production/post-release-scope-boundary-2026-06-21.md` (S51 E5 Req06 full corpora CI + TL parallel)
 - Game-Requirements/implementation-tracker-2026-06-04.md row 06: DBI implementation history (P0 WriteGate + large corpus nightly off-CI); "Full corpora in CI" deferred.
-- Roadmap: docs/reports/future-sprint-roadpmap.md (S39-S48 baseline; S51+ post-release extension); s40-s48-local-cloud-agent-execution-plan-2026-06-20.md (team-data tracks)
+- Roadmap: docs/reports/future-sprint-roadmap.md (S39-S48 baseline; S51+ post-release extension); s40-s48-local-cloud-agent-execution-plan-2026-06-20.md (team-data tracks)
 - Stay independent of S49 runtime changes (no Sim/Delegation/Engage touches).
 
 **Status:** **FULL IMPL COMPLETE** (S51 corpora CI + S51-05 import-cohesion). Pipeline extended with full deterministic import cohesion monitoring (stable hashes, no wall-clock, CI tests, extend from corpora). Evidence from this run only.
@@ -71,7 +71,7 @@
 |------|------------------|---------------------------------------|-------------|------------------|
 | CWD/Worktree | pwd; git worktree list | /.../sprint50or51/corpora-ci ; confirmed isolated [stack/sprint50or51/corpora-ci] | PASS | Per strict |
 | GitNexus pre (multiple) | gitnexus__impact OsintCatalogMapper / CatalogWriteGate / CmoMarkdown* upstream (repo=/.../cmano-clone) ; detect_changes (worktree) | Mapper: LOW 0; Gate: CRITICAL 93d/176/7procs/12mods (Import hit); Cmo*: LOW; detect: only mapper (pre), med, ZERO gate | PASS | CRITICAL extend-only enforced. Re-ran pre any. Import symbols pre-checked. |
-| Docs review | read .../post-release-scope-boundary-2026-06-21.md , release-enablement... , future-sprint-roadpmap.md , impl-tracker Req06, s51-plan | Cited: production/post-release-scope-boundary-2026-06-21.md (S51 Req06 import cohesion); future-sprint-roadpmap.md §10 S51 + §0/§7 invariants; S49 OSINT mapper; corpora after. | Reviewed | Exact citations used in script header + plan + report. |
+| Docs review | read .../post-release-scope-boundary-2026-06-21.md , release-enablement... , docs/reports/future-sprint-roadmap.md , impl-tracker Req06, s51-plan | Cited: production/post-release-scope-boundary-2026-06-21.md (S51 Req06 import cohesion); docs/reports/future-sprint-roadmap.md §10 S51 + §0/§7 invariants; S49 OSINT mapper; corpora after. | Reviewed | Exact citations used in script header + plan + report. |
 | Build (full) | export PATH=...; dotnet build ProjectAegis.sln -c Debug --no-restore -v minimal | "Build succeeded. 0 Warning(s) 0 Error(s)" (full log read) | PASS | Full output read |
 | Tests baseline | dotnet test ProjectAegis.sln --no-build -v minimal ; aggregate | Data 404p, ... TOTAL ~1228 (404+252+246+279+42+5) | PASS | >=1227 maintained (1228 in run) |
 | Targeted corpora+import | dotnet test ...Data.Tests --filter ~Import|~Osint|~S51 ; replay gate | 122p Import/Val, 95p import-cohesion, 1p S51, 121p replay | PASS | Det filters, 6/6 golden hold |
@@ -84,6 +84,6 @@
 
 **Superpowers usage:** Concurrent MCP/tool calls (gitnexus impacts + builds/tests/pipeline in parallel dispatches); using-git-worktrees (isolated corpora-ci cwd confirmed via list/pwd/git-dir); verification-before-completion (cmds run, full outputs read_file'd before any claim/evidence table).
 
-**Citations (exact):** production/post-release-scope-boundary-2026-06-21.md (S51 Req06 import cohesion); docs/reports/future-sprint-roadpmap.md §10 S51 + §0/§7 invariants + §2 Import 67% cohesion signal; release-enablement-scope-boundary-2026-06-20.md (Req06 subset); S49 OSINT mapper extend pattern; AGENTS/CLAUDE (impact pre, detect, CatalogWriteGate extend-only, Delegation ZERO, worktree, >=1227 tests).
+**Citations (exact):** production/post-release-scope-boundary-2026-06-21.md (S51 Req06 import cohesion); docs/reports/future-sprint-roadmap.md §10 S51 + §0/§7 invariants + §2 Import 67% cohesion signal; release-enablement-scope-boundary-2026-06-20.md (Req06 subset); S49 OSINT mapper extend pattern; AGENTS/CLAUDE (impact pre, detect, CatalogWriteGate extend-only, Delegation ZERO, worktree, >=1227 tests).
 
 All additive. S51 corpora CI + S51-05 import-cohesion full track complete per roadmap. Subagent: corpora-ci-s51-import-cohesion-track-subagent-2026-06-21 .

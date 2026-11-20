@@ -7,7 +7,7 @@
 >
 > This roadmap is **direction, not a commitment**. Per `docs/COLLABORATIVE-DESIGN-PRINCIPLE.md`,
 > each sprint is still planned via `/sprint-plan` with user approval. Filename retains the original
-> `roadpmap` spelling for link stability — rename to `future-sprint-roadmap.md` is offered separately.
+> `roadmap` spelling for link stability — rename to `future-sprint-roadmap.md` is offered separately.
 
 ---
 
@@ -149,13 +149,13 @@ Per `CLAUDE.md` + observed gates — a sprint **fails** if any regress:
 
 1. **Horizon depth:** How many deeper-Polish sprints (S39–S41 proposed) before forcing the scope-expansion decision?
 2. **Debt timing:** Refactor `Decision`/`Telemetry` as a Polish-adjacent hardening sprint, or strictly post-boundary (B3)?
-3. **Filename:** Rename this file to `future-sprint-roadmap.md` (fix `roadpmap` typo)?
+3. **Filename:** Rename this file to `future-sprint-roadmap.md` (fix `roadmap` typo)?
 
 ---
 
 ## 9. S42–S48 decomposition (Track B → sprint mapping)
 
-> **Status:** Scope-expansion decision **APPROVED** (2026-06-20): [`production/gate-checks/scope-expansion-decision-2026-06-20.md`](../production/gate-checks/scope-expansion-decision-2026-06-20.md). **S42 blocked until S41 closeout** (S40 in progress). Track B boundary: [`production/release-enablement-scope-boundary-2026-06-20.md`](../production/release-enablement-scope-boundary-2026-06-20.md). **Agent execution plan (S40–S48):** [`s40-s48-local-cloud-agent-execution-plan-2026-06-20.md`](s40-s48-local-cloud-agent-execution-plan-2026-06-20.md).
+> **Status:** Scope-expansion decision **APPROVED** (2026-06-20): [`production/gate-checks/scope-expansion-decision-2026-06-20.md`](../../../../production/gate-checks/scope-expansion-decision-2026-06-20.md). **S42 blocked until S41 closeout** (S40 in progress). Track B boundary: [`production/release-enablement-scope-boundary-2026-06-20.md`](../../../../production/release-enablement-scope-boundary-2026-06-20.md). **Agent execution plan (S40–S48):** [`s40-s48-local-cloud-agent-execution-plan-2026-06-20.md`](../../s40-s48-local-cloud-agent-execution-plan-2026-06-20.md).
 
 | Sprint | Track B epic(s) | Primary goal | Sprint plan | Parallel kickoff | Est. calendar | Dispatch status |
 |--------|-----------------|--------------|-------------|------------------|---------------|-----------------|

@@ -4,7 +4,7 @@
 **Worktree (mandatory isolation):** `/home/username01/projects/active/cmano-clone/.worktrees/stack/sprint53/closeout`  
 **Branch:** `stack/sprint53/closeout`  
 **Cites (all artifacts + this verif):**  
-- `post-release-scope-boundary-2026-06-21.md` (S53 Req09 / E3) + `docs/reports/future-sprint-roadpmap.md` §10  
+- `post-release-scope-boundary-2026-06-21.md` (S53 Req09 / E3) + `docs/reports/future-sprint-roadmap.md` §10  
 - `production/release-enablement-scope-boundary-2026-06-20.md` (Req09 post-release; isolated fixtures only; no prod hash/bridge w/o ADR)  
 - `production/gate-checks/scope-expansion-decision-2026-06-20.md`  
 - `production/polish-scope-boundary-2026-06-19.md` (cross-ref)  

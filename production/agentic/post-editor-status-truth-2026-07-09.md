@@ -27,7 +27,7 @@
 
 1. GitNexus re-index @ `223a5fe` — **COMPLETE**
 2. Invariant gate RUN+READ — **COMPLETE** (1599/0f, 6/6, 20/20)
-3. Dated roadmap `future-sprint-roadpmap-07092026.md` — **PUBLISHED**
+3. Dated roadmap `docs/reports/archive/roadmaps/future-sprint-roadmap-07092026.md` — **PUBLISHED**
 4. Scope boundary + execute plan — **PUBLISHED**
 5. Stable alias retargeted — **PUBLISHED**
 6. Roadmap **APPROVED** by user — **2026-07-09**

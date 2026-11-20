@@ -2,7 +2,7 @@
 
 **Date:** 2026-07-04  
 **Sprint:** S87 — Unity AC-8 Round-Trip (local track)  
-**Authority:** `production/sprints/sprint-87-unity-roundtrip.md` + `production/agentic/sprint-87-parallel-kickoff-2026-07-04.md` + `roadmap-execute-plan-07042026.md` §4 (S87) + `future-sprint-roadpmap-07042026.md` + `scenario-editor-scope-boundary-2026-07-04.md` + `qa-plan-scenario-editor-2026-07-01.md` (unit #8 AC-8) + `implementation-tracker-2026-07-04.md` + `Game-Requirements/requirements/11-Agentic-Mission-Editor.md` (AC-8) + AGENTS.md + CLAUDE.md
+**Authority:** `production/sprints/sprint-87-unity-roundtrip.md` + `production/agentic/sprint-87-parallel-kickoff-2026-07-04.md` + `roadmap-execute-plan-07042026.md` §4 (S87) + `docs/reports/archive/roadmaps/future-sprint-roadmap-07042026.md` + `scenario-editor-scope-boundary-2026-07-04.md` + `qa-plan-scenario-editor-2026-07-01.md` (unit #8 AC-8) + `implementation-tracker-2026-07-04.md` + `Game-Requirements/requirements/11-Agentic-Mission-Editor.md` (AC-8) + AGENTS.md + CLAUDE.md
 
 ## Summary
 
@@ -98,7 +98,7 @@ node .gitnexus/run.cjs detect_changes --scope ...  # post
 
 ## Cites (MANDATORY)
 
-`roadmap-execute-plan-07042026.md` §3/§4 (S87) + `future-sprint-roadpmap-07042026.md` + `scenario-editor-scope-boundary-2026-07-04.md` + `qa-plan-scenario-editor-2026-07-01.md` (unit #8 AC-8) + `implementation-tracker-2026-07-04.md` + `Game-Requirements/requirements/11-Agentic-Mission-Editor.md` (AC-8) + AGENTS.md + this kickoff + `production/sprints/sprint-87-unity-roundtrip.md`
+`roadmap-execute-plan-07042026.md` §3/§4 (S87) + `docs/reports/archive/roadmaps/future-sprint-roadmap-07042026.md` + `scenario-editor-scope-boundary-2026-07-04.md` + `qa-plan-scenario-editor-2026-07-01.md` (unit #8 AC-8) + `implementation-tracker-2026-07-04.md` + `Game-Requirements/requirements/11-Agentic-Mission-Editor.md` (AC-8) + AGENTS.md + this kickoff + `production/sprints/sprint-87-unity-roundtrip.md`
 
 **Out of scope noted:** map placement (AME-4.x), visual event graph editing, full Unity edit-mode authoring — Phase 2 (post S88).
 

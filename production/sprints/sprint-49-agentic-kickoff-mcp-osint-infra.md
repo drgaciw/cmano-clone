@@ -4,7 +4,7 @@
 **Trunk:** `main` @ post-S48 Release  
 **Predecessor:** Sprint 48 — COMPLETE (RC1 cut; stage Release)  
 **Stage:** Post-Release internal engineering (S49+ program)  
-**Authority:** [`production/post-release-scope-boundary-2026-06-21.md`](../post-release-scope-boundary-2026-06-21.md); [`docs/reports/future-sprint-roadpmap.md`](../../docs/reports/future-sprint-roadpmap.md) §9
+**Authority:** [`production/post-release-scope-boundary-2026-06-21.md`](../post-release-scope-boundary-2026-06-21.md); [`docs/reports/future-sprint-roadmap.md`](../../docs/reports/future-sprint-roadmap.md) §9
 
 > **READY TO DISPATCH** — post-release scope boundary published 2026-06-21. E2 lead epic; Req **05** + **07** (foundations). Commercial launch (E7) and playtest sweep (E1) are **not** S49 scope.
 
@@ -154,7 +154,7 @@ dotnet test src/ProjectAegis.Delegation.UnityAdapter.Tests/ProjectAegis.Delegati
 | Artifact | Path |
 |----------|------|
 | Scope boundary | `production/post-release-scope-boundary-2026-06-21.md` |
-| Roadmap | `docs/reports/future-sprint-roadpmap.md` §9 |
+| Roadmap | `docs/reports/future-sprint-roadmap.md` §9 |
 | Kickoff | `production/agentic/sprint-49-parallel-kickoff-2026-06-21.md` |
 | Req 05 | `Game-Requirements/requirements/05-Dynamic-Systems-Agent.md` |
 | Req 07 | `Game-Requirements/requirements/07-Agentic-Infrastructure.md` |

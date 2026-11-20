@@ -228,7 +228,7 @@ Do not plan "finish SWARM", "re-open S93 corpus", or "backfill Linear S1–S107"
 
 ## 7. References
 
-- [future-sprint-roadmap-07142026.md](../../docs/reports/future-sprint-roadmap-07142026.md)  
+- [docs/reports/archive/roadmaps/future-sprint-roadmap-07142026.md](../../docs/reports/archive/roadmaps/future-sprint-roadmap-07142026.md)  
 - [roadmap-execution-plan-071426.md](../../docs/reports/roadmap-execution-plan-071426.md)  
 - [linear-parallel-dispatch-playbook.md](linear-parallel-dispatch-playbook.md)  
 - [critical-hub-merge-playbook-2026-07-14.md](critical-hub-merge-playbook-2026-07-14.md)  

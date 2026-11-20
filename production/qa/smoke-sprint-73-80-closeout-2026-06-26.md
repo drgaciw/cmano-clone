@@ -9,7 +9,7 @@
 **Authority (MANDATORY citations):**  
 - `production/baltic-v3-scope-boundary-2026-06-25.md` (in/out, invariants §5 CRITs: CatalogWriteGate=178, Patrol=97, DelegationBridge=127, BalticReplayHarness=52; extend-only; ZERO bridge; hash 17144800277401907079; stage Release; GitNexus + verification-before mandatory).  
 - `docs/reports/roadmap-execute-plan-062526.01.md` (S73-S80 tables, wave order, content-complete gate at S80).  
-- `docs/reports/future-sprint-roadpmap-062526.01.md`  
+- `docs/reports/archive/roadmaps/future-sprint-roadmap-062526.01.md`  
 - `AGENTS.md` (GitNexus pre: search+use list/detect/impact on CRITs before edit/claim; verification-before RUN+READ all outputs; gt sync/restack/submit --stack --no-interactive; TDD + dispatching-parallel-agents + using-git-worktrees for tracks).  
 - Prior: S69-S72 COMPLETE artifacts + S57-S64 v2 baseline.  
 - Superpowers: test-driven-development + dispatching-parallel-agents.
@@ -95,7 +95,7 @@ All automated tests PASS (0f post TDD fix). Gates + invariants held (RUN+READ + 
 
 **Next:** Human ack "Baltic v3 content-complete". Optional promote decision. GT user-side.
 
-Cites: baltic-v3-scope-boundary-2026-06-25.md + roadmap-execute-plan-062526.01.md + future-sprint-roadpmap-062526.01.md + AGENTS.md + superpowers (test-driven-development, dispatching-parallel-agents) + verification-before + prior S69-S72.
+Cites: baltic-v3-scope-boundary-2026-06-25.md + roadmap-execute-plan-062526.01.md + docs/reports/archive/roadmaps/future-sprint-roadmap-062526.01.md + AGENTS.md + superpowers (test-driven-development, dispatching-parallel-agents) + verification-before + prior S69-S72.
 
 ---
 

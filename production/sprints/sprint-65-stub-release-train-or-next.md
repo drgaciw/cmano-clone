@@ -4,7 +4,7 @@
 **Status:** STUB — Optional. Program exit from S57-S64 achieved. Use for release train continuation or S65+ content if decided.
 
 **Context (cites):**
-- S57-S64 Baltic v2 COMPLETE (see production/qa/s57-s64-program-closeout-2026-06-22.md + sprint-status.yaml s57_s64_* + docs/reports/future-sprint-roadpmap-062226.md § closed milestones + human ack + merge).
+- S57-S64 Baltic v2 COMPLETE (see production/qa/s57-s64-program-closeout-2026-06-22.md + sprint-status.yaml s57_s64_* + docs/reports/archive/roadmaps/future-sprint-roadmap-062226.md § closed milestones + human ack + merge).
 - All gates: build/test/replay/proxy/hash/ZERO bridge/GitNexus held.
 - Ready for restack: gt restack, gt submit --stack etc (per AGENTS.md, roadmap §0).
 - Stage remains Release.
@@ -30,7 +30,7 @@
 **Evidence paths (from S64 close):**
 - /home/username01/cmano-clone/cmano-clone/production/qa/s57-s64-program-closeout-2026-06-22.md
 - /home/username01/cmano-clone/cmano-clone/production/sprint-status.yaml (s57_s64_final etc)
-- /home/username01/cmano-clone/cmano-clone/docs/reports/future-sprint-roadpmap-062226.md
+- /home/username01/cmano-clone/cmano-clone/docs/reports/archive/roadmaps/future-sprint-roadmap-062226.md
 - AGENTS.md (gt commands full)
 - production/baltic-v2-scope-boundary-2026-06-22.md
 
@@ -68,10 +68,10 @@ See AGENTS.md + roadmap §0.4 + production/qa/s57-s64-program-closeout-merged-20
     - [x] Exit 0 success / non0 invalid — Demo flow + test gates
   - Test evidence: replay goldens (tests/regression/replay-golden-baltic-*.txt incl patrol/replay-checkpoints), policy tests (BalticReplayHarnessPolicyEngageTests, Baltic*Policy*, CombatDomainsSmokePolicyTests), harness src (BalticReplayHarness.cs:Run/Result/Fingerprint, Demo/Program.cs), UA tests (ReplayGoldenSuiteTests 6/6, PlayModeSmoke 18/18, Baltic* harness tests), C2 proxy. No more impl. "dev-story verification complete".
 - Fresh RUN+READ verifs (this session, canonical path): build 0e/0w; full test 1229/0f (279 Sim+43 Cli+247 Del+5 Excel+252 UA+403 Data); replay 6/6; C2 18/18; hash preserved (grep hits in goldens); ZERO bridge (adapter/Bridge/ only + no diff); git status (ahead 13, modified reports); GitNexus (search_tool first + use_tool list_repos/detect/impact): nodes~19522/edges~37007, detect low 12/0 risk, impacts §5 Patrol CRITICAL97 / Bridge CRITICAL127 / Catalog CRITICAL176 / BalticReplayHarness CRITICAL52 (exact match).
-- Files appended/updated (additive reports only): production/sprints/sprint-65-stub-*.md , production/qa/s57-s64-program-closeout-2026-06-22.md , docs/reports/future-sprint-roadpmap-062226.md , production/sprint-status.yaml (s57_s64 blocks extended).
+- Files appended/updated (additive reports only): production/sprints/sprint-65-stub-*.md , production/qa/s57-s64-program-closeout-2026-06-22.md , docs/reports/archive/roadmaps/future-sprint-roadmap-062226.md , production/sprint-status.yaml (s57_s64 blocks extended).
 - Gt restack block prepared below. Full wts evidence paths: .worktrees/stack/sprint*/ (goldens, scenarios baltic-v2*, qa), production/qa/s57-s64-*.md , data/scenarios/baltic-v2*.policy.json , tests/regression/replay-golden*.txt , src/*BalticReplayHarness* .
 - Reindex + hindsight + "ready for gt restack" + optional S65 activation (per stub): reindex confirmed (GitNexus live 19522 nodes match HEAD 77feb30); hindsight retained (verif outputs + AC evidence + superpowers); ready per §0.4. S65: (1) human decision on scope (2) sprint-status add s65_* (3) create production/sprints/sprint-65-*.md (4) gt prep + post-restack reindex + dispatch via sprint-plan citing boundary+roadmap+verification-before.
-**Cites: production/baltic-v2-scope-boundary-2026-06-22.md + docs/reports/future-sprint-roadpmap-062226.md §0.4/§5/§10 + sprint-status s57_s64 + AGENTS.md + superpowers (dispatching-parallel-agents + using-git-worktrees + verification-before-completion + hindsight-retain + replay-verify) + human ack "i provide the ack" + verification-before on all RUN+READ/claims. Full evidence ready. dev-story verification complete.**
+**Cites: production/baltic-v2-scope-boundary-2026-06-22.md + docs/reports/archive/roadmaps/future-sprint-roadmap-062226.md §0.4/§5/§10 + sprint-status s57_s64 + AGENTS.md + superpowers (dispatching-parallel-agents + using-git-worktrees + verification-before-completion + hindsight-retain + replay-verify) + human ack "i provide the ack" + verification-before on all RUN+READ/claims. Full evidence ready. dev-story verification complete.**
 
 *Final /dev-story + evidence finalizer + S65/release prep subagent. 2026-06-23.*
 
@@ -87,7 +87,7 @@ See AGENTS.md + roadmap §0.4 + production/qa/s57-s64-program-closeout-merged-20
 - MCP (search_tool schemas first + use_tool): list_repos (cmano-clone canonical @28c582d: files=2446, nodes=19665, edges=37292, communities=366, processes=300, indexedAt=2026-06-24T19:49:47.235Z); detect_changes(scope=compare, base_ref=main, worktree+repo full): changed=23, affected=0, risk=low (docs + UnifiedReleaseTrain* + CatalogReleaseDiffCommand); impacts upstream summaryOnly on key: PatrolCandidateEngagePolicy=CRITICAL 97 (d2 p2), DelegationBridge=CRITICAL 127 (d30 p2), CatalogWriteGate=CRITICAL 178 (d93 p7), BalticReplayHarness=CRITICAL 52 (d52 p0), UnifiedReleaseTrainManifest (via uid)=LOW 9.
 - Status: ✅ up-to-date (was ⚠️ stale @2ed5ece vs HEAD 28c582d); meta updated.
 - Verification gates (fresh RUN+READ): dotnet build 0e 0w; dotnet test UA filter PlayModeSmokeHarnessTests 18/18 PASS; full sln test 0f (Sim279 + Del247 + UA252 + Data406 + Cli43 + Excel5); prior baseline ~1229 held monotonic.
-- Updated: production/sprint-status.yaml (main indexed_commit + S65-05 cite); note here + cites boundary/release-train-scope-boundary-2026-06-24.md + future-sprint-roadpmap-062426.md §0/§5 + execute-plan.
+- Updated: production/sprint-status.yaml (main indexed_commit + S65-05 cite); note here + cites boundary/release-train-scope-boundary-2026-06-24.md + docs/reports/archive/roadmaps/future-sprint-roadmap-062426.md §0/§5 + execute-plan.
 - Evidence: terminal logs (analyze success, status, MCP, build/test), .gitnexus/meta.json, sprint-status, roadmap-execute-plan.
 Self contained. All per AGENTS.md GitNexus rules (impact before edit, detect before commit). 2026-06-24.
 

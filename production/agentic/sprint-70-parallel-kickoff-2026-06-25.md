@@ -1,7 +1,7 @@
 # S70 Parallel Kickoff — Store + Community Prep (E7)
 
 **Date:** 2026-06-25  
-**Per:** `production/commercial-launch-scope-boundary-2026-06-25.md`, `docs/reports/roadmap-execute-plan-062526.md` §3/§4/§5/§9 (S70 tracks table exact, wave, prereqs S69 complete, create sprint-70 plan + kickoff at dispatch), `docs/reports/future-sprint-roadpmap-062526.md` §3/§4/§9/§10, `production/sprints/sprint-70-store-community-prep.md` (light), S69 complete + S66 v2 checklist input, sprint-status
+**Per:** `production/commercial-launch-scope-boundary-2026-06-25.md`, `docs/reports/roadmap-execute-plan-062526.md` §3/§4/§5/§9 (S70 tracks table exact, wave, prereqs S69 complete, create sprint-70 plan + kickoff at dispatch), `docs/reports/archive/roadmaps/future-sprint-roadmap-062526.md` §3/§4/§9/§10, `production/sprints/sprint-70-store-community-prep.md` (light), S69 complete + S66 v2 checklist input, sprint-status
 
 ## Prereqs (S69 complete ✓)
 - [x] S69 full COMPLETE (smoke-sprint-69-closeout-2026-06-25.md + sprint-status.yaml s69_status: S69-04 COMPLETE; gates 0e/1232/0f/6/6/18/18/hash `17144800277401907079`/ZERO=0; GitNexus ~19962/37627/2462 @28c582d + impacts 178/97/127/52 CRIT exact)
@@ -72,7 +72,7 @@ rg "DelegationBridge" src/ --glob "!**/DelegationBridge.cs" -l || true
 - Post close S70: S71 dispatch (i18n + launch docs).
 - GT: stack/sprint70/* ; user sync post staged.
 
-All artifacts cite: commercial-launch-scope-boundary-2026-06-25.md + roadmap-execute-plan-062526.md §3/§4/§5/§9 + future-sprint-roadpmap-062526.md §3/§6/§7/§10 + AGENTS.md + S69 artifacts + S66 release-checklist-v2.md .
+All artifacts cite: commercial-launch-scope-boundary-2026-06-25.md + roadmap-execute-plan-062526.md §3/§4/§5/§9 + docs/reports/archive/roadmaps/future-sprint-roadmap-062526.md §3/§6/§7/§10 + AGENTS.md + S69 artifacts + S66 release-checklist-v2.md .
 
 **S70 dispatch ready.** (S69 complete; prereqs met; plan + this kickoff created; gates/GitNexus PASS pre.)
 

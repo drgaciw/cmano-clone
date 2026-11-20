@@ -5,7 +5,7 @@
 **After:** S54  
 **Cites:**  
 - `production/release-enablement-scope-boundary-2026-06-20.md` (Req 20; Cesium/globe production; post-MVP Track B boundary)  
-- `docs/reports/future-sprint-roadpmap.md` §10 S55 (roadmap)  
+- `docs/reports/future-sprint-roadmap.md` §10 S55 (roadmap)  
 - `production/polish-scope-boundary-2026-06-19.md` (handoff #1: Globe map + Cesium production)  
 - `docs/architecture/adr-007-c2-map-presentation.md` (Phase B)  
 - `Game-Requirements/requirements/20-Command-And-Control-UI.md` (P0 WGS84 globe, pan/zoom/rotate, milsim UX, integration)  

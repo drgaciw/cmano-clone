@@ -6,7 +6,7 @@
 **Sub ID / Protocol:** S53-REVERIF-20260621-orch (verification-before-completion + using-git-worktrees + dispatching-parallel-agents strictly)
 
 **Cites (verbatim + enforced in all evidence):**  
-- `post-release-scope-boundary-2026-06-21.md` (S53 E3 / Req 09: "Full DOTS spawn; MASS tier beyond harness `NF_SPAWN`; isolated fixtures before production hash.") + `docs/reports/future-sprint-roadpmap.md` §10 S53 E3 Req09 (mass-tier + closeout editions, 2026-06-21)  
+- `post-release-scope-boundary-2026-06-21.md` (S53 E3 / Req 09: "Full DOTS spawn; MASS tier beyond harness `NF_SPAWN`; isolated fixtures before production hash.") + `docs/reports/future-sprint-roadmap.md` §10 S53 E3 Req09 (mass-tier + closeout editions, 2026-06-21)  
 - `production/release-enablement-scope-boundary-2026-06-20.md` (Req09 post-release; isolated fixtures only; no prod hash/bridge w/o ADR)  
 - `production/gate-checks/scope-expansion-decision-2026-06-20.md`  
 - `production/polish-scope-boundary-2026-06-19.md` (cross-ref)  
@@ -157,7 +157,7 @@ All logs + counts READ before claims. Parallel dispatches + sibling cds used.
 - `SwarmTier.cs` (mass-tier): enum Mass=2; MassMaxEntities=5000; MaxEntitiesFor impl.
 - `tests/regression/...golden...txt:2`: WORLD_HASH=17144800277401907079
 - `post-release-scope-boundary-2026-06-21.md:28,61-63`: "S53 | E3 | Req 09" ; "Full DOTS spawn; MASS tier beyond harness `NF_SPAWN`; isolated fixtures before production hash."
-- `future-sprint-roadpmap.md §10 (mass-tier/closeout)`: "S53 MASS tier (this isolated worktree...)"; "Full DOTS spawn..."; cites release-enablement + S53 tracks.
+- `docs/reports/future-sprint-roadmap.md §10 (mass-tier/closeout)`: "S53 MASS tier (this isolated worktree...)"; "Full DOTS spawn..."; cites release-enablement + S53 tracks.
 - superpowers-setup.md: lists `using-git-worktrees`, `verification-before-completion`; dispatching-parallel-agents in kickoffs/progress.
 - Prior S53 verif read in full (S53-closeout-verif-2026-06-21.md + *-orch.md): matching gates, sub IDs, evidence paths, superpowers calls, 1227/6/6/18/18.
 - GitNexus detect/impact outputs (above): full tool responses read.

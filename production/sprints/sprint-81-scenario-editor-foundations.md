@@ -3,7 +3,7 @@
 **Dates:** 2026-07-04 start (est. 5–7 days)  
 **Lead:** E11 / producer + c-sharp-devops-engineer  
 **Program:** S81–S88 Scenario Editor (req 11)  
-**Authority:** `roadmap-execute-plan-07042026.md` §3/§4 (S81), `future-sprint-roadpmap-07042026.md`, `scenario-editor-scope-boundary-2026-07-04.md`, `qa-plan-scenario-editor-2026-07-01.md`, `implementation-tracker-2026-07-04.md`
+**Authority:** `roadmap-execute-plan-07042026.md` §3/§4 (S81), `docs/reports/archive/roadmaps/future-sprint-roadmap-07042026.md`, `scenario-editor-scope-boundary-2026-07-04.md`, `qa-plan-scenario-editor-2026-07-01.md`, `implementation-tracker-2026-07-04.md`
 
 ## Sprint Goal
 Publish scope boundary, produce branch integration plan for the in-flight `fix-scenario-publish-cli-wiring` stack, re-index GitNexus with editor symbols, and close the sprint with clean baseline verification. Enable safe merge of validation tracks A–D and set up for S82+ parallel work.

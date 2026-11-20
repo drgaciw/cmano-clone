@@ -7,7 +7,7 @@ Superpowers used: dispatching-parallel-agents (via roadmap §10 parallel tracks)
 
 === CITATIONS (per task) ===
 - post-release-scope-boundary-2026-06-21.md Req06 (S51 E5): "Full corpora in CI + TL runtime fork selection"
-- future-sprint-roadpmap.md §10 S51 TL fork: "TL runtime fork | S51-03, S51-04 | ... TL fork must not regress existing export metadata path. ... full parallel."
+- docs/reports/future-sprint-roadmap.md §10 S51 TL fork: "TL runtime fork | S51-03, S51-04 | ... TL fork must not regress existing export metadata path. ... full parallel."
 - Invariants from boundaries + release-enablement: >=1227 headless tests (post S49 baseline 1227), ReplayGolden 6/6, C2 proxy 18/18+, Baltic hash 17144800277401907079 immutable, ZERO DelegationBridge, GitNexus impact+detect, additive/extend-only, CatalogWriteGate extend-only.
 
 === GitNexus PREFLIGHT (MANDATORY before edits; used tools search_tool + use_tool) ===

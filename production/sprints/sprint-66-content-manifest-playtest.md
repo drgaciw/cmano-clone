@@ -6,7 +6,7 @@
 **Capacity:** ~8–10 days total, 20% buffer. Cloud for manifest/checklist; local for playtest index + closeout.
 **Model:** Per roadmap-062426 §0 + execute-plan §4/5. Parallel after baseline. Isolated worktrees. GitNexus impact preflights mandatory. verification-before on all claims. Cite boundary + roadmap §0/5/7/10 + execute §6 gates.
 
-Cites: release-train-scope-boundary-2026-06-24.md + future-sprint-roadpmap-062426.md §0/3/5/7/10 + roadmap-execute-plan-062426.md §4/5/6/8/9 + superpowers (dispatching-parallel-agents + verification-before-completion + using-git-worktrees)
+Cites: release-train-scope-boundary-2026-06-24.md + docs/reports/archive/roadmaps/future-sprint-roadmap-062426.md §0/3/5/7/10 + roadmap-execute-plan-062426.md §4/5/6/8/9 + superpowers (dispatching-parallel-agents + verification-before-completion + using-git-worktrees)
 
 ## Tasks / Tracks (from execute-plan §4)
 
@@ -70,4 +70,4 @@ Example flow (per S65 manifest + execute-plan §4 S66): reference S65 Unified* +
 - Update sprint-status.yaml + production/release/release-checklist-v2.md (S66-04 populated with concrete from S65 + boundary; supersedes v1) + production/qa/
 - Prep S67 dispatch only after S66 PASS.
 
-Cites: release-train-scope-boundary-2026-06-24.md + future-sprint-roadpmap-062426.md §0/3/5/7/10 + roadmap-execute-plan-062426.md §4/5/6/8/9 + superpowers:dispatching-parallel-agents + verification-before. S65 artifacts referenced. All artifacts cite boundary. *Generated per sprint-65-*-pattern + execute plan. Dispatch via dispatching-parallel-agents after S65.*
+Cites: release-train-scope-boundary-2026-06-24.md + docs/reports/archive/roadmaps/future-sprint-roadmap-062426.md §0/3/5/7/10 + roadmap-execute-plan-062426.md §4/5/6/8/9 + superpowers:dispatching-parallel-agents + verification-before. S65 artifacts referenced. All artifacts cite boundary. *Generated per sprint-65-*-pattern + execute plan. Dispatch via dispatching-parallel-agents after S65.*

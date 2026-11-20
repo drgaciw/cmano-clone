@@ -8,7 +8,7 @@
 **Authority / Citations (mandatory):**  
 - [`production/release-train-scope-boundary-2026-06-24.md`](../release-train-scope-boundary-2026-06-24.md) (PUBLISHED; supersedes baltic-v2 for S65+; standing invariants; §Standing Invariants)  
 - [`docs/reports/roadmap-execute-plan-062426.md`](../../docs/reports/roadmap-execute-plan-062426.md) §4 (S65 tracks), §6 (Hard gates + exact commands), §7 (File ownership), §8 (Agent B prompt: "Refresh post-S64 gate matrix... Run gates fresh; READ full output before claims"), §9 (prereqs + verification)  
-- [`docs/reports/future-sprint-roadpmap-062426.md`](../../docs/reports/future-sprint-roadpmap-062426.md) §7 (Standing invariants), §10 (S65-02 Gate matrix), §0.4 (merge gate), §0.6 (pre-flight)  
+- [`docs/reports/archive/roadmaps/future-sprint-roadmap-062426.md`](../../docs/reports/archive/roadmaps/future-sprint-roadmap-062426.md) §7 (Standing invariants), §10 (S65-02 Gate matrix), §0.4 (merge gate), §0.6 (pre-flight)  
 - Post-S64 closeout: [`production/qa/s57-s64-program-closeout-2026-06-22.md`](../s57-s64-program-closeout-2026-06-22.md); prior gate matrices (baltic-v2, post-release) for format precedent.  
 - AGENTS.md / CLAUDE.md (verification-before on claims; docs-only for this track; no GitNexus required per task).  
 
@@ -20,7 +20,7 @@
 
 ## Hard Gates Matrix (Post-S64 / S65 baseline)
 
-All standing invariants from `production/release-train-scope-boundary-2026-06-24.md` §Standing Invariants (S65+) and `docs/reports/future-sprint-roadpmap-062426.md` §7 enforced. Exact commands from execute-plan §6 used. **Verification-before-completion applied on all RUN+READ outputs** (full logs captured + inspected before claims). Fresh runs executed 2026-06-24 in this session. No code changes (pure doc refresh track).
+All standing invariants from `production/release-train-scope-boundary-2026-06-24.md` §Standing Invariants (S65+) and `docs/reports/archive/roadmaps/future-sprint-roadmap-062426.md` §7 enforced. Exact commands from execute-plan §6 used. **Verification-before-completion applied on all RUN+READ outputs** (full logs captured + inspected before claims). Fresh runs executed 2026-06-24 in this session. No code changes (pure doc refresh track).
 
 | Gate | Floor / Policy | Status (2026-06-24) | Evidence / Command Output |
 |------|----------------|---------------------|---------------------------|
@@ -110,10 +110,10 @@ dotnet test src/ProjectAegis.Delegation.UnityAdapter.Tests/ProjectAegis.Delegati
 ## References / Related
 
 - Hard gates table + commands: roadmap-execute-plan-062426.md §6
-- S65 decomposition: future-sprint-roadpmap-062426.md §10
+- S65 decomposition: docs/reports/archive/roadmaps/future-sprint-roadmap-062426.md §10
 - Post-S64 baseline: s57-s64-program-closeout-2026-06-22.md + sprint-65-stub + sprint-status.yaml
 - Prior matrices: production/qa/gate-matrix-baltic-v2-2026-06-22.md ; gate-matrix-post-release-2026-06-21.md
 
 **All claims RUN+READ verified before inclusion. Self-contained doc track. No shared edits.**
 
-*Generated 2026-06-24 by Cloud agent S65-02 per roadmap/execute-plan §8 Agent B. Cite release-train-scope-boundary-2026-06-24.md + future-sprint-roadpmap-062426.md §7 on all follow-on artifacts.*
+*Generated 2026-06-24 by Cloud agent S65-02 per roadmap/execute-plan §8 Agent B. Cite release-train-scope-boundary-2026-06-24.md + docs/reports/archive/roadmaps/future-sprint-roadmap-062426.md §7 on all follow-on artifacts.*

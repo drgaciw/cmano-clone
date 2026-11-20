@@ -138,7 +138,7 @@ Additive content and ops only. Does **not** change S56 MVP row grades.
 | Live validation | `ScenarioValidationEngine.cs`, `ScenarioDocumentEditorLiveValidationTests.cs` | 06, 11 |
 | CLI publish / scaffold | `ScenarioPublishCommand.cs`, `ScenarioAiScaffoldCommand.cs` | 07, 11 |
 
-**Next planning artifact:** new dated `docs/reports/future-sprint-roadpmap-*.md` via `/sprint-plan` when next program is approved (S73–S80 program CLOSED per [future-sprint-roadpmap-062526.01.md](../docs/reports/future-sprint-roadpmap-062526.01.md)).
+**Next planning artifact:** new dated `docs/reports/future-sprint-roadmap-*.md` via `/sprint-plan` when next program is approved (S73–S80 program CLOSED per [docs/reports/archive/roadmaps/future-sprint-roadmap-062526.01.md](../docs/reports/archive/roadmaps/future-sprint-roadmap-062526.01.md)).
 
 ## Research open gaps (P1)
 
@@ -170,7 +170,7 @@ Additive content and ops only. Does **not** change S56 MVP row grades.
 - Prior tracker (full S56 evidence): [implementation-tracker-2026-06-04.md](implementation-tracker-2026-06-04.md)
 - [research-traceability.md](research-traceability.md)
 - [reviews/requirements-13-20-design-review-2026-05-29.md](reviews/requirements-13-20-design-review-2026-05-29.md) — CONCERNS
-- Roadmap: [future-sprint-roadpmap-062526.01.md](../docs/reports/future-sprint-roadpmap-062526.01.md) (S73–S80 COMPLETE)
+- Roadmap: [docs/reports/archive/roadmaps/future-sprint-roadmap-062526.01.md](../docs/reports/archive/roadmaps/future-sprint-roadmap-062526.01.md) (S73–S80 COMPLETE)
 - Execute plan: [roadmap-execute-plan-062526.01.md](../docs/reports/roadmap-execute-plan-062526.01.md)
 - Baltic v3 boundary: [baltic-v3-scope-boundary-2026-06-25.md](../production/baltic-v3-scope-boundary-2026-06-25.md)
 - Scenario editor research: [scenario-editor-research.md](../docs/research/scenario-editor-research.md)

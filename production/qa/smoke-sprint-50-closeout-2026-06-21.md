@@ -7,11 +7,11 @@
 **Subagent ID / Role:** orchestration subagent (S50-06 verification); superpowers: dispatching-parallel-agents, using-git-worktrees, verification-before-completion  
 **Review Mode:** lean (per production/review-mode.txt)  
 **Stage:** Release (post S48 gate)  
-**Cites (mandatory):** production/post-release-scope-boundary-2026-06-21.md ; docs/reports/future-sprint-roadpmap.md §10 S50 + E2 ; production/roadmap-062126.md §10 S50 + Req 07/11 E2 ; release-enablement-scope-boundary-2026-06-20.md ; AGENTS.md  
+**Cites (mandatory):** production/post-release-scope-boundary-2026-06-21.md ; docs/reports/future-sprint-roadmap.md §10 S50 + E2 ; production/roadmap-062126.md §10 S50 + Req 07/11 E2 ; release-enablement-scope-boundary-2026-06-20.md ; AGENTS.md  
 
 ## Authority & Mandatory Citations (cited in this artifact + all status)
 - `production/post-release-scope-boundary-2026-06-21.md` (S50 E2 rows 07/11; program map S49–S56; standing gates: headless ≥1227, ReplayGolden 6/6, C2 proxy 18/18+, Baltic hash `17144800277401907079`, ZERO DelegationBridge, CatalogWriteGate extend-only, GitNexus impact() + context() + detect_changes() before verification edits; monotonic invariants)
-- `docs/reports/future-sprint-roadpmap.md` §10 S50 + E2 (per-sprint track decomposition; parallel dispatch model; pipeline S49 infra → S50 scenario workers; E2 Agentic platform lead for Req 05/07/11; §0.4 merge gate protocol)
+- `docs/reports/future-sprint-roadmap.md` §10 S50 + E2 (per-sprint track decomposition; parallel dispatch model; pipeline S49 infra → S50 scenario workers; E2 Agentic platform lead for Req 05/07/11; §0.4 merge gate protocol)
 - `production/release-enablement-scope-boundary-2026-06-20.md` (B1/B2 carried; S48 gate baseline)
 - `production/gate-checks/s48-release-gate-2026-06-20.md` + S41 ack packet
 - AGENTS.md (GitNexus MUST: impact/context/detect on CRITICAL symbols before edits; ≥1226 baseline updated to 1227; ZERO DelegationBridge; Catalog extend-only; replay/C2 exact gates; worktree isolation)
@@ -140,7 +140,7 @@ All read before claims. Monotonic: 1227==prior; 6/6 18/18 hold; additive only (q
 
 ## References / Cross-cites (mandatory)
 - production/post-release-scope-boundary-2026-06-21.md (S50 E2 07/11 + gates + invariants + GitNexus)
-- docs/reports/future-sprint-roadpmap.md §10 S50 + E2
+- docs/reports/future-sprint-roadmap.md §10 S50 + E2
 - production/roadmap-062126.md §10 S50 + Req 07/11 E2
 - release-enablement-scope-boundary-2026-06-20.md
 - AGENTS.md (GitNexus mandatory, gates, worktree facts, learned: S50 tracks)

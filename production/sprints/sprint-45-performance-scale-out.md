@@ -4,7 +4,7 @@
 **Trunk:** `main` @ (post-S44)  
 **Predecessor:** Sprint 44 — COMPLETE; **B1 scope locked**  
 **Stage:** Release Enablement (Track B)  
-**Authority:** B4 epic — [`docs/reports/future-sprint-roadpmap.md`](../../docs/reports/future-sprint-roadpmap.md) §5, §9. `determinism-engineer` paired on every sim-touching track.
+**Authority:** B4 epic — [`docs/reports/future-sprint-roadmap.md`](../../docs/reports/future-sprint-roadmap.md) §5, §9. `determinism-engineer` paired on every sim-touching track.
 
 > **OUT-OF-BOUNDARY — PLANNING ONLY.**
 

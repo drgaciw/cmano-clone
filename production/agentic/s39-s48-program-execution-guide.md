@@ -2,7 +2,7 @@
 
 **Date:** 2026-06-20  
 **Program:** 10-sprint release train (Polish S39–S41 → scope gate → Release Enablement S42–S48)  
-**Authority:** [`docs/reports/future-sprint-roadpmap.md`](../../docs/reports/future-sprint-roadpmap.md) §9 + 10-sprint agent program plan
+**Authority:** [`docs/reports/future-sprint-roadmap.md`](../../docs/reports/future-sprint-roadmap.md) §9 + 10-sprint agent program plan
 
 > **Footnote:** Spirit 1 (Vertical Slice MVP) gap remediation runs **orthogonal** to S40–S48 — parallel kickoff [`spirit1-gap-parallel-kickoff-2026-06-20.md`](spirit1-gap-parallel-kickoff-2026-06-20.md); does not block or replace sprint closeout order.
 
@@ -79,7 +79,7 @@ Pre-flight each Track B sprint with [`sprint-42-48-readiness-checklist.md`](spri
 
 | Artifact | Path |
 |----------|------|
-| Roadmap §9 decomposition | `docs/reports/future-sprint-roadpmap.md` |
+| Roadmap §9 decomposition | `docs/reports/future-sprint-roadmap.md` |
 | Worktree manifest | `production/agentic/s39-s48-worktree-manifest.md` |
 | Local/cloud routing | `production/agentic/local-cloud-agent-routing.md` |
 | Scope gate template | `production/gate-checks/scope-expansion-decision-template-2026-06-20.md` |

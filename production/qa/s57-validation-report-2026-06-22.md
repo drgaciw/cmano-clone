@@ -1,7 +1,7 @@
 # S57 Validation Report (Fresh Execution)
 
 **Date:** 2026-06-22  
-**Authority:** docs/reports/future-sprint-roadpmap-062226.md §10 S57; production/baltic-v2-scope-boundary-2026-06-22.md  
+**Authority:** docs/reports/archive/roadmaps/future-sprint-roadmap-062226.md §10 S57; production/baltic-v2-scope-boundary-2026-06-22.md  
 **Executor:** Orchestration agent (parallel superpowers, worktrees, subagents, skills)  
 **Scope:** Validate S57 implementation (AAR policy fix, replay goldens, prep, closeout) per plan. Use as many parallel as possible.
 

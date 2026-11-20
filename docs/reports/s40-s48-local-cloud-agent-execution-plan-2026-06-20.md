@@ -3,7 +3,7 @@
 **Date:** 2026-06-20  
 **Repo:** `/home/username01/cmano-clone/cmano-clone`  
 **Program:** 9 sprints (S40–S48) on the 10-sprint release train (S39 COMPLETE)  
-**Authority:** [`future-sprint-roadpmap.md`](future-sprint-roadpmap.md) §9, [`s39-s48-program-execution-guide.md`](../production/agentic/s39-s48-program-execution-guide.md), [`local-cloud-agent-routing.md`](../production/agentic/local-cloud-agent-routing.md), [`s39-s48-worktree-manifest.md`](../production/agentic/s39-s48-worktree-manifest.md)
+**Authority:** [`docs/reports/future-sprint-roadmap.md`](future-sprint-roadmap.md) §9, [`s39-s48-program-execution-guide.md`](../../production/agentic/s39-s48-program-execution-guide.md), [`local-cloud-agent-routing.md`](../../production/agentic/local-cloud-agent-routing.md), [`s39-s48-worktree-manifest.md`](../../production/agentic/s39-s48-worktree-manifest.md)
 
 ---
 
@@ -198,8 +198,8 @@ Prereqs (serial)  →  Parallel waves  →  Merge stack  →  Closeout (local)
 1. **Confirm prereqs:** Sprint plan + kickoff exist; prior sprint closeout smoke PASS.
 2. **Serial day-1:** Dispatch S*-01 (baseline) — blocks all. Verify `dotnet build`, `dotnet test ProjectAegis.sln`, ReplayGolden 6/6, PlayModeSmokeHarnessTests 18/18+.
 3. **Serial W0:** Dispatch S*-02 (QA plan) — blocks feature waves. QA plan must cite correct boundary doc.
-4. **Bootstrap worktrees:** One worktree + `stack/sprintNN/<slug>` branch per track ([`s39-s48-worktree-manifest.md`](../production/agentic/s39-s48-worktree-manifest.md)).
-5. **Assign routing:** Local vs cloud per [`local-cloud-agent-routing.md`](../production/agentic/local-cloud-agent-routing.md) and §6 below.
+4. **Bootstrap worktrees:** One worktree + `stack/sprintNN/<slug>` branch per track ([`s39-s48-worktree-manifest.md`](../../production/agentic/s39-s48-worktree-manifest.md)).
+5. **Assign routing:** Local vs cloud per [`local-cloud-agent-routing.md`](../../production/agentic/local-cloud-agent-routing.md) and §6 below.
 6. **Dispatch waves:** One agent per track; paste kickoff + file-ownership matrix into agent context; cite boundary + story IDs.
 7. **Per-track verify before merge:**
    ```bash
@@ -211,7 +211,7 @@ Prereqs (serial)  →  Parallel waves  →  Merge stack  →  Closeout (local)
 8. **GitNexus:** `impact()` before symbol edits; `detect_changes()` before commit; block merge on HIGH/CRITICAL without TD review.
 9. **Merge order:** baseline/QA → code tracks by dependency (Catalog before Platform overlap) → hygiene → closeout last.
 10. **Closeout (local):** smoke doc, retro, `sprint-status.yaml` (coordinator-only), Hindsight retain `[OUTCOME:]` to `dev-cmano-clone`.
-11. **Track B pre-flight:** Run [`sprint-42-48-readiness-checklist.md`](../production/agentic/sprint-42-48-readiness-checklist.md) before S42–S48 dispatch.
+11. **Track B pre-flight:** Run [`sprint-42-48-readiness-checklist.md`](../../production/agentic/sprint-42-48-readiness-checklist.md) before S42–S48 dispatch.
 
 ### Human gates
 
@@ -395,12 +395,12 @@ Run this **once** before S40-01; re-verify items marked ⟳ at each sprint bound
 - [x] S39 COMPLETE — smoke [`smoke-sprint-39-closeout-2026-06-20.md`](../production/qa/smoke-sprint-39-closeout-2026-06-20.md)
 - [x] Sprint plans S40–S48 under `production/sprints/`
 - [x] Parallel kickoffs S40–S48 under `production/agentic/`
-- [x] Worktree manifest — [`s39-s48-worktree-manifest.md`](../production/agentic/s39-s48-worktree-manifest.md)
-- [x] Local/cloud routing — [`local-cloud-agent-routing.md`](../production/agentic/local-cloud-agent-routing.md)
-- [x] Program guide — [`s39-s48-program-execution-guide.md`](../production/agentic/s39-s48-program-execution-guide.md)
+- [x] Worktree manifest — [`s39-s48-worktree-manifest.md`](../../production/agentic/s39-s48-worktree-manifest.md)
+- [x] Local/cloud routing — [`local-cloud-agent-routing.md`](../../production/agentic/local-cloud-agent-routing.md)
+- [x] Program guide — [`s39-s48-program-execution-guide.md`](../../production/agentic/s39-s48-program-execution-guide.md)
 - [x] Scope gate APPROVED — [`scope-expansion-decision-2026-06-20.md`](../production/gate-checks/scope-expansion-decision-2026-06-20.md)
 - [x] Track B boundary — [`release-enablement-scope-boundary-2026-06-20.md`](../production/release-enablement-scope-boundary-2026-06-20.md)
-- [x] Track B readiness checklist — [`sprint-42-48-readiness-checklist.md`](../production/agentic/sprint-42-48-readiness-checklist.md)
+- [x] Track B readiness checklist — [`sprint-42-48-readiness-checklist.md`](../../production/agentic/sprint-42-48-readiness-checklist.md)
 - [x] `production/sprint-status.yaml` — `current_sprint: 40`
 
 ### S40-specific (before S40-03 dispatch)
@@ -409,7 +409,7 @@ Run this **once** before S40-01; re-verify items marked ⟳ at each sprint bound
 - [ ] S40-01 baseline PASS (≥1215 tests, Replay 6/6, proxy 18/18+)
 - [ ] Worktrees bootstrapped for S40 tracks (6 worktrees per manifest)
 - [ ] Catalog track agent assigned **local single owner**
-- [ ] Kickoff pasted to agents: [`sprint-40-parallel-kickoff-2026-06-20.md`](../production/agentic/sprint-40-parallel-kickoff-2026-06-20.md)
+- [ ] Kickoff pasted to agents: [`sprint-40-parallel-kickoff-2026-06-20.md`](../../production/agentic/sprint-40-parallel-kickoff-2026-06-20.md)
 
 ### Standing exclusions (never commit)
 
@@ -421,7 +421,7 @@ Run this **once** before S40-01; re-verify items marked ⟳ at each sprint bound
 
 | Artifact | Path |
 |----------|------|
-| Roadmap §9 | [`future-sprint-roadpmap.md`](future-sprint-roadpmap.md) |
+| Roadmap §9 | [`docs/reports/future-sprint-roadmap.md`](future-sprint-roadmap.md) |
 | This plan | `docs/reports/s40-s48-local-cloud-agent-execution-plan-2026-06-20.md` |
 | Program guide | `production/agentic/s39-s48-program-execution-guide.md` |
 | Worktree manifest | `production/agentic/s39-s48-worktree-manifest.md` |

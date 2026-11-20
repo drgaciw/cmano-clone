@@ -8,7 +8,7 @@
 **Kickoff:** `production/agentic/sprint-42-parallel-kickoff-2026-06-20.md`  
 **Trunk:** `main` @ post-S41 (c4d6e52 tip + S41 closeout; baseline 1226/1226)  
 **Review mode:** Lean (per `production/review-mode.txt` — PR-SPRINT skipped; parallel domain agents; docs + content focus)  
-**Authority:** `production/release-enablement-scope-boundary-2026-06-20.md` (post-gate, supersedes polish for Track B) + [`docs/reports/future-sprint-roadpmap.md`](../../docs/reports/future-sprint-roadpmap.md) §5, §9 + scope-expansion-decision-2026-06-20.md (APPROVED; S41 closeout PASS + human ack unblocks S42).  
+**Authority:** `production/release-enablement-scope-boundary-2026-06-20.md` (post-gate, supersedes polish for Track B) + [`docs/reports/future-sprint-roadmap.md`](../../docs/reports/future-sprint-roadmap.md) §5, §9 + scope-expansion-decision-2026-06-20.md (APPROVED; S41 closeout PASS + human ack unblocks S42).  
 
 **Scope compliance (enforced):** Strictly inside `release-enablement-scope-boundary-2026-06-20.md` (B1/B2 only; 13 committed tracker rows across S42+S43; art bible partial §1–4 in S42; scenario policy maint only **no production hash change**; `impact()` mandatory on Catalog/Platform symbols; extend-only CatalogWriteGate; ZERO DelegationBridge.cs; Baltic hash `17144800277401907079` immutable; ReplayGolden 6/6; C2 proxy 18/18+; GitNexus `impact()`/`detect_changes()`; every Track B artifact cites this boundary + committed row ID or B2 epic). S42-01 baseline + S42-02 QA plan required before S42-03+ dispatch. Test baseline ≥1226 (post-S41); closeout target ≥1226 (monotonic; no regression). S42-02 (this plan) blocks waves. Expanded gate matrix produced in S42-01.  
 
@@ -208,7 +208,7 @@ Per boundary §7 + S42-04 + S41 determinism-audit-2026-06-20.md (0 issues, DETER
 - S41 closeout + ack: `production/qa/smoke-sprint-41-closeout-2026-06-20.md` + `production/gate-checks/scope-expansion-decision-2026-06-20-S41-close.md`
 - Boundary (authority): `production/release-enablement-scope-boundary-2026-06-20.md`
 - Scope gate: `production/gate-checks/scope-expansion-decision-2026-06-20.md` + template
-- Roadmap: `docs/reports/future-sprint-roadpmap.md` (§5, §9)
+- Roadmap: `docs/reports/future-sprint-roadmap.md` (§5, §9)
 - Tracker: `Game-Requirements/implementation-tracker-2026-06-04.md` (B1 rows per boundary)
 - AAR/replay from S41: `production/agentic/s41-aar-replay-scrub-spike.md` + determinism-audit-2026-06-20.md + replay-2026-06-*.md
 - Prior QA (patterns): `production/qa/qa-plan-sprint-41-2026-06-20.md`, `qa-plan-sprint-40-2026-06-20.md`, `qa-plan-sprint-39-2026-06-20.md`, `qa-plan-sprint-38-2026-08-03.md` (and earlier)
@@ -250,7 +250,7 @@ Per boundary §7 + S42-04 + S41 determinism-audit-2026-06-20.md (0 issues, DETER
 
 ---
 
-*Generated per team-qa + sprint-plan + verification-before-completion + c-sharp-devops-engineer (QA harness) + csharpexpert. Follows Evidence-Pack-QA + S42 declarative manifests (sprint-42 plan, parallel-kickoff, release-enablement-scope-boundary, future-sprint-roadpmap §5/§9, S41 closeout ack). Planning/QA only. Independent of baseline. Cites all boundaries/roadmap/tracker. S42-02 AC: satisfied. Ready for parallel S42 tracks (baseline complete → QA → Catalog/Platform || Scenario || Art bible → closeout).*
+*Generated per team-qa + sprint-plan + verification-before-completion + c-sharp-devops-engineer (QA harness) + csharpexpert. Follows Evidence-Pack-QA + S42 declarative manifests (sprint-42 plan, parallel-kickoff, release-enablement-scope-boundary, future-sprint-roadmap §5/§9, S41 closeout ack). Planning/QA only. Independent of baseline. Cites all boundaries/roadmap/tracker. S42-02 AC: satisfied. Ready for parallel S42 tracks (baseline complete → QA → Catalog/Platform || Scenario || Art bible → closeout).*
 
 **Return summary for task:** QA plan produced at `production/qa/qa-plan-sprint-42-2026-06-20.md`. All first actions (reads of S42 plan/kickoff, release-enablement-scope-boundary, S41 closeout packet (user ack), implementation-tracker, prior QA (S41 etc.), team-qa skill, scope-check) + scope-check incorporation complete. Matrix + gates (replay 6/6, proxy, impact mandatory, new boundary) + evidence + superpowers + csharpexpert embedded. Blocks waves. AAR/replay from S41 incorporated (S42-04). Smoke/closeout criteria.  
 

@@ -1,12 +1,12 @@
 # Future Sprint Roadmap — Project Aegis (cmano-clone)
 > **Parallel-Agentic Edition — Post–S80 Baltic v3 (S81+ Scenario Editor / req 11)**
 
-> **Status:** Living document. Authored **2026-07-04**; supersedes planning intent in [`future-sprint-roadpmap-062526.01.md`](future-sprint-roadpmap-062526.01.md) (2026-06-25 S73–S80 Baltic v3 program, now archived).
+> **Status:** Living document. Authored **2026-07-04**; supersedes planning intent in [`docs/reports/archive/roadmaps/future-sprint-roadmap-062526.01.md`](future-sprint-roadmap-062526.01.md) (2026-06-25 S73–S80 Baltic v3 program, now archived).
 > **Edition:** Optimized for serial sprints **S81–S88** (req **11** / E11 lead) with parallel tracks inside each sprint; stage **Release** throughout; **code + tests + docs** (headless `.NET` first; Unity edit-mode Phase 2); GitNexus mandatory; verification-before-completion on all claims. Superpowers: `brainstorming` → design spec → `writing-plans` → `subagent-driven-development` per track.
-> **Stable alias:** [`future-sprint-roadpmap.md`](future-sprint-roadpmap.md) → this file (updated 2026-07-04).
-> **Primary authority (S81–S88):** This file + [`qa-plan-scenario-editor-2026-07-01.md`](../../production/qa/qa-plan-scenario-editor-2026-07-01.md) (19 testable units; AC-1…AC-12) + [`implementation-tracker-2026-07-04.md`](../../Game-Requirements/implementation-tracker-2026-07-04.md).
-> **Requirement:** [`11-Agentic-Mission-Editor.md`](../../Game-Requirements/requirements/11-Agentic-Mission-Editor.md) (revised 2026-07-01, `AME-*` / AC-1…12) · GDD: [`design/gdd/agentic-mission-editor.md`](../../design/gdd/agentic-mission-editor.md) · ADRs: [008](../../docs/architecture/adr-008-mission-editor-validation-engine.md), [013–017](../../docs/architecture/adr-013-cmo-scenario-import-policy.md).
-> **Invariants carryover:** [`production/baltic-v3-scope-boundary-2026-06-25.md`](../../production/baltic-v3-scope-boundary-2026-06-25.md) (superseded for S81+ only; archive prior, do not delete; standing invariants + GitNexus §5 CRITICALs carried).
+> **Stable alias:** [`docs/reports/future-sprint-roadmap.md`](../../future-sprint-roadmap.md) → this file (updated 2026-07-04).
+> **Primary authority (S81–S88):** This file + [`qa-plan-scenario-editor-2026-07-01.md`](../../../../production/qa/qa-plan-scenario-editor-2026-07-01.md) (19 testable units; AC-1…AC-12) + [`implementation-tracker-2026-07-04.md`](../../../../Game-Requirements/implementation-tracker-2026-07-04.md).
+> **Requirement:** [`11-Agentic-Mission-Editor.md`](../../../../Game-Requirements/requirements/11-Agentic-Mission-Editor.md) (revised 2026-07-01, `AME-*` / AC-1…12) · GDD: [`design/gdd/agentic-mission-editor.md`](../../../../design/gdd/agentic-mission-editor.md) · ADRs: [008](../../../architecture/adr-008-mission-editor-validation-engine.md), [013–017](../../../architecture/adr-013-cmo-scenario-import-policy.md).
+> **Invariants carryover:** [`production/baltic-v3-scope-boundary-2026-06-25.md`](../../../../production/baltic-v3-scope-boundary-2026-06-25.md) (superseded for S81+ only; archive prior, do not delete; standing invariants + GitNexus §5 CRITICALs carried).
 > **Cites (mandatory everywhere):** This file + baltic-v3-scope-boundary (invariants) + scenario-editor-scope-boundary (S81-01, to publish) + qa-plan-scenario-editor + implementation-tracker-2026-07-04 + AGENTS.md + prior roadmap 062526.01.md.
 > **GitNexus @ doc authoring (2026-07-04, pre FIRST):** **21,447** symbols / **40,393** edges / **378** clusters / **300** flows (CLI `node .gitnexus/run.cjs analyze` @ `17d426c` on branch `fix-scenario-publish-cli-wiring`; status ✅ up-to-date). `impact --summary-only` upstream: **CatalogWriteGate 178 CRITICAL**, **PatrolCandidateEngagePolicy 97 CRITICAL**, **DelegationBridge 127 CRITICAL**, **BalticReplayHarness 52 CRITICAL** (exact §5 match); **ScenarioDocumentEditor 20 CRITICAL**, **ScenarioValidationEngine 17 HIGH** (new program hot symbols). `detect_changes`: none (clean tree @ authoring).
 > **Verification @ doc authoring (verification-before-completion, RUN+READ):** build **0e/4w**; test **1308/2f** (Sim **281**, Del **249**, Cli **63**, Excel **5**, UA **257**/2, Data **453**) monotonic ≥1232 floor; ReplayGolden **6/6**; C2 proxy **18/18**; hash **`17144800277401907079`** preserved (18 paths in `tests/regression/` + `data/`); ZERO `DelegationBridge` hotpath edits (51 consumer refs, no `.cs` impl changes); 2 open UA failures in `BalticReplayHarnessPolicyEngageTests` (pre-existing, excluded from gate).
@@ -16,13 +16,13 @@
 
 This roadmap is **direction, not a commitment**. Per `docs/COLLABORATIVE-DESIGN-PRINCIPLE.md`,
 each sprint is still planned via `/sprint-plan` with user approval. Filename retains the
-`roadpmap` spelling for link stability. Supersedes baltic-v3 boundary for S81+ program scope only.
+`roadmap` spelling for link stability. Supersedes baltic-v3 boundary for S81+ program scope only.
 
 ---
 
 ## 0. Parallel execution model (S81+ program)
 
-Every sprint is a **serial program** (S81 → … → S88) with **parallel dispatch** inside each sprint — multiple agent tracks run concurrently in isolated git worktrees, merging at sprint-close. Model proven S39–S80; see [`future-sprint-roadpmap-062526.01.md`](future-sprint-roadpmap-062526.01.md) §0 for full protocol reference.
+Every sprint is a **serial program** (S81 → … → S88) with **parallel dispatch** inside each sprint — multiple agent tracks run concurrently in isolated git worktrees, merging at sprint-close. Model proven S39–S80; see [`docs/reports/archive/roadmaps/future-sprint-roadmap-062526.01.md`](future-sprint-roadmap-062526.01.md) §0 for full protocol reference.
 
 ### 0.1 Agent environments
 
@@ -68,7 +68,7 @@ Every sprint is a **serial program** (S81 → … → S88) with **parallel dispa
 5. GitNexus re-index after merge.
 6. Update sprint-status.yaml + closeout smoke (coordinator).
 
-**Graphite:** `gt sync`, `gt restack`, `gt submit --stack --no-interactive` — see [`docs/engineering/graphite-github-substitute-plan.md`](../engineering/graphite-github-substitute-plan.md).
+**Graphite:** `gt sync`, `gt restack`, `gt submit --stack --no-interactive` — see [`docs/engineering/graphite-github-substitute-plan.md`](../../../engineering/graphite-github-substitute-plan.md).
 
 ### 0.5 Shared-resource coordination (S81+)
 
@@ -99,15 +99,15 @@ Every sprint is a **serial program** (S81 → … → S88) with **parallel dispa
 
 | Dimension | State | Evidence |
 |---|---|---|
-| Stage | **Release** — RC1 + Baltic v2/v3 + release train + E7 prep + v3 content complete | `production/stage.txt`, [`s80-baltic-v3-content-gate-2026-06-26.md`](../../production/gate-checks/s80-baltic-v3-content-gate-2026-06-26.md) |
-| Closed milestone (Baltic v3) | **S73–S80 — CLOSED** | [`smoke-sprint-73-80-closeout-2026-06-26.md`](../../production/qa/smoke-sprint-73-80-closeout-2026-06-26.md) + human ack 2026-06-26 |
-| Closed milestone (E7 prep) | **S69–S72 — CLOSED** | [`s72-commercial-launch-prep-gate-2026-06-25.md`](../../production/gate-checks/s72-commercial-launch-prep-gate-2026-06-25.md) |
+| Stage | **Release** — RC1 + Baltic v2/v3 + release train + E7 prep + v3 content complete | `production/stage.txt`, [`s80-baltic-v3-content-gate-2026-06-26.md`](../../../../production/gate-checks/s80-baltic-v3-content-gate-2026-06-26.md) |
+| Closed milestone (Baltic v3) | **S73–S80 — CLOSED** | [`smoke-sprint-73-80-closeout-2026-06-26.md`](../../../../production/qa/smoke-sprint-73-80-closeout-2026-06-26.md) + human ack 2026-06-26 |
+| Closed milestone (E7 prep) | **S69–S72 — CLOSED** | [`s72-commercial-launch-prep-gate-2026-06-25.md`](../../../../production/gate-checks/s72-commercial-launch-prep-gate-2026-06-25.md) |
 | Last program | **S80 complete** — Baltic v3 content gate | S80 gate + ack 2026-06-26 |
 | Next program | **S81 planned** — scenario editor foundations | §3/§10 |
 | Test baseline | **1308/1310** headless (2 known UA failures), **ReplayGolden 6/6**, **C2 proxy 18/18** | Verified 2026-07-04 (RUN+READ) |
 | Determinism | Baltic hash **`17144800277401907079`** immutable on production path; ZERO DelegationBridge default/hotpath | S80 + standing invariants §7 |
 | GitNexus (fresh) | **21447/40393/378** @ `17d426c` on `fix-scenario-publish-cli-wiring` | CLI analyze + impact (§5) |
-| Scenario editor WIP | Tracks **A–D** on branch; req 11 revised; ADRs 013–017; AC-6 smoke script | [`implementation-tracker-2026-07-04.md`](../../Game-Requirements/implementation-tracker-2026-07-04.md) |
+| Scenario editor WIP | Tracks **A–D** on branch; req 11 revised; ADRs 013–017; AC-6 smoke script | [`implementation-tracker-2026-07-04.md`](../../../../Game-Requirements/implementation-tracker-2026-07-04.md) |
 | E7 commercial | **On hold** — prep complete at S72; submission out of S81–S88 | Prior boundary |
 | E9 content | **COMPLETE** at S80 — v3 corpus isolated; no promotion unless explicit | baltic-v3-scope-boundary |
 | Tracker | **21/21 MVP-done or Partial+** (closed at S56); req 11 **Partial+** forward | implementation-tracker-2026-07-04 |
@@ -141,7 +141,7 @@ Every sprint is a **serial program** (S81 → … → S88) with **parallel dispa
 
 ### S73–S80 Baltic v3 Content Expansion (E9) — COMPLETE (2026-06-26)
 
-See [`future-sprint-roadpmap-062526.01.md`](future-sprint-roadpmap-062526.01.md) §2–§10 + [`smoke-sprint-73-80-closeout-2026-06-26.md`](../../production/qa/smoke-sprint-73-80-closeout-2026-06-26.md).
+See [`docs/reports/archive/roadmaps/future-sprint-roadmap-062526.01.md`](future-sprint-roadmap-062526.01.md) §2–§10 + [`smoke-sprint-73-80-closeout-2026-06-26.md`](../../../../production/qa/smoke-sprint-73-80-closeout-2026-06-26.md).
 
 | Sprint | Epic(s) | Primary outcome | Closeout |
 |--------|---------|-----------------|----------|
@@ -160,9 +160,9 @@ See [`future-sprint-roadpmap-062526.01.md`](future-sprint-roadpmap-062526.01.md)
 
 | Program | Roadmap snapshot |
 |---------|------------------|
-| S69–S72 E7 prep | [`future-sprint-roadpmap-062526.md`](future-sprint-roadpmap-062526.md) |
-| S65–S68 release train | [`future-sprint-roadpmap-062426.md`](future-sprint-roadpmap-062426.md) |
-| S57–S64 Baltic v2 | [`future-sprint-roadpmap-062226.md`](future-sprint-roadpmap-062226.md) |
+| S69–S72 E7 prep | [`docs/reports/archive/roadmaps/future-sprint-roadmap-062526.md`](future-sprint-roadmap-062526.md) |
+| S65–S68 release train | [`docs/reports/archive/roadmaps/future-sprint-roadmap-062426.md`](future-sprint-roadmap-062426.md) |
+| S57–S64 Baltic v2 | [`docs/reports/archive/roadmaps/future-sprint-roadmap-062226.md`](future-sprint-roadmap-062226.md) |
 
 ---
 
@@ -308,7 +308,7 @@ v3 corpus isolated; editor program must not mutate v2 production goldens or hash
 | 3 | Sprint structure | Serial S81→S88; parallel inside; headless first |
 | 4 | Stage advance | **Stay at Release** through S88 unless explicit gate decision |
 | 5 | Lead epic | **E11 Scenario Editor** |
-| 6 | Filename / alias | `future-sprint-roadpmap-07042026.md` + update stable alias |
+| 6 | Filename / alias | `docs/reports/archive/roadmaps/future-sprint-roadmap-07042026.md` + update stable alias |
 | 7 | Scope supersede | baltic-v3-boundary superseded for S81+ program only (carry invariants) |
 | 8 | In-flight branch | Integrate `fix-scenario-publish-cli-wiring` post S81 boundary + review |
 | 9 | Unity edit-mode | **Phase 2** — AC-8 round-trip only in S87 unless user amends |
@@ -318,7 +318,7 @@ v3 corpus isolated; editor program must not mutate v2 production goldens or hash
 
 **`production/scenario-editor-scope-boundary-2026-07-04.md`** — draft @ S81 planning:
 
-- Supersedes [`baltic-v3-scope-boundary-2026-06-25.md`](../../production/baltic-v3-scope-boundary-2026-06-25.md) for S81+ only (archived, not deleted).
+- Supersedes [`baltic-v3-scope-boundary-2026-06-25.md`](../../../../production/baltic-v3-scope-boundary-2026-06-25.md) for S81+ only (archived, not deleted).
 - Cites §3 committed themes + E11 lead + editor exit at S88.
 - Carries standing invariants from §7 unchanged unless ADR.
 - In scope: headless editor, validation, CLI/MCP, AC-1…12 (minus deferred ADR-014 Lua).
@@ -396,11 +396,11 @@ All outputs read in full before this doc's claims.
 | Artifact | Path | Status |
 |----------|------|--------|
 | Scenario editor scope boundary | `production/scenario-editor-scope-boundary-2026-07-04.md` | **Draft @ S81-01** |
-| QA plan (19 units) | [`qa-plan-scenario-editor-2026-07-01.md`](../../production/qa/qa-plan-scenario-editor-2026-07-01.md) | **Published** |
-| Implementation tracker | [`implementation-tracker-2026-07-04.md`](../../Game-Requirements/implementation-tracker-2026-07-04.md) | **Published** |
-| Req 11 (revised) | [`11-Agentic-Mission-Editor.md`](../../Game-Requirements/requirements/11-Agentic-Mission-Editor.md) | **Published 2026-07-01** |
-| Research | [`scenario-editor-research.md`](../research/scenario-editor-research.md) | Reference |
-| Execute plan | [`roadmap-execute-plan-07042026.md`](roadmap-execute-plan-07042026.md) | **Published 2026-07-04** |
+| QA plan (19 units) | [`qa-plan-scenario-editor-2026-07-01.md`](../../../../production/qa/qa-plan-scenario-editor-2026-07-01.md) | **Published** |
+| Implementation tracker | [`implementation-tracker-2026-07-04.md`](../../../../Game-Requirements/implementation-tracker-2026-07-04.md) | **Published** |
+| Req 11 (revised) | [`11-Agentic-Mission-Editor.md`](../../../../Game-Requirements/requirements/11-Agentic-Mission-Editor.md) | **Published 2026-07-01** |
+| Research | [`scenario-editor-research.md`](../../../research/scenario-editor-research.md) | Reference |
+| Execute plan | [`roadmap-execute-plan-07042026.md`](../../roadmap-execute-plan-07042026.md) | **Published 2026-07-04** |
 | Design spec | `docs/superpowers/specs/2026-07-04-scenario-editor-program-design.md` | **To create @ S81 dispatch** |
 | Sprint 81 plan | `production/sprints/sprint-81-scenario-editor-foundations.md` | **Draft @ dispatch** |
 
@@ -482,11 +482,11 @@ All outputs read in full before this doc's claims.
 
 | Artifact | Path |
 |----------|------|
-| Stable alias | [`future-sprint-roadpmap.md`](future-sprint-roadpmap.md) |
-| Prior snapshot (S73–S80) | [`future-sprint-roadpmap-062526.01.md`](future-sprint-roadpmap-062526.01.md) |
-| Prior execute plan (S73–S80) | [`roadmap-execute-plan-062526.01.md`](roadmap-execute-plan-062526.01.md) |
-| S80 gate | [`production/gate-checks/s80-baltic-v3-content-gate-2026-06-26.md`](../../production/gate-checks/s80-baltic-v3-content-gate-2026-06-26.md) |
-| Baltic v3 boundary (archived) | [`production/baltic-v3-scope-boundary-2026-06-25.md`](../../production/baltic-v3-scope-boundary-2026-06-25.md) |
+| Stable alias | [`docs/reports/future-sprint-roadmap.md`](../../future-sprint-roadmap.md) |
+| Prior snapshot (S73–S80) | [`docs/reports/archive/roadmaps/future-sprint-roadmap-062526.01.md`](future-sprint-roadmap-062526.01.md) |
+| Prior execute plan (S73–S80) | [`roadmap-execute-plan-062526.01.md`](../../roadmap-execute-plan-062526.01.md) |
+| S80 gate | [`production/gate-checks/s80-baltic-v3-content-gate-2026-06-26.md`](../../../../production/gate-checks/s80-baltic-v3-content-gate-2026-06-26.md) |
+| Baltic v3 boundary (archived) | [`production/baltic-v3-scope-boundary-2026-06-25.md`](../../../../production/baltic-v3-scope-boundary-2026-06-25.md) |
 | Schema + fixtures | `data/scenarios/scenario-document.schema.json`, `data/scenarios/examples/*.scenario.json` |
 | AC-6 smoke | `tools/ci/smoke-ac6.sh` |
 | Active branch | `fix-scenario-publish-cli-wiring` @ `17d426c` (Graphite PR #237) |
@@ -530,4 +530,4 @@ Boundary ─► Validation ─► Commands ─► Debugger ─► Determinism �
 
 ---
 
-**End of future-sprint-roadpmap-07042026.md (S81–S88 E11 focus). Supersedes 062526.01 for forward planning; carries invariants. Publish → update alias → dispatch S81.**
+**End of docs/reports/archive/roadmaps/future-sprint-roadmap-07042026.md (S81–S88 E11 focus). Supersedes 062526.01 for forward planning; carries invariants. Publish → update alias → dispatch S81.**

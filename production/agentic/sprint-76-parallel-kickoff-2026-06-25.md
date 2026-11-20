@@ -20,4 +20,4 @@ S76 kickoff published. Dispatching-parallel-agents active.
 ## S76-04 Closeout Status (2026-06-25)
 **S76-04 COMPLETE. S76 COMPLETE.** 
 Smoke + status + stage + plan updates complete (GitNexus pre + verification-before RUN+READ applied; gates 0e/1232/0f/6/6/18/18/hash/ZERO). 
-Cites: production/baltic-v3-scope-boundary-2026-06-25.md + roadmap-execute-plan-062526.01.md §3/4/5/9 + future-sprint-roadpmap-062526.01.md + AGENTS.md + S75 complete. GT ready. S76 COMPLETE.
+Cites: production/baltic-v3-scope-boundary-2026-06-25.md + roadmap-execute-plan-062526.01.md §3/4/5/9 + docs/reports/archive/roadmaps/future-sprint-roadmap-062526.01.md + AGENTS.md + S75 complete. GT ready. S76 COMPLETE.

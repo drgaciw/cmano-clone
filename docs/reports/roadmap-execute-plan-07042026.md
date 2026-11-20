@@ -8,7 +8,7 @@
 
 **Tech Stack:** .NET 8, Graphite (`gt`), GitNexus CLI (`node .gitnexus/run.cjs`), headless Play Mode harness, `ScenarioDocumentEditor` / `ScenarioValidationEngine`, scenario JSON schema, `tools/ci/smoke-ac6.sh`.
 
-**Authority:** [`future-sprint-roadpmap-07042026.md`](future-sprint-roadpmap-07042026.md) §3/§10/§12, [`qa-plan-scenario-editor-2026-07-01.md`](../../production/qa/qa-plan-scenario-editor-2026-07-01.md), [`implementation-tracker-2026-07-04.md`](../../Game-Requirements/implementation-tracker-2026-07-04.md), [`11-Agentic-Mission-Editor.md`](../../Game-Requirements/requirements/11-Agentic-Mission-Editor.md), [`local-cloud-agent-routing.md`](../../production/agentic/local-cloud-agent-routing.md), [`graphite-github-substitute-plan.md`](../engineering/graphite-github-substitute-plan.md), prior pattern [`roadmap-execute-plan-062526.01.md`](roadmap-execute-plan-062526.01.md)
+**Authority:** [`docs/reports/archive/roadmaps/future-sprint-roadmap-07042026.md`](archive/roadmaps/future-sprint-roadmap-07042026.md) §3/§10/§12, [`qa-plan-scenario-editor-2026-07-01.md`](../../production/qa/qa-plan-scenario-editor-2026-07-01.md), [`implementation-tracker-2026-07-04.md`](../../Game-Requirements/implementation-tracker-2026-07-04.md), [`11-Agentic-Mission-Editor.md`](../../Game-Requirements/requirements/11-Agentic-Mission-Editor.md), [`local-cloud-agent-routing.md`](../../production/agentic/local-cloud-agent-routing.md), [`graphite-github-substitute-plan.md`](../engineering/graphite-github-substitute-plan.md), prior pattern [`roadmap-execute-plan-062526.01.md`](roadmap-execute-plan-062526.01.md)
 
 ---
 
@@ -120,7 +120,7 @@ Stack workflow: Graphite — `gt create`, `gt submit --stack --no-interactive`, 
 
 Must include:
 
-- Cite [`future-sprint-roadpmap-07042026.md`](future-sprint-roadpmap-07042026.md) §3/§6/§7/§10 + this execute plan + qa-plan
+- Cite [`docs/reports/archive/roadmaps/future-sprint-roadmap-07042026.md`](archive/roadmaps/future-sprint-roadmap-07042026.md) §3/§6/§7/§10 + this execute plan + qa-plan
 - Supersede [`production/baltic-v3-scope-boundary-2026-06-25.md`](../../production/baltic-v3-scope-boundary-2026-06-25.md) for **S81+ only** (archive prior, do not delete)
 - **In scope:** E11 headless editor (§3 themes); validation tracks A–D; AC-1…12 minus ADR-014 Lua deferral
 - **Out:** E7 submission, E9 v3 promotion, multiplayer, `DelegationBridge` edits, production hash change w/o ADR, Unity map/edit-mode (Phase 2 except AC-8 @ S87)
@@ -395,7 +395,7 @@ bash tools/ci/smoke-ac6.sh   # when AC-6 path touched
 Publish production/scenario-editor-scope-boundary-2026-07-04.md for S81–S88 Scenario Editor E11.
 
 SCOPE:
-- Cite future-sprint-roadpmap-07042026.md §3/§6/§7/§10 + roadmap-execute-plan-07042026.md + qa-plan-scenario-editor-2026-07-01.md
+- Cite docs/reports/archive/roadmaps/future-sprint-roadmap-07042026.md §3/§6/§7/§10 + roadmap-execute-plan-07042026.md + qa-plan-scenario-editor-2026-07-01.md
 - Supersede baltic-v3-scope-boundary-2026-06-25.md for S81+ only (archive, don't delete)
 - List in/out of scope per roadmap §3 (headless AC-1…12; Unity AC-8 @ S87 only; Lua deferred ADR-014)
 - Carry standing invariants (≥1232 floor, hash, ZERO bridge, extend-only catalog)
@@ -455,7 +455,7 @@ RETURN: nodes/edges stats; expect CRITICAL 178/97/127/52 exact; editor 20/17.
 ### Program artifacts
 
 - [x] S73–S80 COMPLETE — [`s80-baltic-v3-content-gate-2026-06-26.md`](../../production/gate-checks/s80-baltic-v3-content-gate-2026-06-26.md)
-- [x] Roadmap — [`future-sprint-roadpmap-07042026.md`](future-sprint-roadpmap-07042026.md)
+- [x] Roadmap — [`docs/reports/archive/roadmaps/future-sprint-roadmap-07042026.md`](archive/roadmaps/future-sprint-roadmap-07042026.md)
 - [x] QA plan — [`qa-plan-scenario-editor-2026-07-01.md`](../../production/qa/qa-plan-scenario-editor-2026-07-01.md)
 - [x] Implementation tracker — [`implementation-tracker-2026-07-04.md`](../../Game-Requirements/implementation-tracker-2026-07-04.md)
 - [x] This execute plan — `docs/reports/roadmap-execute-plan-07042026.md`
@@ -476,8 +476,8 @@ RETURN: nodes/edges stats; expect CRITICAL 178/97/127/52 exact; editor 20/17.
 
 | Artifact | Path |
 |----------|------|
-| Roadmap (canonical) | [`future-sprint-roadpmap-07042026.md`](future-sprint-roadpmap-07042026.md) |
-| Roadmap alias | [`future-sprint-roadpmap.md`](future-sprint-roadpmap.md) |
+| Roadmap (canonical) | [`docs/reports/archive/roadmaps/future-sprint-roadmap-07042026.md`](archive/roadmaps/future-sprint-roadmap-07042026.md) |
+| Roadmap alias | [`docs/reports/future-sprint-roadmap.md`](future-sprint-roadmap.md) |
 | QA plan | [`qa-plan-scenario-editor-2026-07-01.md`](../../production/qa/qa-plan-scenario-editor-2026-07-01.md) |
 | Implementation tracker | [`implementation-tracker-2026-07-04.md`](../../Game-Requirements/implementation-tracker-2026-07-04.md) |
 | Req 11 | [`11-Agentic-Mission-Editor.md`](../../Game-Requirements/requirements/11-Agentic-Mission-Editor.md) |

@@ -10,7 +10,7 @@
 **Audited by**: determinism-engineer + team-simulation (csharpexpert systematic scan) via GitNexus MCP + direct source + dotnet  
 **Files scanned**: 200+ .cs on deterministic path (full src/ProjectAegis.Sim + core Delegation; 923 .cs total solution scan)  
 **Commit / HEAD**: c4d6e52 (main)  
-**Cites**: production/polish-scope-boundary-2026-06-19.md (Baltic hash pin `17144800277401907079`, ReplayGolden 6/6, no prod code changes); production/sprints/sprint-41-polish-hardening-release-preflight.md (S41-04 must); docs/reports/future-sprint-roadpmap.md §Horizon 3; production/determinism/determinism-audit-2026-05-29.md + replay-2026-06-02.md + replay-2026-06-04.md; AGENTS.md (GitNexus impact mandatory, determinism rules); .claude/skills/determinism-audit/SKILL.md + replay-verify/SKILL.md; ADR-004 (tick pipeline order).
+**Cites**: production/polish-scope-boundary-2026-06-19.md (Baltic hash pin `17144800277401907079`, ReplayGolden 6/6, no prod code changes); production/sprints/sprint-41-polish-hardening-release-preflight.md (S41-04 must); docs/reports/future-sprint-roadmap.md §Horizon 3; production/determinism/determinism-audit-2026-05-29.md + replay-2026-06-02.md + replay-2026-06-04.md; AGENTS.md (GitNexus impact mandatory, determinism rules); .claude/skills/determinism-audit/SKILL.md + replay-verify/SKILL.md; ADR-004 (tick pipeline order).
 
 ---
 

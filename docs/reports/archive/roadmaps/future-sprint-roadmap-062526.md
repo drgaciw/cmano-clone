@@ -1,12 +1,12 @@
 # Future Sprint Roadmap — Project Aegis (cmano-clone)
 > **Parallel-Agentic Edition — Post–S68 Release Train (S69+ E7 Commercial Launch Prep)**
 
-> **Status:** Living document. Authored **2026-06-25**; supersedes planning intent in [`future-sprint-roadpmap-062426.md`](future-sprint-roadpmap-062426.md) (2026-06-24 S65–S68 program, now archived for prior release train).
+> **Status:** Living document. Authored **2026-06-25**; supersedes planning intent in [`docs/reports/archive/roadmaps/future-sprint-roadmap-062426.md`](future-sprint-roadmap-062426.md) (2026-06-24 S65–S68 program, now archived for prior release train).
 > **Edition:** Optimized for serial sprints S69–S72 (E7 lead) with parallel tracks inside each sprint; Stage Release throughout; docs-heavy (no code changes unless explicit); GitNexus mandatory; verification-before-completion on all claims. See execute-plan §0/1/2/5/6.
-> **Stable alias:** [`future-sprint-roadpmap.md`](future-sprint-roadpmap.md) → this file (to be updated on publish per roadmap-execute-plan-062526.md §10).
-> **Primary authority (S69–S72):** [`roadmap-execute-plan-062526.md`](roadmap-execute-plan-062526.md) (S69–S72 Commercial Launch Prep E7; serial sprints, parallel tracks inside; Stage Release throughout; docs-heavy).
-> **Invariants carryover:** [`production/release-train-scope-boundary-2026-06-24.md`](../../production/release-train-scope-boundary-2026-06-24.md) (superseded for S69+ only; archive prior, do not delete; standing invariants + GitNexus §5 CRITICALs carried).
-> **Cites (mandatory everywhere):** This file (future-sprint-roadpmap-062526.md) + roadmap-execute-plan-062526.md + production/release-train-scope-boundary-2026-06-24.md + AGENTS.md + future-sprint-roadpmap-062426.md. Cite execute-plan §0/1/2/5/6 heavily.
+> **Stable alias:** [`docs/reports/future-sprint-roadmap.md`](../../future-sprint-roadmap.md) → this file (to be updated on publish per roadmap-execute-plan-062526.md §10).
+> **Primary authority (S69–S72):** [`roadmap-execute-plan-062526.md`](../../roadmap-execute-plan-062526.md) (S69–S72 Commercial Launch Prep E7; serial sprints, parallel tracks inside; Stage Release throughout; docs-heavy).
+> **Invariants carryover:** [`production/release-train-scope-boundary-2026-06-24.md`](../../../../production/release-train-scope-boundary-2026-06-24.md) (superseded for S69+ only; archive prior, do not delete; standing invariants + GitNexus §5 CRITICALs carried).
+> **Cites (mandatory everywhere):** This file (docs/reports/archive/roadmaps/future-sprint-roadmap-062526.md) + roadmap-execute-plan-062526.md + production/release-train-scope-boundary-2026-06-24.md + AGENTS.md + future-sprint-roadmap-062426.md. Cite execute-plan §0/1/2/5/6 heavily.
 > **GitNexus @ doc authoring (2026-06-25, pre FIRST per execute-plan §5/§9):** 19,792 symbols / 37,427 edges / 2,455 files (CLI node .gitnexus/run.cjs analyze post S68; MCP verified: list_repos on canonical path `/home/username01/projects/active/cmano-clone/cmano-clone` @28c582d). detect_changes (unstaged) 25/0 low (doc-only); (staged) medium/doc scope; impacts §5 CRITICALs exact match: CatalogWriteGate 178, PatrolCandidateEngagePolicy 97, DelegationBridge 127, BalticReplayHarness 52. Re-index after changes per AGENTS.md. S65–S68 COMPLETE (gates PASS; human ack ready). **S69 foundation starts post this publish.**
 **S69-03 GitNexus re-index COMPLETE (cloud, per execute-plan §3/§4/§5/§9):** CLI analyze success → 19,962 nodes | 37,627 edges; MCP post list: 19962/37627/2462; detect 24/0 low (doc md); impacts §5 exact 178/97/127/52 CRITICAL. Pre 19792/37427/2455 + verification-before (build/replay/C2 re-runs 0e/6/6/18/18) confirmed. GitNexus pre (search_tool+use_tool list/detect/impact) + AGENTS.md discipline. Cite commercial-launch-scope-boundary-2026-06-25.md + this §3/§7 + roadmap-execute-plan-062526.md. S69-03 COMPLETE.
 > **Verification @ doc authoring (verification-before-completion, all RUN+READ full outputs before claims):** build 0e/0w; test **1232/0f** (Sim 279, Cli 43, Del 247, Excel 5, UA 252, Data 406) monotonic; ReplayGolden **6/6**; C2 proxy **18/18**; hash **`17144800277401907079`** preserved; ZERO `DelegationBridge` (hotpath refs only in adapter/bridge tests/usages per gate; no .cs edits to DelegationBridge.cs); GitNexus pre exact. Full logs read: /tmp/build-gate.log, /tmp/test-gate.log, /tmp/replay-gate.log, /tmp/c2-gate.log, /tmp/hash-gate.log, /tmp/zero-bridge.log. See §7.
@@ -16,13 +16,13 @@
 
 This roadmap is **direction, not a commitment**. Per `docs/COLLABORATIVE-DESIGN-PRINCIPLE.md`,
 each sprint is still planned via `/sprint-plan` with user approval. Filename retains the
-`roadpmap` spelling for link stability. Supersedes release-train boundary for S69+ only.
+`roadmap` spelling for link stability. Supersedes release-train boundary for S69+ only.
 
 ---
 
 ## 0. Parallel execution model (S69+ program) — cite execute-plan §0/1/2/5/6
 
-Every sprint is a **serial program** (S69 → S70 → S71 → S72) with **parallel dispatch** inside each sprint — multiple agent tracks run concurrently in isolated git worktrees, merging at sprint-close. Model mirrors S65+ (see prior [`future-sprint-roadpmap-062426.md`](future-sprint-roadpmap-062426.md) §0); updated for E7 prep docs focus per roadmap-execute-plan-062526.md §0/§1/§2/§4/§5. Stage Release throughout (prep ≠ shippable product).
+Every sprint is a **serial program** (S69 → S70 → S71 → S72) with **parallel dispatch** inside each sprint — multiple agent tracks run concurrently in isolated git worktrees, merging at sprint-close. Model mirrors S65+ (see prior [`docs/reports/archive/roadmaps/future-sprint-roadmap-062426.md`](future-sprint-roadmap-062426.md) §0); updated for E7 prep docs focus per roadmap-execute-plan-062526.md §0/§1/§2/§4/§5. Stage Release throughout (prep ≠ shippable product).
 
 ### 0.1 Agent environments (unchanged)
 
@@ -66,7 +66,7 @@ Every sprint is a **serial program** (S69 → S70 → S71 → S72) with **parall
 5. GitNexus re-index after merge.
 6. Update sprint-status.yaml + closeout smoke (coordinator).
 
-**Graphite:** `gt sync`, `gt restack`, `gt submit --stack --no-interactive` — see [`docs/engineering/graphite-github-substitute-plan.md`](../engineering/graphite-github-substitute-plan.md).
+**Graphite:** `gt sync`, `gt restack`, `gt submit --stack --no-interactive` — see [`docs/engineering/graphite-github-substitute-plan.md`](../../../engineering/graphite-github-substitute-plan.md).
 
 ### 0.5 Shared-resource coordination (S69+; extend from S65+)
 
@@ -95,11 +95,11 @@ Every sprint is a **serial program** (S69 → S70 → S71 → S72) with **parall
 
 | Dimension | State | Evidence |
 |---|---|---|
-| Stage | **Release** — RC1 + internal + Baltic v2 + release train ops-complete | `production/stage.txt`, [`s68-release-train-gate-2026-06-25.md`](../../production/gate-checks/s68-release-train-gate-2026-06-25.md) |
+| Stage | **Release** — RC1 + internal + Baltic v2 + release train ops-complete | `production/stage.txt`, [`s68-release-train-gate-2026-06-25.md`](../../../../production/gate-checks/s68-release-train-gate-2026-06-25.md) |
 | Closed milestone (v1.0 RC1) | **Baltic v1.0 vertical slice — CLOSED** | S48 gate 2026-06-20 |
-| Closed milestone (internal eng) | **S49–S56 program — CLOSED** | [`s56-internal-engineering-gate-2026-06-21.md`](../../production/gate-checks/s56-internal-engineering-gate-2026-06-21.md) |
-| Closed milestone (Baltic v2) | **S57–S64 program — CLOSED** | [`s57-s64-program-closeout-2026-06-22.md`](../../production/qa/s57-s64-program-closeout-2026-06-22.md) + human ack |
-| Closed milestone (release train) | **S65–S68 E10 program — COMPLETE** | [`s68-release-train-gate-2026-06-25.md`](../../production/gate-checks/s68-release-train-gate-2026-06-25.md) + boundary + sprint-status; human ack package ready ("i provide the ack") |
+| Closed milestone (internal eng) | **S49–S56 program — CLOSED** | [`s56-internal-engineering-gate-2026-06-21.md`](../../../../production/gate-checks/s56-internal-engineering-gate-2026-06-21.md) |
+| Closed milestone (Baltic v2) | **S57–S64 program — CLOSED** | [`s57-s64-program-closeout-2026-06-22.md`](../../../../production/qa/s57-s64-program-closeout-2026-06-22.md) + human ack |
+| Closed milestone (release train) | **S65–S68 E10 program — COMPLETE** | [`s68-release-train-gate-2026-06-25.md`](../../../../production/gate-checks/s68-release-train-gate-2026-06-25.md) + boundary + sprint-status; human ack package ready ("i provide the ack") |
 | Last sprint | **S68 complete** — release train gate + GitNexus 19792/37427/2455 | S68 gate + human ack ready 2026-06-25 |
 | Next sprint | **S69 planned** — commercial launch foundation (E7 prep) | §3/§10 per execute-plan |
 | Test baseline | **1232/1232** headless, **ReplayGolden 6/6**, **C2 proxy 18/18** | Verified 2026-06-25 (RUN+READ full outputs) |
@@ -107,7 +107,7 @@ Every sprint is a **serial program** (S69 → S70 → S71 → S72) with **parall
 | GitNexus (pre FIRST) | 19792/37427/2455 @28c582d (canonical path); CRITICALs 178/97/127/52 exact | list_repos + detect + impact (search_tool schema first; use_tool) |
 | E7 commercial | **Active for prep (S69–S72)** — store drafts, i18n pipeline spec, launch doc pack, checklist v3, evidence index | Per roadmap-execute-plan-062526.md (supersedes E7 deferral in prior) |
 | E9 content | On hold (S64 complete) | Prior boundary |
-| Tracker | **21/21 MVP-done or Partial+** (closed at S56) | [`implementation-tracker-2026-06-04.md`](../../Game-Requirements/implementation-tracker-2026-06-04.md) |
+| Tracker | **21/21 MVP-done or Partial+** (closed at S56) | [`implementation-tracker-2026-06-04.md`](../../../../Game-Requirements/implementation-tracker-2026-06-04.md) |
 | Parallel readiness | **4-track pattern proven** (S39–S68); serial + parallel inside for E7 | Closeout smokes in `production/qa/` + execute-plan §4 |
 
 **What S65–S68 delivered (closed, per prior roadmap + s68-gate + sprint-status):**
@@ -127,7 +127,7 @@ Every sprint is a **serial program** (S69 → S70 → S71 → S72) with **parall
 
 ### S65–S68 Release Train (E10) — COMPLETE (2026-06-25)
 
-See [`future-sprint-roadpmap-062426.md`](future-sprint-roadpmap-062426.md) §3 + [`s68-release-train-gate-2026-06-25.md`](../../production/gate-checks/s68-release-train-gate-2026-06-25.md) + sprint-status.yaml.
+See [`docs/reports/archive/roadmaps/future-sprint-roadmap-062426.md`](future-sprint-roadmap-062426.md) §3 + [`s68-release-train-gate-2026-06-25.md`](../../../../production/gate-checks/s68-release-train-gate-2026-06-25.md) + sprint-status.yaml.
 
 | Sprint | Epic(s) | Primary outcome | Closeout |
 |--------|---------|-----------------|----------|
@@ -388,4 +388,4 @@ See execute-plan §9 for env (dotnet 8, gt, GitNexus), artifacts (S69 boundary/s
 
 ---
 
-**End of future-sprint-roadpmap-062526.md (S69–S72 E7 focus). Supersedes prior for forward; carries invariants. Publish → update alias → dispatch S69 per execute-plan.**
+**End of docs/reports/archive/roadmaps/future-sprint-roadmap-062526.md (S69–S72 E7 focus). Supersedes prior for forward; carries invariants. Publish → update alias → dispatch S69 per execute-plan.**

@@ -7,7 +7,7 @@
 **Authority:**  
 - `production/sprints/sprint-41-polish-hardening-release-preflight.md` (S41-03)  
 - `production/polish-scope-boundary-2026-06-19.md`  
-- `docs/reports/future-sprint-roadpmap.md` §Horizon 3, §5 (B3)  
+- `docs/reports/future-sprint-roadmap.md` §Horizon 3, §5 (B3)  
 - `production/release-enablement-scope-boundary-2026-06-20.md` §B3  
 
 **Explicit Declaration:** This is a **read-only** analysis and ADR. **ZERO edits** were made to `src/**`, any production code, `DelegationBridge.cs`, or related implementation files. All findings derive from GitNexus tool calls (`impact` run **before** any conclusions), file reads of docs + limited supporting `.cs` (for evidence only), and sequential analysis. No launch artifacts, B2+, or S42+ work performed.
@@ -135,7 +135,7 @@ Per c-sharp-architect + csharpexpert (SOLID, cohesion, test seams, maintainabili
 
 - Sprint plan: `production/sprints/sprint-41-polish-hardening-release-preflight.md` (S41-03 must; AC: ADR + GitNexus cites + input to B3).
 - Boundary: `production/polish-scope-boundary-2026-06-19.md` (read-only structural-debt; no production refactor; cite required).
-- Roadmap: `docs/reports/future-sprint-roadpmap.md` (Horizon 3; B3 §5: "Refactor `Decision` (60%) + `Telemetry` (67%); audit `Osint` (68%)"; "S41 ADR" prerequisite).
+- Roadmap: `docs/reports/future-sprint-roadmap.md` (Horizon 3; B3 §5: "Refactor `Decision` (60%) + `Telemetry` (67%); audit `Osint` (68%)"; "S41 ADR" prerequisite).
 - Release boundary: `production/release-enablement-scope-boundary-2026-06-20.md` (B3 details + gates).
 - GitNexus: impacts/context/cypher outputs (this session); `docs/engineering/gitnexus-index-health.md`; architecture.md (historical).
 - Related ADRs: `docs/architecture/adr-003-order-log-schema.md` (DecisionLog/IOrderLog), adr-006 etc.

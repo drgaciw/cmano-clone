@@ -2,7 +2,7 @@
 
 **Date:** 2026-06-25  
 **Status:** S73-01 deliverable (boundary first per roadmap-execute-plan-062526.01.md §3/§4; wave 1 local producer style). Published before any S73 artifact tracks dispatch. Supersedes `production/commercial-launch-scope-boundary-2026-06-25.md` for **S73+ only** (archive prior, do not delete; carry invariants only).  
-**Authority:** [`docs/reports/future-sprint-roadpmap-062526.01.md`](../docs/reports/future-sprint-roadpmap-062526.01.md) §3/§6/§7/§10 + [`docs/reports/roadmap-execute-plan-062526.01.md`](../docs/reports/roadmap-execute-plan-062526.01.md) §3/§4 + [`production/commercial-launch-scope-boundary-2026-06-25.md`](./commercial-launch-scope-boundary-2026-06-25.md) (invariants only) + AGENTS.md + [`docs/superpowers/specs/2026-06-25-baltic-v3-content-expansion-design.md`](../docs/superpowers/specs/2026-06-25-baltic-v3-content-expansion-design.md)  
+**Authority:** [`docs/reports/archive/roadmaps/future-sprint-roadmap-062526.01.md`](../docs/reports/archive/roadmaps/future-sprint-roadmap-062526.01.md) §3/§6/§7/§10 + [`docs/reports/roadmap-execute-plan-062526.01.md`](../docs/reports/roadmap-execute-plan-062526.01.md) §3/§4 + [`production/commercial-launch-scope-boundary-2026-06-25.md`](./commercial-launch-scope-boundary-2026-06-25.md) (invariants only) + AGENTS.md + [`docs/superpowers/specs/2026-06-25-baltic-v3-content-expansion-design.md`](../docs/superpowers/specs/2026-06-25-baltic-v3-content-expansion-design.md)  
 **Lead Epic:** E9 Baltic v3 Content Expansion  
 **Sprints:** S73–S80 (serial; 2–4 parallel tracks inside each; local coordinator owns boundary/closeout/human; cloud for scenarios/goldens/catalog/C2)  
 **Exit:** S80 content-complete gate (human ack "Baltic v3 content-complete"; **stage remains Release**; no `production/stage.txt` advance unless explicit separate decision)  
@@ -15,7 +15,7 @@ S73–S80 focuses on **Baltic v3 content expansion** (E9 lead): new `baltic-v3-*
 
 **Stage policy (execute-plan §1/§3/§4/§6/§7):** Remains **Release** throughout S73–S80. S80 documents "content-complete" only; any Launch decision is separate/future and requires explicit stage.txt update + new boundary.
 
-Every story / artifact / commit **must** cite this boundary + `future-sprint-roadpmap-062526.01.md` §3/§6/§7/§10 + `roadmap-execute-plan-062526.01.md` + commercial-launch-scope-boundary-2026-06-25.md (invariants) + design spec + AGENTS.md.
+Every story / artifact / commit **must** cite this boundary + `docs/reports/archive/roadmaps/future-sprint-roadmap-062526.01.md` §3/§6/§7/§10 + `roadmap-execute-plan-062526.01.md` + commercial-launch-scope-boundary-2026-06-25.md (invariants) + design spec + AGENTS.md.
 
 **S73-01 deliverable only.** This file. Wave: boundary first → (parallel manifest + gitnexus) → closeout per execute-plan §4.
 
@@ -79,7 +79,7 @@ Supersedes commercial-launch-scope-boundary-2026-06-25.md for S73+ scope (carrie
    - indexedAt: "2026-06-25T15:30:25.651Z", lastCommit: "28c582dce7da0e1f5a7e8fc1d88e668831a2b69c"
    - stats: files 2487, nodes **20193**, edges **37859** (close to authoring; staleness noted 3 commits)
 3. `use_tool gitnexus__detect_changes` (scope: "unstaged", repo: canonical path):
-   - summary: changed_count: 1, affected_count: **0**, risk_level: **"low"** (doc-only change in future-sprint-roadpmap-062126.md; no CRITICAL symbols touched)
+   - summary: changed_count: 1, affected_count: **0**, risk_level: **"low"** (doc-only change in docs/reports/archive/roadmaps/future-sprint-roadmap-062126.md; no CRITICAL symbols touched)
 4. `use_tool gitnexus__impact` (direction: "upstream", summaryOnly: true, repo: canonical) on §5/§7 CRITICALs:
    - **CatalogWriteGate**: impactedCount: **178**, risk: "CRITICAL"
    - **PatrolCandidateEngagePolicy**: impactedCount: **97**, risk: "CRITICAL"
@@ -126,13 +126,13 @@ Supersedes commercial-launch-scope-boundary-2026-06-25.md for S73+ scope (carrie
 ## References + Related
 
 - Design: `docs/superpowers/specs/2026-06-25-baltic-v3-content-expansion-design.md` (in/out, isolation model, sprint map)
-- Roadmap: `docs/reports/future-sprint-roadpmap-062526.01.md` (cite §3/§6/§7/§10)
+- Roadmap: `docs/reports/archive/roadmaps/future-sprint-roadmap-062526.01.md` (cite §3/§6/§7/§10)
 - Execute plan: `docs/reports/roadmap-execute-plan-062526.01.md` (primary; §3/§4/§5/§6/§7/§9)
 - Prior boundary (invariants + supersede for S73+): `production/commercial-launch-scope-boundary-2026-06-25.md`
 - AGENTS.md (GitNexus discipline, verification-before, stage facts)
 - S72 gate: `production/gate-checks/s72-commercial-launch-prep-gate-2026-06-25.md` + smoke-sprint-72-closeout-2026-06-25.md
 - Future: S73 sprint plan/kickoff `production/sprints/sprint-73-baltic-v3-foundations.md`, playtest manifest, gate-checks/s80-*, status updates
-- Stable alias update (per roadmap §10): `docs/reports/future-sprint-roadpmap.md`
+- Stable alias update (per roadmap §10): `docs/reports/future-sprint-roadmap.md`
 
 **All S69–S72 COMPLETE.** S73 foundations starts here (boundary first). Prereqs: S72 human ack + gates PASS.
 

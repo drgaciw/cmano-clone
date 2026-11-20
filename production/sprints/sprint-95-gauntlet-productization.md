@@ -3,7 +3,7 @@
 **Dates:** 2026-07-14 → 2026-07-21 (est. 4–6 days)  
 **Lead:** qa-lead / producer (local closeout)  
 **Program:** S94–S97 Release Continuity — **S95 only** (Gauntlet productization)  
-**Authority:** [`docs/reports/roadmap-execution-plan-071426.md`](../../docs/reports/roadmap-execution-plan-071426.md), [`docs/reports/future-sprint-roadmap-07142026.md`](../../docs/reports/future-sprint-roadmap-07142026.md), [`qa-gauntlet-effectiveness-plan-2026-07-13.md`](../qa/qa-gauntlet-effectiveness-plan-2026-07-13.md), [`critical-hub-merge-playbook-2026-07-14.md`](../agentic/critical-hub-merge-playbook-2026-07-14.md)
+**Authority:** [`docs/reports/roadmap-execution-plan-071426.md`](../../docs/reports/roadmap-execution-plan-071426.md), [`docs/reports/archive/roadmaps/future-sprint-roadmap-07142026.md`](../../docs/reports/archive/roadmaps/future-sprint-roadmap-07142026.md), [`qa-gauntlet-effectiveness-plan-2026-07-13.md`](../qa/qa-gauntlet-effectiveness-plan-2026-07-13.md), [`critical-hub-merge-playbook-2026-07-14.md`](../agentic/critical-hub-merge-playbook-2026-07-14.md)
 
 **Predecessor:** **S94 COMPLETE** — asset wave 2 (ASSET-006/021/026 Done); Approved criteria published; stage **Release**.  
 **QA plan:** [`production/qa/qa-plan-sprint-95-gauntlet-productization-2026-07-14.md`](../qa/qa-plan-sprint-95-gauntlet-productization-2026-07-14.md)  

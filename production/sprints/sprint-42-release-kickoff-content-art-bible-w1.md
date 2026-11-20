@@ -4,7 +4,7 @@
 **Trunk:** `main` @ (post-S41 + scope-expansion decision recorded)  
 **Predecessor:** Sprint 41 — COMPLETE + **scope-expansion gate APPROVED**  
 **Stage:** Release Enablement (Track B)  
-**Authority:** **Requires scope-expansion decision** — [`docs/reports/future-sprint-roadpmap.md`](../../docs/reports/future-sprint-roadpmap.md) §4, §9; new boundary doc post-gate (replaces or lifts `polish-scope-boundary-2026-06-19.md`). **DO NOT EXECUTE** until `production/gate-checks/scope-expansion-decision-*.md` is signed.
+**Authority:** **Requires scope-expansion decision** — [`docs/reports/future-sprint-roadmap.md`](../../docs/reports/future-sprint-roadmap.md) §4, §9; new boundary doc post-gate (replaces or lifts `polish-scope-boundary-2026-06-19.md`). **DO NOT EXECUTE** until `production/gate-checks/scope-expansion-decision-*.md` is signed.
 
 > **UNBLOCKED** — S41 closeout PASS with user ack "i provide the ack" (2026-06-20). 
 
@@ -110,7 +110,7 @@ First Release Enablement sprint post-gate: deliver B1 content wave 1 (first comm
 
 | Artifact | Path |
 |----------|------|
-| Roadmap | `docs/reports/future-sprint-roadpmap.md` §5, §9 |
+| Roadmap | `docs/reports/future-sprint-roadmap.md` §5, §9 |
 | Kickoff | `production/agentic/sprint-42-parallel-kickoff-2026-06-20.md` |
 | Scope template | `production/gate-checks/scope-expansion-decision-template-2026-06-20.md` |
 | Closeout smoke | `production/qa/smoke-sprint-42-closeout-2026-06-20.md` (S42-06; cites boundary + S41 ack) |

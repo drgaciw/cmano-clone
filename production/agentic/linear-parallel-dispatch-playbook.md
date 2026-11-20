@@ -301,9 +301,9 @@ Consequence for tooling: `/create-stories` should no longer be run for new epics
 
 ### Why sprint-numbered roadmaps keep going stale
 
-`future-sprint-roadmap-07142026.md` (authored **2026-07-14**) proposed **S94–S97** as the next program. Kickoffs show **S94 through S107 all ran between 2026-07-14 and 2026-07-18** — execution passed the entire proposed program within four days.
+`docs/reports/archive/roadmaps/future-sprint-roadmap-07142026.md` (authored **2026-07-14**) proposed **S94–S97** as the next program. Kickoffs show **S94 through S107 all ran between 2026-07-14 and 2026-07-18** — execution passed the entire proposed program within four days.
 
-At roughly **three sprints per day**, a four-sprint plan is about a day of work. Any roadmap keyed to sprint numbers is obsolete before it is committed. This is the same drift that stranded story files at S36 and left a chain of 10 dated `future-sprint-roadpmap-*.md` snapshots.
+At roughly **three sprints per day**, a four-sprint plan is about a day of work. Any roadmap keyed to sprint numbers is obsolete before it is committed. This is the same drift that stranded story files at S36 and left a chain of 10 dated `future-sprint-roadmap-*.md` snapshots.
 
 **Rule: roadmap milestones are keyed to outcomes and trigger conditions, never to sprint numbers.** Sprints are an execution detail; they move too fast to plan against.
 

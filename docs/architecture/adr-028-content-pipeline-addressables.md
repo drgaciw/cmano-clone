@@ -16,7 +16,7 @@
 
 ## Decision Makers
 
-Owner / Technical Director (DRGAMTD), the only developer. **This ADR lands as Proposed** (Owner Decision 7). Merging this PR is the pilot unblock and closes the H5 entry gate for DRG-347. Moving the ADR to Accepted is a later owner step and does not gate the pilot (`docs/reports/future-sprint-roadmap-07142026.md:180`; DRG-326).
+Owner / Technical Director (DRGAMTD), the only developer. **This ADR lands as Proposed** (Owner Decision 7). Merging this PR is the pilot unblock and closes the H5 entry gate for DRG-347. Moving the ADR to Accepted is a later owner step and does not gate the pilot (`docs/reports/archive/roadmaps/future-sprint-roadmap-07142026.md:180`; DRG-326).
 
 ## Summary
 
@@ -47,7 +47,7 @@ Project Aegis adopts Unity Addressables only for **presentation-only content**, 
 
 ### Problem Statement
 
-H5 cannot open without an accepted content-pipeline ADR (`future-sprint-roadmap-07142026.md:100` "Addressables / remote content design undesigned"; `:155` bulk import out of scope until that ADR exists). The package is installed and one atlas key is declared, but nothing loads through the Addressables runtime yet. Bulk use could pull sim-relevant bytes into a Unity-owned pipeline and move the replay hash. It could also grow the two hard-no hosts.
+H5 cannot open without an accepted content-pipeline ADR (`docs/reports/archive/roadmaps/future-sprint-roadmap-07142026.md:100` "Addressables / remote content design undesigned"; `:155` bulk import out of scope until that ADR exists). The package is installed and one atlas key is declared, but nothing loads through the Addressables runtime yet. Bulk use could pull sim-relevant bytes into a Unity-owned pipeline and move the replay hash. It could also grow the two hard-no hosts.
 
 ### Current State (as of `main` 434b3cf6)
 
@@ -252,7 +252,7 @@ Accepted pilot budgets (owner, 2026-10-07, Owner Decision 4): no synchronous mai
 | Doc | Requirement | How this ADR satisfies it |
 |---|---|---|
 | Draft 27 Scenario Library & Campaigns (`Game-Requirements/drafts/27-Scenario-Library-Campaigns.md`) | Proposed LIB-05.1…3 content failure isolation | Seam outcomes → documented fallback; authoritative fingerprints are unaffected by construction and tested in DRG-347 |
-| Roadmap §14 (`future-sprint-roadmap-07142026.md:180`) | "Addressables bulk: content pipeline ADR accepted" | This ADR lands as Proposed. Merging it unblocks the pilot (Owner Decision 7). Acceptance is later and does not gate DRG-347 |
+| Roadmap §14 (`docs/reports/archive/roadmaps/future-sprint-roadmap-07142026.md:180`) | "Addressables bulk: content pipeline ADR accepted" | This ADR lands as Proposed. Merging it unblocks the pilot (Owner Decision 7). Acceptance is later and does not gate DRG-347 |
 | ADR-007 Phase C | APP-6 data-driven USS + icon atlas | Atlas is the first loaded class. USS frame rules no longer hardcode the PNG; the loaded texture is bound at runtime. The USS frame registry remains the metadata fallback |
 
 ## Owner Decisions (2026-10-07 00:10 CT, drg amtd)
@@ -282,5 +282,5 @@ The owner accepted all of CMANO's proposed answers:
 - Linear: DRG-331 (this ADR), DRG-326 (H5 epic), DRG-332 (inventory, Done), DRG-347 (pilot)
 - `production/agentic/h5-content-inventory-2026-09-27.md`; `production/agentic/h5-content-inventory-review-2026-10-01.md`
 - `docs/superpowers/specs/2026-09-30-requirements-planning-reconciliation.md` (LIB-05, VER-07)
-- `docs/reports/future-sprint-roadmap-07142026.md`; `docs/reports/future-sprint-roadmap-09302026.md:46`
+- `docs/reports/archive/roadmaps/future-sprint-roadmap-07142026.md`; `docs/reports/future-sprint-roadmap-09302026.md:46`
 - [ADR-001](adr-001-sim-assembly-boundary.md), [ADR-007](adr-007-c2-map-presentation.md), [ADR-010](adr-010-headless-first-command-driven-ui.md), [ADR-017](adr-017-editor-topology-client-vs-scenario-lab.md), [ADR-027](adr-027-unity-editor-mcp-stack.md)

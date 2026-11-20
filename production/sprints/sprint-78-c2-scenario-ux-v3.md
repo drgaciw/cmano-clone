@@ -6,7 +6,7 @@
 **Capacity:** Cloud for S78-01/02/03; local closeout.
 **Model:** Per roadmap-execute-plan-062526.01.md §4/§5 + baltic-v3-scope-boundary-2026-06-25.md. Parallel after prior. Isolated worktrees. GitNexus pre mandatory. verification-before on all. unity-ui + ux pattern. Cite boundary + execute-plan + design + AGENTS.md + S77/S76 + v2 ref (no mutate).
 
-Cites: production/baltic-v3-scope-boundary-2026-06-25.md + docs/superpowers/specs/2026-06-25-baltic-v3-content-expansion-design.md §3/§5/§8 + docs/reports/roadmap-execute-plan-062526.01.md §4 + AGENTS.md + future-sprint-roadpmap-062526.01.md + S77/S76/S75/S74/S73/S72 complete + v2 C2 (read ref).
+Cites: production/baltic-v3-scope-boundary-2026-06-25.md + docs/superpowers/specs/2026-06-25-baltic-v3-content-expansion-design.md §3/§5/§8 + docs/reports/roadmap-execute-plan-062526.01.md §4 + AGENTS.md + docs/reports/archive/roadmaps/future-sprint-roadmap-062526.01.md + S77/S76/S75/S74/S73/S72 complete + v2 C2 (read ref).
 
 ## Tasks / Tracks (from execute-plan §4)
 
@@ -58,7 +58,7 @@ Cites: production/baltic-v3-scope-boundary-2026-06-25.md + docs/superpowers/spec
 
 **S78 C2 UX COMPLETE** (tracks parallel). Low risk additive v3 only. Independent. Dispatching pattern followed. Cites mandatory.
 
-**S78-04 COMPLETE. S78 COMPLETE.** (local closeout; GitNexus pre + verification-before RUN+READ applied; picker UI + bands/tooltips UI + manifest notes confirmed from S78-01/02/03 wts; smoke created; status/stage/plan updated main+wt; all gates 0e/0w 1232/0f 6/6 18/18 hash/ZERO preserved). Cite production/baltic-v3-scope-boundary-2026-06-25.md + roadmap-execute-plan-062526.01.md §3/4/5/9 + future-sprint-roadpmap-062526.01.md + AGENTS.md + S77/S76/S75/S74/S73 complete.
+**S78-04 COMPLETE. S78 COMPLETE.** (local closeout; GitNexus pre + verification-before RUN+READ applied; picker UI + bands/tooltips UI + manifest notes confirmed from S78-01/02/03 wts; smoke created; status/stage/plan updated main+wt; all gates 0e/0w 1232/0f 6/6 18/18 hash/ZERO preserved). Cite production/baltic-v3-scope-boundary-2026-06-25.md + roadmap-execute-plan-062526.01.md §3/4/5/9 + docs/reports/archive/roadmaps/future-sprint-roadmap-062526.01.md + AGENTS.md + S77/S76/S75/S74/S73 complete.
 
 ## GT Notes (for user post closeout)
 cd /home/username01/projects/active/cmano-clone/cmano-clone

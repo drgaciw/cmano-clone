@@ -37,7 +37,7 @@ GitNexus (search_tool first + list_repos/detect_changes/impact CRITICAL upstream
 
 **GT notes:** Use stack/sprint71/* for isolated tracks. Closeout owns merge + smoke-sprint-71 + sprint-status + gt notes update. Low risk (docs). Re-index GitNexus post if symbols touched (none expected).
 
-**Cites (MANDATORY on all artifacts):** production/commercial-launch-scope-boundary-2026-06-25.md ; docs/reports/roadmap-execute-plan-062526.md §3/§4/§5/§9 ; docs/reports/future-sprint-roadpmap-062526.md §3/§4/§9/§10 ; AGENTS.md ; S69/S70 complete + smoke-69/70 + sprint-69/70-*.md ; S66 release-checklist-v2.md + Baltic v2 corpus ; production/release/release-checklist-v3.md (i18n/launch sections) ; GitNexus pre results (19962/37627/2462 + impacts 178/97/127/52 exact).
+**Cites (MANDATORY on all artifacts):** production/commercial-launch-scope-boundary-2026-06-25.md ; docs/reports/roadmap-execute-plan-062526.md §3/§4/§5/§9 ; docs/reports/archive/roadmaps/future-sprint-roadmap-062526.md §3/§4/§9/§10 ; AGENTS.md ; S69/S70 complete + smoke-69/70 + sprint-69/70-*.md ; S66 release-checklist-v2.md + Baltic v2 corpus ; production/release/release-checklist-v3.md (i18n/launch sections) ; GitNexus pre results (19962/37627/2462 + impacts 178/97/127/52 exact).
 
 **S71 dispatch / closeout readiness:** S70 COMPLETE assumed; S71 plan/kickoff + l10n-qa-plan + smoke stub + status update in this prep. Ready for S71 tracks dispatch per execute-plan. Closeout S71-06 will fill smoke + final verif + gt integration.
 

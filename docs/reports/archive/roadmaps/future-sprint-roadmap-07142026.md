@@ -4,10 +4,10 @@
 
 > **Parallel-Agentic Edition — Post–S93 + Gauntlet Land (S94+ Release Continuity)**
 
-> **Status:** Living document. Authored **2026-07-14**; supersedes planning intent in [`future-sprint-roadpmap-07092026.md`](future-sprint-roadpmap-07092026.md) (2026-07-09 S89–S92 hygiene + S93 forward note, now archived as completed program).
+> **Status:** Living document. Authored **2026-07-14**; supersedes planning intent in [`docs/reports/archive/roadmaps/future-sprint-roadmap-07092026.md`](future-sprint-roadmap-07092026.md) (2026-07-09 S89–S92 hygiene + S93 forward note, now archived as completed program).
 > **Edition:** Optimized for serial sprints **S94+** (Release continuity: asset wave 2, gauntlet productization, architecture hygiene) with parallel tracks inside each sprint; stage **Release** throughout; **no Launch advance** without explicit human authorization; GitNexus mandatory; verification-before-completion on all claims.
-> **Stable alias:** [`future-sprint-roadpmap.md`](future-sprint-roadpmap.md) → this file (updated 2026-07-14). Filename uses corrected spelling **roadmap**; historical snapshots retain **roadpmap**.
-> **Primary authority (S94+):** This file + [`post-s93-concerns-remediation-closeout-2026-07-14.md`](../../production/gate-checks/post-s93-concerns-remediation-closeout-2026-07-14.md) + [`post-s93-project-release-hold-gate-2026-07-14.md`](../../production/gate-checks/post-s93-project-release-hold-gate-2026-07-14.md) + [`critical-hub-merge-playbook-2026-07-14.md`](../../production/agentic/critical-hub-merge-playbook-2026-07-14.md).
+> **Stable alias:** [`docs/reports/future-sprint-roadmap.md`](../../future-sprint-roadmap.md) → this file (updated 2026-07-14). Filename uses corrected spelling **roadmap**; historical snapshots retain **roadmap**.
+> **Primary authority (S94+):** This file + [`post-s93-concerns-remediation-closeout-2026-07-14.md`](../../../../production/gate-checks/post-s93-concerns-remediation-closeout-2026-07-14.md) + [`post-s93-project-release-hold-gate-2026-07-14.md`](../../../../production/gate-checks/post-s93-project-release-hold-gate-2026-07-14.md) + [`critical-hub-merge-playbook-2026-07-14.md`](../../../../production/agentic/critical-hub-merge-playbook-2026-07-14.md).
 > **Invariants carryover:** Post-editor hygiene boundary + S93 asset boundary (superseded for S94+ *scope only*; standing engineering floors carried and raised).
 > **GitNexus @ doc authoring (2026-07-14):** **25,311** symbols / **48,462** edges / **439** clusters / **300** flows (CLI `node .gitnexus/run.cjs analyze` @ **`257d9e9`**; status ✅ up-to-date). `impact --summary-only` upstream (repo=`/home/username01/cmano-clone`): **ScenarioDocumentEditor 233 CRITICAL**, **CatalogWriteGate 186 CRITICAL**, **DelegationBridge 142 CRITICAL**, **PatrolCandidateEngagePolicy 111 CRITICAL**, **BalticReplayHarness 62 CRITICAL**.
 > **Verification @ doc authoring (RUN+READ evidence):** build **0e/0w**; post-gauntlet-land suite **1638/0f** (Sim **314**, Del **260**, UA **310**, Excel **24**, Data **623**, Cli **107**); ReplayGolden **6/6**; C2 proxy **≥20/20**; hash **`17144800277401907079`** preserved (18 paths); ZERO `DelegationBridge` hotpath edits; CatalogWriteGate **extend-only**.
@@ -23,7 +23,7 @@ This roadmap is **direction, not a commitment**. Per `docs/COLLABORATIVE-DESIGN-
 
 ## 0. Parallel execution model (S94+ program)
 
-Every sprint is a **serial program** (S94 → …) with **parallel dispatch** inside each sprint. Model proven S39–S93; see [`future-sprint-roadpmap-07042026.md`](future-sprint-roadpmap-07042026.md) §0 for full protocol reference.
+Every sprint is a **serial program** (S94 → …) with **parallel dispatch** inside each sprint. Model proven S39–S93; see [`docs/reports/archive/roadmaps/future-sprint-roadmap-07042026.md`](future-sprint-roadmap-07042026.md) §0 for full protocol reference.
 
 ### 0.1 Agent environments
 
@@ -109,11 +109,11 @@ Gauntlet land used ordered **cherry-pick** from sibling worktree — prefer that
 
 ### S89–S92 Post-Editor Hygiene — COMPLETE
 
-See [`future-sprint-roadpmap-07092026.md`](future-sprint-roadpmap-07092026.md) §3–§6 + [`s92-post-editor-hygiene-gate-2026-07-09.md`](../../production/gate-checks/s92-post-editor-hygiene-gate-2026-07-09.md).
+See [`docs/reports/archive/roadmaps/future-sprint-roadmap-07092026.md`](future-sprint-roadmap-07092026.md) §3–§6 + [`s92-post-editor-hygiene-gate-2026-07-09.md`](../../../../production/gate-checks/s92-post-editor-hygiene-gate-2026-07-09.md).
 
 ### S93 Asset Production Wave — COMPLETE
 
-See 0709 §8 + [`smoke-sprint-93-closeout-2026-07-09.md`](../../production/qa/smoke-sprint-93-closeout-2026-07-09.md). Residual children closed in post-S93 Track B (2026-07-14).
+See 0709 §8 + [`smoke-sprint-93-closeout-2026-07-09.md`](../../../../production/qa/smoke-sprint-93-closeout-2026-07-09.md). Residual children closed in post-S93 Track B (2026-07-14).
 
 ### Post-S93 CONCERNS remediation — COMPLETE (Tracks A–C)
 
@@ -124,16 +124,16 @@ See 0709 §8 + [`smoke-sprint-93-closeout-2026-07-09.md`](../../production/qa/sm
 | C | Architecture + hubs | Review published; merge playbook published |
 | D | Launch | **Not opened** |
 
-Authority: [`post-s93-concerns-remediation-closeout-2026-07-14.md`](../../production/gate-checks/post-s93-concerns-remediation-closeout-2026-07-14.md).
+Authority: [`post-s93-concerns-remediation-closeout-2026-07-14.md`](../../../../production/gate-checks/post-s93-concerns-remediation-closeout-2026-07-14.md).
 
 ### Prior programs — see archived roadmaps
 
 | Program | Roadmap snapshot |
 |---------|------------------|
-| S81–S88 Scenario Editor | [`future-sprint-roadpmap-07042026.md`](future-sprint-roadpmap-07042026.md) |
-| S73–S80 Baltic v3 | [`future-sprint-roadpmap-062526.01.md`](future-sprint-roadpmap-062526.01.md) |
-| S69–S72 E7 prep | [`future-sprint-roadpmap-062526.md`](future-sprint-roadpmap-062526.md) |
-| S65–S68 release train | [`future-sprint-roadpmap-062426.md`](future-sprint-roadpmap-062426.md) |
+| S81–S88 Scenario Editor | [`docs/reports/archive/roadmaps/future-sprint-roadmap-07042026.md`](future-sprint-roadmap-07042026.md) |
+| S73–S80 Baltic v3 | [`docs/reports/archive/roadmaps/future-sprint-roadmap-062526.01.md`](future-sprint-roadmap-062526.01.md) |
+| S69–S72 E7 prep | [`docs/reports/archive/roadmaps/future-sprint-roadmap-062526.md`](future-sprint-roadmap-062526.md) |
+| S65–S68 release train | [`docs/reports/archive/roadmaps/future-sprint-roadmap-062426.md`](future-sprint-roadmap-062426.md) |
 
 ---
 
@@ -193,7 +193,7 @@ flowchart TD
 | CatalogWriteGate | **extend-only** |
 | Stage | **Release** until explicit Launch authorization |
 
-Evidence: [`production/qa/evidence/gates-gauntlet-land-post-2026-07-14.log`](../../production/qa/evidence/gates-gauntlet-land-post-2026-07-14.log), remediation closeout.
+Evidence: [`production/qa/evidence/gates-gauntlet-land-post-2026-07-14.log`](../../../../production/qa/evidence/gates-gauntlet-land-post-2026-07-14.log), remediation closeout.
 
 ---
 
@@ -209,7 +209,7 @@ Evidence: [`production/qa/evidence/gates-gauntlet-land-post-2026-07-14.log`](../
 
 **Index:** 25,311 nodes / 48,462 edges / 439 clusters / 300 flows — **fresh** @ HEAD `257d9e9`.
 
-**Preflight:** `impact --summary-only` (absolute repo path when dual checkouts exist) before any edit touching these symbols. Follow [`critical-hub-merge-playbook-2026-07-14.md`](../../production/agentic/critical-hub-merge-playbook-2026-07-14.md).
+**Preflight:** `impact --summary-only` (absolute repo path when dual checkouts exist) before any edit touching these symbols. Follow [`critical-hub-merge-playbook-2026-07-14.md`](../../../../production/agentic/critical-hub-merge-playbook-2026-07-14.md).
 
 ---
 
@@ -268,7 +268,7 @@ S93 binaries + residual 036/037/040/041 under `production/assets/{c2,baltic,stor
 
 | Doc | Path |
 |-----|------|
-| Prior roadmap (S89–S93) | `docs/reports/future-sprint-roadpmap-07092026.md` |
+| Prior roadmap (S89–S93) | `docs/reports/archive/roadmaps/future-sprint-roadmap-07092026.md` |
 | Post-S93 Release-hold gate | `production/gate-checks/post-s93-project-release-hold-gate-2026-07-14.md` |
 | Remediation closeout | `production/gate-checks/post-s93-concerns-remediation-closeout-2026-07-14.md` |
 | Architecture review | `docs/architecture/architecture-review-post-s93-2026-07-14.md` |
@@ -289,7 +289,7 @@ Launch requires: explicit human decision + executable commercial gate + checklis
 
 ---
 
-**End of future-sprint-roadmap-07142026.md (S94+ Release continuity focus).**  
+**End of docs/reports/archive/roadmaps/future-sprint-roadmap-07142026.md (S94+ Release continuity focus).**  
 Supersedes 07092026 for forward planning; archives S89–S93 as complete; carries invariants; raises suite floor to **1638**.  
 Publish → update alias → await user approval before `/sprint-plan` S94.
 

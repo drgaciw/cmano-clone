@@ -3,7 +3,7 @@
 **Dates:** Following S84 (est. 5–7 days)  
 **Lead:** E11 / determinism-engineer + c-sharp-devops-engineer + c-sharp-test-engineer  
 **Program:** S81–S88 Scenario Editor (req 11)  
-**Authority:** `roadmap-execute-plan-07042026.md` §3/§4 (S85), `future-sprint-roadpmap-07042026.md`, `scenario-editor-scope-boundary-2026-07-04.md`, `qa-plan-scenario-editor-2026-07-01.md` (units #2, #6, #17), `implementation-tracker-2026-07-04.md`, `Game-Requirements/requirements/11-Agentic-Mission-Editor.md` (AC-2, AC-6, #17 stub-scope pins), AGENTS.md + GitNexus discipline
+**Authority:** `roadmap-execute-plan-07042026.md` §3/§4 (S85), `docs/reports/archive/roadmaps/future-sprint-roadmap-07042026.md`, `scenario-editor-scope-boundary-2026-07-04.md`, `qa-plan-scenario-editor-2026-07-01.md` (units #2, #6, #17), `implementation-tracker-2026-07-04.md`, `Game-Requirements/requirements/11-Agentic-Mission-Editor.md` (AC-2, AC-6, #17 stub-scope pins), AGENTS.md + GitNexus discipline
 
 ## Sprint Goal
 Complete S85 tracks: AC-2 determinism integration (byte-identical `fire_order`; world-state hash excluding `editorState`; `SEED=/HASH=` stdout contract in `scenario_simulate_sample`), AC-6 CI wiring (integrate `tools/ci/smoke-ac6.sh` into `.buildkite/pipeline.yml` and related agents), Stub-scope pins (#17: harden `StubScopePinTests` for event debugger / TCA / AI scaffold / IncompatibleHost/BrokenRef). Advance primary files `ScenarioSimulateSampleCommand*`, `smoke-ac6.sh`, `StubScopePinTests.cs`, CI pipeline. Maintain all standing invariants (≥1232 floor, ReplayGolden 6/6, C2 18/18, Baltic hash, ZERO DelegationBridge, GitNexus pre).
@@ -135,7 +135,7 @@ Coordinate: if S85-01 touches simulation paths shared with AC-6, single verifica
 
 ## Cites (MANDATORY on all artifacts / commits / PRs)
 - `roadmap-execute-plan-07042026.md` §3/§4 (S85)
-- `future-sprint-roadpmap-07042026.md`
+- `docs/reports/archive/roadmaps/future-sprint-roadmap-07042026.md`
 - `scenario-editor-scope-boundary-2026-07-04.md`
 - `qa-plan-scenario-editor-2026-07-01.md` (units #2, #6, #17)
 - `implementation-tracker-2026-07-04.md`

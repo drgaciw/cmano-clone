@@ -68,7 +68,7 @@ Evidence: [`production/qa/evidence/gates-sprint-89-closeout-2026-07-09.log`](evi
 
 ## Next
 
-**S90** — Agent/skill P0 sync (tech-stack recs A1–A3 / B1–B3). Plan in [`future-sprint-roadpmap-07092026.md`](../../docs/reports/future-sprint-roadpmap-07092026.md) §3; dispatch when ready.
+**S90** — Agent/skill P0 sync (tech-stack recs A1–A3 / B1–B3). Plan in [`docs/reports/archive/roadmaps/future-sprint-roadmap-07092026.md`](../../docs/reports/archive/roadmaps/future-sprint-roadmap-07092026.md) §3; dispatch when ready.
 
 ---
 *S89 closeout. verification-before RUN+READ on all gate claims.*

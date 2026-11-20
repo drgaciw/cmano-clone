@@ -4,7 +4,7 @@
 **Track:** S71-03 Launch doc pack — patch-notes-template (Cloud, execute-plan §4)  
 **Authority / MANDATORY CITES (on all artifacts):**  
 - `production/commercial-launch-scope-boundary-2026-06-25.md` (E7 prep: launch docs IN; submission/E9/multi/bridge OUT; invariants 1232/6/6/18/18/hash/ZERO; GitNexus pre; stage=Release)  
-- `docs/reports/future-sprint-roadpmap-062526.md` §3/§6/§7/§10 (S71 i18n+launch-docs; parallel tracks; docs-heavy; serial S69→S72; cite §3/§4)  
+- `docs/reports/archive/roadmaps/future-sprint-roadmap-062526.md` §3/§6/§7/§10 (S71 i18n+launch-docs; parallel tracks; docs-heavy; serial S69→S72; cite §3/§4)  
 - `docs/reports/roadmap-execute-plan-062526.md` §3/§4 (S71 table: launch doc pack S71-03/04; deliverables: patch-notes-template.md, faq-draft.md, support-runbook-draft.md, evidence-index.md in `production/release/launch/`)  
 - `AGENTS.md` (GitNexus: search_tool then use_tool list_repos/detect/impact pre; verification-before RUN+READ; detect_changes pre-commit)  
 - S69 COMPLETE: `production/sprints/sprint-69-commercial-launch-foundation.md`, `production/qa/smoke-sprint-69-closeout-2026-06-25.md`, `production/qa/gate-matrix-commercial-launch-2026-06-25.md`, `production/agentic/sprint-69-parallel-kickoff-2026-06-25.md`  

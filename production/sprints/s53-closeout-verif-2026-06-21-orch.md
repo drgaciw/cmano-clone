@@ -7,7 +7,7 @@
 **Sub ID:** 019eeb7f-orch-s53 (orchestration verification subagent)  
 
 **Citations (verbatim):**  
-- `post-release-scope-boundary-2026-06-21.md` (S53 Req09 / E3: "Full DOTS spawn; MASS tier beyond harness `NF_SPAWN`; isolated fixtures before production hash.") + `docs/reports/future-sprint-roadpmap.md` §10 S53 E3 Req09 (from main: 2026-06-21 edition)  
+- `post-release-scope-boundary-2026-06-21.md` (S53 Req09 / E3: "Full DOTS spawn; MASS tier beyond harness `NF_SPAWN`; isolated fixtures before production hash.") + `docs/reports/future-sprint-roadmap.md` §10 S53 E3 Req09 (from main: 2026-06-21 edition)  
 - `production/release-enablement-scope-boundary-2026-06-20.md` (Req09 post-release; isolated fixtures only; no prod hash/bridge w/o ADR)  
 - `production/gate-checks/scope-expansion-decision-2026-06-20.md`  
 - `production/polish-scope-boundary-2026-06-19.md` (cross-ref)  
@@ -109,7 +109,7 @@ dotnet test ... --filter "C2|Proxy|TopBar|PlayModeSmokeHarness" ...
 
 ## 5. DOTS/MASS tracks aggregated (evidence + run in siblings)
 - Evidence in qa + sibling wts (read_file full):
-  - dots-spawn: DotsBlittableSpawn.cs (header: "S53 DOTS spawn + MASS tier full (Req09 E3 per roadmap §10). ... cites post-release... + future-sprint-roadpmap.md §10 S53 ... Replay 6/6 hold, Baltic hash 17144800277401907079 unchanged ... SwarmTier Mass ... SensorHotPath pilot ... NO ... SimulationSession ... ZERO touch CRITICAL ...")
+  - dots-spawn: DotsBlittableSpawn.cs (header: "S53 DOTS spawn + MASS tier full (Req09 E3 per roadmap §10). ... cites post-release... + docs/reports/future-sprint-roadmap.md §10 S53 ... Replay 6/6 hold, Baltic hash 17144800277401907079 unchanged ... SwarmTier Mass ... SensorHotPath pilot ... NO ... SimulationSession ... ZERO touch CRITICAL ...")
   - DotsEcsSpawnSystem.cs (header: "never called from SimTickPipeline / SimulationSession (CRITICAL) ... No production hash impact. No DelegationBridge changes.")
   - SwarmTier.cs: `Mass = 2`, `MassMaxEntities=5000`
   - DotsSpawnSkeletonTests.cs: 10 [Test] methods (DotsBlittableSpawn_*, MASS tier tests SwarmTier.Mass, SensorHotPath fields, deterministic...)
@@ -126,7 +126,7 @@ dotnet test ... --filter "C2|Proxy|TopBar|PlayModeSmokeHarness" ...
 - mass-tier-benchmark-baseline-s53-2026-06-21.md (full): COMPLETE status, metrics, evidence files, hash held.
 - post-release-scope-boundary-2026-06-21.md: S53 E3 Req09 table + gates + invariants (hash, zero bridge, >=1227, GitNexus, isolated).
 - release-enablement-scope-boundary-2026-06-20.md + polish... : Req09 post + cut lines.
-- docs/reports/future-sprint-roadpmap.md (main + local) §10 S53: parallel tracks DOTS spawn / MASS tier / closeout; cites "no production hash change without golden ADR"; "isolated fixtures first".
+- docs/reports/future-sprint-roadmap.md (main + local) §10 S53: parallel tracks DOTS spawn / MASS tier / closeout; cites "no production hash change without golden ADR"; "isolated fixtures first".
 - production/sprint-status.yaml (s53_* verbatim): gates, cites, aggregate COMPLETE, verdict PASS.
 - progress.md (S53 section): isolation, GitNexus, aggregate, re-verified gates 1227 0f etc.
 - Golden hash files, git logs, source headers in siblings.
@@ -146,7 +146,7 @@ dotnet test ... --filter "C2|Proxy|TopBar|PlayModeSmokeHarness" ...
 | GitNexus | PASS (expected) | list/impact: SimSession 179 CRIT (61d), CatWriteGate 176 CRIT (93d); BalticBatch 0 LOW; SensorHotPath notfound (pilot ref); detect 3 changed/0 affected/low (progress only) | pre/detect on CRITICALs; additive DOTS |
 | DOTS/MASS (siblings) | 10/10 + 3/3 | dots:10/10 filter (14ms log read); mass:3/3; impl: blittable+ECS+5000+SensorHotPath det (files read) | additive isolated |
 | Hash pinned | PASS | grep 17144800277401907079 in tests/regression/* (in engage/mission etc); tests pass | no mutation |
-| Cites + superpowers | PASS | All headers/sections cite exact "post-release-scope-boundary-2026-06-21.md + future-sprint-roadpmap-062126.md §10 S53 E3 Req09"; using-git-worktrees, dispatching-parallel-agents, verification-before-completion | sub ID credit |
+| Cites + superpowers | PASS | All headers/sections cite exact "post-release-scope-boundary-2026-06-21.md + docs/reports/archive/roadmaps/future-sprint-roadmap-062126.md §10 S53 E3 Req09"; using-git-worktrees, dispatching-parallel-agents, verification-before-completion | sub ID credit |
 
 **S53 E3 COMPLETE verified** (E3 Req09 complete aggregate per citations, superpowers, isolation)
 
@@ -163,6 +163,6 @@ Report produced under verification-before: cmds + full read pre-claim. No src ed
 Gates summary: 1227 0f / 6/6 replay / 18/18+ C2 / ZERO bridge / GitNexus CRITICAL pre + low detect / isolation @be8dfb7 / hash 17144800277401907079 pinned / DOTS(Mass 5000 + SensorHotPath pilot) + MASS tracks green (10/10 + 3/3).  
 Sub ID: 019eeb7f-orch-s53  
 Report path: production/qa/s53-closeout-verif-2026-06-21-orch.md (updated) + copy in production/sprints/  
-Cites (exact): post-release-scope-boundary-2026-06-21.md + future-sprint-roadpmap-062126.md §10 S53 E3 Req09 , superpowers (dispatching-parallel-agents, using-git-worktrees, verification-before-completion), AGENTS gitnexus rules followed.
+Cites (exact): post-release-scope-boundary-2026-06-21.md + docs/reports/archive/roadmaps/future-sprint-roadmap-062126.md §10 S53 E3 Req09 , superpowers (dispatching-parallel-agents, using-git-worktrees, verification-before-completion), AGENTS gitnexus rules followed.
 
 All task steps complete. S53 E3 COMPLETE verified.

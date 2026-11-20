@@ -2,7 +2,7 @@
 
 **Date:** 2026-06-25  
 **Track:** S70 internal notes (store pages companion)  
-**Authority / MANDATORY CITES:** production/commercial-launch-scope-boundary-2026-06-25.md (prep only; submission OUT); future-sprint-roadpmap-062526.md §3/§6/§7/§10 ; roadmap-execute-plan-062526.md §3/§4 (S70 store S70-01/02); AGENTS.md ; S69 COMPLETE (smoke-sprint-69-closeout-2026-06-25.md gates PASS + GitNexus 19962/37627/2462 low + S69 artifacts); S66 release-checklist-v2.md + Baltic v2 manifest (input); AGENTS.md verification-before + GitNexus discipline.  
+**Authority / MANDATORY CITES:** production/commercial-launch-scope-boundary-2026-06-25.md (prep only; submission OUT); docs/reports/archive/roadmaps/future-sprint-roadmap-062526.md §3/§6/§7/§10 ; roadmap-execute-plan-062526.md §3/§4 (S70 store S70-01/02); AGENTS.md ; S69 COMPLETE (smoke-sprint-69-closeout-2026-06-25.md gates PASS + GitNexus 19962/37627/2462 low + S69 artifacts); S66 release-checklist-v2.md + Baltic v2 manifest (input); AGENTS.md verification-before + GitNexus discipline.  
 
 **GitNexus pre + verif-before:** Executed (list 19962/37627/2462; detect 24/0 low; impacts CRITICAL 178/97/127/52 exact); gates build 0e/1232/0f/6/6/18/18/hash/ZERO RUN+READ full (/tmp/gates-s70/ logs). Docs-only. Stage Release.  
 
@@ -48,6 +48,6 @@
 
 **S70 platform-notes partial (internal list only).** Supersedes nothing; extends S46 template. Low risk docs.  
 
-Cites enforced: commercial-launch-scope-boundary-2026-06-25.md + future-sprint-roadpmap-062526.md §3/§6/§7/§10 + roadmap-execute-plan-062526.md §3/§4 + AGENTS.md + S69 artifacts + S66 release-checklist-v2 + Baltic v2 corpus. Pre state + GitNexus pre + verif-before complete.  
+Cites enforced: commercial-launch-scope-boundary-2026-06-25.md + docs/reports/archive/roadmaps/future-sprint-roadmap-062526.md §3/§6/§7/§10 + roadmap-execute-plan-062526.md §3/§4 + AGENTS.md + S69 artifacts + S66 release-checklist-v2 + Baltic v2 corpus. Pre state + GitNexus pre + verif-before complete.  
 
 *Independent S70 cloud track.*

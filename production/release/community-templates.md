@@ -2,7 +2,7 @@
 
 **Date:** 2026-06-25  
 **Track:** S70-03 Community templates (Cloud per roadmap-execute-plan-062526.md §3/§4 S70 table)  
-**Authority / MANDATORY CITES:** production/commercial-launch-scope-boundary-2026-06-25.md (E7 prep docs; community IN; no paid marketing); future-sprint-roadpmap-062526.md §3/§6/§7/§10 ; roadmap-execute-plan-062526.md §3/§4 (S70-03 community templates); AGENTS.md ; S69 COMPLETE (smoke-sprint-69-closeout-2026-06-25.md + boundary + gate-matrix + kickoff + foundation + S69-03 reindex); S66 release-checklist-v2.md + baltic-v2-scenario-manifest.yaml + playtests/baltic-v2* + qa/evidence/ (Baltic v2 corpus input).  
+**Authority / MANDATORY CITES:** production/commercial-launch-scope-boundary-2026-06-25.md (E7 prep docs; community IN; no paid marketing); docs/reports/archive/roadmaps/future-sprint-roadmap-062526.md §3/§6/§7/§10 ; roadmap-execute-plan-062526.md §3/§4 (S70-03 community templates); AGENTS.md ; S69 COMPLETE (smoke-sprint-69-closeout-2026-06-25.md + boundary + gate-matrix + kickoff + foundation + S69-03 reindex); S66 release-checklist-v2.md + baltic-v2-scenario-manifest.yaml + playtests/baltic-v2* + qa/evidence/ (Baltic v2 corpus input).  
 
 **GitNexus pre (search+use before claim):** list_repos canonical 19962/37627/2462; detect unstaged 24/0 low (doc md); impact CRITICALs exact 178 Catalog /97 Patrol /127 Bridge (exact) /52 Baltic. Low risk docs.  
 

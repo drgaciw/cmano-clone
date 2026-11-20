@@ -3,7 +3,7 @@
 **Dates:** 2026-07-09  
 **Lead:** c-sharp-devops-engineer / producer (local)  
 **Program:** S89–S92 Post-Editor Engineering Hygiene + Asset Spec Production — **final gate**  
-**Authority:** [`roadmap-execute-plan-07092026.md`](../../docs/reports/roadmap-execute-plan-07092026.md) §3/§4 (S92), [`future-sprint-roadpmap-07092026.md`](../../docs/reports/future-sprint-roadpmap-07092026.md) §3/§6, [`post-editor-hygiene-scope-boundary-2026-07-09.md`](../post-editor-hygiene-scope-boundary-2026-07-09.md), AGENTS.md, this file.
+**Authority:** [`roadmap-execute-plan-07092026.md`](../../docs/reports/roadmap-execute-plan-07092026.md) §3/§4 (S92), [`docs/reports/archive/roadmaps/future-sprint-roadmap-07092026.md`](../../docs/reports/archive/roadmaps/future-sprint-roadmap-07092026.md) §3/§6, [`post-editor-hygiene-scope-boundary-2026-07-09.md`](../post-editor-hygiene-scope-boundary-2026-07-09.md), AGENTS.md, this file.
 
 **Predecessors:** S89, S90, S91 **COMPLETE** (smoke closeouts 2026-07-09).
 

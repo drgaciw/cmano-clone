@@ -7,7 +7,7 @@ Commit: be8dfb7195aa17ec6234914233180cc81d545d7a
 ## Citations (explicit)
 - post-release-scope-boundary-2026-06-21.md (referenced in sprint-status)
 - production/release-enablement-scope-boundary-2026-06-20.md (Req 10 | Speculative Systems — orbital DEW, escalation ladder | Post-release)
-- docs/reports/future-sprint-roadpmap.md §10 S54 orbital + E3 Req10
+- docs/reports/future-sprint-roadmap.md §10 S54 orbital + E3 Req10
 - Game-Requirements/requirements/10-Speculative-Systems.md (TL-4 Orbital DEW, KESSLER_RISK_METER)
 - scope-expansion-decision-2026-06-20.md
 

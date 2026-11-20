@@ -2,7 +2,7 @@
 
 **Date:** 2026-06-21  
 **Status:** **PUBLISHED** (user prioritization locked 2026-06-21)  
-**Authority:** [`docs/reports/future-sprint-roadpmap.md`](../docs/reports/future-sprint-roadpmap.md) §3–§5, §9; S48 Release gate PASS + v1.0 milestone **CLOSED**  
+**Authority:** [`docs/reports/future-sprint-roadmap.md`](../docs/reports/future-sprint-roadmap.md) §3–§5, §9; S48 Release gate PASS + v1.0 milestone **CLOSED**  
 **Supersedes for S49+:** v1.0 defer list in [`release-enablement-scope-boundary-2026-06-20.md`](release-enablement-scope-boundary-2026-06-20.md) §Explicitly out of scope  
 **Archived (v1.0 only):** [`release-enablement-scope-boundary-2026-06-20.md`](release-enablement-scope-boundary-2026-06-20.md), [`polish-scope-boundary-2026-06-19.md`](polish-scope-boundary-2026-06-19.md)  
 **Program target:** **Internal engineering milestone** at S56 — all **21** implementation-tracker rows MVP-done (or Partial+ with documented Baltic AC tests); **not** commercial launch
@@ -133,7 +133,7 @@ Carry forward from v1.0 Release gate unless ADR explicitly revises:
 
 | Artifact | Path |
 |----------|------|
-| Roadmap | `docs/reports/future-sprint-roadpmap.md` §9 |
+| Roadmap | `docs/reports/future-sprint-roadmap.md` §9 |
 | v1.0 Release gate | `production/gate-checks/s48-release-gate-2026-06-20.md` |
 | Implementation tracker | `Game-Requirements/implementation-tracker-2026-06-04.md` |
 | Req 05 spec | `Game-Requirements/requirements/05-Dynamic-Systems-Agent.md` |

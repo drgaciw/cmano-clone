@@ -3,8 +3,8 @@
 
 > **Status:** Living document. Authored **2026-06-22**; updated **2026-06-22** (final reports subagent + Merge Coordinator) for S57–S64 program closeout + **FINAL STATUS: COMPLETE**. Human ack received ("i provide the ack"). Merge done (git --no-ff from stack/sprint* + cp evidence from wts; main updated). Prioritization locked 2026-06-22 (user decisions §6). **Post-merge + final verification-before (fresh RUN+READ 2026-06-22 this session + closeout append):** cd /home/username01/cmano-clone/cmano-clone; git status/branch (main); merges --no-ff "Already up to date"; dotnet build 0e/4w; test 1229/0f (279 Sim+43 Cli+247 Del+5 Excel+252 UA+403 Data); replay 6/6; C2 18/18; hash 17144800277401907079 preserved; ZERO bridge holds; GitNexus (search_tool first + list_repos 19497/36982 + detect 0/0/none + impact §5: Patrol CRITICAL97, Bridge CRITICAL127, Catalog CRITICAL176, Baltic CRITICAL52); gt restack ready. All PASS. Full cites in production/qa/s57-s64-program-closeout-2026-06-22.md (appended) + sprint-status s57_s64_complete + merged. Ready for restack. S65+ stub present. Program exit. Reindex/hindsight/ack/merge included. 
 > **Edition:** Optimized for parallel agentic development — see §0 for dispatch model, §10 for per-sprint track decomposition, §12 for dependency matrix.
-> Supersedes planning intent in [`future-sprint-roadpmap-062126.md`](future-sprint-roadpmap-062126.md) (2026-06-21 pre-S56-close snapshot).
-> **Stable alias:** [`future-sprint-roadpmap.md`](future-sprint-roadpmap.md) → this file.
+> Supersedes planning intent in [`docs/reports/archive/roadmaps/future-sprint-roadmap-062126.md`](future-sprint-roadmap-062126.md) (2026-06-21 pre-S56-close snapshot).
+> **Stable alias:** [`docs/reports/future-sprint-roadmap.md`](../../future-sprint-roadmap.md) → this file.
 > GitNexus index @ S56 close: **18,053 symbols / 35,427 edges / 300 flows** (re-index after S56 merge recommended). **Post S57-S64 re-index (S64 gate + ack + merge + 2026-06-23 gt restack polish + specialist re-index dispatch):** MCP list_repos (full path canonical): 19522 nodes / 37008 edges / 393 communities / 300 processes / 2438 files @2026-06-23T13:47 (indexed 2ed5ece vs live HEAD f845f85). CLI reindex: node .gitnexus/run.cjs analyze (success 19522/37008 + incremental); search_tool first for schemas. detect low/0; impact §5 CRITICALs (Patrol CRITICAL97 direct2 procs2; Delegation CRITICAL127 d30; Catalog CRITICAL176 d93/7procs; BalticReplay CRITICAL52 d52; Killed HIGH55 d4/3procs; SimSession CRITICAL228 d61/3) exact. Fresh verifs: build 0e/4w; test 0f 1229 (exact counts); 6/6 replay; 18/18 C2. Cites: baltic-v2-scope-boundary-2026-06-22.md + this §0.4/§5 + superpowers + "i provide the ack" + verification-before. "reindex complete post-restack" per CLI/MCP evidence. Restack complete.
 > **Stage:** Release (`production/stage.txt`) — RC1 + internal engineering complete; Baltic v2 content gate at S64 passed; **no stage advance** to Launch until explicit decision.
 > **Closed milestones:** S49–S56 internal engineering program — **COMPLETE** (human ack 2026-06-22; see §1–§2); **S57–S64 Baltic v2 content expansion program — FINAL COMPLETE** (S64 gate PASS + human ack "i provide the ack" + merge complete + reindex (19497/36982) + hindsight + program exit; cites production/baltic-v2-scope-boundary-2026-06-22.md + roadmap §0/§5/§7/§10/§12 + all verifs (build 0e/4w / test 1229/0f / 6/6 / 18/18 / hash / ZERO / GitNexus CRITICALs match §5 + detect none) + superpowers + verification-before on every; see production/qa/s57-s64-program-closeout-2026-06-22.md (appended merge/reindex/hindsight/ack/restack/evidence) + sprint-status.yaml s57_s64_complete). **Gt restack executed + post verif complete** (2026-06-23 S65+ polish; fresh RUN+READ 0e/0w 1229/0f 6/6 18/18 GitNexus 19522/37007 detect 0/0 impacts §5 CRITICAL exact). S65+ stub note below. PROGRAM EXIT. Post-restack GitNexus specialist: full CLI+search_tool+MCP list/detect/impact on 6 CRITICALs + build/test/playmode verifs (1229/18) + additive updates recorded (evidence in sprint-status + health). 
@@ -16,13 +16,13 @@
 >
 > This roadmap is **direction, not a commitment**. Per `docs/COLLABORATIVE-DESIGN-PRINCIPLE.md`,
 > each sprint is still planned via `/sprint-plan` with user approval. Filename retains the
-> `roadpmap` spelling for link stability.
+> `roadmap` spelling for link stability.
 
 ---
 
 ## 0. Parallel execution model (S57+ program)
 
-Every sprint is a **parallel dispatch** — multiple agent tracks run concurrently in isolated git worktrees, merging at sprint-close. Model unchanged from S49+; see [`future-sprint-roadpmap-062126.md`](future-sprint-roadpmap-062126.md) §0 for full protocol reference.
+Every sprint is a **parallel dispatch** — multiple agent tracks run concurrently in isolated git worktrees, merging at sprint-close. Model unchanged from S49+; see [`docs/reports/archive/roadmaps/future-sprint-roadmap-062126.md`](future-sprint-roadmap-062126.md) §0 for full protocol reference.
 
 ### 0.1 Agent environments
 
@@ -92,14 +92,14 @@ Unchanged from S49+ program:
 
 | Dimension | State | Evidence |
 |---|---|---|
-| Stage | **Release** — RC1 + internal engineering complete | `production/stage.txt`, [`s48-release-gate-2026-06-20.md`](../../production/gate-checks/s48-release-gate-2026-06-20.md) |
+| Stage | **Release** — RC1 + internal engineering complete | `production/stage.txt`, [`s48-release-gate-2026-06-20.md`](../../../../production/gate-checks/s48-release-gate-2026-06-20.md) |
 | Closed milestone (v1.0) | **Baltic v1.0 RC1 / vertical slice — CLOSED** | S48 gate 2026-06-20 |
-| Closed milestone (internal eng) | **S49–S56 program — CLOSED** | [`s56-internal-engineering-gate-2026-06-21.md`](../../production/gate-checks/s56-internal-engineering-gate-2026-06-21.md) + human ack 2026-06-22 |
+| Closed milestone (internal eng) | **S49–S56 program — CLOSED** | [`s56-internal-engineering-gate-2026-06-21.md`](../../../../production/gate-checks/s56-internal-engineering-gate-2026-06-21.md) + human ack 2026-06-22 |
 | Last sprint | **S56 complete** — E1 AAR sweep + 21/21 program exit | S56 gate + human ack |
 | Next sprint | **S57 planned** — AAR code remediation + playtest harness foundations | §10 |
 | Test baseline | **1228/1228** headless, **ReplayGolden 6/6**, **C2 proxy 18/18** | Verified 2026-06-22 (`Cli.Tests` 43) |
 | Determinism | Baltic hash **`17144800277401907079`** immutable on production path; ZERO DelegationBridge default | S56 + standing invariants §7 |
-| Tracker | **21/21 MVP-done or Partial+** (Baltic AC sufficient) | [`implementation-tracker-2026-06-04.md`](../../Game-Requirements/implementation-tracker-2026-06-04.md) |
+| Tracker | **21/21 MVP-done or Partial+** (Baltic AC sufficient) | [`implementation-tracker-2026-06-04.md`](../../../../Game-Requirements/implementation-tracker-2026-06-04.md) |
 | RC1 intent | **Internal engineering milestone achieved** — Baltic v2 is content/playtest depth, not commercial launch | User decision 2026-06-22; E7 out of S57+ scope |
 | Parallel readiness | **4-track pattern proven** (S39–S56) | S49–S56 closeout smokes in `production/qa/` |
 
@@ -123,7 +123,7 @@ Unchanged from S49+ program:
 
 ### Track A — Deeper Polish + Release Enablement (S39–S48)
 
-See [`future-sprint-roadpmap-062126.md`](future-sprint-roadpmap-062126.md) §2. Summary: S39–S41 Polish exit; S42–S48 Release enablement → RC1.
+See [`docs/reports/archive/roadmaps/future-sprint-roadmap-062126.md`](future-sprint-roadmap-062126.md) §2. Summary: S39–S41 Polish exit; S42–S48 Release enablement → RC1.
 
 ### Track B — Internal Engineering (S49–S56)
 
@@ -138,7 +138,7 @@ See [`future-sprint-roadpmap-062126.md`](future-sprint-roadpmap-062126.md) §2. 
 | **S55** | E4 | Cesium/globe + hypersonic C2 UI (Req 20) | PASS 2026-06-21 |
 | **S56** | E1 + gate | AAR sweep + proxy expand + **21/21 internal gate** | PASS + human ack 2026-06-22 |
 
-**Archive:** [`post-release-scope-boundary-2026-06-21.md`](../../production/post-release-scope-boundary-2026-06-21.md), [`s56-internal-engineering-gate-2026-06-21.md`](../../production/gate-checks/s56-internal-engineering-gate-2026-06-21.md), closeout smokes `production/qa/smoke-sprint-{49..56}-closeout-2026-06-21.md`.
+**Archive:** [`post-release-scope-boundary-2026-06-21.md`](../../../../production/post-release-scope-boundary-2026-06-21.md), [`s56-internal-engineering-gate-2026-06-21.md`](../../../../production/gate-checks/s56-internal-engineering-gate-2026-06-21.md), closeout smokes `production/qa/smoke-sprint-{49..56}-closeout-2026-06-21.md`.
 
 ---
 
@@ -192,14 +192,14 @@ User decision **2026-06-22:** next train optimizes for **Baltic v2** — expande
 | Theater package | S59 | 2 | Extended OOB; optional second regional slice spike @ S64 |
 | Mission narrative | S60 | 2 | MissionTransition / contact-window scenarios from AAR Topic 4 |
 | Content ingest | S61 | 2 | Catalog slices for new units; Platform Editor authoring path |
-| C2 presentation | S62 | 2 | Scenario picker + difficulty bands from [`difficulty-curve.md`](../../design/difficulty-curve.md) |
+| C2 presentation | S62 | 2 | Scenario picker + difficulty bands from [`difficulty-curve.md`](../../../../design/difficulty-curve.md) |
 
 ### E1 — Gameplay quality (S57, S63)
 
 | Theme | Sprint | Notes |
 |-------|--------|-------|
 | AAR code fixes | S57 | [`game-players-report-0620206.md`](../../game-players-report-0620206.md) Topic 1 — `PatrolCandidateEngagePolicy` |
-| Playtest loop | S63 | Refresh [`fun-hypothesis-validation-2026-06-19.md`](../../production/playtests/fun-hypothesis-validation-2026-06-19.md) |
+| Playtest loop | S63 | Refresh [`fun-hypothesis-validation-2026-06-19.md`](../../../../production/playtests/fun-hypothesis-validation-2026-06-19.md) |
 
 ### E5 — Data (S61 support)
 
@@ -244,14 +244,14 @@ Map-first v2 may need §5/§7 assets if second theater slice proceeds.
 | 3 | Sprint naming | **Continue S57+** numbered sprints with parallel tracks |
 | 4 | Stage advance | **Stay at Release** — no Shippable/Launch stage until explicit gate |
 | 5 | Lead epic | **E9 Baltic content** (S58–S64); S57 E1 AAR code is prerequisite |
-| 6 | Filename alias | **`future-sprint-roadpmap.md`** → this file |
+| 6 | Filename alias | **`docs/reports/future-sprint-roadmap.md`** → this file |
 | 7 | E7 commercial | **Out of S57+ train** — unchanged from S49+ |
 | 8 | Tracker posture | **21/21 closed at S56** — v2 adds content depth, not row re-count |
 
 ### Scope boundary (to publish @ S57-01)
 
 **`production/baltic-v2-scope-boundary-2026-06-22.md`** — draft at S57 planning:
-- Supersedes [`post-release-scope-boundary-2026-06-21.md`](../../production/post-release-scope-boundary-2026-06-21.md) for S57+ only (archived, not deleted).
+- Supersedes [`post-release-scope-boundary-2026-06-21.md`](../../../../production/post-release-scope-boundary-2026-06-21.md) for S57+ only (archived, not deleted).
 - Cites §3 committed themes + E9 lead + Baltic v2 exit at S64.
 - Carries standing invariants from §7 unchanged unless ADR.
 
@@ -296,7 +296,7 @@ Every S57+ sprint **fails** if any invariant regresses:
 | Artifact | Path | Status |
 |----------|------|--------|
 | Baltic v2 scope boundary | `production/baltic-v2-scope-boundary-2026-06-22.md` | **TBD — publish at S57-01 before story dispatch** |
-| Sprint 57 plan | [`production/sprints/sprint-57-aar-playtest-foundations.md`](../../production/sprints/sprint-57-aar-playtest-foundations.md) | **Draft** (final after boundary published) |
+| Sprint 57 plan | [`production/sprints/sprint-57-aar-playtest-foundations.md`](../../../../production/sprints/sprint-57-aar-playtest-foundations.md) | **Draft** (final after boundary published) |
 | Sprint 57 kickoff | `production/agentic/sprint-57-parallel-kickoff-2026-06-22.md` | **TBD @ dispatch** |
 
 **Next execution steps:** Publish boundary → finalize sprint plan → `/qa-plan sprint` → `/dev-story dispatch S57-01`.
@@ -312,7 +312,7 @@ Every S57+ sprint **fails** if any invariant regresses:
 
 ### S57 — E1: AAR code remediation + replay goldens
 
-| Est. | ~8–10 days | Dispatch | **READY TO PLAN** ([`sprint-57-aar-playtest-foundations.md`](../../production/sprints/sprint-57-aar-playtest-foundations.md)) |
+| Est. | ~8–10 days | Dispatch | **READY TO PLAN** ([`sprint-57-aar-playtest-foundations.md`](../../../../production/sprints/sprint-57-aar-playtest-foundations.md)) |
 |------|------------|----------|-------------------|
 
 **Parallel tracks (3):**
@@ -347,7 +347,7 @@ Every S57+ sprint **fails** if any invariant regresses:
 | Closeout | S58-05 | devops-engineer | **Local** | All |
 
 **Dependency:** Scenarios ∥ Band fixtures run from day 1; goldens trail scenarios by ~3–4 days.
-**Scope:** 3–5 new scenarios per [`difficulty-curve.md`](../../design/difficulty-curve.md) bands; comms-challenged and mission-event variants from playtest AAR.
+**Scope:** 3–5 new scenarios per [`difficulty-curve.md`](../../../../design/difficulty-curve.md) bands; comms-challenged and mission-event variants from playtest AAR.
 **Hard gates:** ReplayGolden 6/6 (+ new isolated goldens), C2 proxy ≥18, test baseline ≥ prior sprint, production Baltic hash immutable, new scenarios in isolated `baltic-v2-*` hash family.
 
 ---
@@ -419,7 +419,7 @@ Every S57+ sprint **fails** if any invariant regresses:
 | Difficulty band labels + tooltips | S62-03 | ux-designer | Cloud | — |
 | Closeout | S62-04 | devops-engineer | **Local** | All |
 
-**Scope:** Scenario picker UI from [`difficulty-curve.md`](../../design/difficulty-curve.md) band definitions; C2 tooltip pass.
+**Scope:** Scenario picker UI from [`difficulty-curve.md`](../../../../design/difficulty-curve.md) band definitions; C2 tooltip pass.
 **Hard gates:** Additive UI only, C2 proxy ≥18, test baseline ≥ prior sprint, existing C2TopBarPanelHost must not regress.
 
 ---
@@ -485,14 +485,14 @@ Every S57+ sprint **fails** if any invariant regresses:
 
 | Artifact | Path |
 |----------|------|
-| Stable alias (this doc) | [`future-sprint-roadpmap.md`](future-sprint-roadpmap.md) |
-| Prior snapshot (pre-S56) | [`future-sprint-roadpmap-062126.md`](future-sprint-roadpmap-062126.md) |
-| S56 internal gate | [`production/gate-checks/s56-internal-engineering-gate-2026-06-21.md`](../../production/gate-checks/s56-internal-engineering-gate-2026-06-21.md) |
-| Post-release boundary (archived S49–S56) | [`production/post-release-scope-boundary-2026-06-21.md`](../../production/post-release-scope-boundary-2026-06-21.md) |
-| Implementation tracker | [`Game-Requirements/implementation-tracker-2026-06-04.md`](../../Game-Requirements/implementation-tracker-2026-06-04.md) |
+| Stable alias (this doc) | [`docs/reports/future-sprint-roadmap.md`](../../future-sprint-roadmap.md) |
+| Prior snapshot (pre-S56) | [`docs/reports/archive/roadmaps/future-sprint-roadmap-062126.md`](future-sprint-roadmap-062126.md) |
+| S56 internal gate | [`production/gate-checks/s56-internal-engineering-gate-2026-06-21.md`](../../../../production/gate-checks/s56-internal-engineering-gate-2026-06-21.md) |
+| Post-release boundary (archived S49–S56) | [`production/post-release-scope-boundary-2026-06-21.md`](../../../../production/post-release-scope-boundary-2026-06-21.md) |
+| Implementation tracker | [`Game-Requirements/implementation-tracker-2026-06-04.md`](../../../../Game-Requirements/implementation-tracker-2026-06-04.md) |
 | Playtest AAR input | [`game-players-report-0620206.md`](../../game-players-report-0620206.md) |
-| Difficulty bands | [`design/difficulty-curve.md`](../../design/difficulty-curve.md) |
-| Fun hypothesis validation | [`production/playtests/fun-hypothesis-validation-2026-06-19.md`](../../production/playtests/fun-hypothesis-validation-2026-06-19.md) |
+| Difficulty bands | [`design/difficulty-curve.md`](../../../../design/difficulty-curve.md) |
+| Fun hypothesis validation | [`production/playtests/fun-hypothesis-validation-2026-06-19.md`](../../../../production/playtests/fun-hypothesis-validation-2026-06-19.md) |
 
 ---
 
@@ -555,7 +555,7 @@ AAR fix ──► Scenarios ─► Theater ──► Mission ──► Catalog �
 - **Gt restack ready (commands):** cd /home/.../cmano-clone ; gt sync ; gt restack ; post: build/test/replay/C2 + GitNexus ; gt submit --stack --no-interactive . (See AGENTS.md + roadmap §0.4 + docs/engineering/graphite-github-substitute-plan.md)
 - **Program exit:** Achieved. No active program. Stage remains Release (per stage.txt).
 - **S65+ / release train:** Optional. See stub `production/sprints/sprint-65-stub-release-train-or-next.md` (updated with S64 evidence, restack note, dispatch guidance). Future content / release train beyond this program's scope unless new human decision + boundary supersede. Cite baltic-v2-scope-boundary-2026-06-22.md + this roadmap §0/10/12.
-- **Evidence summary (absolute):** production/qa/s57-s64-program-closeout-merged-2026-06-22.md , production/sprint-status.yaml (s57_s64_complete) , docs/reports/future-sprint-roadpmap-062226.md (this) , production/baltic-v2-scope-boundary-2026-06-22.md , production/sprints/sprint-65-stub-*.md , GitNexus MCP outputs, terminal logs of verifs, tests/regression/replay-golden-*.txt .
+- **Evidence summary (absolute):** production/qa/s57-s64-program-closeout-merged-2026-06-22.md , production/sprint-status.yaml (s57_s64_complete) , docs/reports/archive/roadmaps/future-sprint-roadmap-062226.md (this) , production/baltic-v2-scope-boundary-2026-06-22.md , production/sprints/sprint-65-stub-*.md , GitNexus MCP outputs, terminal logs of verifs, tests/regression/replay-golden-*.txt .
 
 **All gates PASS. All artifacts updated. Human ack complete. Merge + reindex + hindsight complete. Ready for gt restack. Program exit. Cite boundary + roadmap + sprint-status + verification-before everywhere.**
 

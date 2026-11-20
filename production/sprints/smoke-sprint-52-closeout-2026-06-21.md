@@ -11,7 +11,7 @@
 - `stack/sprint52/sim-api/S52-03-sim-api-export-surface-plan.md`  
 - `stack/sprint52/dots-expand/S52-DOTS-expand-prep-notes.md`  
 - `production/post-release-scope-boundary-2026-06-21.md` §S52 E6 (Req 01 + Req 08) + standing gates  
-- `docs/reports/future-sprint-roadpmap-062126.md` §0/§10/§12 (parallel tracks, dep matrix S51 corpora → S52; S52 → S53 DOTS spawn ∥ MASS)  
+- `docs/reports/archive/roadmaps/future-sprint-roadmap-062126.md` §0/§10/§12 (parallel tracks, dep matrix S51 corpora → S52; S52 → S53 DOTS spawn ∥ MASS)  
 - `production/agentic/sprint-49-parallel-dispatch-2026-06-21.md` (S52 prep COMPLETE noted)  
 - `production/sprints/sprint-49-agentic-kickoff-mcp-osint-infra.md` + parallel-kickoff  
 - Prior: s48-release-gate-2026-06-20.md, gate-matrix-post-release-2026-06-21.md, determinism-audit-2026-06-20.md, AGENTS.md  
@@ -37,7 +37,7 @@
 | `DelegationBridge.cs` / WriteGate | **PASS** — ZERO touch / extend-only | Boundary invariant + GitNexus; no edits in prep tracks |
 | Baltic world hash | **PASS** — `17144800277401907079` unchanged | ReplayGolden confirmed |
 | Hard gates (boundary §S52, roadmap) | All held | 1227/6/6/18/18; determinism notes; GitNexus preflight documented in prep |
-| S52 prep artifacts | **COMPLETE** (benchmark/skeleton + sim-api/surface + dots notes) | All cite post-release-scope-boundary-2026-06-21.md + future-sprint-roadpmap-062126.md; GitNexus CRITICAL symbols listed; S51 dep matrix; determinism-engineer notes |
+| S52 prep artifacts | **COMPLETE** (benchmark/skeleton + sim-api/surface + dots notes) | All cite post-release-scope-boundary-2026-06-21.md + docs/reports/archive/roadmaps/future-sprint-roadmap-062126.md; GitNexus CRITICAL symbols listed; S51 dep matrix; determinism-engineer notes |
 | Merge gate prep (§0.4) | Ready (per dispatch) | Restack + full verify on stack/sprint52/closeout; no conflicts in prep docs |
 | verification-before-completion | **PASS** | Sequential: GitNexus first, read boundary/roadmap/prep/S49 dispatch/sprint-status/prior smokes; re-ran gates; cross-checks before claim |
 
@@ -76,7 +76,7 @@ Per boundary + roadmap: ≥1227; Replay 6/6 after sim-touch (none here); GitNexu
 
 ## Verification-before-completion (full chain)
 - GitNexus pre: list_repos, detect_changes (low), impact on key symbols (BalticBatchRunner LOW, SimulationSession CRITICAL documented).
-- Reads (absolute): boundary-2026-06-21 §S52, roadpmap-062126 §0/10/12/434+, S49 dispatch (S52 prep COMPLETE note), all 3 S52 prep MDs, prior gate/sprint-status/smokes, AGENTS.md, determinism-audit.
+- Reads (absolute): boundary-2026-06-21 §S52, roadmap-062126 §0/10/12/434+, S49 dispatch (S52 prep COMPLETE note), all 3 S52 prep MDs, prior gate/sprint-status/smokes, AGENTS.md, determinism-audit.
 - Cmds re-executed fresh in this session: replay 6/6, proxy 18/18, full sln 1227/1227; dotnet path via bootstrap.
 - Cross-checks: no src in closeout; prep docs only; all cites present; invariants (ZERO bridge, hash pinned, extend-only) hold; replay/proxy no regression.
 - Chain complete before PASS claim. No assumptions.
@@ -86,7 +86,7 @@ Per boundary + roadmap: ≥1227; Replay 6/6 after sim-touch (none here); GitNexu
 - S49 dispatch record (S52 noted)
 - production/sprint-status.yaml (this closeout update)
 - production/post-release-scope-boundary-2026-06-21.md
-- docs/reports/future-sprint-roadpmap-062126.md
+- docs/reports/archive/roadmaps/future-sprint-roadmap-062126.md
 - stack/sprint52/* prep MDs
 - GitNexus outputs (detect/impact/query)
 - dotnet test logs (replay/proxy/sln)

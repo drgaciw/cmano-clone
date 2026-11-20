@@ -3,7 +3,7 @@
 **Date:** 2026-06-20  
 **Status:** **S41 CLOSEOUT PASS — HUMAN ACK RECEIVED** (2026-06-20; user: "i provide the ack"; S42 dispatch UNBLOCKED)  
 **Gate position:** After S41 Polish-exit (S41-06/S41-08); before S42 agent dispatch  
-**Authority:** [`docs/reports/future-sprint-roadpmap.md`](../../docs/reports/future-sprint-roadpmap.md) §4 + §9, [`production/gate-checks/scope-expansion-decision-template-2026-06-20.md`](scope-expansion-decision-template-2026-06-20.md), [`production/agentic/sprint-41-parallel-kickoff-2026-06-20.md`](../agentic/sprint-41-parallel-kickoff-2026-06-20.md), [`production/sprints/sprint-41-polish-hardening-release-preflight.md`](../sprints/sprint-41-polish-hardening-release-preflight.md)  
+**Authority:** [`docs/reports/future-sprint-roadmap.md`](../../docs/reports/future-sprint-roadmap.md) §4 + §9, [`production/gate-checks/scope-expansion-decision-template-2026-06-20.md`](scope-expansion-decision-template-2026-06-20.md), [`production/agentic/sprint-41-parallel-kickoff-2026-06-20.md`](../agentic/sprint-41-parallel-kickoff-2026-06-20.md), [`production/sprints/sprint-41-polish-hardening-release-preflight.md`](../sprints/sprint-41-polish-hardening-release-preflight.md)  
 **Prior interim:** [`scope-expansion-decision-2026-06-20.md`](scope-expansion-decision-2026-06-20.md) (APPROVED with [PENDING S41] markers)  
 **S41 closeout reference (this packet):** `production/qa/smoke-sprint-41-closeout-2026-06-20.md` (skeleton produced herein) + integrated S41-01/03/04/05/07/08 artifacts  
 

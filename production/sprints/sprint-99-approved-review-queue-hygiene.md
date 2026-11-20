@@ -9,7 +9,7 @@
 [`s98-02-gauntlet-residual-disposition-2026-07-16.md`](../qa/s98-02-gauntlet-residual-disposition-2026-07-16.md) ·  
 [`design/assets/approved-criteria-2026-07-14.md`](../../design/assets/approved-criteria-2026-07-14.md) ·  
 [`production/qa/gauntlet-defect-registry.json`](../qa/gauntlet-defect-registry.json) ·  
-[`docs/reports/future-sprint-roadmap-07142026.md`](../../docs/reports/future-sprint-roadmap-07142026.md) §1 residuals ·  
+[`docs/reports/archive/roadmaps/future-sprint-roadmap-07142026.md`](../../docs/reports/archive/roadmaps/future-sprint-roadmap-07142026.md) §1 residuals ·  
 S97 continuity ack (**i acknowledge** 2026-07-16)
 
 **Predecessors COMPLETE (do not reopen):**  

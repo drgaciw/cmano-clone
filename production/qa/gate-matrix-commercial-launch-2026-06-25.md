@@ -8,12 +8,12 @@
 **Authority / Citations (mandatory):**  
 - [`production/commercial-launch-scope-boundary-2026-06-25.md`](../commercial-launch-scope-boundary-2026-06-25.md) (TARGET / just-created for S69+; supersedes release-train-scope-boundary-2026-06-24.md for S69+ only; standing invariants; §Standing Invariants; S69-01 deliverable)  
 - [`docs/reports/roadmap-execute-plan-062526.md`](../../docs/reports/roadmap-execute-plan-062526.md) §3 (Per-sprint summary), §4 (S69 tracks: boundary / gate-matrix / gitnexus-reindex / closeout), §5 (Orchestrator Phase 0 gates + GitNexus pre), §6 (Hard gates exact commands), §7 (File ownership matrix CRITICAL symbols), §8 (Agent B prompt for gate matrix), §9 (prereqs + verification)  
-- [`docs/reports/future-sprint-roadpmap-062526.md`](../../docs/reports/future-sprint-roadpmap-062526.md) §3/§4/§7/§9/§10 (S69 E7 prep; S69-02 gate-matrix baselines 1232/0f; cites execute-plan §3/§4/§6/§7 + commercial-launch-scope-boundary)  
+- [`docs/reports/archive/roadmaps/future-sprint-roadmap-062526.md`](../../docs/reports/archive/roadmaps/future-sprint-roadmap-062526.md) §3/§4/§7/§9/§10 (S69 E7 prep; S69-02 gate-matrix baselines 1232/0f; cites execute-plan §3/§4/§6/§7 + commercial-launch-scope-boundary)  
 - S68 gate: [`production/gate-checks/s68-release-train-gate-2026-06-25.md`](../gate-checks/s68-release-train-gate-2026-06-25.md) (COMPLETE; 1232/0f / 6/6 / 18/18 @ S68; human ack)  
 - Prior gate matrices: s65-gate-matrix-2026-06-24.md, gate-matrix-baltic-v2-2026-06-22.md (format precedent)  
 - AGENTS.md / CLAUDE.md (GitNexus discipline first; verification-before on all claims; docs-only for E7 prep tracks)  
 
-> **Every S69+ artifact MUST cite `production/commercial-launch-scope-boundary-2026-06-25.md` + roadmap-execute-plan-062526.md §3/§4/§5/§6/§7/§9 + future-sprint-roadpmap-062526.md §0/§3/§4/§7/§10 (per boundary + execute-plan §9). This matrix produced by isolated S69-02 track.**
+> **Every S69+ artifact MUST cite `production/commercial-launch-scope-boundary-2026-06-25.md` + roadmap-execute-plan-062526.md §3/§4/§5/§6/§7/§9 + docs/reports/archive/roadmaps/future-sprint-roadmap-062526.md §0/§3/§4/§7/§10 (per boundary + execute-plan §9). This matrix produced by isolated S69-02 track.**
 
 **Scope citation:** S69 E7 commercial launch **prep** foundation (boundary + gate matrix + re-index; store/i18n/launch docs in S70/S71). Post-S68 baseline: **1232/1232 tests (0f)** (monotonic; never regress), ReplayGolden **6/6**, C2 proxy **18/18**, production Baltic hash **`17144800277401907079`** immutable (unless golden ADR), DelegationBridge **ZERO** touch, CatalogWriteGate **extend-only**, GitNexus discipline. **S69-02 produces `production/qa/gate-matrix-commercial-launch-2026-06-25.md`.** Docs only (no code unless explicit ack + TDD). Stage remains **Release** throughout S69–S72.
 
@@ -21,7 +21,7 @@
 
 ## GitNexus Pre (MANDATORY FIRST — Executed + READ 2026-06-25)
 
-Per AGENTS.md + roadmap-execute-plan-062526.md §5 (Phase 0) + §4 S69 + future-sprint-roadpmap-062526.md §9: `search_tool` first, then `use_tool` gitnexus__*; canonical path `/home/username01/projects/active/cmano-clone/cmano-clone` (main @ 28c582d); disambiguate dups.
+Per AGENTS.md + roadmap-execute-plan-062526.md §5 (Phase 0) + §4 S69 + docs/reports/archive/roadmaps/future-sprint-roadmap-062526.md §9: `search_tool` first, then `use_tool` gitnexus__*; canonical path `/home/username01/projects/active/cmano-clone/cmano-clone` (main @ 28c582d); disambiguate dups.
 
 **GitNexus PRE (before gate-matrix doc creation; RUN+READ):**
 - `gitnexus__list_repos` (limit 10): canonical "cmano-clone" path `/home/username01/projects/active/cmano-clone/cmano-clone` — 19792 nodes / 37427 edges / 2455 files / 366 communities (indexed 2026-06-25T13:34:18Z @ HEAD 28c582d); matches roadmap-execute-plan-062526.md §1 verification note + S68 gate. Siblings (stale wts) noted.
@@ -34,10 +34,10 @@ Per AGENTS.md + roadmap-execute-plan-062526.md §5 (Phase 0) + §4 S69 + future-
 
 **GitNexus pre complete (list + detect low-for-docs + impacts §5/§7 exact); re-run post-write in closeout. No CRITICAL edits this track.**
 
-## S69-03 GitNexus Re-index Complete (Cloud agent, per roadmap-execute-plan-062526.md §3/§4/§5/§9 + future-sprint-roadpmap-062526.md §3/§7/§10 + commercial-launch-scope-boundary-2026-06-25.md)
+## S69-03 GitNexus Re-index Complete (Cloud agent, per roadmap-execute-plan-062526.md §3/§4/§5/§9 + docs/reports/archive/roadmaps/future-sprint-roadmap-062526.md §3/§7/§10 + commercial-launch-scope-boundary-2026-06-25.md)
 
 **Date:** 2026-06-25 (post CLI run)
-**Authority cites (MANDATORY):** production/commercial-launch-scope-boundary-2026-06-25.md (S69-01) + docs/reports/future-sprint-roadpmap-062526.md §3/§6/§7/§10 + docs/reports/roadmap-execute-plan-062526.md §3/§4/§5/§9 (S69 tracks, re-index as S69-03, GitNexus pre, Phase 0/1/2) + AGENTS.md (GitNexus discipline: impact/detect pre, list_repos canonical, re-index after changes) + production/sprint-status.yaml + Gate matrix/kickoff from S69
+**Authority cites (MANDATORY):** production/commercial-launch-scope-boundary-2026-06-25.md (S69-01) + docs/reports/archive/roadmaps/future-sprint-roadmap-062526.md §3/§6/§7/§10 + docs/reports/roadmap-execute-plan-062526.md §3/§4/§5/§9 (S69 tracks, re-index as S69-03, GitNexus pre, Phase 0/1/2) + AGENTS.md (GitNexus discipline: impact/detect pre, list_repos canonical, re-index after changes) + production/sprint-status.yaml + Gate matrix/kickoff from S69
 
 **GitNexus PRE (search_tool then use_tool, canonical path /home/username01/projects/active/cmano-clone/cmano-clone main @28c582d):**
 - search_tool for list_repos, detect_changes, impact schemas retrieved.
@@ -66,7 +66,7 @@ Per AGENTS.md + roadmap-execute-plan-062526.md §5 (Phase 0) + §4 S69 + future-
 
 ## Hard Gates Matrix (Post-S68 / S69 baseline)
 
-All standing invariants from `production/commercial-launch-scope-boundary-2026-06-25.md` (target) + roadmap-execute-plan-062526.md §6/§7 + future-sprint-roadpmap-062526.md §7 enforced. Exact commands from execute-plan §6 used. **verification-before-completion applied on all RUN+READ outputs** (full results captured + inspected before any PASS claims 2026-06-25). Fresh runs executed in this session from repo root. Docs-only track. S68 COMPLETE (1232 floor established).
+All standing invariants from `production/commercial-launch-scope-boundary-2026-06-25.md` (target) + roadmap-execute-plan-062526.md §6/§7 + docs/reports/archive/roadmaps/future-sprint-roadmap-062526.md §7 enforced. Exact commands from execute-plan §6 used. **verification-before-completion applied on all RUN+READ outputs** (full results captured + inspected before any PASS claims 2026-06-25). Fresh runs executed in this session from repo root. Docs-only track. S68 COMPLETE (1232 floor established).
 
 | Gate | Floor / Policy | Status (2026-06-25) | Evidence / Command Output |
 |------|----------------|---------------------|---------------------------|
@@ -88,7 +88,7 @@ All standing invariants from `production/commercial-launch-scope-boundary-2026-0
 - Hash: preserved (rg hits READ).
 - Bridge: clean (rg + logic READ; ZERO edits to .cs).
 
-**S69-04 Closeout Update (2026-06-25):** S69-04 COMPLETE. S69 full COMPLETE. Evidence + re-runs in production/qa/smoke-sprint-69-closeout-2026-06-25.md (tracks: boundary/gate-matrix/re-index/closeout; full RUN+READ gates 0e/1232/0f/6/6/18/18/hash/ZERO; GitNexus pre list/detect/impact; cites). Phase 2: closeout complete, ready S70. All S69 tracks COMPLETE. Cites commercial-launch-scope-boundary-2026-06-25.md + roadmap-execute-plan-062526.md §3/§4/§5/§9 + future-sprint-roadpmap-062526.md + AGENTS.md + this. **S69-04 COMPLETE. S69 full COMPLETE.**
+**S69-04 Closeout Update (2026-06-25):** S69-04 COMPLETE. S69 full COMPLETE. Evidence + re-runs in production/qa/smoke-sprint-69-closeout-2026-06-25.md (tracks: boundary/gate-matrix/re-index/closeout; full RUN+READ gates 0e/1232/0f/6/6/18/18/hash/ZERO; GitNexus pre list/detect/impact; cites). Phase 2: closeout complete, ready S70. All S69 tracks COMPLETE. Cites commercial-launch-scope-boundary-2026-06-25.md + roadmap-execute-plan-062526.md §3/§4/§5/§9 + docs/reports/archive/roadmaps/future-sprint-roadmap-062526.md + AGENTS.md + this. **S69-04 COMPLETE. S69 full COMPLETE.**
 - Exact command outputs (per §6) embedded; all executed from `/home/username01/cmano-clone/cmano-clone` (export PATH="$HOME/.dotnet:$PATH"; cd repo root).
 - Determinism / no regression: matches S68 gate + S65–S68 closeouts + roadmap-execute-plan-062526.md §1 baseline @ S69 start.
 - GitNexus pre: all RUN+READ before claims (see above).
@@ -139,6 +139,6 @@ rg "DelegationBridge" src/ --glob "!**/DelegationBridge.cs" -l || true   # → 0
 
 **Next (per execute-plan §5/§9):** GitNexus re-index track (S69-03) + boundary (S69-01 assumed) → closeout (S69-04). Re-run gates + GitNexus post-merge. Update sprint-status.yaml / qa/ smoke. /qa-plan sprint 69 recommended.
 
-Cites (heavy): `production/commercial-launch-scope-boundary-2026-06-25.md` (target) + `docs/reports/roadmap-execute-plan-062526.md` §3/§4/§5/§6/§7/§8/§9 + `docs/reports/future-sprint-roadpmap-062526.md` §3/§4/§7/§9/§10 + S68 gate + prior matrices + AGENTS.md + local-cloud-agent-routing.md. verification-before + GitNexus pre (list+detect+impact) on all claims. Isolated E7 prep docs track. Stage: Release.
+Cites (heavy): `production/commercial-launch-scope-boundary-2026-06-25.md` (target) + `docs/reports/roadmap-execute-plan-062526.md` §3/§4/§5/§6/§7/§8/§9 + `docs/reports/archive/roadmaps/future-sprint-roadmap-062526.md` §3/§4/§7/§9/§10 + S68 gate + prior matrices + AGENTS.md + local-cloud-agent-routing.md. verification-before + GitNexus pre (list+detect+impact) on all claims. Isolated E7 prep docs track. Stage: Release.
 
 *Generated 2026-06-25 per S69-02. verification-before: all gates RUN + full outputs READ before PASS claims. GitNexus pre FIRST exact.*

@@ -3,7 +3,7 @@
 **Date:** 2026-07-04  
 **Sprint:** S85 (Determinism AC-2 + AC-6 CI wiring + stub-scope pins #17)  
 **Status:** S85-04 closeout (3 parallel tracks S85-01/02/03 completed via dispatching-parallel-agents + worktree isolation; local coordinator aggregates + Phase 0 re-run)  
-**Authority:** `docs/reports/roadmap-execute-plan-07042026.md` §4 (S85) + `docs/reports/future-sprint-roadpmap-07042026.md` + `production/scenario-editor-scope-boundary-2026-07-04.md` + `production/sprints/sprint-85-determinism-ci.md` + `production/qa/qa-plan-scenario-editor-2026-07-01.md` (units #2, #6, #17) + `Game-Requirements/requirements/11-Agentic-Mission-Editor.md` (AC-2, AC-6, #17) + `production/agentic/sprint-85-parallel-kickoff-2026-07-04.md` + `implementation-tracker-2026-07-04.md` + AGENTS.md + GitNexus discipline + CLAUDE.md
+**Authority:** `docs/reports/roadmap-execute-plan-07042026.md` §4 (S85) + `docs/reports/archive/roadmaps/future-sprint-roadmap-07042026.md` + `production/scenario-editor-scope-boundary-2026-07-04.md` + `production/sprints/sprint-85-determinism-ci.md` + `production/qa/qa-plan-scenario-editor-2026-07-01.md` (units #2, #6, #17) + `Game-Requirements/requirements/11-Agentic-Mission-Editor.md` (AC-2, AC-6, #17) + `production/agentic/sprint-85-parallel-kickoff-2026-07-04.md` + `implementation-tracker-2026-07-04.md` + AGENTS.md + GitNexus discipline + CLAUDE.md
 
 ---
 
@@ -33,14 +33,14 @@ All claims below verified via execution (commands re-run in this session on bran
   - `node .gitnexus/run.cjs impact CatalogWriteGate --direction upstream --summary-only` (per plan) → CRITICAL (extend-only held).
   - `node .gitnexus/run.cjs detect-changes` (unstaged) → 34 files, 41 symbols, **high** risk (accumulated branch changes incl. prior S81-S84 + S85 editor; no blast to sim core / bridge hotpath).
   - MCP equivalents (`gitnexus__list_repos`, `gitnexus__impact`, `gitnexus__detect_changes`) confirmed identical.
-- **Cites present:** All delivered artifacts + changed files reference `scenario-editor-scope-boundary-2026-07-04.md`, `sprint-85-determinism-ci.md`, `qa-plan-scenario-editor-2026-07-01.md` (units #2/#6/#17), `roadmap-execute-plan-07042026.md`, `11-Agentic-Mission-Editor.md`, `future-sprint-roadpmap-07042026.md`, kickoff, AGENTS.md.
+- **Cites present:** All delivered artifacts + changed files reference `scenario-editor-scope-boundary-2026-07-04.md`, `sprint-85-determinism-ci.md`, `qa-plan-scenario-editor-2026-07-01.md` (units #2/#6/#17), `roadmap-execute-plan-07042026.md`, `11-Agentic-Mission-Editor.md`, `docs/reports/archive/roadmaps/future-sprint-roadmap-07042026.md`, kickoff, AGENTS.md.
 - **Worktrees verified:** `.worktrees/stack/sprint85/{determinism, ac6-ci, stub-pins, closeout}` exist and at stack prefixes (git worktree list confirms; 4 tracks + closeout). Parallel isolation per dispatch.
 - **Tracks 3x DONE:** All tracks (S85-01 determinism, S85-02 AC-6 CI, S85-03 stub-pins) completed with GitNexus pre per symbol, targeted re-runs, TDD-style extension of tests/fixtures/command, boundary/plan cites. No bridge/catalog hotpath violations. AC-6 wired to pipeline.
 - **gt commands prepared (for user ack + submit):** See dedicated section below. Graphite-first (no gh direct).
 
 **SDK note:** dotnet 8.0.400/8.0.422 present; all gates passed identically to prior baselines (S82 etc).
 
-Cites for this verification: production/scenario-editor-scope-boundary-2026-07-04.md (standing invariants + hard gates + S85 scope), production/sprints/sprint-85-determinism-ci.md (Phase 0 commands + AC-2 assertions + editor filter), production/qa/qa-plan-scenario-editor-2026-07-01.md (units #2 AC-2, #6 AC-6, #17 stubs), docs/reports/roadmap-execute-plan-07042026.md §4 S85 table + Phase 0, production/agentic/sprint-85-parallel-kickoff-2026-07-04.md (dispatch + commands + cites), docs/reports/future-sprint-roadpmap-07042026.md, Game-Requirements/requirements/11-Agentic-Mission-Editor.md, AGENTS.md (GitNexus + verification-before + worktree + gt).
+Cites for this verification: production/scenario-editor-scope-boundary-2026-07-04.md (standing invariants + hard gates + S85 scope), production/sprints/sprint-85-determinism-ci.md (Phase 0 commands + AC-2 assertions + editor filter), production/qa/qa-plan-scenario-editor-2026-07-01.md (units #2 AC-2, #6 AC-6, #17 stubs), docs/reports/roadmap-execute-plan-07042026.md §4 S85 table + Phase 0, production/agentic/sprint-85-parallel-kickoff-2026-07-04.md (dispatch + commands + cites), docs/reports/archive/roadmaps/future-sprint-roadmap-07042026.md, Game-Requirements/requirements/11-Agentic-Mission-Editor.md, AGENTS.md (GitNexus + verification-before + worktree + gt).
 
 ---
 
@@ -199,7 +199,7 @@ No blocking risks for S85. All invariants held.
 ## Next Steps (S86)
 
 - User ack + gt submit for S85 stack.
-- S86: CLI/MCP polish + UA triage (per roadmap-execute-plan + future-sprint-roadpmap).
+- S86: CLI/MCP polish + UA triage (per roadmap-execute-plan + future-sprint-roadmap).
 - Continue S81–S88 editor program; update implementation-tracker as needed.
 - Maintain Baltic hash, ZERO bridge, >=1232, GitNexus pre, smoke-ac6 in editor window.
 

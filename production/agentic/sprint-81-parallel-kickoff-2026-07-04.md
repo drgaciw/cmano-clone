@@ -2,7 +2,7 @@
 
 **Date:** 2026-07-04  
 **Sprint:** S81  
-**Authority:** `roadmap-execute-plan-07042026.md`, `scenario-editor-scope-boundary-2026-07-04.md`, `future-sprint-roadpmap-07042026.md`
+**Authority:** `roadmap-execute-plan-07042026.md`, `scenario-editor-scope-boundary-2026-07-04.md`, `docs/reports/archive/roadmaps/future-sprint-roadmap-07042026.md`
 
 ## Context
 S81 is the first sprint of the S81–S88 Scenario Editor program (E11 / req 11, headless first).

@@ -2,7 +2,7 @@
 
 **Date:** 2026-06-25  
 **Track:** S71-03/04 Launch doc pack — evidence-index (Cloud, execute-plan §4)  
-**Authority / MANDATORY CITES:** production/commercial-launch-scope-boundary-2026-06-25.md (E7 prep; evidence index IN; stage Release); docs/reports/future-sprint-roadpmap-062526.md §3/§6/§7/§10; docs/reports/roadmap-execute-plan-062526.md §3/§4 (S71-03/04 deliverables); AGENTS.md; S69 (foundation + gate-matrix + reindex + closeout); S70 (store + community + checklist-v3); prior S57–S68 (release train + Baltic v2 complete).  
+**Authority / MANDATORY CITES:** production/commercial-launch-scope-boundary-2026-06-25.md (E7 prep; evidence index IN; stage Release); docs/reports/archive/roadmaps/future-sprint-roadmap-062526.md §3/§6/§7/§10; docs/reports/roadmap-execute-plan-062526.md §3/§4 (S71-03/04 deliverables); AGENTS.md; S69 (foundation + gate-matrix + reindex + closeout); S70 (store + community + checklist-v3); prior S57–S68 (release train + Baltic v2 complete).  
 
 **GitNexus pre (search+use, this track):** list_repos (canonical /home/username01/projects/active/cmano-clone/cmano-clone): 19962/37627/2462; detect unstaged 24/0 low (docs); impact upstream: CatalogWriteGate 178 CRIT, Patrol 97, Bridge 127 (exact), Baltic 52 CRIT. Low risk. Exact per §5 boundary.  
 

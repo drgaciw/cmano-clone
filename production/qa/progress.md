@@ -58,5 +58,5 @@ Complete (shipped) — GitNexus CI migration to Buildkite on `main` (`de9a982`)
 - New UI safe (no sim edits).
 - Parallel agents / git-worktrees discipline followed.
 - Verification: builds green, 248+252 tests pass, GitNexus impacts LOW.
-- Evidence cites: production/release-enablement-scope-boundary-2026-06-20.md , docs/reports/future-sprint-roadpmap.md , polish-scope-boundary-2026-06-19.md , Game-Requirements/requirements/09-Near-Future-Technologies.md (HYPERSONIC_ALERT game state), 20-Command-And-Control-UI.md , design/ux/c2-command-post.md , AGENTS.md / CLAUDE.md (boundary + impact + worktree).
+- Evidence cites: production/release-enablement-scope-boundary-2026-06-20.md , docs/reports/future-sprint-roadmap.md , polish-scope-boundary-2026-06-19.md , Game-Requirements/requirements/09-Near-Future-Technologies.md (HYPERSONIC_ALERT game state), 20-Command-And-Control-UI.md , design/ux/c2-command-post.md , AGENTS.md / CLAUDE.md (boundary + impact + worktree).
 

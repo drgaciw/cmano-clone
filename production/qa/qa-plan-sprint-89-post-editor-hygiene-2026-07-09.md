@@ -6,7 +6,7 @@
 **Sprint file:** `production/sprints/sprint-89-invariant-hygiene.md`  
 **Authority / MANDATORY Citations:**
 - [`post-editor-hygiene-scope-boundary-2026-07-09.md`](../post-editor-hygiene-scope-boundary-2026-07-09.md)
-- [`future-sprint-roadpmap-07092026.md`](../../docs/reports/future-sprint-roadpmap-07092026.md) §3/§6
+- [`docs/reports/archive/roadmaps/future-sprint-roadmap-07092026.md`](../../docs/reports/archive/roadmaps/future-sprint-roadmap-07092026.md) §3/§6
 - [`roadmap-execute-plan-07092026.md`](../../docs/reports/roadmap-execute-plan-07092026.md) §3/§4 (S89)
 - [`gates-post-editor-hygiene-2026-07-09.log`](./evidence/gates-post-editor-hygiene-2026-07-09.log)
 - [`implementation-tracker-2026-07-04.md`](../../Game-Requirements/implementation-tracker-2026-07-04.md) (req 14 UA residuals)

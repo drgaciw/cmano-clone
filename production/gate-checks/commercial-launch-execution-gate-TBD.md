@@ -2,7 +2,7 @@
 
 **Date:** 2026-06-25  
 **Status:** **STUB — NOT EXECUTABLE** (explicitly deferred post–S72 prep)  
-**Authority:** `production/commercial-launch-scope-boundary-2026-06-25.md` + `docs/reports/future-sprint-roadpmap-062526.01.md` §3 (E9 Baltic v3 lead; E7 execution separate)  
+**Authority:** `production/commercial-launch-scope-boundary-2026-06-25.md` + `docs/reports/archive/roadmaps/future-sprint-roadmap-062526.01.md` §3 (E9 Baltic v3 lead; E7 execution separate)  
 **Stage requirement:** `production/stage.txt` must read **Launch** (currently **Release**)
 
 ---

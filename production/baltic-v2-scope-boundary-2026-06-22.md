@@ -2,7 +2,7 @@
 
 **Date:** 2026-06-22  
 **Status:** PUBLISHED (per roadmap-062226 §6; supersedes post-release-scope-boundary-2026-06-21.md for S57+)  
-**Authority:** [`docs/reports/future-sprint-roadpmap-062226.md`](../docs/reports/future-sprint-roadpmap-062226.md) §3, §6, §10; S56 gate PASS + human ack 2026-06-22  
+**Authority:** [`docs/reports/archive/roadmaps/future-sprint-roadmap-062226.md`](../docs/reports/archive/roadmaps/future-sprint-roadmap-062226.md) §3, §6, §10; S56 gate PASS + human ack 2026-06-22  
 **Lead Epic:** E9 Baltic content (S58–S64); S57 E1 prerequisite  
 **Exit:** S64 Baltic v2 content gate + playtest sign-off  
 

@@ -12,7 +12,7 @@
 
 **Delivery:** [DRG-233 epic](https://linear.app/drgamtd-workspace/issue/DRG-233), [G1 / DRG-234](https://linear.app/drgamtd-workspace/issue/DRG-234), [G2 / DRG-235](https://linear.app/drgamtd-workspace/issue/DRG-235), [G3 / DRG-236](https://linear.app/drgamtd-workspace/issue/DRG-236). All created in Backlog; G2/G3 depend on G1. [Notion scope and acceptance](https://app.notion.com/p/3d5f7cb4e4df812186c2db1a397b17d1) links the same records.
 
-**Program links:** [Dated roadmap](../../reports/future-sprint-roadmap-09082026.md) and [dashboard snapshot](../../reports/dashboard-snapshots/2026-09-08-slice-g.md).
+**Program links:** [Dated roadmap](../../reports/archive/roadmaps/future-sprint-roadmap-09082026.md) and [dashboard snapshot](../../reports/dashboard-snapshots/2026-09-08-slice-g.md).
 
 ## Scope and Authority
 

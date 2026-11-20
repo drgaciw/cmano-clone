@@ -5,7 +5,7 @@
 **Authority (mandatory citations):**  
 - [`production/sprints/sprint-41-polish-hardening-release-preflight.md`](../sprints/sprint-41-polish-hardening-release-preflight.md) (S41-07/S41-08 should-have)  
 - [`production/agentic/sprint-41-parallel-kickoff-2026-06-20.md`](../agentic/sprint-41-parallel-kickoff-2026-06-20.md)  
-- [`docs/reports/future-sprint-roadpmap.md`](../../docs/reports/future-sprint-roadpmap.md) §5 (Track B), §3 Horizon 3, §9 (S42–S48 mapping)  
+- [`docs/reports/future-sprint-roadmap.md`](../../docs/reports/future-sprint-roadmap.md) §5 (Track B), §3 Horizon 3, §9 (S42–S48 mapping)  
 - [`production/polish-scope-boundary-2026-06-19.md`](../polish-scope-boundary-2026-06-19.md) (Track A in-boundary; S41 strictly Horizon 3)  
 - [`production/release-enablement-scope-boundary-2026-06-20.md`](../release-enablement-scope-boundary-2026-06-20.md) (Track B boundary post-gate)  
 - [`Game-Requirements/implementation-tracker-2026-06-04.md`](../../Game-Requirements/implementation-tracker-2026-06-04.md) (all Req 01–21 **Partial**; research gaps)  
@@ -40,7 +40,7 @@ All 21 Req 01–21 rows in [`Game-Requirements/implementation-tracker-2026-06-04
 | **B5** | Launch artifacts | None today (per roadmap §1 + polish/release boundaries: "Launch artifacts absent"). | Roadmap §5 B5; §9 S46 (prereq B1+B2 at S43). Release-boundary table: `production/release/release-checklist-v1.md`, `production/release/store/`, `production/release/i18n-pipeline-spec.md`, evidence index. | **Medium complexity / LOW code risk** (mostly docs + metadata). High process risk if B1/B2 incomplete. | **TRUE** (S41-08 stub analysis only; artifacts in S46) | N/A direct (non-C#). | **Creep flag:** Producing any actual store pages / full checklist / i18n pipeline in S41 violates "analysis only" + "do not produce launch artifacts" (sprint-41 plan + roadmap Horizon 3). Stub only. Prereqs B1+B2 per boundary. |
 | **B6** | Release gate | N/A (Polish stage; gate-checks show CONCERNS carried). | Roadmap §5 B6; §9 S47 (prep) + S48 (gate-check Polish→Release + stage advance). Prereq B1–B5. | **High complexity / CRITICAL process risk.** Depends on all prior + full gates. | **TRUE** (analysis of requirements only) | N/A (orchestration + QA). | **Creep flag:** Executing `/gate-check` or stage advance pre-S41 exit + B1–B5 would be creep. S41 produces analysis packet only. |
 
-**Sources for table rows:** release-enablement-scope-boundary-2026-06-20.md §B1 tables (13 rows + defer list) + §B2–B6; future-sprint-roadpmap.md §5 + §9 tables; implementation-tracker-2026-06-04.md (Partial status + "Next stack task" column + research gaps); scope-expansion-decision-2026-06-20.md interim + committed tables; polish-scope-boundary §Explicitly Out of Scope.
+**Sources for table rows:** release-enablement-scope-boundary-2026-06-20.md §B1 tables (13 rows + defer list) + §B2–B6; docs/reports/future-sprint-roadmap.md §5 + §9 tables; implementation-tracker-2026-06-04.md (Partial status + "Next stack task" column + research gaps); scope-expansion-decision-2026-06-20.md interim + committed tables; polish-scope-boundary §Explicitly Out of Scope.
 
 ---
 

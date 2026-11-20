@@ -8,7 +8,7 @@
 **Authority / MANDATORY Citations:**  
 - `production/commercial-launch-scope-boundary-2026-06-25.md` (E7 prep scope; P0 en-US; invariants carry; docs-only; stage Release)  
 - `docs/reports/roadmap-execute-plan-062526.md` §3/§4/§5/§9 (S71 tracks table exact; wave W3 l10n-qa-plan after inventory; deliverable `production/qa/qa-plan-sprint-71-l10n-prep-2026-06-*.md` — locale smoke strategy for post-prep future work; **no PlayMode changes in S71 unless user ack + TDD**; closeout S71-06 local)  
-- `docs/reports/future-sprint-roadpmap-062526.md` §3/§4/§9/§10  
+- `docs/reports/archive/roadmaps/future-sprint-roadmap-062526.md` §3/§4/§9/§10  
 - `AGENTS.md` (GitNexus pre FIRST via search_tool + use_tool; verification-before RUN+READ; detect_changes before commit)  
 - S69/S70 COMPLETE: smoke-sprint-69-closeout-2026-06-25.md + smoke-sprint-70-closeout-2026-06-25.md + sprint-69/70-*.md + kickoffs + boundary + gate-matrix + release-checklist-v3.md  
 - Prior: S66 release-checklist-v2.md + baltic-v2-*.yaml + evidence/baltic-v2-playtest-index.md (input)  

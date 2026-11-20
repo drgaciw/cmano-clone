@@ -1,11 +1,11 @@
 # S56 AAR Remediation Track (S56-01 / S56-02) — Playtest AAR Sweep
 
-**Sprint:** S56 — E1 + exit gate (per future-sprint-roadmap-062126.md §10 S56 E1)
+**Sprint:** S56 — E1 + exit gate (per docs/reports/archive/roadmaps/future-sprint-roadmap-062126.md §10 S56 E1)
 **Track:** `stack/sprint56/aar-sweep` (AAR remediation)
 **Parallel:** `stack/sprint56/proxy-filter` (S56-03), `stack/sprint56/gate` (S56-04)
 **Date:** 2026-06-21
 **Authority / Scope:** 
-- [`future-sprint-roadmap-062126.md`](../../docs/reports/future-sprint-roadpmap-062126.md) §10 S56 E1 + E1 Playtest sweep
+- [`docs/reports/archive/roadmaps/future-sprint-roadmap-062126.md`](../../docs/reports/archive/roadmaps/future-sprint-roadmap-062126.md) §10 S56 E1 + E1 Playtest sweep
 - [`production/post-release-scope-boundary-2026-06-21.md`](../../production/post-release-scope-boundary-2026-06-21.md) (S56 — E1 sweep + program gate; 21/21 rows; Playtest AAR remediation per [`game-players-report-0620206.md`](../../game-players-report-0620206.md))
 - **Input:** [`game-players-report-0620206.md`](../../game-players-report-0620206.md) (Topics 1 + 2 primary for S56-01/02)
 
@@ -24,7 +24,7 @@
 See also `production/gate-checks/s48-release-gate-2026-06-20.md` and post-release-scope-boundary § Standing invariants.
 
 ## 1. Scope (S56-01 / S56-02 per roadmap §10)
-Per `future-sprint-roadmap-062126.md`:
+Per `docs/reports/archive/roadmaps/future-sprint-roadmap-062126.md`:
 > | AAR remediation | S56-01, S56-02 | team-gameplay | Cloud | `stack/sprint56/aar-sweep` | — |
 
 **S56-01:** Re-engage on neutralized targets (from game-players-report §2.a)
@@ -112,7 +112,7 @@ Per `future-sprint-roadmap-062126.md`:
 
 ## 4. Citations (everywhere — required per boundary § Cut-line rules)
 - Boundary: `production/post-release-scope-boundary-2026-06-21.md` § S56 — E1 sweep + program gate, § Standing invariants & gate matrix, § Explicitly out of scope (Playtest AAR gameplay fixes deferred to S56), § Cut-line rules #1 (cite this + row/epic).
-- Roadmap: `docs/reports/future-sprint-roadpmap-062126.md` §10 S56 E1, §0.5 Shared-resource (ZERO DelegationBridge), §0.6 Pre-flight (GitNexus impact + cite boundary), §7 Standing invariants.
+- Roadmap: `docs/reports/archive/roadmaps/future-sprint-roadmap-062126.md` §10 S56 E1, §0.5 Shared-resource (ZERO DelegationBridge), §0.6 Pre-flight (GitNexus impact + cite boundary), §7 Standing invariants.
 - Input: `game-players-report-0620206.md` §2.a (Topic 1), §2.b (Topic 2), §4 Conclusion.
 - Parallel tracks: `stack/sprint56/proxy-filter`, `stack/sprint56/gate`.
 - Invariants: `production/gate-checks/s48-release-gate-2026-06-20.md`.

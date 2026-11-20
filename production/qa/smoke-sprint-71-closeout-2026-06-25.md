@@ -3,11 +3,11 @@
 **Date:** 2026-06-25  
 **Sprint:** 71 — i18n + launch docs + localization QA plan (E7 per roadmap-execute-plan-062526.md §3/§4)  
 **Track:** S71-06 Closeout (local coordinator)  
-**Status:** S71-06 COMPLETE. S71 full COMPLETE. Gates PASS (0e/1232/0f/6/6/18/18/hash preserved `17144800277401907079`/ZERO=0). GitNexus pre 19962/37628/2462 @28c582d (list/detect/impact low for docs; CRITICALs 178/97/127/52 exact). All S71 tracks (i18n S71-01/02, launch-docs S71-03/04, l10n-qa S71-05, closeout S71-06) COMPLETE. Phase 2 integrate complete; ready for S72 gate integration. GT: stack/sprint71/* (submit/restack notes below). Cite production/commercial-launch-scope-boundary-2026-06-25.md + docs/reports/future-sprint-roadpmap-062526.md §3/§6/§7/§10 + docs/reports/roadmap-execute-plan-062526.md §3/§4/§5/§9 + AGENTS.md + S70/S69 complete + S66 v2 + sprint-status.
+**Status:** S71-06 COMPLETE. S71 full COMPLETE. Gates PASS (0e/1232/0f/6/6/18/18/hash preserved `17144800277401907079`/ZERO=0). GitNexus pre 19962/37628/2462 @28c582d (list/detect/impact low for docs; CRITICALs 178/97/127/52 exact). All S71 tracks (i18n S71-01/02, launch-docs S71-03/04, l10n-qa S71-05, closeout S71-06) COMPLETE. Phase 2 integrate complete; ready for S72 gate integration. GT: stack/sprint71/* (submit/restack notes below). Cite production/commercial-launch-scope-boundary-2026-06-25.md + docs/reports/archive/roadmaps/future-sprint-roadmap-062526.md §3/§6/§7/§10 + docs/reports/roadmap-execute-plan-062526.md §3/§4/§5/§9 + AGENTS.md + S70/S69 complete + S66 v2 + sprint-status.
 
 **Authority (MANDATORY citations):**  
 - `production/commercial-launch-scope-boundary-2026-06-25.md` (S69+ supersede; E7 prep in/out; invariants 1232/6/6/18/18/hash/ZERO; GitNexus; stage Release)  
-- `docs/reports/future-sprint-roadpmap-062526.md` §3/§6/§7/§10  
+- `docs/reports/archive/roadmaps/future-sprint-roadmap-062526.md` §3/§6/§7/§10  
 - `docs/reports/roadmap-execute-plan-062526.md` §3/§4/§5/§9 (S71 tracks table exact; wave (W1 i18n ∥ W2 launch docs) → W3 l10n QA plan (after string inventory) → W4 Closeout S71-06; S71-05 deliverable qa-plan-sprint-71-l10n-prep-2026-06-*.md locale smoke strategy; **no PlayMode unless ack**; l10n-qa-plan Cloud, closeout Local)  
 - `AGENTS.md`  
 - `production/sprint-status.yaml` (S70 complete + S71 full COMPLETE update; gt notes)  
@@ -36,7 +36,7 @@ All S71 artifacts cite above. Independent subagent; dispatching-parallel-agents 
 - S70 full COMPLETE (smoke-70 + sprint-status)
 - S69 full COMPLETE + boundary + release-checklist-v3.md (i18n/launch sections skeleton)
 - Gates baseline @ S71 start + close (RUN+READ verification-before): build 0e/0w; test 1232/0f (279 Sim +43 Cli +247 Del +5 Excel +252 UA +406 Data); replay 6/6; C2 18/18; hash `17144800277401907079`; ZERO DelegationBridge; GitNexus low + CRIT impacts §5 exact (CatalogWriteGate 178, Patrol 97, DelegationBridge 127 exact, BalticReplayHarness 52) — confirmed fresh
-- commercial-launch-scope-boundary-2026-06-25.md + future-sprint-roadpmap-062526.md + roadmap-execute-plan-062526.md + S66/S69/S70 v2/v3 + store/community
+- commercial-launch-scope-boundary-2026-06-25.md + docs/reports/archive/roadmaps/future-sprint-roadmap-062526.md + roadmap-execute-plan-062526.md + S66/S69/S70 v2/v3 + store/community
 - Worktrees + dispatch via dispatching-parallel-agents + gt stack/sprint71/*
 - Skills: sprint-plan (light), qa-plan (S71-05), c-sharp-devops-engineer (closeout), GitNexus (search+use first), verification-before, gt (create/submit/restack), local-cloud-agent-routing
 
@@ -100,6 +100,6 @@ Use `stack/sprint71/{i18n-pipeline,launch-docs,l10n-qa-plan,closeout}` per kicko
 ## S72 Integration Prep Note (per execute-plan §3/§4/§5/§9)
 S72 readiness: S69–S71 COMPLETE (gates 0e/1232/0f/6/6/18/18/hash/ZERO/GitNexus low+CRIT exact; closeouts done; release-checklist-v3 + evidence-index indexing store/i18n/launch). Next: S72 gate verification + human ack ("commercial launch prep complete"; stage remains Release). Prereqs: this S71 close + S71 complete in sprint-status; commercial-launch-scope-boundary + roadmaps + execute-plan + S66/S69/S70 artifacts + release-checklist-v3 + evidence-index + store/* + i18n/* + launch/* + qa-plan-71. S72-01/02 will: full verif (re-run gates + GitNexus), gate-checks/s72-*.md, status update, human sign-off prep. No stage advance.
 
-Cites: execute-plan §4 S71 (exact tracks + deliverables + wave + S66 v2 + release-checklist-v3 + S70 as inputs) + boundary + future-sprint-roadpmap-062526.md §3/§6/§7/§10 + roadmap-execute-plan-062526.md §3/§4/§5/§9 + S70/S69 complete + AGENTS + sprint-status.
+Cites: execute-plan §4 S71 (exact tracks + deliverables + wave + S66 v2 + release-checklist-v3 + S70 as inputs) + boundary + docs/reports/archive/roadmaps/future-sprint-roadmap-062526.md §3/§6/§7/§10 + roadmap-execute-plan-062526.md §3/§4/§5/§9 + S70/S69 complete + AGENTS + sprint-status.
 
 *Independent subagent for S71 i18n/launch/l10n QA tracks + closeout (cloud/local mix per execute-plan, dispatching-parallel-agents). Low risk docs. S71-06 populated at close. S70 and S71 closeouts COMPLETE. Ready for S72 integration.*

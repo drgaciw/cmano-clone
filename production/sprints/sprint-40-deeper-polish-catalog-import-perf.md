@@ -4,7 +4,7 @@
 **Trunk:** `main` @ (post-S39 commit)  
 **Predecessor:** Sprint 39 — COMPLETE (C2/Platform deeper polish, hygiene, perf P1, evidence, replay maint, dispatching refinements, closeout)  
 **Stage:** Polish  
-**Authority:** `production/polish-scope-boundary-2026-06-19.md` — Deeper Polish Horizon 2 only ([`docs/reports/future-sprint-roadpmap.md`](../../docs/reports/future-sprint-roadpmap.md) §3). Catalog/Import read-model surfacing (`Projection`-side), perf P1 burn-down, replay maintenance, evidence/playtest 12. NO scope expansion. ZERO DelegationBridge. Extend-only CatalogWriteGate. Immutable Baltic hash. Lean + headless primary.
+**Authority:** `production/polish-scope-boundary-2026-06-19.md` — Deeper Polish Horizon 2 only ([`docs/reports/future-sprint-roadmap.md`](../../docs/reports/future-sprint-roadmap.md) §3). Catalog/Import read-model surfacing (`Projection`-side), perf P1 burn-down, replay maintenance, evidence/playtest 12. NO scope expansion. ZERO DelegationBridge. Extend-only CatalogWriteGate. Immutable Baltic hash. Lean + headless primary.
 
 ## Sprint Goal
 
@@ -61,7 +61,7 @@ Execute Horizon 2 deeper polish: surface Catalog/Import provenance and quarantin
 
 ## Explicitly Out of Scope
 
-Per `polish-scope-boundary-2026-06-19.md` and [`docs/reports/future-sprint-roadpmap.md`](../../docs/reports/future-sprint-roadpmap.md) §4:
+Per `polish-scope-boundary-2026-06-19.md` and [`docs/reports/future-sprint-roadmap.md`](../../docs/reports/future-sprint-roadmap.md) §4:
 - Track B content completeness, full art bible, structural refactor, DOTS/ECS, launch artifacts.
 - **ZERO touch** on `DelegationBridge.cs`
 - **Extend-only** on `CatalogWriteGate`
@@ -132,7 +132,7 @@ Per `polish-scope-boundary-2026-06-19.md` and [`docs/reports/future-sprint-roadp
 
 | Artifact | Path |
 |----------|------|
-| Roadmap | `docs/reports/future-sprint-roadpmap.md` §Horizon 2 |
+| Roadmap | `docs/reports/future-sprint-roadmap.md` §Horizon 2 |
 | Parallel kickoff | `production/agentic/sprint-40-parallel-kickoff-2026-06-20.md` |
 | Worktree manifest | `production/agentic/s39-s48-worktree-manifest.md` |
 | Local/cloud routing | `production/agentic/local-cloud-agent-routing.md` |
@@ -149,4 +149,4 @@ Per `polish-scope-boundary-2026-06-19.md` and [`docs/reports/future-sprint-roadp
 
 ---
 
-*Created per `/sprint-plan` + 10-sprint agent program. Horizon 2 in-boundary only. Cites polish-scope-boundary + future-sprint-roadpmap §3.*
+*Created per `/sprint-plan` + 10-sprint agent program. Horizon 2 in-boundary only. Cites polish-scope-boundary + future-sprint-roadmap §3.*

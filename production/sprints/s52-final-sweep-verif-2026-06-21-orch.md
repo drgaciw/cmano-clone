@@ -3,7 +3,7 @@
 **Date:** 2026-06-21  
 **Subagent:** focused closeout orchestration (using superpowers dispatching-parallel-agents + using-git-worktrees + verification-before-completion)  
 **CWD:** /home/username01/projects/active/cmano-clone/cmano-clone (main)  
-**Scope (NARROW):** S52 E6 closeout final sweep + evidence integration per docs/reports/future-sprint-roadpmap-062126.md §10 S52 (benchmark || sim-api || dots-expand + closeout S52-07), post-release-scope-boundary-2026-06-21.md.  
+**Scope (NARROW):** S52 E6 closeout final sweep + evidence integration per docs/reports/archive/roadmaps/future-sprint-roadmap-062126.md §10 S52 (benchmark || sim-api || dots-expand + closeout S52-07), post-release-scope-boundary-2026-06-21.md.  
 **Protocol strict:** verification-before EVERY cmd (run full, READ full output before claim). No src edits on hot paths. Additive/docs only. GitNexus inspect (no CRITICAL mutations). Aggregate siblings. Update yaml program_note. Produce this orch md.
 
 ## 1. Isolation Confirmation (verbatim, run + read full)
@@ -26,7 +26,7 @@ main
 **ISOLATION CONFIRMED:** Current on main; sibling wts at .worktrees/stack/sprint52/{benchmark,sim-api,dots-expand,closeout} @ be8dfb7. Parallel tracks per roadmap §0/§10.
 
 ## 2. Docs Read (roadmap §10 S52, boundary, qa, sprint-status, smoke, manifests)
-- `docs/reports/future-sprint-roadpmap-062126.md` §10 S52:
+- `docs/reports/archive/roadmaps/future-sprint-roadmap-062126.md` §10 S52:
   ```
   ### S52 — E6: Multi-k entity gate + sim API / DOTS expand
   **Parallel tracks (3):**
@@ -101,7 +101,7 @@ use gitnexus__list_repos -> cmano-clone at /home/username01/projects/active/cman
 gitnexus__detect_changes (scope=unstaged, repo=/.../cmano-clone/cmano-clone):
 {
   "summary": {"changed_count": 12, "affected_count": 0, "risk_level": "low"},
-  "changed_symbols": [docs only: implementation-tracker, future-sprint-roadpmap, gate-checks, hindsight README...],
+  "changed_symbols": [docs only: implementation-tracker, future-sprint-roadmap, gate-checks, hindsight README...],
   "affected_processes": []
 }
 ```
@@ -138,7 +138,7 @@ Also s52_closeout: , s52_gates etc present (1227/0f 6/6 18/18 hash 1714480027740
 - GitNexus outputs embedded (above)
 
 ## 8. Full Citations
-- `docs/reports/future-sprint-roadpmap-062126.md` §10 S52 (E6 benchmark || sim-api || dots-expand + closeout S52-07) + §0 parallel + §12 dep
+- `docs/reports/archive/roadmaps/future-sprint-roadmap-062126.md` §10 S52 (E6 benchmark || sim-api || dots-expand + closeout S52-07) + §0 parallel + §12 dep
 - `production/post-release-scope-boundary-2026-06-21.md` (S52 E6 Req01/08 + gates + invariants)
 - AGENTS.md / CLAUDE.md / .claude/rules : superpowers, GitNexus always (impact/detect), no hot edits, verification
 - Existing: qa/S52-closeout-verif-2026-06-21.md + smoke + sprints/ + gate-checks

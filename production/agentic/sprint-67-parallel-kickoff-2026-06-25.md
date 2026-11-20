@@ -1,7 +1,7 @@
 # S67 Parallel Kickoff — Buildkite Baseline Protection (E10)
 
 **Date:** 2026-06-25
-**Per:** release-train-scope-boundary-2026-06-24.md (S67 row), roadmap-execute-plan-062426.md §4/5/9, future-sprint-roadpmap-062426.md §9/10, sprint-67 plan, sprint-66 closeout
+**Per:** release-train-scope-boundary-2026-06-24.md (S67 row), roadmap-execute-plan-062426.md §4/5/9, docs/reports/archive/roadmaps/future-sprint-roadmap-062426.md §9/10, sprint-67 plan, sprint-66 closeout
 
 ## Prereqs (✓ or status)
 - Boundary PUBLISHED: production/release-train-scope-boundary-2026-06-24.md (exact S67: Buildkite preflight ∥ Regression baseline lock ∥ Branch-protection ; .buildkite/ alignment with §7 gates; locked baseline docs; ci-and-branch-protection update. All cites, invariants)
@@ -58,7 +58,7 @@ gt create ; gt submit --stack --no-interactive ; gt restack
 - S68 prep (gate verification) only after S67 full PASS
 - All artifacts: cite release-train-scope-boundary-2026-06-24.md (S67 row) + S66 + invariants
 
-Cites: release-train-scope-boundary-2026-06-24.md + future-sprint-roadpmap-062426.md §0/3/5/7/10 + roadmap-execute-plan-062426.md §4/5/6/8/9 + AGENTS.md (GitNexus + superpowers) + sprint-66-content-manifest-playtest.md + sprint-65-parallel-kickoff-2026-06-24.md + superpowers (dispatching-parallel-agents + verification-before-completion)
+Cites: release-train-scope-boundary-2026-06-24.md + docs/reports/archive/roadmaps/future-sprint-roadmap-062426.md §0/3/5/7/10 + roadmap-execute-plan-062426.md §4/5/6/8/9 + AGENTS.md (GitNexus + superpowers) + sprint-66-content-manifest-playtest.md + sprint-65-parallel-kickoff-2026-06-24.md + superpowers (dispatching-parallel-agents + verification-before-completion)
 
 *Kickoff for S67 dispatch. Scaffolds only. verification-before plan included. GitNexus pre completed (LOW). Isolated to S67 prep.*
 

@@ -1,7 +1,7 @@
 # Scenario Editor Requirements Completion Plan (Headless + Unity AC-8)
 
 > **For agentic workers:** REQUIRED SUB-SKILLS: `dispatching-parallel-agents`, `subagent-driven-development`, `using-git-worktrees`, `test-driven-development` for code tracks.  
-> **Governing docs:** `Game-Requirements/requirements/11-Agentic-Mission-Editor.md`, `design/gdd/agentic-mission-editor.md`, `production/scenario-editor-scope-boundary-2026-07-04.md`, `docs/reports/roadmap-execute-plan-07042026.md`, `docs/reports/future-sprint-roadpmap-07042026.md`, `production/qa/qa-plan-scenario-editor-2026-07-01.md`, S81–S88 sprint plans + closeouts.
+> **Governing docs:** `Game-Requirements/requirements/11-Agentic-Mission-Editor.md`, `design/gdd/agentic-mission-editor.md`, `production/scenario-editor-scope-boundary-2026-07-04.md`, `docs/reports/roadmap-execute-plan-07042026.md`, `docs/reports/archive/roadmaps/future-sprint-roadmap-07042026.md`, `production/qa/qa-plan-scenario-editor-2026-07-01.md`, S81–S88 sprint plans + closeouts.
 
 **Goal:** Complete the **headless scenario editor (req 11) program** with honest AC/doc alignment, formal program close hygiene, and **productionized Unity AC-8** load/inspect (beyond thin proxy) — **without** Phase 2 map-first GUI or reopening Baltic/v2 invariants.
 
@@ -87,7 +87,7 @@
 | Track | Owner skill/agent | Deliverable |
 |-------|-------------------|-------------|
 | **W0-a** | producer | Confirm/record human ack phrase for “scenario editor headless program complete” (or explicit PENDING with owner) |
-| **W0-b** | producer / tech writer | Flip stable alias `docs/reports/future-sprint-roadpmap.md` → `future-sprint-roadpmap-07042026.md` **or** publish new dated post-S88 snapshot + alias |
+| **W0-b** | producer / tech writer | Flip stable alias `docs/reports/future-sprint-roadmap.md` → `docs/reports/archive/roadmaps/future-sprint-roadmap-07042026.md` **or** publish new dated post-S88 snapshot + alias |
 | **W0-c** | producer | Tracker: headless S81–S88 **program-complete (Partial+ headless)**; next stack = AC-8 productionize / Phase 2 deferred |
 | **W0-d** | devops | Reconcile `sprint-status` single narrative; verify `fix-scenario-publish-cli-wiring` / PR #237 state vs main (merge only if still needed and gates green) |
 | **W0-e** | gitnexus | Post-merge `node .gitnexus/run.cjs analyze` if code lands; impact snapshot for `ScenarioDocumentEditor`, `ScenarioValidationEngine` |
@@ -288,7 +288,7 @@ Orchestrator
 |------|-------|
 | `Game-Requirements/requirements/11-Agentic-Mission-Editor.md` | W0 note, W1 honesty, W2 AC-8 |
 | `Game-Requirements/implementation-tracker-2026-07-04.md` | W0, W3 |
-| `docs/reports/future-sprint-roadpmap.md` (+ dated) | W0 |
+| `docs/reports/future-sprint-roadmap.md` (+ dated) | W0 |
 | `tools/mission-editor/mcp-tools.json` | W1-b |
 | `src/ProjectAegis.MissionEditor.Cli/Program.cs` | W1-b/c |
 | `src/ProjectAegis.Data/Scenario/Authoring/*` | W1-c, careful W2 load |

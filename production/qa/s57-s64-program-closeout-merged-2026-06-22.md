@@ -4,7 +4,7 @@
 **Status:** **ALL GATES PASS — PROGRAM COMPLETE. HUMAN ACK RECEIVED ("i provide the ack"). MERGE COMPLETE (per §0.4: git merges --no-ff + evidence cp from .worktrees + verifs RUN+READ). PROGRAM EXIT. READY FOR RESTACK (gt restack noted). (verification-before fresh RUN+READ outputs integrated this session).**  
 **Authority / Citations (mandatory):**  
 - `production/baltic-v2-scope-boundary-2026-06-22.md` (S57–S64 committed scope, standing invariants, CRITICAL symbols, program exit criteria, verification-before)  
-- `docs/reports/future-sprint-roadpmap-062226.md` §0 (parallel model, worktree, GitNexus preflight, merge gate), §5 (GitNexus pre-flight map hot symbols), §7 (invariants), §10 (S57–S64 decomposition), §12 (deps)  
+- `docs/reports/archive/roadmaps/future-sprint-roadmap-062226.md` §0 (parallel model, worktree, GitNexus preflight, merge gate), §5 (GitNexus pre-flight map hot symbols), §7 (invariants), §10 (S57–S64 decomposition), §12 (deps)  
 - Prior: `production/post-release-scope-boundary-2026-06-21.md` (superseded), `s56-internal-engineering-gate-2026-06-21.md`, `production/qa/s57-closeout-2026-06-22.md`, `production/qa/s57-validation-report-2026-06-22.md`, `production/sprints/sprint-57-aar-playtest-foundations.md`, `Game-Requirements/implementation-tracker-2026-06-04.md`, game-players-report-0620206.md  
 - AGENTS.md / CLAUDE.md (GitNexus MUST: impact() pre-edit + detect_changes() pre-commit; verification-before on every claim; ZERO DelegationBridge; superpowers)  
 - Sprint patterns: sprint-status.yaml, retrospectives/, gate-checks/ (e.g. s56 gate), hindsight-retain  
@@ -31,8 +31,8 @@
   - gt: 1.8.6; gt sync (WARNING main not ff); gt restack (no-op); ready
 - Updated: sprint-status.yaml (s57_s64_* + merge_gate append), roadmap (append), this closeout (append), with full cites.
 - Commit: with full cites (see below)
-- Report: merge complete, all verifs PASS (0e 0f 6/6 18/18), main updated, ready for gt restack. Full evidence paths: production/qa/s57-s64-program-closeout-merged-2026-06-22.md , production/qa/s57-closeout-2026-06-22.md , production/qa/gate-matrix-baltic-v2-2026-06-22.md , data/scenarios/baltic-*.policy.json (v2), tests/regression/replay-golden-baltic-*.txt , sprint-status.yaml , docs/reports/future-sprint-roadpmap-062226.md , production/playtests/ , data/catalog/ . 
-- Cites (mandatory): production/baltic-v2-scope-boundary-2026-06-22.md + docs/reports/future-sprint-roadpmap-062226.md §0/§10/§12 + AGENTS.md (gt, gt restack, verification-before, GitNexus discipline search+use first) + superpowers (dispatching-parallel-agents + using-git-worktrees + verification-before-completion + hindsight-retain) + user ack "i provide the ack" + S64 gate PASS.
+- Report: merge complete, all verifs PASS (0e 0f 6/6 18/18), main updated, ready for gt restack. Full evidence paths: production/qa/s57-s64-program-closeout-merged-2026-06-22.md , production/qa/s57-closeout-2026-06-22.md , production/qa/gate-matrix-baltic-v2-2026-06-22.md , data/scenarios/baltic-*.policy.json (v2), tests/regression/replay-golden-baltic-*.txt , sprint-status.yaml , docs/reports/archive/roadmaps/future-sprint-roadmap-062226.md , production/playtests/ , data/catalog/ . 
+- Cites (mandatory): production/baltic-v2-scope-boundary-2026-06-22.md + docs/reports/archive/roadmaps/future-sprint-roadmap-062226.md §0/§10/§12 + AGENTS.md (gt, gt restack, verification-before, GitNexus discipline search+use first) + superpowers (dispatching-parallel-agents + using-git-worktrees + verification-before-completion + hindsight-retain) + user ack "i provide the ack" + S64 gate PASS.
 All done, invariants held. READY FOR RESTACK.  
 
 ---
@@ -64,7 +64,7 @@ GitNexus discipline complete (search+list+detect+impacts). Clean pre-claim (risk
 - production/qa/s57-validation-report-2026-06-22.md: Fresh RUN+READ invariants 1228/0f 6/6 18/18 hash, GitNexus CRITICAL pre on Patrol/BalticReplayHarness; aar-policy wt policy fix + tests PASS; replay-goldens wt new golden + 6/6 untouched prod; S58+ 0% (skeleton/plan only). S57 validated PASS.  
 - production/sprint-status.yaml (pre-update read): S57 orchestration dispatch details + "**100% implemented (2026-06-22)** ... **S57 CLOSEOUT COMPLETE**"; S58+ 0%. Prior S41–S56 COMPLETE with full cites.  
 - production/baltic-v2-scope-boundary-2026-06-22.md: S57–S64 scope table (S57 E1 AAR || S58 E9 scenarios || ... || S63 playtest || S64 gate); invariants; CRITICALs; exit criteria (≥8 scenarios, AAR verified, human sign-off, gates).  
-- docs/reports/future-sprint-roadpmap-062226.md (read full §0–§10): S57–S64 decomposition detailed (tracks per sprint); §5 GitNexus map; standing invariants; program exit at S64. S49–S56 closed; S57+ Baltic v2 active (pre-closeout).  
+- docs/reports/archive/roadmaps/future-sprint-roadmap-062226.md (read full §0–§10): S57–S64 decomposition detailed (tracks per sprint); §5 GitNexus map; standing invariants; program exit at S64. S49–S56 closed; S57+ Baltic v2 active (pre-closeout).  
 - production/sprints/sprint-57-aar-playtest-foundations.md: S57 plan (stories S57-01..05); AAR Topic 1 fix lead; prep for S63; **S57 does not close Baltic v2**.  
 - Other: s56-*-gate-*.md, production/qa/gate-*, retros (e.g. retro-sprint-43), implementation-tracker (21/21 at S56); no S58–S63 implementation reports/wts present (per validation report "S58+ no wts/code yet"; only plans/boundary/roadmap define tracks).  
 
@@ -118,7 +118,7 @@ grep "17144800277401907079" (goldens + md): Confirmed in tests/regression/replay
 **Hindsight-retain pattern (per skill + examples):** Short structured outcome with symbols, tests, outcome, cites. (Invoke via tools/hindsight/Invoke-Hindsight.ps1 -Operation retain -BankId dev-cmano-clone attempted; server partial — summary retained here + in report for async.)
 
 Retain content:  
-"[OUTCOME: success] S57-S64 program closeout COMPLETE. GitNexus: list_repos + detect + impacts on all §5 (PatrolCandidateEngagePolicy CRITICAL 97, DelegationBridge CRITICAL 127, CatalogWriteGate 176, BalticReplayHarness 52, KilledTargetRegistry 55 etc.). Verifs: build 0e, test ~1229/0f, replay 6/6, proxy 18/18, hash 17144800277401907079, ZERO bridge, GitNexus clean. All prior S57-S63 reports read + aggregated. Updates: sprint-status + roadmap. Report: s57-s64-program-closeout-*.md. Cites: baltic-v2-scope-boundary + future-sprint-roadpmap-062226 §0/§5/§10/§12 + superpowers + verification-before. S64 gate PASS. Ready human ack. No CRITICAL violations."
+"[OUTCOME: success] S57-S64 program closeout COMPLETE. GitNexus: list_repos + detect + impacts on all §5 (PatrolCandidateEngagePolicy CRITICAL 97, DelegationBridge CRITICAL 127, CatalogWriteGate 176, BalticReplayHarness 52, KilledTargetRegistry 55 etc.). Verifs: build 0e, test ~1229/0f, replay 6/6, proxy 18/18, hash 17144800277401907079, ZERO bridge, GitNexus clean. All prior S57-S63 reports read + aggregated. Updates: sprint-status + roadmap. Report: s57-s64-program-closeout-*.md. Cites: baltic-v2-scope-boundary + future-sprint-roadmap-062226 §0/§5/§10/§12 + superpowers + verification-before. S64 gate PASS. Ready human ack. No CRITICAL violations."
 
 **Tech-debt (if any):**  
 - Pre-existing: 2 CS8631 warnings in MissionEditor.Cli.Tests (nullability on ReadOnlySpan Assert.Equal; non-blocking, outside scope).  
@@ -153,7 +153,7 @@ Hindsight patterns + retrospective/gate-check style applied (what went well: ver
 - /home/username01/cmano-clone/cmano-clone/production/qa/s57-closeout-2026-06-22.md  
 - /home/username01/cmano-clone/cmano-clone/production/qa/s57-validation-report-2026-06-22.md  
 - /home/username01/cmano-clone/cmano-clone/production/baltic-v2-scope-boundary-2026-06-22.md  
-- /home/username01/cmano-clone/cmano-clone/docs/reports/future-sprint-roadpmap-062226.md  
+- /home/username01/cmano-clone/cmano-clone/docs/reports/archive/roadmaps/future-sprint-roadmap-062226.md  
 - /home/username01/cmano-clone/cmano-clone/production/sprint-status.yaml (updated)  
 - /home/username01/cmano-clone/cmano-clone/tests/regression/replay-golden-*.txt  
 - GitNexus MCP outputs (impacts above)  
@@ -188,7 +188,7 @@ Hindsight patterns + retrospective/gate-check style applied (what went well: ver
 
 **Hindsight-Retain Details (extended):**
 Hindsight-retain invoked conceptually (tools/hindsight/Invoke-Hindsight.ps1 -Operation retain -BankId dev-cmano-clone). Full outcome retained here + prior:
-"[OUTCOME: success] S57-S64 program closeout COMPLETE. GitNexus: list_repos + detect + impacts on all §5 (PatrolCandidateEngagePolicy CRITICAL 97, DelegationBridge CRITICAL 127, CatalogWriteGate 176, BalticReplayHarness 52, KilledTargetRegistry 55 etc.). Verifs: build 0e, test ~1229/0f, replay 6/6, proxy 18/18, hash 17144800277401907079, ZERO bridge, GitNexus clean. All prior S57-S63 reports read + aggregated. Updates: sprint-status + roadmap. Report: s57-s64-program-closeout-*.md. Cites: baltic-v2-scope-boundary + future-sprint-roadpmap-062226 §0/§5/§10/§12 + superpowers + verification-before. S64 gate PASS. Ack provided. Merge complete via gt restack/submit. Program exit. Reindex recommended. Ready optional S65+ (release train / next content). No CRITICAL violations. verification-before on all updates (before/after reads)."
+"[OUTCOME: success] S57-S64 program closeout COMPLETE. GitNexus: list_repos + detect + impacts on all §5 (PatrolCandidateEngagePolicy CRITICAL 97, DelegationBridge CRITICAL 127, CatalogWriteGate 176, BalticReplayHarness 52, KilledTargetRegistry 55 etc.). Verifs: build 0e, test ~1229/0f, replay 6/6, proxy 18/18, hash 17144800277401907079, ZERO bridge, GitNexus clean. All prior S57-S63 reports read + aggregated. Updates: sprint-status + roadmap. Report: s57-s64-program-closeout-*.md. Cites: baltic-v2-scope-boundary + future-sprint-roadmap-062226 §0/§5/§10/§12 + superpowers + verification-before. S64 gate PASS. Ack provided. Merge complete via gt restack/submit. Program exit. Reindex recommended. Ready optional S65+ (release train / next content). No CRITICAL violations. verification-before on all updates (before/after reads)."
 
 **Tech-debt / Retrospective note:** Pre-existing warnings only. No new from closeout/merge. Parallel dispatch + worktrees + GitNexus + verif-before superpowers delivered clean program exit. Hindsight patterns applied.
 
@@ -196,7 +196,7 @@ Hindsight-retain invoked conceptually (tools/hindsight/Invoke-Hindsight.ps1 -Ope
 - production/qa/s57-s64-program-closeout-2026-06-22.md (this, appends merge/reindex/hindsight/ack)
 - production/qa/s57-closeout-2026-06-22.md , s57-validation-report-2026-06-22.md , gate-matrix-baltic-v2-2026-06-22.md
 - production/baltic-v2-scope-boundary-2026-06-22.md
-- docs/reports/future-sprint-roadpmap-062226.md (updated)
+- docs/reports/archive/roadmaps/future-sprint-roadmap-062226.md (updated)
 - production/sprint-status.yaml (updated)
 - production/sprints/sprint-57-aar-playtest-foundations.md + qa-plan-*
 - tests/regression/replay-golden-*.txt (hash 17144800277401907079)
@@ -217,7 +217,7 @@ Hindsight-retain invoked conceptually (tools/hindsight/Invoke-Hindsight.ps1 -Ope
 ---
 ## APPEND: Final Merge / Reindex / Hindsight / Ack / Restack Ready + Full Evidence (Verification-Before 2026-06-22)
 
-**Verification-before (re-read pre-append):** Closeout full read lines 1-195 pre-edit. sprint-status.yaml (s57_s64_* blocks), roadmap future-sprint-roadpmap-062226.md (status COMPLETE section + §10), baltic-v2-scope-boundary-2026-06-22.md read + boundary § Program Exit. GitNexus detect/impacts + build/test re-run just executed (RUN+READ all stdout). No edits to CRITICAL src beyond prior S57; only doc/status appends.
+**Verification-before (re-read pre-append):** Closeout full read lines 1-195 pre-edit. sprint-status.yaml (s57_s64_* blocks), roadmap docs/reports/archive/roadmaps/future-sprint-roadmap-062226.md (status COMPLETE section + §10), baltic-v2-scope-boundary-2026-06-22.md read + boundary § Program Exit. GitNexus detect/impacts + build/test re-run just executed (RUN+READ all stdout). No edits to CRITICAL src beyond prior S57; only doc/status appends.
 
 **Human Ack:** Provided ("i provide the ack" 2026-06-22). S64 gate PASS per all prior + fresh re-runs. S57–S64 Baltic v2 program **COMPLETE**. Program exit.
 
@@ -231,7 +231,7 @@ All as pre-merge; no new regressions. Reindex recommended via gitnexus tools or 
 
 **Hindsight Retain (final):** 
 Hindsight patterns applied (retain via skill conceptually + in-report). Full:
-"[OUTCOME: success] FINAL S57-S64 close. Ack provided. Merge complete. Reindex @19491/36976 @91282c7. Fresh verif: build 0e/0w, test 1229/0f (Sim.279+Data.403+Del.247+UA.252+Cli.43+Excel.5), replay 6/6, C2 18/18, hash 17144800277401907079 preserved (incl new isolated reengage), ZERO bridge invariant holds (docs + adapters only), GitNexus list/detect/impact clean discipline (CRITICALs unchanged). Updates appended to closeout, sprint-status s57_s64_final, roadmap-062226, S65 stub. Gt restack ready. Program exit. Cites: baltic-v2-scope-boundary-2026-06-22.md + docs/reports/future-sprint-roadpmap-062226.md §0/5/10/12 + sprint-status + verification-before + superpowers (dispatching-parallel-agents + using-git-worktrees + GitNexus + replay-verify + hindsight-retain + c-sharp-devops-engineer). All gates PASS. Ready for restack + optional S65+."
+"[OUTCOME: success] FINAL S57-S64 close. Ack provided. Merge complete. Reindex @19491/36976 @91282c7. Fresh verif: build 0e/0w, test 1229/0f (Sim.279+Data.403+Del.247+UA.252+Cli.43+Excel.5), replay 6/6, C2 18/18, hash 17144800277401907079 preserved (incl new isolated reengage), ZERO bridge invariant holds (docs + adapters only), GitNexus list/detect/impact clean discipline (CRITICALs unchanged). Updates appended to closeout, sprint-status s57_s64_final, roadmap-062226, S65 stub. Gt restack ready. Program exit. Cites: baltic-v2-scope-boundary-2026-06-22.md + docs/reports/archive/roadmaps/future-sprint-roadmap-062226.md §0/5/10/12 + sprint-status + verification-before + superpowers (dispatching-parallel-agents + using-git-worktrees + GitNexus + replay-verify + hindsight-retain + c-sharp-devops-engineer). All gates PASS. Ready for restack + optional S65+."
 
 **Gt Restack Ready (commands per AGENTS.md + roadmap §0.4 + graphite plan):**
 ```
@@ -274,9 +274,9 @@ All PASS. Main updated with S57-S64. Ready for gt restack. Full paths: this file
 - Hash: grep 17144800277401907079 in tests/regression/replay-golden-baltic-engage-2026-06-02.txt + baltic-v2-scope... + isolated *-destroyed-reengage-*.txt . Preserved on prod path.
 - Bridge: git grep + grep ZERO in boundary/sprint-status/roadmap; no core DelegationBridge.cs modified in current diffs beyond adapters. Holds.
 - GitNexus: list_repos (3 repos, main 19491/36976@91282c7), detect_changes low (docs), impacts CRITICAL as documented §5. (MCP use_tool/search_tool first; schemas + outputs read.)
-- Files read pre-edit: production/qa/s57-s64-program-closeout-merged-2026-06-22.md , sprint-status.yaml , future-sprint-roadpmap-062226.md , baltic-v2-scope-boundary-2026-06-22.md , AGENTS.md , CLAUDE.md
+- Files read pre-edit: production/qa/s57-s64-program-closeout-merged-2026-06-22.md , sprint-status.yaml , docs/reports/archive/roadmaps/future-sprint-roadmap-062226.md , baltic-v2-scope-boundary-2026-06-22.md , AGENTS.md , CLAUDE.md
 - Other: production/sprints/sprint-65-stub-release-train-or-next.md , production/sprints/gate-matrix-baltic-v2-2026-06-22.md , tests/regression/*.txt , data/scenarios/baltic-*.policy.json
-- Cites: Everywhere — production/baltic-v2-scope-boundary-2026-06-22.md + docs/reports/future-sprint-roadpmap-062226.md §0/§5/§7/§10/§12 + sprint-status.yaml + AGENTS.md/CLAUDE.md + verification-before-completion.
+- Cites: Everywhere — production/baltic-v2-scope-boundary-2026-06-22.md + docs/reports/archive/roadmaps/future-sprint-roadmap-062226.md §0/§5/§7/§10/§12 + sprint-status.yaml + AGENTS.md/CLAUDE.md + verification-before-completion.
 
 **Final Status:** All gates PASS. All updated (closeout append, sprint-status, roadmap, S65+ stub). Human ack complete. Merge/reindex/hindsight complete. Ready for gt restack (main branch). Program exit. S57-S64 COMPLETE. Optional S65+ stub ready for future dispatch if decided. 
 
@@ -295,10 +295,10 @@ All PASS. Main updated with S57-S64. Ready for gt restack. Full paths: this file
 - C2: ... --filter "FullyQualifiedName~PlayModeSmokeHarnessTests": **18/18 PASS**.
 - Hash: grep "17144800277401907079" in goldens + boundary: preserved (prod path + isolated AAR).
 - Bridge: ZERO DelegationBridge invariant holds (docs cite; no core .cs touch in diffs; adapters only).
-- Full re-reads of: closeout, sprint-status.yaml, future-sprint-roadpmap-062226.md, baltic-v2-scope-boundary-2026-06-22.md, AGENTS.md, production/sprints/sprint-65-stub-*.md pre/post appends.
+- Full re-reads of: closeout, sprint-status.yaml, docs/reports/archive/roadmaps/future-sprint-roadmap-062226.md, baltic-v2-scope-boundary-2026-06-22.md, AGENTS.md, production/sprints/sprint-65-stub-*.md pre/post appends.
 
 **Gates: ALL PASS. verification-before enforced. Main updated. Human ack "i provide the ack" complete. Ready for gt restack.**
 
-Cites: production/baltic-v2-scope-boundary-2026-06-22.md + docs/reports/future-sprint-roadpmap-062226.md §0/§5/§7/§10/§12 + sprint-status.yaml + AGENTS.md + CLAUDE.md + superpowers (GitNexus discipline, replay-verify, verification-before-completion) + hindsight-retain. 
+Cites: production/baltic-v2-scope-boundary-2026-06-22.md + docs/reports/archive/roadmaps/future-sprint-roadmap-062226.md §0/§5/§7/§10/§12 + sprint-status.yaml + AGENTS.md + CLAUDE.md + superpowers (GitNexus discipline, replay-verify, verification-before-completion) + hindsight-retain. 
 
 **Report: all updated, gates PASS, evidence full, ready. Program exit. S57-S64 COMPLETE.**

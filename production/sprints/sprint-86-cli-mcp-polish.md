@@ -3,7 +3,7 @@
 **Dates:** Following S85 (est. 5–7 days)  
 **Lead:** E11 / team-data + team-simulation + security-engineer + c-sharp-devops-engineer  
 **Program:** S81–S88 Scenario Editor (req 11)  
-**Authority:** `roadmap-execute-plan-07042026.md` §3/§4 (S86), `future-sprint-roadpmap-07042026.md`, `scenario-editor-scope-boundary-2026-07-04.md`, `qa-plan-scenario-editor-2026-07-01.md` (units #19, UA pair), `implementation-tracker-2026-07-04.md`, `Game-Requirements/requirements/11-Agentic-Mission-Editor.md`, prior S81–S85 sprint plans + kickoffs + closeouts, AGENTS.md
+**Authority:** `roadmap-execute-plan-07042026.md` §3/§4 (S86), `docs/reports/archive/roadmaps/future-sprint-roadmap-07042026.md`, `scenario-editor-scope-boundary-2026-07-04.md`, `qa-plan-scenario-editor-2026-07-01.md` (units #19, UA pair), `implementation-tracker-2026-07-04.md`, `Game-Requirements/requirements/11-Agentic-Mission-Editor.md`, prior S81–S85 sprint plans + kickoffs + closeouts, AGENTS.md
 
 ## Sprint Goal
 Complete CLI/MCP polish (remaining verbs + manifest completeness), triage the 2 pre-existing UA engage failures in `BalticReplayHarnessPolicyEngageTests` (fix/waive/document exclusion), and deliver the No-Lua architecture gate (#19 / ADR-014) via `NoDynamicExecutionGateTests`. Advance primary files `mcp-tools.json`, `McpToolsManifestTests.cs`, `NoDynamicExecutionGateTests.cs`, and UA tests. Maintain all standing invariants. Prepare for S87 Unity round-trip and S88 gate.
@@ -29,7 +29,7 @@ Complete CLI/MCP polish (remaining verbs + manifest completeness), triage the 2 
 | `src/ProjectAegis.Delegation.UnityAdapter.Tests/Baltic/BalticReplayHarnessPolicyEngageTests.cs` | UA triage / S86-02 |
 | Supporting: `src/ProjectAegis.MissionEditor.Cli/Program.cs` (verb surface), `src/ProjectAegis.MissionEditor.Cli/*Command.cs` (if new/updated verbs), manifest schema, CI references to gate test | — |
 
-## UA Failures (open @ S86; triage owner per roadmap-execute-plan-07042026.md §4 + future-sprint-roadpmap-07042026.md)
+## UA Failures (open @ S86; triage owner per roadmap-execute-plan-07042026.md §4 + docs/reports/archive/roadmaps/future-sprint-roadmap-07042026.md)
 
 - `Friendly_weapons_tight_surfaces_policy_abort_in_engagement_log`
 - `Restricted_engagement_scenario_fingerprint_is_deterministic`
@@ -139,7 +139,7 @@ Coordinate: MCP polish may touch Program/manifest; No-Lua and UA are independent
 
 ## Cites (MANDATORY on all artifacts / commits / PRs / subagent prompts)
 - `roadmap-execute-plan-07042026.md` §3/§4 (S86) + §5 Phase 0/1/2 + UA table
-- `future-sprint-roadpmap-07042026.md`
+- `docs/reports/archive/roadmaps/future-sprint-roadmap-07042026.md`
 - `production/scenario-editor-scope-boundary-2026-07-04.md`
 - `production/qa/qa-plan-scenario-editor-2026-07-01.md` (#19 + UA context)
 - `Game-Requirements/implementation-tracker-2026-07-04.md`
@@ -162,7 +162,7 @@ User ack + `gt submit --stack --no-interactive` + restack/sync → S87 dispatch 
 
 **References (heavy citation required):**
 - `docs/reports/roadmap-execute-plan-07042026.md` (S86 tables, primary files, UA failures list, wave, Phase 0 gates, ownership)
-- `docs/reports/future-sprint-roadpmap-07042026.md` §3/§4/§10/§11
+- `docs/reports/archive/roadmaps/future-sprint-roadmap-07042026.md` §3/§4/§10/§11
 - `production/scenario-editor-scope-boundary-2026-07-04.md` (invariants, scope, CRITICAL symbols incl. Baltic 52)
 - `production/qa/qa-plan-scenario-editor-2026-07-01.md` (#19 NFR, test path)
 - S81: `production/sprints/sprint-81-scenario-editor-foundations.md` + kickoff
