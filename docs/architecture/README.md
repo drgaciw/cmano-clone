@@ -1,6 +1,10 @@
 # Architecture docs
 
-Living architecture for Project Aegis. Start with [architecture.md](architecture.md) (assembly map + ADR index through ADR-030) and [architecture-traceability-index.md](architecture-traceability-index.md).
+Living architecture for Project Aegis. Start with [architecture.md](architecture.md) (assembly map + ADR index through ADR-031) and [architecture-traceability-index.md](architecture-traceability-index.md).
+
+| ADR | Title | Status |
+|-----|-------|--------|
+| [ADR-031](adr-031-one-ci-system-github-actions-hosted.md) | One CI system: GitHub Actions hosted; Buildkite retired after parity | **Proposed** |
 
 ## ADR status-change convention (DRG-771 / CMA-28)
 
