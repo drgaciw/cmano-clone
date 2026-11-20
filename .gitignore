@@ -164,6 +164,13 @@ artifacts/resharper/
 # Gauntlet forge ephemeral candidates (promote winners only)
 production/qa/gauntlet/*/forge/candidates/
 
+# Gauntlet run dumps. Historical trees last appear on 99a4d6e4.
+# Recover with: git checkout 99a4d6e4 -- production/qa/gauntlet/
+production/qa/gauntlet/gauntlet-*/
+production/qa/gauntlet/calibration-*/
+production/qa/gauntlet/saboteur-tmp/
+artifacts/gauntlet/
+
 # Superpowers brainstorm visual companion sessions
 .superpowers/
 

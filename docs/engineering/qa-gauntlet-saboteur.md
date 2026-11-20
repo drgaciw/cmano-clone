@@ -54,7 +54,7 @@ path and (without `--mutants`) restricts selection to the swarm family.
 | **classic** | mutant does *not* declare `swarm_unit` | `dotnet build ProjectAegis.sln` | ladder subset driver exit ≠ 0 **OR** `ReplayGolden` filter fails |
 | **swarm** | `expectedOracles` includes `swarm_unit`, or `--swarm-filter` | `dotnet build src/ProjectAegis.Sim.Tests` | `dotnet test --filter FullyQualifiedName~Swarm` exit ≠ 0 |
 
-- Classic subset runs `run-gauntlet.sh --tiers "1 3 5" --roving 0` (all three anchor seeds
+- Classic subset runs `run-gauntlet.sh --tiers "1 3 5" --roving 0 --out-root artifacts/gauntlet/saboteur-tmp` (all three anchor seeds
   — some required tokens such as `NO_AMMO` only appear at seeds 7/123, so a seed-42-only
   subset would red `token_coverage` at baseline and poison the measurement) plus the
   Baltic `ReplayGolden` filter in `ProjectAegis.Delegation.UnityAdapter.Tests`.
@@ -147,7 +147,7 @@ python3 tools/qa-gauntlet/saboteur.py --mutants 05-contact-lifecycle-skip --keep
 | Flag | Default | Purpose |
 |------|---------|---------|
 | `--catalog` | `tools/qa-gauntlet/mutants/catalog.yaml` | mutant catalog to load |
-| `--out-dir` | `production/qa/gauntlet/calibration-<today>` | report + per-mutant log root |
+| `--out-dir` | `artifacts/gauntlet/calibration-<today>` | report + per-mutant log root (gitignored). Historical `production/qa/gauntlet/calibration-*` dumps last appear on `99a4d6e4`; recover with `git checkout 99a4d6e4 -- production/qa/gauntlet/`. |
 | `--mutants` | *(all)* | comma-separated ids to run (explicit selection wins) |
 | `--swarm-filter` | off | force the swarm unit path; select swarm family when `--mutants` is unset |
 | `--keep-worktrees` | off | do not remove `.worktrees/saboteur-<id>` after each run |

@@ -2,7 +2,7 @@
 # Canonical QA Gauntlet ladder driver — oracles as code.
 # Spec: docs/superpowers/specs/2026-07-28-qa-gauntlet-effectiveness-design.md
 # Usage: run-gauntlet.sh --run-id <id> [--tiers "1 2 3 4 5 extra"] [--seeds 42,7,123]
-#                        [--roving 2] [--out-root production/qa/gauntlet]
+#                        [--roving 2] [--out-root artifacts/gauntlet]
 #                        [--stress-proof-evidence PATH]
 # Optional stress-proof gate (DRG-63): after the run verdict, if
 # STRESS_PROOF_EVIDENCE or --stress-proof-evidence is set, run the production
@@ -19,7 +19,7 @@ else echo "FATAL: dotnet not found on PATH or at ~/.dotnet/dotnet" >&2; exit 3; 
 export DOTNET_CLI_TELEMETRY_OPTOUT=1
 
 RUN_ID=""; TIERS="1 2 3 4 5 extra"; ANCHOR_SEEDS="42,7,123"; ROVING=2
-OUT_ROOT="production/qa/gauntlet"
+OUT_ROOT="artifacts/gauntlet"
 STRESS_PROOF_EVIDENCE="${STRESS_PROOF_EVIDENCE:-}"
 while [ $# -gt 0 ]; do case "$1" in
   --run-id) RUN_ID="$2"; shift 2;;

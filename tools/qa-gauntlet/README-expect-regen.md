@@ -61,9 +61,11 @@ When `/qa-gauntlet-forge` **promotes** an ephemeral candidate into
 
 ```bash
 python3 tools/qa-gauntlet/forge_scorecard.py \
-  --run-dir production/qa/gauntlet/<RUN_ID> \
+  --run-dir artifacts/gauntlet/<RUN_ID> \
   --tier <N>
 ```
+
+Run directories default to `artifacts/gauntlet/<RUN_ID>` (`run-gauntlet.sh --out-root`). Historical dumps last appear on `99a4d6e4`; recover with `git checkout 99a4d6e4 -- production/qa/gauntlet/`.
 
 (Hyphenated alias `forge-scorecard.py` also works.)
 

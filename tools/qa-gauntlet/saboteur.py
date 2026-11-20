@@ -254,13 +254,13 @@ def run_mutant(
         subset_rc = _run(["bash", "tools/qa-gauntlet/run-gauntlet.sh",
                           "--run-id", f"saboteur-{m['id']}", "--tiers", SUBSET_TIERS,
                           "--roving", "0",
-                          "--out-root", "production/qa/gauntlet/saboteur-tmp"],
+                          "--out-root", "artifacts/gauntlet/saboteur-tmp"],
                          wt, RUN_TIMEOUT_S, mdir / "subset.log")
         replay_rc = _run([dotnet, "test", REPLAY_GOLDEN_PROJECT,
                           "-v", "minimal", "--filter", "ReplayGolden"],
                          wt, RUN_TIMEOUT_S, mdir / "replay.log")
         result["firedOracles"] = _fired_oracles(
-            wt / "production/qa/gauntlet/saboteur-tmp" / f"saboteur-{m['id']}")
+            wt / "artifacts/gauntlet/saboteur-tmp" / f"saboteur-{m['id']}")
         if replay_rc != 0:
             result["firedOracles"] = sorted(set(result["firedOracles"]) | {"replay_golden"})
         result["outcome"] = "caught" if (subset_rc != 0 or replay_rc != 0) else "survived"
@@ -279,7 +279,7 @@ def main(argv: list[str]) -> int:
     parser.add_argument("--catalog", type=Path,
                         default=ROOT / "tools/qa-gauntlet/mutants/catalog.yaml")
     parser.add_argument("--out-dir", type=Path,
-                        default=ROOT / f"production/qa/gauntlet/calibration-{date.today().isoformat()}")
+                        default=ROOT / f"artifacts/gauntlet/calibration-{date.today().isoformat()}")
     parser.add_argument("--mutants", default="")
     parser.add_argument("--keep-worktrees", action="store_true")
     parser.add_argument(
