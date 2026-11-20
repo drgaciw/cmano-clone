@@ -9,7 +9,7 @@ resolves at tick-8 are produced here, from the tactical picture the
 [detection pipeline](detection-pipeline.md) builds at tick-4.
 
 - **Source:** [`src/ProjectAegis.Delegation/`](../../src/ProjectAegis.Delegation/) — engine-agnostic
-  pure C# (`net8.0`, no `UnityEngine`), so the whole decision path runs headless under
+  pure C# (`net11.0`, no `UnityEngine`), so the whole decision path runs headless under
   `dotnet test`. The per-project overview is the
   [Delegation README](../../src/ProjectAegis.Delegation/README.md); this page is the runtime
   deep-dive.

@@ -74,7 +74,7 @@ The mission editor GDD defines an **intent compiler**: one canonical `scenario.j
 
 ## Decision
 
-Implement a **deterministic validation pipeline** in namespace **`ProjectAegis.Data.Validation`**, hosted in the existing **`ProjectAegis.Data`** project (`net8.0` for headless tests; consumable from Unity editor host and MCP CLI via project reference only — no `UnityEngine`).
+Implement a **deterministic validation pipeline** in namespace **`ProjectAegis.Data.Validation`**, hosted in the existing **`ProjectAegis.Data`** project (`net11.0` for headless tests; also `netstandard2.1` for Unity; consumable from Unity editor host and MCP CLI via project reference only — no `UnityEngine`).
 
 ### Architecture
 

@@ -245,7 +245,7 @@ is a small standalone tool that **proposes *and* approves in a single run** agai
 > fixture DB from the checked-in `baltic-multidomain-*` slices — **not** to ingest the full
 > untrusted corpus (that is the gated nightly path above).
 
-It is a standalone `net8.0` exe (`ProjectAegis.Tools.ImportQaSlice`) that references
+It is a standalone `net11.0` exe (`ProjectAegis.Tools.ImportQaSlice`) that references
 `ProjectAegis.Data` but is **not** part of `ProjectAegis.sln`, so run it by project path:
 
 ```bash
