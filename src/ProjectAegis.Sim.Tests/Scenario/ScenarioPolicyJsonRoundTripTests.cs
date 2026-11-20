@@ -1,7 +1,7 @@
 using System.Text.Json;
 using ProjectAegis.Data.Scenario.Policy;
 using ProjectAegis.Sim.Scenario;
-using Xunit;
+using NUnit.Framework;
 
 namespace ProjectAegis.Sim.Tests.Scenario;
 
@@ -13,7 +13,7 @@ public sealed class ScenarioPolicyJsonRoundTripTests
         PropertyNameCaseInsensitive = true,
     };
 
-    [Fact]
+    [Test]
     public void Logistics_logTickBurn_round_trips_through_json()
     {
         var dto = new ScenarioPolicyJsonDto
@@ -38,12 +38,12 @@ public sealed class ScenarioPolicyJsonRoundTripTests
             ?? throw new InvalidOperationException("Deserialize returned null.");
 
         var profile = ScenarioPolicyJsonLoader.ToProfile(roundTrip);
-        Assert.True(profile.Logistics.LogTickBurn);
-        Assert.True(profile.Logistics.UsesFuelBurnModel);
-        Assert.Equal(10_000, profile.Logistics.FuelCapacityKg);
+        Assert.That(profile.Logistics.LogTickBurn, Is.True);
+        Assert.That(profile.Logistics.UsesFuelBurnModel, Is.True);
+        Assert.That(profile.Logistics.FuelCapacityKg, Is.EqualTo(10_000));
     }
 
-    [Fact]
+    [Test]
     public void Extra_json_properties_are_ignored_on_policy_dto()
     {
         const string json = """
@@ -56,7 +56,7 @@ public sealed class ScenarioPolicyJsonRoundTripTests
             """;
 
         var dto = JsonSerializer.Deserialize<ScenarioPolicyJsonDto>(json, Options);
-        Assert.NotNull(dto);
-        Assert.Equal("ext", dto.Id);
+        Assert.That(dto, Is.Not.Null);
+        Assert.That(dto!.Id, Is.EqualTo("ext"));
     }
 }

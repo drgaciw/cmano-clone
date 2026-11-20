@@ -2,14 +2,14 @@ using Microsoft.Data.Sqlite;
 using ProjectAegis.Data.Catalog;
 using ProjectAegis.Data.Import;
 using ProjectAegis.Data.WriteGate;
-using Xunit;
+using NUnit.Framework;
 
 namespace ProjectAegis.Data.Tests.Import;
 
-[Collection("CatalogSqlite")]
+[Runner.CatalogSqliteCollection]
 public sealed class CmoMarkdownImportProposerTests
 {
-    [Fact]
+    [Test]
     public void ChunkBindings_splits_sorted_rows_deterministically()
     {
         var rows = Enumerable.Range(0, 5)
@@ -19,14 +19,14 @@ public sealed class CmoMarkdownImportProposerTests
 
         var chunks = CmoMarkdownImportProposer.ChunkBindings(rows, chunkSize: 2);
 
-        Assert.Equal(3, chunks.Length);
-        Assert.Equal(2, chunks[0].Length);
-        Assert.Equal("p0", chunks[0][0].PlatformId);
-        Assert.Equal("p2", chunks[1][0].PlatformId);
-        Assert.Single(chunks[2]);
+        Assert.That(chunks.Length, Is.EqualTo(3));
+        Assert.That(chunks[0].Length, Is.EqualTo(2));
+        Assert.That(chunks[0][0].PlatformId, Is.EqualTo("p0"));
+        Assert.That(chunks[1][0].PlatformId, Is.EqualTo("p2"));
+        Assert.That(chunks[2], Has.Exactly(1).Items);
     }
 
-    [Fact]
+    [Test]
     public void ProposeFromMarkdown_stages_mini_fixture_and_approve_commits()
     {
         var markdown = CmoMarkdownImporter.ResolveMiniFixturePath();
@@ -41,23 +41,23 @@ public sealed class CmoMarkdownImportProposerTests
                 chunkSize: 500,
                 clock: new FixedCatalogClock(42));
 
-            Assert.True(result.ParsedCount >= 10);
-            Assert.True(result.ApprovedCount >= 10);
-            Assert.NotEmpty(result.Batches);
+            Assert.That(result.ParsedCount >= 10, Is.True);
+            Assert.That(result.ApprovedCount >= 10, Is.True);
+            Assert.That(result.Batches, Is.Not.Empty);
 
             using (var gate = new CatalogWriteGate(dbPath, new FixedCatalogClock(43)))
             {
                 foreach (var batch in result.Batches)
                 {
                     var decision = gate.ApproveBatch(batch.BatchId, "human", "p2-smoke");
-                    Assert.True(decision.Committed);
+                    Assert.That(decision.Committed, Is.True);
                 }
             }
 
             using var reader = new SqliteCatalogReader(dbPath, "p2-import");
             var committed = reader.GetSortedSensorBindings()
                 .Count(b => b.SensorId.StartsWith("cmo-sensor-", StringComparison.Ordinal));
-            Assert.True(committed >= 10);
+            Assert.That(committed >= 10, Is.True);
         }
         finally
         {

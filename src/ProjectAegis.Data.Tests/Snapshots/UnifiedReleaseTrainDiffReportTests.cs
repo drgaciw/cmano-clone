@@ -3,14 +3,14 @@ using ProjectAegis.Data.Catalog;
 using ProjectAegis.Data.Import;
 using ProjectAegis.Data.Snapshots;
 using ProjectAegis.Data.WriteGate;
-using Xunit;
+using NUnit.Framework;
 
 namespace ProjectAegis.Data.Tests.Snapshots;
 
-[Collection("CatalogSqlite")]
+[Runner.CatalogSqliteCollection]
 public sealed class UnifiedReleaseTrainDiffReportTests
 {
-    [Fact]
+    [Test]
     public void TlRelease_diff_is_empty_for_identical_release_versions()
     {
         var dbPath = Path.Combine(Path.GetTempPath(), $"aegis-release-diff-same-{Guid.NewGuid():N}.db");
@@ -31,8 +31,8 @@ public sealed class UnifiedReleaseTrainDiffReportTests
 
             using var diffStore = new DbSnapshotStore(dbPath);
             var report = UnifiedReleaseTrainDiffComparer.Compare(diffStore, unifiedVersion, unifiedVersion);
-            Assert.True(report.IsEmpty);
-            Assert.Empty(report.ToSortedCanonicalLines());
+            Assert.That(report.IsEmpty, Is.True);
+            Assert.That(report.ToSortedCanonicalLines(), Is.Empty);
         }
         finally
         {
@@ -40,7 +40,7 @@ public sealed class UnifiedReleaseTrainDiffReportTests
         }
     }
 
-    [Fact]
+    [Test]
     public void Snapshot_diff_lists_added_removed_changed_rows_in_sorted_order()
     {
         var dbPath = Path.Combine(Path.GetTempPath(), $"aegis-release-diff-delta-{Guid.NewGuid():N}.db");
@@ -77,22 +77,20 @@ public sealed class UnifiedReleaseTrainDiffReportTests
 
             using var diffStore = new DbSnapshotStore(dbPath);
             var report = UnifiedReleaseTrainDiffComparer.Compare(diffStore, fromVersion, toVersion);
-            Assert.False(report.IsEmpty);
-            Assert.Equal(3, report.Rows.Count);
+            Assert.That(report.IsEmpty, Is.False);
+            Assert.That(report.Rows.Count, Is.EqualTo(3));
 
             var lines = report.ToSortedCanonicalLines();
-            Assert.Equal(lines, report.ToSortedCanonicalLines());
-            Assert.Equal(
-                [
+            Assert.That(report.ToSortedCanonicalLines(), Is.EqualTo(lines));
+            Assert.That(                lines, Is.EqualTo(                [
                     $"Added\tweapon\t\t{weaponToVersion}\t\t{CatalogValidationDefaults.BalticSnapshotId}\t\t{weaponTo.ContentHashSha256}",
                     $"Changed\tsensor\t{sensorFromVersion}\t{sensorToVersion}\t{CatalogValidationDefaults.BalticSnapshotId}\t{CatalogValidationDefaults.BalticSnapshotId}\t{sensorFrom.ContentHashSha256}\t{sensorTo.ContentHashSha256}",
                     $"Removed\tplatform\t{platformFromVersion}\t\t{CatalogValidationDefaults.BalticSnapshotId}\t\t{platformFrom.ContentHashSha256}\t",
-                ],
-                lines);
+                ]));
 
-            Assert.Equal(UnifiedReleaseTrainDiffKind.Added, report.Rows.Single(r => r.Domain == "weapon").Kind);
-            Assert.Equal(UnifiedReleaseTrainDiffKind.Removed, report.Rows.Single(r => r.Domain == "platform").Kind);
-            Assert.Equal(UnifiedReleaseTrainDiffKind.Changed, report.Rows.Single(r => r.Domain == "sensor").Kind);
+            Assert.That(report.Rows.Single(r => r.Domain == "weapon").Kind, Is.EqualTo(UnifiedReleaseTrainDiffKind.Added));
+            Assert.That(report.Rows.Single(r => r.Domain == "platform").Kind, Is.EqualTo(UnifiedReleaseTrainDiffKind.Removed));
+            Assert.That(report.Rows.Single(r => r.Domain == "sensor").Kind, Is.EqualTo(UnifiedReleaseTrainDiffKind.Changed));
         }
         finally
         {
@@ -100,7 +98,7 @@ public sealed class UnifiedReleaseTrainDiffReportTests
         }
     }
 
-    [Fact]
+    [Test]
     public void CatalogImport_reimport_empty_diff_when_semantic_content_matches()
     {
         var dbPath = Path.Combine(Path.GetTempPath(), $"aegis-release-diff-reimport-{Guid.NewGuid():N}.db");
@@ -124,8 +122,8 @@ public sealed class UnifiedReleaseTrainDiffReportTests
 
             using var diffStore = new DbSnapshotStore(dbPath);
             var report = UnifiedReleaseTrainDiffComparer.Compare(diffStore, firstVersion, secondVersion);
-            Assert.True(report.IsEmpty);
-            Assert.Empty(report.ToSortedCanonicalLines());
+            Assert.That(report.IsEmpty, Is.True);
+            Assert.That(report.ToSortedCanonicalLines(), Is.Empty);
         }
         finally
         {
@@ -148,7 +146,7 @@ public sealed class UnifiedReleaseTrainDiffReportTests
 
         using (var gate = new CatalogWriteGate(dbPath, new FixedCatalogClock(8001)))
         {
-            Assert.True(gate.ApproveBatch(propose.Batches[0].BatchId, "human", "release-diff-test").Committed);
+            Assert.That(gate.ApproveBatch(propose.Batches[0].BatchId, "human", "release-diff-test").Committed, Is.True);
         }
 
         return CatalogSnapshotBinder.BindAfterApprove(

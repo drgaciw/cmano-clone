@@ -1,7 +1,7 @@
 namespace ProjectAegis.Data.Tests.Architecture;
 
 using System.Xml.Linq;
-using Xunit;
+using NUnit.Framework;
 
 /// <summary>
 /// Wave 0 AI host-boundary gates (DRG-733 / ADR-030 Proposed).
@@ -14,31 +14,13 @@ public sealed class AiHostBoundaryGateTests
     /// <c>tools/copy-delegation-assemblies.sh</c>. AI packages on these
     /// projects would leak into <c>Assets/Plugins/ProjectAegis</c>.
     /// </summary>
-    public static TheoryData<string> UnityBoundNetstandardProjectPaths()
-    {
-        var data = new TheoryData<string>();
-        foreach (var path in UnityBoundNetstandardProjects)
-        {
-            data.Add(path);
-        }
-
-        return data;
-    }
+    public static IEnumerable<string> UnityBoundNetstandardProjectPaths() => UnityBoundNetstandardProjects;
 
     /// <summary>
     /// Same authoring/validation scan list as <see cref="NoDynamicExecutionGateTests"/>,
     /// with .NET 11 process-helper patterns the original gate does not match.
     /// </summary>
-    public static TheoryData<string> AuthoringPathSourcePaths()
-    {
-        var data = new TheoryData<string>();
-        foreach (var path in AuthoringPathSources)
-        {
-            data.Add(path);
-        }
-
-        return data;
-    }
+    public static IEnumerable<string> AuthoringPathSourcePaths() => AuthoringPathSources;
 
     private static readonly string[] UnityBoundNetstandardProjects =
     {
@@ -102,9 +84,7 @@ public sealed class AiHostBoundaryGateTests
         "System.Net.Sockets",
         "new Socket",
     };
-
-    [Theory]
-    [MemberData(nameof(UnityBoundNetstandardProjectPaths))]
+    [TestCaseSource(nameof(UnityBoundNetstandardProjectPaths))]
     public void Unity_bound_netstandard_csproj_has_no_ai_or_provider_package(string relativePath)
     {
         var path = ResolveRepoFile(relativePath.Split('/'));
@@ -120,14 +100,12 @@ public sealed class AiHostBoundaryGateTests
             var offending = includes
                 .Where(i => i.Contains(forbidden, StringComparison.OrdinalIgnoreCase))
                 .ToList();
-            Assert.True(
-                offending.Count == 0,
-                $"'{path}' references AI/provider package matching '{forbidden}': {string.Join(", ", offending)}. " +
+            Assert.That(                offending.Count == 0, Is.True,                 $"'{path}' references AI/provider package matching '{forbidden}': {string.Join(", ", offending)}. " +
                 "Per ADR-030 Proposed, AI packages stay off Unity-bound netstandard2.1 projects.");
         }
     }
 
-    [Fact]
+    [Test]
     public void Ai_contracts_has_zero_package_references_when_present()
     {
         var path = ResolveRepoFile("src", "ProjectAegis.Ai.Contracts", "ProjectAegis.Ai.Contracts.csproj");
@@ -138,12 +116,10 @@ public sealed class AiHostBoundaryGateTests
         }
 
         var includes = LoadPackageReferenceIncludes(path);
-        Assert.True(
-            includes.Count == 0,
-            $"'{path}' must have zero PackageReference entries (found: {string.Join(", ", includes)}).");
+        Assert.That(            includes.Count == 0, Is.True,             $"'{path}' must have zero PackageReference entries (found: {string.Join(", ", includes)}).");
     }
 
-    [Fact]
+    [Test]
     public void Unity_plugins_projectaegis_has_no_ai_provider_dll()
     {
         var pluginsDir = ResolveRepoDirectory(
@@ -160,16 +136,12 @@ public sealed class AiHostBoundaryGateTests
             var name = Path.GetFileNameWithoutExtension(dll);
             foreach (var forbidden in ForbiddenAiDllNameSubstrings)
             {
-                Assert.True(
-                    !name.Contains(forbidden, StringComparison.OrdinalIgnoreCase),
-                    $"'{dll}' matches forbidden AI/provider DLL substring '{forbidden}'. " +
+                Assert.That(                    !name.Contains(forbidden, StringComparison.OrdinalIgnoreCase), Is.True,                     $"'{dll}' matches forbidden AI/provider DLL substring '{forbidden}'. " +
                     "AI assemblies must not ship into Unity Plugins via copy-delegation-assemblies.");
             }
         }
     }
-
-    [Theory]
-    [MemberData(nameof(AuthoringPathSourcePaths))]
+    [TestCaseSource(nameof(AuthoringPathSourcePaths))]
     public void Authoring_path_has_no_net11_process_helpers(string relativePath)
     {
         var path = ResolveRepoFile(relativePath.Split('/'));
@@ -182,43 +154,34 @@ public sealed class AiHostBoundaryGateTests
         var source = File.ReadAllText(path);
         foreach (var forbidden in ForbiddenNet11ProcessPatterns)
         {
-            Assert.True(
-                !source.Contains(forbidden, StringComparison.Ordinal),
-                $"'{path}' contains forbidden process-helper substring '{forbidden}'. " +
+            Assert.That(                !source.Contains(forbidden, StringComparison.Ordinal), Is.True,                 $"'{path}' contains forbidden process-helper substring '{forbidden}'. " +
                 "Authoring/validation path must not shell out via .NET 11 Process.Run* helpers (ADR-014 / ADR-030).");
         }
     }
-
-    /// <summary>
-    /// Detector proof for AC2: synthetic violations are rejected by the same matchers.
-    /// </summary>
-    [Theory]
-    [InlineData("Microsoft.Extensions.AI", true)]
-    [InlineData("System.Text.Json", false)]
-    [InlineData("OpenAI", true)]
-    [InlineData("ClosedXML", false)]
+    [TestCase("Microsoft.Extensions.AI", true)]
+    [TestCase("System.Text.Json", false)]
+    [TestCase("OpenAI", true)]
+    [TestCase("ClosedXML", false)]
     public void Forbidden_ai_package_matcher_detects_violations(string packageInclude, bool expectForbidden)
     {
         var hit = ForbiddenAiPackageSubstrings.Any(f =>
             packageInclude.Contains(f, StringComparison.OrdinalIgnoreCase));
-        Assert.Equal(expectForbidden, hit);
+        Assert.That(hit, Is.EqualTo(expectForbidden));
     }
-
-    [Theory]
-    [InlineData("await Process.RunAsync(psi);", true)]
-    [InlineData("Process.Start(psi);", false)] // covered by NoDynamicExecutionGateTests
-    [InlineData("var text = Process.RunAndCaptureTextAsync(psi);", true)]
-    [InlineData("StartAndForget(psi);", true)]
-    [InlineData("SafeProcessHandle.Start(psi);", true)]
-    [InlineData("File.ReadAllText(path);", false)]
+    [TestCase("await Process.RunAsync(psi);", true)]
+    [TestCase("Process.Start(psi);", false)] // covered by NoDynamicExecutionGateTests
+    [TestCase("var text = Process.RunAndCaptureTextAsync(psi);", true)]
+    [TestCase("StartAndForget(psi);", true)]
+    [TestCase("SafeProcessHandle.Start(psi);", true)]
+    [TestCase("File.ReadAllText(path);", false)]
     public void Forbidden_process_helper_matcher_detects_violations(string sourceSnippet, bool expectForbidden)
     {
         var hit = ForbiddenNet11ProcessPatterns.Any(f =>
             sourceSnippet.Contains(f, StringComparison.Ordinal));
-        Assert.Equal(expectForbidden, hit);
+        Assert.That(hit, Is.EqualTo(expectForbidden));
     }
 
-    [Fact]
+    [Test]
     public void Sim_and_delegation_tick_path_have_no_http_client_or_socket()
     {
         var simRoot = ResolveRepoDirectory("src", "ProjectAegis.Sim");
@@ -253,27 +216,25 @@ public sealed class AiHostBoundaryGateTests
             AssertNoForbiddenNetwork(file);
         }
     }
-
-    [Theory]
-    [InlineData("var http = new HttpClient();", true)]
-    [InlineData("using System.Net.Http;", true)]
-    [InlineData("using System.Net.Sockets;", true)]
-    [InlineData("var s = new Socket(AddressFamily.InterNetwork, SocketType.Stream, ProtocolType.Tcp);", true)]
-    [InlineData("File.ReadAllText(path);", false)]
+    [TestCase("var http = new HttpClient();", true)]
+    [TestCase("using System.Net.Http;", true)]
+    [TestCase("using System.Net.Sockets;", true)]
+    [TestCase("var s = new Socket(AddressFamily.InterNetwork, SocketType.Stream, ProtocolType.Tcp);", true)]
+    [TestCase("File.ReadAllText(path);", false)]
     public void Forbidden_network_matcher_detects_violations(string sourceSnippet, bool expectForbidden)
     {
         var hit = ForbiddenNetworkSubstrings.Any(f =>
             sourceSnippet.Contains(f, StringComparison.Ordinal));
-        Assert.Equal(expectForbidden, hit);
+        Assert.That(hit, Is.EqualTo(expectForbidden));
     }
 
-    [Fact]
+    [Test]
     public void Unity_bound_project_list_matches_copy_surface()
     {
-        Assert.Equal(4, UnityBoundNetstandardProjects.Length);
-        Assert.Equal(7, AuthoringPathSources.Length);
-        Assert.Equal(4, UnityBoundNetstandardProjectPaths().Count<object[]>());
-        Assert.Equal(7, AuthoringPathSourcePaths().Count<object[]>());
+        Assert.That(UnityBoundNetstandardProjects.Length, Is.EqualTo(4));
+        Assert.That(AuthoringPathSources.Length, Is.EqualTo(7));
+        Assert.That(UnityBoundNetstandardProjectPaths().Count(), Is.EqualTo(4));
+        Assert.That(AuthoringPathSourcePaths().Count(), Is.EqualTo(7));
     }
 
     private static void AssertNoForbiddenNetwork(string path)
@@ -281,9 +242,7 @@ public sealed class AiHostBoundaryGateTests
         var source = File.ReadAllText(path);
         foreach (var forbidden in ForbiddenNetworkSubstrings)
         {
-            Assert.True(
-                !source.Contains(forbidden, StringComparison.Ordinal),
-                $"'{path}' contains forbidden network/LLM-path substring '{forbidden}'. " +
+            Assert.That(                !source.Contains(forbidden, StringComparison.Ordinal), Is.True,                 $"'{path}' contains forbidden network/LLM-path substring '{forbidden}'. " +
                 "Per ADR-030, Sim and Delegation tick paths make no network or LLM calls.");
         }
     }

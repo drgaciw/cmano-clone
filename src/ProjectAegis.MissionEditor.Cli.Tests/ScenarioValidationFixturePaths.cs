@@ -1,6 +1,6 @@
 namespace ProjectAegis.MissionEditor.Cli.Tests;
 
-using Xunit;
+using NUnit.Framework;
 
 /// <summary>Resolves validation fixtures under <c>assets/data/scenarios/validation</c>; fails tests when missing.</summary>
 internal static class ScenarioValidationFixturePaths
@@ -8,12 +8,10 @@ internal static class ScenarioValidationFixturePaths
     internal static string Require(string fileName)
     {
         var path = TryResolve(fileName);
-        Assert.True(
-            path != null,
-            $"Required fixture '{fileName}' not found. Walked up from '{AppContext.BaseDirectory}' " +
+        Assert.That(path != null, Is.True, $"Required fixture '{fileName}' not found. Walked up from '{AppContext.BaseDirectory}' " +
             $"looking for assets/data/scenarios/validation/{fileName}. " +
             "Ensure the test project copies validation assets to output or run from repo root.");
-        return path;
+        return path!;
     }
 
     internal static string? TryResolve(string fileName)

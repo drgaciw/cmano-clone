@@ -1,6 +1,6 @@
 using Microsoft.Data.Sqlite;
 using ProjectAegis.Data.Catalog;
-using Xunit;
+using NUnit.Framework;
 
 namespace ProjectAegis.Data.Tests.Catalog;
 
@@ -8,7 +8,7 @@ namespace ProjectAegis.Data.Tests.Catalog;
 /// BUG-catalog-emcon-tables-empty: gauntlet T2 Baltic Patrol platforms must have
 /// review_state-gated <c>platform_emcon</c> rows bound to existing catalog sensors.
 /// </summary>
-[Collection("CatalogSqlite")]
+[Runner.CatalogSqliteCollection]
 public sealed class PlatformEmconSeedTests
 {
     /// <summary>
@@ -49,11 +49,11 @@ public sealed class PlatformEmconSeedTests
         "usub-red",
     ];
 
-    [Fact]
+    [Test]
     public void Production_catalog_seeds_provisional_off_emcon_for_gauntlet_t2_platforms()
     {
         var sourcePath = CatalogReaderFactory.ResolveBalticPatrolDatabasePath();
-        Assert.True(File.Exists(sourcePath), $"Catalog DB missing: {sourcePath}");
+        Assert.That(File.Exists(sourcePath), Is.True, $"Catalog DB missing: {sourcePath}");
 
         var dbPath = Path.Combine(Path.GetTempPath(), $"aegis-emcon-seed-{Guid.NewGuid():N}.db");
         try
@@ -66,40 +66,34 @@ public sealed class PlatformEmconSeedTests
                 .Where(row => GauntletT2PlatformIds.Contains(row.PlatformId, StringComparer.Ordinal))
                 .ToArray();
 
-            Assert.True(
-                emcon.Length > 0,
-                "platform_emcon must contain rows for gauntlet T2 platforms after catalog open.");
+            Assert.That(                emcon.Length > 0, Is.True,                 "platform_emcon must contain rows for gauntlet T2 platforms after catalog open.");
 
             foreach (var platformId in GauntletT2PlatformIds)
             {
-                Assert.True(
-                    emcon.Any(row => string.Equals(row.PlatformId, platformId, StringComparison.Ordinal)),
-                    $"Missing platform_emcon seed for {platformId}");
+                Assert.That(                    emcon.Any(row => string.Equals(row.PlatformId, platformId, StringComparison.Ordinal)), Is.True,                     $"Missing platform_emcon seed for {platformId}");
             }
 
-            Assert.All(emcon, row =>
+            foreach (var row in emcon)
             {
                 var expectedPosture = string.Equals(row.EmitterId, "radar-1", StringComparison.Ordinal) &&
                     string.Equals(row.Condition, "free", StringComparison.Ordinal)
                     ? "active"
                     : "off";
-                Assert.Equal(expectedPosture, row.Posture);
-                Assert.Equal(CatalogReviewStates.Provisional, row.ReviewState);
-                Assert.Contains(row.Condition, (IReadOnlyList<string>)["silent", "restricted", "free"]);
-                Assert.False(string.IsNullOrWhiteSpace(row.EmitterId));
-            });
+                Assert.That(row.Posture, Is.EqualTo(expectedPosture));
+                Assert.That(row.ReviewState, Is.EqualTo(CatalogReviewStates.Provisional));
+                Assert.That((IReadOnlyList<string>)["silent", "restricted", "free"], Does.Contain(row.Condition));
+                Assert.That(string.IsNullOrWhiteSpace(row.EmitterId), Is.False);
+            }
 
-            Assert.True(reader.TryGetEmcon("k-31-visby-2009", "silent", "cmo-sensor-1827", out var visby));
-            Assert.Equal("off", visby.Posture);
-            Assert.Equal(CatalogReviewStates.Provisional, visby.ReviewState);
+            Assert.That(reader.TryGetEmcon("k-31-visby-2009", "silent", "cmo-sensor-1827", out var visby), Is.True);
+            Assert.That(visby.Posture, Is.EqualTo("off"));
+            Assert.That(visby.ReviewState, Is.EqualTo(CatalogReviewStates.Provisional));
 
-            Assert.True(
-                reader.TryGetEmcon("k-31-visby-2009", "free", "radar-1", out var visbyDefault),
-                "Default resolver triple (free/radar-1) must have a CatalogEmcon row.");
-            Assert.Equal("active", visbyDefault.Posture);
-            Assert.Equal(CatalogReviewStates.Provisional, visbyDefault.ReviewState);
-            Assert.True(reader.TryGetEmcon("k-31-visby-2009", "silent", "radar-1", out var visbySilentAlias));
-            Assert.Equal("off", visbySilentAlias.Posture);
+            Assert.That(                reader.TryGetEmcon("k-31-visby-2009", "free", "radar-1", out var visbyDefault), Is.True,                 "Default resolver triple (free/radar-1) must have a CatalogEmcon row.");
+            Assert.That(visbyDefault.Posture, Is.EqualTo("active"));
+            Assert.That(visbyDefault.ReviewState, Is.EqualTo(CatalogReviewStates.Provisional));
+            Assert.That(reader.TryGetEmcon("k-31-visby-2009", "silent", "radar-1", out var visbySilentAlias), Is.True);
+            Assert.That(visbySilentAlias.Posture, Is.EqualTo("off"));
 
             using var connection = new SqliteConnection($"Data Source={dbPath};Pooling=false");
             connection.Open();
@@ -114,12 +108,10 @@ public sealed class PlatformEmconSeedTests
                   AND e.emitter_id != 'radar-1'
                 """;
             var orphanCount = Convert.ToInt32(orphan.ExecuteScalar(), System.Globalization.CultureInfo.InvariantCulture);
-            Assert.Equal(0, orphanCount);
+            Assert.That(orphanCount, Is.EqualTo(0));
 
-            Assert.Equal(0, CountUnseededNonFixture(connection));
-            Assert.DoesNotContain(
-                reader.GetSortedEmcon(),
-                row => FixturePlatformIds.Contains(row.PlatformId, StringComparer.Ordinal));
+            Assert.That(CountUnseededNonFixture(connection), Is.EqualTo(0));
+            Assert.That(                reader.GetSortedEmcon().Any(                row => FixturePlatformIds.Contains(row.PlatformId, StringComparer.Ordinal)), Is.False);
 
             using var staging = connection.CreateCommand();
             staging.CommandText =
@@ -131,8 +123,8 @@ public sealed class PlatformEmconSeedTests
             var stagingCount = Convert.ToInt32(
                 staging.ExecuteScalar(),
                 System.Globalization.CultureInfo.InvariantCulture);
-            Assert.True(stagingCount > 0, "catalog_staging_emcon must contain review-gated seed rows.");
-            Assert.Equal(reader.GetSortedEmcon().Count, stagingCount);
+            Assert.That(stagingCount > 0, Is.True, "catalog_staging_emcon must contain review-gated seed rows.");
+            Assert.That(stagingCount, Is.EqualTo(reader.GetSortedEmcon().Count));
 
             using var batch = connection.CreateCommand();
             batch.CommandText =
@@ -146,10 +138,10 @@ public sealed class PlatformEmconSeedTests
                 """;
             batch.Parameters.AddWithValue("$batch", SeedBatchId);
             using var batchReader = batch.ExecuteReader();
-            Assert.True(batchReader.Read());
-            Assert.Equal("migration", batchReader.GetString(0));
-            Assert.Equal("proposed", batchReader.GetString(1));
-            Assert.Equal(CatalogReviewStates.Provisional, batchReader.GetString(2));
+            Assert.That(batchReader.Read(), Is.True);
+            Assert.That(batchReader.GetString(0), Is.EqualTo("migration"));
+            Assert.That(batchReader.GetString(1), Is.EqualTo("proposed"));
+            Assert.That(batchReader.GetString(2), Is.EqualTo(CatalogReviewStates.Provisional));
         }
         finally
         {
@@ -157,7 +149,7 @@ public sealed class PlatformEmconSeedTests
         }
     }
 
-    [Fact]
+    [Test]
     public void Emcon_seed_is_idempotent_and_skips_empty_schema_catalogs()
     {
         var emptyPath = Path.Combine(Path.GetTempPath(), $"aegis-emcon-empty-{Guid.NewGuid():N}.db");
@@ -167,8 +159,8 @@ public sealed class PlatformEmconSeedTests
         {
             using (var emptyReader = new SqliteCatalogReader(emptyPath, "emcon-empty"))
             {
-                Assert.Empty(emptyReader.GetSortedEmcon());
-                Assert.Equal(0, CountStaging(emptyPath));
+                Assert.That(emptyReader.GetSortedEmcon(), Is.Empty);
+                Assert.That(CountStaging(emptyPath), Is.EqualTo(0));
             }
 
             File.Copy(sourcePath, copyPath, overwrite: true);
@@ -182,9 +174,9 @@ public sealed class PlatformEmconSeedTests
             using (var second = new SqliteCatalogReader(copyPath, "emcon-idemp-2"))
             {
                 var secondCount = second.GetSortedEmcon().Count;
-                Assert.Equal(firstCount, secondCount);
-                Assert.True(firstCount > 0);
-                Assert.Equal(firstCount, CountStaging(copyPath));
+                Assert.That(secondCount, Is.EqualTo(firstCount));
+                Assert.That(firstCount > 0, Is.True);
+                Assert.That(CountStaging(copyPath), Is.EqualTo(firstCount));
             }
         }
         finally

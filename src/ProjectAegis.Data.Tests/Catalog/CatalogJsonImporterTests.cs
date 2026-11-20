@@ -1,12 +1,12 @@
 using ProjectAegis.Data.Catalog;
-using Xunit;
+using NUnit.Framework;
 
 namespace ProjectAegis.Data.Tests.Catalog;
 
-[Collection("CatalogSqlite")]
+[Runner.CatalogSqliteCollection]
 public sealed class CatalogJsonImporterTests
 {
-    [Fact]
+    [Test]
     public void ImportToSqlite_reads_json_drop_deterministically()
     {
         var jsonPath = CatalogJsonImporter.ResolveBalticSensorsJsonPath();
@@ -16,9 +16,9 @@ public sealed class CatalogJsonImporterTests
             CatalogJsonImporter.ImportToSqlite(jsonPath, dbPath);
             using (var reader = new SqliteCatalogReader(dbPath, "p0-json-test"))
             {
-                Assert.Equal(2, reader.GetSortedSensorBindings().Count);
-                Assert.True(reader.TryGetBasePd("u1", "radar-2", out var pd));
-                Assert.Equal(0.75, pd);
+                Assert.That(reader.GetSortedSensorBindings().Count, Is.EqualTo(2));
+                Assert.That(reader.TryGetBasePd("u1", "radar-2", out var pd), Is.True);
+                Assert.That(pd, Is.EqualTo(0.75));
             }
         }
         finally

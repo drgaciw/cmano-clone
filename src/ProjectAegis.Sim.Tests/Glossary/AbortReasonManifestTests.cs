@@ -1,4 +1,4 @@
-using Xunit;
+using NUnit.Framework;
 
 namespace ProjectAegis.Sim.Tests.Glossary;
 
@@ -10,15 +10,15 @@ public sealed class AbortReasonManifestTests
 {
     private static readonly string ManifestPath = ResolveManifestPath();
 
-    [Fact]
+    [Test]
     public void Manifest_loads_and_maps_doctrine_codes()
     {
         var manifest = AbortReasonManifest.LoadFromEmbeddedOrFile(ManifestPath);
-        Assert.True(manifest.TryGetLogCode("Doctrine", nameof(FireAbortReason.WraSalvo), out var code));
-        Assert.Equal(AbortReasonCatalog.Doctrine.WRA_SALVO, code);
+        Assert.That(manifest.TryGetLogCode("Doctrine", nameof(FireAbortReason.WraSalvo), out var code), Is.True);
+        Assert.That(code, Is.EqualTo(AbortReasonCatalog.Doctrine.WRA_SALVO));
     }
 
-    [Fact]
+    [Test]
     public void Engagement_abort_reasons_align_with_manifest()
     {
         var manifest = AbortReasonManifest.LoadFromEmbeddedOrFile(ManifestPath);
@@ -30,12 +30,12 @@ public sealed class AbortReasonManifestTests
                 continue;
             }
 
-            Assert.True(engageMembers.ContainsKey(reason.ToString()));
-            Assert.Equal(manifest.GetLogCode("Engage", reason), EngagementAbortReasonCodes.ToLogCode(reason));
+            Assert.That(engageMembers.ContainsKey(reason.ToString()), Is.True);
+            Assert.That(EngagementAbortReasonCodes.ToLogCode(reason), Is.EqualTo(manifest.GetLogCode("Engage", reason)));
         }
     }
 
-    [Fact]
+    [Test]
     public void Fire_abort_reasons_align_with_manifest()
     {
         var manifest = AbortReasonManifest.LoadFromEmbeddedOrFile(ManifestPath);
@@ -47,33 +47,33 @@ public sealed class AbortReasonManifestTests
                 continue;
             }
 
-            Assert.True(doctrineMembers.ContainsKey(reason.ToString()));
+            Assert.That(doctrineMembers.ContainsKey(reason.ToString()), Is.True);
         }
     }
 
-    [Fact]
+    [Test]
     public void Logistics_codes_include_strike_unreachable_family()
     {
         var manifest = AbortReasonManifest.LoadFromEmbeddedOrFile(ManifestPath);
-        Assert.Contains(AbortReasonCatalog.Logistics.STRIKE_UNREACHABLE, manifest.LogisticsCodes);
-        Assert.Contains(AbortReasonCatalog.Logistics.STRIKE_UNREACHABLE_FUEL, manifest.LogisticsCodes);
+        Assert.That(manifest.LogisticsCodes, Does.Contain(AbortReasonCatalog.Logistics.STRIKE_UNREACHABLE));
+        Assert.That(manifest.LogisticsCodes, Does.Contain(AbortReasonCatalog.Logistics.STRIKE_UNREACHABLE_FUEL));
     }
 
-    [Fact]
+    [Test]
     public void Generated_catalog_matches_manifest_logistics_constants()
     {
-        Assert.Equal("STRIKE_UNREACHABLE", AbortReasonCatalog.Logistics.STRIKE_UNREACHABLE);
-        Assert.Equal("BLACK_PROJECT_REQUIRED", AbortReasonCatalog.Engage.BLACK_PROJECT_REQUIRED);
+        Assert.That(AbortReasonCatalog.Logistics.STRIKE_UNREACHABLE, Is.EqualTo("STRIKE_UNREACHABLE"));
+        Assert.That(AbortReasonCatalog.Engage.BLACK_PROJECT_REQUIRED, Is.EqualTo("BLACK_PROJECT_REQUIRED"));
     }
 
-    [Fact]
+    [Test]
     public void Sensor_and_cyber_string_families_align_with_manifest()
     {
         var manifest = AbortReasonManifest.LoadFromEmbeddedOrFile(ManifestPath);
-        Assert.Contains(AbortReasonCatalog.Sensor.DATALINK_STALE, manifest.GetStringCodes("Sensor"));
-        Assert.Contains(AbortReasonCatalog.Cyber.CYBER_ORDER_DELAY, manifest.GetStringCodes("Cyber"));
-        Assert.Equal(AbortReasonCatalog.Sensor.TRACK_STALE, "TRACK_STALE");
-        Assert.Equal(AbortReasonCatalog.Cyber.CYBER_LINK_DOWN, "CYBER_LINK_DOWN");
+        Assert.That(manifest.GetStringCodes("Sensor"), Does.Contain(AbortReasonCatalog.Sensor.DATALINK_STALE));
+        Assert.That(manifest.GetStringCodes("Cyber"), Does.Contain(AbortReasonCatalog.Cyber.CYBER_ORDER_DELAY));
+        Assert.That("TRACK_STALE", Is.EqualTo(AbortReasonCatalog.Sensor.TRACK_STALE));
+        Assert.That("CYBER_LINK_DOWN", Is.EqualTo(AbortReasonCatalog.Cyber.CYBER_LINK_DOWN));
     }
 
     private static string ResolveManifestPath()

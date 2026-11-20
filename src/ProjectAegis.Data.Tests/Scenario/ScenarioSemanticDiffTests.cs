@@ -1,21 +1,21 @@
 namespace ProjectAegis.Data.Tests.Scenario;
 
 using ProjectAegis.Data.Scenario.Authoring;
-using Xunit;
+using NUnit.Framework;
 
 /// <summary>
 /// ME-W3 Track W3-c / AME-7.3 Partial+: pure <see cref="ScenarioSemanticDiff.Summarize"/> bullets.
 /// </summary>
 public sealed class ScenarioSemanticDiffTests
 {
-    [Fact]
+    [Test]
     public void Summarize_identical_documents_returns_no_semantic_changes()
     {
         var doc = BaseDoc();
-        Assert.Equal(ScenarioSemanticDiff.NoChanges, ScenarioSemanticDiff.Summarize(doc, doc));
+        Assert.That(ScenarioSemanticDiff.Summarize(doc, doc), Is.EqualTo(ScenarioSemanticDiff.NoChanges));
     }
 
-    [Fact]
+    [Test]
     public void Summarize_null_arguments_throw()
     {
         var doc = BaseDoc();
@@ -23,7 +23,7 @@ public sealed class ScenarioSemanticDiffTests
         Assert.Throws<ArgumentNullException>(() => ScenarioSemanticDiff.Summarize(doc, null!));
     }
 
-    [Fact]
+    [Test]
     public void Summarize_mission_add_remove_and_type_change()
     {
         var before = BaseDoc(missions:
@@ -41,15 +41,15 @@ public sealed class ScenarioSemanticDiffTests
 
         var summary = ScenarioSemanticDiff.Summarize(before, after);
 
-        Assert.Contains("mission +m-new (Ferry)", summary, StringComparison.Ordinal);
-        Assert.Contains("mission -m-gone", summary, StringComparison.Ordinal);
-        Assert.Contains("mission ~m-flip type Patrol→Strike", summary, StringComparison.Ordinal);
-        Assert.DoesNotContain("mission +m-keep", summary, StringComparison.Ordinal);
-        Assert.DoesNotContain("mission -m-keep", summary, StringComparison.Ordinal);
-        Assert.DoesNotContain("mission ~m-keep", summary, StringComparison.Ordinal);
+        Assert.That(summary, Does.Contain("mission +m-new (Ferry)"));
+        Assert.That(summary, Does.Contain("mission -m-gone"));
+        Assert.That(summary, Does.Contain("mission ~m-flip type Patrol→Strike"));
+        Assert.That(summary, Does.Not.Contain("mission +m-keep"));
+        Assert.That(summary, Does.Not.Contain("mission -m-keep"));
+        Assert.That(summary, Does.Not.Contain("mission ~m-keep"));
     }
 
-    [Fact]
+    [Test]
     public void Summarize_unit_side_event_add_remove()
     {
         var before = BaseDoc(
@@ -63,15 +63,15 @@ public sealed class ScenarioSemanticDiffTests
 
         var summary = ScenarioSemanticDiff.Summarize(before, after);
 
-        Assert.Contains("side +green", summary, StringComparison.Ordinal);
-        Assert.Contains("side -red", summary, StringComparison.Ordinal);
-        Assert.Contains("unit +u3", summary, StringComparison.Ordinal);
-        Assert.Contains("unit -u2", summary, StringComparison.Ordinal);
-        Assert.Contains("event +e3", summary, StringComparison.Ordinal);
-        Assert.Contains("event -e2", summary, StringComparison.Ordinal);
+        Assert.That(summary, Does.Contain("side +green"));
+        Assert.That(summary, Does.Contain("side -red"));
+        Assert.That(summary, Does.Contain("unit +u3"));
+        Assert.That(summary, Does.Contain("unit -u2"));
+        Assert.That(summary, Does.Contain("event +e3"));
+        Assert.That(summary, Does.Contain("event -e2"));
     }
 
-    [Fact]
+    [Test]
     public void Summarize_timeline_add_remove_and_tick_change()
     {
         var before = BaseDoc(timeline:
@@ -89,13 +89,13 @@ public sealed class ScenarioSemanticDiffTests
 
         var summary = ScenarioSemanticDiff.Summarize(before, after);
 
-        Assert.Contains("timeline +m-d", summary, StringComparison.Ordinal);
-        Assert.Contains("timeline -m-c", summary, StringComparison.Ordinal);
-        Assert.Contains("timeline ~m-b tick 20→25", summary, StringComparison.Ordinal);
-        Assert.DoesNotContain("timeline ~m-a", summary, StringComparison.Ordinal);
+        Assert.That(summary, Does.Contain("timeline +m-d"));
+        Assert.That(summary, Does.Contain("timeline -m-c"));
+        Assert.That(summary, Does.Contain("timeline ~m-b tick 20→25"));
+        Assert.That(summary, Does.Not.Contain("timeline ~m-a"));
     }
 
-    [Fact]
+    [Test]
     public void Summarize_bullets_are_ordinal_sorted_and_joined_with_semicolon()
     {
         var before = BaseDoc();
@@ -116,11 +116,11 @@ public sealed class ScenarioSemanticDiffTests
                 "unit +z-unit",
             }.OrderBy(s => s, StringComparer.Ordinal));
 
-        Assert.Equal(expected, summary);
-        Assert.DoesNotContain("\n", summary, StringComparison.Ordinal);
+        Assert.That(summary, Is.EqualTo(expected));
+        Assert.That(summary, Does.Not.Contain("\n"));
     }
 
-    [Fact]
+    [Test]
     public void Summarize_null_events_and_orbat_treated_as_empty()
     {
         var before = new ScenarioDocumentDto
@@ -134,8 +134,8 @@ public sealed class ScenarioSemanticDiffTests
         var after = BaseDoc(units: [Unit("u-new")], events: [Event("e-new")]);
 
         var summary = ScenarioSemanticDiff.Summarize(before, after);
-        Assert.Contains("unit +u-new", summary, StringComparison.Ordinal);
-        Assert.Contains("event +e-new", summary, StringComparison.Ordinal);
+        Assert.That(summary, Does.Contain("unit +u-new"));
+        Assert.That(summary, Does.Contain("event +e-new"));
     }
 
     private static ScenarioDocumentDto BaseDoc(

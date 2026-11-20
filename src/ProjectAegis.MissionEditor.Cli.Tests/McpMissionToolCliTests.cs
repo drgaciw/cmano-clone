@@ -1,11 +1,12 @@
 using ProjectAegis.Data.Scenario.Authoring;
-using Xunit;
+using NUnit.Framework;
 
 namespace ProjectAegis.MissionEditor.Cli.Tests;
 
+[TestFixture]
 public sealed class McpMissionToolCliTests
 {
-    [Fact]
+    [Test]
     public void scenario_create_patrol_strike_validate_sample_pipeline()
     {
         var path = Path.Combine(Path.GetTempPath(), $"aegis-mcp-{Guid.NewGuid():N}.json");
@@ -13,30 +14,30 @@ public sealed class McpMissionToolCliTests
         {
             using (var writer = new StringWriter())
             {
-                Assert.Equal(0, ScenarioCreateCommand.Run(path, "baltic_patrol", "baltic-patrol-catalog", 42, writer));
-                Assert.Contains("\"ok\":true", writer.ToString());
+                Assert.That(ScenarioCreateCommand.Run(path, "baltic_patrol", "baltic-patrol-catalog", 42, writer), Is.EqualTo(0));
+                Assert.That(writer.ToString(), Does.Contain("\"ok\":true"));
             }
 
             var zone = CliArgParser.ParseWaypoints(["57,20", "57.1,20.1", "57.2,20.2"]);
             using (var writer = new StringWriter())
             {
-                Assert.Equal(0, MissionAddPatrolCommand.Run(path, 1, "patrol-1", ["u1"], zone, writer));
+                Assert.That(MissionAddPatrolCommand.Run(path, 1, "patrol-1", ["u1"], zone, writer), Is.EqualTo(0));
             }
 
             using (var writer = new StringWriter())
             {
-                Assert.Equal(0, MissionAddStrikeCommand.Run(path, 2, "strike-1", ["u1"], ["hostile-1"], writer));
+                Assert.That(MissionAddStrikeCommand.Run(path, 2, "strike-1", ["u1"], ["hostile-1"], writer), Is.EqualTo(0));
             }
 
             using (var writer = new StringWriter())
             {
-                Assert.Equal(0, ScenarioValidateCommand.Run(path, quiet: false, writer));
+                Assert.That(ScenarioValidateCommand.Run(path, quiet: false, writer), Is.EqualTo(0));
             }
 
             using (var writer = new StringWriter())
             {
-                Assert.Equal(0, ScenarioSimulateSampleCommand.Run(path, ticks: 8, quiet: false, writer));
-                Assert.Contains("worldHash", writer.ToString(), StringComparison.OrdinalIgnoreCase);
+                Assert.That(ScenarioSimulateSampleCommand.Run(path, ticks: 8, quiet: false, writer), Is.EqualTo(0));
+                Assert.That(writer.ToString(), Does.Contain("worldHash").IgnoreCase);
             }
         }
         finally
@@ -48,7 +49,7 @@ public sealed class McpMissionToolCliTests
         }
     }
 
-    [Fact]
+    [Test]
     public void mission_update_and_delete_round_trip()
     {
         var path = Path.Combine(Path.GetTempPath(), $"aegis-mcp-{Guid.NewGuid():N}.json");
@@ -60,17 +61,17 @@ public sealed class McpMissionToolCliTests
 
             using (var writer = new StringWriter())
             {
-                Assert.Equal(0, MissionUpdatePatrolCommand.Run(path, 2, "patrol-1", ["u1", "u2"], null, writer));
+                Assert.That(MissionUpdatePatrolCommand.Run(path, 2, "patrol-1", ["u1", "u2"], null, writer), Is.EqualTo(0));
             }
 
             using (var writer = new StringWriter())
             {
-                Assert.Equal(0, MissionDeleteCommand.Run(path, 3, "patrol-1", writer));
+                Assert.That(MissionDeleteCommand.Run(path, 3, "patrol-1", writer), Is.EqualTo(0));
             }
 
             var dto = ScenarioDocumentJsonLoader.LoadFromFile(path);
-            Assert.Empty(dto.Missions);
-            Assert.Equal(4, dto.Metadata.EditVersion);
+            Assert.That(dto.Missions, Is.Empty);
+            Assert.That(dto.Metadata.EditVersion, Is.EqualTo(4));
         }
         finally
         {
@@ -81,7 +82,7 @@ public sealed class McpMissionToolCliTests
         }
     }
 
-    [Fact]
+    [Test]
     public void mission_add_patrol_stale_edit_version_returns_conflict_exit_code()
     {
         var path = Path.Combine(Path.GetTempPath(), $"aegis-mcp-{Guid.NewGuid():N}.json");
@@ -91,8 +92,8 @@ public sealed class McpMissionToolCliTests
             var zone = CliArgParser.ParseWaypoints(["57,20", "57.1,20.1", "57.2,20.2"]);
             using (var writer = new StringWriter())
             {
-                Assert.Equal(3, MissionAddPatrolCommand.Run(path, 99, "patrol-1", ["u1"], zone, writer));
-                Assert.Contains("CONFLICT", writer.ToString());
+                Assert.That(MissionAddPatrolCommand.Run(path, 99, "patrol-1", ["u1"], zone, writer), Is.EqualTo(3));
+                Assert.That(writer.ToString(), Does.Contain("CONFLICT"));
             }
         }
         finally
@@ -104,7 +105,7 @@ public sealed class McpMissionToolCliTests
         }
     }
 
-    [Fact]
+    [Test]
     public void adjudication_diff_null_snapshots_report_the_correct_parameter()
     {
         var workspace = new AdjudicationWorkspace(ScenarioDocumentEditor.CreateNew());
@@ -115,11 +116,11 @@ public sealed class McpMissionToolCliTests
         var afterError = Assert.Throws<ArgumentNullException>(() =>
             workspace.ComputeDiff(snapshot, null!, "reason"));
 
-        Assert.Equal("before", beforeError.ParamName);
-        Assert.Equal("after", afterError.ParamName);
+        Assert.That(beforeError!.ParamName, Is.EqualTo("before"));
+        Assert.That(afterError!.ParamName, Is.EqualTo("after"));
     }
 
-    [Fact]
+    [Test]
     public void umpire_adjudication_workspace_pure_verifbefore_real_from_editor()
     {
         // Track 3/5: Umpire and adjudication workspace (first-class) + AC3
@@ -130,20 +131,20 @@ public sealed class McpMissionToolCliTests
 
         // initial snapshot
         var snap0 = ws.Snapshot("turn-0");
-        Assert.NotNull(snap0);
-        Assert.Contains("turn-0", snap0.Turn);
-        Assert.False(string.IsNullOrEmpty(snap0.StateHash));
+        Assert.That(snap0, Is.Not.Null);
+        Assert.That(snap0.Turn, Does.Contain("turn-0"));
+        Assert.That(string.IsNullOrEmpty(snap0.StateHash), Is.False);
 
         // verif-before role guard
-        Assert.Equal("ok", ws.ApplyRoleGuard("umpire"));
-        Assert.Equal("ok", ws.ApplyRoleGuard("author"));
+        Assert.That(ws.ApplyRoleGuard("umpire"), Is.EqualTo("ok"));
+        Assert.That(ws.ApplyRoleGuard("author"), Is.EqualTo("ok"));
         Assert.Throws<InvalidOperationException>(() => ws.ApplyRoleGuard("player"));
 
         // freeze + step + inject real mutation + resume, state transitions
         ws.Freeze();
-        Assert.True(ws.IsFrozen);
+        Assert.That(ws.IsFrozen, Is.True);
         ws.Step();
-        Assert.Equal(1, ws.StepCount);
+        Assert.That(ws.StepCount, Is.EqualTo(1));
 
         var injectReason = "umpire adds adjudicated patrol for exercise control";
         ws.Inject(() =>
@@ -156,21 +157,21 @@ public sealed class McpMissionToolCliTests
         }, injectReason);
 
         ws.Resume();
-        Assert.False(ws.IsFrozen);
+        Assert.That(ws.IsFrozen, Is.False);
 
         var snap1 = ws.Snapshot("turn-1");
         var diff = ws.ComputeDiff(snap0, snap1, injectReason);
-        Assert.Contains("delta=1", diff.DiffSummary); // one mission injected
-        Assert.Equal(injectReason, diff.Reason);
+        Assert.That(diff.DiffSummary, Does.Contain("delta=1")); // one mission injected
+        Assert.That(diff.Reason, Is.EqualTo(injectReason));
 
         // audit entries with reasons
         var audits = ws.AuditEntries;
-        Assert.NotEmpty(audits);
-        Assert.Contains(audits, a => a.Reason.Contains("umpire") || a.Reason == injectReason);
-        Assert.Contains(audits, a => a.Action == "freeze");
-        Assert.Contains(audits, a => a.Action == "inject");
-        Assert.Contains(audits, a => a.Action == "resume");
-        Assert.All(audits, a => Assert.False(string.IsNullOrWhiteSpace(a.Reason)));
+        Assert.That(audits, Is.Not.Empty);
+        Assert.That(audits.Any(a => a.Reason.Contains("umpire") || a.Reason == injectReason), Is.True);
+        Assert.That(audits.Any(a => a.Action == "freeze"), Is.True);
+        Assert.That(audits.Any(a => a.Action == "inject"), Is.True);
+        Assert.That(audits.Any(a => a.Action == "resume"), Is.True);
+        Assert.That(audits.All(a => !string.IsNullOrWhiteSpace(a.Reason)), Is.True);
 
         // real from editor.Load path
         var path = Path.Combine(Path.GetTempPath(), $"aegis-umpire-test-{Guid.NewGuid():N}.json");
@@ -180,7 +181,7 @@ public sealed class McpMissionToolCliTests
             var loadedEditor = ScenarioDocumentEditor.Load(path);
             var loadedWs = new AdjudicationWorkspace(loadedEditor, "umpire");
             var loadedSnap = loadedWs.Snapshot("loaded-turn");
-            Assert.Equal(loadedEditor.ComputeFileHash(), loadedSnap.StateHash);
+            Assert.That(loadedSnap.StateHash, Is.EqualTo(loadedEditor.ComputeFileHash()));
         }
         finally
         {
@@ -188,11 +189,11 @@ public sealed class McpMissionToolCliTests
         }
 
         // state transitions asserted via counts + flags (pure captures + verif-before audits)
-        Assert.True(ws.Snapshots.Count >= 3, $"snap count={ws.Snapshots.Count}");
-        Assert.True(ws.AuditEntries.Count >= 3, $"audit count={ws.AuditEntries.Count}");
+        Assert.That(ws.Snapshots.Count >= 3, Is.True, $"snap count={ws.Snapshots.Count}");
+        Assert.That(ws.AuditEntries.Count >= 3, Is.True, $"audit count={ws.AuditEntries.Count}");
     }
 
-    [Fact]
+    [Test]
     public void scenario_umpire_cli_snapshot_and_inject_output_keywords()
     {
         var path = Path.Combine(Path.GetTempPath(), $"aegis-umpire-cli-{Guid.NewGuid():N}.json");
@@ -207,12 +208,12 @@ public sealed class McpMissionToolCliTests
                 var d1 = editor.ComputeBeforeAfterDiff("b", "a", "test-reason");
                 var a1 = editor.LogAudit("test", "with reason here", "umpire");
                 var g1 = editor.ApplyRoleGuard("umpire");
-                Assert.Equal("ok", g1);
+                Assert.That(g1, Is.EqualTo("ok"));
                 var f1 = editor.FreezeStepInjectResume("freeze,step,inject,resume");
-                Assert.Contains("umpire and adjudication workspace", s1);
-                Assert.Contains("before/after diffs", d1);
-                Assert.Contains("audit logging with reasons", a1);
-                Assert.Contains("freeze, step, inject, and resume", f1);
+                Assert.That(s1, Does.Contain("umpire and adjudication workspace"));
+                Assert.That(d1, Does.Contain("before/after diffs"));
+                Assert.That(a1, Does.Contain("audit logging with reasons"));
+                Assert.That(f1, Does.Contain("freeze, step, inject, and resume"));
             }
 
             // CLI simulation for inject using public AdjudicationWorkspace + editor (exact output keywords)
@@ -242,10 +243,10 @@ public sealed class McpMissionToolCliTests
                 editor.CommitMutation();
                 editor.Save(path);
                 string outStr = writer.ToString();
-                Assert.Contains("umpire and adjudication workspace", outStr);
-                Assert.Contains("before/after diffs", outStr);
-                Assert.Contains("audit logging with reasons", outStr);
-                Assert.Contains("freeze, step, inject, and resume", outStr);
+                Assert.That(outStr, Does.Contain("umpire and adjudication workspace"));
+                Assert.That(outStr, Does.Contain("before/after diffs"));
+                Assert.That(outStr, Does.Contain("audit logging with reasons"));
+                Assert.That(outStr, Does.Contain("freeze, step, inject, and resume"));
             }
         }
         finally

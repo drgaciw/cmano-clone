@@ -1,25 +1,25 @@
 using ProjectAegis.Sim.Core;
 using ProjectAegis.Sim.Time;
-using Xunit;
+using NUnit.Framework;
 
 namespace ProjectAegis.Sim.Tests.Core;
 
 public sealed class SimTickRunnerTests
 {
-    [Fact]
+    [Test]
     public void Same_seed_and_ticks_produce_identical_world_hash()
     {
         var a = RunTicks(9034412, 60);
         var b = RunTicks(9034412, 60);
-        Assert.Equal(a, b);
+        Assert.That(b, Is.EqualTo(a));
     }
 
-    [Fact]
+    [Test]
     public void Different_seed_produces_different_world_hash()
     {
         var a = RunTicks(1, 10);
         var b = RunTicks(2, 10);
-        Assert.NotEqual(a, b);
+        Assert.That(b, Is.Not.EqualTo(a));
     }
 
     private static ulong RunTicks(ulong seed, int count)

@@ -1,7 +1,7 @@
 namespace ProjectAegis.Data.Tests.Architecture;
 
 using System.Text.RegularExpressions;
-using Xunit;
+using NUnit.Framework;
 
 /// <summary>
 /// Forbids new direct <c>using ProjectAegis.Sim...</c> imports in Unity Runtime scripts
@@ -21,13 +21,13 @@ public sealed class UnitySimImportForbidTests
         @"^\s*using\s+ProjectAegis\.Sim(\.|;)",
         RegexOptions.Compiled | RegexOptions.Multiline | RegexOptions.CultureInvariant);
 
-    [Fact]
+    [Test]
     public void Baseline_is_exactly_three_unity_runtime_hosts()
     {
-        Assert.Equal(3, BaselineRelativePaths.Length);
+        Assert.That(BaselineRelativePaths.Length, Is.EqualTo(3));
     }
 
-    [Fact]
+    [Test]
     public void Baseline_hosts_still_import_sim()
     {
         foreach (var relative in BaselineRelativePaths)
@@ -40,13 +40,11 @@ public sealed class UnitySimImportForbidTests
             }
 
             var source = File.ReadAllText(path);
-            Assert.True(
-                SimUsingRegex.IsMatch(source),
-                $"Baseline host '{relative}' no longer imports ProjectAegis.Sim — update allowlist deliberately.");
+            Assert.That(                SimUsingRegex.IsMatch(source), Is.True,                 $"Baseline host '{relative}' no longer imports ProjectAegis.Sim — update allowlist deliberately.");
         }
     }
 
-    [Fact]
+    [Test]
     public void No_new_unity_runtime_scripts_import_projectaegis_sim()
     {
         var runtimeRoot = ResolveRepoDirectory("unity", "ProjectAegis", "Assets", "Scripts", "Runtime");
@@ -63,7 +61,7 @@ public sealed class UnitySimImportForbidTests
                 .Select(p => Path.GetFullPath(p!)),
             StringComparer.OrdinalIgnoreCase);
 
-        Assert.Equal(3, baselineFull.Count);
+        Assert.That(baselineFull.Count, Is.EqualTo(3));
 
         var offenders = new List<string>();
         foreach (var file in Directory.EnumerateFiles(runtimeRoot, "*.cs", SearchOption.AllDirectories))
@@ -87,9 +85,7 @@ public sealed class UnitySimImportForbidTests
             }
         }
 
-        Assert.True(
-            offenders.Count == 0,
-            "New Unity Runtime script(s) import ProjectAegis.Sim directly (ADR-010). " +
+        Assert.That(            offenders.Count == 0, Is.True,             "New Unity Runtime script(s) import ProjectAegis.Sim directly (ADR-010). " +
             "Use projections/adapters instead; existing baseline of 3 hosts is frozen.\n" +
             string.Join("\n", offenders.OrderBy(s => s, StringComparer.Ordinal)));
     }

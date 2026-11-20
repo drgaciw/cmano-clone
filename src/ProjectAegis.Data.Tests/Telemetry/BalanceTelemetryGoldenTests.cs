@@ -1,11 +1,11 @@
 using ProjectAegis.Data.Telemetry;
-using Xunit;
+using NUnit.Framework;
 
 namespace ProjectAegis.Data.Tests.Telemetry;
 
 public sealed class BalanceTelemetryGoldenTests
 {
-    [Fact]
+    [Test]
     public void Golden_fixture_sequence_produces_stable_state_hash()
     {
         var sink = new BalanceTelemetryAccumulator(new BalanceDriftOptions
@@ -43,11 +43,11 @@ public sealed class BalanceTelemetryGoldenTests
         }
 
         var hash = sink.ComputeStateHash();
-        Assert.Equal(hash, sink.ComputeStateHash());
-        Assert.Equal(BalanceTelemetryGoldenHashes.GoldenFixtureSequence, hash);
+        Assert.That(sink.ComputeStateHash(), Is.EqualTo(hash));
+        Assert.That(hash, Is.EqualTo(BalanceTelemetryGoldenHashes.GoldenFixtureSequence));
 
         var report = sink.EvaluateDrift();
-        Assert.Equal(hash, report.StateHash);
-        Assert.Contains(report.Findings, f => f.EntityId == "fixture-weapon");
+        Assert.That(report.StateHash, Is.EqualTo(hash));
+        Assert.That(report.Findings.Any(f => f.EntityId == "fixture-weapon"), Is.True);
     }
 }

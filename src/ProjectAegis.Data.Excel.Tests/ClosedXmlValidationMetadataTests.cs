@@ -2,7 +2,7 @@ using ClosedXML.Excel;
 using ProjectAegis.Data.Catalog;
 using ProjectAegis.Data.Platform;
 using ProjectAegis.Data.WriteGate;
-using Xunit;
+using NUnit.Framework;
 
 namespace ProjectAegis.Data.Excel.Tests;
 
@@ -17,7 +17,7 @@ public sealed class ClosedXmlValidationMetadataTests
     /// <summary>Minimum known enum columns that must receive list validation after export.</summary>
     private const int MinimumEnumColumnsWithListValidation = 12;
 
-    [Fact]
+    [Test]
     public void Emcon_sheet_has_Condition_and_Posture_list_validation()
     {
         var workbook = ExportPhaseB();
@@ -46,7 +46,7 @@ public sealed class ClosedXmlValidationMetadataTests
         }
     }
 
-    [Fact]
+    [Test]
     public void Enum_catalog_columns_have_list_validation_after_export()
     {
         var workbook = ExportPhaseB();
@@ -74,8 +74,9 @@ public sealed class ClosedXmlValidationMetadataTests
                 validated.Add((entry.SheetName, entry.ColumnName));
             }
 
-            Assert.True(
+            Assert.That(
                 validated.Count >= MinimumEnumColumnsWithListValidation,
+                Is.True,
                 $"Expected at least {MinimumEnumColumnsWithListValidation} enum columns with list validation, got {validated.Count}: "
                 + string.Join(", ", validated.Select(v => $"{v.Sheet}.{v.Column}")));
         }
@@ -88,7 +89,7 @@ public sealed class ClosedXmlValidationMetadataTests
         }
     }
 
-    [Fact]
+    [Test]
     public void Mobility_and_Signatures_sheets_do_not_add_Emcon_enum_validation()
     {
         var workbook = ExportPhaseB();
@@ -101,8 +102,8 @@ public sealed class ClosedXmlValidationMetadataTests
             var mobility = wb.Worksheet("Mobility");
             var signatures = wb.Worksheet("Signatures");
 
-            Assert.NotEqual(XLAllowedValues.List, mobility.Cell(2, 1).GetDataValidation()!.AllowedValues);
-            Assert.NotEqual(XLAllowedValues.List, signatures.Cell(2, 1).GetDataValidation()!.AllowedValues);
+            Assert.That(mobility.Cell(2, 1).GetDataValidation()!.AllowedValues, Is.Not.EqualTo(XLAllowedValues.List));
+            Assert.That(signatures.Cell(2, 1).GetDataValidation()!.AllowedValues, Is.Not.EqualTo(XLAllowedValues.List));
         }
         finally
         {
@@ -113,7 +114,7 @@ public sealed class ClosedXmlValidationMetadataTests
         }
     }
 
-    [Fact]
+    [Test]
     public void Meta_sheet_is_protected_after_export()
     {
         var workbook = ExportPhaseB();
@@ -124,9 +125,9 @@ public sealed class ClosedXmlValidationMetadataTests
 
             using var wb = new XLWorkbook(path);
             var meta = wb.Worksheet(PlatformWorkbookHash.MetaSheetName);
-            Assert.True(meta.IsProtected, "OQ5: _Meta worksheet should be protected after export");
-            Assert.True(meta.Cell(1, 1).Style.Protection.Locked, "OQ5: _Meta Key header cell remains locked");
-            Assert.True(meta.Cell(2, 1).Style.Protection.Locked, "OQ5: _Meta Key data cell remains locked");
+            Assert.That(meta.IsProtected, Is.True, "OQ5: _Meta worksheet should be protected after export");
+            Assert.That(meta.Cell(1, 1).Style.Protection.Locked, Is.True, "OQ5: _Meta Key header cell remains locked");
+            Assert.That(meta.Cell(2, 1).Style.Protection.Locked, Is.True, "OQ5: _Meta Key data cell remains locked");
         }
         finally
         {
@@ -137,7 +138,7 @@ public sealed class ClosedXmlValidationMetadataTests
         }
     }
 
-    [Fact]
+    [Test]
     public void Primary_key_columns_are_locked_on_protected_data_sheets()
     {
         var workbook = ExportPhaseB();
@@ -148,16 +149,17 @@ public sealed class ClosedXmlValidationMetadataTests
 
             using var wb = new XLWorkbook(path);
             var mounts = wb.Worksheet("Mounts");
-            Assert.True(mounts.IsProtected, "data sheets with PK columns should be protected");
+            Assert.That(mounts.IsProtected, Is.True, "data sheets with PK columns should be protected");
 
             var platformIdCol = ColumnIndex(mounts, "PlatformId");
             var mountIdCol = ColumnIndex(mounts, "MountId");
             var mountTypeCol = ColumnIndex(mounts, "MountType");
 
-            Assert.True(mounts.Cell(2, platformIdCol).Style.Protection.Locked);
-            Assert.True(mounts.Cell(2, mountIdCol).Style.Protection.Locked);
-            Assert.False(
+            Assert.That(mounts.Cell(2, platformIdCol).Style.Protection.Locked, Is.True);
+            Assert.That(mounts.Cell(2, mountIdCol).Style.Protection.Locked, Is.True);
+            Assert.That(
                 mounts.Cell(2, mountTypeCol).Style.Protection.Locked,
+                Is.False,
                 "non-PK columns should remain unlocked so editors can change values under soft protect");
         }
         finally
@@ -172,14 +174,14 @@ public sealed class ClosedXmlValidationMetadataTests
     private static void AssertListValidation(IXLCell cell, IReadOnlyList<string> expectedValues)
     {
         var validation = cell.GetDataValidation();
-        Assert.NotNull(validation);
-        Assert.Equal(XLAllowedValues.List, validation.AllowedValues);
-        Assert.True(validation.InCellDropdown);
+        Assert.That(validation, Is.Not.Null);
+        Assert.That(validation.AllowedValues, Is.EqualTo(XLAllowedValues.List));
+        Assert.That(validation.InCellDropdown, Is.True);
 
         var listFormula = validation.Value ?? string.Empty;
         foreach (var value in expectedValues)
         {
-            Assert.Contains(value, listFormula, StringComparison.Ordinal);
+            Assert.That(listFormula.Contains(value, StringComparison.Ordinal), Is.True);
         }
     }
 

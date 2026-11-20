@@ -1,5 +1,5 @@
 using ProjectAegis.Data.Scenario.Authoring;
-using Xunit;
+using NUnit.Framework;
 
 namespace ProjectAegis.Data.Tests.Scenario;
 
@@ -9,7 +9,7 @@ namespace ProjectAegis.Data.Tests.Scenario;
 /// </summary>
 public sealed class ScenarioTimelineEditorTests
 {
-    [Fact]
+    [Test]
     public void UpsertTimelineEntry_inserts_and_replaces_by_case_insensitive_mission_id()
     {
         var editor = ScenarioDocumentEditor.CreateNew();
@@ -19,9 +19,9 @@ public sealed class ScenarioTimelineEditorTests
             ActivateAtTick = 10,
         });
 
-        Assert.Single(editor.ToDto().OperationsTimeline);
-        Assert.Equal("Patrol-1", editor.ToDto().OperationsTimeline[0].MissionId);
-        Assert.Equal(10, editor.ToDto().OperationsTimeline[0].ActivateAtTick);
+        Assert.That(editor.ToDto().OperationsTimeline, Has.Exactly(1).Items);
+        Assert.That(editor.ToDto().OperationsTimeline[0].MissionId, Is.EqualTo("Patrol-1"));
+        Assert.That(editor.ToDto().OperationsTimeline[0].ActivateAtTick, Is.EqualTo(10));
 
         editor.UpsertTimelineEntry(new ScenarioOperationTimelineEntryDto
         {
@@ -30,12 +30,12 @@ public sealed class ScenarioTimelineEditorTests
         });
 
         var entries = editor.ToDto().OperationsTimeline;
-        Assert.Single(entries);
-        Assert.Equal("patrol-1", entries[0].MissionId);
-        Assert.Equal(42, entries[0].ActivateAtTick);
+        Assert.That(entries, Has.Exactly(1).Items);
+        Assert.That(entries[0].MissionId, Is.EqualTo("patrol-1"));
+        Assert.That(entries[0].ActivateAtTick, Is.EqualTo(42));
     }
 
-    [Fact]
+    [Test]
     public void UpsertTimelineEntry_blank_mission_id_throws()
     {
         var editor = ScenarioDocumentEditor.CreateNew();
@@ -47,7 +47,7 @@ public sealed class ScenarioTimelineEditorTests
             }));
     }
 
-    [Fact]
+    [Test]
     public void UpsertTimelineEntry_negative_tick_throws()
     {
         var editor = ScenarioDocumentEditor.CreateNew();
@@ -59,7 +59,7 @@ public sealed class ScenarioTimelineEditorTests
             }));
     }
 
-    [Fact]
+    [Test]
     public void TryRemoveTimelineEntry_removes_by_case_insensitive_mission_id()
     {
         var editor = ScenarioDocumentEditor.CreateNew();
@@ -74,13 +74,13 @@ public sealed class ScenarioTimelineEditorTests
             ActivateAtTick = 15,
         });
 
-        Assert.True(editor.TryRemoveTimelineEntry("M1"));
-        Assert.False(editor.TryRemoveTimelineEntry("missing"));
-        var remaining = Assert.Single(editor.ToDto().OperationsTimeline);
-        Assert.Equal("m2", remaining.MissionId);
+        Assert.That(editor.TryRemoveTimelineEntry("M1"), Is.True);
+        Assert.That(editor.TryRemoveTimelineEntry("missing"), Is.False);
+        var remaining = AssertEx.Single(editor.ToDto().OperationsTimeline);
+        Assert.That(remaining.MissionId, Is.EqualTo("m2"));
     }
 
-    [Fact]
+    [Test]
     public void UpsertTimelineEntry_round_trips_json()
     {
         var path = Path.Combine(Path.GetTempPath(), $"aegis-tl-{Guid.NewGuid():N}.json");
@@ -102,10 +102,10 @@ public sealed class ScenarioTimelineEditorTests
             loaded.Save(path);
 
             var dto = ScenarioDocumentJsonLoader.LoadFromFile(path);
-            Assert.Equal(2, dto.Metadata.EditVersion);
-            var entry = Assert.Single(dto.OperationsTimeline);
-            Assert.Equal("strike-alpha", entry.MissionId);
-            Assert.Equal(120, entry.ActivateAtTick);
+            Assert.That(dto.Metadata.EditVersion, Is.EqualTo(2));
+            var entry = AssertEx.Single(dto.OperationsTimeline);
+            Assert.That(entry.MissionId, Is.EqualTo("strike-alpha"));
+            Assert.That(entry.ActivateAtTick, Is.EqualTo(120));
         }
         finally
         {
@@ -116,7 +116,7 @@ public sealed class ScenarioTimelineEditorTests
         }
     }
 
-    [Fact]
+    [Test]
     public void CaptureUndoSnapshot_isolates_timeline_from_subsequent_upsert()
     {
         var editor = ScenarioDocumentEditor.CreateNew();
@@ -138,12 +138,12 @@ public sealed class ScenarioTimelineEditorTests
             ActivateAtTick = 2,
         });
 
-        Assert.Single(snap.OperationsTimeline);
-        Assert.Equal(1, snap.OperationsTimeline[0].ActivateAtTick);
-        Assert.Equal(2, editor.ToDto().OperationsTimeline.Count);
+        Assert.That(snap.OperationsTimeline, Has.Exactly(1).Items);
+        Assert.That(snap.OperationsTimeline[0].ActivateAtTick, Is.EqualTo(1));
+        Assert.That(editor.ToDto().OperationsTimeline.Count, Is.EqualTo(2));
     }
 
-    [Fact]
+    [Test]
     public void Bus_UpsertTimelineEntry_and_DeleteTimelineEntry_bump_edit_version()
     {
         var path = Path.Combine(Path.GetTempPath(), $"aegis-tl-bus-{Guid.NewGuid():N}.json");
@@ -161,14 +161,14 @@ public sealed class ScenarioTimelineEditorTests
                 },
                 save: true);
 
-            Assert.True(upsert.Ok);
-            Assert.Equal(2, upsert.EditVersion);
-            Assert.Single(session.Editor.ToDto().OperationsTimeline);
+            Assert.That(upsert.Ok, Is.True);
+            Assert.That(upsert.EditVersion, Is.EqualTo(2));
+            Assert.That(session.Editor.ToDto().OperationsTimeline, Has.Exactly(1).Items);
 
             var del = session.Bus.DeleteTimelineEntry(session.EditVersion, "m-bus", save: true);
-            Assert.True(del.Ok);
-            Assert.Equal(3, del.EditVersion);
-            Assert.Empty(session.Editor.ToDto().OperationsTimeline);
+            Assert.That(del.Ok, Is.True);
+            Assert.That(del.EditVersion, Is.EqualTo(3));
+            Assert.That(session.Editor.ToDto().OperationsTimeline, Is.Empty);
         }
         finally
         {
@@ -179,7 +179,7 @@ public sealed class ScenarioTimelineEditorTests
         }
     }
 
-    [Fact]
+    [Test]
     public void Bus_UpsertTimelineEntry_stale_edit_version_returns_conflict()
     {
         var path = Path.Combine(Path.GetTempPath(), $"aegis-tl-bus-c-{Guid.NewGuid():N}.json");
@@ -197,10 +197,10 @@ public sealed class ScenarioTimelineEditorTests
                 },
                 save: true);
 
-            Assert.False(result.Ok);
-            Assert.Equal(ScenarioEditVersionGuard.ConflictCode, result.ErrorCode);
-            Assert.Empty(session.Editor.ToDto().OperationsTimeline);
-            Assert.Equal(1, ScenarioDocumentJsonLoader.LoadFromFile(path).Metadata.EditVersion);
+            Assert.That(result.Ok, Is.False);
+            Assert.That(result.ErrorCode, Is.EqualTo(ScenarioEditVersionGuard.ConflictCode));
+            Assert.That(session.Editor.ToDto().OperationsTimeline, Is.Empty);
+            Assert.That(ScenarioDocumentJsonLoader.LoadFromFile(path).Metadata.EditVersion, Is.EqualTo(1));
         }
         finally
         {

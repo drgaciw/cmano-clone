@@ -1,6 +1,6 @@
 using System.Reflection;
 using ProjectAegis.Data.Catalog;
-using Xunit;
+using NUnit.Framework;
 
 namespace ProjectAegis.Data.Tests.Catalog;
 
@@ -12,29 +12,29 @@ public sealed class NearFutureHonestyPinsTests
 {
     private static readonly string CatalogPath = ResolveCatalogPath();
 
-    [Fact]
+    [Test]
     public void near_future_archetype_catalog_has_exactly_four_rows_with_canonical_ids()
     {
         var rows = NearFutureArchetypeCatalog.LoadFromFile(CatalogPath);
 
-        Assert.Equal(4, rows.Length);
-        Assert.Contains(rows, a => a.ArchetypeId == "replicator-attritable");
-        Assert.Contains(rows, a => a.ArchetypeId == "cca-wingman");
-        Assert.Contains(rows, a => a.ArchetypeId == "swarm-saturation");
-        Assert.Contains(rows, a => a.ArchetypeId == "hypersonic-boost-glide");
+        Assert.That(rows.Length, Is.EqualTo(4));
+        Assert.That(rows.Any(a => a.ArchetypeId == "replicator-attritable"), Is.True);
+        Assert.That(rows.Any(a => a.ArchetypeId == "cca-wingman"), Is.True);
+        Assert.That(rows.Any(a => a.ArchetypeId == "swarm-saturation"), Is.True);
+        Assert.That(rows.Any(a => a.ArchetypeId == "hypersonic-boost-glide"), Is.True);
     }
 
-    [Fact]
+    [Test]
     public void swarm_tier_limits_medium_max_entities_is_500()
     {
-        Assert.Equal(500, SwarmTierLimits.MediumMaxEntities);
-        Assert.Equal(500, SwarmTierLimits.MaxEntitiesFor(SwarmTier.Medium));
+        Assert.That(SwarmTierLimits.MediumMaxEntities, Is.EqualTo(500));
+        Assert.That(SwarmTierLimits.MaxEntitiesFor(SwarmTier.Medium), Is.EqualTo(500));
         // Mass max is a design residual (not MVP default); pin residual ceiling only.
-        Assert.Equal(5000, SwarmTierLimits.MassMaxEntities);
-        Assert.Equal(5000, SwarmTierLimits.MaxEntitiesFor(SwarmTier.Mass));
+        Assert.That(SwarmTierLimits.MassMaxEntities, Is.EqualTo(5000));
+        Assert.That(SwarmTierLimits.MaxEntitiesFor(SwarmTier.Mass), Is.EqualTo(5000));
     }
 
-    [Fact]
+    [Test]
     public void plan_spawns_returns_plan_records_only_not_world_entities()
     {
         // PlanSpawns is plan-only (no DOTS / world entity spawn) — return type is
@@ -52,35 +52,35 @@ public sealed class NearFutureHonestyPinsTests
             maxSwarmTier: SwarmTier.Medium,
             CatalogPath);
 
-        Assert.Single(plans);
-        Assert.Equal("cca-wingman", plans[0].ArchetypeId);
-        Assert.Equal("cca-1", plans[0].UnitId);
-        Assert.IsAssignableFrom<IReadOnlyList<NearFutureArchetypeRuntime.SpawnPlan>>(plans);
-        Assert.DoesNotContain(plans, p => p.ArchetypeId == "swarm-saturation");
+        Assert.That(plans, Has.Exactly(1).Items);
+        Assert.That(plans[0].ArchetypeId, Is.EqualTo("cca-wingman"));
+        Assert.That(plans[0].UnitId, Is.EqualTo("cca-1"));
+        Assert.That(plans, Is.InstanceOf<IReadOnlyList<NearFutureArchetypeRuntime.SpawnPlan>>());
+        Assert.That(plans.Any(p => p.ArchetypeId == "swarm-saturation"), Is.False);
     }
 
-    [Fact]
+    [Test]
     public void data_assembly_has_no_type_named_PlatformTechnologyLevel()
     {
         // Honesty: TL is CatalogPlatformBinding.GameTechnologyLevel / archetype TL —
         // there is no distinct PlatformTechnologyLevel type in ProjectAegis.Data.
         var assembly = typeof(NearFutureArchetypeCatalog).Assembly;
         var match = assembly.GetTypes().FirstOrDefault(t => t.Name == "PlatformTechnologyLevel");
-        Assert.Null(match);
+        Assert.That(match, Is.Null);
     }
 
-    [Fact]
+    [Test]
     public void catalog_platform_binding_exposes_GameTechnologyLevel_property()
     {
         var prop = typeof(CatalogPlatformBinding).GetProperty(
             "GameTechnologyLevel",
             BindingFlags.Public | BindingFlags.Instance);
 
-        Assert.NotNull(prop);
-        Assert.Equal(typeof(int), prop.PropertyType);
+        Assert.That(prop, Is.Not.Null);
+        Assert.That(prop!.PropertyType, Is.EqualTo(typeof(int)));
 
         var sample = new CatalogPlatformBinding("u-honesty", "Honesty Pin", GameTechnologyLevel: 2);
-        Assert.Equal(2, sample.GameTechnologyLevel);
+        Assert.That(sample.GameTechnologyLevel, Is.EqualTo(2));
     }
 
     private static string ResolveCatalogPath()

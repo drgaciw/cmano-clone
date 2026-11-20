@@ -1,38 +1,38 @@
 namespace ProjectAegis.Sim.Tests.Engage;
 
 using ProjectAegis.Sim.Engage;
-using Xunit;
+using NUnit.Framework;
 
 public sealed class LogisticsShotgunEngageGateTests
 {
-    [Fact]
+    [Test]
     public void Evaluate_denies_multi_salvo_in_shotgun_band()
     {
         // remaining 1, threshold 1 → SHOTGUN; salvo 2 denied
-        Assert.Equal(
-            EngagementAbortReason.ShotgunOrdnance,
-            LogisticsShotgunEngageGate.Evaluate(roundsRemaining: 1, salvoSize: 2, shotgunRoundsThreshold: 1));
+        Assert.That(
+            LogisticsShotgunEngageGate.Evaluate(roundsRemaining: 1, salvoSize: 2, shotgunRoundsThreshold: 1),
+            Is.EqualTo(EngagementAbortReason.ShotgunOrdnance));
     }
 
-    [Fact]
+    [Test]
     public void Evaluate_allows_single_salvo_in_shotgun_band()
     {
-        Assert.Null(LogisticsShotgunEngageGate.Evaluate(1, salvoSize: 1, shotgunRoundsThreshold: 1));
+        Assert.That(LogisticsShotgunEngageGate.Evaluate(1, salvoSize: 1, shotgunRoundsThreshold: 1), Is.Null);
     }
 
-    [Fact]
+    [Test]
     public void Evaluate_allows_multi_salvo_when_nominal()
     {
-        Assert.Null(LogisticsShotgunEngageGate.Evaluate(roundsRemaining: 4, salvoSize: 2, shotgunRoundsThreshold: 1));
+        Assert.That(LogisticsShotgunEngageGate.Evaluate(roundsRemaining: 4, salvoSize: 2, shotgunRoundsThreshold: 1), Is.Null);
     }
 
-    [Fact]
+    [Test]
     public void Evaluate_disabled_when_threshold_zero()
     {
-        Assert.Null(LogisticsShotgunEngageGate.Evaluate(1, salvoSize: 3, shotgunRoundsThreshold: 0));
+        Assert.That(LogisticsShotgunEngageGate.Evaluate(1, salvoSize: 3, shotgunRoundsThreshold: 0), Is.Null);
     }
 
-    [Fact]
+    [Test]
     public void Resolver_aborts_with_ShotgunOrdnance_when_multi_salvo_in_band()
     {
         var world = new DictionaryEngageWorldQuery();
@@ -50,9 +50,9 @@ public sealed class LogisticsShotgunEngageGateTests
                 ShotgunRoundsThreshold: 1));
         var resolver = new MvpEngagementResolver(world, magazines);
         var result = resolver.Resolve(in request);
-        Assert.False(result.Launched);
-        Assert.Equal(EngagementAbortReason.ShotgunOrdnance, result.AbortReason);
-        Assert.Equal("SHOTGUN_ORDNANCE", EngagementAbortReasonCodes.ToLogCode(result.AbortReason));
-        Assert.Equal(1, magazines.GetRounds(1, 0)); // not consumed
+        Assert.That(result.Launched, Is.False);
+        Assert.That(result.AbortReason, Is.EqualTo(EngagementAbortReason.ShotgunOrdnance));
+        Assert.That(EngagementAbortReasonCodes.ToLogCode(result.AbortReason), Is.EqualTo("SHOTGUN_ORDNANCE"));
+        Assert.That(magazines.GetRounds(1, 0), Is.EqualTo(1)); // not consumed
     }
 }

@@ -1,12 +1,12 @@
 using ProjectAegis.Sim.Engage;
 using ProjectAegis.Sim.Policy;
-using Xunit;
+using NUnit.Framework;
 
 namespace ProjectAegis.Sim.Tests.Engage;
 
 public sealed class CombatDomainValidatorTests
 {
-    [Fact]
+    [Test]
     public void Mount_offline_aborts_before_domain_rules()
     {
         var ctx = new EngageContext(
@@ -15,10 +15,10 @@ public sealed class CombatDomainValidatorTests
             2,
             true,
             MountOnline: false);
-        Assert.Equal(EngagementAbortReason.MountOffline, CombatDomainValidator.Validate(CombatDomain.Air, in ctx));
+        Assert.That(CombatDomainValidator.Validate(CombatDomain.Air, in ctx), Is.EqualTo(EngagementAbortReason.MountOffline));
     }
 
-    [Fact]
+    [Test]
     public void Subsurface_requires_identified_contact()
     {
         var ctx = new EngageContext(
@@ -28,10 +28,10 @@ public sealed class CombatDomainValidatorTests
             true,
             CombatDomain: CombatDomain.Subsurface,
             ContactIdentified: false);
-        Assert.Equal(EngagementAbortReason.DomainNoSolution, CombatDomainValidator.Validate(CombatDomain.Subsurface, in ctx));
+        Assert.That(CombatDomainValidator.Validate(CombatDomain.Subsurface, in ctx), Is.EqualTo(EngagementAbortReason.DomainNoSolution));
     }
 
-    [Fact]
+    [Test]
     public void Surface_aspect_validator_allows_in_envelope()
     {
         var validator = new SurfaceAspectDomainValidator();
@@ -43,10 +43,10 @@ public sealed class CombatDomainValidatorTests
             CombatDomain: CombatDomain.Surface,
             SurfaceAspectInEnvelope: true);
 
-        Assert.True(validator.Validate(in ctx).Allowed);
+        Assert.That(validator.Validate(in ctx).Allowed, Is.True);
     }
 
-    [Fact]
+    [Test]
     public void Surface_aspect_validator_denies_out_of_aspect_with_abort_code()
     {
         var validator = new SurfaceAspectDomainValidator();
@@ -59,11 +59,11 @@ public sealed class CombatDomainValidatorTests
             SurfaceAspectInEnvelope: false);
 
         var result = validator.Validate(in ctx);
-        Assert.False(result.Allowed);
-        Assert.Equal(FireAbortReason.SurfaceAspectBlock, result.AbortReason);
+        Assert.That(result.Allowed, Is.False);
+        Assert.That(result.AbortReason, Is.EqualTo(FireAbortReason.SurfaceAspectBlock));
     }
 
-    [Fact]
+    [Test]
     public void Subsurface_aspect_validator_allows_in_envelope()
     {
         var validator = new SubsurfaceAspectDomainValidator();
@@ -75,10 +75,10 @@ public sealed class CombatDomainValidatorTests
             CombatDomain: CombatDomain.Subsurface,
             SubsurfaceAspectInEnvelope: true);
 
-        Assert.True(validator.Validate(in ctx).Allowed);
+        Assert.That(validator.Validate(in ctx).Allowed, Is.True);
     }
 
-    [Fact]
+    [Test]
     public void Subsurface_aspect_validator_denies_out_of_aspect_with_abort_code()
     {
         var validator = new SubsurfaceAspectDomainValidator();
@@ -91,11 +91,11 @@ public sealed class CombatDomainValidatorTests
             SubsurfaceAspectInEnvelope: false);
 
         var result = validator.Validate(in ctx);
-        Assert.False(result.Allowed);
-        Assert.Equal(FireAbortReason.SubsurfaceAspectBlock, result.AbortReason);
+        Assert.That(result.Allowed, Is.False);
+        Assert.That(result.AbortReason, Is.EqualTo(FireAbortReason.SubsurfaceAspectBlock));
     }
 
-    [Fact]
+    [Test]
     public void Land_aspect_validator_allows_in_envelope()
     {
         var validator = new LandAspectDomainValidator();
@@ -107,10 +107,10 @@ public sealed class CombatDomainValidatorTests
             CombatDomain: CombatDomain.Land,
             LandAspectInEnvelope: true);
 
-        Assert.True(validator.Validate(in ctx).Allowed);
+        Assert.That(validator.Validate(in ctx).Allowed, Is.True);
     }
 
-    [Fact]
+    [Test]
     public void Land_aspect_validator_denies_out_of_aspect_with_abort_code()
     {
         var validator = new LandAspectDomainValidator();
@@ -123,11 +123,11 @@ public sealed class CombatDomainValidatorTests
             LandAspectInEnvelope: false);
 
         var result = validator.Validate(in ctx);
-        Assert.False(result.Allowed);
-        Assert.Equal(FireAbortReason.LandAspectBlock, result.AbortReason);
+        Assert.That(result.Allowed, Is.False);
+        Assert.That(result.AbortReason, Is.EqualTo(FireAbortReason.LandAspectBlock));
     }
 
-    [Fact]
+    [Test]
     public void Land_aspect_validator_denies_out_of_range_at_envelope_boundary()
     {
         var validator = new LandAspectDomainValidator();
@@ -140,11 +140,11 @@ public sealed class CombatDomainValidatorTests
             LandAspectInEnvelope: true);
 
         var result = validator.Validate(in ctx);
-        Assert.False(result.Allowed);
-        Assert.Equal(FireAbortReason.LandAspectBlock, result.AbortReason);
+        Assert.That(result.Allowed, Is.False);
+        Assert.That(result.AbortReason, Is.EqualTo(FireAbortReason.LandAspectBlock));
     }
 
-    [Fact]
+    [Test]
     public void Mine_aspect_validator_allows_in_envelope()
     {
         var validator = new MineAspectDomainValidator();
@@ -156,10 +156,10 @@ public sealed class CombatDomainValidatorTests
             CombatDomain: CombatDomain.Mine,
             MineAspectInEnvelope: true);
 
-        Assert.True(validator.Validate(in ctx).Allowed);
+        Assert.That(validator.Validate(in ctx).Allowed, Is.True);
     }
 
-    [Fact]
+    [Test]
     public void Mine_aspect_validator_denies_out_of_aspect_with_abort_code()
     {
         var validator = new MineAspectDomainValidator();
@@ -172,11 +172,11 @@ public sealed class CombatDomainValidatorTests
             MineAspectInEnvelope: false);
 
         var result = validator.Validate(in ctx);
-        Assert.False(result.Allowed);
-        Assert.Equal(FireAbortReason.MineAspectBlock, result.AbortReason);
+        Assert.That(result.Allowed, Is.False);
+        Assert.That(result.AbortReason, Is.EqualTo(FireAbortReason.MineAspectBlock));
     }
 
-    [Fact]
+    [Test]
     public void Mine_aspect_validator_denies_out_of_range_at_envelope_boundary()
     {
         var validator = new MineAspectDomainValidator();
@@ -189,11 +189,11 @@ public sealed class CombatDomainValidatorTests
             MineAspectInEnvelope: true);
 
         var result = validator.Validate(in ctx);
-        Assert.False(result.Allowed);
-        Assert.Equal(FireAbortReason.MineAspectBlock, result.AbortReason);
+        Assert.That(result.Allowed, Is.False);
+        Assert.That(result.AbortReason, Is.EqualTo(FireAbortReason.MineAspectBlock));
     }
 
-    [Fact]
+    [Test]
     public void Facility_aspect_validator_allows_in_envelope()
     {
         var validator = new FacilityAspectDomainValidator();
@@ -205,10 +205,10 @@ public sealed class CombatDomainValidatorTests
             CombatDomain: CombatDomain.Facility,
             FacilityAspectInEnvelope: true);
 
-        Assert.True(validator.Validate(in ctx).Allowed);
+        Assert.That(validator.Validate(in ctx).Allowed, Is.True);
     }
 
-    [Fact]
+    [Test]
     public void Facility_aspect_validator_denies_out_of_aspect_with_abort_code()
     {
         var validator = new FacilityAspectDomainValidator();
@@ -221,11 +221,11 @@ public sealed class CombatDomainValidatorTests
             FacilityAspectInEnvelope: false);
 
         var result = validator.Validate(in ctx);
-        Assert.False(result.Allowed);
-        Assert.Equal(FireAbortReason.FacilityAspectBlock, result.AbortReason);
+        Assert.That(result.Allowed, Is.False);
+        Assert.That(result.AbortReason, Is.EqualTo(FireAbortReason.FacilityAspectBlock));
     }
 
-    [Fact]
+    [Test]
     public void Facility_aspect_validator_denies_out_of_range_at_envelope_boundary()
     {
         var validator = new FacilityAspectDomainValidator();
@@ -238,7 +238,7 @@ public sealed class CombatDomainValidatorTests
             FacilityAspectInEnvelope: true);
 
         var result = validator.Validate(in ctx);
-        Assert.False(result.Allowed);
-        Assert.Equal(FireAbortReason.FacilityAspectBlock, result.AbortReason);
+        Assert.That(result.Allowed, Is.False);
+        Assert.That(result.AbortReason, Is.EqualTo(FireAbortReason.FacilityAspectBlock));
     }
 }

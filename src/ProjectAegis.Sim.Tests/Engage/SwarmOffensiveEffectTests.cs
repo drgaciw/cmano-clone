@@ -2,13 +2,13 @@ using ProjectAegis.Data.Catalog;
 using ProjectAegis.Sim.Core;
 using ProjectAegis.Sim.Engage;
 using ProjectAegis.Sim.Swarm;
-using Xunit;
+using NUnit.Framework;
 
 namespace ProjectAegis.Sim.Tests.Engage;
 
 public sealed class SwarmOffensiveEffectTests
 {
-    [Fact]
+    [Test]
     public void Full_swarm_deals_more_effect_than_half_depleted_under_identical_geometry()
     {
         const double baseEffect = 100.0;
@@ -16,22 +16,26 @@ public sealed class SwarmOffensiveEffectTests
         var full = SwarmOffensiveEffect.Scale(baseEffect, droneCount: max, maxDrones: max);
         var half = SwarmOffensiveEffect.Scale(baseEffect, droneCount: max / 2, maxDrones: max);
 
-        Assert.Equal(100.0, full, 6);
-        Assert.Equal(50.0, half, 6);
-        Assert.True(full > half);
+        Assert.That(
+            Math.Round(full, 6, MidpointRounding.AwayFromZero),
+            Is.EqualTo(Math.Round(100.0, 6, MidpointRounding.AwayFromZero)));
+        Assert.That(
+            Math.Round(half, 6, MidpointRounding.AwayFromZero),
+            Is.EqualTo(Math.Round(50.0, 6, MidpointRounding.AwayFromZero)));
+        Assert.That(full > half, Is.True);
     }
 
-    [Fact]
+    [Test]
     public void Scale_preserves_public_linear_tuning_contract_and_exact_outputs()
     {
-        Assert.Equal(1.0, SwarmOffensiveEffect.ScaleFactorPower);
-        Assert.Equal(0.0, SwarmOffensiveEffect.MinLivingScale);
-        Assert.Equal(1.25, SwarmOffensiveEffect.Scale(10.0, droneCount: 1, maxDrones: 8));
-        Assert.Equal(5.0, SwarmOffensiveEffect.Scale(10.0, droneCount: 4, maxDrones: 8));
-        Assert.Equal(10.0, SwarmOffensiveEffect.Scale(10.0, droneCount: 8, maxDrones: 8));
+        Assert.That(SwarmOffensiveEffect.ScaleFactorPower, Is.EqualTo(1.0));
+        Assert.That(SwarmOffensiveEffect.MinLivingScale, Is.EqualTo(0.0));
+        Assert.That(SwarmOffensiveEffect.Scale(10.0, droneCount: 1, maxDrones: 8), Is.EqualTo(1.25));
+        Assert.That(SwarmOffensiveEffect.Scale(10.0, droneCount: 4, maxDrones: 8), Is.EqualTo(5.0));
+        Assert.That(SwarmOffensiveEffect.Scale(10.0, droneCount: 8, maxDrones: 8), Is.EqualTo(10.0));
     }
 
-    [Fact]
+    [Test]
     public void Scale_is_monotonic_non_decreasing_in_drone_count()
     {
         const double baseEffect = 10.0;
@@ -42,38 +46,37 @@ public sealed class SwarmOffensiveEffectTests
             var effect = SwarmOffensiveEffect.Scale(baseEffect, count, max);
             if (previous is not null)
             {
-                Assert.True(effect >= previous.Value - 1e-12);
+                Assert.That(effect >= previous.Value - 1e-12, Is.True);
             }
 
             previous = effect;
         }
     }
 
-    [Fact]
+    [Test]
     public void Zero_or_invalid_inputs_yield_zero_effect()
     {
-        Assert.Equal(0, SwarmOffensiveEffect.Scale(10, 0, 40));
-        Assert.Equal(0, SwarmOffensiveEffect.Scale(10, 20, 0));
-        Assert.Equal(0, SwarmOffensiveEffect.Scale(0, 20, 40));
+        Assert.That(SwarmOffensiveEffect.Scale(10, 0, 40), Is.EqualTo(0));
+        Assert.That(SwarmOffensiveEffect.Scale(10, 20, 0), Is.EqualTo(0));
+        Assert.That(SwarmOffensiveEffect.Scale(0, 20, 40), Is.EqualTo(0));
     }
 }
 
 public sealed class SwarmHardCounterAaTests
 {
-    [Fact]
+    [Test]
     public void Area_aa_shreds_more_drones_per_hit_than_point_fire_at_equal_nominal_dps()
     {
-        Assert.Equal(
-            SwarmHardCounterAa.EqualNominalDpsUnits,
-            SwarmHardCounterAa.EqualNominalDpsUnits);
-        Assert.True(
+        Assert.That(SwarmHardCounterAa.EqualNominalDpsUnits, Is.EqualTo(SwarmHardCounterAa.EqualNominalDpsUnits));
+        Assert.That(
             SwarmHardCounterAa.DronesLostPerHit(SwarmAaProfileKind.AreaAa) >
-            SwarmHardCounterAa.DronesLostPerHit(SwarmAaProfileKind.PointFire));
-        Assert.Equal(1, SwarmHardCounterAa.PointFireDronesLostPerHit);
-        Assert.Equal(8, SwarmHardCounterAa.AreaAaDronesLostPerHit);
+                    SwarmHardCounterAa.DronesLostPerHit(SwarmAaProfileKind.PointFire),
+            Is.True);
+        Assert.That(SwarmHardCounterAa.PointFireDronesLostPerHit, Is.EqualTo(1));
+        Assert.That(SwarmHardCounterAa.AreaAaDronesLostPerHit, Is.EqualTo(8));
     }
 
-    [Fact]
+    [Test]
     public void Hard_counter_scenario_area_destroys_faster_than_point_via_authorized_api()
     {
         const int max = 40;
@@ -89,15 +92,15 @@ public sealed class SwarmHardCounterAaTests
         SwarmEngagementIntegrityApplier.ApplyHits(point, "swarm-1", SwarmAaProfileKind.PointFire, hits, 1, 1.0);
         SwarmEngagementIntegrityApplier.ApplyHits(area, "swarm-1", SwarmAaProfileKind.AreaAa, hits, 1, 1.0);
 
-        Assert.True(point.TryGetIntegrity("swarm-1", out var pointAfter));
-        Assert.True(area.TryGetIntegrity("swarm-1", out var areaAfter));
-        Assert.Equal(max - (hits * SwarmHardCounterAa.PointFireDronesLostPerHit), pointAfter.DroneCount);
-        Assert.True(areaAfter.DroneCount < pointAfter.DroneCount);
-        Assert.True(areaAfter.IsDestroyed); // 5 * 8 = 40
-        Assert.False(pointAfter.IsDestroyed); // 5 * 1 = 5 remaining 35
+        Assert.That(point.TryGetIntegrity("swarm-1", out var pointAfter), Is.True);
+        Assert.That(area.TryGetIntegrity("swarm-1", out var areaAfter), Is.True);
+        Assert.That(pointAfter.DroneCount, Is.EqualTo(max - (hits * SwarmHardCounterAa.PointFireDronesLostPerHit)));
+        Assert.That(areaAfter.DroneCount < pointAfter.DroneCount, Is.True);
+        Assert.That(areaAfter.IsDestroyed, Is.True); // 5 * 8 = 40
+        Assert.That(pointAfter.IsDestroyed, Is.False); // 5 * 1 = 5 remaining 35
     }
 
-    [Fact]
+    [Test]
     public void Integrity_reductions_go_only_through_authorized_damage_api()
     {
         var ctl = new SwarmController(SimSeed.FromScenario(7));
@@ -106,17 +109,18 @@ public sealed class SwarmHardCounterAaTests
             0,
             0);
 
-        Assert.True(
+        Assert.That(
             SwarmEngagementIntegrityApplier.TryApplyHit(
-                ctl,
-                "s1",
-                SwarmAaProfileKind.PointFire,
-                1,
-                1.0,
-                out var change));
-        Assert.Equal(39, change.NewDroneCount);
-        Assert.Equal(SwarmEngagementIntegrityApplier.ReasonPointFire, change.ReasonCode);
-        Assert.Single(ctl.IntegrityTimeline);
-        Assert.Equal(ctl.ComputeIntegrityTimelineHash(), ctl.ComputeIntegrityTimelineHash());
+                        ctl,
+                        "s1",
+                        SwarmAaProfileKind.PointFire,
+                        1,
+                        1.0,
+                        out var change),
+            Is.True);
+        Assert.That(change.NewDroneCount, Is.EqualTo(39));
+        Assert.That(change.ReasonCode, Is.EqualTo(SwarmEngagementIntegrityApplier.ReasonPointFire));
+        AssertEx.Single(ctl.IntegrityTimeline);
+        Assert.That(ctl.ComputeIntegrityTimelineHash(), Is.EqualTo(ctl.ComputeIntegrityTimelineHash()));
     }
 }

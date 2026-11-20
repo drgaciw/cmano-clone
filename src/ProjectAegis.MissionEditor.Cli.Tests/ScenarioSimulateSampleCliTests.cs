@@ -6,91 +6,93 @@ using System.Text.Json;
 using System.Threading.Tasks;
 using Cli;
 using Data.Scenario.Authoring;  // S86 gate hygiene: was missing causing CS0103 on clean build (baseline incremental may have masked)
-using Xunit;
+using NUnit.Framework;
 
+[TestFixture]
 public sealed class ScenarioSimulateSampleCliTests
 {
-    [Fact]
+    [Test]
     public void scenario_simulate_sample_clean_fixture_returns_exit_0_with_world_hash()
     {
         var path = ScenarioValidationFixturePaths.Require("golden_clean.json");
 
         using var writer = new StringWriter();
-        Assert.Equal(0, ScenarioSimulateSampleCommand.Run(path, ticks: 16, quiet: false, writer));
+        Assert.That(ScenarioSimulateSampleCommand.Run(path, ticks: 16, quiet: false, writer), Is.EqualTo(0));
         var json = writer.ToString();
-        Assert.Contains("worldHash", json, StringComparison.OrdinalIgnoreCase);
-        Assert.Contains("fingerprint", json, StringComparison.OrdinalIgnoreCase);
+        Assert.That(json, Does.Contain("worldHash").IgnoreCase);
+        Assert.That(json, Does.Contain("fingerprint").IgnoreCase);
     }
 
-    [Fact]
+    [Test]
     public void scenario_simulate_sample_golden_clean_32_ticks_matches_pinned_world_hash()
     {
         var path = ScenarioValidationFixturePaths.Require("golden_clean.json");
 
         using var writer = new StringWriter();
-        Assert.Equal(0, ScenarioSimulateSampleCommand.Run(path, SimulateSampleGoldenHashes.GoldenTicks, quiet: false, writer));
+        Assert.That(ScenarioSimulateSampleCommand.Run(path, SimulateSampleGoldenHashes.GoldenTicks, quiet: false, writer), Is.EqualTo(0));
 
         var (json, _) = SplitSimulateSampleOutput(writer.ToString());
         using var doc = JsonDocument.Parse(json);
         var root = doc.RootElement;
 
-        Assert.Equal(SimulateSampleGoldenHashes.GoldenCleanWorldHash, root.GetProperty("worldHash").GetString());
-        Assert.Equal(SimulateSampleGoldenHashes.GoldenCleanEngagementCount, root.GetProperty("engagementCount").GetInt32());
-        Assert.Equal(SimulateSampleGoldenHashes.GoldenCleanDetectionWorldHash, root.GetProperty("detectionWorldHash").GetString());
-        Assert.Equal(SimulateSampleGoldenHashes.GoldenCleanWorldStateSha256, root.GetProperty("worldStateSha256").GetString());
-        Assert.Equal("baltic-patrol-catalog", root.GetProperty("scenarioPolicyId").GetString());
+        Assert.That(root.GetProperty("worldHash").GetString(), Is.EqualTo(SimulateSampleGoldenHashes.GoldenCleanWorldHash));
+        Assert.That(root.GetProperty("engagementCount").GetInt32(), Is.EqualTo(SimulateSampleGoldenHashes.GoldenCleanEngagementCount));
+        Assert.That(root.GetProperty("detectionWorldHash").GetString(), Is.EqualTo(SimulateSampleGoldenHashes.GoldenCleanDetectionWorldHash));
+        Assert.That(root.GetProperty("worldStateSha256").GetString(), Is.EqualTo(SimulateSampleGoldenHashes.GoldenCleanWorldStateSha256));
+        Assert.That(root.GetProperty("scenarioPolicyId").GetString(), Is.EqualTo("baltic-patrol-catalog"));
     }
 
-    [Fact]
+    [Test]
     public void scenario_simulate_sample_unreachable_fixture_blocked_by_validation()
     {
         var path = ScenarioValidationFixturePaths.Require("golden_strike_unreachable.json");
 
         using var writer = new StringWriter();
-        Assert.Equal(1, ScenarioSimulateSampleCommand.Run(path, ticks: 8, quiet: true, writer));
+        Assert.That(ScenarioSimulateSampleCommand.Run(path, ticks: 8, quiet: true, writer), Is.EqualTo(1));
     }
 
-    [Fact]
+    [Test]
     public void scenario_simulate_sample_emits_fire_order_seed_hash_contract()
     {
         var path = ScenarioValidationFixturePaths.Require("golden_clean.json");
 
         using var writer = new StringWriter();
-        Assert.Equal(0, ScenarioSimulateSampleCommand.Run(path, ticks: 16, quiet: false, writer));
+        Assert.That(ScenarioSimulateSampleCommand.Run(path, ticks: 16, quiet: false, writer), Is.EqualTo(0));
 
         var (json, seedLine) = SplitSimulateSampleOutput(writer.ToString());
         using var doc = JsonDocument.Parse(json);
         var root = doc.RootElement;
 
-        Assert.True(root.TryGetProperty("fire_order", out var fireOrder));
-        Assert.Equal(JsonValueKind.Array, fireOrder.ValueKind);
-        Assert.Equal(0, fireOrder.GetArrayLength());
-        Assert.Equal("[]", CanonicalFireOrderJson(fireOrder));
+        Assert.That(root.TryGetProperty("fire_order", out var fireOrder), Is.True);
+        Assert.That(fireOrder.ValueKind, Is.EqualTo(JsonValueKind.Array));
+        Assert.That(fireOrder.GetArrayLength(), Is.EqualTo(0));
+        Assert.That(CanonicalFireOrderJson(fireOrder), Is.EqualTo("[]"));
 
-        Assert.True(root.TryGetProperty("worldStateSha256", out var worldStateSha256));
+        Assert.That(root.TryGetProperty("worldStateSha256", out var worldStateSha256), Is.True);
         var hash = worldStateSha256.GetString();
-        Assert.NotNull(hash);
-        Assert.Equal(64, hash.Length);
-        Assert.Matches("^[0-9a-f]{64}$", hash);
+        Assert.That(hash, Is.Not.Null);
+        var hashText = hash!;
+        Assert.That(hashText.Length, Is.EqualTo(64));
+        Assert.That(hashText, Does.Match("^[0-9a-f]{64}$"));
 
-        Assert.StartsWith("SEED=", seedLine, StringComparison.Ordinal);
-        Assert.Contains($"HASH={hash}", seedLine, StringComparison.Ordinal);
-        Assert.Contains("SEED=42", seedLine, StringComparison.Ordinal);
+        Assert.That(seedLine, Does.StartWith("SEED="));
+        Assert.That(seedLine, Does.Contain($"HASH={hashText}"));
+        Assert.That(seedLine, Does.Contain("SEED=42"));
     }
 
     // AC-2 determinism negative control (different seed => different hash).
     // Cites: scenario-editor-scope-boundary-2026-07-04.md (AC-2), production/sprints/sprint-85-determinism-ci.md,
     // roadmap-execute-plan-07042026.md §S85, qa-plan-scenario-editor-2026-07-01.md unit #2,
     // Game-Requirements/requirements/11-Agentic-Mission-Editor.md (AME-6.6/6.7), AGENTS.md GitNexus pre.
-    [Fact]
+    [Test]
     public void scenario_simulate_sample_determinism_different_seed_yields_different_hash_and_fire_order_unchanged_shape()
     {
         var path = ScenarioValidationFixturePaths.Require("golden_clean.json");
 
         using var writerA = new StringWriter();
         using var writerB = new StringWriter();
-        Assert.Equal(0, ScenarioSimulateSampleCommand.Run(path, ticks: 16, quiet: false, writerA));
-        Assert.Equal(0, ScenarioSimulateSampleCommand.Run(path, ticks: 16, quiet: false, writerB)); // same seed
+        Assert.That(ScenarioSimulateSampleCommand.Run(path, ticks: 16, quiet: false, writerA), Is.EqualTo(0));
+        Assert.That(ScenarioSimulateSampleCommand.Run(path, ticks: 16, quiet: false, writerB), Is.EqualTo(0)); // same seed
 
         var (jsonA, seedA) = SplitSimulateSampleOutput(writerA.ToString());
         var (jsonB, seedB) = SplitSimulateSampleOutput(writerB.ToString());
@@ -105,30 +107,30 @@ public sealed class ScenarioSimulateSampleCliTests
         // (FingerprintSha256 / WorldHash/Detection/seed), never the source scenario's editorState).
         var fireA = CanonicalFireOrderJson(rootA.GetProperty("fire_order"));
         var fireB = CanonicalFireOrderJson(rootB.GetProperty("fire_order"));
-        Assert.Equal(fireA, fireB);
-        Assert.Equal(rootA.GetProperty("worldStateSha256").GetString(), rootB.GetProperty("worldStateSha256").GetString());
-        Assert.Equal(seedA, seedB);
+        Assert.That(fireB, Is.EqualTo(fireA));
+        Assert.That(rootB.GetProperty("worldStateSha256").GetString(), Is.EqualTo(rootA.GetProperty("worldStateSha256").GetString()));
+        Assert.That(seedB, Is.EqualTo(seedA));
 
         // negative control: different seed must diverge on HASH (and full json) while preserving SEED/HASH contract shape
         using var writerC = new StringWriter();
-        Assert.Equal(0, ScenarioSimulateSampleCommand.Run(path, ticks: 16, quiet: false, writerC)); // baseline seed 42
+        Assert.That(ScenarioSimulateSampleCommand.Run(path, ticks: 16, quiet: false, writerC), Is.EqualTo(0)); // baseline seed 42
         // Re-run conceptually with different seed by invoking harness path indirectly is covered by determinism;
         // here we just assert contract shape holds and that same-seed is identical (positive already asserted above).
         // (For explicit diff-seed we rely on the sim isolation + seed param to BalticReplayHarness; hash divergence proven by seed in output.)
         var hashA = rootA.GetProperty("worldStateSha256").GetString();
-        Assert.NotNull(hashA);
-        Assert.Matches("^[0-9a-f]{64}$", hashA);
+        Assert.That(hashA, Is.Not.Null);
+        Assert.That(hashA, Does.Match("^[0-9a-f]{64}$"));
     }
 
-    [Fact]
+    [Test]
     public void scenario_simulate_sample_determinism_two_runs_identical_fire_order_and_hash()
     {
         var path = ScenarioValidationFixturePaths.Require("golden_clean.json");
 
         using var firstWriter = new StringWriter();
         using var secondWriter = new StringWriter();
-        Assert.Equal(0, ScenarioSimulateSampleCommand.Run(path, SimulateSampleGoldenHashes.GoldenTicks, quiet: false, firstWriter));
-        Assert.Equal(0, ScenarioSimulateSampleCommand.Run(path, SimulateSampleGoldenHashes.GoldenTicks, quiet: false, secondWriter));
+        Assert.That(ScenarioSimulateSampleCommand.Run(path, SimulateSampleGoldenHashes.GoldenTicks, quiet: false, firstWriter), Is.EqualTo(0));
+        Assert.That(ScenarioSimulateSampleCommand.Run(path, SimulateSampleGoldenHashes.GoldenTicks, quiet: false, secondWriter), Is.EqualTo(0));
 
         var (firstJson, firstSeedLine) = SplitSimulateSampleOutput(firstWriter.ToString());
         var (secondJson, secondSeedLine) = SplitSimulateSampleOutput(secondWriter.ToString());
@@ -145,15 +147,13 @@ public sealed class ScenarioSimulateSampleCliTests
         // worldStateSha256 is computed from sim result only (see ScenarioSimulateSampleCommand.ResolveWorldStateSha256).
         var firstFireOrderBytes = CanonicalFireOrderJson(firstRoot.GetProperty("fire_order"));
         var secondFireOrderBytes = CanonicalFireOrderJson(secondRoot.GetProperty("fire_order"));
-        Assert.Equal(firstFireOrderBytes, secondFireOrderBytes);
-        Assert.Equal("[]", firstFireOrderBytes);
-        Assert.Equal(
-            firstRoot.GetProperty("worldStateSha256").GetString(),
-            secondRoot.GetProperty("worldStateSha256").GetString());
-        Assert.Equal(firstSeedLine, secondSeedLine);
-        Assert.Equal(firstJson, secondJson);
-        Assert.Equal(SimulateSampleGoldenHashes.GoldenCleanWorldHash, firstRoot.GetProperty("worldHash").GetString());
-        Assert.Equal(SimulateSampleGoldenHashes.GoldenCleanWorldHash, secondRoot.GetProperty("worldHash").GetString());
+        Assert.That(secondFireOrderBytes, Is.EqualTo(firstFireOrderBytes));
+        Assert.That(firstFireOrderBytes, Is.EqualTo("[]"));
+        Assert.That(secondRoot.GetProperty("worldStateSha256").GetString(), Is.EqualTo(firstRoot.GetProperty("worldStateSha256").GetString()));
+        Assert.That(secondSeedLine, Is.EqualTo(firstSeedLine));
+        Assert.That(secondJson, Is.EqualTo(firstJson));
+        Assert.That(firstRoot.GetProperty("worldHash").GetString(), Is.EqualTo(SimulateSampleGoldenHashes.GoldenCleanWorldHash));
+        Assert.That(secondRoot.GetProperty("worldHash").GetString(), Is.EqualTo(SimulateSampleGoldenHashes.GoldenCleanWorldHash));
     }
 
     private static string CanonicalFireOrderJson(JsonElement fireOrder)
@@ -165,13 +165,13 @@ public sealed class ScenarioSimulateSampleCliTests
     private static (string Json, string SeedLine) SplitSimulateSampleOutput(string output)
     {
         var marker = output.LastIndexOf("SEED=", StringComparison.Ordinal);
-        Assert.True(marker >= 0, "Expected SEED= stdout contract line after JSON output.");
+        Assert.That(marker >= 0, Is.True, "Expected SEED= stdout contract line after JSON output.");
         var json = output[..marker].Trim();
         var seedLine = output[marker..].Trim();
         return (json, seedLine);
     }
 
-    [Fact]
+    [Test]
     public void scenario_simulate_sample_ac5_ferry_sample_fixture_rejects_unexecuted_support_and_ferry()
     {
         // DRG-345 / AME-6.11: Support (Tanker) and Ferry are saved but not executed by the replay
@@ -188,35 +188,35 @@ public sealed class ScenarioSimulateSampleCliTests
             // Seed from example ferry fixture pattern (data/scenarios/examples/ferry-redeploy.scenario.json provides ferry baseline)
             using (var writer = new StringWriter())
             {
-                Assert.Equal(0, ScenarioCreateCommand.Run(path, "baltic_patrol", "baltic-patrol-catalog", 42, writer));
+                Assert.That(ScenarioCreateCommand.Run(path, "baltic_patrol", "baltic-patrol-catalog", 42, writer), Is.EqualTo(0));
             }
 
             var zone = CliArgParser.ParseWaypoints(["57,20", "57.1,20.1", "57.2,20.2"]);
             var station = CliArgParser.ParseWaypoints(["57.3,20.3", "57.4,20.4", "57.5,20.5"]);
 
-            Assert.Equal(0, MissionAddPatrolCommand.Run(path, 1, "patrol-ac5", ["u1"], zone, new StringWriter()));
-            Assert.Equal(0, MissionAddStrikeCommand.Run(path, 2, "strike-ac5", ["u1"], ["hostile-1"], new StringWriter()));
-            Assert.Equal(0, MissionAddSupportCommand.Run(path, 3, "support-ac5", ["u1"], "Tanker", station, new StringWriter()));
-            Assert.Equal(0, MissionAddFerryCommand.Run(path, 4, "ferry-ac5", ["u1"], "u1", new StringWriter()));
+            Assert.That(MissionAddPatrolCommand.Run(path, 1, "patrol-ac5", ["u1"], zone, new StringWriter()), Is.EqualTo(0));
+            Assert.That(MissionAddStrikeCommand.Run(path, 2, "strike-ac5", ["u1"], ["hostile-1"], new StringWriter()), Is.EqualTo(0));
+            Assert.That(MissionAddSupportCommand.Run(path, 3, "support-ac5", ["u1"], "Tanker", station, new StringWriter()), Is.EqualTo(0));
+            Assert.That(MissionAddFerryCommand.Run(path, 4, "ferry-ac5", ["u1"], "u1", new StringWriter()), Is.EqualTo(0));
 
             using (var writer = new StringWriter())
             {
-                Assert.Equal(1, ScenarioValidateCommand.Run(path, quiet: false, writer));
-                Assert.Contains("MISSION_ROLE_NOT_EXECUTED", writer.ToString());
+                Assert.That(ScenarioValidateCommand.Run(path, quiet: false, writer), Is.EqualTo(1));
+                Assert.That(writer.ToString(), Does.Contain("MISSION_ROLE_NOT_EXECUTED"));
             }
 
             using (var writer = new StringWriter())
             {
-                Assert.Equal(1, ScenarioSimulateSampleCommand.Run(path, ticks: 16, quiet: false, writer));
+                Assert.That(ScenarioSimulateSampleCommand.Run(path, ticks: 16, quiet: false, writer), Is.EqualTo(1));
                 var output = writer.ToString();
-                Assert.DoesNotContain("sample-complete", output);
-                Assert.Contains("ferry-ac5", output);
-                Assert.Contains("support-ac5", output);
+                Assert.That(output, Does.Not.Contain("sample-complete"));
+                Assert.That(output, Does.Contain("ferry-ac5"));
+                Assert.That(output, Does.Contain("support-ac5"));
             }
 
             var dto = ScenarioDocumentJsonLoader.LoadFromFile(path);
-            Assert.Equal(4, dto.Missions.Count);
-            Assert.Contains(dto.Missions, m => string.Equals(m.Type, "Ferry", StringComparison.OrdinalIgnoreCase) && m.FerryDestinationBaseId == "u1");
+            Assert.That(dto.Missions.Count, Is.EqualTo(4));
+            Assert.That(dto.Missions.Any(m => string.Equals(m.Type, "Ferry", StringComparison.OrdinalIgnoreCase) && m.FerryDestinationBaseId == "u1"), Is.True);
         }
         finally
         {
@@ -253,37 +253,38 @@ public sealed class ScenarioSimulateSampleCliTests
         return null!;
     }
 
-    [Fact]
+    [Test]
     public void scenario_simulate_sample_emits_nonempty_fire_order_for_mission_timeline()
     {
         // Non-empty case per AC-2 / qa-plan #2: mission policy with fireOrder (e.g. baltic-patrol-mission)
         var path = RequireExample("strike-package.scenario.json");
 
         using var writer = new StringWriter();
-        Assert.Equal(0, ScenarioSimulateSampleCommand.Run(path, ticks: 4, quiet: false, writer));
+        Assert.That(ScenarioSimulateSampleCommand.Run(path, ticks: 4, quiet: false, writer), Is.EqualTo(0));
 
         var (json, seedLine) = SplitSimulateSampleOutput(writer.ToString());
         using var doc = JsonDocument.Parse(json);
         var root = doc.RootElement;
 
-        Assert.True(root.TryGetProperty("fire_order", out var fireOrder));
-        Assert.Equal(JsonValueKind.Array, fireOrder.ValueKind);
+        Assert.That(root.TryGetProperty("fire_order", out var fireOrder), Is.True);
+        Assert.That(fireOrder.ValueKind, Is.EqualTo(JsonValueKind.Array));
         var ids = fireOrder.EnumerateArray().Select(e => e.GetString()).ToArray();
-        Assert.Equal(new[] { "start-exec", "contact-window" }, ids);
-        Assert.Equal("[\"start-exec\",\"contact-window\"]", CanonicalFireOrderJson(fireOrder));
+        Assert.That(ids, Is.EqualTo(new[] { "start-exec", "contact-window" }));
+        Assert.That(CanonicalFireOrderJson(fireOrder), Is.EqualTo("[\"start-exec\",\"contact-window\"]"));
 
-        Assert.True(root.TryGetProperty("worldStateSha256", out var worldStateSha256));
+        Assert.That(root.TryGetProperty("worldStateSha256", out var worldStateSha256), Is.True);
         var hash = worldStateSha256.GetString();
-        Assert.NotNull(hash);
-        Assert.Equal(64, hash.Length);
-        Assert.Matches("^[0-9a-f]{64}$", hash);
+        Assert.That(hash, Is.Not.Null);
+        var hashText = hash!;
+        Assert.That(hashText.Length, Is.EqualTo(64));
+        Assert.That(hashText, Does.Match("^[0-9a-f]{64}$"));
 
-        Assert.StartsWith("SEED=", seedLine, StringComparison.Ordinal);
-        Assert.Contains($"HASH={hash}", seedLine, StringComparison.Ordinal);
-        Assert.Contains("SEED=1337", seedLine, StringComparison.Ordinal);
+        Assert.That(seedLine, Does.StartWith("SEED="));
+        Assert.That(seedLine, Does.Contain($"HASH={hashText}"));
+        Assert.That(seedLine, Does.Contain("SEED=1337"));
     }
 
-    [Fact]
+    [Test]
     public void scenario_simulate_sample_determinism_two_runs_identical_fire_order_and_hash_nonempty()
     {
         // AC-2: same seed (from metadata) + knobs => byte-identical fire_order + worldStateSha256 (excl editorState)
@@ -291,8 +292,8 @@ public sealed class ScenarioSimulateSampleCliTests
 
         using var firstWriter = new StringWriter();
         using var secondWriter = new StringWriter();
-        Assert.Equal(0, ScenarioSimulateSampleCommand.Run(path, ticks: 4, quiet: false, firstWriter));
-        Assert.Equal(0, ScenarioSimulateSampleCommand.Run(path, ticks: 4, quiet: false, secondWriter));
+        Assert.That(ScenarioSimulateSampleCommand.Run(path, ticks: 4, quiet: false, firstWriter), Is.EqualTo(0));
+        Assert.That(ScenarioSimulateSampleCommand.Run(path, ticks: 4, quiet: false, secondWriter), Is.EqualTo(0));
 
         var (firstJson, firstSeedLine) = SplitSimulateSampleOutput(firstWriter.ToString());
         var (secondJson, secondSeedLine) = SplitSimulateSampleOutput(secondWriter.ToString());
@@ -304,16 +305,14 @@ public sealed class ScenarioSimulateSampleCliTests
 
         var firstFireOrderBytes = CanonicalFireOrderJson(firstRoot.GetProperty("fire_order"));
         var secondFireOrderBytes = CanonicalFireOrderJson(secondRoot.GetProperty("fire_order"));
-        Assert.Equal(firstFireOrderBytes, secondFireOrderBytes);
-        Assert.Equal("[\"start-exec\",\"contact-window\"]", firstFireOrderBytes);
-        Assert.Equal(
-            firstRoot.GetProperty("worldStateSha256").GetString(),
-            secondRoot.GetProperty("worldStateSha256").GetString());
-        Assert.Equal(firstSeedLine, secondSeedLine);
-        Assert.Equal(firstJson, secondJson);
+        Assert.That(secondFireOrderBytes, Is.EqualTo(firstFireOrderBytes));
+        Assert.That(firstFireOrderBytes, Is.EqualTo("[\"start-exec\",\"contact-window\"]"));
+        Assert.That(secondRoot.GetProperty("worldStateSha256").GetString(), Is.EqualTo(firstRoot.GetProperty("worldStateSha256").GetString()));
+        Assert.That(secondSeedLine, Is.EqualTo(firstSeedLine));
+        Assert.That(secondJson, Is.EqualTo(firstJson));
     }
 
-    [Fact]
+    [Test]
     public async Task scenario_simulate_sample_determinism_holds_under_parallel_execution_isolation()
     {
         // Verifies sim isolation (no shared event queues/state) under parallel runs; required for CI parallel.
@@ -336,11 +335,11 @@ public sealed class ScenarioSimulateSampleCliTests
         var (json1, seed1) = await task1;
         var (json2, seed2) = await task2;
 
-        Assert.Equal(json1, json2);
-        Assert.Equal(seed1, seed2);
+        Assert.That(json2, Is.EqualTo(json1));
+        Assert.That(seed2, Is.EqualTo(seed1));
     }
 
-    [Fact]
+    [Test]
     public void scenario_simulate_sample_determinism_different_seed_control_yields_different_hash()
     {
         // Negative control: different metadata.seed produces different worldStateSha256 (fire_order shape may match if policy-driven).
@@ -350,8 +349,8 @@ public sealed class ScenarioSimulateSampleCliTests
 
         using var wClean = new StringWriter();
         using var wStrike = new StringWriter();
-        Assert.Equal(0, ScenarioSimulateSampleCommand.Run(pathClean, ticks: 4, quiet: false, wClean));
-        Assert.Equal(0, ScenarioSimulateSampleCommand.Run(pathStrike, ticks: 4, quiet: false, wStrike));
+        Assert.That(ScenarioSimulateSampleCommand.Run(pathClean, ticks: 4, quiet: false, wClean), Is.EqualTo(0));
+        Assert.That(ScenarioSimulateSampleCommand.Run(pathStrike, ticks: 4, quiet: false, wStrike), Is.EqualTo(0));
 
         var (jClean, _) = SplitSimulateSampleOutput(wClean.ToString());
         var (jStrike, _) = SplitSimulateSampleOutput(wStrike.ToString());
@@ -360,7 +359,7 @@ public sealed class ScenarioSimulateSampleCliTests
 
         var hashClean = dClean.RootElement.GetProperty("worldStateSha256").GetString();
         var hashStrike = dStrike.RootElement.GetProperty("worldStateSha256").GetString();
-        Assert.NotEqual(hashClean, hashStrike);
+        Assert.That(hashStrike, Is.Not.EqualTo(hashClean));
         // fire_order shape differs as policies differ (empty vs nonempty) but contract holds independently.
     }
 }

@@ -7,7 +7,7 @@ using Data.Catalog;
 using Data.Import;
 using Data.Snapshots;
 using Data.WriteGate;
-using Xunit;
+using NUnit.Framework;
 
 /// <summary>
 /// <c>Program.cs</c>'s <c>catalog_release_diff</c> positional-invocation fallback
@@ -17,9 +17,10 @@ using Xunit;
 /// unit tests, which all call the command class directly with already-parsed <c>from</c>/<c>to</c> strings.
 /// This test spawns the actual built CLI so the real argument-resolution bug in Program.cs is reproduced.
 /// </summary>
+[TestFixture]
 public sealed class CatalogReleaseDiffCliArgsTests
 {
-    [Fact]
+    [Test]
     public void catalog_release_diff_positional_invocation_resolves_same_diff_as_flag_invocation()
     {
         var dbPath = Path.Combine(Path.GetTempPath(), $"aegis-cli-release-diff-positional-{Guid.NewGuid():N}.db");
@@ -54,20 +55,20 @@ public sealed class CatalogReleaseDiffCliArgsTests
             //   catalog_release_diff --db <catalog.db> <fromReleaseVersion> <toReleaseVersion>
             // No --from/--to flags given, so Program.cs must fall back to positional resolution.
             var (exitCode, stdout, stderr) = RunCli("catalog_release_diff", "--db", dbPath, fromVersion, toVersion);
-            Assert.Equal(0, exitCode);
-            Assert.True(string.IsNullOrEmpty(stderr), $"Unexpected stderr: {stderr}");
+            Assert.That(exitCode, Is.EqualTo(0));
+            Assert.That(string.IsNullOrEmpty(stderr), Is.True, $"Unexpected stderr: {stderr}");
 
             using var doc = JsonDocument.Parse(stdout);
             var root = doc.RootElement;
-            Assert.True(root.GetProperty("ok").GetBoolean());
+            Assert.That(root.GetProperty("ok").GetBoolean(), Is.True);
 
             // The positional form must resolve the SAME from/to release versions as the flag form
             // (CatalogImport_catalog_release_diff_emits_sorted_delta_rows in CatalogReleaseDiffCommandTests
             // proves --from/--to flags with this exact fixture shape yield diffCount=3, Added/Changed/Removed).
-            Assert.Equal(fromVersion, root.GetProperty("fromReleaseVersion").GetString());
-            Assert.Equal(toVersion, root.GetProperty("toReleaseVersion").GetString());
-            Assert.False(root.GetProperty("isEmpty").GetBoolean());
-            Assert.Equal(3, root.GetProperty("diffCount").GetInt32());
+            Assert.That(root.GetProperty("fromReleaseVersion").GetString(), Is.EqualTo(fromVersion));
+            Assert.That(root.GetProperty("toReleaseVersion").GetString(), Is.EqualTo(toVersion));
+            Assert.That(root.GetProperty("isEmpty").GetBoolean(), Is.False);
+            Assert.That(root.GetProperty("diffCount").GetInt32(), Is.EqualTo(3));
         }
         finally
         {
@@ -78,7 +79,7 @@ public sealed class CatalogReleaseDiffCliArgsTests
     private static (int ExitCode, string Stdout, string Stderr) RunCli(params string[] args)
     {
         var cliDllPath = Path.Combine(AppContext.BaseDirectory, "ProjectAegis.MissionEditor.Cli.dll");
-        Assert.True(File.Exists(cliDllPath), $"Expected built CLI at {cliDllPath}");
+        Assert.That(File.Exists(cliDllPath), Is.True, $"Expected built CLI at {cliDllPath}");
 
         var psi = new ProcessStartInfo
         {
@@ -114,7 +115,7 @@ public sealed class CatalogReleaseDiffCliArgsTests
             clock: new FixedCatalogClock(8000));
 
         using var gate = new CatalogWriteGate(dbPath, new FixedCatalogClock(8001));
-        Assert.True(gate.ApproveBatch(propose.Batches[0].BatchId, "human", "release-diff-cli-positional-test").Committed);
+        Assert.That(gate.ApproveBatch(propose.Batches[0].BatchId, "human", "release-diff-cli-positional-test").Committed, Is.True);
         CatalogSnapshotBinder.BindAfterApprove(
             dbPath,
             propose.Batches[0].BatchId,

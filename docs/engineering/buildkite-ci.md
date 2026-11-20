@@ -1,3 +1,5 @@
+> ADR-031 (Proposed) plans retirement of this pipeline after a parity soak; nothing changes until drg accepts it.
+
 # Buildkite CI
 
 > **Last updated:** 2026-07-13

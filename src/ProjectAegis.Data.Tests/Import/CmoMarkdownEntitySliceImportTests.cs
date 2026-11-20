@@ -4,18 +4,17 @@ using ProjectAegis.Data.Catalog;
 using ProjectAegis.Data.Import;
 using ProjectAegis.Data.Snapshots;
 using ProjectAegis.Data.WriteGate;
-using Xunit;
+using NUnit.Framework;
 
 namespace ProjectAegis.Data.Tests.Import;
 
 /// <summary>S30-11 — curated aircraft/submarine/facility nightly slices + off-CI scale metadata.</summary>
-[Collection("CatalogSqlite")]
+[Runner.CatalogSqliteCollection]
 public sealed class CmoMarkdownEntitySliceImportTests
 {
-    [Theory]
-    [InlineData("aircraft")]
-    [InlineData("submarine")]
-    [InlineData("facility")]
+    [TestCase("aircraft")]
+    [TestCase("submarine")]
+    [TestCase("facility")]
     public void Propose_entity_slice100_and_approve_commits_via_WriteGate(string domain)
     {
         var (markdown, slugPrefix) = ResolveSlice(domain);
@@ -31,15 +30,15 @@ public sealed class CmoMarkdownEntitySliceImportTests
                 chunkSize: 500,
                 clock: new FixedCatalogClock(30110 + domain.Length));
 
-            Assert.Equal(100, result.ParsedCount);
-            Assert.Equal(100, result.ApprovedCount);
-            Assert.Equal(0, result.QuarantinedCount);
-            Assert.Single(result.Batches);
-            Assert.Equal(100, result.Batches[0].RecordCount);
+            Assert.That(result.ParsedCount, Is.EqualTo(100));
+            Assert.That(result.ApprovedCount, Is.EqualTo(100));
+            Assert.That(result.QuarantinedCount, Is.EqualTo(0));
+            Assert.That(result.Batches, Has.Exactly(1).Items);
+            Assert.That(result.Batches[0].RecordCount, Is.EqualTo(100));
 
             using (var gate = new CatalogWriteGate(dbPath, new FixedCatalogClock(30120 + domain.Length)))
             {
-                Assert.True(gate.ApproveBatch(result.Batches[0].BatchId, "human", $"s30-11-{domain}").Committed);
+                Assert.That(gate.ApproveBatch(result.Batches[0].BatchId, "human", $"s30-11-{domain}").Committed, Is.True);
             }
 
             using var connection = new SqliteConnection($"Data Source={dbPath};Pooling=false");
@@ -47,7 +46,7 @@ public sealed class CmoMarkdownEntitySliceImportTests
             using var cmd = connection.CreateCommand();
             cmd.CommandText = $"SELECT COUNT(*) FROM platform WHERE platform_id LIKE '{slugPrefix}-%'";
             var count = Convert.ToInt32(cmd.ExecuteScalar(), CultureInfo.InvariantCulture);
-            Assert.Equal(100, count);
+            Assert.That(count, Is.EqualTo(100));
         }
         finally
         {
@@ -58,11 +57,9 @@ public sealed class CmoMarkdownEntitySliceImportTests
             }
         }
     }
-
-    [Theory]
-    [InlineData("aircraft", 7387, 15, 387)]
-    [InlineData("submarine", 732, 2, 232)]
-    [InlineData("facility", 4511, 10, 11)]
+    [TestCase("aircraft", 7387, 15, 387)]
+    [TestCase("submarine", 732, 2, 232)]
+    [TestCase("facility", 4511, 10, 11)]
     public void Reference_entity_markdown_parses_expected_records_for_off_ci_nightly_scale(
         string domain,
         int expectedCount,
@@ -76,18 +73,16 @@ public sealed class CmoMarkdownEntitySliceImportTests
         }
 
         var platforms = CmoMarkdownImporter.ReadPlatformBindings(path);
-        Assert.Equal(expectedCount, platforms.Count);
+        Assert.That(platforms.Count, Is.EqualTo(expectedCount));
 
         var chunks = CmoMarkdownImportProposer.ChunkPlatforms(platforms, chunkSize: 500);
-        Assert.Equal(expectedBatches, chunks.Length);
-        Assert.Equal(500, chunks[0].Length);
-        Assert.Equal(expectedLastChunk, chunks[^1].Length);
+        Assert.That(chunks.Length, Is.EqualTo(expectedBatches));
+        Assert.That(chunks[0].Length, Is.EqualTo(500));
+        Assert.That(chunks[^1].Length, Is.EqualTo(expectedLastChunk));
     }
-
-    [Theory]
-    [InlineData("aircraft")]
-    [InlineData("submarine")]
-    [InlineData("facility")]
+    [TestCase("aircraft")]
+    [TestCase("submarine")]
+    [TestCase("facility")]
     public void Nightly_entity_slice_propose_approve_records_pinned_snapshot_hash(string domain)
     {
         var markdown = ResolveSlice(domain).markdown;
@@ -103,14 +98,14 @@ public sealed class CmoMarkdownEntitySliceImportTests
                 chunkSize: 500,
                 clock: new FixedCatalogClock(30130 + domain.Length));
 
-            Assert.Equal(12, proposed.ParsedCount);
-            Assert.NotEmpty(proposed.Batches);
+            Assert.That(proposed.ParsedCount, Is.EqualTo(12));
+            Assert.That(proposed.Batches, Is.Not.Empty);
 
             using (var gate = new CatalogWriteGate(dbPath, new FixedCatalogClock(30140 + domain.Length)))
             {
                 foreach (var batch in proposed.Batches)
                 {
-                    Assert.True(gate.ApproveBatch(batch.BatchId, "human", "nightly-curator").Committed);
+                    Assert.That(gate.ApproveBatch(batch.BatchId, "human", "nightly-curator").Committed, Is.True);
                 }
             }
 
@@ -124,12 +119,12 @@ public sealed class CmoMarkdownEntitySliceImportTests
                 new FixedCatalogClock(30150 + domain.Length),
                 releaseVersion: $"nightly-{domain}-s30-11");
 
-            Assert.Matches("^[a-f0-9]{64}$", bind.ContentHashSha256);
-            Assert.Equal($"nightly-{domain}-s30-11", bind.ReleaseVersion);
+            Assert.That(bind.ContentHashSha256, Does.Match("^[a-f0-9]{64}$"));
+            Assert.That(bind.ReleaseVersion, Is.EqualTo($"nightly-{domain}-s30-11"));
 
             using var store = new DbSnapshotStore(dbPath);
-            Assert.True(store.TryGetContentHash(bind.SnapshotId, out var storedHash));
-            Assert.Equal(bind.ContentHashSha256, storedHash);
+            Assert.That(store.TryGetContentHash(bind.SnapshotId, out var storedHash), Is.True);
+            Assert.That(storedHash, Is.EqualTo(bind.ContentHashSha256));
         }
         finally
         {
@@ -140,11 +135,9 @@ public sealed class CmoMarkdownEntitySliceImportTests
             }
         }
     }
-
-    [Theory]
-    [InlineData("aircraft", CatalogSortKeyGoldenHashes.AircraftSlice100PlatformV2)]
-    [InlineData("submarine", CatalogSortKeyGoldenHashes.SubmarineSlice100PlatformV2)]
-    [InlineData("facility", CatalogSortKeyGoldenHashes.FacilitySlice100PlatformV2)]
+    [TestCase("aircraft", CatalogSortKeyGoldenHashes.AircraftSlice100PlatformV2)]
+    [TestCase("submarine", CatalogSortKeyGoldenHashes.SubmarineSlice100PlatformV2)]
+    [TestCase("facility", CatalogSortKeyGoldenHashes.FacilitySlice100PlatformV2)]
     public void Entity_slice100_reimport_preserves_catalog_ordering_hash(string domain, string expectedHash)
     {
         var markdown = ResolveSlice(domain).markdown;
@@ -154,8 +147,8 @@ public sealed class CmoMarkdownEntitySliceImportTests
         {
             var hashBefore = ImportApproveAndHashPlatforms(dbPath, markdown, clockSeed: 30160 + domain.Length);
             var hashAfter = ImportApproveAndHashPlatforms(dbPath, markdown, clockSeed: 30170 + domain.Length);
-            Assert.Equal(hashBefore, hashAfter);
-            Assert.Equal(expectedHash, hashBefore);
+            Assert.That(hashAfter, Is.EqualTo(hashBefore));
+            Assert.That(hashBefore, Is.EqualTo(expectedHash));
         }
         finally
         {
@@ -199,7 +192,7 @@ public sealed class CmoMarkdownEntitySliceImportTests
         {
             foreach (var batch in proposed.Batches)
             {
-                Assert.True(gate.ApproveBatch(batch.BatchId, "human", "s30-golden").Committed);
+                Assert.That(gate.ApproveBatch(batch.BatchId, "human", "s30-golden").Committed, Is.True);
             }
         }
 

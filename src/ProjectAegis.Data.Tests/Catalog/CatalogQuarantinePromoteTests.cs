@@ -1,13 +1,13 @@
 using Microsoft.Data.Sqlite;
 using ProjectAegis.Data.Catalog;
-using Xunit;
+using NUnit.Framework;
 
 namespace ProjectAegis.Data.Tests.Catalog;
 
-[Collection("CatalogSqlite")]
+[Runner.CatalogSqliteCollection]
 public sealed class CatalogQuarantinePromoteTests
 {
-    [Fact]
+    [Test]
     public void PromoteApproved_moves_approved_quarantine_row_into_sensor()
     {
         var jsonPath = Path.Combine(
@@ -28,17 +28,17 @@ public sealed class CatalogQuarantinePromoteTests
             }
 
             var promoted = CatalogQuarantinePromoter.PromoteApproved(dbPath);
-            Assert.Equal(1, promoted);
+            Assert.That(promoted, Is.EqualTo(1));
 
             using var verify = new SqliteConnection($"Data Source={dbPath};Pooling=false");
             verify.Open();
             using var sensorCmd = verify.CreateCommand();
             sensorCmd.CommandText = "SELECT COUNT(*) FROM sensor WHERE platform_id = 'u9'";
-            Assert.Equal(1, Convert.ToInt32(sensorCmd.ExecuteScalar(), System.Globalization.CultureInfo.InvariantCulture));
+            Assert.That(Convert.ToInt32(sensorCmd.ExecuteScalar(), System.Globalization.CultureInfo.InvariantCulture), Is.EqualTo(1));
 
             using var quarantineCmd = verify.CreateCommand();
             quarantineCmd.CommandText = "SELECT COUNT(*) FROM sensor_quarantine WHERE platform_id = 'u9'";
-            Assert.Equal(0, Convert.ToInt32(quarantineCmd.ExecuteScalar(), System.Globalization.CultureInfo.InvariantCulture));
+            Assert.That(Convert.ToInt32(quarantineCmd.ExecuteScalar(), System.Globalization.CultureInfo.InvariantCulture), Is.EqualTo(0));
         }
         finally
         {

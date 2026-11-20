@@ -3,11 +3,11 @@ using ProjectAegis.Data.Osint;
 using ProjectAegis.Data.Platform;
 using ProjectAegis.Data.Snapshots;
 using ProjectAegis.Data.WriteGate;
-using Xunit;
+using NUnit.Framework;
 
 namespace ProjectAegis.Data.Tests.Catalog;
 
-[Collection("CatalogSqlite")]
+[Runner.CatalogSqliteCollection]
 public sealed class CatalogTlExportFilterTests
 {
     private static readonly CatalogSensorBinding Tl0Sensor = new(
@@ -34,35 +34,31 @@ public sealed class CatalogTlExportFilterTests
         TrlLevel: 8,
         ValueTier: CatalogProvenanceTier.InterpretedValue);
 
-    [Fact]
+    [Test]
     public void CatalogTlTierResolver_maps_provenance_bands_to_tl_labels()
     {
-        Assert.Equal(CatalogTlTier.Tl0, CatalogTlTierResolver.ResolveFromSensor(Tl0Sensor));
-        Assert.Equal(CatalogTlTier.Tl2, CatalogTlTierResolver.ResolveFromSensor(Tl2Sensor));
-        Assert.Equal(CatalogTlTier.Tl5, CatalogTlTierResolver.ResolveFromSensor(Tl5Sensor));
-        Assert.Equal(CatalogTlTier.Tl3, CatalogTlTierResolver.ResolveFromPlatform(3));
+        Assert.That(CatalogTlTierResolver.ResolveFromSensor(Tl0Sensor), Is.EqualTo(CatalogTlTier.Tl0));
+        Assert.That(CatalogTlTierResolver.ResolveFromSensor(Tl2Sensor), Is.EqualTo(CatalogTlTier.Tl2));
+        Assert.That(CatalogTlTierResolver.ResolveFromSensor(Tl5Sensor), Is.EqualTo(CatalogTlTier.Tl5));
+        Assert.That(CatalogTlTierResolver.ResolveFromPlatform(3), Is.EqualTo(CatalogTlTier.Tl3));
     }
 
-    [Fact]
+    [Test]
     public void Filtered_export_keeps_records_at_or_below_requested_tier()
     {
         var data = SampleExportData();
         var filtered = CatalogTlExportFilter.Apply(data, CatalogTlTier.Tl2);
 
-        Assert.Equal(
-            ["u-fielded", "u-nearfuture"],
-            filtered.Sensors.Select(s => s.PlatformId).ToArray());
-        Assert.Equal(
-            ["sensor-tl0", "sensor-tl2"],
-            filtered.Sensors.Select(s => s.SensorId).ToArray());
-        Assert.DoesNotContain(filtered.Sensors, s => s.SensorId == "sensor-tl5");
+        Assert.That(            filtered.Sensors.Select(s => s.PlatformId).ToArray(), Is.EqualTo(            ["u-fielded", "u-nearfuture"]));
+        Assert.That(            filtered.Sensors.Select(s => s.SensorId).ToArray(), Is.EqualTo(            ["sensor-tl0", "sensor-tl2"]));
+        Assert.That(filtered.Sensors.Any(s => s.SensorId == "sensor-tl5"), Is.False);
     }
 
     /// <summary>
     /// PLE-5.3 / DBI-6.3: provisional (non-approved) sensors edited into export data are excluded from
     /// sim-visible <see cref="CatalogTlExportFilter.Apply"/> output until promoted to approved.
     /// </summary>
-    [Fact]
+    [Test]
     public void Filtered_export_excludes_provisional_non_approved_sensors_PLE_5_3()
     {
         var provisional = new CatalogSensorBinding(
@@ -88,17 +84,17 @@ public sealed class CatalogTlExportFilterTests
 
         var filtered = CatalogTlExportFilter.Apply(data, CatalogTlTier.Tl5);
 
-        Assert.Contains(filtered.Sensors, s => s.SensorId == "sensor-tl0");
-        Assert.DoesNotContain(filtered.Sensors, s => s.SensorId == "sensor-provisional");
-        Assert.DoesNotContain(filtered.Sensors, s =>
-            string.Equals(s.ReviewState, CatalogReviewStates.Provisional, StringComparison.OrdinalIgnoreCase));
+        Assert.That(filtered.Sensors.Any(s => s.SensorId == "sensor-tl0"), Is.True);
+        Assert.That(filtered.Sensors.Any(s => s.SensorId == "sensor-provisional"), Is.False);
+        Assert.That(filtered.Sensors.Any(s =>
+            string.Equals(s.ReviewState, CatalogReviewStates.Provisional, StringComparison.OrdinalIgnoreCase)), Is.False);
     }
 
     /// <summary>
     /// PLE-5.3 adversarial: provisional sensor stays excluded across multiple max TL ceilings
     /// (not only the permissive TL-5 slice).
     /// </summary>
-    [Fact]
+    [Test]
     public void Adversarial_provisional_sensor_excluded_at_multiple_max_tl_tiers()
     {
         var provisional = new CatalogSensorBinding(
@@ -117,13 +113,13 @@ public sealed class CatalogTlExportFilterTests
         foreach (var tier in new[] { CatalogTlTier.Tl0, CatalogTlTier.Tl2, CatalogTlTier.Tl5 })
         {
             var filtered = CatalogTlExportFilter.Apply(data, tier);
-            Assert.DoesNotContain(filtered.Sensors, s => s.SensorId == "sensor-provisional-multi");
-            Assert.Contains(filtered.Sensors, s => s.SensorId == "sensor-tl0");
+            Assert.That(filtered.Sensors.Any(s => s.SensorId == "sensor-provisional-multi"), Is.False);
+            Assert.That(filtered.Sensors.Any(s => s.SensorId == "sensor-tl0"), Is.True);
         }
     }
 
     /// <summary>PLE-5.3 adversarial: rejected review state is never sim-visible.</summary>
-    [Fact]
+    [Test]
     public void Adversarial_rejected_review_state_excluded_from_tl_export()
     {
         var rejected = new CatalogSensorBinding(
@@ -140,14 +136,14 @@ public sealed class CatalogTlExportFilterTests
         };
 
         var filtered = CatalogTlExportFilter.Apply(data, CatalogTlTier.Tl5);
-        Assert.DoesNotContain(filtered.Sensors, s => s.SensorId == "sensor-rejected");
-        Assert.DoesNotContain(filtered.Sensors, s =>
-            string.Equals(s.ReviewState, CatalogReviewStates.Rejected, StringComparison.OrdinalIgnoreCase));
-        Assert.Contains(filtered.Sensors, s => s.SensorId == "sensor-tl0");
+        Assert.That(filtered.Sensors.Any(s => s.SensorId == "sensor-rejected"), Is.False);
+        Assert.That(filtered.Sensors.Any(s =>
+            string.Equals(s.ReviewState, CatalogReviewStates.Rejected, StringComparison.OrdinalIgnoreCase)), Is.False);
+        Assert.That(filtered.Sensors.Any(s => s.SensorId == "sensor-tl0"), Is.True);
     }
 
     /// <summary>PLE-5.3 adversarial control: approved sensor is retained when under the TL ceiling.</summary>
-    [Fact]
+    [Test]
     public void Adversarial_approved_sensor_retained_control()
     {
         var approved = new CatalogSensorBinding(
@@ -164,22 +160,22 @@ public sealed class CatalogTlExportFilterTests
         };
 
         var filtered = CatalogTlExportFilter.Apply(data, CatalogTlTier.Tl0);
-        Assert.Contains(filtered.Sensors, s =>
+        Assert.That(filtered.Sensors.Any(s =>
             s.SensorId == "sensor-approved-control"
-            && string.Equals(s.ReviewState, CatalogReviewStates.Approved, StringComparison.OrdinalIgnoreCase));
+            && string.Equals(s.ReviewState, CatalogReviewStates.Approved, StringComparison.OrdinalIgnoreCase)), Is.True);
     }
 
-    [Fact]
+    [Test]
     public void Filtered_export_tl0_default_excludes_near_future_rows()
     {
         var data = SampleExportData();
         var filtered = CatalogTlExportFilter.Apply(data, CatalogTlTier.Tl0);
 
-        Assert.Single(filtered.Sensors);
-        Assert.Equal("sensor-tl0", filtered.Sensors[0].SensorId);
+        Assert.That(filtered.Sensors, Has.Exactly(1).Items);
+        Assert.That(filtered.Sensors[0].SensorId, Is.EqualTo("sensor-tl0"));
     }
 
-    [Fact]
+    [Test]
     public void Filtered_export_empty_slice_when_ceiling_below_all_rows()
     {
         var data = SampleExportData() with
@@ -192,11 +188,11 @@ public sealed class CatalogTlExportFilterTests
         };
 
         var filtered = CatalogTlExportFilter.Apply(data, CatalogTlTier.Tl2);
-        Assert.Empty(filtered.Sensors);
-        Assert.Empty(filtered.Platforms);
+        Assert.That(filtered.Sensors, Is.Empty);
+        Assert.That(filtered.Platforms, Is.Empty);
     }
 
-    [Fact]
+    [Test]
     public void Tl_export_sort_keys_are_deterministic_across_repeated_runs()
     {
         var shuffled = new[]
@@ -209,17 +205,15 @@ public sealed class CatalogTlExportFilterTests
         var first = CatalogTlExportSortKey.SortSensors(shuffled).Select(CatalogSortKeyComparer.FormatSensorKey).ToArray();
         var second = CatalogTlExportSortKey.SortSensors(shuffled.Reverse()).Select(CatalogSortKeyComparer.FormatSensorKey).ToArray();
 
-        Assert.Equal(first, second);
-        Assert.Equal(
-            [
+        Assert.That(second, Is.EqualTo(first));
+        Assert.That(            first, Is.EqualTo(            [
                 "u-fielded\tsensor-tl0",
                 "u-nearfuture\tsensor-tl2",
                 "u-speculative\tsensor-tl5",
-            ],
-            first);
+            ]));
     }
 
-    [Fact]
+    [Test]
     public void Tl_export_sort_key_orders_by_canonical_id_then_tl_tier_then_value_tier()
     {
         var rows = new[]
@@ -235,15 +229,13 @@ public sealed class CatalogTlExportFilterTests
                 row.ValueTier))
             .ToArray();
 
-        Assert.Equal(
-            [
+        Assert.That(            keys, Is.EqualTo(            [
                 "alpha\ts1\t" + CatalogTlTier.Tl0 + "\t" + CatalogProvenanceTier.InterpretedValue,
                 "alpha\ts1\t" + CatalogTlTier.Tl2 + "\t" + CatalogProvenanceTier.SourceFact,
-            ],
-            keys);
+            ]));
     }
 
-    [Fact]
+    [Test]
     public void SqliteCatalogReader_LoadExportData_honors_tl_tier_filter()
     {
         var dbPath = Path.Combine(Path.GetTempPath(), $"aegis-tl-export-{Guid.NewGuid():N}.db");
@@ -255,9 +247,9 @@ public sealed class CatalogTlExportFilterTests
             var unfiltered = reader.LoadExportData();
             var tl2 = reader.LoadExportData(CatalogTlTier.Tl2);
 
-            Assert.Equal(3, unfiltered.Sensors.Count);
-            Assert.Equal(2, tl2.Sensors.Count);
-            Assert.DoesNotContain(tl2.Sensors, s => s.SensorId == "sensor-tl5");
+            Assert.That(unfiltered.Sensors.Count, Is.EqualTo(3));
+            Assert.That(tl2.Sensors.Count, Is.EqualTo(2));
+            Assert.That(tl2.Sensors.Any(s => s.SensorId == "sensor-tl5"), Is.False);
         }
         finally
         {
@@ -265,7 +257,7 @@ public sealed class CatalogTlExportFilterTests
         }
     }
 
-    [Fact]
+    [Test]
     public void PlatformCatalogExportResolver_passes_tl_tier_filter_to_reader()
     {
         var dbPath = Path.Combine(Path.GetTempPath(), $"aegis-tl-resolver-{Guid.NewGuid():N}.db");
@@ -273,8 +265,8 @@ public sealed class CatalogTlExportFilterTests
         {
             var snapshotId = SeedTieredSensors(dbPath);
 
-            Assert.True(PlatformCatalogExportResolver.TryResolve(dbPath, snapshotId, out var tl2, CatalogTlTier.Tl2));
-            Assert.Equal(2, tl2.Sensors.Count);
+            Assert.That(PlatformCatalogExportResolver.TryResolve(dbPath, snapshotId, out var tl2, CatalogTlTier.Tl2), Is.True);
+            Assert.That(tl2.Sensors.Count, Is.EqualTo(2));
         }
         finally
         {
@@ -282,7 +274,7 @@ public sealed class CatalogTlExportFilterTests
         }
     }
 
-    [Fact]
+    [Test]
     public void Platform_export_manifest_honors_requested_tl_tier_filter()
     {
         var exporter = new PlatformWorkbookExporter();
@@ -297,9 +289,9 @@ public sealed class CatalogTlExportFilterTests
         var workbook = exporter.Export(filtered, "snap-tl2", new FixedCatalogClock(0), manifest);
 
         var meta = workbook.FindSheet(PlatformWorkbookHash.MetaSheetName);
-        Assert.NotNull(meta);
-        Assert.Equal(CatalogTlTier.Tl2, MetaValue(meta, "TlTier"));
-        Assert.Equal(2, workbook.FindSheet("Sensors")!.Rows.Count);
+        Assert.That(meta, Is.Not.Null);
+        Assert.That(MetaValue(meta!, "TlTier"), Is.EqualTo(CatalogTlTier.Tl2));
+        Assert.That(workbook.FindSheet("Sensors")!.Rows.Count, Is.EqualTo(2));
     }
 
     private static PlatformCatalogExportData SampleExportData() => new(
@@ -322,7 +314,7 @@ public sealed class CatalogTlExportFilterTests
             [Tl0Sensor, Tl2Sensor, Tl5Sensor],
             "agent",
             "tl-export-filter-test");
-        Assert.True(gate.ApproveBatch(batchId, "human", "qa").Committed);
+        Assert.That(gate.ApproveBatch(batchId, "human", "qa").Committed, Is.True);
 
         var bind = CatalogSnapshotBinder.BindAfterApprove(
             dbPath,

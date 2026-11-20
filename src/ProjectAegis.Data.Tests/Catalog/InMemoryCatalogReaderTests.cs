@@ -1,11 +1,11 @@
 using ProjectAegis.Data.Catalog;
-using Xunit;
+using NUnit.Framework;
 
 namespace ProjectAegis.Data.Tests.Catalog;
 
 public sealed class InMemoryCatalogReaderTests
 {
-    [Fact]
+    [Test]
     public void GetSortedSensorBindings_orders_by_platform_then_sensor_ordinal()
     {
         var reader = new InMemoryCatalogReader(
@@ -16,31 +16,31 @@ public sealed class InMemoryCatalogReaderTests
         ]);
 
         var bindings = reader.GetSortedSensorBindings();
-        Assert.Equal("u1", bindings[0].PlatformId);
-        Assert.Equal("radar-a", bindings[0].SensorId);
-        Assert.Equal("u1", bindings[1].PlatformId);
-        Assert.Equal("radar-b", bindings[1].SensorId);
-        Assert.Equal("u2", bindings[2].PlatformId);
+        Assert.That(bindings[0].PlatformId, Is.EqualTo("u1"));
+        Assert.That(bindings[0].SensorId, Is.EqualTo("radar-a"));
+        Assert.That(bindings[1].PlatformId, Is.EqualTo("u1"));
+        Assert.That(bindings[1].SensorId, Is.EqualTo("radar-b"));
+        Assert.That(bindings[2].PlatformId, Is.EqualTo("u2"));
     }
 
-    [Fact]
+    [Test]
     public void Baltic_fixture_resolves_radar_basePd()
     {
         var reader = InMemoryCatalogReader.BalticPatrolFixture();
-        Assert.True(reader.TryGetBasePd("u1", "radar-1", out var basePd));
-        Assert.Equal(1.0, basePd);
+        Assert.That(reader.TryGetBasePd("u1", "radar-1", out var basePd), Is.True);
+        Assert.That(basePd, Is.EqualTo(1.0));
     }
 
-    [Fact]
+    [Test]
     public void Baltic_magazine_fixture_exposes_sorted_loadout_and_magazine_rows()
     {
         var reader = InMemoryCatalogReader.BalticMagazineFixture(magazineQuantity: 16);
 
-        Assert.Single(reader.GetSortedLoadouts());
-        Assert.Equal("asuw-default", reader.GetSortedLoadouts()[0].LoadoutId);
-        Assert.True(reader.GetSortedLoadouts()[0].IsDefault);
+        Assert.That(reader.GetSortedLoadouts(), Has.Exactly(1).Items);
+        Assert.That(reader.GetSortedLoadouts()[0].LoadoutId, Is.EqualTo("asuw-default"));
+        Assert.That(reader.GetSortedLoadouts()[0].IsDefault, Is.True);
 
-        Assert.Single(reader.GetSortedMagazines());
-        Assert.Equal(16, reader.GetSortedMagazines()[0].Quantity);
+        Assert.That(reader.GetSortedMagazines(), Has.Exactly(1).Items);
+        Assert.That(reader.GetSortedMagazines()[0].Quantity, Is.EqualTo(16));
     }
 }

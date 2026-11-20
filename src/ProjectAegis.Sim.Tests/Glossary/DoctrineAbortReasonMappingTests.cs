@@ -1,7 +1,7 @@
 using ProjectAegis.Sim.Engage;
 using ProjectAegis.Sim.Glossary;
 using ProjectAegis.Sim.Policy;
-using Xunit;
+using NUnit.Framework;
 
 namespace ProjectAegis.Sim.Tests.Glossary;
 
@@ -14,7 +14,7 @@ namespace ProjectAegis.Sim.Tests.Glossary;
 /// </summary>
 public sealed class DoctrineAbortReasonMappingTests
 {
-    [Fact]
+    [Test]
     public void WraRange_policy_denial_maps_to_out_of_envelope_not_hold_fire()
     {
         var world = new DictionaryEngageWorldQuery();
@@ -27,11 +27,9 @@ public sealed class DoctrineAbortReasonMappingTests
 
         var result = resolver.Resolve(request);
 
-        Assert.False(result.Launched);
-        Assert.Equal(EngagementAbortReason.OutOfEnvelope, result.AbortReason);
-        Assert.Equal(
-            AbortReasonCatalog.Engage.OUT_OF_ENVELOPE,
-            EngagementAbortReasonCodes.ToLogCode(result.AbortReason));
+        Assert.That(result.Launched, Is.False);
+        Assert.That(result.AbortReason, Is.EqualTo(EngagementAbortReason.OutOfEnvelope));
+        Assert.That(EngagementAbortReasonCodes.ToLogCode(result.AbortReason), Is.EqualTo(AbortReasonCatalog.Engage.OUT_OF_ENVELOPE));
     }
 
     private sealed class AlwaysDenyPolicyEvaluator(FireAbortReason reason) : IPolicyEvaluator

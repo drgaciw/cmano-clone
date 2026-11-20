@@ -1,6 +1,6 @@
 namespace ProjectAegis.Data.Tests.Architecture;
 
-using Xunit;
+using NUnit.Framework;
 
 /// <summary>
 /// AC-9 (AME-2.4): <c>editorState</c> is derived-only and must never be read by
@@ -14,22 +14,18 @@ public sealed class DerivedOnlyInvariantTests
         "src/ProjectAegis.MissionEditor.Cli/ScenarioSimulateSampleCommand.cs",
         "src/ProjectAegis.MissionEditor.Cli/ScenarioValidateCommand.cs",
     };
-
-    [Theory]
-    [MemberData(nameof(KnownValidationEntryFileCases))]
+    [TestCaseSource(nameof(KnownValidationEntryFileCases))]
     public void EditorStateLint_no_editorState_reads_in_validation_or_sim_entry_points(string relativePath)
     {
         var path = ResolveRepoFile(relativePath);
-        Assert.True(path != null, $"Could not locate source file at repo-relative path '{relativePath}'.");
+        Assert.That(path != null, Is.True, $"Could not locate source file at repo-relative path '{relativePath}'.");
 
-        var source = File.ReadAllText(path);
-        Assert.False(
-            source.Contains("editorState", StringComparison.Ordinal),
-            $"EditorStateLint violation: '{path}' references 'editorState'. " +
+        var source = File.ReadAllText(path!);
+        Assert.That(            source.Contains("editorState", StringComparison.Ordinal), Is.False,             $"EditorStateLint violation: '{path}' references 'editorState'. " +
             "Per AME-2.4 / AC-9, validation and sim entry points must not read derived-only editor state.");
     }
 
-    [Fact]
+    [Test]
     public void EditorStateLint_has_no_violations_in_known_entry_files()
     {
         var violations = new List<string>();
@@ -48,9 +44,7 @@ public sealed class DerivedOnlyInvariantTests
             }
         }
 
-        Assert.True(
-            violations.Count == 0,
-            $"EditorStateLint violations: {string.Join(", ", violations)}");
+        Assert.That(            violations.Count == 0, Is.True,             $"EditorStateLint violations: {string.Join(", ", violations)}");
     }
 
     public static IEnumerable<object[]> KnownValidationEntryFileCases() =>

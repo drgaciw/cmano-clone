@@ -1,7 +1,7 @@
 using ProjectAegis.Data.Catalog;
 using ProjectAegis.Data.Scenario.Policy;
 using ProjectAegis.Sim.Scenario;
-using Xunit;
+using NUnit.Framework;
 
 namespace ProjectAegis.Sim.Tests.Scenario;
 
@@ -11,13 +11,13 @@ namespace ProjectAegis.Sim.Tests.Scenario;
 /// </summary>
 public sealed class MissionContactTargetClassifierTests
 {
-    [Theory]
-    [InlineData("f-219-sachsen-type-f124-2006", "surface")]
-    [InlineData("k-31-visby-2009", "surface")]
-    [InlineData("hostile-1", "surface")]
-    [InlineData("tu-160-blackjack", "air")]
-    [InlineData("jas-39e-gripen-ng-2021", "air")]
-    [InlineData("ssn-774-virginia-blk-i-ii", "subsurface")]
+
+    [TestCase("f-219-sachsen-type-f124-2006", "surface")]
+    [TestCase("k-31-visby-2009", "surface")]
+    [TestCase("hostile-1", "surface")]
+    [TestCase("tu-160-blackjack", "air")]
+    [TestCase("jas-39e-gripen-ng-2021", "air")]
+    [TestCase("ssn-774-virginia-blk-i-ii", "subsurface")]
     public void Classify_with_sqlite_catalog_reader_uses_platform_domain(string targetId, string domain)
     {
         var reader = CatalogReaderFactory.TryCreateBalticPatrolReader();
@@ -26,76 +26,71 @@ public sealed class MissionContactTargetClassifierTests
             return;
         }
 
-        Assert.True(reader.TryGetPlatformDomain(targetId, out var actualDomain), $"missing catalog row for {targetId}");
-        Assert.Equal(domain, actualDomain, StringComparer.OrdinalIgnoreCase);
-        Assert.Equal(
-            MissionContactTargetClassifier.FromCatalogDomain(actualDomain),
-            MissionContactTargetClassifier.Classify(targetId, reader));
+        Assert.That(reader.TryGetPlatformDomain(targetId, out var actualDomain), Is.True, $"missing catalog row for {targetId}");
+        Assert.That(actualDomain, Is.EqualTo(domain).IgnoreCase);
+        Assert.That(
+            MissionContactTargetClassifier.Classify(targetId, reader),
+            Is.EqualTo(MissionContactTargetClassifier.FromCatalogDomain(actualDomain)));
     }
 
-    [Theory]
-    [InlineData("tu-160-blackjack")]
-    [InlineData("jas-39e-gripen-ng-2021")]
+    [TestCase("tu-160-blackjack")]
+    [TestCase("jas-39e-gripen-ng-2021")]
     public void Classify_catalog_air_ids_as_air_only_when_reader_has_domain(string targetId)
     {
         var reader = CreateReader(
             new CatalogPlatformEntry(targetId, 0, 0, 100, Domain: "air"));
 
-        Assert.Equal(MissionContactTargetClass.Air, MissionContactTargetClassifier.Classify(targetId, reader));
-        Assert.True(MissionContactTargetClassifier.Matches(MissionContactTargetClass.Air, targetId, reader));
-        Assert.False(MissionContactTargetClassifier.Matches(MissionContactTargetClass.Surface, targetId, reader));
+        Assert.That(MissionContactTargetClassifier.Classify(targetId, reader), Is.EqualTo(MissionContactTargetClass.Air));
+        Assert.That(MissionContactTargetClassifier.Matches(MissionContactTargetClass.Air, targetId, reader), Is.True);
+        Assert.That(MissionContactTargetClassifier.Matches(MissionContactTargetClass.Surface, targetId, reader), Is.False);
     }
 
-    [Theory]
-    [InlineData("tu-160-blackjack")]
-    [InlineData("jas-39e-gripen-ng-2021")]
-    [InlineData("ssn-774-virginia-blk-i-ii")]
+    [TestCase("tu-160-blackjack")]
+    [TestCase("jas-39e-gripen-ng-2021")]
+    [TestCase("ssn-774-virginia-blk-i-ii")]
     public void Classify_without_catalog_row_does_not_infer_air_or_subsurface_from_id_substring(string targetId)
     {
         var reader = CreateReader();
 
-        Assert.False(targetId.StartsWith("ucav", StringComparison.Ordinal));
-        Assert.Equal(MissionContactTargetClass.Surface, MissionContactTargetClassifier.Classify(targetId, reader));
-        Assert.False(MissionContactTargetClassifier.Matches(MissionContactTargetClass.Air, targetId, reader));
-        Assert.False(MissionContactTargetClassifier.Matches(MissionContactTargetClass.Subsurface, targetId, reader));
+        Assert.That(targetId.StartsWith("ucav", StringComparison.Ordinal), Is.False);
+        Assert.That(MissionContactTargetClassifier.Classify(targetId, reader), Is.EqualTo(MissionContactTargetClass.Surface));
+        Assert.That(MissionContactTargetClassifier.Matches(MissionContactTargetClass.Air, targetId, reader), Is.False);
+        Assert.That(MissionContactTargetClassifier.Matches(MissionContactTargetClass.Subsurface, targetId, reader), Is.False);
     }
 
-    [Theory]
-    [InlineData("ssn-774-virginia-blk-i-ii")]
-    [InlineData("pla-885-severodvinsk-yasen")]
+    [TestCase("ssn-774-virginia-blk-i-ii")]
+    [TestCase("pla-885-severodvinsk-yasen")]
     public void Classify_catalog_subsurface_ids_as_subsurface_when_reader_has_domain(string targetId)
     {
         var reader = CreateReader(
             new CatalogPlatformEntry(targetId, 0, 0, 100, Domain: "subsurface"));
 
-        Assert.Equal(MissionContactTargetClass.Subsurface, MissionContactTargetClassifier.Classify(targetId, reader));
-        Assert.True(MissionContactTargetClassifier.Matches(MissionContactTargetClass.Subsurface, targetId, reader));
-        Assert.False(MissionContactTargetClassifier.Matches(MissionContactTargetClass.Air, targetId, reader));
+        Assert.That(MissionContactTargetClassifier.Classify(targetId, reader), Is.EqualTo(MissionContactTargetClass.Subsurface));
+        Assert.That(MissionContactTargetClassifier.Matches(MissionContactTargetClass.Subsurface, targetId, reader), Is.True);
+        Assert.That(MissionContactTargetClassifier.Matches(MissionContactTargetClass.Air, targetId, reader), Is.False);
     }
 
-    [Theory]
-    [InlineData("ucav-blue")]
-    [InlineData("ucav-red")]
+    [TestCase("ucav-blue")]
+    [TestCase("ucav-red")]
     public void Classify_legacy_ucav_prefix_still_air_on_catalog_miss(string targetId)
     {
-        Assert.Equal(MissionContactTargetClass.Air, MissionContactTargetClassifier.Classify(targetId));
-        Assert.Equal(MissionContactTargetClass.Air, MissionContactTargetClassifier.Classify(targetId, catalogReader: null));
-        Assert.Equal(MissionContactTargetClass.Air, MissionContactTargetClassifier.Classify(targetId, CreateReader()));
+        Assert.That(MissionContactTargetClassifier.Classify(targetId), Is.EqualTo(MissionContactTargetClass.Air));
+        Assert.That(MissionContactTargetClassifier.Classify(targetId, catalogReader: null), Is.EqualTo(MissionContactTargetClass.Air));
+        Assert.That(MissionContactTargetClassifier.Classify(targetId, CreateReader()), Is.EqualTo(MissionContactTargetClass.Air));
     }
 
-    [Theory]
-    [InlineData("air", MissionContactTargetClass.Air)]
-    [InlineData("aircraft", MissionContactTargetClass.Air)]
-    [InlineData("subsurface", MissionContactTargetClass.Subsurface)]
-    [InlineData("submarine", MissionContactTargetClass.Subsurface)]
-    [InlineData("surface", MissionContactTargetClass.Surface)]
-    [InlineData("ship", MissionContactTargetClass.Surface)]
+    [TestCase("air", MissionContactTargetClass.Air)]
+    [TestCase("aircraft", MissionContactTargetClass.Air)]
+    [TestCase("subsurface", MissionContactTargetClass.Subsurface)]
+    [TestCase("submarine", MissionContactTargetClass.Subsurface)]
+    [TestCase("surface", MissionContactTargetClass.Surface)]
+    [TestCase("ship", MissionContactTargetClass.Surface)]
     public void FromCatalogDomain_maps_catalog_domain_field(string domain, MissionContactTargetClass expected)
     {
-        Assert.Equal(expected, MissionContactTargetClassifier.FromCatalogDomain(domain));
+        Assert.That(MissionContactTargetClassifier.FromCatalogDomain(domain), Is.EqualTo(expected));
     }
 
-    [Fact]
+    [Test]
     public void ToProfile_parses_subsurface_target_class_instead_of_falling_through_to_any()
     {
         var profile = ScenarioPolicyJsonLoader.ToProfile(new ScenarioPolicyJsonDto
@@ -131,13 +126,13 @@ public sealed class MissionContactTargetClassifierTests
             },
         });
 
-        Assert.NotNull(profile.MissionTimeline);
-        var trigger = Assert.Single(profile.MissionTimeline!.ContactTriggers);
-        Assert.Equal(MissionContactTargetClass.Subsurface, trigger.TargetClass);
-        Assert.NotEqual(MissionContactTargetClass.Any, trigger.TargetClass);
+        Assert.That(profile.MissionTimeline, Is.Not.Null);
+        var trigger = AssertEx.Single(profile.MissionTimeline!.ContactTriggers);
+        Assert.That(trigger.TargetClass, Is.EqualTo(MissionContactTargetClass.Subsurface));
+        Assert.That(trigger.TargetClass, Is.Not.EqualTo(MissionContactTargetClass.Any));
     }
 
-    [Fact]
+    [Test]
     public void ToProfile_throws_on_unknown_target_class()
     {
         var dto = new ScenarioPolicyJsonDto
@@ -174,7 +169,7 @@ public sealed class MissionContactTargetClassifierTests
         };
 
         var ex = Assert.Throws<InvalidDataException>(() => ScenarioPolicyJsonLoader.ToProfile(dto));
-        Assert.Contains("targetClass", ex.Message, StringComparison.OrdinalIgnoreCase);
+        Assert.That(ex!.Message, Does.Contain("targetClass").IgnoreCase);
     }
 
     private static InMemoryCatalogReader CreateReader(params CatalogPlatformEntry[] platforms) =>

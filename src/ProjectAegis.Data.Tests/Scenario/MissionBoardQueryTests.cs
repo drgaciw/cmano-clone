@@ -1,5 +1,5 @@
 using ProjectAegis.Data.Scenario.Authoring;
-using Xunit;
+using NUnit.Framework;
 
 namespace ProjectAegis.Data.Tests.Scenario;
 
@@ -27,47 +27,47 @@ public sealed class MissionBoardQueryTests
         return editor.ToDto();
     }
 
-    [Fact]
+    [Test]
     public void List_returns_all_missions_sorted_by_id_ordinal()
     {
         var rows = MissionBoardQuery.List(DocWithMissions());
-        Assert.Equal(3, rows.Count);
-        Assert.Equal(new[] { "ferry-empty", "patrol-1", "strike-1" }, rows.Select(r => r.Id).ToArray());
+        Assert.That(rows.Count, Is.EqualTo(3));
+        Assert.That(rows.Select(r => r.Id).ToArray(), Is.EqualTo(new[] { "ferry-empty", "patrol-1", "strike-1" }));
     }
 
-    [Fact]
+    [Test]
     public void List_filter_by_type_patrol()
     {
         var rows = MissionBoardQuery.List(DocWithMissions(), typeFilter: "Patrol");
-        Assert.Single(rows);
-        Assert.Equal("patrol-1", rows[0].Id);
-        Assert.Equal("blue", rows[0].SideId);
-        Assert.Equal("Assigned", rows[0].Status);
-        Assert.Equal(1, rows[0].UnitCount);
+        Assert.That(rows, Has.Exactly(1).Items);
+        Assert.That(rows[0].Id, Is.EqualTo("patrol-1"));
+        Assert.That(rows[0].SideId, Is.EqualTo("blue"));
+        Assert.That(rows[0].Status, Is.EqualTo("Assigned"));
+        Assert.That(rows[0].UnitCount, Is.EqualTo(1));
     }
 
-    [Fact]
+    [Test]
     public void List_filter_by_side_red()
     {
         var rows = MissionBoardQuery.List(DocWithMissions(), sideFilter: "red");
-        Assert.Single(rows);
-        Assert.Equal("strike-1", rows[0].Id);
+        Assert.That(rows, Has.Exactly(1).Items);
+        Assert.That(rows[0].Id, Is.EqualTo("strike-1"));
     }
 
-    [Fact]
+    [Test]
     public void List_filter_unassigned_status()
     {
         var rows = MissionBoardQuery.List(DocWithMissions(), statusFilter: "Unassigned");
-        Assert.Single(rows);
-        Assert.Equal("ferry-empty", rows[0].Id);
-        Assert.Null(rows[0].SideId);
+        Assert.That(rows, Has.Exactly(1).Items);
+        Assert.That(rows[0].Id, Is.EqualTo("ferry-empty"));
+        Assert.That(rows[0].SideId, Is.Null);
     }
 
-    [Fact]
+    [Test]
     public void Summary_line_includes_type_and_id()
     {
         var row = MissionBoardQuery.List(DocWithMissions(), typeFilter: "Strike").Single();
-        Assert.Contains("strike-1", row.SummaryLine, StringComparison.Ordinal);
-        Assert.Contains("Strike", row.SummaryLine, StringComparison.OrdinalIgnoreCase);
+        Assert.That(row.SummaryLine, Does.Contain("strike-1"));
+        Assert.That(row.SummaryLine, Does.Contain("Strike").IgnoreCase);
     }
 }

@@ -1,7 +1,7 @@
 using ProjectAegis.Data.Catalog;
 using ProjectAegis.Sim.Core;
 using ProjectAegis.Sim.Swarm;
-using Xunit;
+using NUnit.Framework;
 
 namespace ProjectAegis.Sim.Tests.Swarm;
 
@@ -14,7 +14,7 @@ public sealed class SwarmControllerTests
         int max = 40) =>
         new(unitId, CatalogSwarmPlatformDefaults.GenericSwarmPlatformId, drones, max);
 
-    [Fact]
+    [Test]
     public void Headless_move_command_advances_swarm_centroid()
     {
         var controller = new SwarmController(SimSeed.FromScenario(42), speedDegPerSecond: 0.1);
@@ -28,13 +28,17 @@ public sealed class SwarmControllerTests
             controller.Tick(deltaSeconds: 1.0);
         }
 
-        Assert.True(controller.TryGetCentroid("swarm-1", out var lat, out var lon));
-        Assert.Equal(57.5, lat, 6);
-        Assert.Equal(20.5, lon, 6);
-        Assert.Equal(SwarmIntentKind.Move, controller.GetIntent("swarm-1"));
+        Assert.That(controller.TryGetCentroid("swarm-1", out var lat, out var lon), Is.True);
+        Assert.That(
+            Math.Round(lat, 6, MidpointRounding.AwayFromZero),
+            Is.EqualTo(Math.Round(57.5, 6, MidpointRounding.AwayFromZero)));
+        Assert.That(
+            Math.Round(lon, 6, MidpointRounding.AwayFromZero),
+            Is.EqualTo(Math.Round(20.5, 6, MidpointRounding.AwayFromZero)));
+        Assert.That(controller.GetIntent("swarm-1"), Is.EqualTo(SwarmIntentKind.Move));
     }
 
-    [Fact]
+    [Test]
     public void Hold_keeps_centroid_stationary()
     {
         var controller = new SwarmController(SimSeed.FromScenario(7), speedDegPerSecond: 1.0);
@@ -43,12 +47,12 @@ public sealed class SwarmControllerTests
         controller.IssueHold("swarm-1", simTick: 1, simTime: 0.0);
         controller.Tick(deltaSeconds: 10.0);
 
-        Assert.True(controller.TryGetCentroid("swarm-1", out var lat, out var lon));
-        Assert.Equal(10.0, lat);
-        Assert.Equal(30.0, lon);
+        Assert.That(controller.TryGetCentroid("swarm-1", out var lat, out var lon), Is.True);
+        Assert.That(lat, Is.EqualTo(10.0));
+        Assert.That(lon, Is.EqualTo(30.0));
     }
 
-    [Fact]
+    [Test]
     public void Attack_and_hold_intents_are_logged_and_replayable()
     {
         var source = new SwarmController(SimSeed.FromScenario(99));
@@ -64,64 +68,68 @@ public sealed class SwarmControllerTests
             targetLonDeg: 2.5);
         source.IssueHold("swarm-a", simTick: 3, simTime: 3.0);
 
-        Assert.Equal(3, source.OrderLog.Count);
-        Assert.Equal(SwarmIntentKind.Hold, source.OrderLog[0].Intent);
-        Assert.Equal(SwarmIntentKind.Attack, source.OrderLog[1].Intent);
-        Assert.Equal("hostile-1", source.OrderLog[1].AttackTargetUnitId);
-        Assert.Equal(SwarmIntentKind.Hold, source.OrderLog[2].Intent);
+        Assert.That(source.OrderLog.Count, Is.EqualTo(3));
+        Assert.That(source.OrderLog[0].Intent, Is.EqualTo(SwarmIntentKind.Hold));
+        Assert.That(source.OrderLog[1].Intent, Is.EqualTo(SwarmIntentKind.Attack));
+        Assert.That(source.OrderLog[1].AttackTargetUnitId, Is.EqualTo("hostile-1"));
+        Assert.That(source.OrderLog[2].Intent, Is.EqualTo(SwarmIntentKind.Hold));
 
         var replay = new SwarmController(SimSeed.FromScenario(99));
         replay.Register(SampleIntegrity("swarm-a"), latDeg: 1.0, lonDeg: 2.0);
         SwarmController.ReplayOrders(replay, source.OrderLog);
 
-        Assert.Equal(source.ComputeOrderLogFingerprint(), replay.ComputeOrderLogFingerprint());
-        Assert.Equal(SwarmIntentKind.Hold, replay.GetIntent("swarm-a"));
-        Assert.Equal(3, replay.OrderLog.Count);
-        Assert.Equal("hostile-1", replay.OrderLog[1].AttackTargetUnitId);
+        Assert.That(replay.ComputeOrderLogFingerprint(), Is.EqualTo(source.ComputeOrderLogFingerprint()));
+        Assert.That(replay.GetIntent("swarm-a"), Is.EqualTo(SwarmIntentKind.Hold));
+        Assert.That(replay.OrderLog.Count, Is.EqualTo(3));
+        Assert.That(replay.OrderLog[1].AttackTargetUnitId, Is.EqualTo("hostile-1"));
     }
 
-    [Fact]
+    [Test]
     public void Integrity_updates_only_via_authorized_damage_api()
     {
         var controller = new SwarmController(SimSeed.FromScenario(1));
         controller.Register(SampleIntegrity(drones: 40, max: 40), latDeg: 0, lonDeg: 0);
 
-        Assert.True(controller.TryGetIntegrity("swarm-1", out var before));
-        Assert.Equal(40, before.DroneCount);
+        Assert.That(controller.TryGetIntegrity("swarm-1", out var before), Is.True);
+        Assert.That(before.DroneCount, Is.EqualTo(40));
 
         // Unauthorized: reassignment of the returned record must not mutate controller state.
         before = before with { DroneCount = 1 };
-        Assert.Equal(1, before.DroneCount);
-        Assert.True(controller.TryGetIntegrity("swarm-1", out var stillFull));
-        Assert.Equal(40, stillFull.DroneCount);
+        Assert.That(before.DroneCount, Is.EqualTo(1));
+        Assert.That(controller.TryGetIntegrity("swarm-1", out var stillFull), Is.True);
+        Assert.That(stillFull.DroneCount, Is.EqualTo(40));
 
-        Assert.True(controller.TryApplyIntegrityDamage(
-            "swarm-1",
-            dronesLost: 5,
-            simTick: 10,
-            simTime: 10.0,
-            reasonCode: "test-aa",
-            out var change));
+        Assert.That(
+            controller.TryApplyIntegrityDamage(
+                    "swarm-1",
+                    dronesLost: 5,
+                    simTick: 10,
+                    simTime: 10.0,
+                    reasonCode: "test-aa",
+                    out var change),
+            Is.True);
 
-        Assert.Equal(40, change.PreviousDroneCount);
-        Assert.Equal(35, change.NewDroneCount);
-        Assert.Equal(5, change.DronesLost);
-        Assert.Equal("test-aa", change.ReasonCode);
+        Assert.That(change.PreviousDroneCount, Is.EqualTo(40));
+        Assert.That(change.NewDroneCount, Is.EqualTo(35));
+        Assert.That(change.DronesLost, Is.EqualTo(5));
+        Assert.That(change.ReasonCode, Is.EqualTo("test-aa"));
 
-        Assert.True(controller.TryGetIntegrity("swarm-1", out var after));
-        Assert.Equal(35, after.DroneCount);
-        Assert.Single(controller.IntegrityTimeline);
+        Assert.That(controller.TryGetIntegrity("swarm-1", out var after), Is.True);
+        Assert.That(after.DroneCount, Is.EqualTo(35));
+        AssertEx.Single(controller.IntegrityTimeline);
 
-        Assert.False(controller.TryApplyIntegrityDamage(
-            "swarm-1",
-            dronesLost: 0,
-            simTick: 11,
-            simTime: 11.0,
-            reasonCode: "noop",
-            out _));
+        Assert.That(
+            controller.TryApplyIntegrityDamage(
+                    "swarm-1",
+                    dronesLost: 0,
+                    simTick: 11,
+                    simTime: 11.0,
+                    reasonCode: "noop",
+                    out _),
+            Is.False);
     }
 
-    [Fact]
+    [Test]
     public void Same_scenario_seed_yields_same_integrity_timeline()
     {
         const ulong seed = 12345UL;
@@ -155,37 +163,39 @@ public sealed class SwarmControllerTests
 
         var a = Run();
         var b = Run();
-        Assert.Equal(a, b);
-        Assert.NotEqual(0UL, a);
+        Assert.That(b, Is.EqualTo(a));
+        Assert.That(a, Is.Not.EqualTo(0UL));
 
         // Different seed must not collide on the mix base even with same damage schedule shape.
         var other = new SwarmController(SimSeed.FromScenario(seed + 1));
         other.Register(SampleIntegrity("s1", drones: 40, max: 40), latDeg: 57.0, lonDeg: 20.0);
         other.Register(SampleIntegrity("s2", drones: 20, max: 20), latDeg: 58.0, lonDeg: 21.0);
-        Assert.NotEqual(a, other.ComputeIntegrityTimelineHash());
+        Assert.That(other.ComputeIntegrityTimelineHash(), Is.Not.EqualTo(a));
     }
 
-    [Fact]
+    [Test]
     public void Integrity_clamps_at_zero_and_marks_destroyed()
     {
         var controller = new SwarmController(SimSeed.FromScenario(3));
         controller.Register(SampleIntegrity(drones: 4, max: 40), latDeg: 0, lonDeg: 0);
 
-        Assert.True(controller.TryApplyIntegrityDamage(
-            "swarm-1",
-            dronesLost: 100,
-            simTick: 1,
-            simTime: 1.0,
-            reasonCode: "overkill",
-            out var change));
+        Assert.That(
+            controller.TryApplyIntegrityDamage(
+                    "swarm-1",
+                    dronesLost: 100,
+                    simTick: 1,
+                    simTime: 1.0,
+                    reasonCode: "overkill",
+                    out var change),
+            Is.True);
 
-        Assert.Equal(0, change.NewDroneCount);
-        Assert.Equal(4, change.DronesLost);
-        Assert.True(controller.TryGetIntegrity("swarm-1", out var integrity));
-        Assert.True(integrity.IsDestroyed);
+        Assert.That(change.NewDroneCount, Is.EqualTo(0));
+        Assert.That(change.DronesLost, Is.EqualTo(4));
+        Assert.That(controller.TryGetIntegrity("swarm-1", out var integrity), Is.True);
+        Assert.That(integrity.IsDestroyed, Is.True);
     }
 
-    [Fact]
+    [Test]
     public void Destroyed_swarm_does_not_advance_centroid()
     {
         var controller = new SwarmController(SimSeed.FromScenario(4), speedDegPerSecond: 1.0);
@@ -194,8 +204,8 @@ public sealed class SwarmControllerTests
         controller.TryApplyIntegrityDamage("swarm-1", 1, 2, 2.0, "kill", out _);
         controller.Tick(5.0);
 
-        Assert.True(controller.TryGetCentroid("swarm-1", out var lat, out var lon));
-        Assert.Equal(0.0, lat);
-        Assert.Equal(0.0, lon);
+        Assert.That(controller.TryGetCentroid("swarm-1", out var lat, out var lon), Is.True);
+        Assert.That(lat, Is.EqualTo(0.0));
+        Assert.That(lon, Is.EqualTo(0.0));
     }
 }

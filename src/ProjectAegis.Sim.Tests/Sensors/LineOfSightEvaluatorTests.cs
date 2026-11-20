@@ -2,72 +2,72 @@ using ProjectAegis.Sim.Core;
 using ProjectAegis.Sim.Glossary;
 using ProjectAegis.Sim.Scenario;
 using ProjectAegis.Sim.Sensors;
-using Xunit;
+using NUnit.Framework;
 
 namespace ProjectAegis.Sim.Tests.Sensors;
 
 /// <summary>ENV-02 / DRG-379: radar horizon + terrain masking.</summary>
 public sealed class LineOfSightEvaluatorTests
 {
-    [Fact]
+    [Test]
     public void Horizon_range_matches_four_thirds_earth_formula()
     {
         // 20 m mast vs 5 m sea-skimmer ≈ 18.4 km + 9.2 km on a 4/3 earth.
         var d = LineOfSightEvaluator.HorizonRangeMeters(20, 5, LineOfSightEvaluator.RadarKFactor);
-        Assert.InRange(d, 27_500, 27_700);
+        Assert.That(d, Is.InRange(27_500, 27_700));
     }
 
-    [Fact]
+    [Test]
     public void Optical_horizon_is_shorter_than_radar_horizon()
     {
         var radar = LineOfSightEvaluator.HorizonRangeMeters(30, 30, LineOfSightEvaluator.RadarKFactor);
         var optical = LineOfSightEvaluator.HorizonRangeMeters(30, 30, LineOfSightEvaluator.OpticalKFactor);
-        Assert.True(optical < radar);
+        Assert.That(optical < radar, Is.True);
     }
 
-    [Fact]
+    [Test]
     public void Low_flyer_beyond_horizon_is_blocked_with_reason_code()
     {
         var g = new ScenarioLosGeometry("u1", "h1", 20, 15, 40_000);
         var r = LineOfSightEvaluator.Evaluate(g, SensorModality.Radar);
-        Assert.False(r.Clear);
-        Assert.Equal(AbortReasonCatalog.Sensor.LOS_RADAR_HORIZON, r.BlockCode);
+        Assert.That(r.Clear, Is.False);
+        Assert.That(r.BlockCode, Is.EqualTo(AbortReasonCatalog.Sensor.LOS_RADAR_HORIZON));
     }
 
-    [Fact]
+    [Test]
     public void High_altitude_target_at_same_range_is_visible()
     {
         var g = new ScenarioLosGeometry("u1", "h1", 20, 9_000, 40_000);
-        Assert.True(LineOfSightEvaluator.Evaluate(g, SensorModality.Radar).Clear);
+        Assert.That(LineOfSightEvaluator.Evaluate(g, SensorModality.Radar).Clear, Is.True);
     }
 
-    [Fact]
+    [Test]
     public void Ridge_between_observer_and_target_masks_with_terrain_code()
     {
         var ridge = new[] { new TerrainProfileSample(5_000, 400) };
         var g = new ScenarioLosGeometry("u1", "h1", 50, 100, 10_000, ridge);
         var r = LineOfSightEvaluator.Evaluate(g, SensorModality.Radar);
-        Assert.False(r.Clear);
-        Assert.Equal(AbortReasonCatalog.Sensor.LOS_TERRAIN_MASK, r.BlockCode);
+        Assert.That(r.Clear, Is.False);
+        Assert.That(r.BlockCode, Is.EqualTo(AbortReasonCatalog.Sensor.LOS_TERRAIN_MASK));
     }
 
-    [Fact]
+    [Test]
     public void Low_terrain_below_ray_does_not_mask()
     {
         var hills = new[] { new TerrainProfileSample(2_000, 10), new TerrainProfileSample(8_000, 20) };
         var g = new ScenarioLosGeometry("u1", "h1", 300, 3_000, 10_000, hills);
-        Assert.True(LineOfSightEvaluator.Evaluate(g, SensorModality.Radar).Clear);
+        Assert.That(LineOfSightEvaluator.Evaluate(g, SensorModality.Radar).Clear, Is.True);
     }
 
-    [Fact]
+    [Test]
     public void Samples_outside_path_are_ignored()
     {
         var samples = new[] { new TerrainProfileSample(0, 5_000), new TerrainProfileSample(10_000, 5_000) };
         var g = new ScenarioLosGeometry("u1", "h1", 300, 3_000, 10_000, samples);
-        Assert.True(LineOfSightEvaluator.Evaluate(g, SensorModality.Radar).Clear);
+        Assert.That(LineOfSightEvaluator.Evaluate(g, SensorModality.Radar).Clear, Is.True);
     }
 
-    [Fact]
+    [Test]
     public void Terrain_samples_beyond_budget_cap_are_not_evaluated()
     {
         var samples = new TerrainProfileSample[LineOfSightEvaluator.MaxTerrainSamplesPerPair + 1];
@@ -78,10 +78,10 @@ public sealed class LineOfSightEvaluatorTests
 
         samples[^1] = new TerrainProfileSample(5_000, 10_000); // would mask, but is past the cap
         var g = new ScenarioLosGeometry("u1", "h1", 300, 3_000, 10_000, samples);
-        Assert.True(LineOfSightEvaluator.Evaluate(g, SensorModality.Radar).Clear);
+        Assert.That(LineOfSightEvaluator.Evaluate(g, SensorModality.Radar).Clear, Is.True);
     }
 
-    [Fact]
+    [Test]
     public void Detection_loop_reserves_draw_index_when_los_blocks()
     {
         var seed = SimSeed.FromScenario(42);
@@ -98,18 +98,18 @@ public sealed class LineOfSightEvaluatorTests
         var gated = DeterministicDetectionLoop.RollTick(seed, 3, trials, null, environment: env, losBlocks: blocks);
         var unblocked = DeterministicDetectionLoop.RollTick(seed, 3, trials, null);
 
-        var only = Assert.Single(gated);
-        Assert.Equal("h2", only.Trial.TargetId);
-        Assert.Equal(unblocked.Single(r => r.Trial.TargetId == "h2"), only);
-        var block = Assert.Single(blocks);
-        Assert.Equal(3UL, block.SimTick);
-        Assert.Equal("u1", block.ObserverId);
-        Assert.Equal("radar-1", block.SensorId);
-        Assert.Equal("h1", block.TargetId);
-        Assert.Equal(AbortReasonCatalog.Sensor.LOS_RADAR_HORIZON, block.BlockCode);
+        var only = AssertEx.Single(gated);
+        Assert.That(only.Trial.TargetId, Is.EqualTo("h2"));
+        Assert.That(only, Is.EqualTo(unblocked.Single(r => r.Trial.TargetId == "h2")));
+        var block = AssertEx.Single(blocks);
+        Assert.That(block.SimTick, Is.EqualTo(3UL));
+        Assert.That(block.ObserverId, Is.EqualTo("u1"));
+        Assert.That(block.SensorId, Is.EqualTo("radar-1"));
+        Assert.That(block.TargetId, Is.EqualTo("h1"));
+        Assert.That(block.BlockCode, Is.EqualTo(AbortReasonCatalog.Sensor.LOS_RADAR_HORIZON));
     }
 
-    [Fact]
+    [Test]
     public void Terrain_mask_leaves_unrelated_contact_results_unchanged()
     {
         var seed = SimSeed.FromScenario(42);
@@ -139,24 +139,24 @@ public sealed class LineOfSightEvaluatorTests
         var withoutMask = DeterministicDetectionLoop.RollTick(seed, 3, trials, null, environment: clear);
         var withMask = DeterministicDetectionLoop.RollTick(seed, 3, trials, null, environment: masked, losBlocks: blocks);
 
-        Assert.Equal(3, withoutMask.Count);
-        Assert.Equal(new[] { "h2", "h3" }, withMask.Select(r => r.Trial.TargetId));
-        Assert.Equal(AbortReasonCatalog.Sensor.LOS_TERRAIN_MASK, Assert.Single(blocks).BlockCode);
-        Assert.Equal(withoutMask.Single(r => r.Trial.TargetId == "h2"), withMask.Single(r => r.Trial.TargetId == "h2"));
-        Assert.Equal(withoutMask.Single(r => r.Trial.TargetId == "h3"), withMask.Single(r => r.Trial.TargetId == "h3"));
+        Assert.That(withoutMask.Count, Is.EqualTo(3));
+        Assert.That(withMask.Select(r => r.Trial.TargetId), Is.EqualTo(new[] { "h2", "h3" }));
+        Assert.That(AssertEx.Single(blocks).BlockCode, Is.EqualTo(AbortReasonCatalog.Sensor.LOS_TERRAIN_MASK));
+        Assert.That(withMask.Single(r => r.Trial.TargetId == "h2"), Is.EqualTo(withoutMask.Single(r => r.Trial.TargetId == "h2")));
+        Assert.That(withMask.Single(r => r.Trial.TargetId == "h3"), Is.EqualTo(withoutMask.Single(r => r.Trial.TargetId == "h3")));
     }
 
-    [Fact]
+    [Test]
     public void Detection_loop_without_environment_is_unchanged()
     {
         var seed = SimSeed.FromScenario(7);
         var trials = new[] { new ScenarioDetectionTrial("u1", "radar-1", "h1", "c1", 0.6) };
         var a = DeterministicDetectionLoop.RollTick(seed, 5, trials, null);
         var b = DeterministicDetectionLoop.RollTick(seed, 5, trials, null, environment: DetectionEnvironment.None);
-        Assert.Equal(a, b);
+        Assert.That(b, Is.EqualTo(a));
     }
 
-    [Fact]
+    [Test]
     public void Pd_simulator_exposes_last_tick_los_blocks()
     {
         var trials = new[] { new ScenarioDetectionTrial("u1", "radar-1", "h1", "c1", 1.0) };
@@ -165,8 +165,8 @@ public sealed class LineOfSightEvaluatorTests
             new Dictionary<string, RadarEccmProfile>());
         var sim = new PdDetectionContactSimulator(SimSeed.FromScenario(1), trials, environment: env);
         var transitions = sim.Tick(1, 1);
-        Assert.Empty(transitions);
-        Assert.Equal(0, sim.ActiveCount);
-        Assert.Single(sim.LastLosBlocks);
+        Assert.That(transitions, Is.Empty);
+        Assert.That(sim.ActiveCount, Is.EqualTo(0));
+        AssertEx.Single(sim.LastLosBlocks);
     }
 }

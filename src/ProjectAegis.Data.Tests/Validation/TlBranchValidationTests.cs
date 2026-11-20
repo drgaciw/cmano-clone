@@ -4,17 +4,15 @@ using ProjectAegis.Data.Catalog;
 using ProjectAegis.Data.Scenario;
 using ProjectAegis.Data.Scenario.Authoring;
 using ProjectAegis.Data.Validation;
-using Xunit;
+using NUnit.Framework;
 
 public sealed class TlBranchValidationTests
 {
     private static readonly ScenarioValidationEngine Engine = new();
     private static readonly ValidationConfig Config = new();
-
-    [Theory]
-    [InlineData("TL-0")]
-    [InlineData("TL-3")]
-    [InlineData("TL-5")]
+    [TestCase("TL-0")]
+    [TestCase("TL-3")]
+    [TestCase("TL-5")]
     public void Valid_tlBranch_passes_when_snapshot_branch_matches(string tlBranch)
     {
         var scenario = new ScenarioDocumentDto
@@ -28,10 +26,10 @@ public sealed class TlBranchValidationTests
 
         var catalog = new BranchCatalogFixture(tlBranch);
         var report = Engine.Validate(scenario, catalog, Config);
-        Assert.DoesNotContain(report.Findings, f => f.Code.StartsWith("TL_BRANCH_", StringComparison.Ordinal));
+        Assert.That(report.Findings.Any(f => f.Code.StartsWith("TL_BRANCH_", StringComparison.Ordinal)), Is.False);
     }
 
-    [Fact]
+    [Test]
     public void Missing_tlBranch_emits_TL_BRANCH_MISSING()
     {
         var scenario = new ScenarioDocumentDto
@@ -40,13 +38,13 @@ public sealed class TlBranchValidationTests
         };
 
         var report = Engine.Validate(scenario, InMemoryCatalogReader.BalticPatrolFixture(), Config);
-        var finding = Assert.Single(report.Findings, f => f.Code == "TL_BRANCH_MISSING");
-        Assert.NotNull(finding.Data);
-        Assert.Equal("tlBranch", finding.Data!["field"]);
-        Assert.False(report.CanExport(Config));
+        var finding = AssertEx.Single(report.Findings, f => f.Code == "TL_BRANCH_MISSING");
+        Assert.That(finding.Data, Is.Not.Null);
+        Assert.That(finding.Data!["field"], Is.EqualTo("tlBranch"));
+        Assert.That(report.CanExport(Config), Is.False);
     }
 
-    [Fact]
+    [Test]
     public void Invalid_tlBranch_emits_TL_BRANCH_INVALID()
     {
         var scenario = new ScenarioDocumentDto
@@ -59,12 +57,12 @@ public sealed class TlBranchValidationTests
         };
 
         var report = Engine.Validate(scenario, InMemoryCatalogReader.BalticPatrolFixture(), Config);
-        var finding = Assert.Single(report.Findings, f => f.Code == "TL_BRANCH_INVALID");
-        Assert.Contains("TL-9", finding.Message, StringComparison.Ordinal);
-        Assert.False(report.CanExport(Config));
+        var finding = AssertEx.Single(report.Findings, f => f.Code == "TL_BRANCH_INVALID");
+        Assert.That(finding.Message, Does.Contain("TL-9"));
+        Assert.That(report.CanExport(Config), Is.False);
     }
 
-    [Fact]
+    [Test]
     public void Snapshot_branch_mismatch_emits_TL_BRANCH_SNAPSHOT_MISMATCH()
     {
         var scenario = new ScenarioDocumentDto
@@ -78,13 +76,13 @@ public sealed class TlBranchValidationTests
 
         var catalog = new BranchCatalogFixture(CatalogTlTier.Tl0);
         var report = Engine.Validate(scenario, catalog, Config);
-        var finding = Assert.Single(report.Findings, f => f.Code == "TL_BRANCH_SNAPSHOT_MISMATCH");
-        Assert.Equal("TL-2", finding.Data!["tlBranch"]);
-        Assert.Equal(CatalogTlTier.Tl0, finding.Data!["snapshotBranch"]);
-        Assert.False(report.CanExport(Config));
+        var finding = AssertEx.Single(report.Findings, f => f.Code == "TL_BRANCH_SNAPSHOT_MISMATCH");
+        Assert.That(finding.Data!["tlBranch"], Is.EqualTo("TL-2"));
+        Assert.That(finding.Data!["snapshotBranch"], Is.EqualTo(CatalogTlTier.Tl0));
+        Assert.That(report.CanExport(Config), Is.False);
     }
 
-    [Fact]
+    [Test]
     public void FromDocument_binds_normalized_tlBranch_at_load()
     {
         var doc = new ScenarioDocumentDto
@@ -97,8 +95,8 @@ public sealed class TlBranchValidationTests
         };
 
         var package = ScenarioPackage.FromDocument("tl-bind", doc);
-        Assert.Equal(CatalogTlTier.Tl3, package.TlBranch);
-        Assert.Equal(ScenarioPackage.ResolveTlBranch(doc.Metadata), package.TlBranch);
+        Assert.That(package.TlBranch, Is.EqualTo(CatalogTlTier.Tl3));
+        Assert.That(package.TlBranch, Is.EqualTo(ScenarioPackage.ResolveTlBranch(doc.Metadata)));
     }
 
     private sealed class BranchCatalogFixture : ICatalogReader

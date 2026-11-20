@@ -1,14 +1,14 @@
 using ProjectAegis.Data.Agents;
 using ProjectAegis.Data.Catalog;
 using ProjectAegis.Data.Validation;
-using Xunit;
+using NUnit.Framework;
 
 namespace ProjectAegis.Data.Tests.Validation;
 
 /// <summary>S33-03 / DBI-3.5 kill-chain impossibility rule pack.</summary>
 public sealed class KillChainRulePackTests
 {
-    [Fact]
+    [Test]
     public void KillChain_R1_orphan_edge_flags_missing_platform()
     {
         var reader = WithEdges(
@@ -17,13 +17,13 @@ public sealed class KillChainRulePackTests
 
         var findings = KillChainRules.Evaluate(reader);
 
-        Assert.Contains(findings, f =>
+        Assert.That(findings.Any(f =>
             f.Code == KillChainRules.OrphanEdgeCode &&
             f.Severity == "error" &&
-            f.Message.Contains("ghost-platform", StringComparison.Ordinal));
+            f.Message.Contains("ghost-platform", StringComparison.Ordinal)), Is.True);
     }
 
-    [Fact]
+    [Test]
     public void KillChain_R1_orphan_edge_flags_missing_mount()
     {
         var inner = BuildWeaponChainReader(
@@ -41,12 +41,12 @@ public sealed class KillChainRulePackTests
 
         var findings = KillChainRules.Evaluate(reader);
 
-        Assert.Contains(findings, f =>
+        Assert.That(findings.Any(f =>
             f.Code == KillChainRules.OrphanEdgeCode &&
-            f.Message.Contains("missing-mount", StringComparison.Ordinal));
+            f.Message.Contains("missing-mount", StringComparison.Ordinal)), Is.True);
     }
 
-    [Fact]
+    [Test]
     public void KillChain_R1_orphan_edge_flags_missing_weapon()
     {
         var reader = WithEdges(
@@ -58,12 +58,12 @@ public sealed class KillChainRulePackTests
 
         var findings = KillChainRules.Evaluate(reader);
 
-        Assert.Contains(findings, f =>
+        Assert.That(findings.Any(f =>
             f.Code == KillChainRules.OrphanEdgeCode &&
-            f.Message.Contains("unknown-weapon", StringComparison.Ordinal));
+            f.Message.Contains("unknown-weapon", StringComparison.Ordinal)), Is.True);
     }
 
-    [Fact]
+    [Test]
     public void KillChain_R1_orphan_edge_flags_missing_sensor()
     {
         var reader = WithEdges(
@@ -72,12 +72,12 @@ public sealed class KillChainRulePackTests
 
         var findings = KillChainRules.Evaluate(reader);
 
-        Assert.Contains(findings, f =>
+        Assert.That(findings.Any(f =>
             f.Code == KillChainRules.OrphanEdgeCode &&
-            f.Message.Contains("missing-sensor", StringComparison.Ordinal));
+            f.Message.Contains("missing-sensor", StringComparison.Ordinal)), Is.True);
     }
 
-    [Fact]
+    [Test]
     public void KillChain_R2_range_exceeds_sensor_when_weapon_outranges_envelope()
     {
         var reader = BuildWeaponChainReader(
@@ -88,10 +88,10 @@ public sealed class KillChainRulePackTests
 
         var findings = KillChainRules.Evaluate(reader);
 
-        Assert.Contains(findings, f => f.Code == KillChainRules.RangeExceedsSensorCode && f.Severity == "error");
+        Assert.That(findings.Any(f => f.Code == KillChainRules.RangeExceedsSensorCode && f.Severity == "error"), Is.True);
     }
 
-    [Fact]
+    [Test]
     public void KillChain_R2_boundary_short_range_weapon_passes_sensor_envelope()
     {
         var reader = BuildWeaponChainReader(
@@ -102,10 +102,10 @@ public sealed class KillChainRulePackTests
 
         var findings = KillChainRules.Evaluate(reader);
 
-        Assert.DoesNotContain(findings, f => f.Code == KillChainRules.RangeExceedsSensorCode);
+        Assert.That(findings.Any(f => f.Code == KillChainRules.RangeExceedsSensorCode), Is.False);
     }
 
-    [Fact]
+    [Test]
     public void KillChain_R3_speed_mismatch_when_hypersonic_weapon_exceeds_platform_speed()
     {
         var reader = BuildWeaponChainReader(
@@ -116,13 +116,13 @@ public sealed class KillChainRulePackTests
 
         var findings = KillChainRules.Evaluate(reader);
 
-        Assert.Contains(findings, f =>
+        Assert.That(findings.Any(f =>
             f.Code == KillChainRules.SpeedMismatchCode &&
             f.Severity == "error" &&
-            f.Message.Contains("weapon_min_speed_kts", StringComparison.Ordinal));
+            f.Message.Contains("weapon_min_speed_kts", StringComparison.Ordinal)), Is.True);
     }
 
-    [Fact]
+    [Test]
     public void KillChain_R3_missing_mobility_skips_speed_check_without_finding()
     {
         var reader = BuildWeaponChainReader(
@@ -133,10 +133,10 @@ public sealed class KillChainRulePackTests
 
         var findings = KillChainRules.Evaluate(reader);
 
-        Assert.DoesNotContain(findings, f => f.Code == KillChainRules.SpeedMismatchCode);
+        Assert.That(findings.Any(f => f.Code == KillChainRules.SpeedMismatchCode), Is.False);
     }
 
-    [Fact]
+    [Test]
     public void KillChain_R4_weapon_exceeds_platform_reach_when_range_beyond_combat_radius()
     {
         var reader = BuildWeaponChainReader(
@@ -147,10 +147,10 @@ public sealed class KillChainRulePackTests
 
         var findings = KillChainRules.Evaluate(reader);
 
-        Assert.Contains(findings, f => f.Code == KillChainRules.WeaponExceedsReachCode && f.Severity == "error");
+        Assert.That(findings.Any(f => f.Code == KillChainRules.WeaponExceedsReachCode && f.Severity == "error"), Is.True);
     }
 
-    [Fact]
+    [Test]
     public void KillChain_R4_boundary_weapon_within_platform_reach_passes()
     {
         var reader = BuildWeaponChainReader(
@@ -161,23 +161,21 @@ public sealed class KillChainRulePackTests
 
         var findings = KillChainRules.Evaluate(reader);
 
-        Assert.DoesNotContain(findings, f => f.Code == KillChainRules.WeaponExceedsReachCode);
+        Assert.That(findings.Any(f => f.Code == KillChainRules.WeaponExceedsReachCode), Is.False);
     }
 
-    [Fact]
+    [Test]
     public void KillChain_Baltic_patrol_golden_hash_stable_on_clean_fixture()
     {
         var reader = InMemoryCatalogReader.BalticPatrolFixture();
         var findings = KillChainRules.Evaluate(reader);
 
-        Assert.Empty(findings);
-        Assert.Equal(KillChainGoldenHashes.BalticPatrolClean, KillChainRules.ComputeFindingsHash(findings));
-        Assert.Equal(
-            KillChainRules.ComputeFindingsHash(findings),
-            KillChainRules.ComputeFindingsHash(KillChainRules.Evaluate(reader)));
+        Assert.That(findings, Is.Empty);
+        Assert.That(KillChainRules.ComputeFindingsHash(findings), Is.EqualTo(KillChainGoldenHashes.BalticPatrolClean));
+        Assert.That(            KillChainRules.ComputeFindingsHash(KillChainRules.Evaluate(reader)), Is.EqualTo(            KillChainRules.ComputeFindingsHash(findings)));
     }
 
-    [Fact]
+    [Test]
     public void KillChain_findings_are_deterministically_sorted()
     {
         var reader = BuildWeaponChainReader(
@@ -189,18 +187,18 @@ public sealed class KillChainRulePackTests
         var first = KillChainRules.Evaluate(reader);
         var second = KillChainRules.Evaluate(reader);
 
-        Assert.Equal(first.Count, second.Count);
+        Assert.That(second.Count, Is.EqualTo(first.Count));
         for (var i = 0; i < first.Count; i++)
         {
-            Assert.Equal(first[i], second[i]);
+            Assert.That(second[i], Is.EqualTo(first[i]));
         }
 
-        Assert.True(first
+        Assert.That(first
             .Zip(first.Skip(1))
-            .All(pair => string.Compare(pair.First.Code, pair.Second.Code, StringComparison.Ordinal) <= 0));
+            .All(pair => string.Compare(pair.First.Code, pair.Second.Code, StringComparison.Ordinal) <= 0), Is.True);
     }
 
-    [Fact]
+    [Test]
     public void KillChain_quarantined_sensor_edges_excluded_from_checks()
     {
         var reader = new InMemoryCatalogReader(
@@ -217,13 +215,13 @@ public sealed class KillChainRulePackTests
             ]);
 
         var edges = reader.GetSortedDependencyEdges();
-        Assert.DoesNotContain(edges, e => e.SensorId == "radar-quarantine");
+        Assert.That(edges.Any(e => e.SensorId == "radar-quarantine"), Is.False);
 
         var findings = KillChainRules.Evaluate(reader);
-        Assert.DoesNotContain(findings, f => f.Message.Contains("radar-quarantine", StringComparison.Ordinal));
+        Assert.That(findings.Any(f => f.Message.Contains("radar-quarantine", StringComparison.Ordinal)), Is.False);
     }
 
-    [Fact]
+    [Test]
     public void CatalogRulesValidationAgent_appends_kill_chain_findings_after_rule_gate()
     {
         var reader = BuildWeaponChainReader(
@@ -234,21 +232,21 @@ public sealed class KillChainRulePackTests
 
         var report = new CatalogRulesValidationAgent().Run(new DatabaseAgentContext(reader));
 
-        Assert.False(report.Passed);
-        Assert.Contains(report.Findings, f => f.Code == "KILL_CHAIN_WEAPON_EXCEEDS_PLATFORM_REACH");
-        Assert.Contains(report.Findings, f => f.Code.StartsWith("KILL_CHAIN_", StringComparison.Ordinal));
+        Assert.That(report.Passed, Is.False);
+        Assert.That(report.Findings.Any(f => f.Code == "KILL_CHAIN_WEAPON_EXCEEDS_PLATFORM_REACH"), Is.True);
+        Assert.That(report.Findings.Any(f => f.Code.StartsWith("KILL_CHAIN_", StringComparison.Ordinal)), Is.True);
     }
 
-    [Fact]
+    [Test]
     public void CrossSystem_orchestrator_Baltic_default_has_no_kill_chain_codes_on_clean_catalog()
     {
         var result = DatabaseIntelligenceOrchestrator.RunBalticDefault();
         var rules = result.Reports.First(r => r.AgentId == "rules_validation");
 
-        Assert.DoesNotContain(rules.Findings, f => f.Code.StartsWith("KILL_CHAIN_", StringComparison.Ordinal));
+        Assert.That(rules.Findings.Any(f => f.Code.StartsWith("KILL_CHAIN_", StringComparison.Ordinal)), Is.False);
     }
 
-    [Fact]
+    [Test]
     public void CrossSystem_orchestrator_surfaces_kill_chain_codes_on_curated_fixture()
     {
         var reader = BuildWeaponChainReader(
@@ -266,13 +264,13 @@ public sealed class KillChainRulePackTests
             .OrderBy(c => c, StringComparer.Ordinal)
             .ToArray();
 
-        Assert.Equal(3, killChainCodes.Length);
-        Assert.Contains(killChainCodes, c => c == KillChainRules.RangeExceedsSensorCode);
-        Assert.Contains(killChainCodes, c => c == KillChainRules.SpeedMismatchCode);
-        Assert.Contains(killChainCodes, c => c == KillChainRules.WeaponExceedsReachCode);
+        Assert.That(killChainCodes.Length, Is.EqualTo(3));
+        Assert.That(killChainCodes.Any(c => c == KillChainRules.RangeExceedsSensorCode), Is.True);
+        Assert.That(killChainCodes.Any(c => c == KillChainRules.SpeedMismatchCode), Is.True);
+        Assert.That(killChainCodes.Any(c => c == KillChainRules.WeaponExceedsReachCode), Is.True);
     }
 
-    [Fact]
+    [Test]
     public void CatalogRules_detect_only_does_not_mutate_catalog_on_report_path()
     {
         var reader = BuildWeaponChainReader(
@@ -287,9 +285,9 @@ public sealed class KillChainRulePackTests
 
         _ = new CatalogRulesValidationAgent().Run(new DatabaseAgentContext(reader));
 
-        Assert.Equal(mountsBefore, reader.GetSortedMounts().Count);
-        Assert.Equal(magazinesBefore, reader.GetSortedMagazines().Count);
-        Assert.Equal(edgesBefore, reader.GetSortedDependencyEdges().Count);
+        Assert.That(reader.GetSortedMounts().Count, Is.EqualTo(mountsBefore));
+        Assert.That(reader.GetSortedMagazines().Count, Is.EqualTo(magazinesBefore));
+        Assert.That(reader.GetSortedDependencyEdges().Count, Is.EqualTo(edgesBefore));
     }
 
     private static InMemoryCatalogReader BuildWeaponChainReader(

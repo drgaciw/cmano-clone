@@ -1,14 +1,14 @@
 using ProjectAegis.Data.Agents;
 using ProjectAegis.Data.Catalog;
 using ProjectAegis.Data.Validation;
-using Xunit;
+using NUnit.Framework;
 
 namespace ProjectAegis.Data.Tests.Validation;
 
 /// <summary>S34-05 / Req-21 link-catalog detect-only rule pack.</summary>
 public sealed class LinkCatalogRulePackTests
 {
-    [Fact]
+    [Test]
     public void Link_orphan_comms_flags_missing_link_catalog_entry()
     {
         var reader = BuildLinkReader(
@@ -17,13 +17,13 @@ public sealed class LinkCatalogRulePackTests
 
         var findings = LinkCatalogRules.Evaluate(reader);
 
-        Assert.Contains(findings, f =>
+        Assert.That(findings.Any(f =>
             f.Code == LinkCatalogRules.OrphanCommsCode &&
             f.Severity == "error" &&
-            f.Message == LinkCatalogRules.FormatOrphanCommsMessage("u1", "UNKNOWN_LINK"));
+            f.Message == LinkCatalogRules.FormatOrphanCommsMessage("u1", "UNKNOWN_LINK")), Is.True);
     }
 
-    [Fact]
+    [Test]
     public void Link_orphan_comms_passes_when_comms_resolves_to_catalog_entry()
     {
         var reader = BuildLinkReader(
@@ -32,10 +32,10 @@ public sealed class LinkCatalogRulePackTests
 
         var findings = LinkCatalogRules.Evaluate(reader);
 
-        Assert.DoesNotContain(findings, f => f.Code == LinkCatalogRules.OrphanCommsCode);
+        Assert.That(findings.Any(f => f.Code == LinkCatalogRules.OrphanCommsCode), Is.False);
     }
 
-    [Fact]
+    [Test]
     public void Link_type_invalid_flags_unknown_link_type()
     {
         var reader = BuildLinkReader(
@@ -46,17 +46,15 @@ public sealed class LinkCatalogRulePackTests
 
         var findings = LinkCatalogRules.Evaluate(reader);
 
-        Assert.Contains(findings, f =>
+        Assert.That(findings.Any(f =>
             f.Code == LinkCatalogRules.TypeInvalidCode &&
             f.Severity == "error" &&
-            f.Message == LinkCatalogRules.FormatTypeInvalidMessage("BAD_TYPE_LINK", "hf-radio"));
+            f.Message == LinkCatalogRules.FormatTypeInvalidMessage("BAD_TYPE_LINK", "hf-radio")), Is.True);
     }
-
-    [Theory]
-    [InlineData(CatalogLinkTypes.Strategic)]
-    [InlineData(CatalogLinkTypes.Tactical)]
-    [InlineData(CatalogLinkTypes.Voice)]
-    [InlineData(CatalogLinkTypes.Satcom)]
+    [TestCase(CatalogLinkTypes.Strategic)]
+    [TestCase(CatalogLinkTypes.Tactical)]
+    [TestCase(CatalogLinkTypes.Voice)]
+    [TestCase(CatalogLinkTypes.Satcom)]
     public void Link_type_invalid_passes_for_allowed_catalog_link_types(string linkType)
     {
         var reader = BuildLinkReader(
@@ -64,10 +62,10 @@ public sealed class LinkCatalogRulePackTests
 
         var findings = LinkCatalogRules.Evaluate(reader);
 
-        Assert.DoesNotContain(findings, f => f.Code == LinkCatalogRules.TypeInvalidCode);
+        Assert.That(findings.Any(f => f.Code == LinkCatalogRules.TypeInvalidCode), Is.False);
     }
 
-    [Fact]
+    [Test]
     public void Link_latency_invalid_flags_negative_latency()
     {
         var reader = BuildLinkReader(
@@ -75,13 +73,13 @@ public sealed class LinkCatalogRulePackTests
 
         var findings = LinkCatalogRules.Evaluate(reader);
 
-        Assert.Contains(findings, f =>
+        Assert.That(findings.Any(f =>
             f.Code == LinkCatalogRules.LatencyInvalidCode &&
             f.Severity == "error" &&
-            f.Message == LinkCatalogRules.FormatLatencyInvalidMessage("NEG_LATENCY", -1));
+            f.Message == LinkCatalogRules.FormatLatencyInvalidMessage("NEG_LATENCY", -1)), Is.True);
     }
 
-    [Fact]
+    [Test]
     public void Link_latency_invalid_flags_latency_above_max()
     {
         var reader = BuildLinkReader(
@@ -96,18 +94,16 @@ public sealed class LinkCatalogRulePackTests
 
         var findings = LinkCatalogRules.Evaluate(reader);
 
-        Assert.Contains(findings, f =>
+        Assert.That(findings.Any(f =>
             f.Code == LinkCatalogRules.LatencyInvalidCode &&
             f.Severity == "error" &&
             f.Message == LinkCatalogRules.FormatLatencyInvalidMessage(
                 "HIGH_LATENCY",
-                LinkCatalogRules.MaxLatencyMsNominal + 1));
+                LinkCatalogRules.MaxLatencyMsNominal + 1)), Is.True);
     }
-
-    [Theory]
-    [InlineData(0)]
-    [InlineData(50)]
-    [InlineData(300_000)]
+    [TestCase(0)]
+    [TestCase(50)]
+    [TestCase(300_000)]
     public void Link_latency_invalid_passes_within_bounds(int latencyMsNominal)
     {
         var reader = BuildLinkReader(
@@ -118,23 +114,21 @@ public sealed class LinkCatalogRulePackTests
 
         var findings = LinkCatalogRules.Evaluate(reader);
 
-        Assert.DoesNotContain(findings, f => f.Code == LinkCatalogRules.LatencyInvalidCode);
+        Assert.That(findings.Any(f => f.Code == LinkCatalogRules.LatencyInvalidCode), Is.False);
     }
 
-    [Fact]
+    [Test]
     public void Link_Baltic_patrol_golden_hash_stable_on_clean_fixture()
     {
         var reader = InMemoryCatalogReader.BalticPatrolFixture();
         var findings = LinkCatalogRules.Evaluate(reader);
 
-        Assert.Empty(findings);
-        Assert.Equal(LinkCatalogGoldenHashes.BalticPatrolClean, LinkCatalogRules.ComputeFindingsHash(findings));
-        Assert.Equal(
-            LinkCatalogRules.ComputeFindingsHash(findings),
-            LinkCatalogRules.ComputeFindingsHash(LinkCatalogRules.Evaluate(reader)));
+        Assert.That(findings, Is.Empty);
+        Assert.That(LinkCatalogRules.ComputeFindingsHash(findings), Is.EqualTo(LinkCatalogGoldenHashes.BalticPatrolClean));
+        Assert.That(            LinkCatalogRules.ComputeFindingsHash(LinkCatalogRules.Evaluate(reader)), Is.EqualTo(            LinkCatalogRules.ComputeFindingsHash(findings)));
     }
 
-    [Fact]
+    [Test]
     public void Link_findings_are_deterministically_sorted()
     {
         var reader = BuildLinkReader(
@@ -152,18 +146,18 @@ public sealed class LinkCatalogRulePackTests
         var first = LinkCatalogRules.Evaluate(reader);
         var second = LinkCatalogRules.Evaluate(reader);
 
-        Assert.Equal(first.Count, second.Count);
+        Assert.That(second.Count, Is.EqualTo(first.Count));
         for (var i = 0; i < first.Count; i++)
         {
-            Assert.Equal(first[i], second[i]);
+            Assert.That(second[i], Is.EqualTo(first[i]));
         }
 
-        Assert.True(first
+        Assert.That(first
             .Zip(first.Skip(1))
-            .All(pair => string.Compare(pair.First.Code, pair.Second.Code, StringComparison.Ordinal) <= 0));
+            .All(pair => string.Compare(pair.First.Code, pair.Second.Code, StringComparison.Ordinal) <= 0), Is.True);
     }
 
-    [Fact]
+    [Test]
     public void CatalogRulesValidationAgent_appends_link_findings_after_kill_chain()
     {
         var reader = BuildLinkReader(
@@ -172,21 +166,21 @@ public sealed class LinkCatalogRulePackTests
 
         var report = new CatalogRulesValidationAgent().Run(new DatabaseAgentContext(reader));
 
-        Assert.False(report.Passed);
-        Assert.Contains(report.Findings, f => f.Code == LinkCatalogRules.OrphanCommsCode);
-        Assert.Contains(report.Findings, f => f.Code.StartsWith("LINK_", StringComparison.Ordinal));
+        Assert.That(report.Passed, Is.False);
+        Assert.That(report.Findings.Any(f => f.Code == LinkCatalogRules.OrphanCommsCode), Is.True);
+        Assert.That(report.Findings.Any(f => f.Code.StartsWith("LINK_", StringComparison.Ordinal)), Is.True);
     }
 
-    [Fact]
+    [Test]
     public void CrossSystem_orchestrator_Baltic_default_has_no_link_codes_on_clean_catalog()
     {
         var result = DatabaseIntelligenceOrchestrator.RunBalticDefault();
         var rules = result.Reports.First(r => r.AgentId == "rules_validation");
 
-        Assert.DoesNotContain(rules.Findings, f => f.Code.StartsWith("LINK_", StringComparison.Ordinal));
+        Assert.That(rules.Findings.Any(f => f.Code.StartsWith("LINK_", StringComparison.Ordinal)), Is.False);
     }
 
-    [Fact]
+    [Test]
     public void CrossSystem_orchestrator_surfaces_link_codes_on_curated_fixture()
     {
         var reader = BuildLinkReader(
@@ -205,13 +199,13 @@ public sealed class LinkCatalogRulePackTests
             .OrderBy(c => c, StringComparer.Ordinal)
             .ToArray();
 
-        Assert.Equal(3, linkCodes.Length);
-        Assert.Contains(linkCodes, c => c == LinkCatalogRules.OrphanCommsCode);
-        Assert.Contains(linkCodes, c => c == LinkCatalogRules.TypeInvalidCode);
-        Assert.Contains(linkCodes, c => c == LinkCatalogRules.LatencyInvalidCode);
+        Assert.That(linkCodes.Length, Is.EqualTo(3));
+        Assert.That(linkCodes.Any(c => c == LinkCatalogRules.OrphanCommsCode), Is.True);
+        Assert.That(linkCodes.Any(c => c == LinkCatalogRules.TypeInvalidCode), Is.True);
+        Assert.That(linkCodes.Any(c => c == LinkCatalogRules.LatencyInvalidCode), Is.True);
     }
 
-    [Fact]
+    [Test]
     public void Link_validation_messages_stable_on_curated_invalid_fixture()
     {
         var reader = BuildLinkReader(
@@ -224,25 +218,19 @@ public sealed class LinkCatalogRulePackTests
         var findings = LinkCatalogRules.Evaluate(reader);
         var byCode = findings.ToDictionary(f => f.Code, StringComparer.Ordinal);
 
-        Assert.Equal(
-            LinkCatalogRules.FormatOrphanCommsMessage("u1", "GHOST_LINK"),
-            byCode[LinkCatalogRules.OrphanCommsCode].Message);
-        Assert.Equal(
-            LinkCatalogRules.FormatTypeInvalidMessage("BAD_LINK", "hf-radio"),
-            byCode[LinkCatalogRules.TypeInvalidCode].Message);
-        Assert.Equal(
-            LinkCatalogRules.FormatLatencyInvalidMessage("BAD_LINK", -1),
-            byCode[LinkCatalogRules.LatencyInvalidCode].Message);
+        Assert.That(            byCode[LinkCatalogRules.OrphanCommsCode].Message, Is.EqualTo(            LinkCatalogRules.FormatOrphanCommsMessage("u1", "GHOST_LINK")));
+        Assert.That(            byCode[LinkCatalogRules.TypeInvalidCode].Message, Is.EqualTo(            LinkCatalogRules.FormatTypeInvalidMessage("BAD_LINK", "hf-radio")));
+        Assert.That(            byCode[LinkCatalogRules.LatencyInvalidCode].Message, Is.EqualTo(            LinkCatalogRules.FormatLatencyInvalidMessage("BAD_LINK", -1)));
 
         var rerun = LinkCatalogRules.Evaluate(reader);
-        Assert.Equal(findings.Count, rerun.Count);
+        Assert.That(rerun.Count, Is.EqualTo(findings.Count));
         for (var i = 0; i < findings.Count; i++)
         {
-            Assert.Equal(findings[i], rerun[i]);
+            Assert.That(rerun[i], Is.EqualTo(findings[i]));
         }
     }
 
-    [Fact]
+    [Test]
     public void CatalogRules_detect_only_does_not_mutate_catalog_on_link_report_path()
     {
         var reader = BuildLinkReader(
@@ -257,8 +245,8 @@ public sealed class LinkCatalogRulePackTests
 
         _ = new CatalogRulesValidationAgent().Run(new DatabaseAgentContext(reader));
 
-        Assert.Equal(commsBefore, reader.GetSortedComms().Count);
-        Assert.Equal(linksBefore, reader.GetSortedLinks().Count);
+        Assert.That(reader.GetSortedComms().Count, Is.EqualTo(commsBefore));
+        Assert.That(reader.GetSortedLinks().Count, Is.EqualTo(linksBefore));
     }
 
     private static InMemoryCatalogReader BuildLinkReader(

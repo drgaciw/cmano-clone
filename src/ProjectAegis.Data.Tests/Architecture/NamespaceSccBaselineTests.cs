@@ -1,6 +1,6 @@
 namespace ProjectAegis.Data.Tests.Architecture;
 
-using Xunit;
+using NUnit.Framework;
 
 /// <summary>
 /// Frozen-baseline namespace-cycle pin (DRG-771 Lane C / CMA-30).
@@ -17,7 +17,7 @@ public sealed class NamespaceSccBaselineTests
         "ProjectAegis.Delegation.UnityAdapter",
     };
 
-    [Fact]
+    [Test]
     public void No_new_intra_assembly_namespace_cycles_vs_frozen_baseline()
     {
         var baselinePath = ResolveRepoFile(
@@ -55,15 +55,13 @@ public sealed class NamespaceSccBaselineTests
             }
         }
 
-        Assert.True(
-            novelAll.Count == 0,
-            "New intra-assembly namespace cycle(s) detected vs frozen PE-metadata baseline " +
+        Assert.That(            novelAll.Count == 0, Is.True,             "New intra-assembly namespace cycle(s) detected vs frozen PE-metadata baseline " +
             "(DRG-771 / CMA-30). Update the baseline only with an explicit architecture decision; " +
             "do not break existing Delegation SCCs in this lane.\n" +
             string.Join("\n", novelAll));
     }
 
-    [Fact]
+    [Test]
     public void Baseline_covers_all_pinned_assemblies()
     {
         var baselinePath = ResolveRepoFile(
@@ -77,7 +75,7 @@ public sealed class NamespaceSccBaselineTests
         var baseline = NamespaceSccAnalyzer.LoadBaseline(baselinePath);
         foreach (var projectDir in AssemblyProjectDirs)
         {
-            Assert.True(baseline.ContainsKey(projectDir), $"Missing baseline key '{projectDir}'.");
+            Assert.That(baseline.ContainsKey(projectDir), Is.True, $"Missing baseline key '{projectDir}'.");
         }
     }
 

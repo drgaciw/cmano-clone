@@ -2,7 +2,7 @@ using System.Reflection;
 using System.Text.Json;
 using ProjectAegis.Data.Catalog;
 using ProjectAegis.Data.Scenario.Policy;
-using Xunit;
+using NUnit.Framework;
 
 namespace ProjectAegis.Data.Tests.Catalog;
 
@@ -21,63 +21,63 @@ public sealed class GauntletPolicyStrictKeysTests
                     "requireNonEmptyFingerprint": true }
         """;
 
-    [Fact]
+    [Test]
     public void Valid_ladder_policy_has_no_errors_or_warnings()
     {
         var report = GauntletPolicyStrictKeys.Check(Policy(ValidCore));
-        Assert.Empty(report.Errors);
-        Assert.Empty(report.Warnings);
+        Assert.That(report.Errors, Is.Empty);
+        Assert.That(report.Warnings, Is.Empty);
     }
 
-    [Fact]
+    [Test]
     public void Legacy_gauntlet_emcon_is_error_not_warning()
     {
         var report = GauntletPolicyStrictKeys.Check(Policy(ValidCore + """, "emcon": "phased" """));
-        Assert.Empty(report.Warnings);
-        var e = Assert.Single(report.Errors);
-        Assert.Contains("emcon", e);
-        Assert.Contains("top-level", e);
-        Assert.Contains("BUG-gauntlet-emcon-dimension-not-exercised", e);
+        Assert.That(report.Warnings, Is.Empty);
+        var e = AssertEx.Single(report.Errors);
+        Assert.That(e, Does.Contain("emcon"));
+        Assert.That(e, Does.Contain("top-level"));
+        Assert.That(e, Does.Contain("BUG-gauntlet-emcon-dimension-not-exercised"));
     }
 
-    [Fact]
+    [Test]
     public void Unknown_gauntlet_key_is_error_listing_allowed_keys()
     {
         var report = GauntletPolicyStrictKeys.Check(Policy(ValidCore + """, "emconPhases": [] """));
-        var e = Assert.Single(report.Errors);
-        Assert.Contains("emconPhases", e);
-        Assert.Contains("expect", e);
-        Assert.Contains("dimensionsClaimed", e);
+        var e = AssertEx.Single(report.Errors);
+        Assert.That(e, Does.Contain("emconPhases"));
+        Assert.That(e, Does.Contain("expect"));
+        Assert.That(e, Does.Contain("dimensionsClaimed"));
     }
 
-    [Fact]
+    [Test]
     public void Unknown_expect_key_is_error()
     {
         var body = ValidCore.Replace("\"minScore\": 50.0", "\"minScore\": 50.0, \"minimumScore\": 1");
         var report = GauntletPolicyStrictKeys.Check(Policy(body));
-        var e = Assert.Single(report.Errors);
-        Assert.Contains("gauntlet.expect.minimumScore", e);
+        var e = AssertEx.Single(report.Errors);
+        Assert.That(e, Does.Contain("gauntlet.expect.minimumScore"));
     }
 
-    [Fact]
+    [Test]
     public void Unknown_unit_key_is_error()
     {
         var body = ValidCore.Replace("\"side\": \"blue\"", "\"side\": \"blue\", \"emcon\": \"Off\"");
         var report = GauntletPolicyStrictKeys.Check(Policy(body));
-        var e = Assert.Single(report.Errors);
-        Assert.Contains("gauntlet.units[0].emcon", e);
+        var e = AssertEx.Single(report.Errors);
+        Assert.That(e, Does.Contain("gauntlet.units[0].emcon"));
     }
 
-    [Fact]
+    [Test]
     public void ExpectCi_block_is_allowed_and_checked()
     {
         var report = GauntletPolicyStrictKeys.Check(
             Policy(ValidCore + """, "expectCi": { "side": "BLUE", "bogusKey": 1 } """));
-        var e = Assert.Single(report.Errors);
-        Assert.Contains("gauntlet.expectCi.bogusKey", e);
+        var e = AssertEx.Single(report.Errors);
+        Assert.That(e, Does.Contain("gauntlet.expectCi.bogusKey"));
     }
 
-    [Fact]
+    [Test]
     public void Qa_metadata_keys_are_allowed()
     {
         var report = GauntletPolicyStrictKeys.Check(Policy(ValidCore + """
@@ -86,18 +86,18 @@ public sealed class GauntletPolicyStrictKeysTests
             , "dimensionsClaimed": ["emcon"]
             , "forge": { "recipe": "r1" }
             """));
-        Assert.Empty(report.Errors);
-        Assert.Empty(report.Warnings);
+        Assert.That(report.Errors, Is.Empty);
+        Assert.That(report.Warnings, Is.Empty);
     }
 
-    [Fact]
+    [Test]
     public void Missing_or_invalid_gauntlet_block_yields_no_report_entries()
     {
-        Assert.Empty(GauntletPolicyStrictKeys.Check("""{ "id": "p1" }""").Errors);
-        Assert.Empty(GauntletPolicyStrictKeys.Check("not json").Errors);
+        Assert.That(GauntletPolicyStrictKeys.Check("""{ "id": "p1" }""").Errors, Is.Empty);
+        Assert.That(GauntletPolicyStrictKeys.Check("not json").Errors, Is.Empty);
     }
 
-    [Fact]
+    [Test]
     public void Allowed_keys_are_derived_from_dto_property_names_not_hand_list()
     {
         // Derivation proof: whitelist == camelCase of ScenarioGauntletJsonDto / expect / unit props.
@@ -106,13 +106,13 @@ public sealed class GauntletPolicyStrictKeysTests
         var expectKeys = CamelCaseProps(typeof(ScenarioGauntletExpectJsonDto));
         var unitKeys = CamelCaseProps(typeof(ScenarioGauntletUnitJsonDto));
 
-        Assert.Equal(gauntletKeys, GauntletPolicyStrictKeys.AllowedGauntletKeys.OrderBy(k => k, StringComparer.Ordinal));
-        Assert.Equal(expectKeys, GauntletPolicyStrictKeys.AllowedExpectKeys.OrderBy(k => k, StringComparer.Ordinal));
-        Assert.Equal(unitKeys, GauntletPolicyStrictKeys.AllowedUnitKeys.OrderBy(k => k, StringComparer.Ordinal));
+        Assert.That(GauntletPolicyStrictKeys.AllowedGauntletKeys.OrderBy(k => k, StringComparer.Ordinal), Is.EqualTo(gauntletKeys));
+        Assert.That(GauntletPolicyStrictKeys.AllowedExpectKeys.OrderBy(k => k, StringComparer.Ordinal), Is.EqualTo(expectKeys));
+        Assert.That(GauntletPolicyStrictKeys.AllowedUnitKeys.OrderBy(k => k, StringComparer.Ordinal), Is.EqualTo(unitKeys));
 
-        Assert.Contains("dimensionsClaimed", GauntletPolicyStrictKeys.AllowedGauntletKeys);
-        Assert.Contains("forge", GauntletPolicyStrictKeys.AllowedGauntletKeys);
-        Assert.DoesNotContain("emcon", GauntletPolicyStrictKeys.AllowedGauntletKeys);
+        Assert.That(GauntletPolicyStrictKeys.AllowedGauntletKeys, Does.Contain("dimensionsClaimed"));
+        Assert.That(GauntletPolicyStrictKeys.AllowedGauntletKeys, Does.Contain("forge"));
+        Assert.That(GauntletPolicyStrictKeys.AllowedGauntletKeys, Does.Not.Contain("emcon"));
     }
 
     private static IEnumerable<string> CamelCaseProps(Type type) =>

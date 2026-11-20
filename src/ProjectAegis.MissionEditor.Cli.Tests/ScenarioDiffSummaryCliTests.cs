@@ -2,14 +2,15 @@ namespace ProjectAegis.MissionEditor.Cli.Tests;
 
 using System.Text.Json;
 using Cli;
-using Xunit;
+using NUnit.Framework;
 
 /// <summary>
 /// ME-W3 Track W3-c: CLI contract for <c>scenario_diff_summary</c> → <c>{ ok, summary }</c>.
 /// </summary>
+[TestFixture]
 public sealed class ScenarioDiffSummaryCliTests
 {
-    [Fact]
+    [Test]
     public void scenario_diff_summary_identical_files_returns_no_semantic_changes()
     {
         var path = WriteTempScenario("""
@@ -24,11 +25,11 @@ public sealed class ScenarioDiffSummaryCliTests
         {
             using var writer = new StringWriter();
             var exit = ScenarioDiffSummaryCommand.Run(path, path, writer);
-            Assert.Equal(0, exit);
+            Assert.That(exit, Is.EqualTo(0));
 
             using var doc = JsonDocument.Parse(writer.ToString());
-            Assert.True(doc.RootElement.GetProperty("ok").GetBoolean());
-            Assert.Equal("no semantic changes", doc.RootElement.GetProperty("summary").GetString());
+            Assert.That(doc.RootElement.GetProperty("ok").GetBoolean(), Is.True);
+            Assert.That(doc.RootElement.GetProperty("summary").GetString(), Is.EqualTo("no semantic changes"));
         }
         finally
         {
@@ -36,7 +37,7 @@ public sealed class ScenarioDiffSummaryCliTests
         }
     }
 
-    [Fact]
+    [Test]
     public void scenario_diff_summary_reports_mission_unit_and_event_deltas()
     {
         var before = WriteTempScenario("""
@@ -66,18 +67,18 @@ public sealed class ScenarioDiffSummaryCliTests
         {
             using var writer = new StringWriter();
             var exit = ScenarioDiffSummaryCommand.Run(before, after, writer);
-            Assert.Equal(0, exit);
+            Assert.That(exit, Is.EqualTo(0));
 
             using var doc = JsonDocument.Parse(writer.ToString());
-            Assert.True(doc.RootElement.GetProperty("ok").GetBoolean());
+            Assert.That(doc.RootElement.GetProperty("ok").GetBoolean(), Is.True);
             var summary = doc.RootElement.GetProperty("summary").GetString() ?? "";
 
-            Assert.Contains("mission +m2 (Ferry)", summary, StringComparison.Ordinal);
-            Assert.Contains("mission ~m1 type Patrol→Strike", summary, StringComparison.Ordinal);
-            Assert.Contains("side +red", summary, StringComparison.Ordinal);
-            Assert.Contains("unit +u2", summary, StringComparison.Ordinal);
-            Assert.Contains("event +e2", summary, StringComparison.Ordinal);
-            Assert.Contains("timeline ~m1 tick 10→20", summary, StringComparison.Ordinal);
+            Assert.That(summary, Does.Contain("mission +m2 (Ferry)"));
+            Assert.That(summary, Does.Contain("mission ~m1 type Patrol→Strike"));
+            Assert.That(summary, Does.Contain("side +red"));
+            Assert.That(summary, Does.Contain("unit +u2"));
+            Assert.That(summary, Does.Contain("event +e2"));
+            Assert.That(summary, Does.Contain("timeline ~m1 tick 10→20"));
         }
         finally
         {
@@ -86,7 +87,7 @@ public sealed class ScenarioDiffSummaryCliTests
         }
     }
 
-    [Fact]
+    [Test]
     public void scenario_diff_summary_missing_before_returns_error()
     {
         var after = WriteTempScenario("""{ "missions": [] }""");
@@ -95,9 +96,9 @@ public sealed class ScenarioDiffSummaryCliTests
             var missing = Path.Combine(Path.GetTempPath(), $"aegis-missing-{Guid.NewGuid():N}.json");
             using var writer = new StringWriter();
             var exit = ScenarioDiffSummaryCommand.Run(missing, after, writer);
-            Assert.Equal(1, exit);
-            Assert.Contains("NOT_FOUND", writer.ToString(), StringComparison.OrdinalIgnoreCase);
-            Assert.Contains("\"ok\":false", writer.ToString().Replace(" ", ""), StringComparison.OrdinalIgnoreCase);
+            Assert.That(exit, Is.EqualTo(1));
+            Assert.That(writer.ToString(), Does.Contain("NOT_FOUND").IgnoreCase);
+            Assert.That(writer.ToString().Replace(" ", ""), Does.Contain("\"ok\":false").IgnoreCase);
         }
         finally
         {
@@ -105,7 +106,7 @@ public sealed class ScenarioDiffSummaryCliTests
         }
     }
 
-    [Fact]
+    [Test]
     public void scenario_diff_summary_missing_after_returns_error()
     {
         var before = WriteTempScenario("""{ "missions": [] }""");
@@ -114,8 +115,8 @@ public sealed class ScenarioDiffSummaryCliTests
             var missing = Path.Combine(Path.GetTempPath(), $"aegis-missing-{Guid.NewGuid():N}.json");
             using var writer = new StringWriter();
             var exit = ScenarioDiffSummaryCommand.Run(before, missing, writer);
-            Assert.Equal(1, exit);
-            Assert.Contains("NOT_FOUND", writer.ToString(), StringComparison.OrdinalIgnoreCase);
+            Assert.That(exit, Is.EqualTo(1));
+            Assert.That(writer.ToString(), Does.Contain("NOT_FOUND").IgnoreCase);
         }
         finally
         {
@@ -127,7 +128,7 @@ public sealed class ScenarioDiffSummaryCliTests
     /// UAT 2026-07-19: command class was wired but Program.cs omitted the verb (exit 1 usage dump).
     /// Spawns the real CLI DLL so dispatch stays covered.
     /// </summary>
-    [Fact]
+    [Test]
     public void scenario_diff_summary_program_dispatch_returns_ok_json()
     {
         var path = WriteTempScenario("""
@@ -141,13 +142,12 @@ public sealed class ScenarioDiffSummaryCliTests
         try
         {
             var (exit, stdout, stderr) = RunCli("scenario_diff_summary", "--before", path, "--after", path);
-            Assert.True(string.IsNullOrEmpty(stderr) || !stderr.Contains("Unknown command", StringComparison.Ordinal),
-                $"Unexpected stderr: {stderr}");
-            Assert.Equal(0, exit);
-            Assert.DoesNotContain("Unknown command", stdout, StringComparison.OrdinalIgnoreCase);
+            Assert.That(string.IsNullOrEmpty(stderr) || !stderr.Contains("Unknown command", StringComparison.Ordinal), Is.True, $"Unexpected stderr: {stderr}");
+            Assert.That(exit, Is.EqualTo(0));
+            Assert.That(stdout, Does.Not.Contain("Unknown command").IgnoreCase);
             using var doc = JsonDocument.Parse(stdout);
-            Assert.True(doc.RootElement.GetProperty("ok").GetBoolean());
-            Assert.Equal("no semantic changes", doc.RootElement.GetProperty("summary").GetString());
+            Assert.That(doc.RootElement.GetProperty("ok").GetBoolean(), Is.True);
+            Assert.That(doc.RootElement.GetProperty("summary").GetString(), Is.EqualTo("no semantic changes"));
         }
         finally
         {
@@ -158,7 +158,7 @@ public sealed class ScenarioDiffSummaryCliTests
     private static (int ExitCode, string Stdout, string Stderr) RunCli(params string[] args)
     {
         var cliDllPath = Path.Combine(AppContext.BaseDirectory, "ProjectAegis.MissionEditor.Cli.dll");
-        Assert.True(File.Exists(cliDllPath), $"Expected built CLI at {cliDllPath}");
+        Assert.That(File.Exists(cliDllPath), Is.True, $"Expected built CLI at {cliDllPath}");
 
         var psi = new System.Diagnostics.ProcessStartInfo
         {

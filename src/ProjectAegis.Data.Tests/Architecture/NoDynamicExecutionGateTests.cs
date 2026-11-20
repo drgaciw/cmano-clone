@@ -1,7 +1,7 @@
 namespace ProjectAegis.Data.Tests.Architecture;
 
 using System.Xml.Linq;
-using Xunit;
+using NUnit.Framework;
 
 /// <summary>
 /// Operationalizes ADR-014 ("no Lua in v1") and requirement doc 11's NFR
@@ -53,16 +53,14 @@ public sealed class NoDynamicExecutionGateTests
         "Process.Start",
         "eval(",
     };
-
-    [Theory]
-    [InlineData("src", "ProjectAegis.Data", "ProjectAegis.Data.csproj")]
-    [InlineData("src", "ProjectAegis.MissionEditor.Cli", "ProjectAegis.MissionEditor.Cli.csproj")]
+    [TestCase("src", "ProjectAegis.Data", "ProjectAegis.Data.csproj")]
+    [TestCase("src", "ProjectAegis.MissionEditor.Cli", "ProjectAegis.MissionEditor.Cli.csproj")]
     public void Csproj_has_no_lua_interpreter_package_reference(params string[] relativeSegments)
     {
         var path = ResolveRepoFile(relativeSegments);
-        Assert.True(path != null, $"Could not locate project file at repo-relative path '{string.Join('/', relativeSegments)}' by walking up from {AppContext.BaseDirectory}.");
+        Assert.That(path != null, Is.True, $"Could not locate project file at repo-relative path '{string.Join('/', relativeSegments)}' by walking up from {AppContext.BaseDirectory}.");
 
-        var xml = XDocument.Load(path);
+        var xml = XDocument.Load(path!);
         var packageReferenceIncludes = xml
             .Descendants("PackageReference")
             .Select(el => el.Attribute("Include")?.Value ?? string.Empty)
@@ -74,34 +72,28 @@ public sealed class NoDynamicExecutionGateTests
                 .Where(include => include.Contains(forbidden, StringComparison.OrdinalIgnoreCase))
                 .ToList();
 
-            Assert.True(
-                offending.Count == 0,
-                $"'{path}' references a package matching forbidden Lua-interpreter substring '{forbidden}': {string.Join(", ", offending)}. " +
+            Assert.That(                offending.Count == 0, Is.True,                 $"'{path}' references a package matching forbidden Lua-interpreter substring '{forbidden}': {string.Join(", ", offending)}. " +
                 "Per ADR-014, v1 ships no Lua interpreter.");
         }
     }
-
-    [Theory]
-    [InlineData("src", "ProjectAegis.Data", "Validation", "ScenarioValidationEngine.cs")]
-    [InlineData("src", "ProjectAegis.Data", "Validation", "Rules", "ValidationRules.cs")]
-    [InlineData("src", "ProjectAegis.Data", "Scenario", "Authoring", "ScenarioDocumentEditor.cs")]
+    [TestCase("src", "ProjectAegis.Data", "Validation", "ScenarioValidationEngine.cs")]
+    [TestCase("src", "ProjectAegis.Data", "Validation", "Rules", "ValidationRules.cs")]
+    [TestCase("src", "ProjectAegis.Data", "Scenario", "Authoring", "ScenarioDocumentEditor.cs")]
     // S86-03: extend per qa-plan #19 for additional reachable authoring/validation path sources (export gate, reachability, AI stub, edit guard)
-    [InlineData("src", "ProjectAegis.Data", "Validation", "ScenarioValidationExportGate.cs")]
-    [InlineData("src", "ProjectAegis.Data", "Validation", "ReachabilityCalculator.cs")]
-    [InlineData("src", "ProjectAegis.Data", "Scenario", "Authoring", "AiAuthoringServices.cs")]
-    [InlineData("src", "ProjectAegis.Data", "Scenario", "Authoring", "ScenarioEditVersionGuard.cs")]
+    [TestCase("src", "ProjectAegis.Data", "Validation", "ScenarioValidationExportGate.cs")]
+    [TestCase("src", "ProjectAegis.Data", "Validation", "ReachabilityCalculator.cs")]
+    [TestCase("src", "ProjectAegis.Data", "Scenario", "Authoring", "AiAuthoringServices.cs")]
+    [TestCase("src", "ProjectAegis.Data", "Scenario", "Authoring", "ScenarioEditVersionGuard.cs")]
     public void Validation_and_authoring_source_has_no_dynamic_code_execution(params string[] relativeSegments)
     {
         var path = ResolveRepoFile(relativeSegments);
-        Assert.True(path != null, $"Could not locate source file at repo-relative path '{string.Join('/', relativeSegments)}' by walking up from {AppContext.BaseDirectory}.");
+        Assert.That(path != null, Is.True, $"Could not locate source file at repo-relative path '{string.Join('/', relativeSegments)}' by walking up from {AppContext.BaseDirectory}.");
 
-        var source = File.ReadAllText(path);
+        var source = File.ReadAllText(path!);
 
         foreach (var forbidden in ForbiddenSourceSubstrings)
         {
-            Assert.True(
-                !source.Contains(forbidden, StringComparison.Ordinal),
-                $"'{path}' contains forbidden dynamic-code-execution substring '{forbidden}'. " +
+            Assert.That(                !source.Contains(forbidden, StringComparison.Ordinal), Is.True,                 $"'{path}' contains forbidden dynamic-code-execution substring '{forbidden}'. " +
                 "Per ADR-014 / requirement doc 11 NFR, no arbitrary code execution is permitted on the " +
                 "blocking validation/authoring/export path.");
         }

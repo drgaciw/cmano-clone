@@ -3,14 +3,14 @@ namespace ProjectAegis.Data.Tests.Validation;
 using ProjectAegis.Data.Catalog;
 using ProjectAegis.Data.Scenario.Authoring;
 using ProjectAegis.Data.Validation;
-using Xunit;
+using NUnit.Framework;
 
 public sealed class ValidationGoldenTests
 {
     private static readonly ScenarioValidationEngine Engine = new();
     private static readonly ValidationConfig Config = new();
 
-    [Fact]
+    [Test]
     public void Golden_clean_scenario_passes_export()
     {
         var path = ResolveFixture("golden_clean.json");
@@ -21,13 +21,13 @@ public sealed class ValidationGoldenTests
 
         var scenario = ScenarioDocumentJsonLoader.LoadFromFile(path);
         var report = Engine.Validate(scenario, InMemoryCatalogReader.BalticPatrolFixture(), Config);
-        Assert.True(report.Passed);
-        Assert.True(report.CanExport(Config));
-        Assert.Equal(ValidationGoldenHashes.CleanPatrol, report.ReportHash);
-        Assert.Equal(report.ReportHash, Engine.Validate(scenario, InMemoryCatalogReader.BalticPatrolFixture(), Config).ReportHash);
+        Assert.That(report.Passed, Is.True);
+        Assert.That(report.CanExport(Config), Is.True);
+        Assert.That(report.ReportHash, Is.EqualTo(ValidationGoldenHashes.CleanPatrol));
+        Assert.That(Engine.Validate(scenario, InMemoryCatalogReader.BalticPatrolFixture(), Config).ReportHash, Is.EqualTo(report.ReportHash));
     }
 
-    [Fact]
+    [Test]
     public void Golden_strike_unreachable_blocks_export_with_stable_hash()
     {
         var path = ResolveFixture("golden_strike_unreachable.json");
@@ -39,15 +39,13 @@ public sealed class ValidationGoldenTests
         var scenario = ScenarioDocumentJsonLoader.LoadFromFile(path);
         var catalog = InMemoryCatalogReader.BalticPatrolFixture();
         var report = Engine.Validate(scenario, catalog, Config);
-        Assert.Contains(
-            report.Findings,
-            f => f.Code is "STRIKE_UNREACHABLE" or "STRIKE_UNREACHABLE_FUEL");
-        Assert.False(report.CanExport(Config));
-        Assert.Equal(ValidationGoldenHashes.StrikeUnreachable, report.ReportHash);
-        Assert.Equal(report.ReportHash, Engine.Validate(scenario, catalog, Config).ReportHash);
+        Assert.That(            report.Findings.Any(            f => f.Code is "STRIKE_UNREACHABLE" or "STRIKE_UNREACHABLE_FUEL"), Is.True);
+        Assert.That(report.CanExport(Config), Is.False);
+        Assert.That(report.ReportHash, Is.EqualTo(ValidationGoldenHashes.StrikeUnreachable));
+        Assert.That(Engine.Validate(scenario, catalog, Config).ReportHash, Is.EqualTo(report.ReportHash));
     }
 
-    [Fact]
+    [Test]
     public void Sqlite_catalog_supports_validation_db_ref_and_platform_hooks()
     {
         var dbPath = Path.Combine(Path.GetTempPath(), $"aegis-val-{Guid.NewGuid():N}.db");
@@ -55,13 +53,13 @@ public sealed class ValidationGoldenTests
         {
             CatalogSeedBootstrap.SeedBalticPatrol(dbPath, overwrite: true);
             using var reader = new SqliteCatalogReader(dbPath, "test-sqlite-val");
-            Assert.True(reader.TryResolveDbRef("baltic_patrol", out var snap));
-            Assert.Equal("baltic_patrol", snap);
-            Assert.True(reader.TryGetCombatRadiusNm("u1", out var radius));
-            Assert.Equal(400.0, radius);
-            Assert.True(reader.TryGetPlatformPosition("hostile-far", out var lat, out var lon));
-            Assert.Equal(65.0, lat);
-            Assert.Equal(35.0, lon);
+            Assert.That(reader.TryResolveDbRef("baltic_patrol", out var snap), Is.True);
+            Assert.That(snap, Is.EqualTo("baltic_patrol"));
+            Assert.That(reader.TryGetCombatRadiusNm("u1", out var radius), Is.True);
+            Assert.That(radius, Is.EqualTo(400.0));
+            Assert.That(reader.TryGetPlatformPosition("hostile-far", out var lat, out var lon), Is.True);
+            Assert.That(lat, Is.EqualTo(65.0));
+            Assert.That(lon, Is.EqualTo(35.0));
         }
         finally
         {
@@ -72,18 +70,18 @@ public sealed class ValidationGoldenTests
         }
     }
 
-    [Fact]
+    [Test]
     public void All_six_v1_rules_emit_expected_codes()
     {
         var catalog = InMemoryCatalogReader.BalticPatrolFixture();
         var badDb = new ScenarioDocumentDto { Metadata = new ScenarioMetadataDto { DbRef = "missing-db-xyz" } };
-        Assert.Contains(Engine.Validate(badDb, catalog, Config).Findings, f => f.Code == "DB_MISMATCH");
+        Assert.That(Engine.Validate(badDb, catalog, Config).Findings.Any(f => f.Code == "DB_MISMATCH"), Is.True);
 
         var noUnits = new ScenarioDocumentDto
         {
             Missions = [new ScenarioMissionDto { Id = "m1", Type = "Patrol" }],
         };
-        Assert.Contains(Engine.Validate(noUnits, catalog, Config).Findings, f => f.Code == "MISSION_NO_UNITS");
+        Assert.That(Engine.Validate(noUnits, catalog, Config).Findings.Any(f => f.Code == "MISSION_NO_UNITS"), Is.True);
 
         var patrol = new ScenarioDocumentDto
         {
@@ -98,7 +96,7 @@ public sealed class ValidationGoldenTests
                 },
             ],
         };
-        Assert.Contains(Engine.Validate(patrol, catalog, Config).Findings, f => f.Code == "PATROL_ZONE_DEGENERATE");
+        Assert.That(Engine.Validate(patrol, catalog, Config).Findings.Any(f => f.Code == "PATROL_ZONE_DEGENERATE"), Is.True);
 
         var ferry = new ScenarioDocumentDto
         {
@@ -112,13 +110,13 @@ public sealed class ValidationGoldenTests
                 },
             ],
         };
-        Assert.Contains(Engine.Validate(ferry, catalog, Config).Findings, f => f.Code == "FERRY_NO_DESTINATION");
+        Assert.That(Engine.Validate(ferry, catalog, Config).Findings.Any(f => f.Code == "FERRY_NO_DESTINATION"), Is.True);
 
         var missingTl = new ScenarioDocumentDto
         {
             Metadata = new ScenarioMetadataDto { DbRef = "baltic_patrol" },
         };
-        Assert.Contains(Engine.Validate(missingTl, catalog, Config).Findings, f => f.Code == "TL_BRANCH_MISSING");
+        Assert.That(Engine.Validate(missingTl, catalog, Config).Findings.Any(f => f.Code == "TL_BRANCH_MISSING"), Is.True);
     }
 
     private static string? ResolveFixture(string fileName)

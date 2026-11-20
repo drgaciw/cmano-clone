@@ -1,12 +1,12 @@
 using ProjectAegis.Data.Catalog;
-using Xunit;
+using NUnit.Framework;
 
 namespace ProjectAegis.Data.Tests.Catalog;
 
 /// <summary>Agent C — catalog import JSON contract stability.</summary>
 public sealed class CatalogJsonRoundTripTests
 {
-    [Fact]
+    [Test]
     public void ReadSensorBindings_ignores_extra_fields_and_preserves_ordering()
     {
         var path = Path.Combine(Path.GetTempPath(), $"aegis-rt-{Guid.NewGuid():N}.json");
@@ -35,12 +35,12 @@ public sealed class CatalogJsonRoundTripTests
         {
             File.WriteAllText(path, json);
             var bindings = CatalogJsonImporter.ReadSensorBindings(path);
-            Assert.Equal(2, bindings.Count);
-            Assert.Equal("a-plat", bindings[0].PlatformId);
-            Assert.Equal("z-plat", bindings[1].PlatformId);
+            Assert.That(bindings.Count, Is.EqualTo(2));
+            Assert.That(bindings[0].PlatformId, Is.EqualTo("a-plat"));
+            Assert.That(bindings[1].PlatformId, Is.EqualTo("z-plat"));
             var zRow = bindings.Single(b => b.PlatformId == "z-plat");
-            Assert.Equal("rt-batch", zRow.ImportBatchId);
-            Assert.Equal(0.88, zRow.Confidence, 3);
+            Assert.That(zRow.ImportBatchId, Is.EqualTo("rt-batch"));
+            Assert.That(zRow.Confidence, Is.EqualTo(0.88).Within(0.0005));
         }
         finally
         {

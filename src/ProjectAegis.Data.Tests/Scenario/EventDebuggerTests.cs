@@ -4,7 +4,7 @@ using System;
 using System.IO;
 using System.Text.Json;
 using ProjectAegis.Data.Scenario.Authoring;
-using Xunit;
+using NUnit.Framework;
 
 // ScenarioDocumentJsonLoader is in ProjectAegis.Data.Scenario.Authoring (already using'd above)
 
@@ -16,7 +16,7 @@ using Xunit;
 /// </summary>
 public sealed class EventDebuggerTests
 {
-    [Fact]
+    [Test]
     public void UnitEntersZone_never_holds_emits_fired_false_with_unmet_conditions()
     {
         var document = new ScenarioDocumentDto
@@ -49,32 +49,32 @@ public sealed class EventDebuggerTests
         using var doc = JsonDocument.Parse(json);
         var root = doc.RootElement;
 
-        Assert.Equal("evt-no-fire", root.GetProperty("event_id").GetString());
-        Assert.False(root.GetProperty("fired").GetBoolean());
-        Assert.Equal(EventDebuggerTrace.DefaultEvaluationHorizonTicks, root.GetProperty("last_evaluated_tick").GetInt32());
+        Assert.That(root.GetProperty("event_id").GetString(), Is.EqualTo("evt-no-fire"));
+        Assert.That(root.GetProperty("fired").GetBoolean(), Is.False);
+        Assert.That(root.GetProperty("last_evaluated_tick").GetInt32(), Is.EqualTo(EventDebuggerTrace.DefaultEvaluationHorizonTicks));
 
         // AC-7 full projection fields (ME-W2 Track W2-a)
-        Assert.Equal(EventDebuggerTrace.DefaultEvaluationHorizonTicks, root.GetProperty("sim_tick").GetInt32());
-        Assert.Equal(0, root.GetProperty("sequence_id").GetInt32()); // single event → ordinal index 0
+        Assert.That(root.GetProperty("sim_tick").GetInt32(), Is.EqualTo(EventDebuggerTrace.DefaultEvaluationHorizonTicks));
+        Assert.That(root.GetProperty("sequence_id").GetInt32(), Is.EqualTo(0)); // single event → ordinal index 0
 
         var actionResults = root.GetProperty("action_results");
-        Assert.Equal(JsonValueKind.Array, actionResults.ValueKind);
-        var action = Assert.Single(actionResults.EnumerateArray().ToArray());
-        Assert.Equal("Message", action.GetProperty("type").GetString());
-        Assert.False(action.GetProperty("applied").GetBoolean());
-        Assert.Equal("not-fired", action.GetProperty("note").GetString());
+        Assert.That(actionResults.ValueKind, Is.EqualTo(JsonValueKind.Array));
+        var action = AssertEx.Single(actionResults.EnumerateArray().ToArray());
+        Assert.That(action.GetProperty("type").GetString(), Is.EqualTo("Message"));
+        Assert.That(action.GetProperty("applied").GetBoolean(), Is.False);
+        Assert.That(action.GetProperty("note").GetString(), Is.EqualTo("not-fired"));
 
         var unmet = root.GetProperty("unmet_conditions");
-        Assert.Equal(JsonValueKind.Array, unmet.ValueKind);
-        var condition = Assert.Single(unmet.EnumerateArray().ToArray());
+        Assert.That(unmet.ValueKind, Is.EqualTo(JsonValueKind.Array));
+        var condition = AssertEx.Single(unmet.EnumerateArray().ToArray());
 
-        Assert.Equal("UnitEntersZone", condition.GetProperty("type").GetString());
-        Assert.False(condition.GetProperty("result").GetBoolean());
-        Assert.Equal("u1", condition.GetProperty("unit_id").GetString());
-        Assert.Equal("zone-alpha", condition.GetProperty("zone_id").GetString());
+        Assert.That(condition.GetProperty("type").GetString(), Is.EqualTo("UnitEntersZone"));
+        Assert.That(condition.GetProperty("result").GetBoolean(), Is.False);
+        Assert.That(condition.GetProperty("unit_id").GetString(), Is.EqualTo("u1"));
+        Assert.That(condition.GetProperty("zone_id").GetString(), Is.EqualTo("zone-alpha"));
     }
 
-    [Fact]
+    [Test]
     public void ExplainEventTrace_delegates_to_structured_json()
     {
         var editor = ScenarioDocumentEditor.CreateNew();
@@ -96,24 +96,24 @@ public sealed class EventDebuggerTests
 
         var json = editor.ExplainEventTrace("evt-42");
 
-        Assert.StartsWith("{", json);
-        Assert.Contains("\"event_id\":\"evt-42\"", json, StringComparison.Ordinal);
-        Assert.Contains("\"fired\":false", json, StringComparison.Ordinal);
-        Assert.Contains("\"unmet_conditions\"", json, StringComparison.Ordinal);
+        Assert.That(json, Does.StartWith("{"));
+        Assert.That(json, Does.Contain("\"event_id\":\"evt-42\""));
+        Assert.That(json, Does.Contain("\"fired\":false"));
+        Assert.That(json, Does.Contain("\"unmet_conditions\""));
     }
 
-    [Fact]
+    [Test]
     public void ExplainEventTrace_blank_eventId_falls_back_to_evt()
     {
         var editor = ScenarioDocumentEditor.CreateNew();
         var json = editor.ExplainEventTrace("   ");
 
         using var doc = JsonDocument.Parse(json);
-        Assert.Equal("evt", doc.RootElement.GetProperty("event_id").GetString());
+        Assert.That(doc.RootElement.GetProperty("event_id").GetString(), Is.EqualTo("evt"));
     }
 
     /// <summary>AC-7 additive: Time trigger with explicit Result=true fires (no unmet).</summary>
-    [Fact]
+    [Test]
     public void Time_trigger_with_result_true_emits_fired_true_no_unmet()
     {
         var document = new ScenarioDocumentDto
@@ -135,13 +135,13 @@ public sealed class EventDebuggerTests
         using var doc = JsonDocument.Parse(json);
         var root = doc.RootElement;
 
-        Assert.Equal("evt-fire", root.GetProperty("event_id").GetString());
-        Assert.True(root.GetProperty("fired").GetBoolean());
-        Assert.Equal(0, root.GetProperty("last_evaluated_tick").GetInt32());
-        Assert.Empty(root.GetProperty("unmet_conditions").EnumerateArray());
+        Assert.That(root.GetProperty("event_id").GetString(), Is.EqualTo("evt-fire"));
+        Assert.That(root.GetProperty("fired").GetBoolean(), Is.True);
+        Assert.That(root.GetProperty("last_evaluated_tick").GetInt32(), Is.EqualTo(0));
+        Assert.That(root.GetProperty("unmet_conditions").EnumerateArray(), Is.Empty);
     }
 
-    [Fact]
+    [Test]
     public void UnitEntersZone_never_holds_from_event_no_fire_fixture_emits_structured_unmet_json()
     {
         // TDD extension for AC-7: use dedicated fixture per sprint spec + qa unit #7.
@@ -152,27 +152,27 @@ public sealed class EventDebuggerTests
         using var doc = JsonDocument.Parse(json);
         var root = doc.RootElement;
 
-        Assert.Equal("evt-no-fire", root.GetProperty("event_id").GetString());
-        Assert.False(root.GetProperty("fired").GetBoolean());
-        Assert.Equal(EventDebuggerTrace.DefaultEvaluationHorizonTicks, root.GetProperty("last_evaluated_tick").GetInt32());
+        Assert.That(root.GetProperty("event_id").GetString(), Is.EqualTo("evt-no-fire"));
+        Assert.That(root.GetProperty("fired").GetBoolean(), Is.False);
+        Assert.That(root.GetProperty("last_evaluated_tick").GetInt32(), Is.EqualTo(EventDebuggerTrace.DefaultEvaluationHorizonTicks));
 
         // AC-7 full projection fields
-        Assert.Equal(EventDebuggerTrace.DefaultEvaluationHorizonTicks, root.GetProperty("sim_tick").GetInt32());
-        Assert.Equal(JsonValueKind.Number, root.GetProperty("sequence_id").ValueKind);
-        Assert.Equal(JsonValueKind.Array, root.GetProperty("action_results").ValueKind);
+        Assert.That(root.GetProperty("sim_tick").GetInt32(), Is.EqualTo(EventDebuggerTrace.DefaultEvaluationHorizonTicks));
+        Assert.That(root.GetProperty("sequence_id").ValueKind, Is.EqualTo(JsonValueKind.Number));
+        Assert.That(root.GetProperty("action_results").ValueKind, Is.EqualTo(JsonValueKind.Array));
 
         var unmet = root.GetProperty("unmet_conditions");
-        Assert.Equal(JsonValueKind.Array, unmet.ValueKind);
-        var condition = Assert.Single(unmet.EnumerateArray().ToArray());
+        Assert.That(unmet.ValueKind, Is.EqualTo(JsonValueKind.Array));
+        var condition = AssertEx.Single(unmet.EnumerateArray().ToArray());
 
-        Assert.Equal("UnitEntersZone", condition.GetProperty("type").GetString());
-        Assert.False(condition.GetProperty("result").GetBoolean());
-        Assert.Equal("u1", condition.GetProperty("unit_id").GetString());
-        Assert.Equal("zone-alpha", condition.GetProperty("zone_id").GetString());
+        Assert.That(condition.GetProperty("type").GetString(), Is.EqualTo("UnitEntersZone"));
+        Assert.That(condition.GetProperty("result").GetBoolean(), Is.False);
+        Assert.That(condition.GetProperty("unit_id").GetString(), Is.EqualTo("u1"));
+        Assert.That(condition.GetProperty("zone_id").GetString(), Is.EqualTo("zone-alpha"));
         // richer detail from extension
         if (condition.TryGetProperty("note", out var note))
         {
-            Assert.Equal("no-sim-state", note.GetString());
+            Assert.That(note.GetString(), Is.EqualTo("no-sim-state"));
         }
     }
 

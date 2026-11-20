@@ -1,5 +1,5 @@
 using ProjectAegis.Data.Scenario.Authoring;
-using Xunit;
+using NUnit.Framework;
 
 namespace ProjectAegis.Data.Tests.Scenario;
 
@@ -13,59 +13,47 @@ public sealed class ScenarioUiDevBalticOpenSmokeTests
     private const string RelativeScenarioPath =
         "assets/data/scenarios/authoring/russia-vs-nato-baltic-ui-dev.json";
 
-    [Fact]
+    [Test]
     public void Open_ui_dev_baltic_scenario_has_orbat_and_sides()
     {
         var path = ResolveUiDevBalticScenarioPath();
-        Assert.True(
-            File.Exists(path),
-            $"UI-dev Baltic scenario missing at '{path}'. Expected under repo root next to ProjectAegis.sln: {RelativeScenarioPath}");
+        Assert.That(            File.Exists(path), Is.True,             $"UI-dev Baltic scenario missing at '{path}'. Expected under repo root next to ProjectAegis.sln: {RelativeScenarioPath}");
 
         using var session = ScenarioAuthoringSession.Open(path);
         var dto = session.Editor.ToDto();
 
-        Assert.True(session.EditVersion >= 1, $"EditVersion should be >= 1, was {session.EditVersion}");
+        Assert.That(session.EditVersion >= 1, Is.True, $"EditVersion should be >= 1, was {session.EditVersion}");
 
-        Assert.NotNull(dto.Orbat);
-        var units = dto.Orbat!.Units ?? Array.Empty<ScenarioOrbatUnitDto>();
-        Assert.True(units.Count >= 10, $"Expected >= 10 ORBAT units, got {units.Count}");
+        Assert.That(dto.Orbat, Is.Not.Null);
+        var units = dto.Orbat!.Units;
+        Assert.That(units.Count >= 10, Is.True, $"Expected >= 10 ORBAT units, got {units.Count}");
 
-        Assert.Contains(units, u => string.Equals(u.SideId, "blue", StringComparison.OrdinalIgnoreCase));
-        Assert.Contains(units, u => string.Equals(u.SideId, "red", StringComparison.OrdinalIgnoreCase));
+        Assert.That(units.Any(u => string.Equals(u.SideId, "blue", StringComparison.OrdinalIgnoreCase)), Is.True);
+        Assert.That(units.Any(u => string.Equals(u.SideId, "red", StringComparison.OrdinalIgnoreCase)), Is.True);
 
-        Assert.Contains(
-            units,
-            u =>
+        Assert.That(            units.Any(            u =>
             {
                 var platform = u.PlatformId ?? string.Empty;
                 var id = u.Id ?? string.Empty;
                 return platform.Contains("m901", StringComparison.OrdinalIgnoreCase)
                        || platform.Contains("patriot", StringComparison.OrdinalIgnoreCase)
                        || id.Contains("swe-m901", StringComparison.OrdinalIgnoreCase);
-            });
+            }), Is.True);
 
-        Assert.True(
-            dto.ReferencePoints.Count >= 1,
-            $"Expected >= 1 reference points, got {dto.ReferencePoints.Count}");
+        Assert.That(            dto.ReferencePoints.Count >= 1, Is.True,             $"Expected >= 1 reference points, got {dto.ReferencePoints.Count}");
 
         if (dto.Sides is { Count: > 0 })
         {
-            Assert.Contains(
-                dto.Sides,
-                s => string.Equals(s.Id, "blue", StringComparison.OrdinalIgnoreCase));
-            Assert.Contains(
-                dto.Sides,
-                s => string.Equals(s.Id, "red", StringComparison.OrdinalIgnoreCase));
+            Assert.That(                dto.Sides.Any(                s => string.Equals(s.Id, "blue", StringComparison.OrdinalIgnoreCase)), Is.True);
+            Assert.That(                dto.Sides.Any(                s => string.Equals(s.Id, "red", StringComparison.OrdinalIgnoreCase)), Is.True);
         }
     }
 
-    [Fact]
+    [Test]
     public void Place_unit_on_ui_dev_scenario_commits()
     {
         var sourcePath = ResolveUiDevBalticScenarioPath();
-        Assert.True(
-            File.Exists(sourcePath),
-            $"UI-dev Baltic scenario missing at '{sourcePath}'. Expected under repo root next to ProjectAegis.sln: {RelativeScenarioPath}");
+        Assert.That(            File.Exists(sourcePath), Is.True,             $"UI-dev Baltic scenario missing at '{sourcePath}'. Expected under repo root next to ProjectAegis.sln: {RelativeScenarioPath}");
 
         var tempPath = Path.Combine(Path.GetTempPath(), $"aegis-ui-dev-baltic-{Guid.NewGuid():N}.json");
         try
@@ -85,22 +73,21 @@ public sealed class ScenarioUiDevBalticOpenSmokeTests
                         Lon = 20,
                     },
                     save: true);
-                Assert.True(place.Ok, place.ErrorMessage ?? place.ErrorCode ?? "PlaceUnit failed");
+                Assert.That(place.Ok, Is.True, place.ErrorMessage ?? place.ErrorCode ?? "PlaceUnit failed");
 
                 // In-session surface rebuild equivalent: re-read document after commit.
-                Assert.Contains(
-                    session.Editor.ToDto().Orbat?.Units ?? Array.Empty<ScenarioOrbatUnitDto>(),
-                    u => string.Equals(u.Id, "ui-test-u1", StringComparison.OrdinalIgnoreCase));
+                Assert.That(
+                    (session.Editor.ToDto().Orbat?.Units ?? Array.Empty<ScenarioOrbatUnitDto>())
+                        .Any(u => string.Equals(u.Id, "ui-test-u1", StringComparison.OrdinalIgnoreCase)),
+                    Is.True);
             }
 
             // Re-open proves file persistence (editor reload path).
             using var reopened = ScenarioAuthoringSession.Open(tempPath);
             var units = reopened.Editor.ToDto().Orbat?.Units ?? Array.Empty<ScenarioOrbatUnitDto>();
-            Assert.Contains(
-                units,
-                u => string.Equals(u.Id, "ui-test-u1", StringComparison.OrdinalIgnoreCase)
+            Assert.That(                units.Any(                u => string.Equals(u.Id, "ui-test-u1", StringComparison.OrdinalIgnoreCase)
                      && string.Equals(u.SideId, "blue", StringComparison.OrdinalIgnoreCase)
-                     && string.Equals(u.PlatformId, "ffg", StringComparison.OrdinalIgnoreCase));
+                     && string.Equals(u.PlatformId, "ffg", StringComparison.OrdinalIgnoreCase)), Is.True);
         }
         finally
         {

@@ -1,12 +1,12 @@
 using ProjectAegis.Data.Catalog;
-using Xunit;
+using NUnit.Framework;
 
 namespace ProjectAegis.Data.Tests.Catalog;
 
-[Collection("CatalogSqlite")]
+[Runner.CatalogSqliteCollection]
 public sealed class CatalogBulkImporterTests
 {
-    [Fact]
+    [Test]
     public void ImportDirectory_merges_sorted_json_drops()
     {
         var dir = CatalogBulkImporter.ResolveCatalogImportDirectory();
@@ -14,10 +14,10 @@ public sealed class CatalogBulkImporterTests
         try
         {
             var fileCount = CatalogBulkImporter.ImportDirectory(dir, dbPath);
-            Assert.True(fileCount >= 1);
+            Assert.That(fileCount >= 1, Is.True);
             using var reader = new SqliteCatalogReader(dbPath, "p0-bulk-test");
-            Assert.True(reader.TryGetBasePd("u1", "radar-2", out var pd));
-            Assert.Equal(0.75, pd);
+            Assert.That(reader.TryGetBasePd("u1", "radar-2", out var pd), Is.True);
+            Assert.That(pd, Is.EqualTo(0.75));
         }
         finally
         {

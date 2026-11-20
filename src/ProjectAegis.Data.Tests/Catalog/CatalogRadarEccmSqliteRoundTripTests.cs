@@ -1,14 +1,14 @@
 using Microsoft.Data.Sqlite;
 using ProjectAegis.Data.Catalog;
 using ProjectAegis.Data.Snapshots;
-using Xunit;
+using NUnit.Framework;
 
 namespace ProjectAegis.Data.Tests.Catalog;
 
 /// <summary>DRG-416: radar ECCM attributes survive JSON -> SQLite -> reader unchanged.</summary>
 public sealed class CatalogRadarEccmSqliteRoundTripTests
 {
-    [Fact]
+    [Test]
     public void Json_to_sqlite_round_trip_matches_json_reader_and_validates()
     {
         var json = Path.Combine(Path.GetTempPath(), $"aegis-eccm-rt-{Guid.NewGuid():N}.json");
@@ -30,22 +30,20 @@ public sealed class CatalogRadarEccmSqliteRoundTripTests
                 fromSqlite = reader.GetSortedSensorBindings();
             }
 
-            Assert.Equal(fromJson.Count, fromSqlite.Count);
+            Assert.That(fromSqlite.Count, Is.EqualTo(fromJson.Count));
             for (var i = 0; i < fromJson.Count; i++)
             {
-                Assert.Equal(fromJson[i].SensorId, fromSqlite[i].SensorId);
-                Assert.Equal(fromJson[i].RadarScanType, fromSqlite[i].RadarScanType);
-                Assert.Equal(fromJson[i].FrequencyAgile, fromSqlite[i].FrequencyAgile);
-                Assert.Equal(fromJson[i].RadarTechGeneration, fromSqlite[i].RadarTechGeneration);
-                Assert.Empty(CatalogRadarScanTypes.Validate(fromSqlite[i]));
+                Assert.That(fromSqlite[i].SensorId, Is.EqualTo(fromJson[i].SensorId));
+                Assert.That(fromSqlite[i].RadarScanType, Is.EqualTo(fromJson[i].RadarScanType));
+                Assert.That(fromSqlite[i].FrequencyAgile, Is.EqualTo(fromJson[i].FrequencyAgile));
+                Assert.That(fromSqlite[i].RadarTechGeneration, Is.EqualTo(fromJson[i].RadarTechGeneration));
+                Assert.That(CatalogRadarScanTypes.Validate(fromSqlite[i]), Is.Empty);
             }
 
-            Assert.Equal("Aesa", fromSqlite[1].RadarScanType);
-            Assert.True(fromSqlite[1].FrequencyAgile);
-            Assert.Equal(5, fromSqlite[1].RadarTechGeneration);
-            Assert.Equal(
-                CatalogSnapshotHasher.ComputeSha256Hex(fromJson),
-                CatalogSnapshotHasher.ComputeSha256Hex(fromSqlite));
+            Assert.That(fromSqlite[1].RadarScanType, Is.EqualTo("Aesa"));
+            Assert.That(fromSqlite[1].FrequencyAgile, Is.True);
+            Assert.That(fromSqlite[1].RadarTechGeneration, Is.EqualTo(5));
+            Assert.That(                CatalogSnapshotHasher.ComputeSha256Hex(fromSqlite), Is.EqualTo(                CatalogSnapshotHasher.ComputeSha256Hex(fromJson)));
         }
         finally
         {
@@ -55,7 +53,7 @@ public sealed class CatalogRadarEccmSqliteRoundTripTests
         }
     }
 
-    [Fact]
+    [Test]
     public void Rows_without_eccm_read_back_as_unspecified()
     {
         var db = Path.Combine(Path.GetTempPath(), $"aegis-eccm-def-{Guid.NewGuid():N}.db");
@@ -63,10 +61,10 @@ public sealed class CatalogRadarEccmSqliteRoundTripTests
         {
             CatalogJsonImporter.WriteSqlite(db, [new CatalogSensorBinding("p1", "r1", 0.9)]);
             using var reader = new SqliteCatalogReader(db);
-            var row = Assert.Single(reader.GetSortedSensorBindings());
-            Assert.Equal(CatalogRadarScanTypes.Unspecified, row.RadarScanType);
-            Assert.False(row.FrequencyAgile);
-            Assert.Equal(0, row.RadarTechGeneration);
+            var row = AssertEx.Single(reader.GetSortedSensorBindings());
+            Assert.That(row.RadarScanType, Is.EqualTo(CatalogRadarScanTypes.Unspecified));
+            Assert.That(row.FrequencyAgile, Is.False);
+            Assert.That(row.RadarTechGeneration, Is.EqualTo(0));
         }
         finally
         {

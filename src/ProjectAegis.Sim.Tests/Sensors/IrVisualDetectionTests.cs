@@ -1,49 +1,65 @@
 using ProjectAegis.Sim.Core;
 using ProjectAegis.Sim.Scenario;
 using ProjectAegis.Sim.Sensors;
-using Xunit;
+using NUnit.Framework;
 
 namespace ProjectAegis.Sim.Tests.Sensors;
 
 public sealed class IrVisualDetectionTests
 {
-    [Fact]
+    [Test]
     public void Visual_day_mask_is_greater_than_night_mask()
     {
         var day = IrVisualDetection.ComputeVisualEnvMask(dayFraction: 1.0);
         var night = IrVisualDetection.ComputeVisualEnvMask(dayFraction: 0.0);
-        Assert.True(day > night);
-        Assert.Equal(1.0, day, 6);
-        Assert.Equal(IrVisualDetection.DefaultVisualNightFloor, night, 6);
+        Assert.That(day > night, Is.True);
+        Assert.That(
+            Math.Round(day, 6, MidpointRounding.AwayFromZero),
+            Is.EqualTo(Math.Round(1.0, 6, MidpointRounding.AwayFromZero)));
+        Assert.That(
+            Math.Round(night, 6, MidpointRounding.AwayFromZero),
+            Is.EqualTo(Math.Round(IrVisualDetection.DefaultVisualNightFloor, 6, MidpointRounding.AwayFromZero)));
     }
 
-    [Fact]
+    [Test]
     public void Visual_mask_respects_weather_and_clamps()
     {
         var masked = IrVisualDetection.ComputeVisualEnvMask(dayFraction: 1.0, weatherMask: 0.5);
-        Assert.Equal(0.5, masked, 6);
+        Assert.That(
+            Math.Round(masked, 6, MidpointRounding.AwayFromZero),
+            Is.EqualTo(Math.Round(0.5, 6, MidpointRounding.AwayFromZero)));
 
         var over = IrVisualDetection.ComputeVisualEnvMask(dayFraction: 2.0, weatherMask: 2.0);
-        Assert.Equal(1.0, over, 6);
+        Assert.That(
+            Math.Round(over, 6, MidpointRounding.AwayFromZero),
+            Is.EqualTo(Math.Round(1.0, 6, MidpointRounding.AwayFromZero)));
 
         var under = IrVisualDetection.ComputeVisualEnvMask(dayFraction: -1.0, weatherMask: -1.0, nightFloor: 0);
-        Assert.Equal(0.0, under, 6);
+        Assert.That(
+            Math.Round(under, 6, MidpointRounding.AwayFromZero),
+            Is.EqualTo(Math.Round(0.0, 6, MidpointRounding.AwayFromZero)));
     }
 
-    [Fact]
+    [Test]
     public void Infrared_mask_uses_thermal_contrast()
     {
         var hot = IrVisualDetection.ComputeInfraredEnvMask(thermalContrast: 0.9);
         var cold = IrVisualDetection.ComputeInfraredEnvMask(thermalContrast: 0.1);
-        Assert.True(hot > cold);
-        Assert.Equal(0.9, hot, 6);
-        Assert.Equal(0.1, cold, 6);
+        Assert.That(hot > cold, Is.True);
+        Assert.That(
+            Math.Round(hot, 6, MidpointRounding.AwayFromZero),
+            Is.EqualTo(Math.Round(0.9, 6, MidpointRounding.AwayFromZero)));
+        Assert.That(
+            Math.Round(cold, 6, MidpointRounding.AwayFromZero),
+            Is.EqualTo(Math.Round(0.1, 6, MidpointRounding.AwayFromZero)));
 
         var weathered = IrVisualDetection.ComputeInfraredEnvMask(thermalContrast: 0.8, weatherMask: 0.5);
-        Assert.Equal(0.4, weathered, 6);
+        Assert.That(
+            Math.Round(weathered, 6, MidpointRounding.AwayFromZero),
+            Is.EqualTo(Math.Round(0.4, 6, MidpointRounding.AwayFromZero)));
     }
 
-    [Fact]
+    [Test]
     public void Radar_rf_jam_suppresses_identical_ir_trial_does_not()
     {
         var jammers = new[] { new ScenarioJammer("hostile-1", 1.0, ActiveFromTick: 1) };
@@ -64,16 +80,18 @@ public sealed class IrVisualDetectionTests
         var irRolls = DeterministicDetectionLoop.RollTick(
             seed, tick, [irTrial], null, jammers: jammers);
 
-        Assert.Single(radarRolls);
-        Assert.False(radarRolls[0].Detected);
-        Assert.Equal(0, radarRolls[0].Pd);
+        AssertEx.Single(radarRolls);
+        Assert.That(radarRolls[0].Detected, Is.False);
+        Assert.That(radarRolls[0].Pd, Is.EqualTo(0));
 
-        Assert.Single(irRolls);
-        Assert.Equal(1.0, irRolls[0].Pd, 6);
-        Assert.True(irRolls[0].Detected);
+        AssertEx.Single(irRolls);
+        Assert.That(
+            Math.Round(irRolls[0].Pd, 6, MidpointRounding.AwayFromZero),
+            Is.EqualTo(Math.Round(1.0, 6, MidpointRounding.AwayFromZero)));
+        Assert.That(irRolls[0].Detected, Is.True);
     }
 
-    [Fact]
+    [Test]
     public void Visual_trial_also_ignores_rf_jammers()
     {
         var jammers = new[] { new ScenarioJammer("hostile-1", 1.0) };
@@ -85,12 +103,14 @@ public sealed class IrVisualDetectionTests
 
         var rolls = DeterministicDetectionLoop.RollTick(
             SimSeed.FromScenario(7), 1, [visual], null, jammers: jammers);
-        Assert.Single(rolls);
-        Assert.Equal(1.0, rolls[0].Pd, 6);
-        Assert.True(rolls[0].Detected);
+        AssertEx.Single(rolls);
+        Assert.That(
+            Math.Round(rolls[0].Pd, 6, MidpointRounding.AwayFromZero),
+            Is.EqualTo(Math.Round(1.0, 6, MidpointRounding.AwayFromZero)));
+        Assert.That(rolls[0].Detected, Is.True);
     }
 
-    [Fact]
+    [Test]
     public void Mixed_modality_rolls_are_deterministic_for_same_seed()
     {
         var trials = new[]
@@ -115,15 +135,15 @@ public sealed class IrVisualDetectionTests
         var a = DeterministicDetectionLoop.RollTick(seed, 3, trials, null, jammers: jammers);
         var b = DeterministicDetectionLoop.RollTick(seed, 3, trials, null, jammers: jammers);
 
-        Assert.Equal(a.Count, b.Count);
-        Assert.True(a.Count >= 3);
+        Assert.That(b.Count, Is.EqualTo(a.Count));
+        Assert.That(a.Count >= 3, Is.True);
         for (var i = 0; i < a.Count; i++)
         {
-            Assert.Equal(a[i].Trial.TargetId, b[i].Trial.TargetId);
-            Assert.Equal(a[i].Trial.Modality, b[i].Trial.Modality);
-            Assert.Equal(a[i].Pd, b[i].Pd);
-            Assert.Equal(a[i].Draw, b[i].Draw);
-            Assert.Equal(a[i].Detected, b[i].Detected);
+            Assert.That(b[i].Trial.TargetId, Is.EqualTo(a[i].Trial.TargetId));
+            Assert.That(b[i].Trial.Modality, Is.EqualTo(a[i].Trial.Modality));
+            Assert.That(b[i].Pd, Is.EqualTo(a[i].Pd));
+            Assert.That(b[i].Draw, Is.EqualTo(a[i].Draw));
+            Assert.That(b[i].Detected, Is.EqualTo(a[i].Detected));
         }
     }
 }

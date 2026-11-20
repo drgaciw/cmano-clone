@@ -1,5 +1,5 @@
 using ProjectAegis.Data.Scenario.Authoring;
-using Xunit;
+using NUnit.Framework;
 
 namespace ProjectAegis.Data.Tests.Scenario;
 
@@ -9,7 +9,7 @@ namespace ProjectAegis.Data.Tests.Scenario;
 /// </summary>
 public sealed class ScenarioSideEditorTests
 {
-    [Fact]
+    [Test]
     public void UpsertSide_inserts_deep_copies_postures()
     {
         var editor = ScenarioDocumentEditor.CreateNew();
@@ -24,20 +24,20 @@ public sealed class ScenarioSideEditorTests
             Postures = postures,
         });
 
-        var side = Assert.Single(editor.ToDto().Sides);
-        Assert.Equal("blue", side.Id);
-        Assert.Equal("Blue Force", side.Name);
-        Assert.Equal("WeaponsFree", side.DefaultRoe);
-        Assert.Equal("Active", side.DefaultEmcon);
-        Assert.Equal(new[] { "defensive", "alert" }, side.Postures);
+        var side = AssertEx.Single(editor.ToDto().Sides);
+        Assert.That(side.Id, Is.EqualTo("blue"));
+        Assert.That(side.Name, Is.EqualTo("Blue Force"));
+        Assert.That(side.DefaultRoe, Is.EqualTo("WeaponsFree"));
+        Assert.That(side.DefaultEmcon, Is.EqualTo("Active"));
+        Assert.That(side.Postures, Is.EqualTo(new[] { "defensive", "alert" }));
 
         // Mutating the source list must not affect the stored side (deep copy).
         postures[0] = "offensive";
         postures.Clear();
-        Assert.Equal(new[] { "defensive", "alert" }, editor.ToDto().Sides[0].Postures);
+        Assert.That(editor.ToDto().Sides[0].Postures, Is.EqualTo(new[] { "defensive", "alert" }));
     }
 
-    [Fact]
+    [Test]
     public void UpsertSide_replaces_by_case_insensitive_id()
     {
         var editor = ScenarioDocumentEditor.CreateNew();
@@ -57,15 +57,15 @@ public sealed class ScenarioSideEditorTests
             Postures = ["patrol"],
         });
 
-        var side = Assert.Single(editor.ToDto().Sides);
-        Assert.Equal("blue", side.Id);
-        Assert.Equal("NATO Blue", side.Name);
-        Assert.Equal("WeaponsFree", side.DefaultRoe);
-        Assert.Equal("Silent", side.DefaultEmcon);
-        Assert.Equal(new[] { "patrol" }, side.Postures);
+        var side = AssertEx.Single(editor.ToDto().Sides);
+        Assert.That(side.Id, Is.EqualTo("blue"));
+        Assert.That(side.Name, Is.EqualTo("NATO Blue"));
+        Assert.That(side.DefaultRoe, Is.EqualTo("WeaponsFree"));
+        Assert.That(side.DefaultEmcon, Is.EqualTo("Silent"));
+        Assert.That(side.Postures, Is.EqualTo(new[] { "patrol" }));
     }
 
-    [Fact]
+    [Test]
     public void UpsertSide_blank_id_throws()
     {
         var editor = ScenarioDocumentEditor.CreateNew();
@@ -73,7 +73,7 @@ public sealed class ScenarioSideEditorTests
             editor.UpsertSide(new ScenarioSideDto { Id = "  ", Name = "X" }));
     }
 
-    [Fact]
+    [Test]
     public void TryRemoveSide_removes_without_cascading_orbat_units()
     {
         var editor = ScenarioDocumentEditor.CreateNew();
@@ -88,20 +88,20 @@ public sealed class ScenarioSideEditorTests
             Lon = 20,
         });
 
-        Assert.True(editor.TryRemoveSide("BLUE"));
-        Assert.False(editor.TryRemoveSide("missing"));
+        Assert.That(editor.TryRemoveSide("BLUE"), Is.True);
+        Assert.That(editor.TryRemoveSide("missing"), Is.False);
 
         var sides = editor.ToDto().Sides;
-        Assert.Single(sides);
-        Assert.Equal("red", sides[0].Id);
+        Assert.That(sides, Has.Exactly(1).Items);
+        Assert.That(sides[0].Id, Is.EqualTo("red"));
 
         // ORBAT unit retained with dangling sideId (no cascade).
-        var unit = Assert.Single(editor.ToDto().Orbat!.Units);
-        Assert.Equal("u1", unit.Id);
-        Assert.Equal("blue", unit.SideId);
+        var unit = AssertEx.Single(editor.ToDto().Orbat!.Units);
+        Assert.That(unit.Id, Is.EqualTo("u1"));
+        Assert.That(unit.SideId, Is.EqualTo("blue"));
     }
 
-    [Fact]
+    [Test]
     public void UpsertSide_round_trips_json_and_undo_restores_sides()
     {
         var path = Path.Combine(Path.GetTempPath(), $"aegis-side-{Guid.NewGuid():N}.json");
@@ -131,17 +131,17 @@ public sealed class ScenarioSideEditorTests
             loaded.Save(path);
 
             var dto = ScenarioDocumentJsonLoader.LoadFromFile(path);
-            Assert.Equal(2, dto.Metadata.EditVersion);
-            Assert.Equal(2, dto.Sides.Count);
-            Assert.Contains(dto.Sides, s => s.Id == "red");
+            Assert.That(dto.Metadata.EditVersion, Is.EqualTo(2));
+            Assert.That(dto.Sides.Count, Is.EqualTo(2));
+            Assert.That(dto.Sides.Any(s => s.Id == "red"), Is.True);
 
-            Assert.True(loaded.PopUndo(path));
+            Assert.That(loaded.PopUndo(path), Is.True);
             var restored = ScenarioDocumentJsonLoader.LoadFromFile(path);
-            var side = Assert.Single(restored.Sides);
-            Assert.Equal("blue", side.Id);
-            Assert.Equal("Blue Force", side.Name);
-            Assert.Equal(new[] { "defensive" }, side.Postures);
-            Assert.DoesNotContain(restored.Sides, s => s.Id == "red");
+            var side = AssertEx.Single(restored.Sides);
+            Assert.That(side.Id, Is.EqualTo("blue"));
+            Assert.That(side.Name, Is.EqualTo("Blue Force"));
+            Assert.That(side.Postures, Is.EqualTo(new[] { "defensive" }));
+            Assert.That(restored.Sides.Any(s => s.Id == "red"), Is.False);
         }
         finally
         {
@@ -158,7 +158,7 @@ public sealed class ScenarioSideEditorTests
         }
     }
 
-    [Fact]
+    [Test]
     public void Bus_UpsertSide_and_DeleteSide_bump_edit_version()
     {
         var path = Path.Combine(Path.GetTempPath(), $"aegis-side-bus-{Guid.NewGuid():N}.json");
@@ -177,14 +177,14 @@ public sealed class ScenarioSideEditorTests
                 },
                 save: true);
 
-            Assert.True(upsert.Ok);
-            Assert.Equal(2, upsert.EditVersion);
-            Assert.Single(session.Editor.ToDto().Sides);
+            Assert.That(upsert.Ok, Is.True);
+            Assert.That(upsert.EditVersion, Is.EqualTo(2));
+            Assert.That(session.Editor.ToDto().Sides, Has.Exactly(1).Items);
 
             var del = session.Bus.DeleteSide(session.EditVersion, "blue", save: true);
-            Assert.True(del.Ok);
-            Assert.Equal(3, del.EditVersion);
-            Assert.Empty(session.Editor.ToDto().Sides);
+            Assert.That(del.Ok, Is.True);
+            Assert.That(del.EditVersion, Is.EqualTo(3));
+            Assert.That(session.Editor.ToDto().Sides, Is.Empty);
         }
         finally
         {
@@ -195,7 +195,7 @@ public sealed class ScenarioSideEditorTests
         }
     }
 
-    [Fact]
+    [Test]
     public void Bus_UpsertSide_stale_edit_version_returns_conflict()
     {
         var path = Path.Combine(Path.GetTempPath(), $"aegis-side-bus-c-{Guid.NewGuid():N}.json");
@@ -209,10 +209,10 @@ public sealed class ScenarioSideEditorTests
                 new ScenarioSideDto { Id = "blue", Name = "Blue" },
                 save: true);
 
-            Assert.False(result.Ok);
-            Assert.Equal(ScenarioEditVersionGuard.ConflictCode, result.ErrorCode);
-            Assert.Empty(session.Editor.ToDto().Sides);
-            Assert.Equal(1, ScenarioDocumentJsonLoader.LoadFromFile(path).Metadata.EditVersion);
+            Assert.That(result.Ok, Is.False);
+            Assert.That(result.ErrorCode, Is.EqualTo(ScenarioEditVersionGuard.ConflictCode));
+            Assert.That(session.Editor.ToDto().Sides, Is.Empty);
+            Assert.That(ScenarioDocumentJsonLoader.LoadFromFile(path).Metadata.EditVersion, Is.EqualTo(1));
         }
         finally
         {

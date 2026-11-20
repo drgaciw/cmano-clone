@@ -1,13 +1,13 @@
 using Microsoft.Data.Sqlite;
 using ProjectAegis.Data.Catalog;
-using Xunit;
+using NUnit.Framework;
 
 namespace ProjectAegis.Data.Tests.Catalog;
 
-[Collection("CatalogSqlite")]
+[Runner.CatalogSqliteCollection]
 public sealed class CatalogQuarantineTests
 {
-    [Fact]
+    [Test]
     public void ImportToSqlite_writes_rejected_rows_to_quarantine_table()
     {
         var jsonPath = Path.Combine(
@@ -22,7 +22,7 @@ public sealed class CatalogQuarantineTests
             using var cmd = connection.CreateCommand();
             cmd.CommandText = "SELECT COUNT(*) FROM sensor_quarantine WHERE rejection_reason LIKE 'review_state_%'";
             var count = Convert.ToInt32(cmd.ExecuteScalar(), System.Globalization.CultureInfo.InvariantCulture);
-            Assert.Equal(1, count);
+            Assert.That(count, Is.EqualTo(1));
         }
         finally
         {

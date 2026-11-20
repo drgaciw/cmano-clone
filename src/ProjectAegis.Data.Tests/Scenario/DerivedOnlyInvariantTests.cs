@@ -2,7 +2,7 @@ namespace ProjectAegis.Data.Tests.Scenario;
 
 using System.Text.Json.Nodes;
 using System.Text.RegularExpressions;
-using Xunit;
+using NUnit.Framework;
 
 /// <summary>
 /// AC-9 / AME-2.4 (qa-plan-scenario-editor-2026-07-01.md #9): Schema + DTO conformance lint
@@ -12,7 +12,7 @@ using Xunit;
 /// </summary>
 public sealed class DerivedOnlyInvariantTests
 {
-    [Fact]
+    [Test]
     public void EditorState_is_the_only_derived_only_node_in_schema()
     {
         var schemaPath = ResolveDataPath(null, "scenario-document.schema.json");
@@ -22,13 +22,11 @@ public sealed class DerivedOnlyInvariantTests
         var derivedOnlyNodes = new List<string>();
         WalkForDerivedTag(schemaNode, "", derivedOnlyNodes);
 
-        Assert.True(
-            derivedOnlyNodes.Count == 1 && string.Equals(derivedOnlyNodes[0], "editorState", StringComparison.Ordinal),
-            $"Expected exactly ['editorState'] as the derived-only node per AC-9, but found: [{string.Join(", ", derivedOnlyNodes)}]. " +
+        Assert.That(            derivedOnlyNodes.Count == 1 && string.Equals(derivedOnlyNodes[0], "editorState", StringComparison.Ordinal), Is.True,             $"Expected exactly ['editorState'] as the derived-only node per AC-9, but found: [{string.Join(", ", derivedOnlyNodes)}]. " +
             "editorState must be the only derived-only node.");
     }
 
-    [Fact]
+    [Test]
     public void EditorState_is_the_only_derived_only_in_dto_source()
     {
         var dtoPath = ResolveSourcePath("src/ProjectAegis.Data/Scenario/Authoring/ScenarioDocumentDto.cs");
@@ -53,9 +51,7 @@ public sealed class DerivedOnlyInvariantTests
             }
         }
 
-        Assert.True(
-            derivedProps.Count == 1 && string.Equals(derivedProps[0], "EditorState", StringComparison.Ordinal),
-            $"Expected only EditorState marked Derived-only in DTO source, found: [{string.Join(",", derivedProps)}]");
+        Assert.That(            derivedProps.Count == 1 && string.Equals(derivedProps[0], "EditorState", StringComparison.Ordinal), Is.True,             $"Expected only EditorState marked Derived-only in DTO source, found: [{string.Join(",", derivedProps)}]");
     }
 
     private static void WalkForDerivedTag(JsonNode? node, string path, List<string> hits)

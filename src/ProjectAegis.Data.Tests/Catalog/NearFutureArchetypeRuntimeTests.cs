@@ -1,11 +1,11 @@
 using ProjectAegis.Data.Catalog;
-using Xunit;
+using NUnit.Framework;
 
 namespace ProjectAegis.Data.Tests.Catalog;
 
 public sealed class NearFutureArchetypeRuntimeTests
 {
-    [Fact]
+    [Test]
     public void PlanSpawns_accepts_cca_and_rejects_mass_at_medium_cap()
     {
         var path = ResolveCatalogPath();
@@ -17,9 +17,9 @@ public sealed class NearFutureArchetypeRuntimeTests
 
         var plans = NearFutureArchetypeRuntime.PlanSpawns(requests, 2, SwarmTier.Medium, path);
 
-        Assert.Single(plans);
-        Assert.Equal("cca-wingman", plans[0].ArchetypeId);
-        Assert.Equal("cca-1", plans[0].UnitId);
+        Assert.That(plans, Has.Exactly(1).Items);
+        Assert.That(plans[0].ArchetypeId, Is.EqualTo("cca-wingman"));
+        Assert.That(plans[0].UnitId, Is.EqualTo("cca-1"));
     }
 
     private static string ResolveCatalogPath()

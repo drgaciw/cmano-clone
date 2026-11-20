@@ -1,13 +1,13 @@
 using ProjectAegis.Sim.Core;
 using ProjectAegis.Sim.Scenario;
 using ProjectAegis.Sim.Sensors;
-using Xunit;
+using NUnit.Framework;
 
 namespace ProjectAegis.Sim.Tests.Sensors;
 
 public sealed class PdContactPrimaryBlueForceStaleTests
 {
-    [Fact]
+    [Test]
     public void Stale_loss_of_only_blue_force_contact_clears_primary_blue_force_target()
     {
         // A single friendly (blue-force) contact becomes the sim's PrimaryBlueForceTargetId.
@@ -24,12 +24,12 @@ public sealed class PdContactPrimaryBlueForceStaleTests
             contactLifecycle: lifecycle);
 
         sim.Tick(1, 1.0);
-        Assert.Equal("u1", sim.PrimaryBlueForceTargetId);
+        Assert.That(sim.PrimaryBlueForceTargetId, Is.EqualTo("u1"));
 
         var t2 = sim.Tick(2, 2.0);
-        Assert.Contains(t2, t => t.NewState == ContactLifecycleState.Lost);
-        Assert.Equal(0, sim.ActiveCount);
+        Assert.That(t2.Any(t => t.NewState == ContactLifecycleState.Lost), Is.True);
+        Assert.That(sim.ActiveCount, Is.EqualTo(0));
 
-        Assert.Null(sim.PrimaryBlueForceTargetId);
+        Assert.That(sim.PrimaryBlueForceTargetId, Is.Null);
     }
 }

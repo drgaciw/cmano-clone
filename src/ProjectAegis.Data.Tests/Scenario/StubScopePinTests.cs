@@ -3,7 +3,7 @@ namespace ProjectAegis.Data.Tests.Scenario;
 using ProjectAegis.Data.Catalog;
 using ProjectAegis.Data.Scenario.Authoring;
 using ProjectAegis.Data.Validation;
-using Xunit;
+using NUnit.Framework;
 
 /// <summary>
 /// Pins scenario-editor surface contracts after ME-W2:
@@ -21,7 +21,7 @@ public sealed class StubScopePinTests
     // See: Game-Requirements/requirements/11-Agentic-Mission-Editor.md AC-7 / AME-5.5
     // ---------------------------------------------------------------
 
-    [Fact]
+    [Test]
     public void ExplainEventTrace_returns_full_ac7_projection_fields_with_correct_types()
     {
         var editor = ScenarioDocumentEditor.CreateNew();
@@ -37,36 +37,36 @@ public sealed class StubScopePinTests
         var json = editor.ExplainEventTrace("evt-stub-demo");
 
         // Pins full AC-7 projection shape (compact JSON).
-        Assert.StartsWith("{", json);
-        Assert.Contains("\"event_id\":\"evt-stub-demo\"", json);
-        Assert.Contains("\"fired\":", json);
-        Assert.Contains("\"last_evaluated_tick\":", json);
-        Assert.Contains("\"unmet_conditions\"", json);
+        Assert.That(json, Does.StartWith("{"));
+        Assert.That(json, Does.Contain("\"event_id\":\"evt-stub-demo\""));
+        Assert.That(json, Does.Contain("\"fired\":"));
+        Assert.That(json, Does.Contain("\"last_evaluated_tick\":"));
+        Assert.That(json, Does.Contain("\"unmet_conditions\""));
 
         // Full AC-7 fields MUST appear with correct JSON types
         using var doc = System.Text.Json.JsonDocument.Parse(json);
         var root = doc.RootElement;
-        Assert.Equal(System.Text.Json.JsonValueKind.Number, root.GetProperty("sim_tick").ValueKind);
-        Assert.Equal(System.Text.Json.JsonValueKind.Number, root.GetProperty("sequence_id").ValueKind);
-        Assert.Equal(System.Text.Json.JsonValueKind.Array, root.GetProperty("action_results").ValueKind);
-        Assert.True(root.GetProperty("sim_tick").TryGetInt32(out _));
-        Assert.True(root.GetProperty("sequence_id").TryGetInt32(out _));
+        Assert.That(root.GetProperty("sim_tick").ValueKind, Is.EqualTo(System.Text.Json.JsonValueKind.Number));
+        Assert.That(root.GetProperty("sequence_id").ValueKind, Is.EqualTo(System.Text.Json.JsonValueKind.Number));
+        Assert.That(root.GetProperty("action_results").ValueKind, Is.EqualTo(System.Text.Json.JsonValueKind.Array));
+        Assert.That(root.GetProperty("sim_tick").TryGetInt32(out _), Is.True);
+        Assert.That(root.GetProperty("sequence_id").TryGetInt32(out _), Is.True);
     }
 
-    [Fact]
+    [Test]
     public void ExplainEventTrace_for_missing_event_and_unitenterszone_pin_full_projection()
     {
         var editor = ScenarioDocumentEditor.CreateNew();
         // no events populated -> missing-event path
         var jsonMissing = editor.ExplainEventTrace("nonexistent-evt");
 
-        Assert.Contains("\"event_id\":\"nonexistent-evt\"", jsonMissing);
-        Assert.Contains("\"fired\":false", jsonMissing);
-        Assert.Contains("\"last_evaluated_tick\":0", jsonMissing);
-        Assert.Contains("\"unmet_conditions\":[]", jsonMissing);
-        Assert.Contains("\"sim_tick\":0", jsonMissing);
-        Assert.Contains("\"sequence_id\":0", jsonMissing);
-        Assert.Contains("\"action_results\":[]", jsonMissing);
+        Assert.That(jsonMissing, Does.Contain("\"event_id\":\"nonexistent-evt\""));
+        Assert.That(jsonMissing, Does.Contain("\"fired\":false"));
+        Assert.That(jsonMissing, Does.Contain("\"last_evaluated_tick\":0"));
+        Assert.That(jsonMissing, Does.Contain("\"unmet_conditions\":[]"));
+        Assert.That(jsonMissing, Does.Contain("\"sim_tick\":0"));
+        Assert.That(jsonMissing, Does.Contain("\"sequence_id\":0"));
+        Assert.That(jsonMissing, Does.Contain("\"action_results\":[]"));
 
         // UnitEntersZone case without live editorState -> never holds
         var doc = new ScenarioDocumentDto
@@ -85,12 +85,12 @@ public sealed class StubScopePinTests
         };
         var jsonZone = EventDebuggerTrace.ToJson(doc, "evt-zone");
 
-        Assert.Contains("\"fired\":false", jsonZone);
-        Assert.Contains("\"last_evaluated_tick\":32", jsonZone); // pinned horizon default
-        Assert.Contains("unmet_conditions", jsonZone);
-        Assert.Contains("\"sim_tick\":32", jsonZone);
-        Assert.Contains("\"sequence_id\":", jsonZone);
-        Assert.Contains("\"action_results\"", jsonZone);
+        Assert.That(jsonZone, Does.Contain("\"fired\":false"));
+        Assert.That(jsonZone, Does.Contain("\"last_evaluated_tick\":32")); // pinned horizon default
+        Assert.That(jsonZone, Does.Contain("unmet_conditions"));
+        Assert.That(jsonZone, Does.Contain("\"sim_tick\":32"));
+        Assert.That(jsonZone, Does.Contain("\"sequence_id\":"));
+        Assert.That(jsonZone, Does.Contain("\"action_results\""));
     }
 
     // ---------------------------------------------------------------
@@ -98,7 +98,7 @@ public sealed class StubScopePinTests
     // (ME-W2 real EventStaticAnalyzer; no longer MISSION_NO_UNITS relabel)
     // ---------------------------------------------------------------
 
-    [Fact]
+    [Test]
     public void AnalyzeTcaGraph_dead_count_is_EVENT_DEAD_TRIGGER_not_MISSION_NO_UNITS()
     {
         var editor = ScenarioDocumentEditor.CreateNew();
@@ -124,18 +124,16 @@ public sealed class StubScopePinTests
         editor.AddEvent("evt-dead");
 
         var liveReport = editor.LiveValidate();
-        Assert.Contains(liveReport.Findings, f => f.Code == "MISSION_NO_UNITS" && f.MissionId == "m1");
-        Assert.Contains(liveReport.Findings, f => f.Code == "EVENT_DEAD_TRIGGER");
+        Assert.That(liveReport.Findings.Any(f => f.Code == "MISSION_NO_UNITS" && f.MissionId == "m1"), Is.True);
+        Assert.That(liveReport.Findings.Any(f => f.Code == "EVENT_DEAD_TRIGGER"), Is.True);
 
         var result = editor.AnalyzeTcaGraph();
 
-        Assert.Equal(
-            "TCA static analysis: dead=1 unreachable=0 contradictory=0 circular=0; " +
-            "graph nodes=[evt-dead]; findings=[EVENT_DEAD_TRIGGER:evt-dead]",
-            result);
+        Assert.That(            result, Is.EqualTo(            "TCA static analysis: dead=1 unreachable=0 contradictory=0 circular=0; " +
+            "graph nodes=[evt-dead]; findings=[EVENT_DEAD_TRIGGER:evt-dead]"));
     }
 
-    [Fact]
+    [Test]
     public void AnalyzeTcaGraph_nodes_are_event_ids_not_mission_chain()
     {
         var editor = ScenarioDocumentEditor.CreateNew();
@@ -164,29 +162,29 @@ public sealed class StubScopePinTests
 
         var result = editor.AnalyzeTcaGraph();
 
-        Assert.Contains("graph nodes=[e1,e2]", result);
-        Assert.DoesNotContain("edges=", result);
-        Assert.DoesNotContain("alpha", result);
-        Assert.Contains("dead=0", result);
-        Assert.Contains("findings=[]", result);
+        Assert.That(result, Does.Contain("graph nodes=[e1,e2]"));
+        Assert.That(result, Does.Not.Contain("edges="));
+        Assert.That(result, Does.Not.Contain("alpha"));
+        Assert.That(result, Does.Contain("dead=0"));
+        Assert.That(result, Does.Contain("findings=[]"));
     }
 
     // ---------------------------------------------------------------
     // Stub 2: AI scaffold / NL stub — AiAuthoringServices.NlScaffold
     // ---------------------------------------------------------------
 
-    [Fact]
+    [Test]
     public void NlScaffold_patrol_keyword_deterministically_maps_to_patrol_mission()
     {
         var result = AiAuthoringServices.NlScaffold("Blue forces patrol the Baltic strait chokepoint");
 
-        Assert.Contains("patrol-blue-1", result.Missions);
+        Assert.That(result.Missions, Does.Contain("patrol-blue-1"));
         // Pin the "keyword parse" self-description — proves this is
         // deterministic keyword matching, not an LLM call.
-        Assert.StartsWith("Scaffolded from NL brief using keyword parse.", result.Explanation);
+        Assert.That(result.Explanation, Does.StartWith("Scaffolded from NL brief using keyword parse."));
     }
 
-    [Fact]
+    [Test]
     public void NlScaffold_brief_with_no_recognized_keywords_falls_back_to_hardcoded_patrol_default()
     {
         // No occurrence of any recognized keyword (patrol, defend, baltic,
@@ -196,9 +194,9 @@ public sealed class StubScopePinTests
         // Guards doc 11 §9's promise that v1 has "no LLM in any blocking or
         // non-blocking authoring path": a real NL-understanding system would
         // not need a hardcoded fallback mission for unrecognized input.
-        Assert.Single(result.Missions);
-        Assert.Contains("patrol-default", result.Missions);
-        Assert.DoesNotContain("patrol-blue-1", result.Missions);
+        Assert.That(result.Missions, Has.Exactly(1).Items);
+        Assert.That(result.Missions, Does.Contain("patrol-default"));
+        Assert.That(result.Missions, Does.Not.Contain("patrol-blue-1"));
     }
 
     // ---------------------------------------------------------------
@@ -208,7 +206,7 @@ public sealed class StubScopePinTests
     // ScenarioValidationEngineTests.cs)
     // ---------------------------------------------------------------
 
-    [Fact]
+    [Test]
     public void IncompatibleHostRule_fires_on_air_substring_unit_when_no_carrier_unit_anywhere()
     {
         var scenario = new ScenarioDocumentDto
@@ -230,10 +228,10 @@ public sealed class StubScopePinTests
             scenario, InMemoryCatalogReader.BalticPatrolFixture(), new ValidationConfig());
 
         // Substring match on "air", not real platform-compatibility modeling.
-        Assert.Contains(report.Findings, f => f.Code == "INCOMPATIBLE_HOST" && f.UnitId == "air-unit-1");
+        Assert.That(report.Findings.Any(f => f.Code == "INCOMPATIBLE_HOST" && f.UnitId == "air-unit-1"), Is.True);
     }
 
-    [Fact]
+    [Test]
     public void IncompatibleHostRule_does_not_fire_when_a_literal_carrier_unit_is_present()
     {
         var scenario = new ScenarioDocumentDto
@@ -269,10 +267,10 @@ public sealed class StubScopePinTests
         // Presence of a mission with the literal unit id "carrier" anywhere
         // in the scenario suppresses the finding, even though "airbase-1"
         // still contains "air" — proving this is naive substring/id matching.
-        Assert.DoesNotContain(report.Findings, f => f.Code == "INCOMPATIBLE_HOST");
+        Assert.That(report.Findings.Any(f => f.Code == "INCOMPATIBLE_HOST"), Is.False);
     }
 
-    [Fact]
+    [Test]
     public void BrokenRefRule_fires_only_on_literal_ref_colon_prefix_naming_convention()
     {
         var scenario = new ScenarioDocumentDto
@@ -293,10 +291,10 @@ public sealed class StubScopePinTests
         var report = new ScenarioValidationEngine().Validate(
             scenario, InMemoryCatalogReader.BalticPatrolFixture(), new ValidationConfig());
 
-        Assert.Contains(report.Findings, f => f.Code == "BROKEN_REF" && f.MissionId == "strike-1");
+        Assert.That(report.Findings.Any(f => f.Code == "BROKEN_REF" && f.MissionId == "strike-1"), Is.True);
     }
 
-    [Fact]
+    [Test]
     public void BrokenRefRule_does_not_fire_on_a_dangling_reference_lacking_the_ref_prefix()
     {
         var scenario = new ScenarioDocumentDto
@@ -319,7 +317,7 @@ public sealed class StubScopePinTests
 
         // Not a general referential-integrity check — only the "ref:" naming
         // convention is caught, so this equally-dangling target id is missed.
-        Assert.DoesNotContain(report.Findings, f => f.Code == "BROKEN_REF");
+        Assert.That(report.Findings.Any(f => f.Code == "BROKEN_REF"), Is.False);
     }
 
     // ---------------------------------------------------------------
@@ -327,23 +325,23 @@ public sealed class StubScopePinTests
     // Cites: ME-W2 Track W2-a, 11-Agentic-Mission-Editor.md AC-7 / AME-5.5.
     // ---------------------------------------------------------------
 
-    [Fact]
+    [Test]
     public void ExplainEventTrace_returns_full_shape_with_fired_false_for_missing_event()
     {
         var editor = ScenarioDocumentEditor.CreateNew();
         // No events in document => missing path returns non-firing full projection.
         var json = editor.ExplainEventTrace("evt-no-such");
 
-        Assert.Contains("\"event_id\":\"evt-no-such\"", json, StringComparison.Ordinal);
-        Assert.Contains("\"fired\":false", json, StringComparison.Ordinal);
-        Assert.Contains("\"last_evaluated_tick\":0", json, StringComparison.Ordinal);
-        Assert.Contains("\"unmet_conditions\":[]", json, StringComparison.Ordinal);
-        Assert.Contains("\"sim_tick\":0", json, StringComparison.Ordinal);
-        Assert.Contains("\"sequence_id\":0", json, StringComparison.Ordinal);
-        Assert.Contains("\"action_results\":[]", json, StringComparison.Ordinal);
+        Assert.That(json, Does.Contain("\"event_id\":\"evt-no-such\""));
+        Assert.That(json, Does.Contain("\"fired\":false"));
+        Assert.That(json, Does.Contain("\"last_evaluated_tick\":0"));
+        Assert.That(json, Does.Contain("\"unmet_conditions\":[]"));
+        Assert.That(json, Does.Contain("\"sim_tick\":0"));
+        Assert.That(json, Does.Contain("\"sequence_id\":0"));
+        Assert.That(json, Does.Contain("\"action_results\":[]"));
     }
 
-    [Fact]
+    [Test]
     public void AnalyzeTcaGraph_shape_is_real_event_static_analysis()
     {
         var editor = ScenarioDocumentEditor.CreateNew();
@@ -352,11 +350,11 @@ public sealed class StubScopePinTests
         var result = editor.AnalyzeTcaGraph();
 
         // No events → zero findings; nodes empty (missions are not graph nodes).
-        Assert.Contains("dead=0", result);
-        Assert.Contains("unreachable=0", result);
-        Assert.Contains("graph nodes=[]", result);
-        Assert.Contains("findings=[]", result);
-        Assert.Contains("TCA static analysis:", result);
-        Assert.DoesNotContain("edges=", result);
+        Assert.That(result, Does.Contain("dead=0"));
+        Assert.That(result, Does.Contain("unreachable=0"));
+        Assert.That(result, Does.Contain("graph nodes=[]"));
+        Assert.That(result, Does.Contain("findings=[]"));
+        Assert.That(result, Does.Contain("TCA static analysis:"));
+        Assert.That(result, Does.Not.Contain("edges="));
     }
 }

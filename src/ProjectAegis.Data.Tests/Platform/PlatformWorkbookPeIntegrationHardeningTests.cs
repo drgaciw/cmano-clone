@@ -3,7 +3,7 @@ using ProjectAegis.Data.Excel;
 using ProjectAegis.Data.Platform;
 using ProjectAegis.Data.Validation;
 using ProjectAegis.Data.WriteGate;
-using Xunit;
+using NUnit.Framework;
 
 namespace ProjectAegis.Data.Tests.Platform;
 
@@ -103,7 +103,7 @@ public sealed class PlatformWorkbookPeIntegrationHardeningTests
     /// PLE-2.1 empty-diff golden: unedited Baltic-like export survives ClosedXML binary Write→Read
     /// and Plan() reports zero changes (PE-W1 protection must not invent diffs).
     /// </summary>
-    [Fact]
+    [Test]
     public void Empty_diff_golden_holds_after_ClosedXml_write_read_unedited_baltic_export()
     {
         var source = BalticLikeData();
@@ -113,18 +113,18 @@ public sealed class PlatformWorkbookPeIntegrationHardeningTests
         {
             var io = new ClosedXmlPlatformWorkbookIo();
             io.Write(original, path);
-            Assert.True(IsZipArchive(path), "export must emit a binary .xlsx (ZIP) workbook");
+            Assert.That(IsZipArchive(path), Is.True, "export must emit a binary .xlsx (ZIP) workbook");
 
             var roundTripped = io.Read(path);
-            Assert.True(PlatformWorkbookDiff.IsEmpty(original, roundTripped));
+            Assert.That(PlatformWorkbookDiff.IsEmpty(original, roundTripped), Is.True);
 
             var plan = ImporterFor(source, clockTicks: 11_001).Plan(roundTripped);
-            Assert.True(plan.SnapshotResolved);
-            Assert.False(plan.HasChanges);
-            Assert.Empty(plan.Changes);
-            Assert.False(plan.Blocked);
-            Assert.False(plan.RequiresHumanApproval);
-            Assert.Empty(plan.QuarantineEntries);
+            Assert.That(plan.SnapshotResolved, Is.True);
+            Assert.That(plan.HasChanges, Is.False);
+            Assert.That(plan.Changes, Is.Empty);
+            Assert.That(plan.Blocked, Is.False);
+            Assert.That(plan.RequiresHumanApproval, Is.False);
+            Assert.That(plan.QuarantineEntries, Is.Empty);
         }
         finally
         {
@@ -143,7 +143,7 @@ public sealed class PlatformWorkbookPeIntegrationHardeningTests
     /// PE-W1 protection / list-validation metadata on the binary workbook must not surface as
     /// validation errors that block Plan after ClosedXML Read.
     /// </summary>
-    [Fact]
+    [Test]
     public void Export_Write_Read_Plan_never_blocked_solely_by_protection_or_validation_metadata()
     {
         var source = BalticLikeData();
@@ -158,16 +158,16 @@ public sealed class PlatformWorkbookPeIntegrationHardeningTests
             using (var xl = new ClosedXML.Excel.XLWorkbook(path))
             {
                 var meta = xl.Worksheet(PlatformWorkbookHash.MetaSheetName);
-                Assert.True(meta.IsProtected, "precondition: PE-W1 protects _Meta");
+                Assert.That(meta.IsProtected, Is.True, "precondition: PE-W1 protects _Meta");
             }
 
             var roundTripped = io.Read(path);
             var plan = ImporterFor(source, clockTicks: 11_002).Plan(roundTripped);
 
-            Assert.True(plan.SnapshotResolved);
-            Assert.False(plan.Blocked);
-            Assert.DoesNotContain(plan.Findings, f => f.Severity == ValidationSeverity.Error);
-            Assert.False(plan.HasChanges);
+            Assert.That(plan.SnapshotResolved, Is.True);
+            Assert.That(plan.Blocked, Is.False);
+            Assert.That(plan.Findings.Any(f => f.Severity == ValidationSeverity.Error), Is.False);
+            Assert.That(plan.HasChanges, Is.False);
         }
         finally
         {
@@ -185,7 +185,7 @@ public sealed class PlatformWorkbookPeIntegrationHardeningTests
     /// <summary>
     /// WorkbookHash + SourceSnapshotId survive ClosedXML round-trip with PE-W1 sheet protection.
     /// </summary>
-    [Fact]
+    [Test]
     public void WorkbookHash_and_SourceSnapshotId_survive_ClosedXml_round_trip_with_protection()
     {
         var original = Export(BalticLikeData(), clockTicks: 11_003);
@@ -198,18 +198,18 @@ public sealed class PlatformWorkbookPeIntegrationHardeningTests
 
             using (var xl = new ClosedXML.Excel.XLWorkbook(path))
             {
-                Assert.True(xl.Worksheet(PlatformWorkbookHash.MetaSheetName).IsProtected);
+                Assert.That(xl.Worksheet(PlatformWorkbookHash.MetaSheetName).IsProtected, Is.True);
             }
 
             var roundTripped = io.Read(path);
             var meta = roundTripped.FindSheet(PlatformWorkbookHash.MetaSheetName);
-            Assert.NotNull(meta);
+            Assert.That(meta, Is.Not.Null);
 
-            Assert.Equal(SnapshotId, MetaValue(meta, "SourceSnapshotId"));
-            Assert.Equal(PlatformWorkbookExporter.SchemaVersion, MetaValue(meta, "SchemaVersion"));
-            Assert.Equal(expectedHash, MetaValue(meta, "WorkbookHash"));
-            Assert.Equal(expectedHash, PlatformWorkbookHash.Compute(roundTripped));
-            Assert.True(PlatformWorkbookDiff.IsEmpty(original, roundTripped));
+            Assert.That(MetaValue(meta!, "SourceSnapshotId"), Is.EqualTo(SnapshotId));
+            Assert.That(MetaValue(meta!, "SchemaVersion"), Is.EqualTo(PlatformWorkbookExporter.SchemaVersion));
+            Assert.That(MetaValue(meta!, "WorkbookHash"), Is.EqualTo(expectedHash));
+            Assert.That(PlatformWorkbookHash.Compute(roundTripped), Is.EqualTo(expectedHash));
+            Assert.That(PlatformWorkbookDiff.IsEmpty(original, roundTripped), Is.True);
         }
         finally
         {
@@ -227,7 +227,7 @@ public sealed class PlatformWorkbookPeIntegrationHardeningTests
     /// <summary>
     /// Unedited workbook: empty-diff AND empty QuarantineEntries (quarantine orthogonal to clean plan).
     /// </summary>
-    [Fact]
+    [Test]
     public void Unedited_workbook_quarantine_empty_and_empty_diff_orthogonal()
     {
         var source = BalticLikeData();
@@ -235,17 +235,17 @@ public sealed class PlatformWorkbookPeIntegrationHardeningTests
 
         var plan = ImporterFor(source, clockTicks: 11_004).Plan(edited);
 
-        Assert.True(plan.SnapshotResolved);
-        Assert.False(plan.HasChanges);
-        Assert.Empty(plan.Changes);
-        Assert.Empty(plan.QuarantineEntries);
-        Assert.False(plan.Blocked);
+        Assert.That(plan.SnapshotResolved, Is.True);
+        Assert.That(plan.HasChanges, Is.False);
+        Assert.That(plan.Changes, Is.Empty);
+        Assert.That(plan.QuarantineEntries, Is.Empty);
+        Assert.That(plan.Blocked, Is.False);
 
         var gate = new FakeWriteGate();
         var result = ImporterFor(source, clockTicks: 11_004).Stage(edited, gate, "human", "drgamtd", "empty");
-        Assert.False(result.Staged); // no changes → nothing staged
-        Assert.Empty(result.QuarantineEntries);
-        Assert.Equal(0, gate.TotalProposalCount);
+        Assert.That(result.Staged, Is.False); // no changes → nothing staged
+        Assert.That(result.QuarantineEntries, Is.Empty);
+        Assert.That(gate.TotalProposalCount, Is.EqualTo(0));
     }
 
     // -------------------------------------------------------------------------
@@ -256,7 +256,7 @@ public sealed class PlatformWorkbookPeIntegrationHardeningTests
     /// RequiresHumanApproval remains true when change count exceeds threshold even if a separate
     /// orphan magazine FK edit produces quarantine entries (independence pin).
     /// </summary>
-    [Fact]
+    [Test]
     public void RequiresHumanApproval_independent_of_quarantine_on_separate_orphan_edit()
     {
         var source = ManySensors(11, basePdMilli: 100);
@@ -272,14 +272,14 @@ public sealed class PlatformWorkbookPeIntegrationHardeningTests
 
         var plan = ImporterFor(source, clockTicks: 11_005).Plan(edited);
 
-        Assert.True(plan.Changes.Count > PlatformWorkbookImporter.HumanApprovalRecordThreshold);
-        Assert.True(plan.RequiresHumanApproval);
-        Assert.True(plan.Blocked);
-        Assert.NotEmpty(plan.QuarantineEntries);
-        Assert.Contains(plan.QuarantineEntries, q =>
+        Assert.That(plan.Changes.Count > PlatformWorkbookImporter.HumanApprovalRecordThreshold, Is.True);
+        Assert.That(plan.RequiresHumanApproval, Is.True);
+        Assert.That(plan.Blocked, Is.True);
+        Assert.That(plan.QuarantineEntries, Is.Not.Empty);
+        Assert.That(plan.QuarantineEntries.Any(q =>
             q.Reason == PlatformWorkbookValidator.MagazineUnknownMount
             && q.EntityId == "does-not-exist-mount"
-            && q.SourceSheet == "Magazines");
+            && q.SourceSheet == "Magazines"), Is.True);
     }
 
     // -------------------------------------------------------------------------
@@ -291,7 +291,7 @@ public sealed class PlatformWorkbookPeIntegrationHardeningTests
     /// ClosedXML re-export of the filtered slice must not reintroduce provisional into the
     /// sim-visible workbook.
     /// </summary>
-    [Fact]
+    [Test]
     public void Sim_visible_filter_excel_export_path_does_not_reintroduce_provisional()
     {
         var approved = new CatalogSensorBinding(
@@ -316,14 +316,14 @@ public sealed class PlatformWorkbookPeIntegrationHardeningTests
             Sensors = new[] { approved, provisional },
         };
 
-        Assert.Contains(data.Sensors, s =>
-            string.Equals(s.ReviewState, CatalogReviewStates.Provisional, StringComparison.OrdinalIgnoreCase));
+        Assert.That(data.Sensors.Any(s =>
+            string.Equals(s.ReviewState, CatalogReviewStates.Provisional, StringComparison.OrdinalIgnoreCase)), Is.True);
 
         var filtered = CatalogTlExportFilter.Apply(data, CatalogTlTier.Tl5);
-        Assert.Contains(filtered.Sensors, s => s.SensorId == "sensor-approved");
-        Assert.DoesNotContain(filtered.Sensors, s => s.SensorId == "sensor-provisional");
-        Assert.DoesNotContain(filtered.Sensors, s =>
-            string.Equals(s.ReviewState, CatalogReviewStates.Provisional, StringComparison.OrdinalIgnoreCase));
+        Assert.That(filtered.Sensors.Any(s => s.SensorId == "sensor-approved"), Is.True);
+        Assert.That(filtered.Sensors.Any(s => s.SensorId == "sensor-provisional"), Is.False);
+        Assert.That(filtered.Sensors.Any(s =>
+            string.Equals(s.ReviewState, CatalogReviewStates.Provisional, StringComparison.OrdinalIgnoreCase)), Is.False);
 
         var filteredWorkbook = Export(filtered, clockTicks: 11_006);
         var path = Path.Combine(Path.GetTempPath(), $"pe-cross-tl-filter-{Guid.NewGuid():N}.xlsx");
@@ -334,32 +334,30 @@ public sealed class PlatformWorkbookPeIntegrationHardeningTests
             var roundTripped = io.Read(path);
 
             var sensors = roundTripped.FindSheet("Sensors");
-            Assert.NotNull(sensors);
-            var reviewCol = Array.IndexOf(sensors.Header.ToArray(), "ReviewState");
+            Assert.That(sensors, Is.Not.Null);
+            var reviewCol = Array.IndexOf(sensors!.Header.ToArray(), "ReviewState");
             var sensorIdCol = Array.IndexOf(sensors.Header.ToArray(), "SensorId");
-            Assert.True(reviewCol >= 0 && sensorIdCol >= 0);
+            Assert.That(reviewCol >= 0 && sensorIdCol >= 0, Is.True);
 
-            Assert.DoesNotContain(sensors.Rows, r =>
+            Assert.That(sensors.Rows.Any(r =>
                 r.Count > sensorIdCol
-                && string.Equals(r[sensorIdCol], "sensor-provisional", StringComparison.Ordinal));
+                && string.Equals(r[sensorIdCol], "sensor-provisional", StringComparison.Ordinal)), Is.False);
             if (reviewCol >= 0)
             {
-                Assert.DoesNotContain(sensors.Rows, r =>
+                Assert.That(sensors.Rows.Any(r =>
                     r.Count > reviewCol
-                    && string.Equals(r[reviewCol], CatalogReviewStates.Provisional, StringComparison.OrdinalIgnoreCase));
+                    && string.Equals(r[reviewCol], CatalogReviewStates.Provisional, StringComparison.OrdinalIgnoreCase)), Is.False);
             }
 
             // ClosedXML data-sheet round-trip of the filtered export stays empty-diff (no provisional resurrected).
-            Assert.True(PlatformWorkbookDiff.IsEmpty(filteredWorkbook, roundTripped));
+            Assert.That(PlatformWorkbookDiff.IsEmpty(filteredWorkbook, roundTripped), Is.True);
 
             // Hard pin: re-applying TL filter to the filtered slice stays provisional-free and stable.
             var reFiltered = CatalogTlExportFilter.Apply(filtered, CatalogTlTier.Tl5);
-            Assert.DoesNotContain(reFiltered.Sensors, s =>
-                string.Equals(s.ReviewState, CatalogReviewStates.Provisional, StringComparison.OrdinalIgnoreCase));
-            Assert.Equal(filtered.Sensors.Count, reFiltered.Sensors.Count);
-            Assert.Equal(
-                filtered.Sensors.Select(s => s.SensorId).OrderBy(x => x, StringComparer.Ordinal).ToArray(),
-                reFiltered.Sensors.Select(s => s.SensorId).OrderBy(x => x, StringComparer.Ordinal).ToArray());
+            Assert.That(reFiltered.Sensors.Any(s =>
+                string.Equals(s.ReviewState, CatalogReviewStates.Provisional, StringComparison.OrdinalIgnoreCase)), Is.False);
+            Assert.That(reFiltered.Sensors.Count, Is.EqualTo(filtered.Sensors.Count));
+            Assert.That(                reFiltered.Sensors.Select(s => s.SensorId).OrderBy(x => x, StringComparer.Ordinal).ToArray(), Is.EqualTo(                filtered.Sensors.Select(s => s.SensorId).OrderBy(x => x, StringComparer.Ordinal).ToArray()));
         }
         finally
         {
@@ -377,7 +375,7 @@ public sealed class PlatformWorkbookPeIntegrationHardeningTests
     /// <summary>
     /// Two Plan() calls on the same workbook yield equal change and quarantine counts (determinism).
     /// </summary>
-    [Fact]
+    [Test]
     public void Plan_twice_on_same_workbook_yields_equal_change_and_quarantine_counts()
     {
         var source = BalticLikeData(sensorBasePdMilli: 850, magazineQty: 16);
@@ -394,17 +392,13 @@ public sealed class PlatformWorkbookPeIntegrationHardeningTests
         var planA = importer.Plan(edited);
         var planB = importer.Plan(edited);
 
-        Assert.Equal(planA.Changes.Count, planB.Changes.Count);
-        Assert.Equal(planA.QuarantineEntries.Count, planB.QuarantineEntries.Count);
-        Assert.Equal(planA.Findings.Count, planB.Findings.Count);
-        Assert.Equal(planA.RequiresHumanApproval, planB.RequiresHumanApproval);
-        Assert.Equal(planA.Blocked, planB.Blocked);
-        Assert.Equal(
-            planA.Changes.Select(c => (c.Sheet, c.Kind, c.RowIndex, c.Detail)).ToArray(),
-            planB.Changes.Select(c => (c.Sheet, c.Kind, c.RowIndex, c.Detail)).ToArray());
-        Assert.Equal(
-            planA.QuarantineEntries.Select(q => (q.Reason, q.PlatformId, q.EntityId, q.EntityKind)).ToArray(),
-            planB.QuarantineEntries.Select(q => (q.Reason, q.PlatformId, q.EntityId, q.EntityKind)).ToArray());
+        Assert.That(planB.Changes.Count, Is.EqualTo(planA.Changes.Count));
+        Assert.That(planB.QuarantineEntries.Count, Is.EqualTo(planA.QuarantineEntries.Count));
+        Assert.That(planB.Findings.Count, Is.EqualTo(planA.Findings.Count));
+        Assert.That(planB.RequiresHumanApproval, Is.EqualTo(planA.RequiresHumanApproval));
+        Assert.That(planB.Blocked, Is.EqualTo(planA.Blocked));
+        Assert.That(            planB.Changes.Select(c => (c.Sheet, c.Kind, c.RowIndex, c.Detail)).ToArray(), Is.EqualTo(            planA.Changes.Select(c => (c.Sheet, c.Kind, c.RowIndex, c.Detail)).ToArray()));
+        Assert.That(            planB.QuarantineEntries.Select(q => (q.Reason, q.PlatformId, q.EntityId, q.EntityKind)).ToArray(), Is.EqualTo(            planA.QuarantineEntries.Select(q => (q.Reason, q.PlatformId, q.EntityId, q.EntityKind)).ToArray()));
     }
 
     // -------------------------------------------------------------------------
@@ -414,7 +408,7 @@ public sealed class PlatformWorkbookPeIntegrationHardeningTests
     /// <summary>
     /// Validation error blocks Stage: zero proposals on FakeWriteGate; quarantine/findings consistent.
     /// </summary>
-    [Fact]
+    [Test]
     public void FakeWriteGate_never_proposed_on_blocked_plan_findings_quarantine_consistent()
     {
         var source = BalticLikeData(magazineQty: 16);
@@ -425,48 +419,48 @@ public sealed class PlatformWorkbookPeIntegrationHardeningTests
         var result = ImporterFor(source, clockTicks: 11_009)
             .Stage(edited, gate, "human", "drgamtd", "blocked over-capacity");
 
-        Assert.False(result.Staged);
-        Assert.True(result.Plan.Blocked);
-        Assert.Equal(0, gate.TotalProposalCount);
-        Assert.Empty(gate.SensorProposals);
-        Assert.Empty(gate.MountProposals);
-        Assert.Empty(gate.LoadoutProposals);
-        Assert.Empty(gate.MagazineProposals);
-        Assert.Empty(gate.CommsProposals);
-        Assert.Empty(gate.LinkProposals);
-        Assert.Empty(gate.MobilityProposals);
-        Assert.Empty(gate.SignatureProposals);
-        Assert.Empty(gate.EmconProposals);
-        Assert.Empty(gate.DamageProposals);
-        Assert.Empty(gate.PlatformProposals);
-        Assert.Empty(gate.WeaponProposals);
-        Assert.Null(result.SensorBatchId);
-        Assert.Null(result.MountBatchId);
-        Assert.Null(result.LoadoutBatchId);
-        Assert.Null(result.MagazineBatchId);
-        Assert.Null(result.CommsBatchId);
-        Assert.Null(result.LinkBatchId);
-        Assert.Null(result.MobilityBatchId);
-        Assert.Null(result.SignatureBatchId);
-        Assert.Null(result.EmconBatchId);
-        Assert.Null(result.DamageBatchId);
+        Assert.That(result.Staged, Is.False);
+        Assert.That(result.Plan.Blocked, Is.True);
+        Assert.That(gate.TotalProposalCount, Is.EqualTo(0));
+        Assert.That(gate.SensorProposals, Is.Empty);
+        Assert.That(gate.MountProposals, Is.Empty);
+        Assert.That(gate.LoadoutProposals, Is.Empty);
+        Assert.That(gate.MagazineProposals, Is.Empty);
+        Assert.That(gate.CommsProposals, Is.Empty);
+        Assert.That(gate.LinkProposals, Is.Empty);
+        Assert.That(gate.MobilityProposals, Is.Empty);
+        Assert.That(gate.SignatureProposals, Is.Empty);
+        Assert.That(gate.EmconProposals, Is.Empty);
+        Assert.That(gate.DamageProposals, Is.Empty);
+        Assert.That(gate.PlatformProposals, Is.Empty);
+        Assert.That(gate.WeaponProposals, Is.Empty);
+        Assert.That(result.SensorBatchId, Is.Null);
+        Assert.That(result.MountBatchId, Is.Null);
+        Assert.That(result.LoadoutBatchId, Is.Null);
+        Assert.That(result.MagazineBatchId, Is.Null);
+        Assert.That(result.CommsBatchId, Is.Null);
+        Assert.That(result.LinkBatchId, Is.Null);
+        Assert.That(result.MobilityBatchId, Is.Null);
+        Assert.That(result.SignatureBatchId, Is.Null);
+        Assert.That(result.EmconBatchId, Is.Null);
+        Assert.That(result.DamageBatchId, Is.Null);
 
-        Assert.Contains(result.Plan.Findings, f =>
+        Assert.That(result.Plan.Findings.Any(f =>
             f.Code == PlatformWorkbookValidator.MagazineOverCapacity
-            && f.Severity == ValidationSeverity.Error);
+            && f.Severity == ValidationSeverity.Error), Is.True);
 
         // Over-capacity is an error finding but not an FK quarantine code — quarantine empty
         // while findings remain; plan/result quarantine counts stay consistent.
-        Assert.Empty(result.Plan.QuarantineEntries);
-        Assert.Empty(result.QuarantineEntries);
-        Assert.Equal(result.Plan.QuarantineEntries.Count, result.QuarantineEntries.Count);
-        Assert.Contains(result.Notes, n => n.Contains("validation finding", StringComparison.OrdinalIgnoreCase));
+        Assert.That(result.Plan.QuarantineEntries, Is.Empty);
+        Assert.That(result.QuarantineEntries, Is.Empty);
+        Assert.That(result.QuarantineEntries.Count, Is.EqualTo(result.Plan.QuarantineEntries.Count));
+        Assert.That(result.Notes.Any(n => n.Contains("validation finding", StringComparison.OrdinalIgnoreCase)), Is.True);
     }
 
     /// <summary>
     /// Strengthening pin for vector 8: FK quarantine blocked plan also never proposes.
     /// </summary>
-    [Fact]
+    [Test]
     public void FakeWriteGate_never_proposed_when_fk_quarantine_blocks_plan()
     {
         var source = BalticLikeData();
@@ -483,12 +477,12 @@ public sealed class PlatformWorkbookPeIntegrationHardeningTests
         var result = ImporterFor(source, clockTicks: 11_010)
             .Stage(edited, gate, "human", "drgamtd", "fk quarantine block");
 
-        Assert.False(result.Staged);
-        Assert.True(result.Plan.Blocked);
-        Assert.Equal(0, gate.TotalProposalCount);
-        Assert.NotEmpty(result.QuarantineEntries);
-        Assert.Contains(result.QuarantineEntries, q => q.Reason == PlatformWorkbookValidator.MagazineUnknownMount);
-        Assert.Equal(result.Plan.QuarantineEntries.Count, result.QuarantineEntries.Count);
+        Assert.That(result.Staged, Is.False);
+        Assert.That(result.Plan.Blocked, Is.True);
+        Assert.That(gate.TotalProposalCount, Is.EqualTo(0));
+        Assert.That(result.QuarantineEntries, Is.Not.Empty);
+        Assert.That(result.QuarantineEntries.Any(q => q.Reason == PlatformWorkbookValidator.MagazineUnknownMount), Is.True);
+        Assert.That(result.QuarantineEntries.Count, Is.EqualTo(result.Plan.QuarantineEntries.Count));
     }
 
     // -------------------------------------------------------------------------
@@ -499,7 +493,7 @@ public sealed class PlatformWorkbookPeIntegrationHardeningTests
     /// Export→ClosedXML Write→Read→Plan empty path is stable across two binary round-trips
     /// (determinism of PE-W1 binary path + PE empty-diff).
     /// </summary>
-    [Fact]
+    [Test]
     public void ClosedXml_double_round_trip_remains_empty_diff_and_empty_plan()
     {
         var source = BalticLikeData();
@@ -514,14 +508,14 @@ public sealed class PlatformWorkbookPeIntegrationHardeningTests
             io.Write(once, path2);
             var twice = io.Read(path2);
 
-            Assert.True(PlatformWorkbookDiff.IsEmpty(original, once));
-            Assert.True(PlatformWorkbookDiff.IsEmpty(once, twice));
-            Assert.True(PlatformWorkbookDiff.IsEmpty(original, twice));
+            Assert.That(PlatformWorkbookDiff.IsEmpty(original, once), Is.True);
+            Assert.That(PlatformWorkbookDiff.IsEmpty(once, twice), Is.True);
+            Assert.That(PlatformWorkbookDiff.IsEmpty(original, twice), Is.True);
 
             var plan = ImporterFor(source, clockTicks: 11_011).Plan(twice);
-            Assert.False(plan.HasChanges);
-            Assert.Empty(plan.QuarantineEntries);
-            Assert.False(plan.Blocked);
+            Assert.That(plan.HasChanges, Is.False);
+            Assert.That(plan.QuarantineEntries, Is.Empty);
+            Assert.That(plan.Blocked, Is.False);
         }
         finally
         {

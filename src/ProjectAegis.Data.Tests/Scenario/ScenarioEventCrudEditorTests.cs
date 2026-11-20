@@ -1,5 +1,5 @@
 using ProjectAegis.Data.Scenario.Authoring;
-using Xunit;
+using NUnit.Framework;
 
 namespace ProjectAegis.Data.Tests.Scenario;
 
@@ -9,7 +9,7 @@ namespace ProjectAegis.Data.Tests.Scenario;
 /// </summary>
 public sealed class ScenarioEventCrudEditorTests
 {
-    [Fact]
+    [Test]
     public void UpsertEvent_inserts_deep_copies_and_syncs_EventIds()
     {
         var editor = ScenarioDocumentEditor.CreateNew();
@@ -30,19 +30,19 @@ public sealed class ScenarioEventCrudEditorTests
             Actions = actions,
         });
 
-        Assert.Single(editor.Events);
-        Assert.Contains("evt-1", editor.EventIds);
-        Assert.Equal("Time", editor.Events[0].TriggerType);
-        Assert.Equal("UnitEntersZone", editor.Events[0].Conditions[0].Type);
+        Assert.That(editor.Events, Has.Exactly(1).Items);
+        Assert.That(editor.EventIds, Does.Contain("evt-1"));
+        Assert.That(editor.Events[0].TriggerType, Is.EqualTo("Time"));
+        Assert.That(editor.Events[0].Conditions[0].Type, Is.EqualTo("UnitEntersZone"));
 
         // Mutating the source lists must not affect the stored event (deep copy).
         conditions[0] = new ScenarioEventConditionDto { Type = "Time", Result = true };
         actions.Clear();
-        Assert.Equal("UnitEntersZone", editor.Events[0].Conditions[0].Type);
-        Assert.Single(editor.Events[0].Actions);
+        Assert.That(editor.Events[0].Conditions[0].Type, Is.EqualTo("UnitEntersZone"));
+        Assert.That(editor.Events[0].Actions, Has.Exactly(1).Items);
     }
 
-    [Fact]
+    [Test]
     public void UpsertEvent_replaces_by_case_insensitive_id()
     {
         var editor = ScenarioDocumentEditor.CreateNew();
@@ -70,15 +70,15 @@ public sealed class ScenarioEventCrudEditorTests
             Actions = [new ScenarioEventActionDto { Type = "ActivateMission", UnitId = "m1" }],
         });
 
-        Assert.Single(editor.Events);
-        Assert.Equal("evt-alpha", editor.Events[0].Id);
-        Assert.Equal("UnitEntersZone", editor.Events[0].TriggerType);
-        Assert.Equal("u2", editor.Events[0].Conditions[0].UnitId);
-        Assert.Single(editor.EventIds);
-        Assert.Equal("evt-alpha", editor.EventIds[0]);
+        Assert.That(editor.Events, Has.Exactly(1).Items);
+        Assert.That(editor.Events[0].Id, Is.EqualTo("evt-alpha"));
+        Assert.That(editor.Events[0].TriggerType, Is.EqualTo("UnitEntersZone"));
+        Assert.That(editor.Events[0].Conditions[0].UnitId, Is.EqualTo("u2"));
+        Assert.That(editor.EventIds, Has.Exactly(1).Items);
+        Assert.That(editor.EventIds[0], Is.EqualTo("evt-alpha"));
     }
 
-    [Fact]
+    [Test]
     public void UpsertEvent_blank_id_throws()
     {
         var editor = ScenarioDocumentEditor.CreateNew();
@@ -86,23 +86,23 @@ public sealed class ScenarioEventCrudEditorTests
             editor.UpsertEvent(new ScenarioEventDto { Id = "  ", TriggerType = "Time" }));
     }
 
-    [Fact]
+    [Test]
     public void TryRemoveEvent_removes_event_and_EventIds_entry()
     {
         var editor = ScenarioDocumentEditor.CreateNew();
         editor.UpsertEvent(new ScenarioEventDto { Id = "e1", TriggerType = "Time" });
         editor.UpsertEvent(new ScenarioEventDto { Id = "e2", TriggerType = "Time" });
 
-        Assert.True(editor.TryRemoveEvent("E1"));
-        Assert.False(editor.TryRemoveEvent("missing"));
-        Assert.Single(editor.Events);
-        Assert.Equal("e2", editor.Events[0].Id);
-        Assert.DoesNotContain(editor.EventIds, id =>
-            string.Equals(id, "e1", StringComparison.OrdinalIgnoreCase));
-        Assert.Contains("e2", editor.EventIds);
+        Assert.That(editor.TryRemoveEvent("E1"), Is.True);
+        Assert.That(editor.TryRemoveEvent("missing"), Is.False);
+        Assert.That(editor.Events, Has.Exactly(1).Items);
+        Assert.That(editor.Events[0].Id, Is.EqualTo("e2"));
+        Assert.That(editor.EventIds.Any(id =>
+            string.Equals(id, "e1", StringComparison.OrdinalIgnoreCase)), Is.False);
+        Assert.That(editor.EventIds, Does.Contain("e2"));
     }
 
-    [Fact]
+    [Test]
     public void UpsertEvent_round_trips_json()
     {
         var path = Path.Combine(Path.GetTempPath(), $"aegis-evt-{Guid.NewGuid():N}.json");
@@ -126,12 +126,12 @@ public sealed class ScenarioEventCrudEditorTests
             loaded.Save(path);
 
             var dto = ScenarioDocumentJsonLoader.LoadFromFile(path);
-            Assert.Equal(2, dto.Metadata.EditVersion);
-            var evt = Assert.Single(dto.Events!);
-            Assert.Equal("red_launch", evt.Id);
-            Assert.Equal("Time", evt.TriggerType);
-            Assert.Single(evt.Conditions);
-            Assert.Single(evt.Actions);
+            Assert.That(dto.Metadata.EditVersion, Is.EqualTo(2));
+            var evt = AssertEx.Single(dto.Events!);
+            Assert.That(evt.Id, Is.EqualTo("red_launch"));
+            Assert.That(evt.TriggerType, Is.EqualTo("Time"));
+            Assert.That(evt.Conditions, Has.Exactly(1).Items);
+            Assert.That(evt.Actions, Has.Exactly(1).Items);
         }
         finally
         {
@@ -142,7 +142,7 @@ public sealed class ScenarioEventCrudEditorTests
         }
     }
 
-    [Fact]
+    [Test]
     public void Bus_UpsertEvent_and_DeleteEvent_bump_edit_version()
     {
         var path = Path.Combine(Path.GetTempPath(), $"aegis-evt-bus-{Guid.NewGuid():N}.json");
@@ -162,15 +162,15 @@ public sealed class ScenarioEventCrudEditorTests
                 },
                 save: true);
 
-            Assert.True(upsert.Ok);
-            Assert.Equal(2, upsert.EditVersion);
-            Assert.Single(session.Editor.Events);
+            Assert.That(upsert.Ok, Is.True);
+            Assert.That(upsert.EditVersion, Is.EqualTo(2));
+            Assert.That(session.Editor.Events, Has.Exactly(1).Items);
 
             var del = session.Bus.DeleteEvent(session.EditVersion, "evt-bus", save: true);
-            Assert.True(del.Ok);
-            Assert.Equal(3, del.EditVersion);
-            Assert.Empty(session.Editor.Events);
-            Assert.Empty(session.Editor.EventIds);
+            Assert.That(del.Ok, Is.True);
+            Assert.That(del.EditVersion, Is.EqualTo(3));
+            Assert.That(session.Editor.Events, Is.Empty);
+            Assert.That(session.Editor.EventIds, Is.Empty);
         }
         finally
         {
@@ -181,7 +181,7 @@ public sealed class ScenarioEventCrudEditorTests
         }
     }
 
-    [Fact]
+    [Test]
     public void Bus_UpsertEvent_stale_edit_version_returns_conflict()
     {
         var path = Path.Combine(Path.GetTempPath(), $"aegis-evt-bus-c-{Guid.NewGuid():N}.json");
@@ -195,10 +195,10 @@ public sealed class ScenarioEventCrudEditorTests
                 new ScenarioEventDto { Id = "e", TriggerType = "Time" },
                 save: true);
 
-            Assert.False(result.Ok);
-            Assert.Equal(ScenarioEditVersionGuard.ConflictCode, result.ErrorCode);
-            Assert.Empty(session.Editor.Events);
-            Assert.Equal(1, ScenarioDocumentJsonLoader.LoadFromFile(path).Metadata.EditVersion);
+            Assert.That(result.Ok, Is.False);
+            Assert.That(result.ErrorCode, Is.EqualTo(ScenarioEditVersionGuard.ConflictCode));
+            Assert.That(session.Editor.Events, Is.Empty);
+            Assert.That(ScenarioDocumentJsonLoader.LoadFromFile(path).Metadata.EditVersion, Is.EqualTo(1));
         }
         finally
         {
