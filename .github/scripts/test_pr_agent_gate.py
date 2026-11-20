@@ -2,17 +2,27 @@
 
 from __future__ import annotations
 
+import email.utils
+import io
 import json
+import os
+import tempfile
 import unittest
 import urllib.request
+from contextlib import redirect_stdout
 from pathlib import Path
 
 import pr_agent_gate as gate
 
 REPO_ROOT = Path(__file__).resolve().parents[2]
 
+HOST_CS = "unity/ProjectAegis/Assets/Scripts/Runtime/DelegationBridgeHost.cs"
+HOST_META = "unity/ProjectAegis/Assets/Scripts/Runtime/DelegationBridgeHost.cs.meta"
+
 HARD_NO = (
     "src/ProjectAegis.Delegation.UnityAdapter/Bridge/DelegationBridge.cs",
+    HOST_CS,
+    HOST_META,
     "src/ProjectAegis.Data/WriteGate/CatalogWriteGate.cs",
     "src/ProjectAegis.Delegation/Orchestration/SimulationSession.cs",
     "unity/ProjectAegis/Assets/Scripts/Runtime/MapPlaceholderPanelHost.cs",
@@ -199,6 +209,29 @@ class HardNoTests(unittest.TestCase):
         )
         self.assertTrue(result.ok, result.message)
 
+    def test_delegation_bridge_host_is_hard_no(self) -> None:
+        changed = gate.evaluate_surface(
+            number=30,
+            body="Closes DRG-30\nSurface: README.md\n",
+            author="someone",
+            files=[HOST_CS],
+            list_open_pulls=lambda: [],
+            list_files=lambda _number: [],
+        )
+        self.assertFalse(changed.ok)
+        self.assertIn(HOST_CS, changed.message)
+
+        declared = gate.evaluate_surface(
+            number=31,
+            body=f"Closes DRG-31\nSurface: {HOST_META}\n",
+            author="someone",
+            files=["README.md"],
+            list_open_pulls=lambda: [],
+            list_files=lambda _number: [],
+        )
+        self.assertFalse(declared.ok)
+        self.assertIn(HOST_META, declared.message)
+
 
 class DuplicateSurfaceTests(unittest.TestCase):
     def test_reports_the_other_pr_and_overlapping_paths(self) -> None:
@@ -308,6 +341,7 @@ class GitHubApiTests(unittest.TestCase):
         )
         self.assertTrue(warned.ok)
         self.assertTrue(warned.warning)
+        self.assertIn("RATE_LIMIT_WARN", warned.message)
         self.assertIn("rate limit", warned.message.lower())
 
         def list_files(_number: int) -> list[str]:
@@ -323,6 +357,106 @@ class GitHubApiTests(unittest.TestCase):
         )
         self.assertFalse(failed.ok)
         self.assertIn("403", failed.message)
+
+    def test_rate_limit_delay_honours_headers_and_caps_under_two_minutes(self) -> None:
+        now = 1_700_000_000.0
+        self.assertEqual(gate.rate_limit_delay_seconds({"retry-after": "5"}, now), 5.0)
+        self.assertEqual(gate.rate_limit_delay_seconds({"retry-after": "500"}, now), 60.0)
+        self.assertLessEqual(gate.MAX_RATE_LIMIT_WAIT_SECONDS, 90)
+        self.assertEqual(
+            gate.rate_limit_delay_seconds({"x-ratelimit-reset": str(int(now + 10))}, now),
+            10.0,
+        )
+        self.assertEqual(
+            gate.rate_limit_delay_seconds({"x-ratelimit-reset": str(int(now + 10_000))}, now),
+            60.0,
+        )
+        http_date = email.utils.formatdate(timeval=now + 30, usegmt=True)
+        self.assertEqual(gate.rate_limit_delay_seconds({"retry-after": http_date}, now), 30.0)
+        self.assertEqual(
+            gate.rate_limit_delay_seconds(
+                {"retry-after": "4", "x-ratelimit-reset": str(int(now + 50))},
+                now,
+            ),
+            4.0,
+        )
+        self.assertEqual(gate.rate_limit_delay_seconds({}, now), 1.0)
+
+    def test_rate_limit_retries_once_then_succeeds(self) -> None:
+        calls: list[str] = []
+        sleeps: list[float] = []
+        url = "https://example.test/pulls?page=1"
+
+        def fetch(target: str) -> tuple[int, dict[str, str], str]:
+            calls.append(target)
+            if len(calls) == 1:
+                return 429, {"retry-after": "5", "x-ratelimit-remaining": "0"}, "rate limit"
+            return 200, {}, json.dumps([{"number": 1}])
+
+        rows = gate.request_json_pages(fetch, url, sleep=sleeps.append, clock=lambda: 1_700_000_000.0)
+        self.assertEqual([row["number"] for row in rows], [1])
+        self.assertEqual(calls, [url, url])
+        self.assertEqual(sleeps, [5.0])
+
+    def test_rate_limit_second_failure_warns_without_a_known_finding(self) -> None:
+        calls: list[int] = []
+        sleeps: list[float] = []
+
+        def fetch(_url: str) -> tuple[int, dict[str, str], str]:
+            calls.append(1)
+            return 429, {"retry-after": "500"}, "secondary rate limit"
+
+        with self.assertRaises(gate.RateLimited):
+            gate.request_json_pages(
+                fetch,
+                "https://example.test/pulls?page=1",
+                sleep=sleeps.append,
+                clock=lambda: 1_700_000_000.0,
+            )
+        self.assertEqual(len(calls), 2)
+        self.assertEqual(sleeps, [60.0])
+
+        warned = gate.evaluate_surface(
+            number=40,
+            body="Closes DRG-40\nSurface: docs/a.md\n",
+            author="someone",
+            files=["docs/a.md"],
+            list_open_pulls=lambda: (_ for _ in ()).throw(gate.RateLimited("still limited")),
+            list_files=lambda _number: [],
+        )
+        self.assertTrue(warned.ok)
+        self.assertTrue(warned.warning)
+        self.assertIn("RATE_LIMIT_WARN", warned.message)
+        with tempfile.TemporaryDirectory() as tmp:
+            summary_path = Path(tmp) / "summary.md"
+            previous = os.environ.get("GITHUB_STEP_SUMMARY")
+            os.environ["GITHUB_STEP_SUMMARY"] = str(summary_path)
+            try:
+                stdout = io.StringIO()
+                with redirect_stdout(stdout):
+                    code = gate.emit(warned, "Duplicate Surface")
+            finally:
+                if previous is None:
+                    os.environ.pop("GITHUB_STEP_SUMMARY", None)
+                else:
+                    os.environ["GITHUB_STEP_SUMMARY"] = previous
+            self.assertEqual(code, 0)
+            self.assertIn("::warning", stdout.getvalue())
+            written = summary_path.read_text(encoding="utf-8")
+            self.assertIn("RATE_LIMIT_WARN", written)
+
+    def test_known_finding_still_fails_when_rate_limited(self) -> None:
+        result = gate.evaluate_surface(
+            number=41,
+            body="Closes DRG-41\nSurface: README.md\n",
+            author="someone",
+            files=[HOST_CS],
+            list_open_pulls=lambda: (_ for _ in ()).throw(gate.RateLimited("still limited")),
+            list_files=lambda _number: [],
+        )
+        self.assertFalse(result.ok)
+        self.assertIn(HOST_CS, result.message)
+        self.assertNotIn("RATE_LIMIT_WARN", result.message)
 
     def test_client_lists_open_pulls_and_renames(self) -> None:
         pulls_url = gate.build_pulls_url("drgaciw/cmano-clone")
@@ -373,6 +507,8 @@ class WorkflowContractTests(unittest.TestCase):
         self.assertIn("Duplicate Surface", text)
         self.assertIn(".github/scripts/pr_agent_gate.py", text)
         self.assertIn("fail-fast: false", text)
+        self.assertIn("GATE_RUNTIME_SECONDS=", text)
+        self.assertIn("RATE_LIMIT_WARN", text)
         start = text.index("python3 - <<'PY'\n") + len("python3 - <<'PY'\n")
         end = text.index("\n          PY\n", start)
         lines = []

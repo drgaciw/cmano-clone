@@ -5,9 +5,10 @@ The workflow downloads this file and runs it. It does not import third-party
 packages. Hard-no paths come from ``.cursor/rules/sprint-coordination.mdc``
 section 2:
 
-* ``DelegationBridge`` hotpath, ``CatalogWriteGate``, ``SimulationSession``,
-  ``MapPlaceholderPanelHost``, and ``GlobeMapProductHost`` (the Unity host
-  ``.meta`` files are part of those two assets).
+* ``DelegationBridge`` hotpath and ``DelegationBridgeHost`` (owner-only; the
+  host ``.cs`` and ``.meta``), ``CatalogWriteGate``, ``SimulationSession``,
+  ``MapPlaceholderPanelHost``, and ``GlobeMapProductHost`` (Unity host
+  ``.meta`` files are part of those assets).
 * CMD-31 / CMD-32 / CMD-34 seams, mapped to the implementation files named by
   the UI-maturity kickoff: ``C2CommandIssuance``, ``C2PlayerCommandBridge``,
   ``DatalinkPictureProjection``, and ``TacticalOverlayProjection``.
@@ -15,19 +16,21 @@ section 2:
 
 S122 / Launch / Phase N and the H4/H5/H6 ``implementation: gated`` rows name
 programs, not paths. This checker does not invent globs for them.
-``DelegationBridgeHost`` is not the DelegationBridge hotpath and is not listed.
 """
 
 from __future__ import annotations
 
+import email.utils
 import json
 import os
 import re
 import sys
+import time
 import urllib.error
 import urllib.request
 from collections.abc import Callable, Mapping, Sequence
 from dataclasses import dataclass
+from datetime import timezone
 
 DRG_ID = re.compile(r"\bDRG-\d+\b", re.IGNORECASE)
 SURFACE_LINE = re.compile(
@@ -37,11 +40,15 @@ SURFACE_LINE = re.compile(
 TEMPLATE = ".github/pull_request_template.md"
 API_VERSION = "2022-11-28"
 USER_AGENT = "pr-agent-gate"
+# One retry sleeps at most this long, so a rate-limit wait stays under two minutes.
+MAX_RATE_LIMIT_WAIT_SECONDS = 60
 
 # Canonical owner-only paths. A declared glob fails when it can match one of
 # these, and a changed file fails when it matches one of these.
 HARD_NO_PATHS = (
     "src/ProjectAegis.Delegation.UnityAdapter/Bridge/DelegationBridge.cs",
+    "unity/ProjectAegis/Assets/Scripts/Runtime/DelegationBridgeHost.cs",
+    "unity/ProjectAegis/Assets/Scripts/Runtime/DelegationBridgeHost.cs.meta",
     "src/ProjectAegis.Data/WriteGate/CatalogWriteGate.cs",
     "src/ProjectAegis.Delegation/Orchestration/SimulationSession.cs",
     "unity/ProjectAegis/Assets/Scripts/Runtime/MapPlaceholderPanelHost.cs",
@@ -154,8 +161,58 @@ def is_rate_limited(status: int, headers: Mapping[str, str], body: str) -> bool:
     return "rate limit" in lowered or "secondary rate" in lowered
 
 
-def request_json_pages(fetch: Fetch, url: str) -> list[object]:
-    """Follow Link headers and return the concatenated JSON lists."""
+def rate_limit_delay_seconds(
+    headers: Mapping[str, str],
+    now: float,
+    max_wait: float = MAX_RATE_LIMIT_WAIT_SECONDS,
+) -> float:
+    """Return how long to wait before the single rate-limit retry.
+
+    ``Retry-After`` wins over ``x-ratelimit-reset``. The wait is never negative
+    and never longer than ``max_wait`` (60 seconds by default).
+    """
+    lowered = {str(key).lower(): str(value) for key, value in headers.items()}
+    delay: float | None = None
+    retry_after = lowered.get("retry-after")
+    if retry_after is not None:
+        text = retry_after.strip()
+        try:
+            delay = float(text)
+        except ValueError:
+            parsed = email.utils.parsedate_to_datetime(text)
+            if parsed is not None:
+                if parsed.tzinfo is None:
+                    parsed = parsed.replace(tzinfo=timezone.utc)
+                delay = parsed.timestamp() - now
+    if delay is None:
+        reset = lowered.get("x-ratelimit-reset")
+        if reset is not None:
+            try:
+                delay = float(reset.strip()) - now
+            except ValueError:
+                delay = None
+    if delay is None:
+        delay = 1.0
+    if delay < 0:
+        delay = 0.0
+    if delay > max_wait:
+        delay = float(max_wait)
+    return delay
+
+
+def request_json_pages(
+    fetch: Fetch,
+    url: str,
+    *,
+    sleep: Callable[[float], None] = time.sleep,
+    clock: Callable[[], float] = time.time,
+    max_wait: float = MAX_RATE_LIMIT_WAIT_SECONDS,
+) -> list[object]:
+    """Follow Link headers and return the concatenated JSON lists.
+
+    A rate-limited response is retried once after ``rate_limit_delay_seconds``.
+    A second rate limit raises ``RateLimited``.
+    """
     items: list[object] = []
     seen: set[str] = set()
     while url and url not in seen:
@@ -163,7 +220,11 @@ def request_json_pages(fetch: Fetch, url: str) -> list[object]:
         status, headers, body = fetch(url)
         lowered = {str(key).lower(): str(value) for key, value in headers.items()}
         if is_rate_limited(status, lowered, body):
-            raise RateLimited((body or f"HTTP {status}")[:300])
+            sleep(rate_limit_delay_seconds(lowered, clock(), max_wait))
+            status, headers, body = fetch(url)
+            lowered = {str(key).lower(): str(value) for key, value in headers.items()}
+            if is_rate_limited(status, lowered, body):
+                raise RateLimited((body or f"HTTP {status}")[:300])
         if status < 200 or status >= 300:
             raise ApiError(status, (body or "")[:500])
         try:
@@ -574,7 +635,8 @@ def _rate_limit_result(exc: Exception) -> CheckResult:
         ok=True,
         warning=True,
         message=(
-            "GitHub API rate limit; duplicate Surface check skipped instead of failing. "
+            "RATE_LIMIT_WARN GitHub API rate limit after one retry; "
+            "duplicate Surface check passed with a warning. "
             f"{exc}"
         ),
     )
