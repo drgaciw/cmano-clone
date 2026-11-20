@@ -2,15 +2,16 @@ using ProjectAegis.Ai.Contracts;
 using ProjectAegis.Ai.Host.Evidence;
 using ProjectAegis.Delegation.Core;
 using ProjectAegis.Delegation.Decision;
-using Xunit;
+using NUnit.Framework;
 
 namespace ProjectAegis.Ai.Host.Tests.Evidence;
 
+[TestFixture]
 public sealed class JsonlEvidenceWriterTests
 {
     private readonly JsonlEvidenceWriter _writer = new();
 
-    [Fact]
+    [Test]
     public async Task Round_trip_parse_equals_input_document()
     {
         var doc = SampleDocument();
@@ -18,18 +19,18 @@ public sealed class JsonlEvidenceWriterTests
         try
         {
             var result = await _writer.WriteAsync(doc, root, "evidence.jsonl");
-            Assert.True(result.Published);
-            Assert.False(string.IsNullOrWhiteSpace(result.ContentHashSha256));
-            Assert.True(result.ByteLength > 0);
+            Assert.That(result.Published, Is.True);
+            Assert.That(string.IsNullOrWhiteSpace(result.ContentHashSha256), Is.False);
+            Assert.That(result.ByteLength > 0, Is.True);
 
             var again = await JsonlEvidenceWriter.ReadRoundTripAsync(result.PublishedPath!);
-            Assert.Equal(doc.Header.SchemaVersion, again.Header.SchemaVersion);
-            Assert.Equal(doc.Header.BuildIdentity, again.Header.BuildIdentity);
-            Assert.Equal(doc.Header.EvidenceIds, again.Header.EvidenceIds);
-            Assert.Equal(doc.Entries.Count, again.Entries.Count);
-            Assert.Equal(doc.Entries[0].EvidenceId, again.Entries[0].EvidenceId);
-            Assert.Equal(doc.Entries[0].Kind, again.Entries[0].Kind);
-            Assert.Equal(doc.Entries[0].Attributes!["reason"], again.Entries[0].Attributes!["reason"]);
+            Assert.That(again.Header.SchemaVersion, Is.EqualTo(doc.Header.SchemaVersion));
+            Assert.That(again.Header.BuildIdentity, Is.EqualTo(doc.Header.BuildIdentity));
+            Assert.That(again.Header.EvidenceIds, Is.EqualTo(doc.Header.EvidenceIds));
+            Assert.That(again.Entries.Count, Is.EqualTo(doc.Entries.Count));
+            Assert.That(again.Entries[0].EvidenceId, Is.EqualTo(doc.Entries[0].EvidenceId));
+            Assert.That(again.Entries[0].Kind, Is.EqualTo(doc.Entries[0].Kind));
+            Assert.That(again.Entries[0].Attributes!["reason"], Is.EqualTo(doc.Entries[0].Attributes!["reason"]));
         }
         finally
         {
@@ -37,7 +38,7 @@ public sealed class JsonlEvidenceWriterTests
         }
     }
 
-    [Fact]
+    [Test]
     public async Task Identical_input_yields_byte_identical_output()
     {
         var doc = SampleDocument();
@@ -48,10 +49,10 @@ public sealed class JsonlEvidenceWriterTests
             var b = await _writer.WriteAsync(doc, root, "b.jsonl");
             var bytesA = await File.ReadAllBytesAsync(a.PublishedPath!);
             var bytesB = await File.ReadAllBytesAsync(b.PublishedPath!);
-            Assert.Equal(bytesA, bytesB);
-            Assert.Equal(a.ContentHashSha256, b.ContentHashSha256);
-            Assert.DoesNotContain((byte)'\r', bytesA);
-            Assert.Contains((byte)'\n', bytesA);
+            Assert.That(bytesB, Is.EqualTo(bytesA));
+            Assert.That(b.ContentHashSha256, Is.EqualTo(a.ContentHashSha256));
+            Assert.That(bytesA, Does.Not.Contain((byte)'\r'));
+            Assert.That(bytesA, Does.Contain((byte)'\n'));
         }
         finally
         {
@@ -59,7 +60,7 @@ public sealed class JsonlEvidenceWriterTests
         }
     }
 
-    [Fact]
+    [Test]
     public async Task Disabled_export_leaves_no_published_file()
     {
         var root = CreateTempRoot();
@@ -70,9 +71,9 @@ public sealed class JsonlEvidenceWriterTests
                 root,
                 "evidence.jsonl",
                 enabled: false);
-            Assert.False(result.Published);
-            Assert.Equal("disabled", result.SkipReason);
-            Assert.Empty(Directory.GetFiles(root));
+            Assert.That(result.Published, Is.False);
+            Assert.That(result.SkipReason, Is.EqualTo("disabled"));
+            Assert.That(Directory.GetFiles(root), Is.Empty);
         }
         finally
         {
@@ -80,7 +81,7 @@ public sealed class JsonlEvidenceWriterTests
         }
     }
 
-    [Fact]
+    [Test]
     public async Task Delayed_export_still_byte_identical_to_immediate()
     {
         var doc = SampleDocument();
@@ -90,9 +91,7 @@ public sealed class JsonlEvidenceWriterTests
             var immediate = await _writer.WriteAsync(doc, root, "immediate.jsonl");
             await Task.Delay(25);
             var delayed = await _writer.WriteAsync(doc, root, "delayed.jsonl");
-            Assert.Equal(
-                await File.ReadAllBytesAsync(immediate.PublishedPath!),
-                await File.ReadAllBytesAsync(delayed.PublishedPath!));
+            Assert.That(await File.ReadAllBytesAsync(delayed.PublishedPath!), Is.EqualTo(await File.ReadAllBytesAsync(immediate.PublishedPath!)));
         }
         finally
         {
@@ -100,7 +99,7 @@ public sealed class JsonlEvidenceWriterTests
         }
     }
 
-    [Fact]
+    [Test]
     public async Task Cancellation_mid_export_leaves_no_published_file_and_rerun_succeeds()
     {
         var root = CreateTempRoot();
@@ -108,15 +107,15 @@ public sealed class JsonlEvidenceWriterTests
         {
             using var cts = new CancellationTokenSource();
             cts.Cancel();
-            await Assert.ThrowsAnyAsync<OperationCanceledException>(() =>
+            await Assert.CatchAsync<OperationCanceledException>(() =>
                 _writer.WriteAsync(SampleDocument(), root, "evidence.jsonl", cancellationToken: cts.Token));
 
-            Assert.False(File.Exists(Path.Combine(root, "evidence.jsonl")));
-            Assert.Empty(Directory.GetFiles(root, "*.tmp", SearchOption.AllDirectories));
+            Assert.That(File.Exists(Path.Combine(root, "evidence.jsonl")), Is.False);
+            Assert.That(Directory.GetFiles(root, "*.tmp", SearchOption.AllDirectories), Is.Empty);
 
             var retry = await _writer.WriteAsync(SampleDocument(), root, "evidence.jsonl");
-            Assert.True(retry.Published);
-            Assert.True(File.Exists(retry.PublishedPath));
+            Assert.That(retry.Published, Is.True);
+            Assert.That(File.Exists(retry.PublishedPath), Is.True);
         }
         finally
         {
@@ -124,7 +123,7 @@ public sealed class JsonlEvidenceWriterTests
         }
     }
 
-    [Fact]
+    [Test]
     public async Task Failing_oversized_export_leaves_no_published_file()
     {
         var root = CreateTempRoot();
@@ -133,8 +132,8 @@ public sealed class JsonlEvidenceWriterTests
             await Assert.ThrowsAsync<InvalidOperationException>(() =>
                 _writer.WriteAsync(SampleDocument(), root, "evidence.jsonl", maxEvidenceBytes: 16));
 
-            Assert.False(File.Exists(Path.Combine(root, "evidence.jsonl")));
-            Assert.Empty(Directory.GetFiles(root, "*.tmp", SearchOption.AllDirectories));
+            Assert.That(File.Exists(Path.Combine(root, "evidence.jsonl")), Is.False);
+            Assert.That(Directory.GetFiles(root, "*.tmp", SearchOption.AllDirectories), Is.Empty);
         }
         finally
         {
@@ -142,7 +141,7 @@ public sealed class JsonlEvidenceWriterTests
         }
     }
 
-    [Fact]
+    [Test]
     public async Task Export_enabled_disabled_or_failing_does_not_mutate_order_log_fingerprint()
     {
         var log = new DecisionLog();
@@ -171,14 +170,14 @@ public sealed class JsonlEvidenceWriterTests
         try
         {
             await _writer.WriteAsync(projected.Document, root, "on.jsonl", enabled: true);
-            Assert.Equal(before, log.ComputeFingerprint());
+            Assert.That(log.ComputeFingerprint(), Is.EqualTo(before));
 
             await _writer.WriteAsync(projected.Document, root, "off.jsonl", enabled: false);
-            Assert.Equal(before, log.ComputeFingerprint());
+            Assert.That(log.ComputeFingerprint(), Is.EqualTo(before));
 
             await Assert.ThrowsAsync<InvalidOperationException>(() =>
                 _writer.WriteAsync(projected.Document, root, "fail.jsonl", maxEvidenceBytes: 8));
-            Assert.Equal(before, log.ComputeFingerprint());
+            Assert.That(log.ComputeFingerprint(), Is.EqualTo(before));
         }
         finally
         {
@@ -186,7 +185,7 @@ public sealed class JsonlEvidenceWriterTests
         }
     }
 
-    [Fact]
+    [Test]
     public async Task Peak_memory_delta_recorded_for_small_and_large_logs()
     {
         var root = CreateTempRoot();
@@ -194,12 +193,12 @@ public sealed class JsonlEvidenceWriterTests
         {
             var small = await _writer.WriteAsync(SampleDocument(entryCount: 2), root, "small.jsonl");
             var large = await _writer.WriteAsync(SampleDocument(entryCount: 200), root, "large.jsonl");
-            Assert.True(small.Published);
-            Assert.True(large.Published);
-            Assert.True(large.ByteLength > small.ByteLength);
+            Assert.That(small.Published, Is.True);
+            Assert.That(large.Published, Is.True);
+            Assert.That(large.ByteLength > small.ByteLength, Is.True);
             // CMA-13: working-set high-water delta across write+validation (observational; may be 0).
-            Assert.True(small.PeakWorkingSetBytesDelta >= 0);
-            Assert.True(large.PeakWorkingSetBytesDelta >= 0);
+            Assert.That(small.PeakWorkingSetBytesDelta >= 0, Is.True);
+            Assert.That(large.PeakWorkingSetBytesDelta >= 0, Is.True);
         }
         finally
         {
@@ -207,12 +206,12 @@ public sealed class JsonlEvidenceWriterTests
         }
     }
 
-    [Fact]
+    [Test]
     public void Source_fence_WriteAsync_does_not_use_gc_heap_delta_for_peak()
     {
         var hostRoot = FindHostEvidenceRoot();
         var writerPath = Path.Combine(hostRoot, "JsonlEvidenceWriter.cs");
-        Assert.True(File.Exists(writerPath));
+        Assert.That(File.Exists(writerPath), Is.True);
         var code = string.Join(
             '\n',
             File.ReadLines(writerPath).Where(line =>
@@ -223,11 +222,11 @@ public sealed class JsonlEvidenceWriterTests
                     && !trimmed.StartsWith("*", StringComparison.Ordinal);
             }));
 
-        Assert.DoesNotContain("GC.GetTotalMemory", code);
-        Assert.Contains("WorkingSet64", code);
+        Assert.That(code, Does.Not.Contain("GC.GetTotalMemory"));
+        Assert.That(code, Does.Contain("WorkingSet64"));
     }
 
-    [Fact]
+    [Test]
     public async Task Envelope_records_jsonl_content_hash_via_atomic_store()
     {
         var root = CreateTempRoot();
@@ -242,9 +241,9 @@ public sealed class JsonlEvidenceWriterTests
                 doc,
                 write);
 
-            Assert.True(store.Exists("evidence.envelope.json"));
+            Assert.That(store.Exists("evidence.envelope.json"), Is.True);
             var text = await File.ReadAllTextAsync(Path.Combine(root, "evidence.envelope.json"));
-            Assert.Contains(write.ContentHashSha256!, text, StringComparison.Ordinal);
+            Assert.That(text, Does.Contain(write.ContentHashSha256!));
         }
         finally
         {
@@ -252,7 +251,7 @@ public sealed class JsonlEvidenceWriterTests
         }
     }
 
-    [Fact]
+    [Test]
     public void Source_fence_Jsonl_files_do_not_reference_forbidden_symbols()
     {
         var hostRoot = FindHostEvidenceRoot();
@@ -269,9 +268,9 @@ public sealed class JsonlEvidenceWriterTests
                         && !trimmed.StartsWith("*", StringComparison.Ordinal);
                 }));
 
-            Assert.DoesNotContain("OnScenarioFinalized", code);
-            Assert.DoesNotContain("DelegationBridge", code);
-            Assert.DoesNotContain(".Append(", code);
+            Assert.That(code, Does.Not.Contain("OnScenarioFinalized"));
+            Assert.That(code, Does.Not.Contain("DelegationBridge"));
+            Assert.That(code, Does.Not.Contain(".Append("));
         }
     }
 

@@ -3,17 +3,18 @@ using ProjectAegis.Ai.Host.Catalog;
 using ProjectAegis.Data.Catalog;
 using ProjectAegis.Data.PlatformAssistant;
 using ProjectAegis.Data.WriteGate;
-using Xunit;
+using NUnit.Framework;
 
 namespace ProjectAegis.Ai.Host.Tests.Catalog;
 
 /// <summary>DRG-748 acceptance: evidence → brief → additive Propose overloads (offline/fake only).</summary>
+[TestFixture]
 public sealed class CatalogEvidenceProposePipelineTests
 {
     private static readonly string PublicHash =
         "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa";
 
-    [Fact]
+    [Test]
     public void Propose_stages_batches_with_resolvable_hash_and_revision_citations()
     {
         var dbPath = CreateTempDb("ev-propose-ok");
@@ -37,40 +38,36 @@ public sealed class CatalogEvidenceProposePipelineTests
                 Evidence: evidence,
                 ViewingSide: ViewingSide.Blue));
 
-            Assert.Equal(CatalogEvidenceOutcome.ValidDraft, result.Outcome);
-            Assert.False(result.SubmitAllowedWithoutHuman);
+            Assert.That(result.Outcome, Is.EqualTo(CatalogEvidenceOutcome.ValidDraft));
+            Assert.That(result.SubmitAllowedWithoutHuman, Is.False);
             // Always read Brief/Proposal/MobilityBatchId so NotAccessedPositionalProperty stays clear.
-            Assert.NotNull(result.Brief);
-            Assert.NotNull(result.Proposal);
-            Assert.Contains("coastal patrol", result.Brief.Concept, StringComparison.Ordinal);
-            Assert.Equal("opv-evidence-scout", result.Proposal.Binding.PlatformId);
-            Assert.False(string.IsNullOrWhiteSpace(result.PlatformBatchId));
-            Assert.False(string.IsNullOrWhiteSpace(result.DamageBatchId));
-            Assert.True(result.MobilityBatchId is null
-                        || !string.IsNullOrWhiteSpace(result.MobilityBatchId));
-            Assert.Contains(result.Citations, c => c.Field == "platform.binding");
-            Assert.All(
-                result.Citations,
-                c =>
-                {
-                    Assert.False(string.IsNullOrWhiteSpace(c.SourceId));
-                    Assert.False(string.IsNullOrWhiteSpace(c.SourceHash));
-                    Assert.True(c.Revision >= 1);
-                    Assert.False(string.IsNullOrWhiteSpace(c.Assumption));
-                });
+            Assert.That(result.Brief, Is.Not.Null);
+            Assert.That(result.Proposal, Is.Not.Null);
+            Assert.That(result.Brief!.Concept, Does.Contain("coastal patrol"));
+            Assert.That(result.Proposal!.Binding.PlatformId, Is.EqualTo("opv-evidence-scout"));
+            Assert.That(string.IsNullOrWhiteSpace(result.PlatformBatchId), Is.False);
+            Assert.That(string.IsNullOrWhiteSpace(result.DamageBatchId), Is.False);
+            Assert.That(result.MobilityBatchId is null
+                        || !string.IsNullOrWhiteSpace(result.MobilityBatchId), Is.True);
+            Assert.That(result.Citations.Any(c => c.Field == "platform.binding"), Is.True);
+            foreach (var c in result.Citations)
+            {
+                Assert.That(string.IsNullOrWhiteSpace(c.SourceId), Is.False);
+                Assert.That(string.IsNullOrWhiteSpace(c.SourceHash), Is.False);
+                Assert.That(c.Revision >= 1, Is.True);
+                Assert.That(string.IsNullOrWhiteSpace(c.Assumption), Is.False);
+            }
 
             using var gate = new CatalogWriteGate(dbPath, new FixedCatalogClock(74_802));
             var stored = gate.ListEvidenceCitations(result.PlatformBatchId!);
-            Assert.NotEmpty(stored);
-            Assert.Contains(
-                stored,
-                c => c.SourceId == "doc-ucav-blue"
+            Assert.That(stored, Is.Not.Empty);
+            Assert.That(stored.Any(c => c.SourceId == "doc-ucav-blue"
                      && c.SourceHash == PublicHash
-                     && c.Revision == 1);
+                     && c.Revision == 1), Is.True);
 
             // Live catalog untouched until human ApproveBatch.
             using var live = new SqliteCatalogReader(dbPath, "ev-live");
-            Assert.False(live.TryGetPlatformDamage("opv-evidence-scout", out _));
+            Assert.That(live.TryGetPlatformDamage("opv-evidence-scout", out _), Is.False);
         }
         finally
         {
@@ -78,7 +75,7 @@ public sealed class CatalogEvidenceProposePipelineTests
         }
     }
 
-    [Fact]
+    [Test]
     public void Changed_source_revision_invalidates_dependent_batches()
     {
         var dbPath = CreateTempDb("ev-rev-invalidate");
@@ -92,7 +89,7 @@ public sealed class CatalogEvidenceProposePipelineTests
                 Evidence: [PublicDoc("doc-ucav-blue", "UCAV", ViewingSide.Blue, revision: 1)],
                 ViewingSide: ViewingSide.Blue));
 
-            Assert.Equal(CatalogEvidenceOutcome.ValidDraft, result.Outcome);
+            Assert.That(result.Outcome, Is.EqualTo(CatalogEvidenceOutcome.ValidDraft));
 
             using var gate = new CatalogWriteGate(dbPath, new FixedCatalogClock(74_811));
             var invalidated = gate.InvalidateDependentsForSourceRevision(
@@ -102,8 +99,8 @@ public sealed class CatalogEvidenceProposePipelineTests
                 actorType: "human",
                 actorId: "curator");
 
-            Assert.Contains(result.PlatformBatchId!, invalidated);
-            Assert.Contains(result.DamageBatchId!, invalidated);
+            Assert.That(invalidated, Does.Contain(result.PlatformBatchId!));
+            Assert.That(invalidated, Does.Contain(result.DamageBatchId!));
 
             var approve = gate.ApproveBatch(
                 result.PlatformBatchId!,
@@ -113,8 +110,8 @@ public sealed class CatalogEvidenceProposePipelineTests
                 {
                     ["doc-ucav-blue"] = new("bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb", 2),
                 });
-            Assert.False(approve.Committed);
-            Assert.Contains("evidence_revision_invalidated", approve.Errors);
+            Assert.That(approve.Committed, Is.False);
+            Assert.That(approve.Errors, Does.Contain("evidence_revision_invalidated"));
         }
         finally
         {
@@ -122,7 +119,7 @@ public sealed class CatalogEvidenceProposePipelineTests
         }
     }
 
-    [Fact]
+    [Test]
     public void Viewing_side_isolation_rejects_hidden_evidence()
     {
         var dbPath = CreateTempDb("ev-side");
@@ -144,15 +141,13 @@ public sealed class CatalogEvidenceProposePipelineTests
                 ],
                 ViewingSide: ViewingSide.Blue));
 
-            Assert.Equal(CatalogEvidenceOutcome.Diagnostics, result.Outcome);
-            Assert.Contains(
-                result.Diagnostics,
-                d => d.Code == "VIEWING_SIDE_ISOLATION"
-                     && d.Message.Contains("doc-red-only", StringComparison.Ordinal));
-            Assert.Null(result.Brief);
-            Assert.Null(result.Proposal);
-            Assert.Null(result.MobilityBatchId);
-            Assert.Null(result.PlatformBatchId);
+            Assert.That(result.Outcome, Is.EqualTo(CatalogEvidenceOutcome.Diagnostics));
+            Assert.That(result.Diagnostics.Any(d => d.Code == "VIEWING_SIDE_ISOLATION"
+                     && d.Message.Contains("doc-red-only", StringComparison.Ordinal)), Is.True);
+            Assert.That(result.Brief, Is.Null);
+            Assert.That(result.Proposal, Is.Null);
+            Assert.That(result.MobilityBatchId, Is.Null);
+            Assert.That(result.PlatformBatchId, Is.Null);
         }
         finally
         {
@@ -160,7 +155,7 @@ public sealed class CatalogEvidenceProposePipelineTests
         }
     }
 
-    [Fact]
+    [Test]
     public void Embedded_instruction_fixtures_are_rejected()
     {
         var dbPath = CreateTempDb("ev-embed");
@@ -185,15 +180,13 @@ public sealed class CatalogEvidenceProposePipelineTests
                 ],
                 ViewingSide: ViewingSide.Blue));
 
-            Assert.Equal(CatalogEvidenceOutcome.Diagnostics, result.Outcome);
-            Assert.Contains(
-                result.Diagnostics,
-                d => d.Code == "EMBEDDED_INSTRUCTION_REJECTED"
-                     && d.Message.Contains("doc-embedded-ignore", StringComparison.Ordinal));
-            Assert.Null(result.Brief);
-            Assert.Null(result.Proposal);
-            Assert.Null(result.MobilityBatchId);
-            Assert.Null(result.PlatformBatchId);
+            Assert.That(result.Outcome, Is.EqualTo(CatalogEvidenceOutcome.Diagnostics));
+            Assert.That(result.Diagnostics.Any(d => d.Code == "EMBEDDED_INSTRUCTION_REJECTED"
+                     && d.Message.Contains("doc-embedded-ignore", StringComparison.Ordinal)), Is.True);
+            Assert.That(result.Brief, Is.Null);
+            Assert.That(result.Proposal, Is.Null);
+            Assert.That(result.MobilityBatchId, Is.Null);
+            Assert.That(result.PlatformBatchId, Is.Null);
         }
         finally
         {
@@ -201,7 +194,7 @@ public sealed class CatalogEvidenceProposePipelineTests
         }
     }
 
-    [Fact]
+    [Test]
     public void Track_A_tagged_source_is_refused_and_db3_paths_rejected()
     {
         var dbPath = CreateTempDb("ev-tracka");
@@ -231,19 +224,15 @@ public sealed class CatalogEvidenceProposePipelineTests
                 ],
                 ViewingSide: ViewingSide.Blue));
 
-            Assert.Equal(CatalogEvidenceOutcome.Diagnostics, result.Outcome);
-            Assert.Contains(
-                result.Diagnostics,
-                d => d.Code == "TRACK_A_REFUSED"
-                     && d.Message.Contains("doc-track-a-refuse", StringComparison.Ordinal));
-            Assert.Contains(
-                result.Diagnostics,
-                d => d.Code == "DB3_REFUSED"
-                     && d.Message.Contains("*.db3", StringComparison.Ordinal));
-            Assert.Null(result.Brief);
-            Assert.Null(result.Proposal);
-            Assert.Null(result.MobilityBatchId);
-            Assert.Null(result.PlatformBatchId);
+            Assert.That(result.Outcome, Is.EqualTo(CatalogEvidenceOutcome.Diagnostics));
+            Assert.That(result.Diagnostics.Any(d => d.Code == "TRACK_A_REFUSED"
+                     && d.Message.Contains("doc-track-a-refuse", StringComparison.Ordinal)), Is.True);
+            Assert.That(result.Diagnostics.Any(d => d.Code == "DB3_REFUSED"
+                     && d.Message.Contains("*.db3", StringComparison.Ordinal)), Is.True);
+            Assert.That(result.Brief, Is.Null);
+            Assert.That(result.Proposal, Is.Null);
+            Assert.That(result.MobilityBatchId, Is.Null);
+            Assert.That(result.PlatformBatchId, Is.Null);
         }
         finally
         {
@@ -251,7 +240,7 @@ public sealed class CatalogEvidenceProposePipelineTests
         }
     }
 
-    [Fact]
+    [Test]
     public void Evidence_aware_approve_succeeds_when_revisions_match_without_auto_write_on_propose()
     {
         var dbPath = CreateTempDb("ev-approve-ok");
@@ -265,8 +254,8 @@ public sealed class CatalogEvidenceProposePipelineTests
                 Evidence: [PublicDoc("doc-ucav-blue", "UCAV", ViewingSide.Blue, revision: 1)],
                 ViewingSide: ViewingSide.Blue));
 
-            Assert.Equal(CatalogEvidenceOutcome.ValidDraft, result.Outcome);
-            Assert.False(result.SubmitAllowedWithoutHuman);
+            Assert.That(result.Outcome, Is.EqualTo(CatalogEvidenceOutcome.ValidDraft));
+            Assert.That(result.SubmitAllowedWithoutHuman, Is.False);
 
             using var gate = new CatalogWriteGate(dbPath, new FixedCatalogClock(74_821));
             var decision = gate.ApproveBatch(
@@ -278,9 +267,9 @@ public sealed class CatalogEvidenceProposePipelineTests
                     ["doc-ucav-blue"] = new(PublicHash, 1),
                 });
 
-            Assert.True(decision.Committed);
+            Assert.That(decision.Committed, Is.True);
             var pending = gate.ListPendingBatches();
-            Assert.DoesNotContain(pending, b => b.BatchId == result.PlatformBatchId);
+            Assert.That(pending.Any(b => b.BatchId == result.PlatformBatchId), Is.False);
         }
         finally
         {

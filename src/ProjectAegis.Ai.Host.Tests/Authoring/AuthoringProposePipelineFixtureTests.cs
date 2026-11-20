@@ -1,69 +1,67 @@
 using ProjectAegis.Ai.Host.Authoring;
 using ProjectAegis.Data.Scenario.Authoring;
-using Xunit;
+using NUnit.Framework;
 
 namespace ProjectAegis.Ai.Host.Tests.Authoring;
 
 /// <summary>DRG-740 acceptance against tests/ai-fixtures/authoring (fake only).</summary>
+[TestFixture]
 public sealed class AuthoringProposePipelineFixtureTests
 {
-    [Theory]
-    [InlineData("valid-draft")]
-    [InlineData("unknown-ids")]
-    [InlineData("ambiguous-request")]
-    [InlineData("unsupported-role")]
-    [InlineData("duplicate-op")]
-    [InlineData("stale-revision")]
-    [InlineData("embedded-instructions")]
+    [TestCase("valid-draft")]
+    [TestCase("unknown-ids")]
+    [TestCase("ambiguous-request")]
+    [TestCase("unsupported-role")]
+    [TestCase("duplicate-op")]
+    [TestCase("stale-revision")]
+    [TestCase("embedded-instructions")]
     public void Fixture_yields_expected_outcome(string caseId)
     {
         var (request, draft, expected) = AuthoringFixtureLoader.Load(caseId);
-        Assert.Equal(string.Equals(caseId, "duplicate-op", StringComparison.Ordinal), request.IsRetry);
+        Assert.That(request.IsRetry, Is.EqualTo(string.Equals(caseId, "duplicate-op", StringComparison.Ordinal)));
 
         var pipeline = new AuthoringProposePipeline();
         var result = pipeline.Propose(request, draft);
 
-        Assert.Equal(expected.OutcomeClass, result.OutcomeClass.ToString());
-        Assert.Equal(expected.SubmitAllowedWithoutHuman, result.SubmitAllowedWithoutHuman);
-        Assert.False(result.SubmitAllowedWithoutHuman);
+        Assert.That(result.OutcomeClass.ToString(), Is.EqualTo(expected.OutcomeClass));
+        Assert.That(result.SubmitAllowedWithoutHuman, Is.EqualTo(expected.SubmitAllowedWithoutHuman));
+        Assert.That(result.SubmitAllowedWithoutHuman, Is.False);
         // Always read ProvenanceSource so NotAccessedPositionalProperty stays clear.
         var expectedProvenance = expected.ProvenanceSource;
-        Assert.NotNull(result.Metrics);
-        Assert.True(result.Metrics.ValidDraftCount >= 0);
-        Assert.True(result.Metrics.DiagnosticCount >= 0);
-        Assert.True(result.Metrics.ConflictCount >= 0);
-        Assert.True(result.Metrics.IdempotentNoOpCount >= 0);
+        Assert.That(result.Metrics, Is.Not.Null);
+        Assert.That(result.Metrics.ValidDraftCount >= 0, Is.True);
+        Assert.That(result.Metrics.DiagnosticCount >= 0, Is.True);
+        Assert.That(result.Metrics.ConflictCount >= 0, Is.True);
+        Assert.That(result.Metrics.IdempotentNoOpCount >= 0, Is.True);
 
         if (expected.ConflictCode is not null)
         {
-            Assert.Equal(expected.ConflictCode, result.ConflictCode);
+            Assert.That(result.ConflictCode, Is.EqualTo(expected.ConflictCode));
         }
 
         if (expected.Diagnostics.Count > 0)
         {
             foreach (var d in expected.Diagnostics)
             {
-                Assert.Contains(
-                    result.Diagnostics,
-                    x => string.Equals(x.Code, d.Code, StringComparison.Ordinal)
+                Assert.That(result.Diagnostics.Any(x => string.Equals(x.Code, d.Code, StringComparison.Ordinal)
                          && (d.MessageContains is null
-                             || x.Message.Contains(d.MessageContains, StringComparison.OrdinalIgnoreCase)));
+                             || x.Message.Contains(d.MessageContains, StringComparison.OrdinalIgnoreCase))), Is.True);
             }
         }
 
         if (string.Equals(expected.OutcomeClass, "ValidDraft", StringComparison.Ordinal))
         {
-            Assert.NotNull(result.DraftDocument);
-            Assert.NotNull(result.ValidationReport);
-            Assert.Equal(1, result.Metrics.ValidDraftCount);
-            Assert.Equal("ai", result.ProvenanceTags.Single().Source);
-            Assert.Equal(expectedProvenance ?? "ai", result.ProvenanceTags.Single().Source);
-            Assert.Equal(AuthoringTransparencyLabel.AgentAssisted, result.TransparencyLabel);
+            Assert.That(result.DraftDocument, Is.Not.Null);
+            Assert.That(result.ValidationReport, Is.Not.Null);
+            Assert.That(result.Metrics.ValidDraftCount, Is.EqualTo(1));
+            Assert.That(result.ProvenanceTags.Single().Source, Is.EqualTo("ai"));
+            Assert.That(result.ProvenanceTags.Single().Source, Is.EqualTo(expectedProvenance ?? "ai"));
+            Assert.That(result.TransparencyLabel, Is.EqualTo(AuthoringTransparencyLabel.AgentAssisted));
             if (expected.Missions is not null)
             {
                 foreach (var m in expected.Missions)
                 {
-                    Assert.Contains(m, result.Missions);
+                    Assert.That(result.Missions, Does.Contain(m));
                 }
             }
 
@@ -72,36 +70,36 @@ public sealed class AuthoringProposePipelineFixtureTests
                 var blob = System.Text.Json.JsonSerializer.Serialize(result.DraftDocument);
                 foreach (var fragment in expected.MustNotContain)
                 {
-                    Assert.DoesNotContain(fragment, blob, StringComparison.Ordinal);
+                    Assert.That(blob, Does.Not.Contain(fragment));
                 }
             }
         }
         else
         {
-            Assert.Null(result.DraftDocument);
-            Assert.Empty(result.Missions);
-            Assert.Null(expectedProvenance);
+            Assert.That(result.DraftDocument, Is.Null);
+            Assert.That(result.Missions, Is.Empty);
+            Assert.That(expectedProvenance, Is.Null);
             if (result.OutcomeClass == AuthoringOutcomeClass.Diagnostics)
             {
-                Assert.True(result.Metrics.DiagnosticCount >= 1);
+                Assert.That(result.Metrics.DiagnosticCount >= 1, Is.True);
             }
             else if (result.OutcomeClass == AuthoringOutcomeClass.Conflict)
             {
-                Assert.Equal(1, result.Metrics.ConflictCount);
+                Assert.That(result.Metrics.ConflictCount, Is.EqualTo(1));
             }
             else if (result.OutcomeClass == AuthoringOutcomeClass.IdempotentNoOp)
             {
-                Assert.Equal(1, result.Metrics.IdempotentNoOpCount);
+                Assert.That(result.Metrics.IdempotentNoOpCount, Is.EqualTo(1));
             }
         }
 
         if (expected.MissionCountDelta is 0)
         {
-            Assert.Equal(AuthoringOutcomeClass.IdempotentNoOp, result.OutcomeClass);
+            Assert.That(result.OutcomeClass, Is.EqualTo(AuthoringOutcomeClass.IdempotentNoOp));
         }
     }
 
-    [Fact]
+    [Test]
     public void Accepted_proposal_retry_is_idempotent_without_second_apply()
     {
         var (request, draft, _) = AuthoringFixtureLoader.Load("valid-draft");
@@ -109,23 +107,23 @@ public sealed class AuthoringProposePipelineFixtureTests
         var pipeline = new AuthoringProposePipeline(idempotency: store);
 
         var first = pipeline.Propose(request, draft);
-        Assert.Equal(AuthoringOutcomeClass.ValidDraft, first.OutcomeClass);
-        Assert.Equal(1, first.Metrics.ValidDraftCount);
-        Assert.NotNull(first.ValidationReport);
+        Assert.That(first.OutcomeClass, Is.EqualTo(AuthoringOutcomeClass.ValidDraft));
+        Assert.That(first.Metrics.ValidDraftCount, Is.EqualTo(1));
+        Assert.That(first.ValidationReport, Is.Not.Null);
 
         var second = pipeline.Propose(request, draft);
-        Assert.Equal(AuthoringOutcomeClass.IdempotentNoOp, second.OutcomeClass);
-        Assert.Equal(1, second.Metrics.IdempotentNoOpCount);
-        Assert.Contains(second.Diagnostics, d => d.Code == "DUPLICATE_IDEMPOTENCY_KEY");
+        Assert.That(second.OutcomeClass, Is.EqualTo(AuthoringOutcomeClass.IdempotentNoOp));
+        Assert.That(second.Metrics.IdempotentNoOpCount, Is.EqualTo(1));
+        Assert.That(second.Diagnostics.Any(d => d.Code == "DUPLICATE_IDEMPOTENCY_KEY"), Is.True);
     }
 
-    [Fact]
+    [Test]
     public void Keyword_stub_baseline_still_available_unmodified()
     {
         // Pin: AiAuthoringServices remains the Data-layer fallback; Host does not replace it.
         var stub = AiAuthoringServices.NlScaffold(
             "Blue forces patrol the Baltic strait chokepoint");
-        Assert.Contains("patrol-blue-1", stub.Missions);
-        Assert.StartsWith("Scaffolded from NL brief using keyword parse.", stub.Explanation);
+        Assert.That(stub.Missions, Does.Contain("patrol-blue-1"));
+        Assert.That(stub.Explanation, Does.StartWith("Scaffolded from NL brief using keyword parse."));
     }
 }

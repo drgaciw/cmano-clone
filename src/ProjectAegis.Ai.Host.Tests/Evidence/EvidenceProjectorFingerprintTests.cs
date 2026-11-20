@@ -3,13 +3,14 @@ using ProjectAegis.Ai.Host.Evidence;
 using ProjectAegis.Delegation.AfterAction;
 using ProjectAegis.Delegation.Core;
 using ProjectAegis.Delegation.Decision;
-using Xunit;
+using NUnit.Framework;
 
 namespace ProjectAegis.Ai.Host.Tests.Evidence;
 
+[TestFixture]
 public sealed class EvidenceProjectorFingerprintTests
 {
-    [Fact]
+    [Test]
     public void Project_does_not_mutate_order_log_fingerprint()
     {
         var log = new DecisionLog();
@@ -34,7 +35,7 @@ public sealed class EvidenceProjectorFingerprintTests
                 SalvoSize: 2)));
 
         var before = log.ComputeFingerprint();
-        Assert.False(string.IsNullOrWhiteSpace(before));
+        Assert.That(string.IsNullOrWhiteSpace(before), Is.False);
 
         var projector = new EvidenceProjector();
         var result = projector.Project(
@@ -48,19 +49,17 @@ public sealed class EvidenceProjectorFingerprintTests
                 FingerprintPrefix: "fp"));
 
         var after = log.ComputeFingerprint();
-        Assert.Equal(before, after);
-        Assert.Equal(
-            EvidenceProjector.DigestOrderLogFingerprint(before),
-            result.Document.Header.OrderLogFingerprint);
-        Assert.DoesNotContain("hostile-1", result.Document.Header.OrderLogFingerprint);
-        Assert.DoesNotContain('\n', result.Document.Header.OrderLogFingerprint);
-        Assert.Equal(2, result.Document.Entries.Count);
-        Assert.Equal(new[] { "fp:1", "fp:2" }, result.Document.Header.EvidenceIds);
-        Assert.Equal(1, result.Quantitative.EngagementCount);
-        Assert.Equal(1, result.Quantitative.ControllerChangeCount);
+        Assert.That(after, Is.EqualTo(before));
+        Assert.That(result.Document.Header.OrderLogFingerprint, Is.EqualTo(EvidenceProjector.DigestOrderLogFingerprint(before)));
+        Assert.That(result.Document.Header.OrderLogFingerprint, Does.Not.Contain("hostile-1"));
+        Assert.That(result.Document.Header.OrderLogFingerprint, Does.Not.Contain('\n'));
+        Assert.That(result.Document.Entries.Count, Is.EqualTo(2));
+        Assert.That(result.Document.Header.EvidenceIds, Is.EqualTo(new[] { "fp:1", "fp:2" }));
+        Assert.That(result.Quantitative.EngagementCount, Is.EqualTo(1));
+        Assert.That(result.Quantitative.ControllerChangeCount, Is.EqualTo(1));
     }
 
-    [Fact]
+    [Test]
     public void Header_fingerprint_digest_does_not_embed_hidden_row_plaintext()
     {
         var log = new DecisionLog();
@@ -92,7 +91,7 @@ public sealed class EvidenceProjectorFingerprintTests
         };
 
         var raw = log.ComputeFingerprint();
-        Assert.Contains("6002", raw, StringComparison.Ordinal);
+        Assert.That(raw, Does.Contain("6002"));
 
         var result = new EvidenceProjector().Project(
             log,
@@ -105,14 +104,14 @@ public sealed class EvidenceProjectorFingerprintTests
                 FingerprintPrefix: "fp"),
             annotations);
 
-        Assert.Single(result.Document.Entries);
-        Assert.Equal(EvidenceProjector.DigestOrderLogFingerprint(raw), result.Document.Header.OrderLogFingerprint);
-        Assert.DoesNotContain("6002", result.Document.Header.OrderLogFingerprint);
-        Assert.DoesNotContain("hostile-1", result.Document.Header.OrderLogFingerprint);
-        Assert.Equal(64, result.Document.Header.OrderLogFingerprint.Length);
+        Assert.That(result.Document.Entries, Has.Count.EqualTo(1));
+        Assert.That(result.Document.Header.OrderLogFingerprint, Is.EqualTo(EvidenceProjector.DigestOrderLogFingerprint(raw)));
+        Assert.That(result.Document.Header.OrderLogFingerprint, Does.Not.Contain("6002"));
+        Assert.That(result.Document.Header.OrderLogFingerprint, Does.Not.Contain("hostile-1"));
+        Assert.That(result.Document.Header.OrderLogFingerprint.Length, Is.EqualTo(64));
     }
 
-    [Fact]
+    [Test]
     public void Non_debrief_does_not_attach_full_log_aar_attributes_to_visible_entries()
     {
         var log = new StubReadOnlyOrderLog(
@@ -148,10 +147,8 @@ public sealed class EvidenceProjectorFingerprintTests
                 FingerprintPrefix: "fp",
                 AarSection: aar));
 
-        Assert.Empty(blue.AarSection!.Rows);
-        Assert.DoesNotContain(
-            blue.Document.Entries.SelectMany(e => e.Attributes?.Keys ?? Array.Empty<string>()),
-            key => key.StartsWith("aar.", StringComparison.Ordinal));
+        Assert.That(blue.AarSection!.Rows, Is.Empty);
+        Assert.That(blue.Document.Entries.SelectMany(e => e.Attributes?.Keys ?? Array.Empty<string>()).Any(key => key.StartsWith("aar.", StringComparison.Ordinal)), Is.False);
 
         var debrief = new EvidenceProjector().Project(
             log,
@@ -164,13 +161,11 @@ public sealed class EvidenceProjectorFingerprintTests
                 FingerprintPrefix: "fp",
                 AarSection: aar));
 
-        Assert.Equal(2, debrief.AarSection!.Rows.Count);
-        Assert.Contains(
-            debrief.Document.Entries.SelectMany(e => e.Attributes?.Keys ?? Array.Empty<string>()),
-            key => key.StartsWith("aar.agent-red-1.", StringComparison.Ordinal));
+        Assert.That(debrief.AarSection!.Rows.Count, Is.EqualTo(2));
+        Assert.That(debrief.Document.Entries.SelectMany(e => e.Attributes?.Keys ?? Array.Empty<string>()).Any(key => key.StartsWith("aar.agent-red-1.", StringComparison.Ordinal)), Is.True);
     }
 
-    [Fact]
+    [Test]
     public void Typed_contact_player_damage_payloads_project_from_DecisionLog()
     {
         var log = new DecisionLog();
@@ -213,29 +208,29 @@ public sealed class EvidenceProjectorFingerprintTests
                 DebriefMode: false,
                 FingerprintPrefix: "fp"));
 
-        Assert.Equal(before, log.ComputeFingerprint());
-        Assert.Equal(3, result.Document.Entries.Count);
+        Assert.That(log.ComputeFingerprint(), Is.EqualTo(before));
+        Assert.That(result.Document.Entries.Count, Is.EqualTo(3));
 
         var contact = result.Document.Entries[0];
-        Assert.Equal(EvidenceEntryKind.ContactChange, contact.Kind);
-        Assert.Equal("hostile-1", contact.UnitId);
-        Assert.Equal("Unknown->Detected", contact.Summary);
-        Assert.Equal("c-1", contact.Attributes!["contactId"]);
+        Assert.That(contact.Kind, Is.EqualTo(EvidenceEntryKind.ContactChange));
+        Assert.That(contact.UnitId, Is.EqualTo("hostile-1"));
+        Assert.That(contact.Summary, Is.EqualTo("Unknown->Detected"));
+        Assert.That(contact.Attributes!["contactId"], Is.EqualTo("c-1"));
 
         var player = result.Document.Entries[1];
-        Assert.Equal(EvidenceEntryKind.PlayerOrder, player.Kind);
-        Assert.Equal("u1", player.UnitId);
-        Assert.Equal("Hold", player.Summary);
-        Assert.Equal("player", player.Attributes!["source"]);
+        Assert.That(player.Kind, Is.EqualTo(EvidenceEntryKind.PlayerOrder));
+        Assert.That(player.UnitId, Is.EqualTo("u1"));
+        Assert.That(player.Summary, Is.EqualTo("Hold"));
+        Assert.That(player.Attributes!["source"], Is.EqualTo("player"));
 
         var damage = result.Document.Entries[2];
-        Assert.Equal(EvidenceEntryKind.PlatformDamageChange, damage.Kind);
-        Assert.Equal("hostile-1", damage.UnitId);
-        Assert.Equal("Hit", damage.Summary);
-        Assert.Equal("0.4", damage.Attributes!["newHpPct"]);
+        Assert.That(damage.Kind, Is.EqualTo(EvidenceEntryKind.PlatformDamageChange));
+        Assert.That(damage.UnitId, Is.EqualTo("hostile-1"));
+        Assert.That(damage.Summary, Is.EqualTo("Hit"));
+        Assert.That(damage.Attributes!["newHpPct"], Is.EqualTo("0.4"));
     }
 
-    [Fact]
+    [Test]
     public void Source_fence_Evidence_files_do_not_reference_forbidden_symbols()
     {
         var hostRoot = FindHostEvidenceRoot();
@@ -259,13 +254,13 @@ public sealed class EvidenceProjectorFingerprintTests
                         && !trimmed.StartsWith("*", StringComparison.Ordinal);
                 }));
 
-            Assert.DoesNotContain("IOrderLog.Append", code);
-            Assert.DoesNotContain(".Append(", code);
-            Assert.DoesNotContain("DelegationBridge", code);
-            Assert.DoesNotContain("SimulationSession", code);
-            Assert.DoesNotContain("UnityEngine", code);
-            Assert.DoesNotContain("OnScenarioFinalized", code);
-            Assert.DoesNotContain("SerializeAsyncEnumerable", code);
+            Assert.That(code, Does.Not.Contain("IOrderLog.Append"));
+            Assert.That(code, Does.Not.Contain(".Append("));
+            Assert.That(code, Does.Not.Contain("DelegationBridge"));
+            Assert.That(code, Does.Not.Contain("SimulationSession"));
+            Assert.That(code, Does.Not.Contain("UnityEngine"));
+            Assert.That(code, Does.Not.Contain("OnScenarioFinalized"));
+            Assert.That(code, Does.Not.Contain("SerializeAsyncEnumerable"));
         }
     }
 

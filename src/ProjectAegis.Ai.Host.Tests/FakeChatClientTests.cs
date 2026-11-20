@@ -1,23 +1,23 @@
 using Microsoft.Extensions.AI;
 using ProjectAegis.Ai.Contracts;
-using Xunit;
+using NUnit.Framework;
 
 namespace ProjectAegis.Ai.Host.Tests;
 
+[TestFixture]
 public sealed class FakeChatClientTests
 {
-    [Theory]
-    [InlineData(FakeChatScript.Success, GenerationStatus.Succeeded)]
-    [InlineData(FakeChatScript.MalformedOutput, GenerationStatus.MalformedOutput)]
-    [InlineData(FakeChatScript.Timeout, GenerationStatus.TimedOut)]
-    [InlineData(FakeChatScript.Cancellation, GenerationStatus.Cancelled)]
-    [InlineData(FakeChatScript.ProviderUnavailable, GenerationStatus.ProviderUnavailable)]
+    [TestCase(FakeChatScript.Success, GenerationStatus.Succeeded)]
+    [TestCase(FakeChatScript.MalformedOutput, GenerationStatus.MalformedOutput)]
+    [TestCase(FakeChatScript.Timeout, GenerationStatus.TimedOut)]
+    [TestCase(FakeChatScript.Cancellation, GenerationStatus.Cancelled)]
+    [TestCase(FakeChatScript.ProviderUnavailable, GenerationStatus.ProviderUnavailable)]
     public void ToGenerationStatus_maps_each_script(FakeChatScript script, GenerationStatus expected)
     {
-        Assert.Equal(expected, FakeChatClient.ToGenerationStatus(script));
+        Assert.That(FakeChatClient.ToGenerationStatus(script), Is.EqualTo(expected));
     }
 
-    [Fact]
+    [Test]
     public async Task Success_returns_assistant_json()
     {
         using var client = new FakeChatClient();
@@ -27,22 +27,22 @@ public sealed class FakeChatClientTests
             [new ChatMessage(ChatRole.User, "ping")],
             new ChatOptions { ModelId = "unit" });
 
-        Assert.Equal("unit", response.ModelId);
-        Assert.Contains("ok", response.Text, StringComparison.Ordinal);
-        Assert.Equal(GenerationStatus.Succeeded, FakeChatClient.ToGenerationStatus(FakeChatScript.Success));
+        Assert.That(response.ModelId, Is.EqualTo("unit"));
+        Assert.That(response.Text, Does.Contain("ok"));
+        Assert.That(FakeChatClient.ToGenerationStatus(FakeChatScript.Success), Is.EqualTo(GenerationStatus.Succeeded));
     }
 
-    [Fact]
+    [Test]
     public async Task Malformed_returns_non_json_text()
     {
         using var client = new FakeChatClient();
         client.Enqueue(FakeChatScript.MalformedOutput);
 
         var response = await client.GetResponseAsync([new ChatMessage(ChatRole.User, "ping")]);
-        Assert.Equal("<<<not-json>>>", response.Text);
+        Assert.That(response.Text, Is.EqualTo("<<<not-json>>>"));
     }
 
-    [Fact]
+    [Test]
     public async Task Timeout_throws_TimeoutException()
     {
         using var client = new FakeChatClient();
@@ -52,17 +52,17 @@ public sealed class FakeChatClientTests
             client.GetResponseAsync([new ChatMessage(ChatRole.User, "ping")]));
     }
 
-    [Fact]
+    [Test]
     public async Task Cancellation_throws_OperationCanceledException()
     {
         using var client = new FakeChatClient();
         client.Enqueue(FakeChatScript.Cancellation);
 
-        await Assert.ThrowsAnyAsync<OperationCanceledException>(() =>
+        await Assert.CatchAsync<OperationCanceledException>(() =>
             client.GetResponseAsync([new ChatMessage(ChatRole.User, "ping")]));
     }
 
-    [Fact]
+    [Test]
     public async Task ProviderUnavailable_throws_InvalidOperationException()
     {
         using var client = new FakeChatClient();
@@ -72,7 +72,7 @@ public sealed class FakeChatClientTests
             client.GetResponseAsync([new ChatMessage(ChatRole.User, "ping")]));
     }
 
-    [Fact]
+    [Test]
     public async Task Empty_queue_throws()
     {
         using var client = new FakeChatClient();
