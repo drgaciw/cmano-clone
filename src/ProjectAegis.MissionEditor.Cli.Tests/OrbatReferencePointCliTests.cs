@@ -1,14 +1,15 @@
 using ProjectAegis.Data.Scenario.Authoring;
-using Xunit;
+using NUnit.Framework;
 
 namespace ProjectAegis.MissionEditor.Cli.Tests;
 
 /// <summary>
 /// CLI/MCP parity tests for ORBAT place/move/clone and reference-point upsert verbs (P2.1 Task 7).
 /// </summary>
+[TestFixture]
 public sealed class OrbatReferencePointCliTests
 {
-    [Fact]
+    [Test]
     public void Orbat_upsert_unit_ok_bumps_edit_version()
     {
         var path = Path.Combine(Path.GetTempPath(), $"aegis-orbat-cli-{Guid.NewGuid():N}.json");
@@ -27,19 +28,20 @@ public sealed class OrbatReferencePointCliTests
                 lon: 20.15,
                 writer);
 
-            Assert.Equal(0, code);
-            Assert.Contains("\"ok\":true", writer.ToString());
-            Assert.Contains("\"unitId\":\"u-blue-1\"", writer.ToString());
+            Assert.That(code, Is.EqualTo(0));
+            Assert.That(writer.ToString(), Does.Contain("\"ok\":true"));
+            Assert.That(writer.ToString(), Does.Contain("\"unitId\":\"u-blue-1\""));
 
             var dto = ScenarioDocumentJsonLoader.LoadFromFile(path);
-            Assert.Equal(2, dto.Metadata.EditVersion);
-            Assert.NotNull(dto.Orbat);
-            var unit = Assert.Single(dto.Orbat!.Units);
-            Assert.Equal("u-blue-1", unit.Id);
-            Assert.Equal("blue", unit.SideId);
-            Assert.Equal("ffg-generic", unit.PlatformId);
-            Assert.Equal(57.05, unit.Lat);
-            Assert.Equal(20.15, unit.Lon);
+            Assert.That(dto.Metadata.EditVersion, Is.EqualTo(2));
+            Assert.That(dto.Orbat, Is.Not.Null);
+            Assert.That(dto.Orbat!.Units, Has.Exactly(1).Items);
+            var unit = dto.Orbat!.Units.Single();
+            Assert.That(unit.Id, Is.EqualTo("u-blue-1"));
+            Assert.That(unit.SideId, Is.EqualTo("blue"));
+            Assert.That(unit.PlatformId, Is.EqualTo("ffg-generic"));
+            Assert.That(unit.Lat, Is.EqualTo(57.05));
+            Assert.That(unit.Lon, Is.EqualTo(20.15));
         }
         finally
         {
@@ -50,7 +52,7 @@ public sealed class OrbatReferencePointCliTests
         }
     }
 
-    [Fact]
+    [Test]
     public void Orbat_move_stale_edit_version_returns_conflict()
     {
         var path = Path.Combine(Path.GetTempPath(), $"aegis-orbat-move-cli-{Guid.NewGuid():N}.json");
@@ -59,9 +61,7 @@ public sealed class OrbatReferencePointCliTests
             ScenarioDocumentEditor.CreateNew().Save(path);
             using (var seedWriter = new StringWriter())
             {
-                Assert.Equal(
-                    0,
-                    OrbatUpsertUnitCommand.Run(
+                Assert.That(OrbatUpsertUnitCommand.Run(
                         path,
                         editVersion: 1,
                         unitId: "u1",
@@ -69,12 +69,12 @@ public sealed class OrbatReferencePointCliTests
                         platformId: "ffg",
                         lat: 57.0,
                         lon: 20.0,
-                        seedWriter));
+                        seedWriter), Is.EqualTo(0));
             }
 
             var before = File.ReadAllText(path);
             var beforeDto = ScenarioDocumentJsonLoader.LoadFromFile(path);
-            Assert.Equal(2, beforeDto.Metadata.EditVersion);
+            Assert.That(beforeDto.Metadata.EditVersion, Is.EqualTo(2));
 
             using var writer = new StringWriter();
             var code = OrbatMoveUnitCommand.Run(
@@ -85,16 +85,17 @@ public sealed class OrbatReferencePointCliTests
                 lon: 21.0,
                 writer);
 
-            Assert.Equal(3, code);
-            Assert.Contains("CONFLICT", writer.ToString());
+            Assert.That(code, Is.EqualTo(3));
+            Assert.That(writer.ToString(), Does.Contain("CONFLICT"));
 
             var after = File.ReadAllText(path);
-            Assert.Equal(before, after);
+            Assert.That(after, Is.EqualTo(before));
             var afterDto = ScenarioDocumentJsonLoader.LoadFromFile(path);
-            Assert.Equal(2, afterDto.Metadata.EditVersion);
-            var unit = Assert.Single(afterDto.Orbat!.Units);
-            Assert.Equal(57.0, unit.Lat);
-            Assert.Equal(20.0, unit.Lon);
+            Assert.That(afterDto.Metadata.EditVersion, Is.EqualTo(2));
+            Assert.That(afterDto.Orbat!.Units, Has.Exactly(1).Items);
+            var unit = afterDto.Orbat!.Units.Single();
+            Assert.That(unit.Lat, Is.EqualTo(57.0));
+            Assert.That(unit.Lon, Is.EqualTo(20.0));
         }
         finally
         {
@@ -105,7 +106,7 @@ public sealed class OrbatReferencePointCliTests
         }
     }
 
-    [Fact]
+    [Test]
     public void Reference_point_upsert_polygon_ok()
     {
         var path = Path.Combine(Path.GetTempPath(), $"aegis-rp-cli-{Guid.NewGuid():N}.json");
@@ -130,19 +131,20 @@ public sealed class OrbatReferencePointCliTests
                 radiusNm: null,
                 writer);
 
-            Assert.Equal(0, code);
-            Assert.Contains("\"ok\":true", writer.ToString());
-            Assert.Contains("\"referencePointId\":\"zone-patrol\"", writer.ToString());
-            Assert.Contains("\"type\":\"polygon\"", writer.ToString());
+            Assert.That(code, Is.EqualTo(0));
+            Assert.That(writer.ToString(), Does.Contain("\"ok\":true"));
+            Assert.That(writer.ToString(), Does.Contain("\"referencePointId\":\"zone-patrol\""));
+            Assert.That(writer.ToString(), Does.Contain("\"type\":\"polygon\""));
 
             var dto = ScenarioDocumentJsonLoader.LoadFromFile(path);
-            Assert.Equal(2, dto.Metadata.EditVersion);
-            var rp = Assert.Single(dto.ReferencePoints);
-            Assert.Equal("zone-patrol", rp.Id);
-            Assert.Equal("polygon", rp.Type);
-            Assert.Equal(3, rp.Geometry.Count);
-            Assert.Equal(57.0, rp.Geometry[0].Lat);
-            Assert.Equal(20.0, rp.Geometry[0].Lon);
+            Assert.That(dto.Metadata.EditVersion, Is.EqualTo(2));
+            Assert.That(dto.ReferencePoints, Has.Exactly(1).Items);
+            var rp = dto.ReferencePoints.Single();
+            Assert.That(rp.Id, Is.EqualTo("zone-patrol"));
+            Assert.That(rp.Type, Is.EqualTo("polygon"));
+            Assert.That(rp.Geometry.Count, Is.EqualTo(3));
+            Assert.That(rp.Geometry[0].Lat, Is.EqualTo(57.0));
+            Assert.That(rp.Geometry[0].Lon, Is.EqualTo(20.0));
         }
         finally
         {

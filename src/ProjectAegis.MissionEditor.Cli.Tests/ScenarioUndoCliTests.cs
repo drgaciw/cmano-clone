@@ -1,11 +1,12 @@
 using ProjectAegis.Data.Scenario.Authoring;
-using Xunit;
+using NUnit.Framework;
 
 namespace ProjectAegis.MissionEditor.Cli.Tests;
 
+[TestFixture]
 public sealed class ScenarioUndoCliTests
 {
-    [Fact]
+    [Test]
     public void scenario_undo_round_trip_restores_prior_document_state()
     {
         var path = Path.Combine(Path.GetTempPath(), $"aegis-undo-{Guid.NewGuid():N}.json");
@@ -14,19 +15,20 @@ public sealed class ScenarioUndoCliTests
             ScenarioDocumentEditor.CreateNew().Save(path);
             var zone = CliArgParser.ParseWaypoints(["57,20", "57.1,20.1", "57.2,20.2"]);
 
-            Assert.Equal(0, MissionAddPatrolCommand.Run(path, 1, "patrol-1", ["u1"], zone, new StringWriter()));
-            Assert.Equal(0, MissionAddStrikeCommand.Run(path, 2, "strike-1", ["u1"], ["hostile-1"], new StringWriter()));
+            Assert.That(MissionAddPatrolCommand.Run(path, 1, "patrol-1", ["u1"], zone, new StringWriter()), Is.EqualTo(0));
+            Assert.That(MissionAddStrikeCommand.Run(path, 2, "strike-1", ["u1"], ["hostile-1"], new StringWriter()), Is.EqualTo(0));
 
             using (var writer = new StringWriter())
             {
-                Assert.Equal(0, ScenarioUndoCommand.Run(path, 3, writer));
-                Assert.Contains("\"undone\":true", writer.ToString());
+                Assert.That(ScenarioUndoCommand.Run(path, 3, writer), Is.EqualTo(0));
+                Assert.That(writer.ToString(), Does.Contain("\"undone\":true"));
             }
 
             var dto = ScenarioDocumentJsonLoader.LoadFromFile(path);
-            var mission = Assert.Single(dto.Missions);
-            Assert.Equal("Patrol", mission.Type);
-            Assert.Equal(2, dto.Metadata.EditVersion);
+            Assert.That(dto.Missions, Has.Exactly(1).Items);
+            var mission = dto.Missions.Single();
+            Assert.That(mission.Type, Is.EqualTo("Patrol"));
+            Assert.That(dto.Metadata.EditVersion, Is.EqualTo(2));
         }
         finally
         {
@@ -35,7 +37,7 @@ public sealed class ScenarioUndoCliTests
         }
     }
 
-    [Fact]
+    [Test]
     public void scenario_undo_without_snapshot_returns_no_undo_snapshot_error()
     {
         var path = Path.Combine(Path.GetTempPath(), $"aegis-undo-{Guid.NewGuid():N}.json");
@@ -44,8 +46,8 @@ public sealed class ScenarioUndoCliTests
             ScenarioDocumentEditor.CreateNew().Save(path);
 
             using var writer = new StringWriter();
-            Assert.Equal(1, ScenarioUndoCommand.Run(path, 1, writer));
-            Assert.Contains("NO_UNDO_SNAPSHOT", writer.ToString());
+            Assert.That(ScenarioUndoCommand.Run(path, 1, writer), Is.EqualTo(1));
+            Assert.That(writer.ToString(), Does.Contain("NO_UNDO_SNAPSHOT"));
         }
         finally
         {
@@ -54,7 +56,7 @@ public sealed class ScenarioUndoCliTests
         }
     }
 
-    [Fact]
+    [Test]
     public void scenario_undo_does_not_push_snapshot_on_conflict_rejected_mutation()
     {
         var path = Path.Combine(Path.GetTempPath(), $"aegis-undo-{Guid.NewGuid():N}.json");
@@ -65,10 +67,10 @@ public sealed class ScenarioUndoCliTests
 
             using (var writer = new StringWriter())
             {
-                Assert.Equal(3, MissionAddPatrolCommand.Run(path, 99, "patrol-1", ["u1"], zone, writer));
+                Assert.That(MissionAddPatrolCommand.Run(path, 99, "patrol-1", ["u1"], zone, writer), Is.EqualTo(3));
             }
 
-            Assert.Equal(0, ScenarioUndoStackStore.Count(path));
+            Assert.That(ScenarioUndoStackStore.Count(path), Is.EqualTo(0));
         }
         finally
         {
@@ -77,7 +79,7 @@ public sealed class ScenarioUndoCliTests
         }
     }
 
-    [Fact]
+    [Test]
     public void scenario_undo_persistence_is_disk_backed_cross_invocation_roundtrip()
     {
         // S83-02 AME-8.5: explicitly exercises disk sidecar persistence (not in-process only).
@@ -89,22 +91,22 @@ public sealed class ScenarioUndoCliTests
             ScenarioDocumentEditor.CreateNew().Save(path);
             var zone = CliArgParser.ParseWaypoints(["57,20", "57.1,20.1", "57.2,20.2"]);
 
-            Assert.Equal(0, MissionAddPatrolCommand.Run(path, 1, "patrol-disk", ["u1"], zone, new StringWriter()));
+            Assert.That(MissionAddPatrolCommand.Run(path, 1, "patrol-disk", ["u1"], zone, new StringWriter()), Is.EqualTo(0));
 
             var stackFile = path + ".undo-stack.json";
-            Assert.True(File.Exists(stackFile), "disk sidecar for AME-8.5 persistence");
-            Assert.True(ScenarioUndoStackStore.Count(path) >= 1);
+            Assert.That(File.Exists(stackFile), Is.True, "disk sidecar for AME-8.5 persistence");
+            Assert.That(ScenarioUndoStackStore.Count(path) >= 1, Is.True);
 
             using (var writer = new StringWriter())
             {
                 // current after add is 2
-                Assert.Equal(0, ScenarioUndoCommand.Run(path, 2, writer));
-                Assert.Contains("\"undone\":true", writer.ToString());
+                Assert.That(ScenarioUndoCommand.Run(path, 2, writer), Is.EqualTo(0));
+                Assert.That(writer.ToString(), Does.Contain("\"undone\":true"));
             }
 
             var dto = ScenarioDocumentJsonLoader.LoadFromFile(path);
-            Assert.Equal(1, dto.Metadata.EditVersion);
-            Assert.Equal(0, ScenarioUndoStackStore.Count(path));
+            Assert.That(dto.Metadata.EditVersion, Is.EqualTo(1));
+            Assert.That(ScenarioUndoStackStore.Count(path), Is.EqualTo(0));
         }
         finally
         {
@@ -113,7 +115,7 @@ public sealed class ScenarioUndoCliTests
         }
     }
 
-    [Fact]
+    [Test]
     public void scenario_undo_does_not_push_snapshot_on_mission_not_found_rejected_delete()
     {
         // Regression for the phantom-undo-snapshot bug: mutation commands call
@@ -129,19 +131,19 @@ public sealed class ScenarioUndoCliTests
             ScenarioDocumentEditor.CreateNew().Save(path);
             var zone = CliArgParser.ParseWaypoints(["57,20", "57.1,20.1", "57.2,20.2"]);
 
-            Assert.Equal(0, MissionAddPatrolCommand.Run(path, 1, "patrol-1", ["u1"], zone, new StringWriter()));
-            Assert.Equal(1, ScenarioUndoStackStore.Count(path));
+            Assert.That(MissionAddPatrolCommand.Run(path, 1, "patrol-1", ["u1"], zone, new StringWriter()), Is.EqualTo(0));
+            Assert.That(ScenarioUndoStackStore.Count(path), Is.EqualTo(1));
 
             using (var writer = new StringWriter())
             {
                 var exitCode = MissionDeleteCommand.Run(path, 2, "does-not-exist", writer);
-                Assert.Equal(1, exitCode);
-                Assert.Contains("MISSION_NOT_FOUND", writer.ToString());
+                Assert.That(exitCode, Is.EqualTo(1));
+                Assert.That(writer.ToString(), Does.Contain("MISSION_NOT_FOUND"));
             }
 
             // A rejected delete (mission not found) must not leave a phantom undo snapshot behind:
             // the scenario file was never actually mutated for this attempt.
-            Assert.Equal(1, ScenarioUndoStackStore.Count(path));
+            Assert.That(ScenarioUndoStackStore.Count(path), Is.EqualTo(1));
         }
         finally
         {
@@ -150,7 +152,7 @@ public sealed class ScenarioUndoCliTests
         }
     }
 
-    [Fact]
+    [Test]
     public void scenario_undo_preserves_sides_and_support_mission_fields_not_touched_by_the_mutation()
     {
         // ScenarioUndoStackStore.CloneDocument (used by both Push and TryPop) builds each undo
@@ -189,25 +191,27 @@ public sealed class ScenarioUndoCliTests
             ScenarioDocumentJsonWriter.WriteToFile(seeded, path);
 
             var zone = CliArgParser.ParseWaypoints(["57,20", "57.1,20.1", "57.2,20.2"]);
-            Assert.Equal(0, MissionAddPatrolCommand.Run(path, 1, "patrol-1", ["u1"], zone, new StringWriter()));
+            Assert.That(MissionAddPatrolCommand.Run(path, 1, "patrol-1", ["u1"], zone, new StringWriter()), Is.EqualTo(0));
 
             using (var writer = new StringWriter())
             {
-                Assert.Equal(0, ScenarioUndoCommand.Run(path, 2, writer));
-                Assert.Contains("\"undone\":true", writer.ToString());
+                Assert.That(ScenarioUndoCommand.Run(path, 2, writer), Is.EqualTo(0));
+                Assert.That(writer.ToString(), Does.Contain("\"undone\":true"));
             }
 
             var dto = ScenarioDocumentJsonLoader.LoadFromFile(path);
 
             // The undone add should be gone, leaving only the pre-existing support mission.
-            var mission = Assert.Single(dto.Missions);
-            Assert.Equal("tanker-1", mission.Id);
+            Assert.That(dto.Missions, Has.Exactly(1).Items);
+            var mission = dto.Missions.Single();
+            Assert.That(mission.Id, Is.EqualTo("tanker-1"));
 
             // Fields untouched by the undone mutation must survive the undo round trip.
-            var side = Assert.Single(dto.Sides);
-            Assert.Equal("blue", side.Id);
-            Assert.NotEmpty(mission.StationGeometry ?? Array.Empty<ScenarioWaypointDto>());
-            Assert.Equal("Silent", mission.EmconOverride);
+            Assert.That(dto.Sides, Has.Exactly(1).Items);
+            var side = dto.Sides.Single();
+            Assert.That(side.Id, Is.EqualTo("blue"));
+            Assert.That(mission.StationGeometry ?? Array.Empty<ScenarioWaypointDto>(), Is.Not.Empty);
+            Assert.That(mission.EmconOverride, Is.EqualTo("Silent"));
         }
         finally
         {

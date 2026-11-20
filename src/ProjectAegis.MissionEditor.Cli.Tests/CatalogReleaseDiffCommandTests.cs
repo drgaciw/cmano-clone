@@ -4,13 +4,14 @@ using ProjectAegis.Data.Catalog;
 using ProjectAegis.Data.Import;
 using ProjectAegis.Data.Snapshots;
 using ProjectAegis.Data.WriteGate;
-using Xunit;
+using NUnit.Framework;
 
 namespace ProjectAegis.MissionEditor.Cli.Tests;
 
+[TestFixture]
 public sealed class CatalogReleaseDiffCommandTests
 {
-    [Fact]
+    [Test]
     public void TlRelease_catalog_release_diff_returns_empty_golden_for_identical_versions()
     {
         var dbPath = Path.Combine(Path.GetTempPath(), $"aegis-cli-release-diff-same-{Guid.NewGuid():N}.db");
@@ -30,18 +31,16 @@ public sealed class CatalogReleaseDiffCommandTests
             }
 
             using var writer = new StringWriter();
-            Assert.Equal(
-                0,
-                CatalogReleaseDiffCommand.Run(dbPath, unifiedVersion, unifiedVersion, writer));
+            Assert.That(CatalogReleaseDiffCommand.Run(dbPath, unifiedVersion, unifiedVersion, writer), Is.EqualTo(0));
 
             using var doc = JsonDocument.Parse(writer.ToString());
             var root = doc.RootElement;
-            Assert.True(root.GetProperty("ok").GetBoolean());
-            Assert.Equal("catalog_release_diff", root.GetProperty("verb").GetString());
-            Assert.True(root.GetProperty("isEmpty").GetBoolean());
-            Assert.Equal(0, root.GetProperty("diffCount").GetInt32());
-            Assert.Equal(JsonValueKind.Array, root.GetProperty("canonicalLines").ValueKind);
-            Assert.Equal(0, root.GetProperty("canonicalLines").GetArrayLength());
+            Assert.That(root.GetProperty("ok").GetBoolean(), Is.True);
+            Assert.That(root.GetProperty("verb").GetString(), Is.EqualTo("catalog_release_diff"));
+            Assert.That(root.GetProperty("isEmpty").GetBoolean(), Is.True);
+            Assert.That(root.GetProperty("diffCount").GetInt32(), Is.EqualTo(0));
+            Assert.That(root.GetProperty("canonicalLines").ValueKind, Is.EqualTo(JsonValueKind.Array));
+            Assert.That(root.GetProperty("canonicalLines").GetArrayLength(), Is.EqualTo(0));
         }
         finally
         {
@@ -49,7 +48,7 @@ public sealed class CatalogReleaseDiffCommandTests
         }
     }
 
-    [Fact]
+    [Test]
     public void CatalogImport_catalog_release_diff_emits_sorted_delta_rows()
     {
         var dbPath = Path.Combine(Path.GetTempPath(), $"aegis-cli-release-diff-delta-{Guid.NewGuid():N}.db");
@@ -81,28 +80,28 @@ public sealed class CatalogReleaseDiffCommandTests
             }
 
             using var writer = new StringWriter();
-            Assert.Equal(0, CatalogReleaseDiffCommand.Run(dbPath, fromVersion, toVersion, writer));
+            Assert.That(CatalogReleaseDiffCommand.Run(dbPath, fromVersion, toVersion, writer), Is.EqualTo(0));
 
             using var doc = JsonDocument.Parse(writer.ToString());
             var root = doc.RootElement;
-            Assert.False(root.GetProperty("isEmpty").GetBoolean());
-            Assert.Equal(3, root.GetProperty("diffCount").GetInt32());
+            Assert.That(root.GetProperty("isEmpty").GetBoolean(), Is.False);
+            Assert.That(root.GetProperty("diffCount").GetInt32(), Is.EqualTo(3));
 
             var kinds = root.GetProperty("rows")
                 .EnumerateArray()
                 .Select(r => r.GetProperty("kind").GetString() ?? string.Empty)
                 .OrderBy(k => k, StringComparer.Ordinal)
                 .ToArray();
-            Assert.Equal(["Added", "Changed", "Removed"], kinds);
+            Assert.That(kinds, Is.EqualTo(["Added", "Changed", "Removed"]));
 
             var canonical = root.GetProperty("canonicalLines")
                 .EnumerateArray()
                 .Select(e => e.GetString())
                 .ToArray();
-            Assert.Equal(3, canonical.Length);
-            Assert.StartsWith("Added\tweapon\t", canonical[0], StringComparison.Ordinal);
-            Assert.StartsWith("Changed\tsensor\t", canonical[1], StringComparison.Ordinal);
-            Assert.StartsWith("Removed\tplatform\t", canonical[2], StringComparison.Ordinal);
+            Assert.That(canonical.Length, Is.EqualTo(3));
+            Assert.That(canonical[0], Does.StartWith("Added\tweapon\t"));
+            Assert.That(canonical[1], Does.StartWith("Changed\tsensor\t"));
+            Assert.That(canonical[2], Does.StartWith("Removed\tplatform\t"));
         }
         finally
         {
@@ -124,7 +123,7 @@ public sealed class CatalogReleaseDiffCommandTests
             clock: new FixedCatalogClock(8000));
 
         using var gate = new CatalogWriteGate(dbPath, new FixedCatalogClock(8001));
-        Assert.True(gate.ApproveBatch(propose.Batches[0].BatchId, "human", "release-diff-cli-test").Committed);
+        Assert.That(gate.ApproveBatch(propose.Batches[0].BatchId, "human", "release-diff-cli-test").Committed, Is.True);
         CatalogSnapshotBinder.BindAfterApprove(
             dbPath,
             propose.Batches[0].BatchId,

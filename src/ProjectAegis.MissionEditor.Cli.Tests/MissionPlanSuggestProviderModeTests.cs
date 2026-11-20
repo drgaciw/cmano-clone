@@ -1,13 +1,14 @@
 using System.Text.Json;
 using ProjectAegis.Ai.Host.Authoring;
-using Xunit;
+using NUnit.Framework;
 
 namespace ProjectAegis.MissionEditor.Cli.Tests;
 
 /// <summary>DRG-747: opt-in --provider fake on mission_plan_suggest (FakeChatClient / fixtures only).</summary>
+[TestFixture]
 public sealed class MissionPlanSuggestProviderModeTests
 {
-    [Fact]
+    [Test]
     public void Provider_fake_valid_draft_fixture_yields_draft_and_diff()
     {
         using var writer = new StringWriter();
@@ -25,31 +26,31 @@ public sealed class MissionPlanSuggestProviderModeTests
             output: writer);
 
         var json = writer.ToString();
-        Assert.Equal(0, exit);
+        Assert.That(exit, Is.EqualTo(0));
 
         using var doc = JsonDocument.Parse(json);
         var root = doc.RootElement;
-        Assert.True(root.GetProperty("ok").GetBoolean());
-        Assert.Equal("provider", root.GetProperty("mode").GetString());
-        Assert.Equal("fake", root.GetProperty("provider").GetString());
-        Assert.Equal("ValidDraft", root.GetProperty("outcomeClass").GetString());
-        Assert.False(root.GetProperty("apply").GetBoolean());
-        Assert.Equal(AuthoringTransparencyLabel.AgentAssisted, root.GetProperty("transparencyLabel").GetString());
+        Assert.That(root.GetProperty("ok").GetBoolean(), Is.True);
+        Assert.That(root.GetProperty("mode").GetString(), Is.EqualTo("provider"));
+        Assert.That(root.GetProperty("provider").GetString(), Is.EqualTo("fake"));
+        Assert.That(root.GetProperty("outcomeClass").GetString(), Is.EqualTo("ValidDraft"));
+        Assert.That(root.GetProperty("apply").GetBoolean(), Is.False);
+        Assert.That(root.GetProperty("transparencyLabel").GetString(), Is.EqualTo(AuthoringTransparencyLabel.AgentAssisted));
 
         var tags = root.GetProperty("provenanceTags").EnumerateArray().ToList();
-        Assert.NotEmpty(tags);
-        Assert.Equal("ai", tags[0].GetProperty("source").GetString());
+        Assert.That(tags, Is.Not.Empty);
+        Assert.That(tags[0].GetProperty("source").GetString(), Is.EqualTo("ai"));
 
         var diff = root.GetProperty("proposedOperationsDiff").EnumerateArray().ToList();
-        Assert.NotEmpty(diff);
-        Assert.Equal("AddPatrolMission", diff[0].GetProperty("op").GetString());
-        Assert.Equal("mission_add_patrol", diff[0].GetProperty("applyVerb").GetString());
+        Assert.That(diff, Is.Not.Empty);
+        Assert.That(diff[0].GetProperty("op").GetString(), Is.EqualTo("AddPatrolMission"));
+        Assert.That(diff[0].GetProperty("applyVerb").GetString(), Is.EqualTo("mission_add_patrol"));
 
-        Assert.True(root.TryGetProperty("draftDocument", out var draft) && draft.ValueKind == JsonValueKind.Object);
-        Assert.Contains("patrol-blue-1", root.GetProperty("missions").EnumerateArray().Select(e => e.GetString()));
+        Assert.That(root.TryGetProperty("draftDocument", out var draft) && draft.ValueKind == JsonValueKind.Object, Is.True);
+        Assert.That(root.GetProperty("missions").EnumerateArray().Select(e => e.GetString()), Does.Contain("patrol-blue-1"));
     }
 
-    [Fact]
+    [Test]
     public void Provider_fake_stale_revision_refused_with_conflict()
     {
         using var writer = new StringWriter();
@@ -67,30 +68,30 @@ public sealed class MissionPlanSuggestProviderModeTests
             output: writer);
 
         var json = writer.ToString();
-        Assert.Equal(3, exit);
+        Assert.That(exit, Is.EqualTo(3));
 
         using var doc = JsonDocument.Parse(json);
         var root = doc.RootElement;
-        Assert.False(root.GetProperty("ok").GetBoolean());
-        Assert.Equal("CONFLICT", root.GetProperty("code").GetString());
-        Assert.Contains("editVersion", root.GetProperty("message").GetString()!, StringComparison.OrdinalIgnoreCase);
+        Assert.That(root.GetProperty("ok").GetBoolean(), Is.False);
+        Assert.That(root.GetProperty("code").GetString(), Is.EqualTo("CONFLICT"));
+        Assert.That(root.GetProperty("message").GetString()!, Does.Contain("editVersion").IgnoreCase);
 
         var details = root.GetProperty("details");
-        Assert.Equal("Conflict", details.GetProperty("outcomeClass").GetString());
-        Assert.False(details.GetProperty("apply").GetBoolean());
+        Assert.That(details.GetProperty("outcomeClass").GetString(), Is.EqualTo("Conflict"));
+        Assert.That(details.GetProperty("apply").GetBoolean(), Is.False);
     }
 
-    [Fact]
+    [Test]
     public void Keyword_Run_unchanged_when_provider_not_used()
     {
         // Pin: existing keyword contract remains byte-stable for MissionPlanSuggestCommandTests.
         using var writer = new StringWriter();
         var exit = MissionPlanSuggestCommand.Run("baltic patrol with comms degraded", writer);
         var json = writer.ToString();
-        Assert.Equal(0, exit);
-        Assert.Contains("\"ok\": true", json, StringComparison.Ordinal);
-        Assert.Contains("mission_add_patrol", json, StringComparison.Ordinal);
-        Assert.DoesNotContain("proposedOperationsDiff", json, StringComparison.Ordinal);
-        Assert.DoesNotContain("\"mode\":", json, StringComparison.Ordinal);
+        Assert.That(exit, Is.EqualTo(0));
+        Assert.That(json, Does.Contain("\"ok\": true"));
+        Assert.That(json, Does.Contain("mission_add_patrol"));
+        Assert.That(json, Does.Not.Contain("proposedOperationsDiff"));
+        Assert.That(json, Does.Not.Contain("\"mode\":"));
     }
 }

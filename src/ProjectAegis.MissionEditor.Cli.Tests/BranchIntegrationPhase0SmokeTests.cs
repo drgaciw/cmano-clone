@@ -2,21 +2,22 @@ namespace ProjectAegis.MissionEditor.Cli.Tests;
 
 using System.Diagnostics;
 using System.Threading.Tasks;
-using Xunit;
+using NUnit.Framework;
 
 /// <summary>
 /// Encodes the Phase 0 verification block from
 /// <c>production/agentic/scenario-editor-branch-integration-plan-2026-07-04.md</c>
 /// as an executable gate (TDD wrapper around <c>tools/ci/smoke-scenario-editor-phase0.sh</c>).
 /// </summary>
+[TestFixture]
 public sealed class BranchIntegrationPhase0SmokeTests
 {
-    [Fact]
+    [Test]
     public void Phase0_smoke_script_exists_and_passes_quick_mode()
     {
         var repoRoot = RequireRepoRoot();
         var script = Path.Combine(repoRoot, "tools", "ci", "smoke-scenario-editor-phase0.sh");
-        Assert.True(File.Exists(script), $"Expected Phase 0 script at {script}");
+        Assert.That(File.Exists(script), Is.True, $"Expected Phase 0 script at {script}");
 
         // Hosted Buildkite already runs Release gates via tools/buildkite/agent-dotnet-ci.sh.
         // This bash wrapper can fail on agents missing rg or with Debug/Release skew.
@@ -35,10 +36,10 @@ public sealed class BranchIntegrationPhase0SmokeTests
 
         // Pre-build solution so the script can use --skip-build (avoids MSBuild lock with test host).
         var buildExit = RunDotnet(repoRoot, "build", "ProjectAegis.sln", "-v", "minimal");
-        Assert.Equal(0, buildExit);
+        Assert.That(buildExit, Is.EqualTo(0));
 
         var exitCode = RunBash(repoRoot, script, "--quick", "--skip-build");
-        Assert.Equal(0, exitCode);
+        Assert.That(exitCode, Is.EqualTo(0));
     }
 
     private static string RequireRepoRoot()

@@ -1,5 +1,5 @@
 using System.Text.Json;
-using Xunit;
+using NUnit.Framework;
 
 namespace ProjectAegis.MissionEditor.Cli.Tests;
 
@@ -8,6 +8,7 @@ namespace ProjectAegis.MissionEditor.Cli.Tests;
 /// <see cref="GauntletOracleEvalCommand.Run"/> which calls
 /// <c>GauntletOracleEvaluator.EvaluateFromPolicyAndCsv</c>.
 /// </summary>
+[TestFixture]
 public sealed class GauntletOracleEvalCommandTests
 {
     private const string PassPolicy = """
@@ -35,7 +36,7 @@ public sealed class GauntletOracleEvalCommandTests
         other-scenario,1,BLUE,0,0,0,0,fp
         """;
 
-    [Fact]
+    [Test]
     public void Pass_case_minimal_policy_and_csv_within_bounds_exit_0()
     {
         var dir = CreateTempDir();
@@ -49,23 +50,23 @@ public sealed class GauntletOracleEvalCommandTests
 
             using var writer = new StringWriter();
             var exit = GauntletOracleEvalCommand.Run(policyPath, null, csvPath, outPath, writer);
-            Assert.Equal(0, exit);
+            Assert.That(exit, Is.EqualTo(0));
 
             using var doc = JsonDocument.Parse(writer.ToString());
             var root = doc.RootElement;
-            Assert.True(root.GetProperty("ok").GetBoolean());
-            Assert.True(root.GetProperty("allPassed").GetBoolean());
+            Assert.That(root.GetProperty("ok").GetBoolean(), Is.True);
+            Assert.That(root.GetProperty("allPassed").GetBoolean(), Is.True);
 
             var scenarios = root.GetProperty("scenarios").EnumerateArray().ToArray();
-            Assert.Single(scenarios);
-            Assert.Equal("gauntlet-t1-patrol-a", scenarios[0].GetProperty("scenario").GetString());
-            Assert.True(scenarios[0].GetProperty("passed").GetBoolean());
-            Assert.Empty(scenarios[0].GetProperty("failures").EnumerateArray());
-            Assert.Equal(1, scenarios[0].GetProperty("rows").GetInt32());
+            Assert.That(scenarios, Has.Exactly(1).Items);
+            Assert.That(scenarios[0].GetProperty("scenario").GetString(), Is.EqualTo("gauntlet-t1-patrol-a"));
+            Assert.That(scenarios[0].GetProperty("passed").GetBoolean(), Is.True);
+            Assert.That(scenarios[0].GetProperty("failures").EnumerateArray(), Is.Empty);
+            Assert.That(scenarios[0].GetProperty("rows").GetInt32(), Is.EqualTo(1));
 
-            Assert.True(File.Exists(outPath));
+            Assert.That(File.Exists(outPath), Is.True);
             using var outDoc = JsonDocument.Parse(File.ReadAllText(outPath));
-            Assert.True(outDoc.RootElement.GetProperty("allPassed").GetBoolean());
+            Assert.That(outDoc.RootElement.GetProperty("allPassed").GetBoolean(), Is.True);
         }
         finally
         {
@@ -73,7 +74,7 @@ public sealed class GauntletOracleEvalCommandTests
         }
     }
 
-    [Fact]
+    [Test]
     public void Fail_case_missing_expect_exit_1()
     {
         var dir = CreateTempDir();
@@ -86,17 +87,15 @@ public sealed class GauntletOracleEvalCommandTests
 
             using var writer = new StringWriter();
             var exit = GauntletOracleEvalCommand.Run(policyPath, null, csvPath, null, writer);
-            Assert.Equal(1, exit);
+            Assert.That(exit, Is.EqualTo(1));
 
             using var doc = JsonDocument.Parse(writer.ToString());
             var root = doc.RootElement;
-            Assert.False(root.GetProperty("ok").GetBoolean());
-            Assert.False(root.GetProperty("allPassed").GetBoolean());
+            Assert.That(root.GetProperty("ok").GetBoolean(), Is.False);
+            Assert.That(root.GetProperty("allPassed").GetBoolean(), Is.False);
             var scenario = root.GetProperty("scenarios")[0];
-            Assert.False(scenario.GetProperty("passed").GetBoolean());
-            Assert.Contains(
-                scenario.GetProperty("failures").EnumerateArray().Select(e => e.GetString() ?? ""),
-                f => f.Contains("missing gauntlet.expect", StringComparison.Ordinal));
+            Assert.That(scenario.GetProperty("passed").GetBoolean(), Is.False);
+            Assert.That(scenario.GetProperty("failures").EnumerateArray().Select(e => e.GetString() ?? "").Any(f => f.Contains("missing gauntlet.expect", StringComparison.Ordinal)), Is.True);
         }
         finally
         {
@@ -104,7 +103,7 @@ public sealed class GauntletOracleEvalCommandTests
         }
     }
 
-    [Fact]
+    [Test]
     public void Fail_case_missiles_out_of_bounds_exit_1()
     {
         var dir = CreateTempDir();
@@ -124,15 +123,15 @@ public sealed class GauntletOracleEvalCommandTests
 
             using var writer = new StringWriter();
             var exit = GauntletOracleEvalCommand.Run(policyPath, null, csvPath, null, writer);
-            Assert.Equal(1, exit);
+            Assert.That(exit, Is.EqualTo(1));
 
             using var doc = JsonDocument.Parse(writer.ToString());
-            Assert.False(doc.RootElement.GetProperty("allPassed").GetBoolean());
+            Assert.That(doc.RootElement.GetProperty("allPassed").GetBoolean(), Is.False);
             var failures = doc.RootElement.GetProperty("scenarios")[0]
                 .GetProperty("failures").EnumerateArray()
                 .Select(e => e.GetString() ?? "")
                 .ToArray();
-            Assert.Contains(failures, f => f.Contains("missilesFired", StringComparison.Ordinal));
+            Assert.That(failures.Any(f => f.Contains("missilesFired", StringComparison.Ordinal)), Is.True);
         }
         finally
         {
@@ -140,7 +139,7 @@ public sealed class GauntletOracleEvalCommandTests
         }
     }
 
-    [Fact]
+    [Test]
     public void Policy_dir_aggregates_each_policy_json()
     {
         var dir = CreateTempDir();
@@ -167,15 +166,15 @@ public sealed class GauntletOracleEvalCommandTests
 
             using var writer = new StringWriter();
             var exit = GauntletOracleEvalCommand.Run(null, dir, csvPath, null, writer);
-            Assert.Equal(0, exit);
+            Assert.That(exit, Is.EqualTo(0));
 
             using var doc = JsonDocument.Parse(writer.ToString());
-            Assert.True(doc.RootElement.GetProperty("allPassed").GetBoolean());
+            Assert.That(doc.RootElement.GetProperty("allPassed").GetBoolean(), Is.True);
             var scenarios = doc.RootElement.GetProperty("scenarios").EnumerateArray()
                 .Select(s => s.GetProperty("scenario").GetString() ?? string.Empty)
                 .OrderBy(s => s, StringComparer.Ordinal)
                 .ToArray();
-            Assert.Equal(new[] { "gauntlet-t1-patrol-a", "other-scenario" }, scenarios);
+            Assert.That(scenarios, Is.EqualTo(new[] { "gauntlet-t1-patrol-a", "other-scenario" }));
         }
         finally
         {
@@ -183,16 +182,16 @@ public sealed class GauntletOracleEvalCommandTests
         }
     }
 
-    [Fact]
+    [Test]
     public void Help_text_is_registered()
     {
         using var writer = new StringWriter();
         GauntletOracleEvalCommand.PrintHelp(writer);
         var help = writer.ToString();
-        Assert.Contains("gauntlet_oracle_eval", help, StringComparison.Ordinal);
-        Assert.Contains("--policy", help, StringComparison.Ordinal);
-        Assert.Contains("--policy-dir", help, StringComparison.Ordinal);
-        Assert.Contains("--csv", help, StringComparison.Ordinal);
+        Assert.That(help, Does.Contain("gauntlet_oracle_eval"));
+        Assert.That(help, Does.Contain("--policy"));
+        Assert.That(help, Does.Contain("--policy-dir"));
+        Assert.That(help, Does.Contain("--csv"));
     }
 
     private static string CreateTempDir()
