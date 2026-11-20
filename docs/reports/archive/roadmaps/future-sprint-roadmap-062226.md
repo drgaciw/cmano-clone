@@ -112,7 +112,7 @@ Unchanged from S49+ program:
 - **E1 Quality:** Playtest AAR doc sweep, proxy filter hold; **21/21 tracker program exit.**
 
 **Carried forward into Baltic v2 (not blockers for S57 dispatch):**
-- **AAR Topic 1 code fix** — re-engagement on destroyed targets ([`game-players-report-0620206.md`](../../../../game-players-report-0620206.md)); S56 was doc-only stubs → **S57 lead**.
+- **AAR Topic 1 code fix** — re-engagement on destroyed targets ([`game-players-report-0620206.md`](../../game-players-report-0620206.md)); S56 was doc-only stubs → **S57 lead**.
 - **Partial row depth** — many rows Partial+ with Baltic ACs; v2 focuses on **player-facing content** not full Req 01–21 re-litigation.
 - **Human playtest cadence** — headless proxy strong; live NPE/human corpus thin → **S63 playtest loop**.
 - **E7 commercial** — store/i18n production remains out of scope unless new decision.
@@ -198,7 +198,7 @@ User decision **2026-06-22:** next train optimizes for **Baltic v2** — expande
 
 | Theme | Sprint | Notes |
 |-------|--------|-------|
-| AAR code fixes | S57 | [`game-players-report-0620206.md`](../../../../game-players-report-0620206.md) Topic 1 — `PatrolCandidateEngagePolicy` |
+| AAR code fixes | S57 | [`game-players-report-0620206.md`](../../game-players-report-0620206.md) Topic 1 — `PatrolCandidateEngagePolicy` |
 | Playtest loop | S63 | Refresh [`fun-hypothesis-validation-2026-06-19.md`](../../../../production/playtests/fun-hypothesis-validation-2026-06-19.md) |
 
 ### E5 — Data (S61 support)
@@ -490,7 +490,7 @@ Every S57+ sprint **fails** if any invariant regresses:
 | S56 internal gate | [`production/gate-checks/s56-internal-engineering-gate-2026-06-21.md`](../../../../production/gate-checks/s56-internal-engineering-gate-2026-06-21.md) |
 | Post-release boundary (archived S49–S56) | [`production/post-release-scope-boundary-2026-06-21.md`](../../../../production/post-release-scope-boundary-2026-06-21.md) |
 | Implementation tracker | [`Game-Requirements/implementation-tracker-2026-06-04.md`](../../../../Game-Requirements/implementation-tracker-2026-06-04.md) |
-| Playtest AAR input | [`game-players-report-0620206.md`](../../../../game-players-report-0620206.md) |
+| Playtest AAR input | [`game-players-report-0620206.md`](../../game-players-report-0620206.md) |
 | Difficulty bands | [`design/difficulty-curve.md`](../../../../design/difficulty-curve.md) |
 | Fun hypothesis validation | [`production/playtests/fun-hypothesis-validation-2026-06-19.md`](../../../../production/playtests/fun-hypothesis-validation-2026-06-19.md) |
 

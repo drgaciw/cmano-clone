@@ -155,7 +155,7 @@ Per `CLAUDE.md` + observed gates — a sprint **fails** if any regress:
 
 ## 9. S42–S48 decomposition (Track B → sprint mapping)
 
-> **Status:** Scope-expansion decision **APPROVED** (2026-06-20): [`production/gate-checks/scope-expansion-decision-2026-06-20.md`](../../../production/gate-checks/scope-expansion-decision-2026-06-20.md). **S42 blocked until S41 closeout** (S40 in progress). Track B boundary: [`production/release-enablement-scope-boundary-2026-06-20.md`](../../../production/release-enablement-scope-boundary-2026-06-20.md). **Agent execution plan (S40–S48):** [`s40-s48-local-cloud-agent-execution-plan-2026-06-20.md`](../../s40-s48-local-cloud-agent-execution-plan-2026-06-20.md).
+> **Status:** Scope-expansion decision **APPROVED** (2026-06-20): [`production/gate-checks/scope-expansion-decision-2026-06-20.md`](../../../../production/gate-checks/scope-expansion-decision-2026-06-20.md). **S42 blocked until S41 closeout** (S40 in progress). Track B boundary: [`production/release-enablement-scope-boundary-2026-06-20.md`](../../../../production/release-enablement-scope-boundary-2026-06-20.md). **Agent execution plan (S40–S48):** [`s40-s48-local-cloud-agent-execution-plan-2026-06-20.md`](../../s40-s48-local-cloud-agent-execution-plan-2026-06-20.md).
 
 | Sprint | Track B epic(s) | Primary goal | Sprint plan | Parallel kickoff | Est. calendar | Dispatch status |
 |--------|-----------------|--------------|-------------|------------------|---------------|-----------------|
