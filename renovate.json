@@ -65,11 +65,21 @@
       "matchManagers": [
         "nuget"
       ],
-      "matchPackagePatterns": [
-        "^Microsoft\\.Extensions\\.AI"
+      "matchPackageNames": [
+        "/^Microsoft\\.Extensions\\.AI/"
       ],
       "groupName": "microsoft-extensions-ai reviewed",
       "groupSlug": "microsoft-extensions-ai-reviewed",
+      "automerge": false,
+      "dependencyDashboardApproval": true
+    },
+    {
+      "description": "Hold xUnit during NUnit 5 migration (DRG-777); remove after last xUnit project migrates",
+      "matchPackageNames": [
+        "/^xunit/"
+      ],
+      "groupName": "xunit (legacy, NUnit 5 migration)",
+      "groupSlug": "xunit-legacy",
       "automerge": false,
       "dependencyDashboardApproval": true
     }
