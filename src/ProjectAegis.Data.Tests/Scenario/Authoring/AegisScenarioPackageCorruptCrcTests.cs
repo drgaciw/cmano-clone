@@ -1,7 +1,7 @@
 using System.IO.Compression;
 using System.Text;
 using ProjectAegis.Data.Scenario.Authoring;
-using Xunit;
+using NUnit.Framework;
 
 namespace ProjectAegis.Data.Tests.Scenario.Authoring;
 
@@ -15,6 +15,7 @@ namespace ProjectAegis.Data.Tests.Scenario.Authoring;
 /// a different exception type). On runtime 11+ the failure is mandatory.
 /// </para>
 /// </summary>
+[FixtureLifeCycle(LifeCycle.InstancePerTestCase)]
 public sealed class AegisScenarioPackageCorruptCrcTests : IDisposable
 {
     private const string OriginalTitle = "CrcFixtureTitle";
@@ -63,7 +64,7 @@ public sealed class AegisScenarioPackageCorruptCrcTests : IDisposable
             var bytes = File.ReadAllBytes(path);
             var needle = Encoding.UTF8.GetBytes(OriginalTitle);
             var index = bytes.AsSpan().IndexOf(needle);
-            Assert.True(index >= 0, "stored scenario.json payload must contain the title bytes");
+            Assert.That(index >= 0, Is.True, "stored scenario.json payload must contain the title bytes");
             // Same-length swap keeps the JSON valid and the ZIP structure intact; only the CRC32 is now wrong.
             var replacement = Encoding.UTF8.GetBytes(CorruptedTitle);
             replacement.CopyTo(bytes, index);
@@ -97,34 +98,34 @@ public sealed class AegisScenarioPackageCorruptCrcTests : IDisposable
         }
     }
 
-    [Fact]
+    [Test]
     public async Task Control_uncorrupted_stored_package_reads_on_sync_and_async_paths()
     {
         var path = BuildPackage("control.aegis-scenario", corruptScenarioPayload: false);
 
-        Assert.Equal(OriginalTitle, AegisScenarioPackage.Read(path).Metadata.Title);
-        Assert.Equal(OriginalTitle, (await AegisScenarioPackage.ReadAsync(path)).Metadata.Title);
-        Assert.Equal(ManifestTitle, AegisScenarioPackage.ReadManifest(path).Title);
+        Assert.That(AegisScenarioPackage.Read(path).Metadata.Title, Is.EqualTo(OriginalTitle));
+        Assert.That((await AegisScenarioPackage.ReadAsync(path)).Metadata.Title, Is.EqualTo(OriginalTitle));
+        Assert.That(AegisScenarioPackage.ReadManifest(path).Title, Is.EqualTo(ManifestTitle));
     }
 
-    [Fact]
+    [Test]
     public void Fixture_has_stale_crc_with_still_valid_zip_structure()
     {
         var path = BuildPackage("fixture.aegis-scenario", corruptScenarioPayload: true);
 
         using var archive = ZipFile.OpenRead(path);
         var entry = archive.GetEntry(AegisScenarioPackage.ScenarioEntryName);
-        Assert.NotNull(entry);
-        Assert.Equal(entry.Length, entry.CompressedLength);
+        Assert.That(entry, Is.Not.Null);
+        Assert.That(entry!.CompressedLength, Is.EqualTo(entry.Length));
 
         // Raw payload bytes (bypassing entry.Open) must carry the corrupted title while the header CRC is unchanged.
         var raw = File.ReadAllBytes(path);
-        Assert.True(raw.AsSpan().IndexOf(Encoding.UTF8.GetBytes(CorruptedTitle)) >= 0);
-        Assert.True(raw.AsSpan().IndexOf(Encoding.UTF8.GetBytes(OriginalTitle)) < 0);
-        Assert.NotEqual(0u, entry.Crc32);
+        Assert.That(raw.AsSpan().IndexOf(Encoding.UTF8.GetBytes(CorruptedTitle)) >= 0, Is.True);
+        Assert.That(raw.AsSpan().IndexOf(Encoding.UTF8.GetBytes(OriginalTitle)) < 0, Is.True);
+        Assert.That(entry.Crc32, Is.Not.EqualTo(0u));
     }
 
-    [Fact]
+    [Test]
     public async Task Corrupt_crc_scenario_entry_is_reported_cleanly_and_identically_on_sync_and_async_read()
     {
         var path = BuildPackage("corrupt-scenario.aegis-scenario", corruptScenarioPayload: true);
@@ -132,30 +133,28 @@ public sealed class AegisScenarioPackageCorruptCrcTests : IDisposable
         var sync = CaptureSync(() => AegisScenarioPackage.Read(path));
         var async = await CaptureAsync(() => AegisScenarioPackage.ReadAsync(path));
 
-        Assert.Equal(sync, async);
+        Assert.That(async, Is.EqualTo(sync));
         AssertCleanOutcome(sync);
     }
 
-    [Fact]
+    [Test]
     public async Task Corrupt_crc_in_scenario_entry_does_not_affect_manifest_read_on_either_path()
     {
         var path = BuildPackage("corrupt-manifest-isolated.aegis-scenario", corruptScenarioPayload: true);
 
-        Assert.Equal(ManifestTitle, AegisScenarioPackage.ReadManifest(path).Title);
-        Assert.Equal(ManifestTitle, (await AegisScenarioPackage.ReadManifestAsync(path)).Title);
+        Assert.That(AegisScenarioPackage.ReadManifest(path).Title, Is.EqualTo(ManifestTitle));
+        Assert.That((await AegisScenarioPackage.ReadManifestAsync(path)).Title, Is.EqualTo(ManifestTitle));
     }
 
     private static void AssertCleanOutcome((string? Title, Type? Failure) outcome)
     {
         if (outcome.Failure is not null)
         {
-            Assert.Equal(typeof(InvalidDataException), outcome.Failure);
+            Assert.That(outcome.Failure, Is.EqualTo(typeof(InvalidDataException)));
             return;
         }
 
-        Assert.False(
-            RuntimeVerifiesZipCrc,
-            "runtime 11+ verifies ZIP CRC32 and must reject the corrupted entry with InvalidDataException");
-        Assert.Equal(CorruptedTitle, outcome.Title);
+        Assert.That(            RuntimeVerifiesZipCrc, Is.False,             "runtime 11+ verifies ZIP CRC32 and must reject the corrupted entry with InvalidDataException");
+        Assert.That(outcome.Title, Is.EqualTo(CorruptedTitle));
     }
 }

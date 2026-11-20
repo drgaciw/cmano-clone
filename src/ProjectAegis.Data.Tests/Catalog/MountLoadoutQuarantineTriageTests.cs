@@ -3,15 +3,15 @@ using Microsoft.Data.Sqlite;
 using ProjectAegis.Data.Catalog;
 using ProjectAegis.Data.Import;
 using ProjectAegis.Data.WriteGate;
-using Xunit;
+using NUnit.Framework;
 
 namespace ProjectAegis.Data.Tests.Catalog;
 
 /// <summary>S32-03 mount/loadout quarantine triage + bounded FK repair envelope.</summary>
-[Collection("CatalogSqlite")]
+[Runner.CatalogSqliteCollection]
 public sealed class MountLoadoutQuarantineTriageTests
 {
-    [Fact]
+    [Test]
     public void Audit_identifies_pending_mount_loadout_child_rows_by_domain()
     {
         var dbPath = Path.Combine(Path.GetTempPath(), $"aegis-s32-triage-audit-{Guid.NewGuid():N}.db");
@@ -21,12 +21,12 @@ public sealed class MountLoadoutQuarantineTriageTests
 
             var result = MountLoadoutQuarantineTriage.Run(dbPath, dryRun: true, entityHint: "platform");
 
-            var before = Assert.Single(result.Before);
-            Assert.Equal(MountLoadoutQuarantineDomain.Platform, before.Domain);
-            Assert.Equal(1, before.MountQuarantined);
-            Assert.Equal(1, before.LoadoutQuarantined);
-            Assert.Equal(2, before.Repairable);
-            Assert.Equal(0, before.OutOfEnvelope);
+            var before = AssertEx.Single(result.Before);
+            Assert.That(before.Domain, Is.EqualTo(MountLoadoutQuarantineDomain.Platform));
+            Assert.That(before.MountQuarantined, Is.EqualTo(1));
+            Assert.That(before.LoadoutQuarantined, Is.EqualTo(1));
+            Assert.That(before.Repairable, Is.EqualTo(2));
+            Assert.That(before.OutOfEnvelope, Is.EqualTo(0));
         }
         finally
         {
@@ -34,7 +34,7 @@ public sealed class MountLoadoutQuarantineTriageTests
         }
     }
 
-    [Fact]
+    [Test]
     public void Apply_repairs_in_envelope_rows_via_WriteGate_only()
     {
         var dbPath = Path.Combine(Path.GetTempPath(), $"aegis-s32-triage-repair-{Guid.NewGuid():N}.db");
@@ -43,8 +43,8 @@ public sealed class MountLoadoutQuarantineTriageTests
             var batches = StagePlatformMountLoadout(dbPath, "u-triage-repair", approvePlatformOnly: true);
 
             var before = MountLoadoutQuarantineTriage.Audit(dbPath, entityHint: "platform");
-            Assert.Equal(1, before[0].MountQuarantined);
-            Assert.Equal(1, before[0].LoadoutQuarantined);
+            Assert.That(before[0].MountQuarantined, Is.EqualTo(1));
+            Assert.That(before[0].LoadoutQuarantined, Is.EqualTo(1));
 
             var result = MountLoadoutQuarantineTriage.Run(
                 dbPath,
@@ -52,21 +52,21 @@ public sealed class MountLoadoutQuarantineTriageTests
                 entityHint: "platform",
                 clock: new FixedCatalogClock(32041));
 
-            Assert.False(result.DryRun);
-            Assert.Equal(2, result.RepairedBatchIds.Count);
-            Assert.Contains(batches.MountBatchId, result.RepairedBatchIds);
-            Assert.Contains(batches.LoadoutBatchId, result.RepairedBatchIds);
+            Assert.That(result.DryRun, Is.False);
+            Assert.That(result.RepairedBatchIds.Count, Is.EqualTo(2));
+            Assert.That(result.RepairedBatchIds, Does.Contain(batches.MountBatchId));
+            Assert.That(result.RepairedBatchIds, Does.Contain(batches.LoadoutBatchId));
 
-            var after = Assert.Single(result.After);
-            Assert.Equal(0, after.MountQuarantined);
-            Assert.Equal(0, after.LoadoutQuarantined);
+            var after = AssertEx.Single(result.After);
+            Assert.That(after.MountQuarantined, Is.EqualTo(0));
+            Assert.That(after.LoadoutQuarantined, Is.EqualTo(0));
 
             using var connection = new SqliteConnection($"Data Source={dbPath};Pooling=false");
             connection.Open();
-            Assert.Equal(1, CountRows(connection, "platform_mount", "platform_id = 'u-triage-repair'"));
-            Assert.Equal(1, CountRows(connection, "platform_loadout", "platform_id = 'u-triage-repair'"));
-            Assert.Equal(0, CountProposedStagingRows(connection, "catalog_staging_mount"));
-            Assert.Equal(0, CountProposedStagingRows(connection, "catalog_staging_loadout"));
+            Assert.That(CountRows(connection, "platform_mount", "platform_id = 'u-triage-repair'"), Is.EqualTo(1));
+            Assert.That(CountRows(connection, "platform_loadout", "platform_id = 'u-triage-repair'"), Is.EqualTo(1));
+            Assert.That(CountProposedStagingRows(connection, "catalog_staging_mount"), Is.EqualTo(0));
+            Assert.That(CountProposedStagingRows(connection, "catalog_staging_loadout"), Is.EqualTo(0));
         }
         finally
         {
@@ -74,7 +74,7 @@ public sealed class MountLoadoutQuarantineTriageTests
         }
     }
 
-    [Fact]
+    [Test]
     public void Orphan_mount_rows_remain_quarantined_out_of_envelope()
     {
         var dbPath = Path.Combine(Path.GetTempPath(), $"aegis-s32-triage-orphan-{Guid.NewGuid():N}.db");
@@ -86,22 +86,22 @@ public sealed class MountLoadoutQuarantineTriageTests
                     [new CatalogMount("missing-platform", "mount-orphan")],
                     "agent",
                     "orphan-test");
-                Assert.False(gate.ApproveBatch(mountBatch, "human", "qa").Committed);
+                Assert.That(gate.ApproveBatch(mountBatch, "human", "qa").Committed, Is.False);
             }
 
             var result = MountLoadoutQuarantineTriage.Run(dbPath, dryRun: true, entityHint: "platform");
-            var row = Assert.Single(result.RemainingQuarantine);
-            Assert.Equal("mount", row.ChildKind);
-            Assert.Equal(MountLoadoutQuarantineRepairEnvelope.ReasonOrphanPlatform, row.Reason);
-            Assert.Null(row.RepairRule);
+            var row = AssertEx.Single(result.RemainingQuarantine);
+            Assert.That(row.ChildKind, Is.EqualTo("mount"));
+            Assert.That(row.Reason, Is.EqualTo(MountLoadoutQuarantineRepairEnvelope.ReasonOrphanPlatform));
+            Assert.That(row.RepairRule, Is.Null);
 
             var applied = MountLoadoutQuarantineTriage.Run(
                 dbPath,
                 dryRun: false,
                 entityHint: "platform",
                 clock: new FixedCatalogClock(32052));
-            Assert.Empty(applied.RepairedBatchIds);
-            Assert.Equal(1, applied.After[0].OutOfEnvelope);
+            Assert.That(applied.RepairedBatchIds, Is.Empty);
+            Assert.That(applied.After[0].OutOfEnvelope, Is.EqualTo(1));
         }
         finally
         {
@@ -109,7 +109,7 @@ public sealed class MountLoadoutQuarantineTriageTests
         }
     }
 
-    [Fact]
+    [Test]
     public void ApproveBatch_rejects_orphan_platform_mount_and_loadout_DBI_3_2()
     {
         var dbPath = Path.Combine(Path.GetTempPath(), $"aegis-s32-orphan-fk-{Guid.NewGuid():N}.db");
@@ -121,26 +121,24 @@ public sealed class MountLoadoutQuarantineTriageTests
                 "agent",
                 "fk-test");
             var mountDecision = gate.ApproveBatch(mountBatch, "human", "qa");
-            Assert.False(mountDecision.Committed);
-            Assert.Contains(mountDecision.Errors, e => e.Contains("orphan_platform:missing-platform", StringComparison.Ordinal));
+            Assert.That(mountDecision.Committed, Is.False);
+            Assert.That(mountDecision.Errors.Any(e => e.Contains("orphan_platform:missing-platform", StringComparison.Ordinal)), Is.True);
 
             var loadoutBatch = gate.ProposeLoadoutBatch(
                 [new CatalogLoadout("missing-platform", "loadout-1", LoadoutName: "Orphan")],
                 "agent",
                 "fk-test");
             var loadoutDecision = gate.ApproveBatch(loadoutBatch, "human", "qa");
-            Assert.False(loadoutDecision.Committed);
-            Assert.Contains(loadoutDecision.Errors, e => e.Contains("orphan_platform:missing-platform", StringComparison.Ordinal));
+            Assert.That(loadoutDecision.Committed, Is.False);
+            Assert.That(loadoutDecision.Errors.Any(e => e.Contains("orphan_platform:missing-platform", StringComparison.Ordinal)), Is.True);
         }
         finally
         {
             Cleanup(dbPath);
         }
     }
-
-    [Theory]
-    [InlineData("submarine")]
-    [InlineData("facility")]
+    [TestCase("submarine")]
+    [TestCase("facility")]
     public void Curated_slice_fixture_triage_reports_zero_pending_child_rows_after_full_approve(string domain)
     {
         var markdown = domain switch
@@ -164,15 +162,15 @@ public sealed class MountLoadoutQuarantineTriageTests
             {
                 foreach (var batch in proposed.Batches)
                 {
-                    Assert.True(gate.ApproveBatch(batch.BatchId, "human", $"s32-triage-{domain}").Committed);
+                    Assert.That(gate.ApproveBatch(batch.BatchId, "human", $"s32-triage-{domain}").Committed, Is.True);
                 }
             }
 
             var result = MountLoadoutQuarantineTriage.Run(dbPath, dryRun: true, entityHint: domain);
-            var counts = Assert.Single(result.Before);
-            Assert.Equal(domain, counts.Domain);
-            Assert.Equal(0, counts.MountQuarantined);
-            Assert.Equal(0, counts.LoadoutQuarantined);
+            var counts = AssertEx.Single(result.Before);
+            Assert.That(counts.Domain, Is.EqualTo(domain));
+            Assert.That(counts.MountQuarantined, Is.EqualTo(0));
+            Assert.That(counts.LoadoutQuarantined, Is.EqualTo(0));
         }
         finally
         {
@@ -180,16 +178,14 @@ public sealed class MountLoadoutQuarantineTriageTests
         }
     }
 
-    [Fact]
+    [Test]
     public void Repair_envelope_documents_bounded_rules_only()
     {
-        Assert.Equal(
-            [
+        Assert.That(            MountLoadoutQuarantineRepairEnvelope.RepairRules, Is.EqualTo(            [
                 MountLoadoutQuarantineRepairEnvelope.RuleLivePlatformFk,
                 MountLoadoutQuarantineRepairEnvelope.RuleStagingPlatformFk,
                 MountLoadoutQuarantineRepairEnvelope.RuleBalticSeedFk,
-            ],
-            MountLoadoutQuarantineRepairEnvelope.RepairRules);
+            ]));
     }
 
     private static (string PlatformBatchId, string MountBatchId, string LoadoutBatchId) StagePlatformMountLoadout(
@@ -213,7 +209,7 @@ public sealed class MountLoadoutQuarantineTriageTests
 
         if (approvePlatformOnly)
         {
-            Assert.True(gate.ApproveBatch(platformBatch, "human", "qa").Committed);
+            Assert.That(gate.ApproveBatch(platformBatch, "human", "qa").Committed, Is.True);
         }
 
         return (platformBatch, mountBatch, loadoutBatch);

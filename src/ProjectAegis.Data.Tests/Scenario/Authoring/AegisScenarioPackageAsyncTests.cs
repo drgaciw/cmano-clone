@@ -1,9 +1,10 @@
 using ProjectAegis.Data.Scenario.Authoring;
-using Xunit;
+using NUnit.Framework;
 
 namespace ProjectAegis.Data.Tests.Scenario.Authoring;
 
 /// <summary>DRG-695: async ZIP read/write parity with the sync AegisScenarioPackage API.</summary>
+[FixtureLifeCycle(LifeCycle.InstancePerTestCase)]
 public sealed class AegisScenarioPackageAsyncTests : IDisposable
 {
     private readonly string _dir = Path.Combine(Path.GetTempPath(), "aegis-pkg-async-" + Guid.NewGuid().ToString("N"));
@@ -18,39 +19,39 @@ public sealed class AegisScenarioPackageAsyncTests : IDisposable
 
     private static ScenarioDocumentDto Doc() => new() { Metadata = new ScenarioMetadataDto { Title = "Async Test" } };
 
-    [Fact]
+    [Test]
     public async Task WriteAsync_then_ReadAsync_round_trips()
     {
         var path = Path.Combine(_dir, "a.aegis-scenario");
         await AegisScenarioPackage.WriteAsync(path, Doc());
         var doc = await AegisScenarioPackage.ReadAsync(path);
         var manifest = await AegisScenarioPackage.ReadManifestAsync(path);
-        Assert.Equal("Async Test", doc.Metadata.Title);
-        Assert.Equal("Async Test", manifest.Title);
-        Assert.Equal(1, manifest.PackageVersion);
+        Assert.That(doc.Metadata.Title, Is.EqualTo("Async Test"));
+        Assert.That(manifest.Title, Is.EqualTo("Async Test"));
+        Assert.That(manifest.PackageVersion, Is.EqualTo(1));
     }
 
-    [Fact]
+    [Test]
     public async Task Async_and_sync_paths_are_interchangeable()
     {
         var asyncPath = Path.Combine(_dir, "async.aegis-scenario");
         var syncPath = Path.Combine(_dir, "sync.aegis-scenario");
         await AegisScenarioPackage.WriteAsync(asyncPath, Doc(), title: "T");
         AegisScenarioPackage.Write(syncPath, Doc(), title: "T");
-        Assert.Equal("Async Test", AegisScenarioPackage.Read(asyncPath).Metadata.Title);
-        Assert.Equal("T", (await AegisScenarioPackage.ReadManifestAsync(syncPath)).Title);
+        Assert.That(AegisScenarioPackage.Read(asyncPath).Metadata.Title, Is.EqualTo("Async Test"));
+        Assert.That((await AegisScenarioPackage.ReadManifestAsync(syncPath)).Title, Is.EqualTo("T"));
     }
 
-    [Fact]
+    [Test]
     public async Task WriteAsync_overwrites_existing_package()
     {
         var path = Path.Combine(_dir, "o.aegis-scenario");
         await AegisScenarioPackage.WriteAsync(path, Doc(), title: "first");
         await AegisScenarioPackage.WriteAsync(path, Doc(), title: "second");
-        Assert.Equal("second", (await AegisScenarioPackage.ReadManifestAsync(path)).Title);
+        Assert.That((await AegisScenarioPackage.ReadManifestAsync(path)).Title, Is.EqualTo("second"));
     }
 
-    [Fact]
+    [Test]
     public async Task ReadAsync_missing_entry_throws_InvalidData()
     {
         Directory.CreateDirectory(_dir);
@@ -62,31 +63,31 @@ public sealed class AegisScenarioPackageAsyncTests : IDisposable
         await Assert.ThrowsAsync<InvalidDataException>(() => AegisScenarioPackage.ReadAsync(path));
     }
 
-    [Fact]
+    [Test]
     public async Task ReadAsync_honors_cancellation()
     {
         var path = Path.Combine(_dir, "c.aegis-scenario");
         await AegisScenarioPackage.WriteAsync(path, Doc());
         using var cts = new CancellationTokenSource();
         await cts.CancelAsync();
-        await Assert.ThrowsAnyAsync<OperationCanceledException>(() => AegisScenarioPackage.ReadAsync(path, cts.Token));
+        await Assert.CatchAsync<OperationCanceledException>(() => AegisScenarioPackage.ReadAsync(path, cts.Token));
     }
 
-    [Fact]
+    [Test]
     public async Task WriteAsync_cancelled_before_start_preserves_existing_package()
     {
         var path = Path.Combine(_dir, "cancelled.aegis-scenario");
         await AegisScenarioPackage.WriteAsync(path, Doc(), title: "original");
         var original = await File.ReadAllBytesAsync(path);
 
-        await Assert.ThrowsAnyAsync<OperationCanceledException>(() =>
+        await Assert.CatchAsync<OperationCanceledException>(() =>
             AegisScenarioPackage.WriteAsync(path, Doc(), cancellationToken: new CancellationToken(canceled: true)));
 
-        Assert.Equal(original, await File.ReadAllBytesAsync(path));
-        Assert.Single(Directory.GetFiles(_dir));
+        Assert.That(await File.ReadAllBytesAsync(path), Is.EqualTo(original));
+        Assert.That(Directory.GetFiles(_dir), Has.Exactly(1).Items);
     }
 
-    [Fact]
+    [Test]
     public async Task WriteAsync_serialization_failure_preserves_existing_package_and_removes_temporary_file()
     {
         var path = Path.Combine(_dir, "invalid.aegis-scenario");
@@ -101,9 +102,9 @@ public sealed class AegisScenarioPackageAsyncTests : IDisposable
             },
         };
 
-        await Assert.ThrowsAnyAsync<System.Text.Json.JsonException>(() => AegisScenarioPackage.WriteAsync(path, invalidDocument));
+        await Assert.CatchAsync<System.Text.Json.JsonException>(() => AegisScenarioPackage.WriteAsync(path, invalidDocument));
 
-        Assert.Equal(original, await File.ReadAllBytesAsync(path));
-        Assert.Single(Directory.GetFiles(_dir));
+        Assert.That(await File.ReadAllBytesAsync(path), Is.EqualTo(original));
+        Assert.That(Directory.GetFiles(_dir), Has.Exactly(1).Items);
     }
 }

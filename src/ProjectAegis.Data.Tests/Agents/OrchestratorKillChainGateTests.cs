@@ -4,25 +4,23 @@ using ProjectAegis.Data.Catalog;
 using ProjectAegis.Data.Platform;
 using ProjectAegis.Data.Validation;
 using ProjectAegis.Data.WriteGate;
-using Xunit;
+using NUnit.Framework;
 
 namespace ProjectAegis.Data.Tests.Agents;
 
-[Collection("CatalogSqlite")]
+[Runner.CatalogSqliteCollection]
 public sealed class OrchestratorKillChainGateTests
 {
-    [Fact]
+    [Test]
     public void DatabaseIntelligence_pipeline_agent_order_matches_documented_sequence()
     {
         var orchestrator = new DatabaseIntelligenceOrchestrator();
         var result = orchestrator.Run(InMemoryCatalogReader.BalticPatrolFixture());
 
-        Assert.Equal(
-            DatabaseIntelligenceOrchestrator.PipelineAgentOrder,
-            result.Reports.Select(r => r.AgentId).ToArray());
+        Assert.That(            result.Reports.Select(r => r.AgentId).ToArray(), Is.EqualTo(            DatabaseIntelligenceOrchestrator.PipelineAgentOrder));
     }
 
-    [Fact]
+    [Test]
     public void ApproveBatch_mount_batch_blocked_when_kill_chain_errors_present()
     {
         var dbPath = Path.Combine(Path.GetTempPath(), $"aegis-kill-chain-gate-mount-{Guid.NewGuid():N}.db");
@@ -38,8 +36,8 @@ public sealed class OrchestratorKillChainGateTests
                 "kill-chain-gate-test");
 
             var decision = gate.ApproveBatch(batchId, "human", "qa-reviewer");
-            Assert.False(decision.Committed);
-            Assert.Contains(decision.Errors, r => r.StartsWith("kill_chain:", StringComparison.Ordinal));
+            Assert.That(decision.Committed, Is.False);
+            Assert.That(decision.Errors.Any(r => r.StartsWith("kill_chain:", StringComparison.Ordinal)), Is.True);
         }
         finally
         {
@@ -47,7 +45,7 @@ public sealed class OrchestratorKillChainGateTests
         }
     }
 
-    [Fact]
+    [Test]
     public void ApproveBatch_weapon_batch_blocked_when_kill_chain_errors_present()
     {
         var dbPath = Path.Combine(Path.GetTempPath(), $"aegis-kill-chain-gate-weapon-{Guid.NewGuid():N}.db");
@@ -68,8 +66,8 @@ public sealed class OrchestratorKillChainGateTests
                 "kill-chain-gate-test");
 
             var decision = gate.ApproveBatch(batchId, "human", "qa-reviewer");
-            Assert.False(decision.Committed);
-            Assert.Contains(decision.Errors, r => r.StartsWith("kill_chain:", StringComparison.Ordinal));
+            Assert.That(decision.Committed, Is.False);
+            Assert.That(decision.Errors.Any(r => r.StartsWith("kill_chain:", StringComparison.Ordinal)), Is.True);
         }
         finally
         {
@@ -77,7 +75,7 @@ public sealed class OrchestratorKillChainGateTests
         }
     }
 
-    [Fact]
+    [Test]
     public void Sim_export_slice_excludes_quarantined_sensor_bindings()
     {
         var reader = new InMemoryCatalogReader(
@@ -98,12 +96,12 @@ public sealed class OrchestratorKillChainGateTests
 
         var filtered = CatalogTlExportFilter.Apply(export, CatalogTlTier.Tl0);
 
-        Assert.DoesNotContain(filtered.Sensors, s => s.SensorId == "radar-quarantine");
-        Assert.Contains(filtered.Sensors, s => s.SensorId == "radar-1");
-        Assert.DoesNotContain(reader.GetSortedDependencyEdges(), e => e.SensorId == "radar-quarantine");
+        Assert.That(filtered.Sensors.Any(s => s.SensorId == "radar-quarantine"), Is.False);
+        Assert.That(filtered.Sensors.Any(s => s.SensorId == "radar-1"), Is.True);
+        Assert.That(reader.GetSortedDependencyEdges().Any(e => e.SensorId == "radar-quarantine"), Is.False);
     }
 
-    [Fact]
+    [Test]
     public void KillChainCommitGate_surfaces_distinct_blocking_codes()
     {
         var reader = new InMemoryCatalogReader(
@@ -118,8 +116,11 @@ public sealed class OrchestratorKillChainGateTests
             ]);
 
         var reasons = KillChainCommitGate.GetBlockingReasons(reader);
-        Assert.NotEmpty(reasons);
-        Assert.All(reasons, r => Assert.StartsWith("kill_chain:", r));
+        Assert.That(reasons, Is.Not.Empty);
+        foreach (var r in reasons)
+{
+Assert.That(r, Does.StartWith("kill_chain:"));
+}
     }
 
     private static void SeedHypersonicMagazineChain(string dbPath, string weaponId = CatalogWeaponIds.KillChainHypersonic)
@@ -132,19 +133,19 @@ public sealed class OrchestratorKillChainGateTests
             [new CatalogMount("u1", mountId, MountType: "vls", ReviewState: CatalogReviewStates.Approved)],
             "agent",
             "seed");
-        Assert.True(gate.ApproveBatch(mountBatch, "human", "seed").Committed);
+        Assert.That(gate.ApproveBatch(mountBatch, "human", "seed").Committed, Is.True);
 
         var mobilityBatch = gate.ProposeMobilityBatch(
             [new CatalogMobility("u1", MaxSpeedKnots: 32, RangeNm: 4200)],
             "agent",
             "seed");
-        Assert.True(gate.ApproveBatch(mobilityBatch, "human", "seed").Committed);
+        Assert.That(gate.ApproveBatch(mobilityBatch, "human", "seed").Committed, Is.True);
 
         var loadoutBatch = gate.ProposeLoadoutBatch(
             [new CatalogLoadout("u1", "kc-seed-loadout", "KC Seed", "asuw", IsDefault: false)],
             "agent",
             "seed");
-        Assert.True(gate.ApproveBatch(loadoutBatch, "human", "seed").Committed);
+        Assert.That(gate.ApproveBatch(loadoutBatch, "human", "seed").Committed, Is.True);
 
         if (!string.Equals(weaponId, CatalogWeaponIds.KillChainHypersonic, StringComparison.Ordinal))
         {
@@ -169,7 +170,7 @@ public sealed class OrchestratorKillChainGateTests
             [new CatalogMagazineEntry("u1", "kc-seed-loadout", mountId, weaponId, 4)],
             "agent",
             "seed");
-        Assert.True(gate.ApproveBatch(magazineBatch, "human", "seed").Committed);
+        Assert.That(gate.ApproveBatch(magazineBatch, "human", "seed").Committed, Is.True);
     }
 
     private static void InsertWeaponSql(string dbPath, string weaponId, double maxRangeMeters)

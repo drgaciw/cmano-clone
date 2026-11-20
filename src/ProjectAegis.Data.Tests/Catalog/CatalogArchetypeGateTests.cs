@@ -1,5 +1,5 @@
 using ProjectAegis.Data.Catalog;
-using Xunit;
+using NUnit.Framework;
 
 namespace ProjectAegis.Data.Tests.Catalog;
 
@@ -7,35 +7,35 @@ public sealed class CatalogArchetypeGateTests
 {
     private static readonly string CatalogPath = ResolveCatalogPath();
 
-    [Fact]
+    [Test]
     public void ApplyTechnologyLevelGate_keeps_tl2_archetypes_for_campaign_default()
     {
         var rows = NearFutureArchetypeCatalog.LoadFromFile(CatalogPath);
         var gated = CatalogArchetypeGate.ApplyTechnologyLevelGate(rows, scenarioMaxTechnologyLevel: 2);
-        Assert.Equal(3, gated.Length);
-        Assert.Contains(gated, a => a.ArchetypeId == "cca-wingman");
-        Assert.Contains(gated, a => a.ArchetypeId == "hypersonic-boost-glide");
-        Assert.DoesNotContain(gated, a => a.ArchetypeId == "swarm-saturation");
+        Assert.That(gated.Length, Is.EqualTo(3));
+        Assert.That(gated.Any(a => a.ArchetypeId == "cca-wingman"), Is.True);
+        Assert.That(gated.Any(a => a.ArchetypeId == "hypersonic-boost-glide"), Is.True);
+        Assert.That(gated.Any(a => a.ArchetypeId == "swarm-saturation"), Is.False);
     }
 
-    [Fact]
+    [Test]
     public void ApplySwarmTierCap_rejects_mass_tier_for_medium_cap()
     {
         var rows = NearFutureArchetypeCatalog.LoadFromFile(CatalogPath);
         var gated = CatalogArchetypeGate.ApplySwarmTierCap(rows, SwarmTier.Medium);
-        Assert.Equal(3, gated.Length);
-        Assert.DoesNotContain(gated, a => a.SwarmTier == SwarmTier.Mass);
+        Assert.That(gated.Length, Is.EqualTo(3));
+        Assert.That(gated.Any(a => a.SwarmTier == SwarmTier.Mass), Is.False);
     }
 
-    [Fact]
+    [Test]
     public void ApplyAllGates_intersects_tl_and_swarm_rules()
     {
         var rows = NearFutureArchetypeCatalog.LoadFromFile(CatalogPath);
         var gated = CatalogArchetypeGate.ApplyAllGates(rows, scenarioMaxTechnologyLevel: 2, maxSwarmTier: SwarmTier.Medium);
-        Assert.Equal(3, gated.Length);
-        Assert.Contains(gated, a => a.ArchetypeId == "cca-wingman");
-        Assert.Contains(gated, a => a.ArchetypeId == "replicator-attritable");
-        Assert.Contains(gated, a => a.ArchetypeId == "hypersonic-boost-glide");
+        Assert.That(gated.Length, Is.EqualTo(3));
+        Assert.That(gated.Any(a => a.ArchetypeId == "cca-wingman"), Is.True);
+        Assert.That(gated.Any(a => a.ArchetypeId == "replicator-attritable"), Is.True);
+        Assert.That(gated.Any(a => a.ArchetypeId == "hypersonic-boost-glide"), Is.True);
     }
 
     private static string ResolveCatalogPath()

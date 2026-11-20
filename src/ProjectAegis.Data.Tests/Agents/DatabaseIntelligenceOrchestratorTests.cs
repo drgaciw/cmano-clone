@@ -1,30 +1,28 @@
 using ProjectAegis.Data.Agents;
 using ProjectAegis.Data.Catalog;
-using Xunit;
+using NUnit.Framework;
 
 namespace ProjectAegis.Data.Tests.Agents;
 
 public sealed class DatabaseIntelligenceOrchestratorTests
 {
-    [Fact]
+    [Test]
     public void Pipeline_reports_follow_documented_agent_order()
     {
         var result = new DatabaseIntelligenceOrchestrator().Run(InMemoryCatalogReader.BalticPatrolFixture());
-        Assert.Equal(
-            DatabaseIntelligenceOrchestrator.PipelineAgentOrder,
-            result.Reports.Select(r => r.AgentId).ToArray());
+        Assert.That(            result.Reports.Select(r => r.AgentId).ToArray(), Is.EqualTo(            DatabaseIntelligenceOrchestrator.PipelineAgentOrder));
     }
 
-    [Fact]
+    [Test]
     public void Baltic_fixture_pipeline_passes_rules_agent()
     {
         var result = new DatabaseIntelligenceOrchestrator().Run(InMemoryCatalogReader.BalticPatrolFixture());
         var rules = result.Reports.First(r => r.AgentId == "rules_validation");
-        Assert.True(rules.Passed);
-        Assert.Empty(rules.Findings);
+        Assert.That(rules.Passed, Is.True);
+        Assert.That(rules.Findings, Is.Empty);
     }
 
-    [Fact]
+    [Test]
     public void Entity_resolution_flags_whitespace_platform_ids()
     {
         var bad = new InMemoryCatalogReader(
@@ -32,6 +30,6 @@ public sealed class DatabaseIntelligenceOrchestratorTests
             new CatalogSensorBinding("bad id", "radar", 0.5, ReviewState: CatalogReviewStates.Approved),
         ]);
         var entity = new CatalogEntityResolutionAgent().Run(new DatabaseAgentContext(bad));
-        Assert.Contains(entity.Findings, f => f.Code == "ENTITY_ID_ALIAS_REQUIRED");
+        Assert.That(entity.Findings.Any(f => f.Code == "ENTITY_ID_ALIAS_REQUIRED"), Is.True);
     }
 }

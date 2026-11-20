@@ -4,7 +4,7 @@ using System.Text.Json;
 using System.Text.Json.Nodes;
 using Json.Schema;
 using ProjectAegis.Data.Scenario.Authoring;
-using Xunit;
+using NUnit.Framework;
 
 /// <summary>
 /// AME-2.6 (qa-plan-scenario-editor-2026-07-01.md #15): automates, in CI, the JSON Schema
@@ -53,26 +53,22 @@ public sealed class ScenarioDocumentSchemaConformanceTests
 
     public static IEnumerable<object[]> FixtureFiles() =>
         FixtureFileNames.Select(name => new object[] { name });
-
-    [Theory]
-    [MemberData(nameof(FixtureFiles))]
+    [TestCaseSource(nameof(FixtureFiles))]
     public void Fixture_document_conforms_to_schema(string fixtureFileName)
     {
         var schema = LoadSchema();
         var fixturePath = ResolveDataPath("examples", fixtureFileName);
-        Assert.True(File.Exists(fixturePath), $"Fixture not found: {fixturePath}");
+        Assert.That(File.Exists(fixturePath), Is.True, $"Fixture not found: {fixturePath}");
 
         var json = File.ReadAllText(fixturePath);
         var instance = JsonNode.Parse(json);
 
         var results = schema.Evaluate(ToElement(instance), EvaluationOptions);
 
-        Assert.True(
-            results.IsValid,
-            $"Fixture '{fixtureFileName}' failed schema validation:\n{DescribeErrors(results)}");
+        Assert.That(            results.IsValid, Is.True,             $"Fixture '{fixtureFileName}' failed schema validation:\n{DescribeErrors(results)}");
     }
 
-    [Fact]
+    [Test]
     public void Editor_produced_document_conforms_to_schema()
     {
         // This is the important regression guard: it exercises the *live* DTO/writer
@@ -104,12 +100,10 @@ public sealed class ScenarioDocumentSchemaConformanceTests
         var schema = LoadSchema();
         var results = schema.Evaluate(ToElement(instance), EvaluationOptions);
 
-        Assert.True(
-            results.IsValid,
-            $"ScenarioDocumentEditor-produced document failed schema validation:\n{DescribeErrors(results)}\n\nJSON:\n{json}");
+        Assert.That(            results.IsValid, Is.True,             $"ScenarioDocumentEditor-produced document failed schema validation:\n{DescribeErrors(results)}\n\nJSON:\n{json}");
     }
 
-    [Fact]
+    [Test]
     public void Document_missing_required_patrolZone_on_patrol_mission_fails_schema_validation()
     {
         var schema = LoadSchema();
@@ -119,7 +113,7 @@ public sealed class ScenarioDocumentSchemaConformanceTests
 
         var missions = instance["missions"]!.AsArray();
         var patrolMission = missions[0]!.AsObject();
-        Assert.Equal("Patrol", (string?)patrolMission["type"]);
+        Assert.That((string?)patrolMission["type"], Is.EqualTo("Patrol"));
 
         // Deliberately remove the required "patrolZone" property entirely — a Patrol mission
         // without it is not just invalid on content, it violates the mission $defs' "required" list.
@@ -127,14 +121,12 @@ public sealed class ScenarioDocumentSchemaConformanceTests
 
         var results = schema.Evaluate(ToElement(instance), EvaluationOptions);
 
-        Assert.False(
-            results.IsValid,
-            "Expected schema validation to fail for a Patrol mission with 'patrolZone' removed, " +
+        Assert.That(            results.IsValid, Is.False,             "Expected schema validation to fail for a Patrol mission with 'patrolZone' removed, " +
             "but it passed. This would mean the positive tests above are not actually exercising " +
             "the schema's required-field / minItems constraints.");
     }
 
-    [Fact]
+    [Test]
     public void Document_with_empty_targetIds_on_strike_mission_fails_schema_validation()
     {
         var schema = LoadSchema();
@@ -144,16 +136,14 @@ public sealed class ScenarioDocumentSchemaConformanceTests
 
         var missions = instance["missions"]!.AsArray();
         var strikeMission = missions[0]!.AsObject();
-        Assert.Equal("Strike", (string?)strikeMission["type"]);
+        Assert.That((string?)strikeMission["type"], Is.EqualTo("Strike"));
 
         // Strike missions require targetIds to have at least 1 entry (schema allOf/if/then).
         strikeMission["targetIds"] = new JsonArray();
 
         var results = schema.Evaluate(ToElement(instance), EvaluationOptions);
 
-        Assert.False(
-            results.IsValid,
-            "Expected schema validation to fail for a Strike mission with an empty 'targetIds' " +
+        Assert.That(            results.IsValid, Is.False,             "Expected schema validation to fail for a Strike mission with an empty 'targetIds' " +
             "array, but it passed. This would mean the minItems constraint for Strike missions " +
             "is not actually being enforced by this test suite.");
     }

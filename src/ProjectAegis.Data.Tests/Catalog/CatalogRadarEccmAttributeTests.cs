@@ -1,42 +1,40 @@
 using ProjectAegis.Data.Catalog;
-using Xunit;
+using NUnit.Framework;
 
 namespace ProjectAegis.Data.Tests.Catalog;
 
 /// <summary>EW-01 / DRG-386: catalog ECCM attribute fields + validation.</summary>
 public sealed class CatalogRadarEccmAttributeTests
 {
-    [Fact]
+    [Test]
     public void Defaults_are_unspecified_so_existing_rows_are_unchanged()
     {
         var b = new CatalogSensorBinding("p1", "r1", 0.9);
-        Assert.Equal(CatalogRadarScanTypes.Unspecified, b.RadarScanType);
-        Assert.False(b.FrequencyAgile);
-        Assert.Equal(0, b.RadarTechGeneration);
-        Assert.Empty(CatalogRadarScanTypes.Validate(b));
+        Assert.That(b.RadarScanType, Is.EqualTo(CatalogRadarScanTypes.Unspecified));
+        Assert.That(b.FrequencyAgile, Is.False);
+        Assert.That(b.RadarTechGeneration, Is.EqualTo(0));
+        Assert.That(CatalogRadarScanTypes.Validate(b), Is.Empty);
     }
-
-    [Theory]
-    [InlineData("Mechanical")]
-    [InlineData("pesa")]
-    [InlineData("AESA")]
+    [TestCase("Mechanical")]
+    [TestCase("pesa")]
+    [TestCase("AESA")]
     public void Known_scan_types_validate(string scan)
     {
-        Assert.Empty(CatalogRadarScanTypes.Validate(new CatalogSensorBinding("p1", "r1", 0.9) { RadarScanType = scan, RadarTechGeneration = 4 }));
+        Assert.That(CatalogRadarScanTypes.Validate(new CatalogSensorBinding("p1", "r1", 0.9) { RadarScanType = scan, RadarTechGeneration = 4 }), Is.Empty);
     }
 
-    [Fact]
+    [Test]
     public void Invalid_attributes_report_errors()
     {
-        Assert.Single(CatalogRadarScanTypes.Validate(new CatalogSensorBinding("p1", "r1", 0.9) { RadarScanType = "Phased" }));
-        Assert.Single(CatalogRadarScanTypes.Validate(new CatalogSensorBinding("p1", "r1", 0.9) { RadarTechGeneration = 9 }));
-        Assert.Single(CatalogRadarScanTypes.Validate(new CatalogSensorBinding("p1", "r1", 0.9, EccmFactor: 1.5)));
-        Assert.Single(CatalogRadarScanTypes.Validate(new CatalogSensorBinding(
+        Assert.That(CatalogRadarScanTypes.Validate(new CatalogSensorBinding("p1", "r1", 0.9) { RadarScanType = "Phased" }), Has.Exactly(1).Items);
+        Assert.That(CatalogRadarScanTypes.Validate(new CatalogSensorBinding("p1", "r1", 0.9) { RadarTechGeneration = 9 }), Has.Exactly(1).Items);
+        Assert.That(CatalogRadarScanTypes.Validate(new CatalogSensorBinding("p1", "r1", 0.9, EccmFactor: 1.5)), Has.Exactly(1).Items);
+        Assert.That(CatalogRadarScanTypes.Validate(new CatalogSensorBinding(
             "p1", "ir1", 0.9, Modality: CatalogSensorModalities.Infrared)
-        { FrequencyAgile = true }));
+        { FrequencyAgile = true }), Has.Exactly(1).Items);
     }
 
-    [Fact]
+    [Test]
     public void Json_import_reads_optional_eccm_fields()
     {
         var path = Path.Combine(Path.GetTempPath(), $"aegis-eccm-{Guid.NewGuid():N}.json");
@@ -48,21 +46,19 @@ public sealed class CatalogRadarEccmAttributeTests
               { "platformId": "p1", "sensorId": "r0", "basePd": 0.7 } ] }
             """);
             var rows = CatalogJsonImporter.ReadSensorBindings(path);
-            Assert.Equal(new[] { "r0", "r1" }, rows.Select(r => r.SensorId));
-            Assert.Equal(CatalogRadarScanTypes.Unspecified, rows[0].RadarScanType);
-            Assert.Equal("Aesa", rows[1].RadarScanType);
-            Assert.True(rows[1].FrequencyAgile);
-            Assert.Equal(5, rows[1].RadarTechGeneration);
+            Assert.That(rows.Select(r => r.SensorId), Is.EqualTo(new[] { "r0", "r1" }));
+            Assert.That(rows[0].RadarScanType, Is.EqualTo(CatalogRadarScanTypes.Unspecified));
+            Assert.That(rows[1].RadarScanType, Is.EqualTo("Aesa"));
+            Assert.That(rows[1].FrequencyAgile, Is.True);
+            Assert.That(rows[1].RadarTechGeneration, Is.EqualTo(5));
         }
         finally
         {
             File.Delete(path);
         }
     }
-
-    [Theory]
-    [InlineData("Phased", 0)]
-    [InlineData("Aesa", 9)]
+    [TestCase("Phased", 0)]
+    [TestCase("Aesa", 9)]
     public void Json_import_rejects_invalid_eccm_fields(string scanType, int generation)
     {
         var path = Path.Combine(Path.GetTempPath(), $"aegis-eccm-bad-{Guid.NewGuid():N}.json");
@@ -73,7 +69,7 @@ public sealed class CatalogRadarEccmAttributeTests
               { "platformId": "p1", "sensorId": "r1", "basePd": 0.8, "radarScanType": "{{scanType}}", "radarTechGeneration": {{generation}} } ] }
             """);
             var ex = Assert.Throws<InvalidDataException>(() => CatalogJsonImporter.ReadSensorBindings(path));
-            Assert.Contains("p1/r1", ex.Message, StringComparison.Ordinal);
+            Assert.That(ex!.Message, Does.Contain("p1/r1"));
         }
         finally
         {

@@ -3,7 +3,7 @@ using ProjectAegis.Data.Catalog;
 using ProjectAegis.Data.Platform;
 using ProjectAegis.Data.Validation;
 using ProjectAegis.Data.WriteGate;
-using Xunit;
+using NUnit.Framework;
 
 namespace ProjectAegis.Data.Tests.Platform;
 
@@ -11,7 +11,7 @@ namespace ProjectAegis.Data.Tests.Platform;
 /// Req-21 / ADR-011 S24-04 / S25-05: Phase B importer wiring — Mobility/Signatures/Emcon/Damage stage via write gate,
 /// empty-diff golden on unedited round-trip, FK guard on PlatformId, E2E read-back via SqliteCatalogReader.
 /// </summary>
-[Collection("CatalogSqlite")]
+[Runner.CatalogSqliteCollection]
 public sealed class PlatformWorkbookPhaseBImportTests
 {
     private const string SnapshotId = CatalogValidationDefaults.BalticSnapshotId;
@@ -51,7 +51,7 @@ public sealed class PlatformWorkbookPhaseBImportTests
             return PlatformCatalogExportResolver.TryResolve(dbPath, SnapshotId, out var data) ? data : null;
         }, new FixedCatalogClock(0));
 
-    [Fact]
+    [Test]
     public void Plan_unedited_Phase_B_round_trip_has_no_supported_changes()
     {
         var source = PhaseBData();
@@ -59,13 +59,13 @@ public sealed class PlatformWorkbookPhaseBImportTests
 
         var plan = ImporterFor(source).Plan(edited);
 
-        Assert.True(plan.SnapshotResolved);
-        Assert.False(plan.HasChanges);
-        Assert.Empty(plan.SupportedChanges);
-        Assert.Empty(plan.UnsupportedChanges);
+        Assert.That(plan.SnapshotResolved, Is.True);
+        Assert.That(plan.HasChanges, Is.False);
+        Assert.That(plan.SupportedChanges, Is.Empty);
+        Assert.That(plan.UnsupportedChanges, Is.Empty);
     }
 
-    [Fact]
+    [Test]
     public void Stage_unedited_Phase_B_round_trip_stages_nothing()
     {
         var source = PhaseBData();
@@ -74,18 +74,18 @@ public sealed class PlatformWorkbookPhaseBImportTests
 
         var result = ImporterFor(source).Stage(edited, gate, "human", "drgamtd");
 
-        Assert.False(result.Staged);
-        Assert.Null(result.MobilityBatchId);
-        Assert.Null(result.SignatureBatchId);
-        Assert.Null(result.EmconBatchId);
-        Assert.Null(result.DamageBatchId);
-        Assert.Empty(gate.MobilityProposals);
-        Assert.Empty(gate.SignatureProposals);
-        Assert.Empty(gate.EmconProposals);
-        Assert.Empty(gate.DamageProposals);
+        Assert.That(result.Staged, Is.False);
+        Assert.That(result.MobilityBatchId, Is.Null);
+        Assert.That(result.SignatureBatchId, Is.Null);
+        Assert.That(result.EmconBatchId, Is.Null);
+        Assert.That(result.DamageBatchId, Is.Null);
+        Assert.That(gate.MobilityProposals, Is.Empty);
+        Assert.That(gate.SignatureProposals, Is.Empty);
+        Assert.That(gate.EmconProposals, Is.Empty);
+        Assert.That(gate.DamageProposals, Is.Empty);
     }
 
-    [Fact]
+    [Test]
     public void Stage_edited_mobility_proposes_mobility_batch()
     {
         var source = PhaseBData(maxSpeedKnots: 30);
@@ -94,14 +94,14 @@ public sealed class PlatformWorkbookPhaseBImportTests
 
         var result = ImporterFor(source).Stage(edited, gate, "human", "drgamtd", "edit mobility");
 
-        Assert.True(result.Staged);
-        Assert.NotNull(result.MobilityBatchId);
-        var proposed = Assert.Single(gate.MobilityProposals);
-        Assert.Equal("u1", proposed[0].PlatformId);
-        Assert.Equal(35, proposed[0].MaxSpeedKnots, precision: 6);
+        Assert.That(result.Staged, Is.True);
+        Assert.That(result.MobilityBatchId, Is.Not.Null);
+        var proposed = AssertEx.Single(gate.MobilityProposals);
+        Assert.That(proposed[0].PlatformId, Is.EqualTo("u1"));
+        Assert.That(proposed[0].MaxSpeedKnots, Is.EqualTo(35).Within(0.0000005));
     }
 
-    [Fact]
+    [Test]
     public void Stage_edited_signature_proposes_signature_batch()
     {
         var source = PhaseBData(rcsBandDbsm: -10);
@@ -110,14 +110,14 @@ public sealed class PlatformWorkbookPhaseBImportTests
 
         var result = ImporterFor(source).Stage(edited, gate, "human", "drgamtd", "edit signature");
 
-        Assert.True(result.Staged);
-        Assert.NotNull(result.SignatureBatchId);
-        var proposed = Assert.Single(gate.SignatureProposals);
-        Assert.Equal("u1", proposed[0].PlatformId);
-        Assert.Equal(-15, proposed[0].RcsBandDbsm, precision: 6);
+        Assert.That(result.Staged, Is.True);
+        Assert.That(result.SignatureBatchId, Is.Not.Null);
+        var proposed = AssertEx.Single(gate.SignatureProposals);
+        Assert.That(proposed[0].PlatformId, Is.EqualTo("u1"));
+        Assert.That(proposed[0].RcsBandDbsm, Is.EqualTo(-15).Within(0.0000005));
     }
 
-    [Fact]
+    [Test]
     public void Stage_edited_MaxHp_proposes_damage_batch()
     {
         var source = PhaseBData(maxHp: 100);
@@ -126,14 +126,14 @@ public sealed class PlatformWorkbookPhaseBImportTests
 
         var result = ImporterFor(source).Stage(edited, gate, "human", "drgamtd", "edit damage");
 
-        Assert.True(result.Staged);
-        Assert.NotNull(result.DamageBatchId);
-        var proposed = Assert.Single(gate.DamageProposals);
-        Assert.Equal("u1", proposed[0].PlatformId);
-        Assert.Equal(120, proposed[0].MaxHp, precision: 6);
+        Assert.That(result.Staged, Is.True);
+        Assert.That(result.DamageBatchId, Is.Not.Null);
+        var proposed = AssertEx.Single(gate.DamageProposals);
+        Assert.That(proposed[0].PlatformId, Is.EqualTo("u1"));
+        Assert.That(proposed[0].MaxHp, Is.EqualTo(120).Within(0.0000005));
     }
 
-    [Fact]
+    [Test]
     public void Stage_edited_emcon_proposes_emcon_batch()
     {
         var source = PhaseBData(emconPosture: "off");
@@ -142,14 +142,14 @@ public sealed class PlatformWorkbookPhaseBImportTests
 
         var result = ImporterFor(source).Stage(edited, gate, "human", "drgamtd", "edit emcon");
 
-        Assert.True(result.Staged);
-        Assert.NotNull(result.EmconBatchId);
-        var proposed = Assert.Single(gate.EmconProposals);
-        Assert.Equal("u1", proposed[0].PlatformId);
-        Assert.Equal("active", proposed[0].Posture);
+        Assert.That(result.Staged, Is.True);
+        Assert.That(result.EmconBatchId, Is.Not.Null);
+        var proposed = AssertEx.Single(gate.EmconProposals);
+        Assert.That(proposed[0].PlatformId, Is.EqualTo("u1"));
+        Assert.That(proposed[0].Posture, Is.EqualTo("active"));
     }
 
-    [Fact]
+    [Test]
     public void Stage_orphan_platform_mobility_is_rejected_not_proposed()
     {
         var source = PhaseBData();
@@ -162,17 +162,17 @@ public sealed class PlatformWorkbookPhaseBImportTests
 
         var result = ImporterFor(source).Stage(edited, gate, "human", "drgamtd");
 
-        Assert.False(result.Staged);
-        Assert.True(result.Plan.Blocked);
-        Assert.Empty(gate.MobilityProposals);
-        Assert.Contains(result.Plan.Findings, f =>
+        Assert.That(result.Staged, Is.False);
+        Assert.That(result.Plan.Blocked, Is.True);
+        Assert.That(gate.MobilityProposals, Is.Empty);
+        Assert.That(result.Plan.Findings.Any(f =>
             f.Code == PlatformWorkbookValidator.PhaseBOrphanPlatform
             && f.UnitId == "unknown-platform"
-            && f.Severity == ValidationSeverity.Error);
+            && f.Severity == ValidationSeverity.Error), Is.True);
     }
 
     /// <summary>PLE-2.3: orphan PlatformId FK emits quarantine-style report entry; nothing staged/committed.</summary>
-    [Fact]
+    [Test]
     public void Stage_orphan_platform_mobility_emits_quarantine_report_entry_PLE_2_3()
     {
         var source = PhaseBData();
@@ -185,17 +185,17 @@ public sealed class PlatformWorkbookPhaseBImportTests
 
         var result = ImporterFor(source).Stage(edited, gate, "human", "drgamtd");
 
-        Assert.False(result.Staged);
-        Assert.Empty(gate.MobilityProposals);
-        Assert.NotEmpty(result.Plan.QuarantineEntries);
-        Assert.NotEmpty(result.QuarantineEntries);
-        Assert.Contains(result.QuarantineEntries, q =>
+        Assert.That(result.Staged, Is.False);
+        Assert.That(gate.MobilityProposals, Is.Empty);
+        Assert.That(result.Plan.QuarantineEntries, Is.Not.Empty);
+        Assert.That(result.QuarantineEntries, Is.Not.Empty);
+        Assert.That(result.QuarantineEntries.Any(q =>
             q.Reason == PlatformWorkbookValidator.PhaseBOrphanPlatform
             && q.PlatformId == "unknown-platform"
-            && q.EntityKind == "platform_fk");
+            && q.EntityKind == "platform_fk"), Is.True);
     }
 
-    [Fact]
+    [Test]
     public void Stage_multiple_Phase_B_entity_types_proposes_all_batches()
     {
         var source = PhaseBData(maxSpeedKnots: 30, rcsBandDbsm: -10, emconPosture: "off");
@@ -204,23 +204,23 @@ public sealed class PlatformWorkbookPhaseBImportTests
 
         var result = ImporterFor(source).Stage(edited, gate, "human", "drgamtd", "edit phase b");
 
-        Assert.True(result.Staged);
-        Assert.NotNull(result.MobilityBatchId);
-        Assert.NotNull(result.SignatureBatchId);
-        Assert.NotNull(result.EmconBatchId);
-        Assert.NotEmpty(gate.MobilityProposals);
-        Assert.NotEmpty(gate.SignatureProposals);
-        Assert.NotEmpty(gate.EmconProposals);
+        Assert.That(result.Staged, Is.True);
+        Assert.That(result.MobilityBatchId, Is.Not.Null);
+        Assert.That(result.SignatureBatchId, Is.Not.Null);
+        Assert.That(result.EmconBatchId, Is.Not.Null);
+        Assert.That(gate.MobilityProposals, Is.Not.Empty);
+        Assert.That(gate.SignatureProposals, Is.Not.Empty);
+        Assert.That(gate.EmconProposals, Is.Not.Empty);
     }
 
-    [Fact]
+    [Test]
     public void E2E_damage_export_edit_stage_approve_readback_via_SqliteCatalogReader()
     {
         var dbPath = Path.Combine(Path.GetTempPath(), $"aegis-phase-b-e2e-damage-{Guid.NewGuid():N}.db");
         try
         {
             CatalogSeedBootstrap.SeedBalticPatrol(dbPath, overwrite: true);
-            Assert.True(PlatformCatalogExportResolver.TryResolve(dbPath, SnapshotId, out var source));
+            Assert.That(PlatformCatalogExportResolver.TryResolve(dbPath, SnapshotId, out var source), Is.True);
 
             var exported = new PlatformWorkbookExporter().Export(source, SnapshotId, new FixedCatalogClock(9650));
             var edited = WithPlatformSheetCell(exported, "u1", "MaxHp", "120");
@@ -229,15 +229,15 @@ public sealed class PlatformWorkbookPhaseBImportTests
             using (var gate = new CatalogWriteGate(dbPath, new FixedCatalogClock(9651)))
             {
                 var result = importer.Stage(edited, gate, "human", "drgamtd", "e2e damage");
-                Assert.True(result.Staged);
-                Assert.NotNull(result.DamageBatchId);
-                Assert.True(gate.ApproveBatch(result.DamageBatchId!, "human", "qa-reviewer").Committed);
+                Assert.That(result.Staged, Is.True);
+                Assert.That(result.DamageBatchId, Is.Not.Null);
+                Assert.That(gate.ApproveBatch(result.DamageBatchId!, "human", "qa-reviewer").Committed, Is.True);
             }
 
             using var reader = new SqliteCatalogReader(dbPath, "phase-b-e2e-damage");
-            Assert.True(reader.TryGetPlatformDamage("u1", out var damage));
-            Assert.Equal(120, damage.MaxHp, precision: 3);
-            Assert.Equal(25, damage.WithdrawThresholdPct, precision: 3);
+            Assert.That(reader.TryGetPlatformDamage("u1", out var damage), Is.True);
+            Assert.That(damage.MaxHp, Is.EqualTo(120).Within(0.0005));
+            Assert.That(damage.WithdrawThresholdPct, Is.EqualTo(25).Within(0.0005));
         }
         finally
         {
@@ -245,14 +245,14 @@ public sealed class PlatformWorkbookPhaseBImportTests
         }
     }
 
-    [Fact]
+    [Test]
     public void E2E_mobility_export_edit_stage_approve_readback_via_SqliteCatalogReader()
     {
         var dbPath = Path.Combine(Path.GetTempPath(), $"aegis-phase-b-e2e-mobility-{Guid.NewGuid():N}.db");
         try
         {
             SeedPhaseBDatabase(dbPath);
-            Assert.True(PlatformCatalogExportResolver.TryResolve(dbPath, SnapshotId, out var source));
+            Assert.That(PlatformCatalogExportResolver.TryResolve(dbPath, SnapshotId, out var source), Is.True);
 
             var exported = new PlatformWorkbookExporter().Export(source, SnapshotId, new FixedCatalogClock(9600));
             var edited = WithSheetCell(exported, "Mobility", 0, "MaxSpeedKnots", "36");
@@ -261,15 +261,15 @@ public sealed class PlatformWorkbookPhaseBImportTests
             using (var gate = new CatalogWriteGate(dbPath, new FixedCatalogClock(9601)))
             {
                 var result = importer.Stage(edited, gate, "human", "drgamtd", "e2e mobility");
-                Assert.True(result.Staged);
-                Assert.NotNull(result.MobilityBatchId);
-                Assert.True(gate.ApproveBatch(result.MobilityBatchId!, "human", "qa-reviewer").Committed);
+                Assert.That(result.Staged, Is.True);
+                Assert.That(result.MobilityBatchId, Is.Not.Null);
+                Assert.That(gate.ApproveBatch(result.MobilityBatchId!, "human", "qa-reviewer").Committed, Is.True);
             }
 
             using var reader = new SqliteCatalogReader(dbPath, "phase-b-e2e-mobility");
-            Assert.True(reader.TryGetMobility("u1", out var mobility));
-            Assert.Equal(36, mobility.MaxSpeedKnots, precision: 3);
-            Assert.Equal(4200, mobility.RangeNm, precision: 3);
+            Assert.That(reader.TryGetMobility("u1", out var mobility), Is.True);
+            Assert.That(mobility.MaxSpeedKnots, Is.EqualTo(36).Within(0.0005));
+            Assert.That(mobility.RangeNm, Is.EqualTo(4200).Within(0.0005));
         }
         finally
         {
@@ -277,14 +277,14 @@ public sealed class PlatformWorkbookPhaseBImportTests
         }
     }
 
-    [Fact]
+    [Test]
     public void E2E_all_Phase_B_sheets_export_edit_stage_approve_readback_via_SqliteCatalogReader()
     {
         var dbPath = Path.Combine(Path.GetTempPath(), $"aegis-phase-b-e2e-all-{Guid.NewGuid():N}.db");
         try
         {
             SeedPhaseBDatabase(dbPath);
-            Assert.True(PlatformCatalogExportResolver.TryResolve(dbPath, SnapshotId, out var source));
+            Assert.That(PlatformCatalogExportResolver.TryResolve(dbPath, SnapshotId, out var source), Is.True);
 
             var exported = new PlatformWorkbookExporter().Export(source, SnapshotId, new FixedCatalogClock(9610));
             var edited = WithSheetCell(exported, "Mobility", 0, "MaxSpeedKnots", "36");
@@ -295,26 +295,26 @@ public sealed class PlatformWorkbookPhaseBImportTests
             using (var gate = new CatalogWriteGate(dbPath, new FixedCatalogClock(9611)))
             {
                 var result = importer.Stage(edited, gate, "human", "drgamtd", "e2e phase b all");
-                Assert.True(result.Staged);
-                Assert.NotNull(result.MobilityBatchId);
-                Assert.NotNull(result.SignatureBatchId);
-                Assert.NotNull(result.EmconBatchId);
-                Assert.True(gate.ApproveBatch(result.MobilityBatchId!, "human", "qa-reviewer").Committed);
-                Assert.True(gate.ApproveBatch(result.SignatureBatchId!, "human", "qa-reviewer").Committed);
-                Assert.True(gate.ApproveBatch(result.EmconBatchId!, "human", "qa-reviewer").Committed);
+                Assert.That(result.Staged, Is.True);
+                Assert.That(result.MobilityBatchId, Is.Not.Null);
+                Assert.That(result.SignatureBatchId, Is.Not.Null);
+                Assert.That(result.EmconBatchId, Is.Not.Null);
+                Assert.That(gate.ApproveBatch(result.MobilityBatchId!, "human", "qa-reviewer").Committed, Is.True);
+                Assert.That(gate.ApproveBatch(result.SignatureBatchId!, "human", "qa-reviewer").Committed, Is.True);
+                Assert.That(gate.ApproveBatch(result.EmconBatchId!, "human", "qa-reviewer").Committed, Is.True);
             }
 
             using var reader = new SqliteCatalogReader(dbPath, "phase-b-e2e-all");
-            Assert.True(reader.TryGetMobility("u1", out var mobility));
-            Assert.Equal(36, mobility.MaxSpeedKnots, precision: 3);
+            Assert.That(reader.TryGetMobility("u1", out var mobility), Is.True);
+            Assert.That(mobility.MaxSpeedKnots, Is.EqualTo(36).Within(0.0005));
 
-            Assert.True(reader.TryGetSignature("u1", out var signature));
-            Assert.Equal(-18, signature.RcsBandDbsm, precision: 3);
+            Assert.That(reader.TryGetSignature("u1", out var signature), Is.True);
+            Assert.That(signature.RcsBandDbsm, Is.EqualTo(-18).Within(0.0005));
 
-            Assert.True(reader.TryGetEmcon("u1", "silent", "radar-1", out var emcon));
-            Assert.Equal("standby", emcon.Posture);
-            Assert.True(reader.TryGetEmcon("u1", "free", "radar-1", out var unchanged));
-            Assert.Equal("active", unchanged.Posture);
+            Assert.That(reader.TryGetEmcon("u1", "silent", "radar-1", out var emcon), Is.True);
+            Assert.That(emcon.Posture, Is.EqualTo("standby"));
+            Assert.That(reader.TryGetEmcon("u1", "free", "radar-1", out var unchanged), Is.True);
+            Assert.That(unchanged.Posture, Is.EqualTo("active"));
         }
         finally
         {
@@ -322,7 +322,7 @@ public sealed class PlatformWorkbookPhaseBImportTests
         }
     }
 
-    [Fact]
+    [Test]
     public void ApproveBatch_mobility_batch_commits_to_live_table()
     {
         var dbPath = Path.Combine(Path.GetTempPath(), $"aegis-phase-b-mobility-{Guid.NewGuid():N}.db");
@@ -335,7 +335,7 @@ public sealed class PlatformWorkbookPhaseBImportTests
             {
                 var batchId = gate.ProposeMobilityBatch([mobility], "human", "phase-b-test");
                 var decision = gate.ApproveBatch(batchId, "human", "qa-reviewer");
-                Assert.True(decision.Committed);
+                Assert.That(decision.Committed, Is.True);
             }
 
             using var connection = new SqliteConnection($"Data Source={dbPath};Pooling=false");
@@ -343,9 +343,9 @@ public sealed class PlatformWorkbookPhaseBImportTests
             using var cmd = connection.CreateCommand();
             cmd.CommandText = "SELECT max_speed_knots, range_nm FROM platform_mobility WHERE platform_id = 'u1'";
             using var reader = cmd.ExecuteReader();
-            Assert.True(reader.Read());
-            Assert.Equal(35, reader.GetDouble(0), precision: 6);
-            Assert.Equal(5000, reader.GetDouble(1), precision: 6);
+            Assert.That(reader.Read(), Is.True);
+            Assert.That(reader.GetDouble(0), Is.EqualTo(35).Within(0.0000005));
+            Assert.That(reader.GetDouble(1), Is.EqualTo(5000).Within(0.0000005));
         }
         finally
         {
@@ -382,9 +382,9 @@ public sealed class PlatformWorkbookPhaseBImportTests
         string value)
     {
         var sheet = workbook.FindSheet("Platforms");
-        Assert.NotNull(sheet);
-        var platformCol = Array.IndexOf(sheet.Header.ToArray(), "PlatformId");
-        Assert.True(platformCol >= 0);
+        Assert.That(sheet, Is.Not.Null);
+        var platformCol = Array.IndexOf(sheet!.Header.ToArray(), "PlatformId");
+        Assert.That(platformCol >= 0, Is.True);
 
         var rowIndex = -1;
         for (var i = 0; i < sheet.Rows.Count; i++)
@@ -397,7 +397,7 @@ public sealed class PlatformWorkbookPhaseBImportTests
             }
         }
 
-        Assert.True(rowIndex >= 0, $"Platform '{platformId}' not found on Platforms sheet.");
+        Assert.That(rowIndex >= 0, Is.True, $"Platform '{platformId}' not found on Platforms sheet.");
         return WithSheetCell(workbook, "Platforms", rowIndex, columnName, value);
     }
 
@@ -416,7 +416,7 @@ public sealed class PlatformWorkbookPhaseBImportTests
             }
 
             var colIndex = Array.IndexOf(sheet.Header.ToArray(), columnName);
-            Assert.True(colIndex >= 0, $"Column '{columnName}' not found on sheet '{sheetName}'.");
+            Assert.That(colIndex >= 0, Is.True, $"Column '{columnName}' not found on sheet '{sheetName}'.");
 
             var rows = sheet.Rows.Select((row, i) =>
             {
@@ -448,7 +448,7 @@ public sealed class PlatformWorkbookPhaseBImportTests
             [new CatalogPlatformBinding(platformId, "Test Platform", Domain: "surface")],
             "agent",
             "seed");
-        Assert.True(gate.ApproveBatch(batchId, "human", "seed").Committed);
+        Assert.That(gate.ApproveBatch(batchId, "human", "seed").Committed, Is.True);
     }
 
     private static void Cleanup(string dbPath)

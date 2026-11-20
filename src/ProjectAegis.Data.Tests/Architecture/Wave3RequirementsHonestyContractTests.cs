@@ -2,7 +2,7 @@ namespace ProjectAegis.Data.Tests.Architecture;
 
 using System.Text.RegularExpressions;
 using Excel;
-using Xunit;
+using NUnit.Framework;
 
 /// <summary>
 /// Wave 3 charter honesty pins: FR reverse-refs, Implementation Mapping rewrites,
@@ -11,7 +11,7 @@ using Xunit;
 /// </summary>
 public sealed class Wave3RequirementsHonestyContractTests
 {
-    [Fact]
+    [Test]
     public void doc_09_and_10_reverse_ref_FR_08_and_have_implementation_mapping()
     {
         foreach (var name in new[]
@@ -21,79 +21,75 @@ public sealed class Wave3RequirementsHonestyContractTests
                  })
         {
             var path = ResolveRepoFile("Game-Requirements", "requirements", name);
-            Assert.True(path != null, $"Could not locate {name}");
-            var text = File.ReadAllText(path);
+            Assert.That(path != null, Is.True, $"Could not locate {name}");
+            var text = File.ReadAllText(path!);
 
-            Assert.Contains("FR-08", text, StringComparison.Ordinal);
-            Assert.Contains("Implementation Mapping", text, StringComparison.Ordinal);
-            Assert.Contains("re-honesty: Wave 3", text, StringComparison.Ordinal);
+            Assert.That(text, Does.Contain("FR-08"));
+            Assert.That(text, Does.Contain("Implementation Mapping"));
+            Assert.That(text, Does.Contain("re-honesty: Wave 3"));
         }
     }
 
-    [Fact]
+    [Test]
     public void doc_21_reverse_ref_FR_19_and_mapping_not_all_new()
     {
         var path = ResolveRepoFile("Game-Requirements", "requirements", "21-Platform-Editor.md");
-        Assert.True(path != null, "Could not locate 21-Platform-Editor.md");
-        var text = File.ReadAllText(path);
+        Assert.That(path != null, Is.True, "Could not locate 21-Platform-Editor.md");
+        var text = File.ReadAllText(path!);
 
-        Assert.Contains("FR-19", text, StringComparison.Ordinal);
-        Assert.Contains("Implementation Mapping", text, StringComparison.Ordinal);
+        Assert.That(text, Does.Contain("FR-19"));
+        Assert.That(text, Does.Contain("Implementation Mapping"));
         // PE-W0–W4 closeout: Design Status is Revised/implementation-aligned (not Draft-only).
         // Accept either legacy Wave 3 re-honesty pin or PE completion honesty language.
-        Assert.True(
-            text.Contains("re-honesty: Wave 3", StringComparison.Ordinal) ||
+        Assert.That(            text.Contains("re-honesty: Wave 3", StringComparison.Ordinal) ||
             text.Contains("Revised — implementation-aligned", StringComparison.Ordinal) ||
-            text.Contains("PE-W0–W4 COMPLETE", StringComparison.Ordinal),
-            "Doc 21 must carry Wave 3 or PE completion honesty language");
-        Assert.DoesNotContain("Design Status remains **Draft**", text, StringComparison.Ordinal);
+            text.Contains("PE-W0–W4 COMPLETE", StringComparison.Ordinal), Is.True,             "Doc 21 must carry Wave 3 or PE completion honesty language");
+        Assert.That(text, Does.Not.Contain("Design Status remains **Draft**"));
 
         var mapIdx = text.IndexOf("## Implementation Mapping", StringComparison.Ordinal);
-        Assert.True(mapIdx >= 0, "Implementation Mapping heading missing");
+        Assert.That(mapIdx >= 0, Is.True, "Implementation Mapping heading missing");
         var mappingSection = text[mapIdx..];
 
         // Honest rewrite: mapping must claim Shipped somewhere — not an all-New status table.
-        Assert.Contains("Shipped", mappingSection, StringComparison.Ordinal);
-        Assert.False(
-            Regex.IsMatch(
+        Assert.That(mappingSection, Does.Contain("Shipped"));
+        Assert.That(            Regex.IsMatch(
                 mappingSection,
                 @"\|[^|\n]*\|\s*\*\*New\*\*\s*\|",
                 RegexOptions.Multiline) &&
-            !mappingSection.Contains("Shipped", StringComparison.Ordinal),
-            "Implementation Mapping must not be status-all-New without Shipped claims");
+            !mappingSection.Contains("Shipped", StringComparison.Ordinal), Is.False,             "Implementation Mapping must not be status-all-New without Shipped claims");
     }
 
-    [Fact]
+    [Test]
     public void tracker_10b_is_phase_n_not_on_main_not_implemented_s54()
     {
         var path = ResolveRepoFile("Game-Requirements", "implementation-tracker-2026-07-04.md");
-        Assert.True(path != null, "Could not locate implementation-tracker-2026-07-04.md");
-        var text = File.ReadAllText(path);
+        Assert.That(path != null, Is.True, "Could not locate implementation-tracker-2026-07-04.md");
+        var text = File.ReadAllText(path!);
 
-        Assert.Contains("10b", text, StringComparison.Ordinal);
-        Assert.Contains("Phase N / not on main", text, StringComparison.Ordinal);
+        Assert.That(text, Does.Contain("10b"));
+        Assert.That(text, Does.Contain("Phase N / not on main"));
 
         var tenBLine = text
             .Split('\n')
             .FirstOrDefault(l => l.Contains("| 10b |", StringComparison.Ordinal));
-        Assert.True(tenBLine != null, "Tracker row for | 10b | not found");
-        Assert.Contains("Phase N", tenBLine, StringComparison.Ordinal);
-        Assert.DoesNotContain("Implemented (S54)", tenBLine, StringComparison.Ordinal);
+        Assert.That(tenBLine != null, Is.True, "Tracker row for | 10b | not found");
+        Assert.That(tenBLine, Does.Contain("Phase N"));
+        Assert.That(tenBLine, Does.Not.Contain("Implemented (S54)"));
     }
 
-    [Fact]
+    [Test]
     public void platform_workbook_io_closedxml_type_exists()
     {
         // Production adapter lives in ProjectAegis.Data.Excel (referenced by Data.Tests).
         var type = typeof(ClosedXmlPlatformWorkbookIo);
-        Assert.Equal("ClosedXmlPlatformWorkbookIo", type.Name);
-        Assert.Equal("ProjectAegis.Data.Excel", type.Namespace);
+        Assert.That(type.Name, Is.EqualTo("ClosedXmlPlatformWorkbookIo"));
+        Assert.That(type.Namespace, Is.EqualTo("ProjectAegis.Data.Excel"));
 
         // Reflection pin: type resolvable from Excel assembly by name (rg-stable contract).
         var excelAsm = typeof(ClosedXmlPlatformWorkbookIo).Assembly;
         var byName = excelAsm.GetType("ProjectAegis.Data.Excel.ClosedXmlPlatformWorkbookIo", throwOnError: false);
-        Assert.NotNull(byName);
-        Assert.True(byName.IsClass, "ClosedXmlPlatformWorkbookIo must be a class type");
+        Assert.That(byName, Is.Not.Null);
+        Assert.That(byName!.IsClass, Is.True, "ClosedXmlPlatformWorkbookIo must be a class type");
     }
 
     private static string? ResolveRepoFile(params string[] relativeSegments)

@@ -1,7 +1,7 @@
 namespace ProjectAegis.Data.Tests.Architecture;
 
 using System.Text.RegularExpressions;
-using Xunit;
+using NUnit.Framework;
 
 /// <summary>
 /// Adversarial pin for req 01 OV-SC-G5: hub FR-01…FR-20 map + Related Index targets exist.
@@ -9,40 +9,36 @@ using Xunit;
 /// </summary>
 public sealed class RequirementsHubContractTests
 {
-    [Fact]
+    [Test]
     public void hub_lists_FR_01_through_FR_20_and_related_index_targets_exist()
     {
         var hubPath = ResolveRepoFile("Game-Requirements", "requirements", "01-Project-Overview.md");
-        Assert.True(hubPath != null, "Could not locate 01-Project-Overview.md");
-        var hub = File.ReadAllText(hubPath);
+        Assert.That(hubPath != null, Is.True, "Could not locate 01-Project-Overview.md");
+        var hub = File.ReadAllText(hubPath!);
 
         for (var i = 1; i <= 20; i++)
         {
-            Assert.Contains($"FR-{i:D2}", hub, StringComparison.Ordinal);
+            Assert.That(hub, Does.Contain($"FR-{i:D2}"));
         }
 
-        Assert.Contains("21-Platform-Editor.md", hub, StringComparison.Ordinal);
-        Assert.Matches(
-            new Regex(@"FR-19.*21-Platform-Editor\.md", RegexOptions.Singleline),
-            hub);
-        Assert.Contains("22-Drone-Swarm-Platforms.md", hub, StringComparison.Ordinal);
-        Assert.Matches(
-            new Regex(@"FR-20.*22-Drone-Swarm-Platforms\.md", RegexOptions.Singleline),
-            hub);
+        Assert.That(hub, Does.Contain("21-Platform-Editor.md"));
+        Assert.That(            hub, Does.Match(            new Regex(@"FR-19.*21-Platform-Editor\.md", RegexOptions.Singleline)));
+        Assert.That(hub, Does.Contain("22-Drone-Swarm-Platforms.md"));
+        Assert.That(            hub, Does.Match(            new Regex(@"FR-20.*22-Drone-Swarm-Platforms\.md", RegexOptions.Singleline)));
 
         var idx = hub.IndexOf("## Related Requirements Index", StringComparison.Ordinal);
-        Assert.True(idx >= 0, "Related Requirements Index section missing");
+        Assert.That(idx >= 0, Is.True, "Related Requirements Index section missing");
         var indexSection = hub[idx..];
 
         var linkMatches = Regex.Matches(indexSection, @"\((\d{2}-[^)]+\.md)\)");
-        Assert.True(linkMatches.Count >= 21, $"Expected ≥21 Related Index links, got {linkMatches.Count}");
+        Assert.That(linkMatches.Count >= 21, Is.True, $"Expected ≥21 Related Index links, got {linkMatches.Count}");
 
         var reqDir = Path.GetDirectoryName(hubPath)!;
         foreach (Match m in linkMatches)
         {
             var rel = m.Groups[1].Value;
             var target = Path.Combine(reqDir, rel);
-            Assert.True(File.Exists(target), $"Broken Related Index target: {rel}");
+            Assert.That(File.Exists(target), Is.True, $"Broken Related Index target: {rel}");
         }
 
         // Every on-disk requirements/*.md except hub itself must appear in Related Index
@@ -54,7 +50,7 @@ public sealed class RequirementsHubContractTests
                 continue;
             }
 
-            Assert.Contains(name, indexSection, StringComparison.Ordinal);
+            Assert.That(indexSection, Does.Contain(name));
         }
     }
 

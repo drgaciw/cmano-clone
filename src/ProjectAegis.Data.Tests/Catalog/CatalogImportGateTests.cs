@@ -1,11 +1,11 @@
 using ProjectAegis.Data.Catalog;
-using Xunit;
+using NUnit.Framework;
 
 namespace ProjectAegis.Data.Tests.Catalog;
 
 public sealed class CatalogImportGateTests
 {
-    [Fact]
+    [Test]
     public void ApplyMinimumConfidence_filters_low_confidence_rows()
     {
         var bindings = new[]
@@ -16,7 +16,7 @@ public sealed class CatalogImportGateTests
 
         var gated = CatalogImportGate.ApplyMinimumConfidence(bindings, minimumConfidence: 0.5);
 
-        Assert.Single(gated);
-        Assert.Equal("radar-1", gated[0].SensorId);
+        Assert.That(gated, Has.Exactly(1).Items);
+        Assert.That(gated[0].SensorId, Is.EqualTo("radar-1"));
     }
 }

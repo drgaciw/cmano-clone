@@ -1,12 +1,12 @@
 using ProjectAegis.Data.Scenario.Authoring;
-using Xunit;
+using NUnit.Framework;
 
 namespace ProjectAegis.Data.Tests.Scenario;
 
 /// <summary>UAT validation gates for place-unit / ORBAT upsert (scenario editor).</summary>
 public sealed class ScenarioOrbatPlaceValidationTests
 {
-    [Fact]
+    [Test]
     public void UpsertOrbatUnit_rejects_empty_platform_and_side()
     {
         var editor = ScenarioDocumentEditor.CreateNew();
@@ -28,10 +28,10 @@ public sealed class ScenarioOrbatPlaceValidationTests
                 Lat = 57,
                 Lon = 20,
             }));
-        Assert.Empty(editor.ToDto().Orbat?.Units ?? Array.Empty<ScenarioOrbatUnitDto>());
+        Assert.That(editor.ToDto().Orbat?.Units ?? Array.Empty<ScenarioOrbatUnitDto>(), Is.Empty);
     }
 
-    [Fact]
+    [Test]
     public void UpsertOrbatUnit_rejects_out_of_range_or_non_finite_coords()
     {
         var editor = ScenarioDocumentEditor.CreateNew();
@@ -44,7 +44,7 @@ public sealed class ScenarioOrbatPlaceValidationTests
                 Lat = 91,
                 Lon = 20,
             }));
-        Assert.Equal(ScenarioLatLonDiagnostics.LatOutOfRange, ex0.Code);
+        Assert.That(ex0!.Code, Is.EqualTo(ScenarioLatLonDiagnostics.LatOutOfRange));
         var ex1 = Assert.Throws<ScenarioLatLonException>(() =>
             editor.UpsertOrbatUnit(new ScenarioOrbatUnitDto
             {
@@ -54,7 +54,7 @@ public sealed class ScenarioOrbatPlaceValidationTests
                 Lat = 57,
                 Lon = -181,
             }));
-        Assert.Equal(ScenarioLatLonDiagnostics.LonOutOfRange, ex1.Code);
+        Assert.That(ex1!.Code, Is.EqualTo(ScenarioLatLonDiagnostics.LonOutOfRange));
         var ex2 = Assert.Throws<ScenarioLatLonException>(() =>
             editor.UpsertOrbatUnit(new ScenarioOrbatUnitDto
             {
@@ -64,11 +64,11 @@ public sealed class ScenarioOrbatPlaceValidationTests
                 Lat = double.NaN,
                 Lon = 20,
             }));
-        Assert.Equal(ScenarioLatLonDiagnostics.NotFinite, ex2.Code);
-        Assert.Empty(editor.ToDto().Orbat?.Units ?? Array.Empty<ScenarioOrbatUnitDto>());
+        Assert.That(ex2!.Code, Is.EqualTo(ScenarioLatLonDiagnostics.NotFinite));
+        Assert.That(editor.ToDto().Orbat?.Units ?? Array.Empty<ScenarioOrbatUnitDto>(), Is.Empty);
     }
 
-    [Fact]
+    [Test]
     public void PlaceOrbatUnit_rejects_existing_id_without_replace()
     {
         var editor = ScenarioDocumentEditor.CreateNew();
@@ -92,8 +92,8 @@ public sealed class ScenarioOrbatPlaceValidationTests
                 Lon = 10,
             }));
 
-        var u = Assert.Single(editor.ToDto().Orbat!.Units);
-        Assert.Equal("blue", u.SideId);
-        Assert.Equal("ffg", u.PlatformId);
+        var u = AssertEx.Single(editor.ToDto().Orbat!.Units);
+        Assert.That(u.SideId, Is.EqualTo("blue"));
+        Assert.That(u.PlatformId, Is.EqualTo("ffg"));
     }
 }

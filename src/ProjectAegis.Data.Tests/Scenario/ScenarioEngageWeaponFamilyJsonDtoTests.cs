@@ -2,13 +2,13 @@ namespace ProjectAegis.Data.Tests.Scenario;
 
 using System.Text.Json;
 using ProjectAegis.Data.Scenario.Policy;
-using Xunit;
+using NUnit.Framework;
 
 public sealed class ScenarioEngageWeaponFamilyJsonDtoTests
 {
     private static readonly JsonSerializerOptions Options = new() { PropertyNameCaseInsensitive = true };
 
-    [Fact]
+    [Test]
     public void Deserialize_reads_explicit_weapon_family()
     {
         const string json = """
@@ -17,10 +17,10 @@ public sealed class ScenarioEngageWeaponFamilyJsonDtoTests
 
         var dto = JsonSerializer.Deserialize<ScenarioPolicyJsonDto>(json, Options);
 
-        Assert.Equal("Laser", dto!.Engage!.WeaponFamilyId);
+        Assert.That(dto!.Engage!.WeaponFamilyId, Is.EqualTo("Laser"));
     }
 
-    [Fact]
+    [Test]
     public void Deserialize_keeps_omitted_weapon_family_null_for_sim_defaulting()
     {
         const string json = """
@@ -29,6 +29,6 @@ public sealed class ScenarioEngageWeaponFamilyJsonDtoTests
 
         var dto = JsonSerializer.Deserialize<ScenarioPolicyJsonDto>(json, Options);
 
-        Assert.Null(dto!.Engage!.WeaponFamilyId);
+        Assert.That(dto!.Engage!.WeaponFamilyId, Is.Null);
     }
 }

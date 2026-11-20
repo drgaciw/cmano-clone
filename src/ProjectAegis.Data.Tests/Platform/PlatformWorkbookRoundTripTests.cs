@@ -2,7 +2,7 @@ using ProjectAegis.Data.Catalog;
 using ProjectAegis.Data.Excel;
 using ProjectAegis.Data.Platform;
 using ProjectAegis.Data.WriteGate;
-using Xunit;
+using NUnit.Framework;
 
 namespace ProjectAegis.Data.Tests.Platform;
 
@@ -52,65 +52,55 @@ public sealed class PlatformWorkbookRoundTripTests
     private static PlatformWorkbook Export(PlatformCatalogExportData data) =>
         new PlatformWorkbookExporter().Export(data, SnapshotId, new FixedCatalogClock(utcTicks: 0));
 
-    [Fact]
+    [Test]
     public void Export_is_deterministic()
     {
         var a = CanonicalTextWorkbookIo.Serialize(Export(SampleData()));
         var b = CanonicalTextWorkbookIo.Serialize(Export(SampleData()));
-        Assert.Equal(a, b);
+        Assert.That(b, Is.EqualTo(a));
     }
 
-    [Fact]
+    [Test]
     public void CatalogSortKey_export_sheet_row_order_matches_comparer()
     {
         var data = SampleData();
         var workbook = Export(data);
 
-        Assert.Equal(
-            CatalogSortKeyComparer.SortMounts(data.Mounts).Select(CatalogSortKeyComparer.FormatMountKey).ToArray(),
-            MountKeys(workbook));
+        Assert.That(            MountKeys(workbook), Is.EqualTo(            CatalogSortKeyComparer.SortMounts(data.Mounts).Select(CatalogSortKeyComparer.FormatMountKey).ToArray()));
 
-        Assert.Equal(
-            CatalogSortKeyComparer.SortLoadouts(data.Loadouts).Select(CatalogSortKeyComparer.FormatLoadoutKey).ToArray(),
-            LoadoutKeys(workbook));
+        Assert.That(            LoadoutKeys(workbook), Is.EqualTo(            CatalogSortKeyComparer.SortLoadouts(data.Loadouts).Select(CatalogSortKeyComparer.FormatLoadoutKey).ToArray()));
 
-        Assert.Equal(
-            CatalogSortKeyComparer.SortMagazines(data.Magazines).Select(CatalogSortKeyComparer.FormatMagazineKey).ToArray(),
-            MagazineKeys(workbook));
+        Assert.That(            MagazineKeys(workbook), Is.EqualTo(            CatalogSortKeyComparer.SortMagazines(data.Magazines).Select(CatalogSortKeyComparer.FormatMagazineKey).ToArray()));
 
-        Assert.Equal(
-            CatalogSortKeyComparer.SortComms(data.Comms).Select(CatalogSortKeyComparer.FormatCommsKey).ToArray(),
-            CommsKeys(workbook));
+        Assert.That(            CommsKeys(workbook), Is.EqualTo(            CatalogSortKeyComparer.SortComms(data.Comms).Select(CatalogSortKeyComparer.FormatCommsKey).ToArray()));
 
-        Assert.Equal(
-            CatalogSortKeyComparer.SortLinks(data.Links ?? Array.Empty<CatalogLinkEntry>())
+        Assert.That(            LinkKeys(workbook), Is.EqualTo(            CatalogSortKeyComparer.SortLinks(data.Links ?? Array.Empty<CatalogLinkEntry>())
                 .Select(CatalogSortKeyComparer.FormatLinkKey)
-                .ToArray(),
-            LinkKeys(workbook));
+                .ToArray()));
     }
 
-    [Fact]
+    [Test]
     public void Meta_sheet_binds_snapshot_and_content_hash()
     {
         var workbook = Export(SampleData());
         var meta = workbook.FindSheet(PlatformWorkbookHash.MetaSheetName);
-        Assert.NotNull(meta);
+        Assert.That(meta, Is.Not.Null);
 
-        Assert.Equal(SnapshotId, MetaValue(meta, "SourceSnapshotId"));
-        Assert.Equal(PlatformWorkbookExporter.SchemaVersion, MetaValue(meta, "SchemaVersion"));
-        Assert.Equal(PlatformWorkbookHash.Compute(workbook), MetaValue(meta, "WorkbookHash"));
+        Assert.That(MetaValue(meta!, "SourceSnapshotId"), Is.EqualTo(SnapshotId));
+        Assert.That(MetaValue(meta!, "SchemaVersion"), Is.EqualTo(PlatformWorkbookExporter.SchemaVersion));
+        Assert.That(MetaValue(meta!, "WorkbookHash"), Is.EqualTo(PlatformWorkbookHash.Compute(workbook)));
     }
 
-    [Fact]
+    [Test]
     public void Unedited_round_trip_yields_empty_diff()
     {
         var original = Export(SampleData());
         var roundTripped = CanonicalTextWorkbookIo.Deserialize(CanonicalTextWorkbookIo.Serialize(original));
 
-        Assert.True(PlatformWorkbookDiff.IsEmpty(original, roundTripped));
+        Assert.That(PlatformWorkbookDiff.IsEmpty(original, roundTripped), Is.True);
     }
 
-    [Fact]
+    [Test]
     public void ClosedXml_unedited_round_trip_matches_canonical_empty_diff_contract()
     {
         var original = Export(SampleData());
@@ -120,7 +110,7 @@ public sealed class PlatformWorkbookRoundTripTests
             var io = new ClosedXmlPlatformWorkbookIo();
             io.Write(original, path);
             var roundTripped = io.Read(path);
-            Assert.True(PlatformWorkbookDiff.IsEmpty(original, roundTripped));
+            Assert.That(PlatformWorkbookDiff.IsEmpty(original, roundTripped), Is.True);
         }
         finally
         {
@@ -131,7 +121,7 @@ public sealed class PlatformWorkbookRoundTripTests
         }
     }
 
-    [Fact]
+    [Test]
     public void Edited_cell_is_detected_as_a_single_change()
     {
         var original = Export(SampleData());
@@ -146,10 +136,10 @@ public sealed class PlatformWorkbookRoundTripTests
         };
 
         var changes = PlatformWorkbookDiff.Compare(original, Export(edited));
-        var change = Assert.Single(changes);
-        Assert.Equal("Magazines", change.Sheet);
-        Assert.Equal(PlatformWorkbookChangeKind.CellChanged, change.Kind);
-        Assert.Contains("Quantity", change.Detail);
+        var change = AssertEx.Single(changes);
+        Assert.That(change.Sheet, Is.EqualTo("Magazines"));
+        Assert.That(change.Kind, Is.EqualTo(PlatformWorkbookChangeKind.CellChanged));
+        Assert.That(change.Detail, Does.Contain("Quantity"));
     }
 
     private static string MetaValue(PlatformWorkbookSheet meta, string key)
@@ -183,8 +173,8 @@ public sealed class PlatformWorkbookRoundTripTests
     private static string[] SheetCompositeKeys(PlatformWorkbook workbook, string sheetName, params int[] columns)
     {
         var sheet = workbook.FindSheet(sheetName);
-        Assert.NotNull(sheet);
-        return sheet.Rows
+        Assert.That(sheet, Is.Not.Null);
+        return sheet!.Rows
             .Select(row => string.Join('\t', columns.Select(i => row[i])))
             .ToArray();
     }

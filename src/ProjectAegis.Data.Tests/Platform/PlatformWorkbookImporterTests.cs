@@ -2,7 +2,7 @@ using ProjectAegis.Data.Catalog;
 using ProjectAegis.Data.Platform;
 using ProjectAegis.Data.Validation;
 using ProjectAegis.Data.WriteGate;
-using Xunit;
+using NUnit.Framework;
 
 namespace ProjectAegis.Data.Tests.Platform;
 
@@ -38,7 +38,7 @@ public sealed class PlatformWorkbookImporterTests
     private static PlatformWorkbookImporter ImporterFor(PlatformCatalogExportData source) =>
         new(id => string.Equals(id, SnapshotId, StringComparison.Ordinal) ? source : null, new FixedCatalogClock(0));
 
-    [Fact]
+    [Test]
     public void Plan_unedited_round_trip_has_no_changes()
     {
         var source = BaseData();
@@ -46,23 +46,23 @@ public sealed class PlatformWorkbookImporterTests
 
         var plan = ImporterFor(source).Plan(edited);
 
-        Assert.True(plan.SnapshotResolved);
-        Assert.False(plan.HasChanges);
-        Assert.False(plan.Blocked);
+        Assert.That(plan.SnapshotResolved, Is.True);
+        Assert.That(plan.HasChanges, Is.False);
+        Assert.That(plan.Blocked, Is.False);
     }
 
-    [Fact]
+    [Test]
     public void Plan_unknown_snapshot_is_unresolved()
     {
         var edited = Export(BaseData(), snapshotId: "does-not-exist");
 
         var plan = ImporterFor(BaseData()).Plan(edited);
 
-        Assert.False(plan.SnapshotResolved);
-        Assert.Empty(plan.Changes);
+        Assert.That(plan.SnapshotResolved, Is.False);
+        Assert.That(plan.Changes, Is.Empty);
     }
 
-    [Fact]
+    [Test]
     public void Stage_edited_sensor_proposes_one_batch()
     {
         var source = BaseData(sensorBasePdMilli: 850);
@@ -71,15 +71,15 @@ public sealed class PlatformWorkbookImporterTests
 
         var result = ImporterFor(source).Stage(edited, gate, "human", "drgamtd", "edit pd");
 
-        Assert.True(result.Staged);
-        Assert.NotNull(result.SensorBatchId);
-        var proposed = Assert.Single(gate.SensorProposals);
-        Assert.Equal("u1", proposed[0].PlatformId);
-        Assert.Equal("cmo-sensor-1", proposed[0].SensorId);
-        Assert.Equal(0.50, proposed[0].BasePd, precision: 6);
+        Assert.That(result.Staged, Is.True);
+        Assert.That(result.SensorBatchId, Is.Not.Null);
+        var proposed = AssertEx.Single(gate.SensorProposals);
+        Assert.That(proposed[0].PlatformId, Is.EqualTo("u1"));
+        Assert.That(proposed[0].SensorId, Is.EqualTo("cmo-sensor-1"));
+        Assert.That(proposed[0].BasePd, Is.EqualTo(0.50).Within(0.0000005));
     }
 
-    [Fact]
+    [Test]
     public void Stage_blocked_by_validation_error_stages_nothing()
     {
         var source = BaseData();
@@ -88,20 +88,20 @@ public sealed class PlatformWorkbookImporterTests
 
         var result = ImporterFor(source).Stage(edited, gate, "human", "drgamtd");
 
-        Assert.False(result.Staged);
-        Assert.Empty(gate.SensorProposals);
-        Assert.Empty(gate.MountProposals);
-        Assert.Empty(gate.LoadoutProposals);
-        Assert.Empty(gate.MagazineProposals);
-        Assert.Empty(gate.CommsProposals);
-        Assert.Empty(gate.MobilityProposals);
-        Assert.Empty(gate.SignatureProposals);
-        Assert.Empty(gate.EmconProposals);
-        Assert.Contains(result.Plan.Findings, f =>
-            f.Code == PlatformWorkbookValidator.MagazineOverCapacity && f.Severity == ValidationSeverity.Error);
+        Assert.That(result.Staged, Is.False);
+        Assert.That(gate.SensorProposals, Is.Empty);
+        Assert.That(gate.MountProposals, Is.Empty);
+        Assert.That(gate.LoadoutProposals, Is.Empty);
+        Assert.That(gate.MagazineProposals, Is.Empty);
+        Assert.That(gate.CommsProposals, Is.Empty);
+        Assert.That(gate.MobilityProposals, Is.Empty);
+        Assert.That(gate.SignatureProposals, Is.Empty);
+        Assert.That(gate.EmconProposals, Is.Empty);
+        Assert.That(result.Plan.Findings.Any(f =>
+            f.Code == PlatformWorkbookValidator.MagazineOverCapacity && f.Severity == ValidationSeverity.Error), Is.True);
     }
 
-    [Fact]
+    [Test]
     public void Stage_reports_unsupported_entity_changes()
     {
         var source = BaseData();
@@ -111,12 +111,12 @@ public sealed class PlatformWorkbookImporterTests
 
         _ = ImporterFor(source).Stage(Export(editedData), gate, "human", "drgamtd");
 
-        Assert.Empty(gate.SensorProposals);                       // no sensor changes
-        Assert.NotEmpty(gate.MountProposals);                     // mount changes are now supported
-        Assert.Contains(gate.MountProposals[0], m => m.Capacity == 40);
+        Assert.That(gate.SensorProposals, Is.Empty);                       // no sensor changes
+        Assert.That(gate.MountProposals, Is.Not.Empty);                     // mount changes are now supported
+        Assert.That(gate.MountProposals[0].Any(m => m.Capacity == 40), Is.True);
     }
 
-    [Fact]
+    [Test]
     public void Stage_edited_mount_proposes_mount_batch()
     {
         var source = BaseData();
@@ -126,15 +126,15 @@ public sealed class PlatformWorkbookImporterTests
 
         var result = ImporterFor(source).Stage(edited, gate, "human", "drgamtd", "edit mount");
 
-        Assert.True(result.Staged);
-        Assert.NotNull(result.MountBatchId);
-        var proposed = Assert.Single(gate.MountProposals);
-        Assert.Equal("u1", proposed[0].PlatformId);
-        Assert.Equal("vls-fwd", proposed[0].MountId);
-        Assert.Equal(40, proposed[0].Capacity);
+        Assert.That(result.Staged, Is.True);
+        Assert.That(result.MountBatchId, Is.Not.Null);
+        var proposed = AssertEx.Single(gate.MountProposals);
+        Assert.That(proposed[0].PlatformId, Is.EqualTo("u1"));
+        Assert.That(proposed[0].MountId, Is.EqualTo("vls-fwd"));
+        Assert.That(proposed[0].Capacity, Is.EqualTo(40));
     }
 
-    [Fact]
+    [Test]
     public void Stage_edited_loadout_proposes_loadout_batch()
     {
         var source = BaseData();
@@ -144,15 +144,15 @@ public sealed class PlatformWorkbookImporterTests
 
         var result = ImporterFor(source).Stage(edited, gate, "human", "drgamtd", "edit loadout");
 
-        Assert.True(result.Staged);
-        Assert.NotNull(result.LoadoutBatchId);
-        var proposed = Assert.Single(gate.LoadoutProposals);
-        Assert.Equal("u1", proposed[0].PlatformId);
-        Assert.Equal("asuw-default", proposed[0].LoadoutId);
-        Assert.Equal("ASuW Heavy", proposed[0].LoadoutName);
+        Assert.That(result.Staged, Is.True);
+        Assert.That(result.LoadoutBatchId, Is.Not.Null);
+        var proposed = AssertEx.Single(gate.LoadoutProposals);
+        Assert.That(proposed[0].PlatformId, Is.EqualTo("u1"));
+        Assert.That(proposed[0].LoadoutId, Is.EqualTo("asuw-default"));
+        Assert.That(proposed[0].LoadoutName, Is.EqualTo("ASuW Heavy"));
     }
 
-    [Fact]
+    [Test]
     public void Stage_edited_magazine_proposes_magazine_batch()
     {
         var source = BaseData(magazineQty: 16);
@@ -161,15 +161,15 @@ public sealed class PlatformWorkbookImporterTests
 
         var result = ImporterFor(source).Stage(edited, gate, "human", "drgamtd", "edit magazine");
 
-        Assert.True(result.Staged);
-        Assert.NotNull(result.MagazineBatchId);
-        var proposed = Assert.Single(gate.MagazineProposals);
-        Assert.Equal("u1", proposed[0].PlatformId);
-        Assert.Equal("mvp-weapon", proposed[0].WeaponId);
-        Assert.Equal(24, proposed[0].Quantity);
+        Assert.That(result.Staged, Is.True);
+        Assert.That(result.MagazineBatchId, Is.Not.Null);
+        var proposed = AssertEx.Single(gate.MagazineProposals);
+        Assert.That(proposed[0].PlatformId, Is.EqualTo("u1"));
+        Assert.That(proposed[0].WeaponId, Is.EqualTo("mvp-weapon"));
+        Assert.That(proposed[0].Quantity, Is.EqualTo(24));
     }
 
-    [Fact]
+    [Test]
     public void Stage_edited_link_proposes_link_batch()
     {
         var source = BaseData();
@@ -186,14 +186,14 @@ public sealed class PlatformWorkbookImporterTests
 
         var result = ImporterFor(source).Stage(edited, gate, "human", "drgamtd", "edit link");
 
-        Assert.True(result.Staged);
-        Assert.NotNull(result.LinkBatchId);
-        var proposed = Assert.Single(gate.LinkProposals);
-        Assert.Equal("NATO_TADIL_J", proposed[0].LinkId);
-        Assert.Equal(75, proposed[0].LatencyMsNominal);
+        Assert.That(result.Staged, Is.True);
+        Assert.That(result.LinkBatchId, Is.Not.Null);
+        var proposed = AssertEx.Single(gate.LinkProposals);
+        Assert.That(proposed[0].LinkId, Is.EqualTo("NATO_TADIL_J"));
+        Assert.That(proposed[0].LatencyMsNominal, Is.EqualTo(75));
     }
 
-    [Fact]
+    [Test]
     public void Stage_edited_comms_proposes_comms_batch()
     {
         var source = BaseData();
@@ -203,16 +203,16 @@ public sealed class PlatformWorkbookImporterTests
 
         var result = ImporterFor(source).Stage(edited, gate, "human", "drgamtd", "edit comms");
 
-        Assert.True(result.Staged);
-        Assert.NotNull(result.CommsBatchId);
-        var proposed = Assert.Single(gate.CommsProposals);
-        Assert.Equal("u1", proposed[0].PlatformId);
-        Assert.Equal("NATO_TADIL_J", proposed[0].LinkId);
-        Assert.Equal("tx", proposed[0].Role);
-        Assert.True(proposed[0].SatcomCapable);
+        Assert.That(result.Staged, Is.True);
+        Assert.That(result.CommsBatchId, Is.Not.Null);
+        var proposed = AssertEx.Single(gate.CommsProposals);
+        Assert.That(proposed[0].PlatformId, Is.EqualTo("u1"));
+        Assert.That(proposed[0].LinkId, Is.EqualTo("NATO_TADIL_J"));
+        Assert.That(proposed[0].Role, Is.EqualTo("tx"));
+        Assert.That(proposed[0].SatcomCapable, Is.True);
     }
 
-    [Fact]
+    [Test]
     public void Stage_multiple_entity_types_proposes_all_batches()
     {
         var source = BaseData(sensorBasePdMilli: 850, magazineQty: 16);
@@ -225,16 +225,16 @@ public sealed class PlatformWorkbookImporterTests
 
         var result = ImporterFor(source).Stage(edited, gate, "human", "drgamtd", "edit multiple");
 
-        Assert.True(result.Staged);
-        Assert.NotNull(result.SensorBatchId);
-        Assert.NotNull(result.MountBatchId);
-        Assert.NotNull(result.MagazineBatchId);
-        Assert.NotEmpty(gate.SensorProposals);
-        Assert.NotEmpty(gate.MountProposals);
-        Assert.NotEmpty(gate.MagazineProposals);
+        Assert.That(result.Staged, Is.True);
+        Assert.That(result.SensorBatchId, Is.Not.Null);
+        Assert.That(result.MountBatchId, Is.Not.Null);
+        Assert.That(result.MagazineBatchId, Is.Not.Null);
+        Assert.That(gate.SensorProposals, Is.Not.Empty);
+        Assert.That(gate.MountProposals, Is.Not.Empty);
+        Assert.That(gate.MagazineProposals, Is.Not.Empty);
     }
 
-    [Fact]
+    [Test]
     public void Plan_large_changeset_requires_human_approval()
     {
         var source = ManySensors(11, basePdMilli: 100);
@@ -242,12 +242,12 @@ public sealed class PlatformWorkbookImporterTests
 
         var plan = ImporterFor(source).Plan(edited);
 
-        Assert.True(plan.Changes.Count > PlatformWorkbookImporter.HumanApprovalRecordThreshold);
-        Assert.True(plan.RequiresHumanApproval);
+        Assert.That(plan.Changes.Count > PlatformWorkbookImporter.HumanApprovalRecordThreshold, Is.True);
+        Assert.That(plan.RequiresHumanApproval, Is.True);
     }
 
     /// <summary>PLE-2.3: dangling magazine FK produces quarantine report entry and never stages.</summary>
-    [Fact]
+    [Test]
     public void Stage_dangling_magazine_mount_fk_emits_quarantine_entry_and_stages_nothing()
     {
         var source = BaseData(magazineQty: 16);
@@ -263,22 +263,22 @@ public sealed class PlatformWorkbookImporterTests
 
         var result = ImporterFor(source).Stage(edited, gate, "human", "drgamtd", "dangling mount fk");
 
-        Assert.False(result.Staged);
-        Assert.Empty(gate.MagazineProposals);
-        Assert.Empty(gate.SensorProposals);
-        Assert.True(result.Plan.Blocked);
-        Assert.Contains(result.Plan.Findings, f => f.Code == PlatformWorkbookValidator.MagazineUnknownMount);
-        Assert.NotEmpty(result.QuarantineEntries);
-        Assert.Contains(result.QuarantineEntries, q =>
+        Assert.That(result.Staged, Is.False);
+        Assert.That(gate.MagazineProposals, Is.Empty);
+        Assert.That(gate.SensorProposals, Is.Empty);
+        Assert.That(result.Plan.Blocked, Is.True);
+        Assert.That(result.Plan.Findings.Any(f => f.Code == PlatformWorkbookValidator.MagazineUnknownMount), Is.True);
+        Assert.That(result.QuarantineEntries, Is.Not.Empty);
+        Assert.That(result.QuarantineEntries.Any(q =>
             q.Reason == PlatformWorkbookValidator.MagazineUnknownMount
             && q.PlatformId == "u1"
             && q.EntityId == "does-not-exist-mount"
-            && q.SourceSheet == "Magazines");
-        Assert.Equal(result.Plan.QuarantineEntries.Count, result.QuarantineEntries.Count);
+            && q.SourceSheet == "Magazines"), Is.True);
+        Assert.That(result.QuarantineEntries.Count, Is.EqualTo(result.Plan.QuarantineEntries.Count));
     }
 
     /// <summary>PLE-4.4: low-TRL / provisional sensors are quarantined and not proposed; high-TRL approved still stage.</summary>
-    [Fact]
+    [Test]
     public void Stage_trl_gate_quarantines_low_trl_provisional_sensor_and_stages_approved_high_trl()
     {
         var source = new PlatformCatalogExportData(
@@ -330,22 +330,22 @@ public sealed class PlatformWorkbookImporterTests
 
         var result = ImporterFor(source).Stage(edited, gate, "human", "drgamtd", "trl gate");
 
-        Assert.True(result.Staged);
-        Assert.NotNull(result.SensorBatchId);
-        var proposed = Assert.Single(gate.SensorProposals);
-        var only = Assert.Single(proposed);
-        Assert.Equal("sensor-approved-high", only.SensorId);
-        Assert.Equal(0.50, only.BasePd, precision: 6);
-        Assert.Equal(CatalogReviewStates.Approved, only.ReviewState);
-        Assert.Equal(9, only.TrlLevel);
+        Assert.That(result.Staged, Is.True);
+        Assert.That(result.SensorBatchId, Is.Not.Null);
+        var proposed = AssertEx.Single(gate.SensorProposals);
+        var only = AssertEx.Single(proposed);
+        Assert.That(only.SensorId, Is.EqualTo("sensor-approved-high"));
+        Assert.That(only.BasePd, Is.EqualTo(0.50).Within(0.0000005));
+        Assert.That(only.ReviewState, Is.EqualTo(CatalogReviewStates.Approved));
+        Assert.That(only.TrlLevel, Is.EqualTo(9));
 
-        Assert.Contains(result.QuarantineEntries, q =>
+        Assert.That(result.QuarantineEntries.Any(q =>
             q.EntityKind == "sensor"
             && q.EntityId == "sensor-provisional-low"
             && q.PlatformId == "u1"
             && (q.Reason is "trl_below_minimum" or "review_state_provisional")
-            && q.SourceSheet == "Sensors");
-        Assert.DoesNotContain(result.QuarantineEntries, q => q.EntityId == "sensor-approved-high");
+            && q.SourceSheet == "Sensors"), Is.True);
+        Assert.That(result.QuarantineEntries.Any(q => q.EntityId == "sensor-approved-high"), Is.False);
     }
 
     private static PlatformCatalogExportData ManySensors(int count, int basePdMilli)

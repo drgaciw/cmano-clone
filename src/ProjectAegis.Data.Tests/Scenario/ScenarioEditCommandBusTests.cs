@@ -1,5 +1,5 @@
 using ProjectAegis.Data.Scenario.Authoring;
-using Xunit;
+using NUnit.Framework;
 
 namespace ProjectAegis.Data.Tests.Scenario;
 
@@ -9,7 +9,7 @@ namespace ProjectAegis.Data.Tests.Scenario;
 /// </summary>
 public sealed class ScenarioEditCommandBusTests
 {
-    [Fact]
+    [Test]
     public void Apply_place_unit_bumps_edit_version_marks_dirty_and_validates()
     {
         var path = Path.Combine(Path.GetTempPath(), $"aegis-bus-{Guid.NewGuid():N}.json");
@@ -17,8 +17,8 @@ public sealed class ScenarioEditCommandBusTests
         {
             ScenarioDocumentEditor.CreateNew().Save(path);
             using var session = ScenarioAuthoringSession.Open(path);
-            Assert.False(session.IsDirty);
-            Assert.Equal(1, session.EditVersion);
+            Assert.That(session.IsDirty, Is.False);
+            Assert.That(session.EditVersion, Is.EqualTo(1));
 
             var result = session.Bus.PlaceUnit(
                 expectedEditVersion: 1,
@@ -32,14 +32,14 @@ public sealed class ScenarioEditCommandBusTests
                 },
                 save: true);
 
-            Assert.True(result.Ok);
-            Assert.Equal(2, result.EditVersion);
-            Assert.NotNull(result.Report);
+            Assert.That(result.Ok, Is.True);
+            Assert.That(result.EditVersion, Is.EqualTo(2));
+            Assert.That(result.Report, Is.Not.Null);
             // Fresh save clears dirty if save:true
-            Assert.False(session.IsDirty);
+            Assert.That(session.IsDirty, Is.False);
 
             var reloaded = ScenarioDocumentJsonLoader.LoadFromFile(path);
-            Assert.Single(reloaded.Orbat!.Units);
+            Assert.That(reloaded.Orbat!.Units, Has.Exactly(1).Items);
         }
         finally
         {
@@ -50,7 +50,7 @@ public sealed class ScenarioEditCommandBusTests
         }
     }
 
-    [Fact]
+    [Test]
     public void Apply_stale_edit_version_returns_conflict_without_write()
     {
         var path = Path.Combine(Path.GetTempPath(), $"aegis-bus-c-{Guid.NewGuid():N}.json");
@@ -71,9 +71,9 @@ public sealed class ScenarioEditCommandBusTests
                 },
                 save: true);
 
-            Assert.False(result.Ok);
-            Assert.Equal(ScenarioEditVersionGuard.ConflictCode, result.ErrorCode);
-            Assert.Equal(1, ScenarioDocumentJsonLoader.LoadFromFile(path).Metadata.EditVersion);
+            Assert.That(result.Ok, Is.False);
+            Assert.That(result.ErrorCode, Is.EqualTo(ScenarioEditVersionGuard.ConflictCode));
+            Assert.That(ScenarioDocumentJsonLoader.LoadFromFile(path).Metadata.EditVersion, Is.EqualTo(1));
         }
         finally
         {
@@ -84,7 +84,7 @@ public sealed class ScenarioEditCommandBusTests
         }
     }
 
-    [Fact]
+    [Test]
     public void Live_findings_include_mission_no_units_after_empty_patrol_attach()
     {
         var path = Path.Combine(Path.GetTempPath(), $"aegis-bus-v-{Guid.NewGuid():N}.json");
@@ -105,7 +105,7 @@ public sealed class ScenarioEditCommandBusTests
                 save: true);
 
             var codes = session.Bus.LastReport!.Findings.Select(f => f.Code).ToHashSet();
-            Assert.Contains("MISSION_NO_UNITS", codes);
+            Assert.That(codes, Does.Contain("MISSION_NO_UNITS"));
         }
         finally
         {

@@ -1,5 +1,5 @@
 using ProjectAegis.Data.Scenario.Authoring;
-using Xunit;
+using NUnit.Framework;
 
 namespace ProjectAegis.Data.Tests.Scenario;
 
@@ -9,77 +9,75 @@ namespace ProjectAegis.Data.Tests.Scenario;
 /// </summary>
 public sealed class ScenarioLatLonDiagnosticsTests
 {
-    [Fact]
+    [Test]
     public void Check_valid_position_returns_null()
     {
-        Assert.Null(ScenarioLatLonDiagnostics.Check(57.25, 20.5));
-        Assert.Null(ScenarioLatLonDiagnostics.Check(-90, 180));
+        Assert.That(ScenarioLatLonDiagnostics.Check(57.25, 20.5), Is.Null);
+        Assert.That(ScenarioLatLonDiagnostics.Check(-90, 180), Is.Null);
     }
 
-    [Fact]
+    [Test]
     public void Check_latitude_out_of_range_names_value_range_and_example()
     {
         var d = ScenarioLatLonDiagnostics.Check(95, 20);
 
-        Assert.NotNull(d);
-        Assert.Equal(ScenarioLatLonDiagnostics.LatOutOfRange, d.Code);
-        Assert.Equal("lat", d.Field);
-        Assert.Contains("95", d.Message, StringComparison.Ordinal);
-        Assert.Contains("between -90 and 90", d.Message, StringComparison.Ordinal);
-        Assert.Contains("south negative", d.Message, StringComparison.Ordinal);
-        Assert.Contains("e.g.", d.Message, StringComparison.Ordinal);
+        Assert.That(d, Is.Not.Null);
+        Assert.That(d!.Code, Is.EqualTo(ScenarioLatLonDiagnostics.LatOutOfRange));
+        Assert.That(d.Field, Is.EqualTo("lat"));
+        Assert.That(d.Message, Does.Contain("95"));
+        Assert.That(d.Message, Does.Contain("between -90 and 90"));
+        Assert.That(d.Message, Does.Contain("south negative"));
+        Assert.That(d.Message, Does.Contain("e.g."));
     }
 
-    [Fact]
+    [Test]
     public void Check_longitude_out_of_range_names_value_range_and_example()
     {
         var d = ScenarioLatLonDiagnostics.Check(57, -181.5);
 
-        Assert.NotNull(d);
-        Assert.Equal(ScenarioLatLonDiagnostics.LonOutOfRange, d.Code);
-        Assert.Equal("lon", d.Field);
-        Assert.Contains("-181.5", d.Message, StringComparison.Ordinal);
-        Assert.Contains("between -180 and 180", d.Message, StringComparison.Ordinal);
-        Assert.Contains("west negative", d.Message, StringComparison.Ordinal);
+        Assert.That(d, Is.Not.Null);
+        Assert.That(d!.Code, Is.EqualTo(ScenarioLatLonDiagnostics.LonOutOfRange));
+        Assert.That(d.Field, Is.EqualTo("lon"));
+        Assert.That(d.Message, Does.Contain("-181.5"));
+        Assert.That(d.Message, Does.Contain("between -180 and 180"));
+        Assert.That(d.Message, Does.Contain("west negative"));
     }
 
-    [Fact]
+    [Test]
     public void Check_non_finite_is_reported()
     {
         var d = ScenarioLatLonDiagnostics.Check(double.NaN, 20);
 
-        Assert.NotNull(d);
-        Assert.Equal(ScenarioLatLonDiagnostics.NotFinite, d.Code);
-        Assert.Contains("finite", d.Message, StringComparison.Ordinal);
+        Assert.That(d, Is.Not.Null);
+        Assert.That(d!.Code, Is.EqualTo(ScenarioLatLonDiagnostics.NotFinite));
+        Assert.That(d.Message, Does.Contain("finite"));
     }
-
-    [Theory]
-    [InlineData("57°15'N")]
-    [InlineData("57,25")]
-    [InlineData("")]
+    [TestCase("57°15'N")]
+    [TestCase("57,25")]
+    [TestCase("")]
     public void CheckText_non_decimal_latitude_explains_decimal_degree_format(string latText)
     {
         var d = ScenarioLatLonDiagnostics.CheckText(latText, "20.5", out _, out _);
 
-        Assert.NotNull(d);
-        Assert.Equal(ScenarioLatLonDiagnostics.NotNumeric, d.Code);
-        Assert.Equal("lat", d.Field);
-        Assert.Equal(latText, d.RawValue);
-        Assert.Contains("decimal", d.Message, StringComparison.Ordinal);
-        Assert.Contains("'.'", d.Message, StringComparison.Ordinal);
+        Assert.That(d, Is.Not.Null);
+        Assert.That(d!.Code, Is.EqualTo(ScenarioLatLonDiagnostics.NotNumeric));
+        Assert.That(d.Field, Is.EqualTo("lat"));
+        Assert.That(d.RawValue, Is.EqualTo(latText));
+        Assert.That(d.Message, Does.Contain("decimal"));
+        Assert.That(d.Message, Does.Contain("'.'"));
     }
 
-    [Fact]
+    [Test]
     public void CheckText_valid_invariant_text_parses()
     {
         var d = ScenarioLatLonDiagnostics.CheckText("57.25", "-20.5", out var lat, out var lon);
 
-        Assert.Null(d);
-        Assert.Equal(57.25, lat);
-        Assert.Equal(-20.5, lon);
+        Assert.That(d, Is.Null);
+        Assert.That(lat, Is.EqualTo(57.25));
+        Assert.That(lon, Is.EqualTo(-20.5));
     }
 
-    [Fact]
+    [Test]
     public void Editor_upsert_move_and_clone_reject_out_of_range_with_coded_exception()
     {
         var editor = ScenarioDocumentEditor.CreateNew();
@@ -87,20 +85,20 @@ public sealed class ScenarioLatLonDiagnosticsTests
 
         var upsert = Assert.Throws<ScenarioLatLonException>(() => editor.UpsertOrbatUnit(
             new ScenarioOrbatUnitDto { Id = "u2", SideId = "blue", PlatformId = "u1", Lat = 91, Lon = 20 }));
-        Assert.Equal(ScenarioLatLonDiagnostics.LatOutOfRange, upsert.Code);
+        Assert.That(upsert!.Code, Is.EqualTo(ScenarioLatLonDiagnostics.LatOutOfRange));
 
         var move = Assert.Throws<ScenarioLatLonException>(() => editor.MoveOrbatUnit("u1", 57, 200));
-        Assert.Equal(ScenarioLatLonDiagnostics.LonOutOfRange, move.Code);
+        Assert.That(move!.Code, Is.EqualTo(ScenarioLatLonDiagnostics.LonOutOfRange));
 
         var clone = Assert.Throws<ScenarioLatLonException>(() => editor.CloneOrbatUnit("u1", "u1b", -95, 20));
-        Assert.Equal(ScenarioLatLonDiagnostics.LatOutOfRange, clone.Code);
+        Assert.That(clone!.Code, Is.EqualTo(ScenarioLatLonDiagnostics.LatOutOfRange));
 
-        var unit = Assert.Single(editor.ToDto().Orbat!.Units);
-        Assert.Equal(57, unit.Lat);
-        Assert.Equal(20, unit.Lon);
+        var unit = AssertEx.Single(editor.ToDto().Orbat!.Units);
+        Assert.That(unit.Lat, Is.EqualTo(57));
+        Assert.That(unit.Lon, Is.EqualTo(20));
     }
 
-    [Fact]
+    [Test]
     public void Command_bus_surfaces_latlon_code_and_message()
     {
         var path = Path.Combine(Path.GetTempPath(), $"aegis-latlon-{Guid.NewGuid():N}.json");
@@ -113,9 +111,9 @@ public sealed class ScenarioLatLonDiagnosticsTests
             using var session = ScenarioAuthoringSession.Open(path);
             var result = session.Bus.MoveUnit(session.EditVersion, "u1", 120, 20, save: false);
 
-            Assert.False(result.Ok);
-            Assert.Equal(ScenarioLatLonDiagnostics.LatOutOfRange, result.ErrorCode);
-            Assert.Contains("between -90 and 90", result.ErrorMessage, StringComparison.Ordinal);
+            Assert.That(result.Ok, Is.False);
+            Assert.That(result.ErrorCode, Is.EqualTo(ScenarioLatLonDiagnostics.LatOutOfRange));
+            Assert.That(result.ErrorMessage, Does.Contain("between -90 and 90"));
         }
         finally
         {

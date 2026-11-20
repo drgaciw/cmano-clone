@@ -1,6 +1,6 @@
 using System.Text.Json;
 using ProjectAegis.Data.Scenario.Policy;
-using Xunit;
+using NUnit.Framework;
 
 namespace ProjectAegis.Data.Tests.Scenario;
 
@@ -63,49 +63,49 @@ public sealed class ScenarioGauntletJsonDtoTests
         }
         """;
 
-    [Fact]
+    [Test]
     public void Full_gauntlet_whitelist_binds_without_key_loss()
     {
         var dto = JsonSerializer.Deserialize<ScenarioPolicyJsonDto>(FullGauntletPolicy, Options);
-        Assert.NotNull(dto);
-        var g = dto.Gauntlet;
-        Assert.NotNull(g);
+        Assert.That(dto, Is.Not.Null);
+        var g = dto!.Gauntlet;
+        Assert.That(g, Is.Not.Null);
 
-        Assert.Equal("patrol", g.Intent);
-        Assert.Equal("blue wins", g.Oracle);
-        Assert.Equal(["k-31-visby-2009"], g.CatalogRefs);
-        Assert.Equal("run-1", g.RunId);
-        Assert.Equal(2, g.Tier);
-        Assert.Equal(["emcon", "roe"], g.DimensionsClaimed);
+        Assert.That(g!.Intent, Is.EqualTo("patrol"));
+        Assert.That(g.Oracle, Is.EqualTo("blue wins"));
+        Assert.That(g.CatalogRefs, Is.EqualTo(["k-31-visby-2009"]));
+        Assert.That(g.RunId, Is.EqualTo("run-1"));
+        Assert.That(g.Tier, Is.EqualTo(2));
+        Assert.That(g.DimensionsClaimed, Is.EqualTo(["emcon", "roe"]));
 
-        var unit = Assert.Single(g.Units!);
-        Assert.Equal("u1", unit.UnitId);
-        Assert.Equal("k-31-visby-2009", unit.PlatformId);
-        Assert.Equal("surface", unit.Domain);
-        Assert.Equal("blue", unit.Side);
+        var unit = AssertEx.Single(g.Units!);
+        Assert.That(unit.UnitId, Is.EqualTo("u1"));
+        Assert.That(unit.PlatformId, Is.EqualTo("k-31-visby-2009"));
+        Assert.That(unit.Domain, Is.EqualTo("surface"));
+        Assert.That(unit.Side, Is.EqualTo("blue"));
 
-        Assert.NotNull(g.Expect);
-        Assert.Equal("BLUE", g.Expect!.Side);
-        Assert.Equal(1, g.Expect.MinKills);
-        Assert.Equal(5, g.Expect.MaxMissilesFired);
-        Assert.Equal(2, g.Expect.MinDenials);
-        Assert.Equal(10, g.Expect.MaxDenials);
-        Assert.Equal(50.0, g.Expect.MinScore);
-        Assert.Equal(90.0, g.Expect.MaxScore);
-        Assert.True(g.Expect.RequireNonEmptyFingerprint);
-        Assert.Equal(["CommsStateChange"], g.Expect.RequireFingerprintSubstrings);
-        Assert.Equal(["u1"], g.Expect.RequireTrueLaunchedShooters);
+        Assert.That(g.Expect, Is.Not.Null);
+        Assert.That(g.Expect!.Side, Is.EqualTo("BLUE"));
+        Assert.That(g.Expect.MinKills, Is.EqualTo(1));
+        Assert.That(g.Expect.MaxMissilesFired, Is.EqualTo(5));
+        Assert.That(g.Expect.MinDenials, Is.EqualTo(2));
+        Assert.That(g.Expect.MaxDenials, Is.EqualTo(10));
+        Assert.That(g.Expect.MinScore, Is.EqualTo(50.0));
+        Assert.That(g.Expect.MaxScore, Is.EqualTo(90.0));
+        Assert.That(g.Expect.RequireNonEmptyFingerprint, Is.True);
+        Assert.That(g.Expect.RequireFingerprintSubstrings, Is.EqualTo(["CommsStateChange"]));
+        Assert.That(g.Expect.RequireTrueLaunchedShooters, Is.EqualTo(["u1"]));
 
-        Assert.NotNull(g.ExpectCi);
-        Assert.Equal("BLUE", g.ExpectCi!.Side);
-        Assert.Equal(1, g.ExpectCi.MinKills);
-        Assert.False(g.ExpectCi.RequireNonEmptyFingerprint);
+        Assert.That(g.ExpectCi, Is.Not.Null);
+        Assert.That(g.ExpectCi!.Side, Is.EqualTo("BLUE"));
+        Assert.That(g.ExpectCi.MinKills, Is.EqualTo(1));
+        Assert.That(g.ExpectCi.RequireNonEmptyFingerprint, Is.False);
 
-        Assert.Equal(JsonValueKind.String, g.ExpectProvenance!.Value.ValueKind);
-        Assert.Equal("derived from batch CSV", g.ExpectProvenance.Value.GetString());
-        Assert.Equal(JsonValueKind.Object, g.ExpectCiProvenance!.Value.ValueKind);
-        Assert.Equal("ci.csv", g.ExpectCiProvenance.Value.GetProperty("csv").GetString());
-        Assert.Equal(JsonValueKind.Object, g.Forge!.Value.ValueKind);
-        Assert.Equal("r1", g.Forge.Value.GetProperty("recipe").GetString());
+        Assert.That(g.ExpectProvenance!.Value.ValueKind, Is.EqualTo(JsonValueKind.String));
+        Assert.That(g.ExpectProvenance.Value.GetString(), Is.EqualTo("derived from batch CSV"));
+        Assert.That(g.ExpectCiProvenance!.Value.ValueKind, Is.EqualTo(JsonValueKind.Object));
+        Assert.That(g.ExpectCiProvenance.Value.GetProperty("csv").GetString(), Is.EqualTo("ci.csv"));
+        Assert.That(g.Forge!.Value.ValueKind, Is.EqualTo(JsonValueKind.Object));
+        Assert.That(g.Forge.Value.GetProperty("recipe").GetString(), Is.EqualTo("r1"));
     }
 }

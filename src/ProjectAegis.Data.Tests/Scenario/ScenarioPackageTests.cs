@@ -3,13 +3,13 @@ namespace ProjectAegis.Data.Tests.Scenario;
 using ProjectAegis.Data.Catalog;
 using ProjectAegis.Data.Scenario;
 using ProjectAegis.Data.Scenario.Authoring;
-using Xunit;
+using NUnit.Framework;
 
 using CatalogTlTier = ProjectAegis.Data.Catalog.CatalogTlTier;
 
 public sealed class ScenarioPackageTests
 {
-    [Fact]
+    [Test]
     public void FromDocument_uses_explicit_db_snapshot_id_when_present()
     {
         var doc = new ScenarioDocumentDto
@@ -22,10 +22,10 @@ public sealed class ScenarioPackageTests
         };
 
         var package = ScenarioPackage.FromDocument("scenario_a", doc);
-        Assert.Equal("catalog-p2-test-snapshot", package.DbSnapshotId);
+        Assert.That(package.DbSnapshotId, Is.EqualTo("catalog-p2-test-snapshot"));
     }
 
-    [Fact]
+    [Test]
     public void FromDocument_binds_tlBranch_from_metadata()
     {
         var doc = new ScenarioDocumentDto
@@ -38,10 +38,10 @@ public sealed class ScenarioPackageTests
         };
 
         var package = ScenarioPackage.FromDocument("tl_scenario", doc);
-        Assert.Equal(CatalogTlTier.Tl2, package.TlBranch);
+        Assert.That(package.TlBranch, Is.EqualTo(CatalogTlTier.Tl2));
     }
 
-    [Fact]
+    [Test]
     public void FromDocument_resolves_db_snapshot_from_db_ref()
     {
         var doc = new ScenarioDocumentDto
@@ -55,13 +55,13 @@ public sealed class ScenarioPackageTests
         };
 
         var package = ScenarioPackage.FromDocument("golden_clean", doc);
-        Assert.Equal("golden_clean", package.ScenarioId);
-        Assert.Equal("baltic-patrol-catalog", package.PolicyId);
-        Assert.Equal(CatalogValidationDefaults.BalticSnapshotId, package.DbSnapshotId);
-        Assert.Equal(99ul, package.Seed);
+        Assert.That(package.ScenarioId, Is.EqualTo("golden_clean"));
+        Assert.That(package.PolicyId, Is.EqualTo("baltic-patrol-catalog"));
+        Assert.That(package.DbSnapshotId, Is.EqualTo(CatalogValidationDefaults.BalticSnapshotId));
+        Assert.That(package.Seed, Is.EqualTo(99ul));
     }
 
-    [Fact]
+    [Test]
     public void Loader_golden_clean_fixture_binds_policy_and_snapshot()
     {
         var path = ResolveFixture("golden_clean.json");
@@ -71,21 +71,21 @@ public sealed class ScenarioPackageTests
         }
 
         var package = ScenarioPackageLoader.LoadFromFile(path);
-        Assert.Equal("golden_clean", package.ScenarioId);
-        Assert.Equal("baltic-patrol-catalog", package.PolicyId);
-        Assert.Equal(CatalogValidationDefaults.BalticSnapshotId, package.DbSnapshotId);
+        Assert.That(package.ScenarioId, Is.EqualTo("golden_clean"));
+        Assert.That(package.PolicyId, Is.EqualTo("baltic-patrol-catalog"));
+        Assert.That(package.DbSnapshotId, Is.EqualTo(CatalogValidationDefaults.BalticSnapshotId));
     }
 
-    [Fact]
+    [Test]
     public void Data_policy_repository_loads_json_policy_ids()
     {
         ScenarioPolicyJsonCatalog.EnsureDefaultJsonLoaded();
         var ids = ScenarioPolicyJsonCatalog.AllIds();
-        Assert.Contains("restricted-engagement", ids);
-        Assert.Contains("baltic-patrol", ids);
+        Assert.That(ids, Does.Contain("restricted-engagement"));
+        Assert.That(ids, Does.Contain("baltic-patrol"));
         var dto = ScenarioPolicyJsonCatalog.TryGetJson("restricted-engagement");
-        Assert.NotNull(dto);
-        Assert.Equal("restricted-engagement", dto.Id);
+        Assert.That(dto, Is.Not.Null);
+        Assert.That(dto!.Id, Is.EqualTo("restricted-engagement"));
     }
 
     private static string? ResolveFixture(string fileName)

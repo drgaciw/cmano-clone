@@ -1,13 +1,13 @@
 using ProjectAegis.Data.Catalog;
-using Xunit;
+using NUnit.Framework;
 
 namespace ProjectAegis.Data.Tests.Catalog;
 
 public sealed class NullCatalogReaderTests
 {
-    [Fact]
+    [Test]
     public void Instance_exposes_scaffold_layer_version()
     {
-        Assert.Equal("p0-scaffold", NullCatalogReader.Instance.LayerVersion);
+        Assert.That(NullCatalogReader.Instance.LayerVersion, Is.EqualTo("p0-scaffold"));
     }
 }

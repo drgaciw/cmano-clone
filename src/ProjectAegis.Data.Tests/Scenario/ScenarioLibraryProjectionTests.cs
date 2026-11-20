@@ -4,11 +4,11 @@ using ProjectAegis.Data.Catalog;
 using ProjectAegis.Data.Scenario;
 using ProjectAegis.Data.Scenario.Authoring;
 using ProjectAegis.Data.Validation;
-using Xunit;
+using NUnit.Framework;
 
 public sealed class ScenarioLibraryProjectionTests
 {
-    [Fact]
+    [Test]
     public void ListFromDirectory_temp_dir_with_two_fixtures_is_sorted_by_scenario_id()
     {
         var temp = CreateTempDir();
@@ -41,20 +41,20 @@ public sealed class ScenarioLibraryProjectionTests
 
             var entries = ScenarioLibraryLister.ListFromDirectory(temp);
 
-            Assert.Equal(2, entries.Count);
-            Assert.Equal("alpha.scenario", entries[0].ScenarioId);
-            Assert.Equal("zulu.scenario", entries[1].ScenarioId);
-            Assert.Equal("Alpha Strike", entries[0].Title);
-            Assert.Equal("Zulu Patrol", entries[1].Title);
-            Assert.Equal(42ul, entries[0].Seed);
-            Assert.Equal("TL-0", entries[0].TlBranch);
-            Assert.Equal("baltic-patrol-catalog", entries[0].PolicyId);
-            Assert.Equal(ScenarioLibraryProjection.DefaultProvenance, entries[0].ProvenanceLabel);
-            Assert.Equal(ScenarioLibraryProjection.MissingLabel, entries[0].Location);
-            Assert.Equal(ScenarioLibraryProjection.MissingLabel, entries[0].Year);
-            Assert.True(entries[0].Available);
-            Assert.Null(entries[0].UnavailableReason);
-            Assert.Contains("alpha.scenario.json", entries[0].SourcePath, StringComparison.Ordinal);
+            Assert.That(entries.Count, Is.EqualTo(2));
+            Assert.That(entries[0].ScenarioId, Is.EqualTo("alpha.scenario"));
+            Assert.That(entries[1].ScenarioId, Is.EqualTo("zulu.scenario"));
+            Assert.That(entries[0].Title, Is.EqualTo("Alpha Strike"));
+            Assert.That(entries[1].Title, Is.EqualTo("Zulu Patrol"));
+            Assert.That(entries[0].Seed, Is.EqualTo(42ul));
+            Assert.That(entries[0].TlBranch, Is.EqualTo("TL-0"));
+            Assert.That(entries[0].PolicyId, Is.EqualTo("baltic-patrol-catalog"));
+            Assert.That(entries[0].ProvenanceLabel, Is.EqualTo(ScenarioLibraryProjection.DefaultProvenance));
+            Assert.That(entries[0].Location, Is.EqualTo(ScenarioLibraryProjection.MissingLabel));
+            Assert.That(entries[0].Year, Is.EqualTo(ScenarioLibraryProjection.MissingLabel));
+            Assert.That(entries[0].Available, Is.True);
+            Assert.That(entries[0].UnavailableReason, Is.Null);
+            Assert.That(entries[0].SourcePath, Does.Contain("alpha.scenario.json"));
         }
         finally
         {
@@ -62,7 +62,7 @@ public sealed class ScenarioLibraryProjectionTests
         }
     }
 
-    [Fact]
+    [Test]
     public void ProjectFromPath_schema_error_marks_unavailable()
     {
         var temp = CreateTempDir();
@@ -73,9 +73,9 @@ public sealed class ScenarioLibraryProjectionTests
 
             var entry = ScenarioLibraryProjection.ProjectFromPath(badPath);
 
-            Assert.False(entry.Available);
-            Assert.Equal(ScenarioLibraryReasons.SchemaError, entry.UnavailableReason);
-            Assert.Equal("broken.scenario", entry.ScenarioId);
+            Assert.That(entry.Available, Is.False);
+            Assert.That(entry.UnavailableReason, Is.EqualTo(ScenarioLibraryReasons.SchemaError));
+            Assert.That(entry.ScenarioId, Is.EqualTo("broken.scenario"));
         }
         finally
         {
@@ -83,7 +83,7 @@ public sealed class ScenarioLibraryProjectionTests
         }
     }
 
-    [Fact]
+    [Test]
     public void ListFromDirectory_one_bad_file_does_not_throw_and_marks_row()
     {
         var temp = CreateTempDir();
@@ -99,14 +99,14 @@ public sealed class ScenarioLibraryProjectionTests
 
             var entries = ScenarioLibraryLister.ListFromDirectory(temp);
 
-            Assert.Equal(2, entries.Count);
-            var bad = Assert.Single(entries, e => e.ScenarioId == "bad.scenario");
-            Assert.False(bad.Available);
-            Assert.Equal(ScenarioLibraryReasons.SchemaError, bad.UnavailableReason);
+            Assert.That(entries.Count, Is.EqualTo(2));
+            var bad = AssertEx.Single(entries, e => e.ScenarioId == "bad.scenario");
+            Assert.That(bad.Available, Is.False);
+            Assert.That(bad.UnavailableReason, Is.EqualTo(ScenarioLibraryReasons.SchemaError));
 
-            var good = Assert.Single(entries, e => e.ScenarioId == "good.scenario");
-            Assert.True(good.Available);
-            Assert.Equal("Good", good.Title);
+            var good = AssertEx.Single(entries, e => e.ScenarioId == "good.scenario");
+            Assert.That(good.Available, Is.True);
+            Assert.That(good.Title, Is.EqualTo("Good"));
         }
         finally
         {
@@ -114,7 +114,7 @@ public sealed class ScenarioLibraryProjectionTests
         }
     }
 
-    [Fact]
+    [Test]
     public void Project_db_mismatch_when_catalog_cannot_resolve_dbRef()
     {
         var doc = new ScenarioDocumentDto
@@ -136,13 +136,13 @@ public sealed class ScenarioLibraryProjectionTests
             sourcePath: "/tmp/mismatch.scenario.json",
             catalog: InMemoryCatalogReader.BalticPatrolFixture());
 
-        Assert.False(entry.Available);
-        Assert.Equal(ScenarioLibraryReasons.DbMismatch, entry.UnavailableReason);
-        Assert.Equal("Mismatch Scenario", entry.Title);
-        Assert.Equal(99ul, entry.Seed);
+        Assert.That(entry.Available, Is.False);
+        Assert.That(entry.UnavailableReason, Is.EqualTo(ScenarioLibraryReasons.DbMismatch));
+        Assert.That(entry.Title, Is.EqualTo("Mismatch Scenario"));
+        Assert.That(entry.Seed, Is.EqualTo(99ul));
     }
 
-    [Fact]
+    [Test]
     public void Project_available_when_baltic_dbRef_resolves()
     {
         var doc = new ScenarioDocumentDto
@@ -178,13 +178,13 @@ public sealed class ScenarioLibraryProjectionTests
             sourcePath: "golden_clean.json",
             catalog: InMemoryCatalogReader.BalticPatrolFixture());
 
-        Assert.True(entry.Available);
-        Assert.Null(entry.UnavailableReason);
-        Assert.Equal("Baltic Clean", entry.Title);
-        Assert.Equal("baltic-patrol-catalog", entry.PolicyId);
+        Assert.That(entry.Available, Is.True);
+        Assert.That(entry.UnavailableReason, Is.Null);
+        Assert.That(entry.Title, Is.EqualTo("Baltic Clean"));
+        Assert.That(entry.PolicyId, Is.EqualTo("baltic-patrol-catalog"));
     }
 
-    [Fact]
+    [Test]
     public void Project_validation_blocked_when_engine_reports_errors()
     {
         var doc = new ScenarioDocumentDto
@@ -214,11 +214,11 @@ public sealed class ScenarioLibraryProjectionTests
             catalog: InMemoryCatalogReader.BalticPatrolFixture(),
             validation: new ScenarioValidationEngine());
 
-        Assert.False(entry.Available);
-        Assert.Equal(ScenarioLibraryReasons.ValidationBlocked, entry.UnavailableReason);
+        Assert.That(entry.Available, Is.False);
+        Assert.That(entry.UnavailableReason, Is.EqualTo(ScenarioLibraryReasons.ValidationBlocked));
     }
 
-    [Fact]
+    [Test]
     public void ListFromDirectory_repo_examples_via_ScenarioDataPaths_when_present()
     {
         var dir = ScenarioDataPaths.TryResolveScenariosDirectory();
@@ -234,23 +234,22 @@ public sealed class ScenarioLibraryProjectionTests
             return;
         }
 
-        Assert.True(entries.Count >= 1);
+        Assert.That(entries.Count >= 1, Is.True);
         // Deterministic order.
         for (var i = 1; i < entries.Count; i++)
         {
-            Assert.True(
-                string.Compare(entries[i - 1].ScenarioId, entries[i].ScenarioId, StringComparison.Ordinal) <= 0);
+            Assert.That(                string.Compare(entries[i - 1].ScenarioId, entries[i].ScenarioId, StringComparison.Ordinal) <= 0, Is.True);
         }
     }
 
-    [Fact]
+    [Test]
     public void ProjectFromPath_missing_file_is_file_unreadable()
     {
         var entry = ScenarioLibraryProjection.ProjectFromPath(
             Path.Combine(Path.GetTempPath(), "aegis-missing-" + Guid.NewGuid().ToString("N") + ".scenario.json"));
 
-        Assert.False(entry.Available);
-        Assert.Equal(ScenarioLibraryReasons.FileUnreadable, entry.UnavailableReason);
+        Assert.That(entry.Available, Is.False);
+        Assert.That(entry.UnavailableReason, Is.EqualTo(ScenarioLibraryReasons.FileUnreadable));
     }
 
     private static string CreateTempDir()

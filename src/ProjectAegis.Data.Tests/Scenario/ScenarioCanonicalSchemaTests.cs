@@ -1,12 +1,12 @@
 using ProjectAegis.Data.Scenario.Authoring;
 using System.Text.Json;
-using Xunit;
+using NUnit.Framework;
 
 namespace ProjectAegis.Data.Tests.Scenario;
 
 public sealed class ScenarioCanonicalSchemaTests
 {
-    [Fact]
+    [Test]
     public void Expanded_metadata_and_sections_round_trip_json()
     {
         var document = new ScenarioDocumentDto
@@ -65,14 +65,14 @@ public sealed class ScenarioCanonicalSchemaTests
         {
             ScenarioDocumentJsonWriter.WriteToFile(document, path);
             var loaded = ScenarioDocumentJsonLoader.LoadFromFile(path);
-            Assert.Equal("Baltic Patrol", loaded.Metadata.Title);
-            Assert.Equal("1.0.0", loaded.Metadata.SchemaVersion);
-            Assert.Single(loaded.Sides);
-            Assert.NotNull(loaded.Orbat);
-            Assert.Single(loaded.Orbat!.Units);
-            Assert.Single(loaded.ReferencePoints);
-            Assert.NotNull(loaded.Variables);
-            Assert.NotNull(loaded.EditorState);
+            Assert.That(loaded.Metadata.Title, Is.EqualTo("Baltic Patrol"));
+            Assert.That(loaded.Metadata.SchemaVersion, Is.EqualTo("1.0.0"));
+            Assert.That(loaded.Sides, Has.Exactly(1).Items);
+            Assert.That(loaded.Orbat, Is.Not.Null);
+            Assert.That(loaded.Orbat!.Units, Has.Exactly(1).Items);
+            Assert.That(loaded.ReferencePoints, Has.Exactly(1).Items);
+            Assert.That(loaded.Variables, Is.Not.Null);
+            Assert.That(loaded.EditorState, Is.Not.Null);
         }
         finally
         {

@@ -1,15 +1,15 @@
 using Microsoft.Data.Sqlite;
 using ProjectAegis.Data.Catalog;
 using ProjectAegis.Data.Scenario.Authoring;
-using Xunit;
+using NUnit.Framework;
 
 namespace ProjectAegis.Data.Tests.Catalog;
 
 /// <summary>DRG-86 / SWARM-A1: catalog schema, generic preset load, spawn integrity, scenario ref.</summary>
-[Collection("CatalogSqlite")]
+[Runner.CatalogSqliteCollection]
 public sealed class SwarmPlatformCatalogTests
 {
-    [Fact]
+    [Test]
     public void Migration_012_applies_idempotently()
     {
         var dbPath = Path.Combine(Path.GetTempPath(), $"aegis-swarm-mig-{Guid.NewGuid():N}.db");
@@ -31,7 +31,7 @@ public sealed class SwarmPlatformCatalogTests
         }
     }
 
-    [Fact]
+    [Test]
     public void Baltic_seed_loads_generic_swarm_catalog_entry()
     {
         var dbPath = Path.Combine(Path.GetTempPath(), $"aegis-swarm-seed-{Guid.NewGuid():N}.db");
@@ -40,31 +40,29 @@ public sealed class SwarmPlatformCatalogTests
             CatalogSeedBootstrap.SeedBalticPatrol(dbPath);
             using var reader = new SqliteCatalogReader(dbPath, "swarm-seed");
 
-            Assert.True(reader.TryGetSwarmPlatform(
+            Assert.That(reader.TryGetSwarmPlatform(
                 CatalogSwarmPlatformDefaults.GenericSwarmPlatformId,
-                out var swarm));
-            Assert.True(swarm.IsSwarm);
-            Assert.Equal(CatalogSwarmPlatformDefaults.GenericMaxDrones, swarm.MaxDrones);
-            Assert.Equal(CatalogSwarmPlatformDefaults.ArmorClassLightAir, swarm.ArmorClass);
-            Assert.Equal(CatalogSwarmPlatformDefaults.DefaultSensorId, swarm.DefaultSensorId);
-            Assert.Equal(CatalogSwarmPlatformDefaults.DefaultWeaponId, swarm.DefaultWeaponId);
+                out var swarm), Is.True);
+            Assert.That(swarm.IsSwarm, Is.True);
+            Assert.That(swarm.MaxDrones, Is.EqualTo(CatalogSwarmPlatformDefaults.GenericMaxDrones));
+            Assert.That(swarm.ArmorClass, Is.EqualTo(CatalogSwarmPlatformDefaults.ArmorClassLightAir));
+            Assert.That(swarm.DefaultSensorId, Is.EqualTo(CatalogSwarmPlatformDefaults.DefaultSensorId));
+            Assert.That(swarm.DefaultWeaponId, Is.EqualTo(CatalogSwarmPlatformDefaults.DefaultWeaponId));
 
-            Assert.True(reader.TryGetPlatformPosition(
+            Assert.That(reader.TryGetPlatformPosition(
                 CatalogSwarmPlatformDefaults.GenericSwarmPlatformId,
                 out var lat,
-                out var lon));
-            Assert.Equal(CatalogSwarmPlatformDefaults.GenericLatDeg, lat);
-            Assert.Equal(CatalogSwarmPlatformDefaults.GenericLonDeg, lon);
+                out var lon), Is.True);
+            Assert.That(lat, Is.EqualTo(CatalogSwarmPlatformDefaults.GenericLatDeg));
+            Assert.That(lon, Is.EqualTo(CatalogSwarmPlatformDefaults.GenericLonDeg));
 
-            Assert.True(reader.TryGetBasePd(
+            Assert.That(reader.TryGetBasePd(
                 CatalogSwarmPlatformDefaults.GenericSwarmPlatformId,
                 CatalogSwarmPlatformDefaults.DefaultSensorId,
-                out var pd));
-            Assert.Equal(0.80, pd, precision: 9);
+                out var pd), Is.True);
+            Assert.That(pd, Is.EqualTo(0.80).Within(0.0000000005));
 
-            Assert.Contains(
-                reader.GetSortedSwarmPlatforms(),
-                s => s.PlatformId == CatalogSwarmPlatformDefaults.GenericSwarmPlatformId);
+            Assert.That(                reader.GetSortedSwarmPlatforms().Any(                s => s.PlatformId == CatalogSwarmPlatformDefaults.GenericSwarmPlatformId), Is.True);
         }
         finally
         {
@@ -72,21 +70,21 @@ public sealed class SwarmPlatformCatalogTests
         }
     }
 
-    [Fact]
+    [Test]
     public void InMemory_fixture_exposes_generic_swarm_platform()
     {
         var catalog = InMemoryCatalogReader.BalticPatrolFixture();
-        Assert.True(catalog.TryGetSwarmPlatform(
+        Assert.That(catalog.TryGetSwarmPlatform(
             CatalogSwarmPlatformDefaults.GenericSwarmPlatformId,
-            out var swarm));
-        Assert.Equal(40, swarm.MaxDrones);
-        Assert.True(catalog.TryGetCombatRadiusNm(
+            out var swarm), Is.True);
+        Assert.That(swarm.MaxDrones, Is.EqualTo(40));
+        Assert.That(catalog.TryGetCombatRadiusNm(
             CatalogSwarmPlatformDefaults.GenericSwarmPlatformId,
-            out var radius));
-        Assert.Equal(CatalogSwarmPlatformDefaults.GenericCombatRadiusNm, radius);
+            out var radius), Is.True);
+        Assert.That(radius, Is.EqualTo(CatalogSwarmPlatformDefaults.GenericCombatRadiusNm));
     }
 
-    [Fact]
+    [Test]
     public void Scenario_can_reference_swarm_platform_id_and_spawn_integrity()
     {
         var catalog = InMemoryCatalogReader.BalticPatrolFixture();
@@ -102,28 +100,28 @@ public sealed class SwarmPlatformCatalogTests
         });
         editor.CommitMutation();
 
-        var unit = Assert.Single(editor.ToDto().Orbat!.Units);
-        Assert.Equal(CatalogSwarmPlatformDefaults.GenericSwarmPlatformId, unit.PlatformId);
-        Assert.Equal(25, unit.DroneCount);
+        var unit = AssertEx.Single(editor.ToDto().Orbat!.Units);
+        Assert.That(unit.PlatformId, Is.EqualTo(CatalogSwarmPlatformDefaults.GenericSwarmPlatformId));
+        Assert.That(unit.DroneCount, Is.EqualTo(25));
 
         // Catalog ref resolves (no broken platform id for spawn path).
-        Assert.True(catalog.TryGetSwarmPlatform(unit.PlatformId, out _));
-        Assert.True(catalog.TryGetPlatformPosition(unit.PlatformId, out _, out _));
+        Assert.That(catalog.TryGetSwarmPlatform(unit.PlatformId, out _), Is.True);
+        Assert.That(catalog.TryGetPlatformPosition(unit.PlatformId, out _, out _), Is.True);
 
-        Assert.True(SwarmUnitFactory.TryCreate(
+        Assert.That(SwarmUnitFactory.TryCreate(
             unit.Id,
             unit.PlatformId,
             catalog,
             out var integrity,
-            unit.DroneCount));
-        Assert.Equal("swarm-1", integrity.UnitId);
-        Assert.Equal(25, integrity.DroneCount);
-        Assert.Equal(40, integrity.MaxDrones);
-        Assert.False(integrity.IsDestroyed);
-        Assert.Equal(0.625, integrity.IntegrityFraction, precision: 9);
+            unit.DroneCount), Is.True);
+        Assert.That(integrity.UnitId, Is.EqualTo("swarm-1"));
+        Assert.That(integrity.DroneCount, Is.EqualTo(25));
+        Assert.That(integrity.MaxDrones, Is.EqualTo(40));
+        Assert.That(integrity.IsDestroyed, Is.False);
+        Assert.That(integrity.IntegrityFraction, Is.EqualTo(0.625).Within(0.0000000005));
     }
 
-    [Fact]
+    [Test]
     public void SwarmUnitFactory_defaults_to_max_and_clamps()
     {
         var catalog = InMemoryCatalogReader.BalticPatrolFixture();
@@ -132,46 +130,46 @@ public sealed class SwarmPlatformCatalogTests
             "s-full",
             CatalogSwarmPlatformDefaults.GenericSwarmPlatformId,
             catalog);
-        Assert.Equal(40, full.DroneCount);
-        Assert.Equal(40, full.MaxDrones);
+        Assert.That(full.DroneCount, Is.EqualTo(40));
+        Assert.That(full.MaxDrones, Is.EqualTo(40));
 
         var clamped = SwarmUnitFactory.Create(
             "s-over",
             CatalogSwarmPlatformDefaults.GenericSwarmPlatformId,
             catalog,
             initialDroneCount: 999);
-        Assert.Equal(40, clamped.DroneCount);
+        Assert.That(clamped.DroneCount, Is.EqualTo(40));
 
         var zero = SwarmUnitFactory.Create(
             "s-zero",
             CatalogSwarmPlatformDefaults.GenericSwarmPlatformId,
             catalog,
             initialDroneCount: 0);
-        Assert.Equal(0, zero.DroneCount);
-        Assert.True(zero.IsDestroyed);
+        Assert.That(zero.DroneCount, Is.EqualTo(0));
+        Assert.That(zero.IsDestroyed, Is.True);
 
-        Assert.False(SwarmUnitFactory.TryCreate("x", "u1", catalog, out _));
+        Assert.That(SwarmUnitFactory.TryCreate("x", "u1", catalog, out _), Is.False);
     }
 
-    [Fact]
+    [Test]
     public void CatalogEntityMap_includes_swarm_platform()
     {
-        Assert.True(CatalogEntityMap.TryGetTable("CatalogSwarmPlatform", out var binding));
-        Assert.Equal("platform_swarm", binding.TableName);
-        Assert.Equal("platform_id ASC", binding.DeterministicOrderBy);
+        Assert.That(CatalogEntityMap.TryGetTable("CatalogSwarmPlatform", out var binding), Is.True);
+        Assert.That(binding.TableName, Is.EqualTo("platform_swarm"));
+        Assert.That(binding.DeterministicOrderBy, Is.EqualTo("platform_id ASC"));
     }
 
-    [Fact]
+    [Test]
     public void CatalogSwarmPlatform_defaults_match_schema_starter_tuning()
     {
         var row = new CatalogSwarmPlatform("x", MaxDrones: 10);
-        Assert.True(row.IsSwarm);
-        Assert.Equal(CatalogSwarmPlatformDefaults.ArmorClassLightAir, row.ArmorClass);
-        Assert.Equal(CatalogReviewStates.Provisional, row.ReviewState);
-        Assert.Equal(40, CatalogSwarmPlatformDefaults.GenericMaxDrones);
+        Assert.That(row.IsSwarm, Is.True);
+        Assert.That(row.ArmorClass, Is.EqualTo(CatalogSwarmPlatformDefaults.ArmorClassLightAir));
+        Assert.That(row.ReviewState, Is.EqualTo(CatalogReviewStates.Provisional));
+        Assert.That(CatalogSwarmPlatformDefaults.GenericMaxDrones, Is.EqualTo(40));
     }
 
-    [Fact]
+    [Test]
     public void EnsureGenericSwarmPlatform_does_not_overwrite_curated_max_drones()
     {
         var dbPath = Path.Combine(Path.GetTempPath(), $"aegis-swarm-preserve-{Guid.NewGuid():N}.db");
@@ -191,7 +189,7 @@ public sealed class SwarmPlatformCatalogTests
                         WHERE platform_id = $id
                         """;
                     cmd.Parameters.AddWithValue("$id", CatalogSwarmPlatformDefaults.GenericSwarmPlatformId);
-                    Assert.Equal(1, cmd.ExecuteNonQuery());
+                    Assert.That(cmd.ExecuteNonQuery(), Is.EqualTo(1));
                 }
 
                 using (var cmd = connection.CreateCommand())
@@ -203,17 +201,17 @@ public sealed class SwarmPlatformCatalogTests
                         WHERE platform_id = $id
                         """;
                     cmd.Parameters.AddWithValue("$id", CatalogSwarmPlatformDefaults.GenericSwarmPlatformId);
-                    Assert.True(cmd.ExecuteNonQuery() >= 1);
+                    Assert.That(cmd.ExecuteNonQuery() >= 1, Is.True);
                 }
             }
 
             CatalogSeedBootstrap.EnsureGenericSwarmPlatform(dbPath);
 
             using var reader = new SqliteCatalogReader(dbPath, "swarm-preserve");
-            Assert.True(reader.TryGetSwarmPlatform(
+            Assert.That(reader.TryGetSwarmPlatform(
                 CatalogSwarmPlatformDefaults.GenericSwarmPlatformId,
-                out var swarm));
-            Assert.Equal(17, swarm.MaxDrones);
+                out var swarm), Is.True);
+            Assert.That(swarm.MaxDrones, Is.EqualTo(17));
 
             using var connection2 = new SqliteConnection($"Data Source={dbPath};Pooling=false");
             connection2.Open();
@@ -226,7 +224,7 @@ public sealed class SwarmPlatformCatalogTests
                 LIMIT 1
                 """;
             nameCmd.Parameters.AddWithValue("$id", CatalogSwarmPlatformDefaults.GenericSwarmPlatformId);
-            Assert.Equal("Curated Swarm Name", nameCmd.ExecuteScalar() as string);
+            Assert.That(nameCmd.ExecuteScalar() as string, Is.EqualTo("Curated Swarm Name"));
         }
         finally
         {
@@ -241,24 +239,24 @@ public sealed class SwarmPlatformCatalogTests
         using var cmd = connection.CreateCommand();
         cmd.CommandText = "SELECT COUNT(*) FROM sqlite_master WHERE type='table' AND name=$name";
         cmd.Parameters.AddWithValue("$name", table);
-        Assert.Equal(1, Convert.ToInt32(cmd.ExecuteScalar(), System.Globalization.CultureInfo.InvariantCulture));
+        Assert.That(Convert.ToInt32(cmd.ExecuteScalar(), System.Globalization.CultureInfo.InvariantCulture), Is.EqualTo(1));
     }
 
-[Fact]
+[Test]
     public void Phase_B_generic_is_not_cec_capable_and_usn_exemplar_is()
     {
         var generic = CatalogValidationDefaults.GenericSwarmPlatform();
         var usn = CatalogValidationDefaults.UsnCecSwarmPlatform();
-        Assert.False(generic.CecCapable);
-        Assert.Equal(CatalogSwarmPlatformDefaults.ModeHold, generic.DefaultMode);
-        Assert.True(usn.CecCapable);
-        Assert.Equal(CatalogSwarmPlatformDefaults.ModeScreen, usn.DefaultMode);
-        Assert.True(usn.RequiresHost);
-        Assert.Contains("ship", usn.AllowedHostClasses, StringComparison.Ordinal);
-        Assert.True(string.CompareOrdinal(generic.PlatformId, usn.PlatformId) < 0);
+        Assert.That(generic.CecCapable, Is.False);
+        Assert.That(generic.DefaultMode, Is.EqualTo(CatalogSwarmPlatformDefaults.ModeHold));
+        Assert.That(usn.CecCapable, Is.True);
+        Assert.That(usn.DefaultMode, Is.EqualTo(CatalogSwarmPlatformDefaults.ModeScreen));
+        Assert.That(usn.RequiresHost, Is.True);
+        Assert.That(usn.AllowedHostClasses, Does.Contain("ship"));
+        Assert.That(string.CompareOrdinal(generic.PlatformId, usn.PlatformId) < 0, Is.True);
     }
 
-    [Fact]
+    [Test]
     public void Baltic_seed_loads_usn_cec_swarm_with_phase_b_columns()
     {
         var dbPath = Path.Combine(Path.GetTempPath(), $"aegis-swarm-b2-{Guid.NewGuid():N}.db");
@@ -267,20 +265,20 @@ public sealed class SwarmPlatformCatalogTests
             CatalogSeedBootstrap.SeedBalticPatrol(dbPath);
             using var reader = new SqliteCatalogReader(dbPath, "swarm-b2");
 
-            Assert.True(reader.TryGetSwarmPlatform(
+            Assert.That(reader.TryGetSwarmPlatform(
                 CatalogSwarmPlatformDefaults.GenericSwarmPlatformId,
-                out var generic));
-            Assert.False(generic.CecCapable);
+                out var generic), Is.True);
+            Assert.That(generic.CecCapable, Is.False);
 
-            Assert.True(reader.TryGetSwarmPlatform(
+            Assert.That(reader.TryGetSwarmPlatform(
                 CatalogSwarmPlatformDefaults.UsnCecSwarmPlatformId,
-                out var usn));
-            Assert.True(usn.CecCapable);
-            Assert.Equal(CatalogSwarmPlatformDefaults.ModeScreen, usn.DefaultMode);
-            Assert.True(usn.RequiresHost);
+                out var usn), Is.True);
+            Assert.That(usn.CecCapable, Is.True);
+            Assert.That(usn.DefaultMode, Is.EqualTo(CatalogSwarmPlatformDefaults.ModeScreen));
+            Assert.That(usn.RequiresHost, Is.True);
 
             var sorted = reader.GetSortedSwarmPlatforms();
-            Assert.Contains(sorted, s => s.PlatformId == CatalogSwarmPlatformDefaults.UsnCecSwarmPlatformId);
+            Assert.That(sorted.Any(s => s.PlatformId == CatalogSwarmPlatformDefaults.UsnCecSwarmPlatformId), Is.True);
         }
         finally
         {
@@ -288,7 +286,7 @@ public sealed class SwarmPlatformCatalogTests
         }
     }
 
-    [Fact]
+    [Test]
     public void Migration_013_is_idempotent_with_cec_column()
     {
         var dbPath = Path.Combine(Path.GetTempPath(), $"aegis-swarm-013-{Guid.NewGuid():N}.db");
@@ -301,10 +299,10 @@ public sealed class SwarmPlatformCatalogTests
             }
 
             using var reader2 = new SqliteCatalogReader(dbPath, "swarm-013-b");
-            Assert.True(reader2.TryGetSwarmPlatform(
+            Assert.That(reader2.TryGetSwarmPlatform(
                 CatalogSwarmPlatformDefaults.UsnCecSwarmPlatformId,
-                out var usn));
-            Assert.True(usn.CecCapable);
+                out var usn), Is.True);
+            Assert.That(usn.CecCapable, Is.True);
         }
         finally
         {

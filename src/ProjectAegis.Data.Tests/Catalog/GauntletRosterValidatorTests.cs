@@ -1,5 +1,5 @@
 using ProjectAegis.Data.Catalog;
-using Xunit;
+using NUnit.Framework;
 
 namespace ProjectAegis.Data.Tests.Catalog;
 
@@ -9,7 +9,7 @@ namespace ProjectAegis.Data.Tests.Catalog;
 /// </summary>
 public sealed class GauntletRosterValidatorTests
 {
-    [Fact]
+    [Test]
     public void Missing_seed_platforms_in_roster_fails_resolution()
     {
         var roster = """
@@ -30,12 +30,12 @@ public sealed class GauntletRosterValidatorTests
             """;
 
         var issues = GauntletRosterValidator.ValidatePolicyAgainstRoster(policy, roster);
-        Assert.NotEmpty(issues);
-        Assert.Contains(issues, i => i.Contains("u1", StringComparison.Ordinal));
-        Assert.Contains(issues, i => i.Contains("hostile-1", StringComparison.Ordinal));
+        Assert.That(issues, Is.Not.Empty);
+        Assert.That(issues.Any(i => i.Contains("u1", StringComparison.Ordinal)), Is.True);
+        Assert.That(issues.Any(i => i.Contains("hostile-1", StringComparison.Ordinal)), Is.True);
     }
 
-    [Fact]
+    [Test]
     public void Complete_roster_including_seeds_passes_resolution()
     {
         var roster = """
@@ -60,10 +60,10 @@ public sealed class GauntletRosterValidatorTests
             """;
 
         var issues = GauntletRosterValidator.ValidatePolicyAgainstRoster(policy, roster);
-        Assert.Empty(issues);
+        Assert.That(issues, Is.Empty);
     }
 
-    [Fact]
+    [Test]
     public void Representative_multi_tier_policy_resolves_against_compact_roster()
     {
         var roster = """
@@ -99,6 +99,6 @@ public sealed class GauntletRosterValidatorTests
             """;
 
         var issues = GauntletRosterValidator.ValidatePolicyAgainstRoster(policy, roster);
-        Assert.Empty(issues);
+        Assert.That(issues, Is.Empty);
     }
 }

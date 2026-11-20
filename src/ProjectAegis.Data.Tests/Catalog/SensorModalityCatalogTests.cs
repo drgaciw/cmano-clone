@@ -1,14 +1,14 @@
 using Microsoft.Data.Sqlite;
 using ProjectAegis.Data.Catalog;
-using Xunit;
+using NUnit.Framework;
 
 namespace ProjectAegis.Data.Tests.Catalog;
 
 /// <summary>S111-02 / DRG-10: catalog-extend sensor modality (Radar default + IR/Visual fixtures).</summary>
-[Collection("CatalogSqlite")]
+[Runner.CatalogSqliteCollection]
 public sealed class SensorModalityCatalogTests
 {
-    [Fact]
+    [Test]
     public void Migration_016_adds_modality_column_and_skip_is_safe()
     {
         var dbPath = Path.Combine(Path.GetTempPath(), $"aegis-modality-mig-{Guid.NewGuid():N}.db");
@@ -16,13 +16,13 @@ public sealed class SensorModalityCatalogTests
         {
             using (new SqliteCatalogReader(dbPath, "s111-modality-mig"))
             {
-                Assert.True(ColumnExists(dbPath, "sensor", "modality"));
+                Assert.That(ColumnExists(dbPath, "sensor", "modality"), Is.True);
             }
 
             // Second open must skip re-ALTER (ShouldSkipMigration) without error.
             using (var reader = new SqliteCatalogReader(dbPath, "s111-modality-mig-reopen"))
             {
-                Assert.True(ColumnExists(dbPath, "sensor", "modality"));
+                Assert.That(ColumnExists(dbPath, "sensor", "modality"), Is.True);
                 _ = reader.GetSortedSensorBindings();
             }
         }
@@ -32,7 +32,7 @@ public sealed class SensorModalityCatalogTests
         }
     }
 
-    [Fact]
+    [Test]
     public void Seed_and_reader_expose_ir_and_visual_fixtures_with_radar_default()
     {
         var dbPath = Path.Combine(Path.GetTempPath(), $"aegis-modality-seed-{Guid.NewGuid():N}.db");
@@ -44,16 +44,16 @@ public sealed class SensorModalityCatalogTests
                 .Where(b => string.Equals(b.PlatformId, "u1", StringComparison.Ordinal))
                 .ToDictionary(b => b.SensorId, StringComparer.Ordinal);
 
-            Assert.True(byId.TryGetValue("fixture-ir-1", out var ir));
-            Assert.Equal(CatalogSensorModalities.Infrared, ir.Modality);
-            Assert.Equal(0.80, ir.BasePd);
+            Assert.That(byId.TryGetValue("fixture-ir-1", out var ir), Is.True);
+            Assert.That(ir!.Modality, Is.EqualTo(CatalogSensorModalities.Infrared));
+            Assert.That(ir.BasePd, Is.EqualTo(0.80));
 
-            Assert.True(byId.TryGetValue("fixture-visual-1", out var visual));
-            Assert.Equal(CatalogSensorModalities.Visual, visual.Modality);
-            Assert.Equal(0.70, visual.BasePd);
+            Assert.That(byId.TryGetValue("fixture-visual-1", out var visual), Is.True);
+            Assert.That(visual!.Modality, Is.EqualTo(CatalogSensorModalities.Visual));
+            Assert.That(visual.BasePd, Is.EqualTo(0.70));
 
-            Assert.True(byId.TryGetValue("radar-1", out var radar));
-            Assert.Equal(CatalogSensorModalities.Radar, radar.Modality);
+            Assert.That(byId.TryGetValue("radar-1", out var radar), Is.True);
+            Assert.That(radar!.Modality, Is.EqualTo(CatalogSensorModalities.Radar));
         }
         finally
         {
@@ -61,21 +61,21 @@ public sealed class SensorModalityCatalogTests
         }
     }
 
-    [Fact]
+    [Test]
     public void InMemory_default_modality_is_radar_and_v3_ir_tagged()
     {
         var patrol = InMemoryCatalogReader.BalticPatrolFixture();
         var radar = patrol.GetSortedSensorBindings()
             .Single(b => b.PlatformId == "u1" && b.SensorId == "radar-1");
-        Assert.Equal(CatalogSensorModalities.Radar, radar.Modality);
+        Assert.That(radar.Modality, Is.EqualTo(CatalogSensorModalities.Radar));
 
         var v3 = InMemoryCatalogReader.BalticV3Fixture();
         var ir = v3.GetSortedSensorBindings()
             .Single(b => b.PlatformId == "ucav-blue" && b.SensorId == "internal-ir");
-        Assert.Equal(CatalogSensorModalities.Infrared, ir.Modality);
+        Assert.That(ir.Modality, Is.EqualTo(CatalogSensorModalities.Infrared));
     }
 
-    [Fact]
+    [Test]
     public void Reader_defaults_null_modality_to_radar()
     {
         var dbPath = Path.Combine(Path.GetTempPath(), $"aegis-modality-null-{Guid.NewGuid():N}.db");
@@ -98,7 +98,7 @@ public sealed class SensorModalityCatalogTests
             using var reader = new SqliteCatalogReader(dbPath, "s111-null-mod-read");
             var binding = reader.GetSortedSensorBindings()
                 .Single(b => b.SensorId == "legacy-null");
-            Assert.Equal(CatalogSensorModalities.Radar, binding.Modality);
+            Assert.That(binding.Modality, Is.EqualTo(CatalogSensorModalities.Radar));
         }
         finally
         {

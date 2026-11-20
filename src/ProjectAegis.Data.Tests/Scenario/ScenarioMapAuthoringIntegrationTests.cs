@@ -2,7 +2,7 @@ using System.Text.Json;
 using ProjectAegis.Data.Catalog;
 using ProjectAegis.Data.Scenario.Authoring;
 using ProjectAegis.Data.Validation;
-using Xunit;
+using NUnit.Framework;
 
 namespace ProjectAegis.Data.Tests.Scenario;
 
@@ -15,7 +15,7 @@ public sealed class ScenarioMapAuthoringIntegrationTests
     private static readonly ScenarioValidationEngine Engine = new();
     private static readonly ValidationConfig Config = new();
 
-    [Fact]
+    [Test]
     public void Place_unit_and_patrol_polygon_persist_and_validate_codes_match()
     {
         var path = Path.Combine(Path.GetTempPath(), $"aegis-map-auth-{Guid.NewGuid():N}.json");
@@ -35,7 +35,7 @@ public sealed class ScenarioMapAuthoringIntegrationTests
                     Lon = 20,
                 },
                 save: true);
-            Assert.True(place.Ok, place.ErrorMessage);
+            Assert.That(place.Ok, Is.True, place.ErrorMessage);
 
             var zoneVerts = new[]
             {
@@ -53,7 +53,7 @@ public sealed class ScenarioMapAuthoringIntegrationTests
                     Geometry = zoneVerts,
                 },
                 save: true);
-            Assert.True(rp.Ok, rp.ErrorMessage);
+            Assert.That(rp.Ok, Is.True, rp.ErrorMessage);
 
             var patrol = session.Bus.AttachPatrolFromSelection(
                 session.EditVersion,
@@ -61,25 +61,21 @@ public sealed class ScenarioMapAuthoringIntegrationTests
                 unitIds: new[] { "u1" },
                 zone: zoneVerts,
                 save: true);
-            Assert.True(patrol.Ok, patrol.ErrorMessage);
+            Assert.That(patrol.Ok, Is.True, patrol.ErrorMessage);
 
             var reloaded = ScenarioDocumentJsonLoader.LoadFromFile(path);
-            Assert.NotNull(reloaded.Orbat);
-            Assert.Contains(reloaded.Orbat!.Units, u => u.Id == "u1");
-            Assert.Contains(reloaded.ReferencePoints, p => p.Id == "zone-patrol" && p.Type == "polygon");
-            Assert.Contains(
-                reloaded.Missions,
-                m => m.Id == "patrol-1"
+            Assert.That(reloaded.Orbat, Is.Not.Null);
+            Assert.That(reloaded.Orbat!.Units.Any(u => u.Id == "u1"), Is.True);
+            Assert.That(reloaded.ReferencePoints.Any(p => p.Id == "zone-patrol" && p.Type == "polygon"), Is.True);
+            Assert.That(                reloaded.Missions.Any(                m => m.Id == "patrol-1"
                      && string.Equals(m.Type, "Patrol", StringComparison.OrdinalIgnoreCase)
-                     && m.AssignedUnitIds.Contains("u1"));
+                     && m.AssignedUnitIds.Contains("u1")), Is.True);
 
             var catalog = InMemoryCatalogReader.BalticPatrolFixture();
             var engineReport = Engine.Validate(reloaded, catalog, Config);
             var liveReport = session.Editor.LiveValidate();
 
-            Assert.Equal(
-                engineReport.Findings.Select(f => f.Code).OrderBy(c => c, StringComparer.Ordinal).ToArray(),
-                liveReport.Findings.Select(f => f.Code).OrderBy(c => c, StringComparer.Ordinal).ToArray());
+            Assert.That(                liveReport.Findings.Select(f => f.Code).OrderBy(c => c, StringComparer.Ordinal).ToArray(), Is.EqualTo(                engineReport.Findings.Select(f => f.Code).OrderBy(c => c, StringComparer.Ordinal).ToArray()));
         }
         finally
         {
@@ -90,7 +86,7 @@ public sealed class ScenarioMapAuthoringIntegrationTests
         }
     }
 
-    [Fact]
+    [Test]
     public void Unreachable_strike_findings_include_STRIKE_UNREACHABLE_family()
     {
         // Catalog fixture: u1 @ (57,20) combat radius 400 nm; hostile-far @ (65,35) is beyond radius
@@ -112,7 +108,7 @@ public sealed class ScenarioMapAuthoringIntegrationTests
                     Lon = 20,
                 },
                 save: true);
-            Assert.True(place.Ok, place.ErrorMessage);
+            Assert.That(place.Ok, Is.True, place.ErrorMessage);
 
             var strike = session.Bus.AttachStrikeFromSelection(
                 session.EditVersion,
@@ -120,16 +116,12 @@ public sealed class ScenarioMapAuthoringIntegrationTests
                 unitIds: new[] { "u1" },
                 targetIds: new[] { "hostile-far" },
                 save: true);
-            Assert.True(strike.Ok, strike.ErrorMessage);
-            Assert.NotNull(strike.Report);
+            Assert.That(strike.Ok, Is.True, strike.ErrorMessage);
+            Assert.That(strike.Report, Is.Not.Null);
 
             var live = session.Editor.LiveValidate();
-            Assert.Contains(
-                live.Findings,
-                f => f.Code.StartsWith("STRIKE_UNREACHABLE", StringComparison.Ordinal));
-            Assert.Contains(
-                strike.Report!.Findings,
-                f => f.Code.StartsWith("STRIKE_UNREACHABLE", StringComparison.Ordinal));
+            Assert.That(                live.Findings.Any(                f => f.Code.StartsWith("STRIKE_UNREACHABLE", StringComparison.Ordinal)), Is.True);
+            Assert.That(                strike.Report!.Findings.Any(                f => f.Code.StartsWith("STRIKE_UNREACHABLE", StringComparison.Ordinal)), Is.True);
         }
         finally
         {
@@ -140,7 +132,7 @@ public sealed class ScenarioMapAuthoringIntegrationTests
         }
     }
 
-    [Fact]
+    [Test]
     public void EditorState_does_not_change_validation_codes()
     {
         var baseline = new ScenarioDocumentDto
@@ -202,9 +194,7 @@ public sealed class ScenarioMapAuthoringIntegrationTests
         var without = Engine.Validate(baseline, catalog, Config);
         var with = Engine.Validate(withEditorState, catalog, Config);
 
-        Assert.Equal(
-            without.Findings.Select(f => f.Code).OrderBy(c => c, StringComparer.Ordinal).ToArray(),
-            with.Findings.Select(f => f.Code).OrderBy(c => c, StringComparer.Ordinal).ToArray());
-        Assert.Equal(without.ReportHash, with.ReportHash);
+        Assert.That(            with.Findings.Select(f => f.Code).OrderBy(c => c, StringComparer.Ordinal).ToArray(), Is.EqualTo(            without.Findings.Select(f => f.Code).OrderBy(c => c, StringComparer.Ordinal).ToArray()));
+        Assert.That(with.ReportHash, Is.EqualTo(without.ReportHash));
     }
 }

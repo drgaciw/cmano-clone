@@ -1,13 +1,13 @@
 using ProjectAegis.Data.Catalog;
 using ProjectAegis.Data.Scenario.Authoring;
 using ProjectAegis.Data.Validation;
-using Xunit;
+using NUnit.Framework;
 
 namespace ProjectAegis.Data.Tests.Validation;
 
 public sealed class LogisticsValidationRulesTests
 {
-    [Fact]
+    [Test]
     public void Strike_with_not_ready_unit_emits_AIR_NOT_READY()
     {
         var scenario = new ScenarioDocumentDto
@@ -36,10 +36,10 @@ public sealed class LogisticsValidationRulesTests
             InMemoryCatalogReader.BalticPatrolFixture(),
             new ValidationConfig());
 
-        Assert.Contains(report.Findings, f => f.Code == "AIR_NOT_READY");
+        Assert.That(report.Findings.Any(f => f.Code == "AIR_NOT_READY"), Is.True);
     }
 
-    [Fact]
+    [Test]
     public void Ferry_beyond_fuel_range_emits_FERRY_UNREACHABLE_FUEL()
     {
         var scenario = new ScenarioDocumentDto
@@ -58,8 +58,6 @@ public sealed class LogisticsValidationRulesTests
 
         var catalog = InMemoryCatalogReader.BalticPatrolFixture();
         var report = new ScenarioValidationEngine().Validate(scenario, catalog, new ValidationConfig());
-        Assert.Contains(
-            report.Findings,
-            f => f.Code is "FERRY_UNREACHABLE" or "FERRY_UNREACHABLE_FUEL");
+        Assert.That(            report.Findings.Any(            f => f.Code is "FERRY_UNREACHABLE" or "FERRY_UNREACHABLE_FUEL"), Is.True);
     }
 }
