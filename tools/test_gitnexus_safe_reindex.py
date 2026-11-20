@@ -40,10 +40,16 @@ if os.environ.get("FAIL_QUERY"):
     print("database unavailable", file=sys.stderr)
     sys.exit(9)
 query = args[1]
+# stats.nodes sums code tables only. An unfiltered MATCH (n) also counts
+# CodeEmbedding rows, which is the false failure once embeddings are non-zero.
+structural_nodes = int(os.environ.get("NODE_COUNT", "2"))
+embedding_count = int(os.environ.get("EMBEDDING_COUNT", "4"))
 if query == "MATCH (e:CodeEmbedding) RETURN count(e) AS cnt":
-    count = int(os.environ.get("EMBEDDING_COUNT", "4"))
+    count = embedding_count
+elif query == "MATCH (n) WHERE label(n) <> 'CodeEmbedding' RETURN count(n) AS c":
+    count = structural_nodes
 elif query == "MATCH (n) RETURN count(n) AS c":
-    count = 2
+    count = structural_nodes + embedding_count
 elif query == "MATCH ()-[r]->() RETURN count(r) AS c":
     count = 1
 else:
@@ -229,6 +235,28 @@ class SafeReindexTests(unittest.TestCase):
         result, _ = self.run_guard("--skip-analyze", EMBEDDING_COUNT="3")
         self.assertEqual(3, result.returncode, result.stderr)
         self.assertIn("embedding count metadata != graph", result.stderr)
+
+    def test_node_count_ignores_code_embedding_rows(self):
+        self.cli("gitnexus")
+        result, calls = self.run_guard("--skip-analyze")
+        self.assertEqual(0, result.returncode, result.stderr)
+        self.assertIn("nodes meta/graph=2/2", result.stdout)
+        self.assertIn("embeddings meta/graph=4/4", result.stdout)
+        queries = [call[2] for call in calls if len(call) > 2 and call[1] == "cypher"]
+        self.assertIn(
+            "MATCH (n) WHERE label(n) <> 'CodeEmbedding' RETURN count(n) AS c", queries)
+        self.assertNotIn("MATCH (n) RETURN count(n) AS c", queries)
+
+    def test_genuine_node_count_mismatch_still_fails(self):
+        self.cli("gitnexus")
+        result, _ = self.run_guard("--skip-analyze", NODE_COUNT="9")
+        self.assertEqual(3, result.returncode, result.stderr)
+        self.assertIn("node count metadata != graph", result.stderr)
+        self.assertIn("nodes meta/graph=2/9", result.stdout)
+        self.assertNotIn("edge count metadata != graph", result.stderr)
+        self.assertNotIn("embedding count metadata != graph", result.stderr)
+        self.assertNotIn("embeddings count is 0", result.stderr)
+        self.assertNotIn("corrupted", result.stderr)
 
     def test_exact_scan_vector_leg_is_accepted(self):
         self.patch_meta(capabilities={"vectorSearch": {"status": "exact-scan"}})
