@@ -3,7 +3,6 @@ using ProjectAegis.Sim.Policy;
 using ProjectAegis.Sim.Scenario;
 using ProjectAegis.Sim.Sensors;
 using NUnit.Framework;
-using ProjectAegis.Sim.Tests;
 
 namespace ProjectAegis.Sim.Tests.Scenario;
 

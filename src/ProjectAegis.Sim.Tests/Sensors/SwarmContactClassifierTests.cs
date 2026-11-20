@@ -147,8 +147,8 @@ public sealed class SwarmContactClassifierTests
         Assert.That(hiRes.Class, Is.EqualTo(SwarmContactClass.UasSwarmCloud));
         Assert.That(hiRes.Confidence > normal.Confidence, Is.True);
         Assert.That(
-            Math.Round((double)(hiRes.Confidence - normal.Confidence), 6, MidpointRounding.AwayFromZero),
-            Is.EqualTo(Math.Round((double)(SwarmContactClassifier.HighResolutionConfidenceBoost), 6, MidpointRounding.AwayFromZero)));
+            Math.Round(hiRes.Confidence - normal.Confidence, 6, MidpointRounding.AwayFromZero),
+            Is.EqualTo(Math.Round(SwarmContactClassifier.HighResolutionConfidenceBoost, 6, MidpointRounding.AwayFromZero)));
     }
 
     [Test]

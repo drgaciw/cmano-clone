@@ -3,7 +3,6 @@ using ProjectAegis.Sim.Core;
 using ProjectAegis.Sim.Swarm;
 using ProjectAegis.Sim.Swarm.Formation;
 using NUnit.Framework;
-using ProjectAegis.Sim.Tests;
 
 namespace ProjectAegis.Sim.Tests.Swarm.Formation;
 
@@ -97,13 +96,13 @@ public sealed class SwarmFormationTests
         Assert.That(offsets.Count, Is.EqualTo(5));
         // Perpendicular to east is north-south: dirLat = -sin(π/2) = -1, dirLon = cos(π/2) = 0
         AssertEx.All(offsets, o => Assert.That(
-    Math.Round((double)(o.DyDeg), 9, MidpointRounding.AwayFromZero),
-    Is.EqualTo(Math.Round((double)(0.0), 9, MidpointRounding.AwayFromZero))));
+    Math.Round(o.DyDeg, 9, MidpointRounding.AwayFromZero),
+    Is.EqualTo(Math.Round(0.0, 9, MidpointRounding.AwayFromZero))));
         Assert.That(offsets[0].DxDeg < offsets[4].DxDeg || offsets[0].DxDeg > offsets[4].DxDeg, Is.True);
         // Centered: midpoint near origin
         Assert.That(
-            Math.Round((double)(offsets[2].DxDeg), 9, MidpointRounding.AwayFromZero),
-            Is.EqualTo(Math.Round((double)(0.0), 9, MidpointRounding.AwayFromZero)));
+            Math.Round(offsets[2].DxDeg, 9, MidpointRounding.AwayFromZero),
+            Is.EqualTo(Math.Round(0.0, 9, MidpointRounding.AwayFromZero)));
     }
 
     [Test]
@@ -118,12 +117,12 @@ public sealed class SwarmFormationTests
             hostBearingRad: bearing);
 
         AssertEx.All(offsets, o => Assert.That(
-    Math.Round((double)(o.DxDeg), 9, MidpointRounding.AwayFromZero),
-    Is.EqualTo(Math.Round((double)(0.0), 9, MidpointRounding.AwayFromZero))));
+    Math.Round(o.DxDeg, 9, MidpointRounding.AwayFromZero),
+    Is.EqualTo(Math.Round(0.0, 9, MidpointRounding.AwayFromZero))));
         Assert.That(Math.Abs(offsets[0].DyDeg) > 0 || Math.Abs(offsets[4].DyDeg) > 0, Is.True);
         Assert.That(
-            Math.Round((double)(offsets[2].DyDeg), 9, MidpointRounding.AwayFromZero),
-            Is.EqualTo(Math.Round((double)(0.0), 9, MidpointRounding.AwayFromZero)));
+            Math.Round(offsets[2].DyDeg, 9, MidpointRounding.AwayFromZero),
+            Is.EqualTo(Math.Round(0.0, 9, MidpointRounding.AwayFromZero)));
     }
 
     [Test]
@@ -145,8 +144,8 @@ public sealed class SwarmFormationTests
         var meanUnboundDy = unbound.Average(o => o.DyDeg);
         var meanBoundDy = boundEast.Average(o => o.DyDeg);
         Assert.That(
-            Math.Round((double)(meanUnboundDy), 6, MidpointRounding.AwayFromZero),
-            Is.EqualTo(Math.Round((double)(0.0), 6, MidpointRounding.AwayFromZero)));
+            Math.Round(meanUnboundDy, 6, MidpointRounding.AwayFromZero),
+            Is.EqualTo(Math.Round(0.0, 6, MidpointRounding.AwayFromZero)));
         Assert.That(meanBoundDy > 0.005, Is.True, $"expected east bias, got mean Dy={meanBoundDy}");
     }
 

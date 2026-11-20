@@ -2,7 +2,6 @@ using ProjectAegis.Sim.Core;
 using ProjectAegis.Sim.Engage;
 using ProjectAegis.Sim.Time;
 using NUnit.Framework;
-using ProjectAegis.Sim.Tests;
 
 namespace ProjectAegis.Sim.Tests.Core;
 

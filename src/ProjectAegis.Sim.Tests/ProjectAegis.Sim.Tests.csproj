@@ -9,6 +9,9 @@
     <RootNamespace>ProjectAegis.Sim.Tests</RootNamespace>
   </PropertyGroup>
   <ItemGroup>
+    <Using Include="ProjectAegis.Sim.Tests" />
+  </ItemGroup>
+  <ItemGroup>
     <PackageReference Include="Microsoft.NET.Test.Sdk" Version="18.11.0" />
     <PackageReference Include="NUnit" Version="5.0.0" />
     <PackageReference Include="NUnit3TestAdapter" Version="6.3.1" />

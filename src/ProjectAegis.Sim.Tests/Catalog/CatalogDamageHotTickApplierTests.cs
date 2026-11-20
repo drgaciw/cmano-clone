@@ -3,7 +3,6 @@ using ProjectAegis.Sim.Catalog;
 using ProjectAegis.Sim.Engage;
 using ProjectAegis.Sim.Scenario;
 using NUnit.Framework;
-using ProjectAegis.Sim.Tests;
 
 namespace ProjectAegis.Sim.Tests.Catalog;
 
@@ -43,8 +42,8 @@ public sealed class CatalogDamageHotTickApplierTests
         AssertEx.Single(first);
         AssertEx.Single(second);
         Assert.That(
-            Math.Round((double)(ledger.TryGetHpPct("u1", out var hp) ? hp : -1), 6, MidpointRounding.AwayFromZero),
-            Is.EqualTo(Math.Round((double)(24.0), 6, MidpointRounding.AwayFromZero)));
+            Math.Round(ledger.TryGetHpPct("u1", out var hp) ? hp : -1, 6, MidpointRounding.AwayFromZero),
+            Is.EqualTo(Math.Round(24.0, 6, MidpointRounding.AwayFromZero)));
         var trials = CatalogDamageHotTickApplier.ResolveWithdrawTrials(ledger, catalog);
         Assert.That(trials[0].WithdrawRecommended, Is.True);
     }
@@ -59,8 +58,8 @@ public sealed class CatalogDamageHotTickApplierTests
 
         Assert.That(changes, Is.Empty);
         Assert.That(
-            Math.Round((double)(ledger.TryGetHpPct("u1", out var hp) ? hp : -1), 6, MidpointRounding.AwayFromZero),
-            Is.EqualTo(Math.Round((double)(40.0), 6, MidpointRounding.AwayFromZero)));
+            Math.Round(ledger.TryGetHpPct("u1", out var hp) ? hp : -1, 6, MidpointRounding.AwayFromZero),
+            Is.EqualTo(Math.Round(40.0, 6, MidpointRounding.AwayFromZero)));
     }
 
     [Test]
@@ -93,8 +92,8 @@ public sealed class CatalogDamageHotTickApplierTests
         Assert.That(changes[0].ReasonCode, Is.EqualTo(EngagementOutcomeCodes.Hit));
         Assert.That(changes[1].ReasonCode, Is.EqualTo(EngagementOutcomeCodes.Hit));
         Assert.That(
-            Math.Round((double)(ledger.TryGetHpPct("u1", out var hp) ? hp : -1), 6, MidpointRounding.AwayFromZero),
-            Is.EqualTo(Math.Round((double)(30.0), 6, MidpointRounding.AwayFromZero)));
+            Math.Round(ledger.TryGetHpPct("u1", out var hp) ? hp : -1, 6, MidpointRounding.AwayFromZero),
+            Is.EqualTo(Math.Round(30.0, 6, MidpointRounding.AwayFromZero)));
     }
 
     [Test]
@@ -153,8 +152,8 @@ public sealed class CatalogDamageHotTickApplierTests
         AssertEx.Single(changes);
         Assert.That(changes[0].DamageLevel, Is.EqualTo(2));
         Assert.That(
-            Math.Round((double)(ledger.TryGetHpPct("u1", out var hp) ? hp : -1), 6, MidpointRounding.AwayFromZero),
-            Is.EqualTo(Math.Round((double)(50.0), 6, MidpointRounding.AwayFromZero)));
+            Math.Round(ledger.TryGetHpPct("u1", out var hp) ? hp : -1, 6, MidpointRounding.AwayFromZero),
+            Is.EqualTo(Math.Round(50.0, 6, MidpointRounding.AwayFromZero)));
     }
 
     [Test]
@@ -176,8 +175,8 @@ public sealed class CatalogDamageHotTickApplierTests
 
         Assert.That(changes, Is.Empty);
         Assert.That(
-            Math.Round((double)(ledger.TryGetHpPct("u1", out var hp) ? hp : -1), 6, MidpointRounding.AwayFromZero),
-            Is.EqualTo(Math.Round((double)(80.0), 6, MidpointRounding.AwayFromZero)));
+            Math.Round(ledger.TryGetHpPct("u1", out var hp) ? hp : -1, 6, MidpointRounding.AwayFromZero),
+            Is.EqualTo(Math.Round(80.0, 6, MidpointRounding.AwayFromZero)));
     }
 
     [Test]
@@ -197,8 +196,8 @@ public sealed class CatalogDamageHotTickApplierTests
         Assert.That(changes[0].ReasonCode, Is.EqualTo(EngagementOutcomeCodes.Hit));
         Assert.That(changes[1].ReasonCode, Is.EqualTo(EngagementOutcomeCodes.Kill));
         Assert.That(
-            Math.Round((double)(ledger.TryGetHpPct("u1", out var hp) ? hp : -1), 6, MidpointRounding.AwayFromZero),
-            Is.EqualTo(Math.Round((double)(0.0), 6, MidpointRounding.AwayFromZero)));
+            Math.Round(ledger.TryGetHpPct("u1", out var hp) ? hp : -1, 6, MidpointRounding.AwayFromZero),
+            Is.EqualTo(Math.Round(0.0, 6, MidpointRounding.AwayFromZero)));
     }
 
     [Test]
@@ -215,7 +214,7 @@ public sealed class CatalogDamageHotTickApplierTests
 
         Assert.That(changes, Is.Empty);
         Assert.That(
-            Math.Round((double)(ledger.TryGetHpPct("u1", out var hp) ? hp : -1), 6, MidpointRounding.AwayFromZero),
-            Is.EqualTo(Math.Round((double)(80.0), 6, MidpointRounding.AwayFromZero)));
+            Math.Round(ledger.TryGetHpPct("u1", out var hp) ? hp : -1, 6, MidpointRounding.AwayFromZero),
+            Is.EqualTo(Math.Round(80.0, 6, MidpointRounding.AwayFromZero)));
     }
 }

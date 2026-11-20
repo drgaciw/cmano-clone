@@ -14,11 +14,11 @@ public sealed class SwarmSensorScaleTests
         var halfPd = SwarmSensorScale.ScalePd(basePd, droneCount: max / 2, maxDrones: max);
 
         Assert.That(
-            Math.Round((double)(fullPd), 6, MidpointRounding.AwayFromZero),
-            Is.EqualTo(Math.Round((double)(0.8), 6, MidpointRounding.AwayFromZero)));
+            Math.Round(fullPd, 6, MidpointRounding.AwayFromZero),
+            Is.EqualTo(Math.Round(0.8, 6, MidpointRounding.AwayFromZero)));
         Assert.That(
-            Math.Round((double)(halfPd), 6, MidpointRounding.AwayFromZero),
-            Is.EqualTo(Math.Round((double)(0.4), 6, MidpointRounding.AwayFromZero)));
+            Math.Round(halfPd, 6, MidpointRounding.AwayFromZero),
+            Is.EqualTo(Math.Round(0.4, 6, MidpointRounding.AwayFromZero)));
         Assert.That(halfPd < fullPd, Is.True);
     }
 
@@ -44,15 +44,15 @@ public sealed class SwarmSensorScaleTests
     {
         var baseline = DetectionProbability.ComputePd(0.5);
         Assert.That(
-            Math.Round((double)(baseline), 6, MidpointRounding.AwayFromZero),
-            Is.EqualTo(Math.Round((double)(0.5), 6, MidpointRounding.AwayFromZero)));
+            Math.Round(baseline, 6, MidpointRounding.AwayFromZero),
+            Is.EqualTo(Math.Round(0.5, 6, MidpointRounding.AwayFromZero)));
 
         var scaled = DetectionProbability.ComputePd(
             0.5,
             swarmIntegrityScale: SwarmSensorScale.ScaleFactor(20, 40));
         Assert.That(
-            Math.Round((double)(scaled), 6, MidpointRounding.AwayFromZero),
-            Is.EqualTo(Math.Round((double)(0.25), 6, MidpointRounding.AwayFromZero)));
+            Math.Round(scaled, 6, MidpointRounding.AwayFromZero),
+            Is.EqualTo(Math.Round(0.25, 6, MidpointRounding.AwayFromZero)));
         Assert.That(scaled < baseline, Is.True);
     }
 

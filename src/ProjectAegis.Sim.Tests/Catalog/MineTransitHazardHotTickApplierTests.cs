@@ -4,7 +4,6 @@ using ProjectAegis.Sim.Catalog;
 using ProjectAegis.Sim.Core;
 using ProjectAegis.Sim.Scenario;
 using NUnit.Framework;
-using ProjectAegis.Sim.Tests;
 
 namespace ProjectAegis.Sim.Tests.Catalog;
 

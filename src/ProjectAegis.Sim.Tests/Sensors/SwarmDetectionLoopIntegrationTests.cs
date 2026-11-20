@@ -2,7 +2,6 @@ using ProjectAegis.Sim.Core;
 using ProjectAegis.Sim.Scenario;
 using ProjectAegis.Sim.Sensors;
 using NUnit.Framework;
-using ProjectAegis.Sim.Tests;
 
 namespace ProjectAegis.Sim.Tests.Sensors;
 
@@ -32,11 +31,11 @@ public sealed class SwarmDetectionLoopIntegrationTests
         AssertEx.Single(full);
         AssertEx.Single(half);
         Assert.That(
-            Math.Round((double)(full[0].Pd), 6, MidpointRounding.AwayFromZero),
-            Is.EqualTo(Math.Round((double)(0.8), 6, MidpointRounding.AwayFromZero)));
+            Math.Round(full[0].Pd, 6, MidpointRounding.AwayFromZero),
+            Is.EqualTo(Math.Round(0.8, 6, MidpointRounding.AwayFromZero)));
         Assert.That(
-            Math.Round((double)(half[0].Pd), 6, MidpointRounding.AwayFromZero),
-            Is.EqualTo(Math.Round((double)(0.4), 6, MidpointRounding.AwayFromZero)));
+            Math.Round(half[0].Pd, 6, MidpointRounding.AwayFromZero),
+            Is.EqualTo(Math.Round(0.4, 6, MidpointRounding.AwayFromZero)));
         Assert.That(half[0].Pd < full[0].Pd, Is.True);
         // Same draw stream keying: observer/sensor/target identical ⇒ same draw
         Assert.That(half[0].Draw, Is.EqualTo(full[0].Draw));
@@ -53,11 +52,11 @@ public sealed class SwarmDetectionLoopIntegrationTests
         var linear = SwarmSensorScale.ScaleFactor(10, 40, integrityPower: 1.0);
         var squared = SwarmSensorScale.ScaleFactor(10, 40, integrityPower: 2.0);
         Assert.That(
-            Math.Round((double)(linear), 6, MidpointRounding.AwayFromZero),
-            Is.EqualTo(Math.Round((double)(0.25), 6, MidpointRounding.AwayFromZero)));
+            Math.Round(linear, 6, MidpointRounding.AwayFromZero),
+            Is.EqualTo(Math.Round(0.25, 6, MidpointRounding.AwayFromZero)));
         Assert.That(
-            Math.Round((double)(squared), 6, MidpointRounding.AwayFromZero),
-            Is.EqualTo(Math.Round((double)(0.0625), 6, MidpointRounding.AwayFromZero)));
+            Math.Round(squared, 6, MidpointRounding.AwayFromZero),
+            Is.EqualTo(Math.Round(0.0625, 6, MidpointRounding.AwayFromZero)));
         Assert.That(squared < linear, Is.True);
     }
 }

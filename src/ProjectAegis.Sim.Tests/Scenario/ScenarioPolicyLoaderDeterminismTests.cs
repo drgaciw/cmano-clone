@@ -22,8 +22,9 @@ public sealed class ScenarioPolicyLoaderDeterminismTests
         {
             dir.WritePolicy("alpha.policy.json", "dup-id");
             dir.WritePolicy("beta.policy.json", "dup-id");
+            var path = dir.Path;
 
-            var ex = Assert.Throws<InvalidDataException>(() => ScenarioPolicyJsonLoader.LoadDirectory(dir.Path));
+            var ex = Assert.Throws<InvalidDataException>(() => ScenarioPolicyJsonLoader.LoadDirectory(path));
 
             // Both filenames must appear so the author can find the collision.
             Assert.That(ex!.Message, Does.Contain("dup-id"));
@@ -44,8 +45,9 @@ public sealed class ScenarioPolicyLoaderDeterminismTests
         {
             dir.WritePolicy("alpha.policy.json", "dup-id");
             dir.WritePolicy("beta.policy.json", "dup-id");
+            var path = dir.Path;
 
-            var ex = Assert.Throws<InvalidDataException>(() => ScenarioPolicyJsonIndex.LoadFromDirectory(dir.Path));
+            var ex = Assert.Throws<InvalidDataException>(() => ScenarioPolicyJsonIndex.LoadFromDirectory(path));
 
             Assert.That(ex!.Message, Does.Contain("dup-id"));
             Assert.That(ex.Message, Does.Contain("alpha.policy.json"));
@@ -68,8 +70,9 @@ public sealed class ScenarioPolicyLoaderDeterminismTests
         {
             dir.WritePolicy("alpha.policy.json", "Case-Id");
             dir.WritePolicy("beta.policy.json", "case-id");
+            var path = dir.Path;
 
-            Assert.Throws<InvalidDataException>(() => ScenarioPolicyJsonLoader.LoadDirectory(dir.Path));
+            Assert.Throws<InvalidDataException>(() => ScenarioPolicyJsonLoader.LoadDirectory(path));
         }
         finally
         {

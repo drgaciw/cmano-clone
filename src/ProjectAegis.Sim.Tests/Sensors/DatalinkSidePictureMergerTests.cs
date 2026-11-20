@@ -2,7 +2,6 @@ using ProjectAegis.Sim.Core;
 using ProjectAegis.Sim.Scenario;
 using ProjectAegis.Sim.Sensors;
 using NUnit.Framework;
-using ProjectAegis.Sim.Tests;
 
 namespace ProjectAegis.Sim.Tests.Sensors;
 
@@ -326,7 +325,7 @@ public sealed class DatalinkSidePictureMergerTests
 
         Assert.That(merger.Merge(organic, 1, 1.0, DatalinkCommsShareState.Denied), Is.Empty);
 
-        merger.Merge(organic, 1, 1.0, DatalinkCommsShareState.Nominal);
+        merger.Merge(organic, 1, 1.0);
         Assert.That(
             merger.Merge(
                     [

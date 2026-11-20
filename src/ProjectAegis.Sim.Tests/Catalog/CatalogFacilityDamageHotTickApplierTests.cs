@@ -3,7 +3,6 @@ using ProjectAegis.Sim.Catalog;
 using ProjectAegis.Sim.Engage;
 using ProjectAegis.Sim.Scenario;
 using NUnit.Framework;
-using ProjectAegis.Sim.Tests;
 
 namespace ProjectAegis.Sim.Tests.Catalog;
 
@@ -42,8 +41,8 @@ public sealed class CatalogFacilityDamageHotTickApplierTests
         Assert.That(changes[0].ReasonCode, Is.EqualTo(EngagementOutcomeCodes.Hit));
         Assert.That(changes[1].ReasonCode, Is.EqualTo(EngagementOutcomeCodes.Hit));
         Assert.That(
-            Math.Round((double)(ledger.TryGetHpPct("runway-1", out var hp) ? hp : -1), 6, MidpointRounding.AwayFromZero),
-            Is.EqualTo(Math.Round((double)(50.0), 6, MidpointRounding.AwayFromZero)));
+            Math.Round(ledger.TryGetHpPct("runway-1", out var hp) ? hp : -1, 6, MidpointRounding.AwayFromZero),
+            Is.EqualTo(Math.Round(50.0, 6, MidpointRounding.AwayFromZero)));
     }
 
     [Test]
@@ -71,8 +70,8 @@ public sealed class CatalogFacilityDamageHotTickApplierTests
         AssertEx.Single(changes);
         Assert.That(changes[0].DamageLevel, Is.EqualTo(2));
         Assert.That(
-            Math.Round((double)(ledger.TryGetHpPct("runway-1", out var hp) ? hp : -1), 6, MidpointRounding.AwayFromZero),
-            Is.EqualTo(Math.Round((double)(50.0), 6, MidpointRounding.AwayFromZero)));
+            Math.Round(ledger.TryGetHpPct("runway-1", out var hp) ? hp : -1, 6, MidpointRounding.AwayFromZero),
+            Is.EqualTo(Math.Round(50.0, 6, MidpointRounding.AwayFromZero)));
     }
 
     [Test]
@@ -94,8 +93,8 @@ public sealed class CatalogFacilityDamageHotTickApplierTests
 
         Assert.That(changes, Is.Empty);
         Assert.That(
-            Math.Round((double)(ledger.TryGetHpPct("runway-1", out var hp) ? hp : -1), 6, MidpointRounding.AwayFromZero),
-            Is.EqualTo(Math.Round((double)(80.0), 6, MidpointRounding.AwayFromZero)));
+            Math.Round(ledger.TryGetHpPct("runway-1", out var hp) ? hp : -1, 6, MidpointRounding.AwayFromZero),
+            Is.EqualTo(Math.Round(80.0, 6, MidpointRounding.AwayFromZero)));
     }
 
     [Test]
@@ -119,8 +118,8 @@ public sealed class CatalogFacilityDamageHotTickApplierTests
         Assert.That(changes.Count, Is.EqualTo(2));
         Assert.That(changes[1].ReasonCode, Is.EqualTo(EngagementOutcomeCodes.Kill));
         Assert.That(
-            Math.Round((double)(ledger.TryGetHpPct("runway-1", out var hp) ? hp : -1), 6, MidpointRounding.AwayFromZero),
-            Is.EqualTo(Math.Round((double)(0.0), 6, MidpointRounding.AwayFromZero)));
+            Math.Round(ledger.TryGetHpPct("runway-1", out var hp) ? hp : -1, 6, MidpointRounding.AwayFromZero),
+            Is.EqualTo(Math.Round(0.0, 6, MidpointRounding.AwayFromZero)));
     }
 
     [Test]
@@ -142,8 +141,8 @@ public sealed class CatalogFacilityDamageHotTickApplierTests
 
         Assert.That(changes, Is.Empty);
         Assert.That(
-            Math.Round((double)(ledger.TryGetHpPct("runway-1", out var hp) ? hp : -1), 6, MidpointRounding.AwayFromZero),
-            Is.EqualTo(Math.Round((double)(80.0), 6, MidpointRounding.AwayFromZero)));
+            Math.Round(ledger.TryGetHpPct("runway-1", out var hp) ? hp : -1, 6, MidpointRounding.AwayFromZero),
+            Is.EqualTo(Math.Round(80.0, 6, MidpointRounding.AwayFromZero)));
     }
 
     [Test]

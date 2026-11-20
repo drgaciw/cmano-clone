@@ -15,16 +15,16 @@ public sealed class FuelLedgerTests
         var (d2, r2) = ledger.AdvanceTick("u1", 1.0);
 
         Assert.That(
-            Math.Round((double)(d1), 3, MidpointRounding.AwayFromZero),
+            Math.Round(d1, 3, MidpointRounding.AwayFromZero),
             Is.EqualTo(Math.Round((double)(-80), 3, MidpointRounding.AwayFromZero)));
         Assert.That(
-            Math.Round((double)(r1), 3, MidpointRounding.AwayFromZero),
+            Math.Round(r1, 3, MidpointRounding.AwayFromZero),
             Is.EqualTo(Math.Round((double)(9920), 3, MidpointRounding.AwayFromZero)));
         Assert.That(
-            Math.Round((double)(d2), 3, MidpointRounding.AwayFromZero),
+            Math.Round(d2, 3, MidpointRounding.AwayFromZero),
             Is.EqualTo(Math.Round((double)(-80), 3, MidpointRounding.AwayFromZero)));
         Assert.That(
-            Math.Round((double)(r2), 3, MidpointRounding.AwayFromZero),
+            Math.Round(r2, 3, MidpointRounding.AwayFromZero),
             Is.EqualTo(Math.Round((double)(9840), 3, MidpointRounding.AwayFromZero)));
     }
 
@@ -56,7 +56,7 @@ public sealed class FuelLedgerTests
         var ledger = new FuelLedger(10_000, burnRateKgPerSecond: 80);
 
         Assert.That(
-            Math.Round((double)(ledger.GetRemainingKg("unknown")), 3, MidpointRounding.AwayFromZero),
+            Math.Round(ledger.GetRemainingKg("unknown"), 3, MidpointRounding.AwayFromZero),
             Is.EqualTo(Math.Round((double)(10_000), 3, MidpointRounding.AwayFromZero)));
     }
 
@@ -69,7 +69,7 @@ public sealed class FuelLedgerTests
         ledger.EnsureUnit("u1");
 
         Assert.That(
-            Math.Round((double)(ledger.GetRemainingKg("u1")), 3, MidpointRounding.AwayFromZero),
+            Math.Round(ledger.GetRemainingKg("u1"), 3, MidpointRounding.AwayFromZero),
             Is.EqualTo(Math.Round((double)(9920), 3, MidpointRounding.AwayFromZero)));
     }
 
@@ -91,10 +91,10 @@ public sealed class FuelLedgerTests
             Is.True,
             $"Remaining fuel {remaining}kg exceeded the 10,000kg tank capacity after a negative-delta tick.");
         Assert.That(
-            Math.Round((double)(remaining), 3, MidpointRounding.AwayFromZero),
+            Math.Round(remaining, 3, MidpointRounding.AwayFromZero),
             Is.EqualTo(Math.Round((double)(10_000), 3, MidpointRounding.AwayFromZero)));
         Assert.That(
-            Math.Round((double)(ledger.GetRemainingKg("u1")), 3, MidpointRounding.AwayFromZero),
+            Math.Round(ledger.GetRemainingKg("u1"), 3, MidpointRounding.AwayFromZero),
             Is.EqualTo(Math.Round((double)(10_000), 3, MidpointRounding.AwayFromZero)));
     }
 }

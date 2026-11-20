@@ -3,7 +3,6 @@ using ProjectAegis.Sim.Core;
 using ProjectAegis.Sim.Engage;
 using ProjectAegis.Sim.Swarm;
 using NUnit.Framework;
-using ProjectAegis.Sim.Tests;
 
 namespace ProjectAegis.Sim.Tests.Engage;
 
@@ -72,11 +71,11 @@ public sealed class SwarmEngageHotpathTests
 
         // Explicit scale proof independent of RNG: Scale is used when max>0.
         Assert.That(
-            Math.Round((double)(SwarmOffensiveEffect.Scale(0.9, 40, 40)), 6, MidpointRounding.AwayFromZero),
-            Is.EqualTo(Math.Round((double)(0.9), 6, MidpointRounding.AwayFromZero)));
+            Math.Round(SwarmOffensiveEffect.Scale(0.9, 40, 40), 6, MidpointRounding.AwayFromZero),
+            Is.EqualTo(Math.Round(0.9, 6, MidpointRounding.AwayFromZero)));
         Assert.That(
-            Math.Round((double)(SwarmOffensiveEffect.Scale(0.9, 20, 40)), 6, MidpointRounding.AwayFromZero),
-            Is.EqualTo(Math.Round((double)(0.45), 6, MidpointRounding.AwayFromZero)));
+            Math.Round(SwarmOffensiveEffect.Scale(0.9, 20, 40), 6, MidpointRounding.AwayFromZero),
+            Is.EqualTo(Math.Round(0.45, 6, MidpointRounding.AwayFromZero)));
         Assert.That(full.Launched, Is.True);
         Assert.That(half.Launched, Is.True);
         // Half integrity Pk is lower ⇒ draw is more likely to miss; pin that half PkDraw equals full

@@ -5,7 +5,6 @@ using ProjectAegis.Sim.Swarm.Assault;
 using ProjectAegis.Sim.Swarm.Formation;
 using ProjectAegis.Sim.Swarm.SoftKill;
 using NUnit.Framework;
-using ProjectAegis.Sim.Tests;
 
 namespace ProjectAegis.Sim.Tests.Swarm;
 

@@ -5,7 +5,6 @@ using ProjectAegis.Sim.Policy;
 using ProjectAegis.Sim.Scenario;
 using ProjectAegis.Sim.Sensors;
 using NUnit.Framework;
-using ProjectAegis.Sim.Tests;
 
 namespace ProjectAegis.Sim.Tests.Catalog;
 
@@ -49,8 +48,8 @@ public sealed class PhaseBCatalogConsumerTests
 
         Assert.That(baseline[0].EnvMask, Is.EqualTo(1.0));
         Assert.That(
-            Math.Round((double)(modified[0].EnvMask), 6, MidpointRounding.AwayFromZero),
-            Is.EqualTo(Math.Round((double)(0.9), 6, MidpointRounding.AwayFromZero)));
+            Math.Round(modified[0].EnvMask, 6, MidpointRounding.AwayFromZero),
+            Is.EqualTo(Math.Round(0.9, 6, MidpointRounding.AwayFromZero)));
         Assert.That(modified[0].BasePd, Is.EqualTo(1.0));
 
         var seed = SimSeed.FromScenario(42);
@@ -68,8 +67,8 @@ public sealed class PhaseBCatalogConsumerTests
         var signature = new CatalogSignature("u1", RcsBandDbsm: rcsDbsm);
         var envMask = PhaseBCatalogDetectionModifier.ApplyEnvMask(1.0, signature);
         Assert.That(
-            Math.Round((double)(envMask), 6, MidpointRounding.AwayFromZero),
-            Is.EqualTo(Math.Round((double)(expectedEnvMask), 6, MidpointRounding.AwayFromZero)));
+            Math.Round(envMask, 6, MidpointRounding.AwayFromZero),
+            Is.EqualTo(Math.Round(expectedEnvMask, 6, MidpointRounding.AwayFromZero)));
     }
 
     [Test]

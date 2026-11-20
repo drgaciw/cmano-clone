@@ -2,7 +2,6 @@ using ProjectAegis.Data.Catalog;
 using ProjectAegis.Data.Scenario.Policy;
 using ProjectAegis.Sim.Scenario;
 using NUnit.Framework;
-using ProjectAegis.Sim.Tests;
 
 namespace ProjectAegis.Sim.Tests.Scenario;
 

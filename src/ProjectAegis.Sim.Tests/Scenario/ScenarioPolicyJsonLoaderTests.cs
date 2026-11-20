@@ -2,7 +2,6 @@ using ProjectAegis.Sim.Policy;
 using ProjectAegis.Data.Scenario.Policy;
 using ProjectAegis.Sim.Scenario;
 using NUnit.Framework;
-using ProjectAegis.Sim.Tests;
 
 namespace ProjectAegis.Sim.Tests.Scenario;
 
@@ -239,8 +238,8 @@ public sealed class ScenarioPolicyJsonLoaderTests
         AssertEx.Single(profile.CatalogWithdrawTargets);
         Assert.That(profile.CatalogWithdrawTargets[0].PlatformId, Is.EqualTo("hostile-1"));
         Assert.That(
-            Math.Round((double)(profile.CatalogWithdrawTargets[0].CurrentHpPct), 6, MidpointRounding.AwayFromZero),
-            Is.EqualTo(Math.Round((double)(30.0), 6, MidpointRounding.AwayFromZero)));
+            Math.Round(profile.CatalogWithdrawTargets[0].CurrentHpPct, 6, MidpointRounding.AwayFromZero),
+            Is.EqualTo(Math.Round(30.0, 6, MidpointRounding.AwayFromZero)));
     }
 
     [Test]
@@ -257,8 +256,8 @@ public sealed class ScenarioPolicyJsonLoaderTests
         Assert.That(profile.Logistics.BurnRateKgPerSecond, Is.EqualTo(80));
         Assert.That(profile.CommsDisplay.DegradedLagTicks, Is.EqualTo(2));
         Assert.That(
-            Math.Round((double)(profile.CommsDisplay.GhostOffsetX), 3, MidpointRounding.AwayFromZero),
-            Is.EqualTo(Math.Round((double)(0.06f), 3, MidpointRounding.AwayFromZero)));
+            Math.Round(profile.CommsDisplay.GhostOffsetX, 3, MidpointRounding.AwayFromZero),
+            Is.EqualTo(Math.Round(0.06f, 3, MidpointRounding.AwayFromZero)));
     }
 
     private static string? FindRepoRoot()

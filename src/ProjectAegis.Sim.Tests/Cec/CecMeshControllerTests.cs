@@ -1,7 +1,6 @@
 using ProjectAegis.Data.Catalog;
 using ProjectAegis.Sim.Cec;
 using NUnit.Framework;
-using ProjectAegis.Sim.Tests;
 
 namespace ProjectAegis.Sim.Tests.Cec;
 
@@ -132,8 +131,8 @@ public sealed class CecMeshControllerTests
         Assert.That(track.PrimaryContributorUnitId, Is.EqualTo("usn-a")); // higher quality
         Assert.That(track.FireControlQuality, Is.True);
         Assert.That(
-            Math.Round((double)(track.Quality), 6, MidpointRounding.AwayFromZero),
-            Is.EqualTo(Math.Round((double)(0.75), 6, MidpointRounding.AwayFromZero)));
+            Math.Round(track.Quality, 6, MidpointRounding.AwayFromZero),
+            Is.EqualTo(Math.Round(0.75, 6, MidpointRounding.AwayFromZero)));
     }
 
     [Test]

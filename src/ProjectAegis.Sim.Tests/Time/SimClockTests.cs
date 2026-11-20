@@ -52,13 +52,13 @@ public sealed class SimClockTests
         clock.AdvanceOneTick();
         Assert.That(clock.SimTick, Is.EqualTo(2UL));
         Assert.That(
-            Math.Round((double)(clock.SimTime), 5, MidpointRounding.AwayFromZero),
-            Is.EqualTo(Math.Round((double)(1.0), 5, MidpointRounding.AwayFromZero)));
+            Math.Round(clock.SimTime, 5, MidpointRounding.AwayFromZero),
+            Is.EqualTo(Math.Round(1.0, 5, MidpointRounding.AwayFromZero)));
 
         clock.Reset(10);
         Assert.That(clock.SimTick, Is.EqualTo(10UL));
         Assert.That(
-            Math.Round((double)(clock.SimTime), 5, MidpointRounding.AwayFromZero),
-            Is.EqualTo(Math.Round((double)(5.0), 5, MidpointRounding.AwayFromZero)));
+            Math.Round(clock.SimTime, 5, MidpointRounding.AwayFromZero),
+            Is.EqualTo(Math.Round(5.0, 5, MidpointRounding.AwayFromZero)));
     }
 }

@@ -3,7 +3,6 @@ using ProjectAegis.Sim.Catalog;
 using ProjectAegis.Sim.Engage;
 using ProjectAegis.Sim.Scenario;
 using NUnit.Framework;
-using ProjectAegis.Sim.Tests;
 
 namespace ProjectAegis.Sim.Tests.Engage;
 
@@ -74,7 +73,7 @@ public sealed class DeterministicDamageApplyBatchTests
         Assert.That(changes[0].ReasonCode, Is.EqualTo(EngagementOutcomeCodes.Hit));
         Assert.That(changes[1].ReasonCode, Is.EqualTo(EngagementOutcomeCodes.Hit));
         Assert.That(
-            Math.Round((double)(ledger.TryGetHpPct("u1", out var hp) ? hp : -1), 6, MidpointRounding.AwayFromZero),
-            Is.EqualTo(Math.Round((double)(50.0), 6, MidpointRounding.AwayFromZero)));
+            Math.Round(ledger.TryGetHpPct("u1", out var hp) ? hp : -1, 6, MidpointRounding.AwayFromZero),
+            Is.EqualTo(Math.Round(50.0, 6, MidpointRounding.AwayFromZero)));
     }
 }

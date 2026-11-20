@@ -30,8 +30,8 @@ public sealed class RadarEccmTests
     {
         var p = new RadarEccmProfile(scan, agile, radarGen);
         Assert.That(
-            Math.Round((double)(EccmJamMatrix.Effectiveness(in p, jammerGen)), 6, MidpointRounding.AwayFromZero),
-            Is.EqualTo(Math.Round((double)(expected), 6, MidpointRounding.AwayFromZero)));
+            Math.Round(EccmJamMatrix.Effectiveness(in p, jammerGen), 6, MidpointRounding.AwayFromZero),
+            Is.EqualTo(Math.Round(expected, 6, MidpointRounding.AwayFromZero)));
     }
 
     [TestCase(null)]
@@ -80,8 +80,8 @@ public sealed class RadarEccmTests
         var aesa = new RadarEccmProfile(RadarScanType.Aesa, TechGeneration: 5);
         // gen-1 jammer: 1.0 × max(0.1, 0.4 × 0.4)=0.16; gen-5 jammer: 0.9 × 0.4 = 0.36
         Assert.That(
-            Math.Round((double)(ScenarioJamResolver.ResolveJam("u1", "h1", 0, jammers, in aesa)), 6, MidpointRounding.AwayFromZero),
-            Is.EqualTo(Math.Round((double)(0.36), 6, MidpointRounding.AwayFromZero)));
+            Math.Round(ScenarioJamResolver.ResolveJam("u1", "h1", 0, jammers, in aesa), 6, MidpointRounding.AwayFromZero),
+            Is.EqualTo(Math.Round(0.36, 6, MidpointRounding.AwayFromZero)));
     }
 
     [Test]
@@ -106,8 +106,8 @@ public sealed class RadarEccmTests
 
         Assert.That(legacy[0].Pd, Is.EqualTo(0));
         Assert.That(
-            Math.Round((double)(eccm[0].Pd), 6, MidpointRounding.AwayFromZero),
-            Is.EqualTo(Math.Round((double)(0.6), 6, MidpointRounding.AwayFromZero))); // 1 − (1.0 × 0.4)
+            Math.Round(eccm[0].Pd, 6, MidpointRounding.AwayFromZero),
+            Is.EqualTo(Math.Round(0.6, 6, MidpointRounding.AwayFromZero))); // 1 − (1.0 × 0.4)
     }
 
     [Test]

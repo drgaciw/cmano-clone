@@ -2,7 +2,6 @@ using ProjectAegis.Sim.Core;
 using ProjectAegis.Sim.Scenario;
 using ProjectAegis.Sim.Sensors;
 using NUnit.Framework;
-using ProjectAegis.Sim.Tests;
 
 namespace ProjectAegis.Sim.Tests.Sensors;
 
@@ -15,11 +14,11 @@ public sealed class IrVisualDetectionTests
         var night = IrVisualDetection.ComputeVisualEnvMask(dayFraction: 0.0);
         Assert.That(day > night, Is.True);
         Assert.That(
-            Math.Round((double)(day), 6, MidpointRounding.AwayFromZero),
-            Is.EqualTo(Math.Round((double)(1.0), 6, MidpointRounding.AwayFromZero)));
+            Math.Round(day, 6, MidpointRounding.AwayFromZero),
+            Is.EqualTo(Math.Round(1.0, 6, MidpointRounding.AwayFromZero)));
         Assert.That(
-            Math.Round((double)(night), 6, MidpointRounding.AwayFromZero),
-            Is.EqualTo(Math.Round((double)(IrVisualDetection.DefaultVisualNightFloor), 6, MidpointRounding.AwayFromZero)));
+            Math.Round(night, 6, MidpointRounding.AwayFromZero),
+            Is.EqualTo(Math.Round(IrVisualDetection.DefaultVisualNightFloor, 6, MidpointRounding.AwayFromZero)));
     }
 
     [Test]
@@ -27,18 +26,18 @@ public sealed class IrVisualDetectionTests
     {
         var masked = IrVisualDetection.ComputeVisualEnvMask(dayFraction: 1.0, weatherMask: 0.5);
         Assert.That(
-            Math.Round((double)(masked), 6, MidpointRounding.AwayFromZero),
-            Is.EqualTo(Math.Round((double)(0.5), 6, MidpointRounding.AwayFromZero)));
+            Math.Round(masked, 6, MidpointRounding.AwayFromZero),
+            Is.EqualTo(Math.Round(0.5, 6, MidpointRounding.AwayFromZero)));
 
         var over = IrVisualDetection.ComputeVisualEnvMask(dayFraction: 2.0, weatherMask: 2.0);
         Assert.That(
-            Math.Round((double)(over), 6, MidpointRounding.AwayFromZero),
-            Is.EqualTo(Math.Round((double)(1.0), 6, MidpointRounding.AwayFromZero)));
+            Math.Round(over, 6, MidpointRounding.AwayFromZero),
+            Is.EqualTo(Math.Round(1.0, 6, MidpointRounding.AwayFromZero)));
 
         var under = IrVisualDetection.ComputeVisualEnvMask(dayFraction: -1.0, weatherMask: -1.0, nightFloor: 0);
         Assert.That(
-            Math.Round((double)(under), 6, MidpointRounding.AwayFromZero),
-            Is.EqualTo(Math.Round((double)(0.0), 6, MidpointRounding.AwayFromZero)));
+            Math.Round(under, 6, MidpointRounding.AwayFromZero),
+            Is.EqualTo(Math.Round(0.0, 6, MidpointRounding.AwayFromZero)));
     }
 
     [Test]
@@ -48,16 +47,16 @@ public sealed class IrVisualDetectionTests
         var cold = IrVisualDetection.ComputeInfraredEnvMask(thermalContrast: 0.1);
         Assert.That(hot > cold, Is.True);
         Assert.That(
-            Math.Round((double)(hot), 6, MidpointRounding.AwayFromZero),
-            Is.EqualTo(Math.Round((double)(0.9), 6, MidpointRounding.AwayFromZero)));
+            Math.Round(hot, 6, MidpointRounding.AwayFromZero),
+            Is.EqualTo(Math.Round(0.9, 6, MidpointRounding.AwayFromZero)));
         Assert.That(
-            Math.Round((double)(cold), 6, MidpointRounding.AwayFromZero),
-            Is.EqualTo(Math.Round((double)(0.1), 6, MidpointRounding.AwayFromZero)));
+            Math.Round(cold, 6, MidpointRounding.AwayFromZero),
+            Is.EqualTo(Math.Round(0.1, 6, MidpointRounding.AwayFromZero)));
 
         var weathered = IrVisualDetection.ComputeInfraredEnvMask(thermalContrast: 0.8, weatherMask: 0.5);
         Assert.That(
-            Math.Round((double)(weathered), 6, MidpointRounding.AwayFromZero),
-            Is.EqualTo(Math.Round((double)(0.4), 6, MidpointRounding.AwayFromZero)));
+            Math.Round(weathered, 6, MidpointRounding.AwayFromZero),
+            Is.EqualTo(Math.Round(0.4, 6, MidpointRounding.AwayFromZero)));
     }
 
     [Test]
@@ -87,8 +86,8 @@ public sealed class IrVisualDetectionTests
 
         AssertEx.Single(irRolls);
         Assert.That(
-            Math.Round((double)(irRolls[0].Pd), 6, MidpointRounding.AwayFromZero),
-            Is.EqualTo(Math.Round((double)(1.0), 6, MidpointRounding.AwayFromZero)));
+            Math.Round(irRolls[0].Pd, 6, MidpointRounding.AwayFromZero),
+            Is.EqualTo(Math.Round(1.0, 6, MidpointRounding.AwayFromZero)));
         Assert.That(irRolls[0].Detected, Is.True);
     }
 
@@ -106,8 +105,8 @@ public sealed class IrVisualDetectionTests
             SimSeed.FromScenario(7), 1, [visual], null, jammers: jammers);
         AssertEx.Single(rolls);
         Assert.That(
-            Math.Round((double)(rolls[0].Pd), 6, MidpointRounding.AwayFromZero),
-            Is.EqualTo(Math.Round((double)(1.0), 6, MidpointRounding.AwayFromZero)));
+            Math.Round(rolls[0].Pd, 6, MidpointRounding.AwayFromZero),
+            Is.EqualTo(Math.Round(1.0, 6, MidpointRounding.AwayFromZero)));
         Assert.That(rolls[0].Detected, Is.True);
     }
 

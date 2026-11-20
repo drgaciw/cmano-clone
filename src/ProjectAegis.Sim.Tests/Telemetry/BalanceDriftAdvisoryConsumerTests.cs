@@ -3,7 +3,6 @@ using ProjectAegis.Sim.Engage;
 using ProjectAegis.Sim.Scenario;
 using ProjectAegis.Sim.Telemetry;
 using NUnit.Framework;
-using ProjectAegis.Sim.Tests;
 
 namespace ProjectAegis.Sim.Tests.Telemetry;
 
@@ -45,11 +44,11 @@ public sealed class BalanceDriftAdvisoryConsumerTests
         var finding = AssertEx.Single(consumer.LastReport.Findings);
         Assert.That(finding.Code, Is.EqualTo("BALANCE_WIN_RATE_DRIFT"));
         Assert.That(
-            Math.Round((double)(finding.ActualWinRate), 5, MidpointRounding.AwayFromZero),
-            Is.EqualTo(Math.Round((double)(0.7), 5, MidpointRounding.AwayFromZero)));
+            Math.Round(finding.ActualWinRate, 5, MidpointRounding.AwayFromZero),
+            Is.EqualTo(Math.Round(0.7, 5, MidpointRounding.AwayFromZero)));
         Assert.That(
-            Math.Round((double)(finding.DriftDelta), 5, MidpointRounding.AwayFromZero),
-            Is.EqualTo(Math.Round((double)(0.2), 5, MidpointRounding.AwayFromZero)));
+            Math.Round(finding.DriftDelta, 5, MidpointRounding.AwayFromZero),
+            Is.EqualTo(Math.Round(0.2, 5, MidpointRounding.AwayFromZero)));
     }
 
     [Test]

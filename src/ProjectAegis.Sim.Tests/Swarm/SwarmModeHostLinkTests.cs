@@ -2,7 +2,6 @@ using ProjectAegis.Data.Catalog;
 using ProjectAegis.Sim.Core;
 using ProjectAegis.Sim.Swarm;
 using NUnit.Framework;
-using ProjectAegis.Sim.Tests;
 
 namespace ProjectAegis.Sim.Tests.Swarm;
 
@@ -42,11 +41,11 @@ public sealed class SwarmModeHostLinkTests
 
         Assert.That(c.TryGetCentroid("swarm-1", out var lat, out var lon), Is.True);
         Assert.That(
-            Math.Round((double)(lat), 5, MidpointRounding.AwayFromZero),
-            Is.EqualTo(Math.Round((double)(57.0), 5, MidpointRounding.AwayFromZero)));
+            Math.Round(lat, 5, MidpointRounding.AwayFromZero),
+            Is.EqualTo(Math.Round(57.0, 5, MidpointRounding.AwayFromZero)));
         Assert.That(
-            Math.Round((double)(lon), 5, MidpointRounding.AwayFromZero),
-            Is.EqualTo(Math.Round((double)(20.5), 5, MidpointRounding.AwayFromZero)));
+            Math.Round(lon, 5, MidpointRounding.AwayFromZero),
+            Is.EqualTo(Math.Round(20.5, 5, MidpointRounding.AwayFromZero)));
         Assert.That(c.GetHostId("swarm-1"), Is.EqualTo("host-cvn"));
     }
 

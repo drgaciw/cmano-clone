@@ -3,7 +3,6 @@ using ProjectAegis.Sim.Core;
 using ProjectAegis.Sim.Engage;
 using ProjectAegis.Sim.Swarm;
 using NUnit.Framework;
-using ProjectAegis.Sim.Tests;
 
 namespace ProjectAegis.Sim.Tests.Engage;
 
@@ -18,11 +17,11 @@ public sealed class SwarmOffensiveEffectTests
         var half = SwarmOffensiveEffect.Scale(baseEffect, droneCount: max / 2, maxDrones: max);
 
         Assert.That(
-            Math.Round((double)(full), 6, MidpointRounding.AwayFromZero),
-            Is.EqualTo(Math.Round((double)(100.0), 6, MidpointRounding.AwayFromZero)));
+            Math.Round(full, 6, MidpointRounding.AwayFromZero),
+            Is.EqualTo(Math.Round(100.0, 6, MidpointRounding.AwayFromZero)));
         Assert.That(
-            Math.Round((double)(half), 6, MidpointRounding.AwayFromZero),
-            Is.EqualTo(Math.Round((double)(50.0), 6, MidpointRounding.AwayFromZero)));
+            Math.Round(half, 6, MidpointRounding.AwayFromZero),
+            Is.EqualTo(Math.Round(50.0, 6, MidpointRounding.AwayFromZero)));
         Assert.That(full > half, Is.True);
     }
 

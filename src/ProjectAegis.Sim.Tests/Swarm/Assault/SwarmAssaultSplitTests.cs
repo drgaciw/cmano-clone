@@ -1,7 +1,6 @@
 using ProjectAegis.Sim.Swarm;
 using ProjectAegis.Sim.Swarm.Assault;
 using NUnit.Framework;
-using ProjectAegis.Sim.Tests;
 
 namespace ProjectAegis.Sim.Tests.Swarm.Assault;
 
@@ -240,14 +239,14 @@ public sealed class SwarmAssaultSplitTests
         Assert.That(plan.SplitApplied, Is.True);
         var step = SwarmAssaultAxisSplitter.DefaultAxisSpreadDeg;
         Assert.That(
-            Math.Round((double)(plan.Axes[0].ApproachBearingDeg), 6, MidpointRounding.AwayFromZero),
-            Is.EqualTo(Math.Round((double)(90.0 - step), 6, MidpointRounding.AwayFromZero)));
+            Math.Round(plan.Axes[0].ApproachBearingDeg, 6, MidpointRounding.AwayFromZero),
+            Is.EqualTo(Math.Round(90.0 - step, 6, MidpointRounding.AwayFromZero)));
         Assert.That(
-            Math.Round((double)(plan.Axes[1].ApproachBearingDeg), 6, MidpointRounding.AwayFromZero),
-            Is.EqualTo(Math.Round((double)(90.0), 6, MidpointRounding.AwayFromZero)));
+            Math.Round(plan.Axes[1].ApproachBearingDeg, 6, MidpointRounding.AwayFromZero),
+            Is.EqualTo(Math.Round(90.0, 6, MidpointRounding.AwayFromZero)));
         Assert.That(
-            Math.Round((double)(plan.Axes[2].ApproachBearingDeg), 6, MidpointRounding.AwayFromZero),
-            Is.EqualTo(Math.Round((double)(90.0 + step), 6, MidpointRounding.AwayFromZero)));
+            Math.Round(plan.Axes[2].ApproachBearingDeg, 6, MidpointRounding.AwayFromZero),
+            Is.EqualTo(Math.Round(90.0 + step, 6, MidpointRounding.AwayFromZero)));
     }
 
     [Test]
@@ -263,11 +262,11 @@ public sealed class SwarmAssaultSplitTests
         var half = SwarmAssaultAxisSplitter.DefaultAxisSpreadDeg / 2.0;
         // mid for K=2 is 0.5 → offsets -0.5*30 and +0.5*30; normalized to [0,360).
         Assert.That(
-            Math.Round((double)(plan.Axes[0].ApproachBearingDeg), 6, MidpointRounding.AwayFromZero),
-            Is.EqualTo(Math.Round((double)(360.0 - half), 6, MidpointRounding.AwayFromZero)));
+            Math.Round(plan.Axes[0].ApproachBearingDeg, 6, MidpointRounding.AwayFromZero),
+            Is.EqualTo(Math.Round(360.0 - half, 6, MidpointRounding.AwayFromZero)));
         Assert.That(
-            Math.Round((double)(plan.Axes[1].ApproachBearingDeg), 6, MidpointRounding.AwayFromZero),
-            Is.EqualTo(Math.Round((double)(half), 6, MidpointRounding.AwayFromZero)));
+            Math.Round(plan.Axes[1].ApproachBearingDeg, 6, MidpointRounding.AwayFromZero),
+            Is.EqualTo(Math.Round(half, 6, MidpointRounding.AwayFromZero)));
     }
 
     [Test]
@@ -287,11 +286,11 @@ public sealed class SwarmAssaultSplitTests
 
         // 350 - 15 = 335; 350 + 15 = 365 → 5
         Assert.That(
-            Math.Round((double)(plan.Axes[0].ApproachBearingDeg), 6, MidpointRounding.AwayFromZero),
-            Is.EqualTo(Math.Round((double)(335.0), 6, MidpointRounding.AwayFromZero)));
+            Math.Round(plan.Axes[0].ApproachBearingDeg, 6, MidpointRounding.AwayFromZero),
+            Is.EqualTo(Math.Round(335.0, 6, MidpointRounding.AwayFromZero)));
         Assert.That(
-            Math.Round((double)(plan.Axes[1].ApproachBearingDeg), 6, MidpointRounding.AwayFromZero),
-            Is.EqualTo(Math.Round((double)(5.0), 6, MidpointRounding.AwayFromZero)));
+            Math.Round(plan.Axes[1].ApproachBearingDeg, 6, MidpointRounding.AwayFromZero),
+            Is.EqualTo(Math.Round(5.0, 6, MidpointRounding.AwayFromZero)));
     }
 
     [Test]
@@ -332,10 +331,10 @@ public sealed class SwarmAssaultSplitTests
 
         var half = SwarmAssaultAxisSplitter.DefaultAxisSpreadDeg / 2.0;
         Assert.That(
-            Math.Round((double)(plan.Axes[0].ApproachBearingDeg), 6, MidpointRounding.AwayFromZero),
-            Is.EqualTo(Math.Round((double)(360.0 - half), 6, MidpointRounding.AwayFromZero)));
+            Math.Round(plan.Axes[0].ApproachBearingDeg, 6, MidpointRounding.AwayFromZero),
+            Is.EqualTo(Math.Round(360.0 - half, 6, MidpointRounding.AwayFromZero)));
         Assert.That(
-            Math.Round((double)(plan.Axes[1].ApproachBearingDeg), 6, MidpointRounding.AwayFromZero),
-            Is.EqualTo(Math.Round((double)(half), 6, MidpointRounding.AwayFromZero)));
+            Math.Round(plan.Axes[1].ApproachBearingDeg, 6, MidpointRounding.AwayFromZero),
+            Is.EqualTo(Math.Round(half, 6, MidpointRounding.AwayFromZero)));
     }
 }

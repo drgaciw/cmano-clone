@@ -18,17 +18,17 @@ public sealed class SimBenchmarkTests
 
         Assert.That(r.TotalTicks, Is.EqualTo(60));
         Assert.That(
-            Math.Round((double)(r.SimSeconds), 6, MidpointRounding.AwayFromZero),
-            Is.EqualTo(Math.Round((double)(1.0), 6, MidpointRounding.AwayFromZero)));
+            Math.Round(r.SimSeconds, 6, MidpointRounding.AwayFromZero),
+            Is.EqualTo(Math.Round(1.0, 6, MidpointRounding.AwayFromZero)));
         Assert.That(
-            Math.Round((double)(r.TicksPerSecond), 3, MidpointRounding.AwayFromZero),
-            Is.EqualTo(Math.Round((double)(60_000.0), 3, MidpointRounding.AwayFromZero)));
+            Math.Round(r.TicksPerSecond, 3, MidpointRounding.AwayFromZero),
+            Is.EqualTo(Math.Round(60_000.0, 3, MidpointRounding.AwayFromZero)));
         Assert.That(
-            Math.Round((double)(r.EffectiveRealtimeMultiple), 3, MidpointRounding.AwayFromZero),
-            Is.EqualTo(Math.Round((double)(1000.0), 3, MidpointRounding.AwayFromZero)));
+            Math.Round(r.EffectiveRealtimeMultiple, 3, MidpointRounding.AwayFromZero),
+            Is.EqualTo(Math.Round(1000.0, 3, MidpointRounding.AwayFromZero)));
         Assert.That(
-            Math.Round((double)(r.NanosPerTick), 3, MidpointRounding.AwayFromZero),
-            Is.EqualTo(Math.Round((double)(1_000_000.0 / 60.0), 3, MidpointRounding.AwayFromZero)));
+            Math.Round(r.NanosPerTick, 3, MidpointRounding.AwayFromZero),
+            Is.EqualTo(Math.Round(1_000_000.0 / 60.0, 3, MidpointRounding.AwayFromZero)));
     }
 
     [Test]
@@ -36,12 +36,12 @@ public sealed class SimBenchmarkTests
     {
         // 1000x realtime -> one sim second (60 ticks) in 1 ms -> 16666.67 ns per tick.
         Assert.That(
-            Math.Round((double)(EntityScaleBudget.TickWallBudgetNanos(1000)), 2, MidpointRounding.AwayFromZero),
-            Is.EqualTo(Math.Round((double)(16_666.667), 2, MidpointRounding.AwayFromZero)));
+            Math.Round(EntityScaleBudget.TickWallBudgetNanos(1000), 2, MidpointRounding.AwayFromZero),
+            Is.EqualTo(Math.Round(16_666.667, 2, MidpointRounding.AwayFromZero)));
         // 256x floor -> 65104.17 ns per tick.
         Assert.That(
-            Math.Round((double)(EntityScaleBudget.TickWallBudgetNanos(256)), 2, MidpointRounding.AwayFromZero),
-            Is.EqualTo(Math.Round((double)(65_104.167), 2, MidpointRounding.AwayFromZero)));
+            Math.Round(EntityScaleBudget.TickWallBudgetNanos(256), 2, MidpointRounding.AwayFromZero),
+            Is.EqualTo(Math.Round(65_104.167, 2, MidpointRounding.AwayFromZero)));
     }
 
     [Test]
@@ -50,8 +50,8 @@ public sealed class SimBenchmarkTests
         // With ~0 fixed cost, 1000x @ 25k entities leaves the (famously tight) sub-nanosecond budget.
         var perEntity = EntityScaleBudget.PerEntityNanos(measuredFixedNanosPerTick: 0, entityCount: 25_000, targetRealtimeMultiple: 1000);
         Assert.That(
-            Math.Round((double)(perEntity), 4, MidpointRounding.AwayFromZero),
-            Is.EqualTo(Math.Round((double)(16_666.667 / 25_000.0), 4, MidpointRounding.AwayFromZero)));
+            Math.Round(perEntity, 4, MidpointRounding.AwayFromZero),
+            Is.EqualTo(Math.Round(16_666.667 / 25_000.0, 4, MidpointRounding.AwayFromZero)));
     }
 
     [Test]

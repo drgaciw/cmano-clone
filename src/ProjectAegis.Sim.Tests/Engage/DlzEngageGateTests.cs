@@ -16,7 +16,7 @@ public sealed class DlzEngageGateTests
     [Test]
     public void Normal_personality_blocks_approaching_band()
     {
-        Assert.That(DlzEngageGate.AllowsLaunch(90_000, Envelope, DlzPersonality.Normal), Is.False);
+        Assert.That(DlzEngageGate.AllowsLaunch(90_000, Envelope), Is.False);
     }
 
     [Test]

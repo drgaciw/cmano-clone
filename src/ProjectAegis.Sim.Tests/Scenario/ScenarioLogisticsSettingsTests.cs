@@ -22,8 +22,8 @@ public sealed class ScenarioLogisticsSettingsTests
 
         Assert.That(settings.UsesFuelBurnModel, Is.False);
         Assert.That(
-            Math.Round((double)(settings.BingoFuelFraction), 3, MidpointRounding.AwayFromZero),
-            Is.EqualTo(Math.Round((double)(0.30), 3, MidpointRounding.AwayFromZero)));
+            Math.Round(settings.BingoFuelFraction, 3, MidpointRounding.AwayFromZero),
+            Is.EqualTo(Math.Round(0.30, 3, MidpointRounding.AwayFromZero)));
     }
 
     [Test]
@@ -32,11 +32,14 @@ public sealed class ScenarioLogisticsSettingsTests
         // Regression guard: once the burn model is actually active (capacity + burn rate
         // both positive), the fractions are load-bearing (FuelLedger.ResolveBand /
         // RemainingFuelFraction), so the bingo <= joker invariant must still be enforced.
-        Assert.Throws<ArgumentOutOfRangeException>(() => new ScenarioLogisticsSettings(
-            jokerSimSeconds: 300,
-            bingoSimSeconds: 600,
-            fuelCapacityKg: 10_000,
-            burnRateKgPerSecond: 80,
-            bingoFuelFraction: 0.30));
+        Assert.Throws<ArgumentOutOfRangeException>(() =>
+        {
+            _ = new ScenarioLogisticsSettings(
+                jokerSimSeconds: 300,
+                bingoSimSeconds: 600,
+                fuelCapacityKg: 10_000,
+                burnRateKgPerSecond: 80,
+                bingoFuelFraction: 0.30);
+        });
     }
 }

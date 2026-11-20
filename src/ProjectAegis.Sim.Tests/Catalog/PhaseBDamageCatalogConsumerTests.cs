@@ -4,7 +4,6 @@ using ProjectAegis.Sim.Engage;
 using ProjectAegis.Sim.Policy;
 using ProjectAegis.Sim.Scenario;
 using NUnit.Framework;
-using ProjectAegis.Sim.Tests;
 
 namespace ProjectAegis.Sim.Tests.Catalog;
 
@@ -137,8 +136,8 @@ public sealed class PhaseBDamageCatalogConsumerTests
 
         Assert.That(trial.CatalogResolved, Is.True);
         Assert.That(
-            Math.Round((double)(trial.ReadinessScore), 6, MidpointRounding.AwayFromZero),
-            Is.EqualTo(Math.Round((double)(expectedScore), 6, MidpointRounding.AwayFromZero)));
+            Math.Round(trial.ReadinessScore, 6, MidpointRounding.AwayFromZero),
+            Is.EqualTo(Math.Round(expectedScore, 6, MidpointRounding.AwayFromZero)));
         Assert.That(trial.WithdrawRecommended, Is.False);
     }
 
@@ -168,11 +167,11 @@ public sealed class PhaseBDamageCatalogConsumerTests
             damage with { CriticalFlags = 0 });
 
         Assert.That(
-            Math.Round((double)(unflagged), 6, MidpointRounding.AwayFromZero),
-            Is.EqualTo(Math.Round((double)(0.8), 6, MidpointRounding.AwayFromZero)));
+            Math.Round(unflagged, 6, MidpointRounding.AwayFromZero),
+            Is.EqualTo(Math.Round(0.8, 6, MidpointRounding.AwayFromZero)));
         Assert.That(
-            Math.Round((double)(baseline), 6, MidpointRounding.AwayFromZero),
-            Is.EqualTo(Math.Round((double)(0.6), 6, MidpointRounding.AwayFromZero)));
+            Math.Round(baseline, 6, MidpointRounding.AwayFromZero),
+            Is.EqualTo(Math.Round(0.6, 6, MidpointRounding.AwayFromZero)));
     }
 
     [Test]
