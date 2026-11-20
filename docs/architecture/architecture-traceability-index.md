@@ -16,7 +16,7 @@
 - **Partial:** 20 (43%) — *as of 2026-07-08, not re-assessed*
 - **Gaps:** 12 (25%) — *as of 2026-07-08, not re-assessed*
 - **Current gates (2026-07-24):** solution tests **≥1638/0f**; ReplayGolden **6/6**; C2 proxy **≥20/20**; PlayModeSmoke 18/18; hash `17144800277401907079` (18 paths) — see [requirements-traceability.md](requirements-traceability.md) header.
-- **ADR inventory (updated 2026-11-16, DRG-771 Lane A):** **30 numbered ADRs present** — ADR-001…ADR-011, ADR-013…ADR-030, plus `adr-simulation-session-frozen-hub-spirit1`. **ADR-012 is absent — a numbering gap, not a missing decision.** Prior inventory (2026-11-15) omitted ADR-023…029 from the count and lacked dedicated rows for ADR-014…017 / ADR-023…029 (see table below). **ADR-030** ([adr-030-ai-host-boundary.md](adr-030-ai-host-boundary.md)) — AI host boundary **Accepted** 2026-11-15 (owner/TD via PM + Decision): separate `net11.0` host, zero Packages in Contracts, no AI packages/DLLs in Unity-bound `netstandard2.1` / Plugins, Sim/Delegation free of network/LLM on the tick path. ADR-030’s ADR-013 firewall dependency is **provisional** pending owner decision (ADR-013 remains **Proposed**). Historical Sprint 11–15 closeout (2026-06-08) cited `403/403` / PlayMode **7/7** only as program evidence, not live floors.
+- **ADR inventory (updated 2026-11-20; prior count 2026-11-16, DRG-771 Lane A):** **31 numbered ADRs present** — ADR-001…ADR-011, ADR-013…ADR-031, plus `adr-simulation-session-frozen-hub-spirit1`. **ADR-012 is absent — a numbering gap, not a missing decision.** **ADR-031** ([adr-031-one-ci-system-github-actions-hosted.md](adr-031-one-ci-system-github-actions-hosted.md)) — one CI system **Proposed** 2026-11-20: GitHub Actions on GitHub-hosted runners; Buildkite retired only after parity. Prior inventory (2026-11-15) omitted ADR-023…029 from the count and lacked dedicated rows for ADR-014…017 / ADR-023…029 (see table below). **ADR-030** ([adr-030-ai-host-boundary.md](adr-030-ai-host-boundary.md)) — AI host boundary **Accepted** 2026-11-15 (owner/TD via PM + Decision): separate `net11.0` host, zero Packages in Contracts, no AI packages/DLLs in Unity-bound `netstandard2.1` / Plugins, Sim/Delegation free of network/LLM on the tick path. ADR-030’s ADR-013 firewall dependency is **provisional** pending owner decision (ADR-013 remains **Proposed**). Historical Sprint 11–15 closeout (2026-06-08) cited `403/403` / PlayMode **7/7** only as program evidence, not live floors.
 - **Wave 0 AI contracts freeze (DRG-735) + Slice 5 bump (DRG-749):** `ProjectAegis.Ai.Contracts` schema is **additive-only**. Wave 0 froze at **`AiContractSchema.Version = 1`**; DRG-749 bumped to **`Version = 2`** / `VersionString = "2"` for additive `AdviceExplanationContent` (EvidenceProjector / JsonlEvidenceEnvelopePublisher / AarAssistantPipeline stamp the current version). Breaking renames remain forbidden while Host/fixtures consumers exist. Solution includes `Ai.Contracts`, `Ai.Host`, `Ai.Host.Tests` (not `Ai.LiveEval`).
 - **Sprint 11–15 program:** **CLOSED** @ 2026-06-08 — requirements maturity (docs 01–12) + Wave 5 on `main`; tracker rows **14/16/19/20** at **Partial+** with automated AC (**historical** `403/403` / **7/7**). See [requirements-traceability.md](requirements-traceability.md) Wave 5 overlap spine.
 - **Platform editor (FR-19 / req 21):** ADR-011 Partial — see [requirements-traceability.md](requirements-traceability.md) § Platform editor.
@@ -131,7 +131,13 @@ Docs-sync only — no Status flips. Requirement matrix above is unchanged; these
 | [ADR-028](adr-028-content-pipeline-addressables.md) | H5 Addressables content pipeline | Presentation / H5 | **Accepted** | Local presentation-only content |
 | [ADR-029](adr-029-h6-save-resume.md) | H6 save/resume boundary | Persistence / H6 | **Accepted** | ZERO-touch DelegationBridge / SimulationSession |
 
-Master index (ADR-001…030): [architecture.md](architecture.md) § ADR Index. Contributing convention for Status changes: [README.md](README.md).
+## ADR row added 2026-11-20 (ADR-031, Proposed)
+
+| ADR | Title | Primary systems / GDD | Status (mirrored) | Notes |
+|-----|-------|------------------------|-------------------|-------|
+| [ADR-031](adr-031-one-ci-system-github-actions-hosted.md) | One CI system: GitHub Actions hosted; Buildkite retired after parity | CI / build infrastructure | **Proposed** | No job stays on Buildkite after parity (Decision, 2026-11-20 6:22 AM CT). Box index at `/workspace/gitnexus-index` stays box-local; Build owns the refresh. |
+
+Master index (ADR-001…031): [architecture.md](architecture.md) § ADR Index. Contributing convention for Status changes: [README.md](README.md).
 
 ## Superseded Requirements
 
