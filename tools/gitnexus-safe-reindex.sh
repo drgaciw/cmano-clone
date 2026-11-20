@@ -132,7 +132,10 @@ elif isinstance(vs, str) and vs:
 else:
     print("unavailable")')" || die "invalid index metadata" 3
 HEAD_SHA="$(git rev-parse HEAD)"
-G_NODES="$(cy 'MATCH (n) RETURN count(n) AS c')"
+# stats.nodes sums NODE_TABLES only. CodeEmbedding is its own node table, so an
+# unfiltered MATCH (n) counts those rows and false-fails by exactly the
+# embedding total once vectors exist (DRG-404). Ladybug nodes have one label.
+G_NODES="$(cy "MATCH (n) WHERE label(n) <> 'CodeEmbedding' RETURN count(n) AS c")"
 G_EDGES="$(cy 'MATCH ()-[r]->() RETURN count(r) AS c')"
 G_EMB="$(cy 'MATCH (e:CodeEmbedding) RETURN count(e) AS cnt')"
 echo "indexed=${META_COMMIT:0:8} head=${HEAD_SHA:0:8} nodes meta/graph=${META_NODES}/${G_NODES} edges meta/graph=${META_EDGES}/${G_EDGES} embeddings meta/graph=${META_EMB}/${G_EMB} vectorSearch=${VECTOR_STATUS}"
