@@ -1,54 +1,45 @@
 using ProjectAegis.Data.Import;
-using Xunit;
+using NUnit.Framework;
 
 namespace ProjectAegis.Data.Tests.Import;
 
 public sealed class CmoMarkdownImporterUnitTests
 {
-    [Theory]
-    [InlineData(150, "nm", 0.75)]
-    [InlineData(27.8, "km", 0.092666666666666672)]
-    [InlineData(5000, "m", 0.05)]
+    [TestCase(150, "nm", 0.75)]
+    [TestCase(27.8, "km", 0.092666666666666672)]
+    [TestCase(5000, "m", 0.05)]
     public void InferBasePd_maps_range_units_deterministically(double range, string unit, double expected)
     {
         var actual = CmoMarkdownImporter.InferBasePd(range, unit);
-        Assert.Equal(expected, actual, precision: 12);
+        Assert.That(actual, Is.EqualTo(expected).Within(0.000000000005));
     }
-
-    [Theory]
-    [InlineData("Test Radar AN/SPY-1", "test-radar-an-spy-1")]
-    [InlineData("Acoustic Intercept [MG-13 Svet] , Diesel Submarines", "acoustic-intercept-mg-13-svet")]
+    [TestCase("Test Radar AN/SPY-1", "test-radar-an-spy-1")]
+    [TestCase("Acoustic Intercept [MG-13 Svet] , Diesel Submarines", "acoustic-intercept-mg-13-svet")]
     public void SlugPlatformId_normalizes_titles(string title, string expected)
     {
-        Assert.Equal(expected, CmoMarkdownImporter.SlugPlatformId(title));
+        Assert.That(CmoMarkdownImporter.SlugPlatformId(title), Is.EqualTo(expected));
     }
-
-    /// <summary>
-    /// Wave 2: ship.md surface auxiliaries mention "submarine" in Type but are not subsurface.
-    /// Representative platform_class strings from aegis_public_corpus.db domain=subsurface audit.
-    /// </summary>
-    [Theory]
-    [InlineData("ASR - Submarine Rescue Ship", "surface")]
-    [InlineData("AS - Submarine Tender", "surface")]
-    [InlineData("PC - Submarine Chaser", "surface")]
-    [InlineData("Anti-Submarine Warfare (ASW)", "air")]
-    [InlineData("Aircraft - Helicopter ASW (NFH)", "air")]
-    [InlineData("CVN - Nuclear Powered Aircraft Carrier", "surface")]
-    [InlineData("SSN - Nuclear Powered Attack Submarine", "subsurface")]
-    [InlineData("SSK - Hunter-Killer Submarine", "subsurface")]
-    [InlineData("SS - Attack/Fleet Submarine", "subsurface")]
-    [InlineData("SSBN - Nuclear Powered Ballistic Missile Submarine", "subsurface")]
-    [InlineData("UUV - Unmanned Underwater Vehicle", "subsurface")]
-    [InlineData("ROV - Remotely Operated Vehicle", "subsurface")]
-    [InlineData("SDV - Swimmer Delivery Vehicle", "subsurface")]
-    [InlineData("Underwater", "subsurface")]
+    [TestCase("ASR - Submarine Rescue Ship", "surface")]
+    [TestCase("AS - Submarine Tender", "surface")]
+    [TestCase("PC - Submarine Chaser", "surface")]
+    [TestCase("Anti-Submarine Warfare (ASW)", "air")]
+    [TestCase("Aircraft - Helicopter ASW (NFH)", "air")]
+    [TestCase("CVN - Nuclear Powered Aircraft Carrier", "surface")]
+    [TestCase("SSN - Nuclear Powered Attack Submarine", "subsurface")]
+    [TestCase("SSK - Hunter-Killer Submarine", "subsurface")]
+    [TestCase("SS - Attack/Fleet Submarine", "subsurface")]
+    [TestCase("SSBN - Nuclear Powered Ballistic Missile Submarine", "subsurface")]
+    [TestCase("UUV - Unmanned Underwater Vehicle", "subsurface")]
+    [TestCase("ROV - Remotely Operated Vehicle", "subsurface")]
+    [TestCase("SDV - Swimmer Delivery Vehicle", "subsurface")]
+    [TestCase("Underwater", "subsurface")]
     public void InferDomain_keeps_surface_auxiliaries_out_of_subsurface(
         string platformClass,
         string expectedDomain)
     {
-        Assert.Equal(expectedDomain, CmoMarkdownImporter.InferDomain(platformClass));
+        Assert.That(CmoMarkdownImporter.InferDomain(platformClass), Is.EqualTo(expectedDomain));
         // Ship.md default is surface; submarine.md default is subsurface — auxiliaries must
         // stay surface even when the entity-family default would prefer subsurface.
-        Assert.Equal(expectedDomain, CmoMarkdownImporter.InferDomain(platformClass, "subsurface"));
+        Assert.That(CmoMarkdownImporter.InferDomain(platformClass, "subsurface"), Is.EqualTo(expectedDomain));
     }
 }

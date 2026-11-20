@@ -4,12 +4,12 @@ using ProjectAegis.Data.Import;
 using ProjectAegis.Data.Platform;
 using ProjectAegis.Data.Telemetry;
 using ProjectAegis.Data.WriteGate;
-using Xunit;
+using NUnit.Framework;
 
 namespace ProjectAegis.Data.Tests.Import;
 
 /// <summary>S31-09: balance drift advisory on nightly approve summary (default off).</summary>
-[Collection("CatalogSqlite")]
+[ProjectAegis.Data.Tests.Runner.CatalogSqliteCollection]
 public sealed class NightlyApproveBalanceDriftSummaryTests
 {
     private const string SnapshotId = CatalogValidationDefaults.BalticSnapshotId;
@@ -21,7 +21,7 @@ public sealed class NightlyApproveBalanceDriftSummaryTests
         DefaultExpectedWinRate = 0.5,
     };
 
-    [Fact]
+    [Test]
     public void Nightly_approve_summary_default_disabled_omits_advisory()
     {
         var dbPath = CreateTempDbPath("nightly-balance-default");
@@ -39,14 +39,14 @@ public sealed class NightlyApproveBalanceDriftSummaryTests
                 new FixedCatalogClock(31101),
                 "human",
                 "nightly-balance");
-            var batchId = Assert.Single(propose.BatchIds);
+            var batchId = ProjectAegis.Data.Tests.AssertEx.Single(propose.BatchIds);
 
             var advisory = NightlyApproveBalanceDriftSummary.EvaluateForBatch(
                 dbPath,
                 batchId,
                 CatalogBalanceDriftPipelineSettings.Disabled);
-            Assert.False(advisory.DriftDetectionEnabled);
-            Assert.Null(NightlyApproveBalanceDriftSummary.ToDtoOrNull(advisory));
+            Assert.That(advisory.DriftDetectionEnabled, Is.False);
+            Assert.That(NightlyApproveBalanceDriftSummary.ToDtoOrNull(advisory), Is.Null);
         }
         finally
         {
@@ -54,7 +54,7 @@ public sealed class NightlyApproveBalanceDriftSummaryTests
         }
     }
 
-    [Fact]
+    [Test]
     public void Nightly_approve_summary_surfaces_drift_advisory_when_enabled_beyond_eight_percent()
     {
         var dbPath = CreateTempDbPath("nightly-balance-enabled");
@@ -74,7 +74,7 @@ public sealed class NightlyApproveBalanceDriftSummaryTests
                 new FixedCatalogClock(31111),
                 "human",
                 "nightly-balance");
-            var batchId = Assert.Single(propose.BatchIds);
+            var batchId = ProjectAegis.Data.Tests.AssertEx.Single(propose.BatchIds);
 
             var advisory = NightlyApproveBalanceDriftSummary.EvaluateForBatch(
                 dbPath,
@@ -82,19 +82,19 @@ public sealed class NightlyApproveBalanceDriftSummaryTests
                 settings,
                 new FixedCatalogClock(31112));
             var dto = NightlyApproveBalanceDriftSummary.ToDto(advisory);
-            var finding = Assert.Single(dto.Findings);
-            Assert.Equal("BALANCE_WIN_RATE_DRIFT", finding.Code);
-            Assert.Equal("u1", finding.EntityId);
-            Assert.Contains(dto.AdvisoryNotes, note => note.Contains("u1", StringComparison.Ordinal));
+            var finding = ProjectAegis.Data.Tests.AssertEx.Single(dto.Findings);
+            Assert.That(finding.Code, Is.EqualTo("BALANCE_WIN_RATE_DRIFT"));
+            Assert.That(finding.EntityId, Is.EqualTo("u1"));
+            Assert.That(dto.AdvisoryNotes.Any(note => note.Contains("u1", StringComparison.Ordinal)), Is.True);
 
             using (var gate = new CatalogWriteGate(dbPath, new FixedCatalogClock(31113)))
             {
-                Assert.True(gate.ApproveBatch(batchId, "human", "nightly-balance").Committed);
+                Assert.That(gate.ApproveBatch(batchId, "human", "nightly-balance").Committed, Is.True);
             }
 
             using var reader = new SqliteCatalogReader(dbPath, "nightly-balance-readback");
-            Assert.True(reader.TryGetBasePd("u1", "radar-1", out var basePd));
-            Assert.Equal(0.57, basePd, precision: 6);
+            Assert.That(reader.TryGetBasePd("u1", "radar-1", out var basePd), Is.True);
+            Assert.That(basePd, Is.EqualTo(0.57).Within(0.000005));
         }
         finally
         {
@@ -102,7 +102,7 @@ public sealed class NightlyApproveBalanceDriftSummaryTests
         }
     }
 
-    [Fact]
+    [Test]
     public void Nightly_approve_multi_batch_summary_aggregates_entity_advisory_when_enabled()
     {
         var dbPath = CreateTempDbPath("nightly-balance-multi");
@@ -122,7 +122,7 @@ public sealed class NightlyApproveBalanceDriftSummaryTests
                 new FixedCatalogClock(31121),
                 "human",
                 "nightly-balance");
-            var batchId = Assert.Single(propose.BatchIds);
+            var batchId = ProjectAegis.Data.Tests.AssertEx.Single(propose.BatchIds);
 
             var advisory = NightlyApproveBalanceDriftSummary.EvaluateForBatches(
                 dbPath,
@@ -131,11 +131,11 @@ public sealed class NightlyApproveBalanceDriftSummaryTests
                 new FixedCatalogClock(31122));
             var dto = NightlyApproveBalanceDriftSummary.ToDto(advisory);
 
-            Assert.True(dto.DriftDetectionEnabled);
-            var finding = Assert.Single(dto.Findings);
-            Assert.Equal("u1", finding.EntityId);
-            Assert.Equal("BALANCE_WIN_RATE_DRIFT", finding.Code);
-            Assert.NotEmpty(dto.AdvisoryNotes);
+            Assert.That(dto.DriftDetectionEnabled, Is.True);
+            var finding = ProjectAegis.Data.Tests.AssertEx.Single(dto.Findings);
+            Assert.That(finding.EntityId, Is.EqualTo("u1"));
+            Assert.That(finding.Code, Is.EqualTo("BALANCE_WIN_RATE_DRIFT"));
+            Assert.That(dto.AdvisoryNotes, Is.Not.Empty);
         }
         finally
         {
@@ -143,7 +143,7 @@ public sealed class NightlyApproveBalanceDriftSummaryTests
         }
     }
 
-    [Fact]
+    [Test]
     public void Nightly_approve_enabled_empty_diff_emits_no_findings()
     {
         var dbPath = CreateTempDbPath("nightly-balance-empty");
@@ -168,8 +168,8 @@ public sealed class NightlyApproveBalanceDriftSummaryTests
                 settings,
                 new FixedCatalogClock(31131));
 
-            Assert.True(advisory.DriftDetectionEnabled);
-            Assert.Empty(advisory.Findings);
+            Assert.That(advisory.DriftDetectionEnabled, Is.True);
+            Assert.That(advisory.Findings, Is.Empty);
         }
         finally
         {
@@ -177,7 +177,7 @@ public sealed class NightlyApproveBalanceDriftSummaryTests
         }
     }
 
-    [Fact]
+    [Test]
     public void Nightly_sensor_slice_advisory_does_not_block_write_gate_commit()
     {
         var markdown = CmoMarkdownImporter.ResolveMiniFixturePath();
@@ -200,11 +200,11 @@ public sealed class NightlyApproveBalanceDriftSummaryTests
                 batchId,
                 settings,
                 new FixedCatalogClock(31141));
-            Assert.True(advisory.DriftDetectionEnabled);
+            Assert.That(advisory.DriftDetectionEnabled, Is.True);
 
             using (var gate = new CatalogWriteGate(dbPath, new FixedCatalogClock(31142)))
             {
-                Assert.True(gate.ApproveBatch(batchId, "human", "nightly-curator").Committed);
+                Assert.That(gate.ApproveBatch(batchId, "human", "nightly-curator").Committed, Is.True);
             }
         }
         finally
@@ -233,9 +233,9 @@ public sealed class NightlyApproveBalanceDriftSummaryTests
         string keyColumn,
         string keyValue)
     {
-        var sheet = Assert.Single(workbook.Sheets, s => string.Equals(s.Name, sheetName, StringComparison.Ordinal));
+        var sheet = ProjectAegis.Data.Tests.AssertEx.Single(workbook.Sheets, s => string.Equals(s.Name, sheetName, StringComparison.Ordinal));
         var colIndex = Array.IndexOf(sheet.Header.ToArray(), keyColumn);
-        Assert.True(colIndex >= 0, $"Column '{keyColumn}' not found on sheet '{sheetName}'.");
+        Assert.That(colIndex >= 0, Is.True, $"Column '{keyColumn}' not found on sheet '{sheetName}'.");
         for (var i = 0; i < sheet.Rows.Count; i++)
         {
             var row = sheet.Rows[i];
@@ -265,7 +265,7 @@ public sealed class NightlyApproveBalanceDriftSummaryTests
             }
 
             var colIndex = Array.IndexOf(sheet.Header.ToArray(), columnName);
-            Assert.True(colIndex >= 0, $"Column '{columnName}' not found on sheet '{sheetName}'.");
+            Assert.That(colIndex >= 0, Is.True, $"Column '{columnName}' not found on sheet '{sheetName}'.");
 
             var rows = sheet.Rows.Select((row, i) =>
             {

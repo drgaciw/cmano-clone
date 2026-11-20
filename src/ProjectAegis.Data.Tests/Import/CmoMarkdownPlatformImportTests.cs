@@ -4,14 +4,14 @@ using Microsoft.Data.Sqlite;
 using ProjectAegis.Data.Catalog;
 using ProjectAegis.Data.Import;
 using ProjectAegis.Data.WriteGate;
-using Xunit;
+using NUnit.Framework;
 
 namespace ProjectAegis.Data.Tests.Import;
 
-[Collection("CatalogSqlite")]
+[ProjectAegis.Data.Tests.Runner.CatalogSqliteCollection]
 public sealed class CmoMarkdownPlatformImportTests
 {
-    [Fact]
+    [Test]
     public void ProposePlatformsFromMarkdown_stages_ship_slice100_and_approve_commits()
     {
         var markdown = CmoMarkdownImporter.ResolveShipSlice100FixturePath();
@@ -27,15 +27,15 @@ public sealed class CmoMarkdownPlatformImportTests
                 chunkSize: 500,
                 clock: new FixedCatalogClock(2714));
 
-            Assert.Equal(100, result.ParsedCount);
-            Assert.Equal(100, result.ApprovedCount);
-            Assert.Equal(0, result.QuarantinedCount);
-            Assert.Single(result.Batches);
-            Assert.Equal(100, result.Batches[0].RecordCount);
+            Assert.That(result.ParsedCount, Is.EqualTo(100));
+            Assert.That(result.ApprovedCount, Is.EqualTo(100));
+            Assert.That(result.QuarantinedCount, Is.EqualTo(0));
+            Assert.That(result.Batches, Has.Exactly(1).Items);
+            Assert.That(result.Batches[0].RecordCount, Is.EqualTo(100));
 
             using (var gate = new CatalogWriteGate(dbPath, new FixedCatalogClock(2715)))
             {
-                Assert.True(gate.ApproveBatch(result.Batches[0].BatchId, "human", "s27-14-ship").Committed);
+                Assert.That(gate.ApproveBatch(result.Batches[0].BatchId, "human", "s27-14-ship").Committed, Is.True);
             }
 
             using var connection = new SqliteConnection($"Data Source={dbPath};Pooling=false");
@@ -43,7 +43,7 @@ public sealed class CmoMarkdownPlatformImportTests
             using var cmd = connection.CreateCommand();
             cmd.CommandText = "SELECT COUNT(*) FROM platform WHERE platform_id LIKE 'test-ship-%'";
             var count = Convert.ToInt32(cmd.ExecuteScalar(), CultureInfo.InvariantCulture);
-            Assert.Equal(100, count);
+            Assert.That(count, Is.EqualTo(100));
         }
         finally
         {
@@ -55,7 +55,7 @@ public sealed class CmoMarkdownPlatformImportTests
         }
     }
 
-    [Fact]
+    [Test]
     public void Reference_ship_markdown_parses_4844_records_for_off_ci_nightly_scale()
     {
         var path = CmoMarkdownImporter.ResolveReferenceShipMarkdownPath();
@@ -65,16 +65,16 @@ public sealed class CmoMarkdownPlatformImportTests
         }
 
         var platforms = CmoMarkdownImporter.ReadPlatformBindings(path);
-        Assert.Equal(4844, platforms.Count);
+        Assert.That(platforms.Count, Is.EqualTo(4844));
 
         var chunks = CmoMarkdownImportProposer.ChunkPlatforms(platforms, chunkSize: 500);
-        Assert.Equal(10, chunks.Length);
-        Assert.Equal(500, chunks[0].Length);
-        Assert.Equal(500, chunks[8].Length);
-        Assert.Equal(344, chunks[9].Length);
+        Assert.That(chunks.Length, Is.EqualTo(10));
+        Assert.That(chunks[0].Length, Is.EqualTo(500));
+        Assert.That(chunks[8].Length, Is.EqualTo(500));
+        Assert.That(chunks[9].Length, Is.EqualTo(344));
     }
 
-    [Fact]
+    [Test]
     public void Reference_ground_unit_markdown_parses_3289_records_for_off_ci_nightly_scale()
     {
         var path = CmoMarkdownImporter.ResolveReferenceGroundUnitMarkdownPath();
@@ -84,16 +84,16 @@ public sealed class CmoMarkdownPlatformImportTests
         }
 
         var platforms = CmoMarkdownImporter.ReadPlatformBindings(path);
-        Assert.Equal(3289, platforms.Count);
+        Assert.That(platforms.Count, Is.EqualTo(3289));
 
         var chunks = CmoMarkdownImportProposer.ChunkPlatforms(platforms, chunkSize: 500);
-        Assert.Equal(7, chunks.Length);
-        Assert.Equal(500, chunks[0].Length);
-        Assert.Equal(500, chunks[5].Length);
-        Assert.Equal(289, chunks[6].Length);
+        Assert.That(chunks.Length, Is.EqualTo(7));
+        Assert.That(chunks[0].Length, Is.EqualTo(500));
+        Assert.That(chunks[5].Length, Is.EqualTo(500));
+        Assert.That(chunks[6].Length, Is.EqualTo(289));
     }
 
-    [Fact]
+    [Test]
     public void ChunkPlatforms_with_501_rows_produces_two_batches_at_chunk_size_500()
     {
         var rows = Enumerable.Range(0, 501)
@@ -114,13 +114,13 @@ public sealed class CmoMarkdownPlatformImportTests
 
         var chunks = CmoMarkdownImportProposer.ChunkPlatforms(rows, chunkSize: 500);
 
-        Assert.Equal(2, chunks.Length);
-        Assert.Equal(500, chunks[0].Length);
-        Assert.Single(chunks[1]);
-        Assert.Equal("test-ship-chunk-0000", chunks[0][0].PlatformId);
+        Assert.That(chunks.Length, Is.EqualTo(2));
+        Assert.That(chunks[0].Length, Is.EqualTo(500));
+        Assert.That(chunks[1], Has.Exactly(1).Items);
+        Assert.That(chunks[0][0].PlatformId, Is.EqualTo("test-ship-chunk-0000"));
     }
 
-    [Fact]
+    [Test]
     public void ProposePlatformsFromMarkdown_emits_fitting_quarantine_json_for_orphan_weapon()
     {
         var markdownPath = WritePlatformOrphanFixture();
@@ -136,10 +136,10 @@ public sealed class CmoMarkdownPlatformImportTests
                 chunkSize: 500,
                 clock: new FixedCatalogClock(2716));
 
-            Assert.Equal(1, result.ParsedCount);
-            Assert.Equal(1, result.QuarantinedCount);
-            Assert.Single(result.FittingQuarantineReport);
-            Assert.Equal("orphan_weapon_id", result.FittingQuarantineReport[0].Reason);
+            Assert.That(result.ParsedCount, Is.EqualTo(1));
+            Assert.That(result.QuarantinedCount, Is.EqualTo(1));
+            Assert.That(result.FittingQuarantineReport, Has.Exactly(1).Items);
+            Assert.That(result.FittingQuarantineReport[0].Reason, Is.EqualTo("orphan_weapon_id"));
 
             var payload = new
             {
@@ -158,10 +158,10 @@ public sealed class CmoMarkdownPlatformImportTests
             };
             File.WriteAllText(reportPath, JsonSerializer.Serialize(payload, new JsonSerializerOptions { WriteIndented = true }));
 
-            Assert.True(File.Exists(reportPath));
+            Assert.That(File.Exists(reportPath), Is.True);
             var json = File.ReadAllText(reportPath);
-            Assert.Contains("orphan_weapon_id", json);
-            Assert.Contains("nonexistent-orphan-missile", json);
+            Assert.That(json, Does.Contain("orphan_weapon_id"));
+            Assert.That(json, Does.Contain("nonexistent-orphan-missile"));
         }
         finally
         {
@@ -183,7 +183,7 @@ public sealed class CmoMarkdownPlatformImportTests
         }
     }
 
-    [Fact]
+    [Test]
     public void ProposePlatformsFromMarkdown_stages_baltic_fixture_with_mount_batches()
     {
         var markdown = CmoMarkdownImporter.ResolveBalticPlatformFixturePath();
@@ -199,18 +199,18 @@ public sealed class CmoMarkdownPlatformImportTests
                 chunkSize: 500,
                 clock: new FixedCatalogClock(2603));
 
-            Assert.Equal(3, result.ParsedCount);
-            Assert.Equal(3, result.Batches.Count);
-            Assert.Equal(3, result.Batches[0].RecordCount);
-            Assert.Equal(4, result.Batches[1].RecordCount);
-            Assert.Equal(3, result.Batches[2].RecordCount);
-            Assert.Equal(4, result.QuarantinedCount);
-            Assert.Equal(4, result.FittingQuarantineReport.Count);
+            Assert.That(result.ParsedCount, Is.EqualTo(3));
+            Assert.That(result.Batches.Count, Is.EqualTo(3));
+            Assert.That(result.Batches[0].RecordCount, Is.EqualTo(3));
+            Assert.That(result.Batches[1].RecordCount, Is.EqualTo(4));
+            Assert.That(result.Batches[2].RecordCount, Is.EqualTo(3));
+            Assert.That(result.QuarantinedCount, Is.EqualTo(4));
+            Assert.That(result.FittingQuarantineReport.Count, Is.EqualTo(4));
 
             foreach (var batch in result.Batches)
             {
                 using var gate = new CatalogWriteGate(dbPath, new FixedCatalogClock(2604));
-                Assert.True(gate.ApproveBatch(batch.BatchId, "human", "s26-platform").Committed);
+                Assert.That(gate.ApproveBatch(batch.BatchId, "human", "s26-platform").Committed, Is.True);
             }
 
             using var connection = new SqliteConnection($"Data Source={dbPath};Pooling=false");
@@ -222,14 +222,14 @@ public sealed class CmoMarkdownPlatformImportTests
                     SELECT COUNT(*) FROM platform
                     WHERE platform_id IN ('u1', 'hostile-1', 'hostile-far')
                     """;
-                Assert.Equal(3, Convert.ToInt32(platformCmd.ExecuteScalar(), CultureInfo.InvariantCulture));
+                Assert.That(Convert.ToInt32(platformCmd.ExecuteScalar(), CultureInfo.InvariantCulture), Is.EqualTo(3));
             }
 
             using (var mountCmd = connection.CreateCommand())
             {
                 mountCmd.CommandText = "SELECT COUNT(*) FROM platform_mount";
                 // Seed (gun-76, vls-fwd) + 4 CMO Baltic fixture mounts.
-                Assert.Equal(6, Convert.ToInt32(mountCmd.ExecuteScalar(), CultureInfo.InvariantCulture));
+                Assert.That(Convert.ToInt32(mountCmd.ExecuteScalar(), CultureInfo.InvariantCulture), Is.EqualTo(6));
             }
         }
         finally

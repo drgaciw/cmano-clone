@@ -1,7 +1,7 @@
 using Microsoft.Data.Sqlite;
 using ProjectAegis.Data.Catalog;
 using ProjectAegis.Data.Platform;
-using Xunit;
+using NUnit.Framework;
 
 namespace ProjectAegis.Data.Tests.Platform;
 
@@ -10,32 +10,32 @@ public sealed class CatalogPhaseBReaderTests
 {
     private const string SnapshotId = CatalogValidationDefaults.BalticSnapshotId;
 
-    [Fact]
+    [Test]
     public void CatalogPhaseB_InMemoryReader_returns_empty_Phase_B_collections()
     {
         var reader = InMemoryCatalogReader.BalticPatrolFixture();
 
-        Assert.Empty(reader.GetSortedMobility());
-        Assert.Empty(reader.GetSortedSignatures());
-        Assert.Empty(reader.GetSortedEmcon());
-        Assert.Empty(reader.GetSortedPlatformDamage());
-        Assert.False(reader.TryGetMobility("u1", out _));
-        Assert.False(reader.TryGetPlatformDamage("u1", out _));
-        Assert.False(reader.TryGetSignature("u1", out _));
-        Assert.False(reader.TryGetEmcon("u1", "silent", "radar-1", out _));
-        Assert.True(reader.TryGetBasePd("u1", "radar-1", out _));
+        Assert.That(reader.GetSortedMobility(), Is.Empty);
+        Assert.That(reader.GetSortedSignatures(), Is.Empty);
+        Assert.That(reader.GetSortedEmcon(), Is.Empty);
+        Assert.That(reader.GetSortedPlatformDamage(), Is.Empty);
+        Assert.That(reader.TryGetMobility("u1", out _), Is.False);
+        Assert.That(reader.TryGetPlatformDamage("u1", out _), Is.False);
+        Assert.That(reader.TryGetSignature("u1", out _), Is.False);
+        Assert.That(reader.TryGetEmcon("u1", "silent", "radar-1", out _), Is.False);
+        Assert.That(reader.TryGetBasePd("u1", "radar-1", out _), Is.True);
     }
 
-    [Fact]
+    [Test]
     public void CatalogPhaseB_SqliteReader_returns_empty_when_tables_have_no_rows()
     {
         var dbPath = Path.Combine(Path.GetTempPath(), $"aegis-phase-b-empty-{Guid.NewGuid():N}.db");
         try
         {
             using var reader = new SqliteCatalogReader(dbPath, "phase-b-empty");
-            Assert.Empty(reader.GetSortedMobility());
-            Assert.Empty(reader.GetSortedSignatures());
-            Assert.Empty(reader.GetSortedEmcon());
+            Assert.That(reader.GetSortedMobility(), Is.Empty);
+            Assert.That(reader.GetSortedSignatures(), Is.Empty);
+            Assert.That(reader.GetSortedEmcon(), Is.Empty);
         }
         finally
         {
@@ -43,7 +43,7 @@ public sealed class CatalogPhaseBReaderTests
         }
     }
 
-    [Fact]
+    [Test]
     public void CatalogPhaseB_SqliteReader_reads_mobility_signature_and_emcon_rows()
     {
         var dbPath = Path.Combine(Path.GetTempPath(), $"aegis-phase-b-read-{Guid.NewGuid():N}.db");
@@ -57,17 +57,17 @@ public sealed class CatalogPhaseBReaderTests
             SeedPhaseBRows(dbPath);
 
             using var reader = new SqliteCatalogReader(dbPath, "phase-b-readback");
-            Assert.True(reader.TryGetMobility("u1", out var mobility));
-            Assert.Equal(32, mobility.MaxSpeedKnots, precision: 3);
-            Assert.Equal(4200, mobility.RangeNm, precision: 3);
+            Assert.That(reader.TryGetMobility("u1", out var mobility), Is.True);
+            Assert.That(mobility.MaxSpeedKnots, Is.EqualTo(32).Within(0.005));
+            Assert.That(mobility.RangeNm, Is.EqualTo(4200).Within(0.005));
 
-            Assert.True(reader.TryGetSignature("u1", out var signature));
-            Assert.Equal(-12, signature.RcsBandDbsm, precision: 3);
+            Assert.That(reader.TryGetSignature("u1", out var signature), Is.True);
+            Assert.That(signature.RcsBandDbsm, Is.EqualTo(-12).Within(0.005));
 
-            Assert.True(reader.TryGetEmcon("u1", "free", "radar-1", out var emcon));
-            Assert.Equal("active", emcon.Posture);
-            Assert.Equal(2, reader.GetSortedEmcon().Count);
-            Assert.False(reader.TryGetMobility("missing-platform", out _));
+            Assert.That(reader.TryGetEmcon("u1", "free", "radar-1", out var emcon), Is.True);
+            Assert.That(emcon.Posture, Is.EqualTo("active"));
+            Assert.That(reader.GetSortedEmcon().Count, Is.EqualTo(2));
+            Assert.That(reader.TryGetMobility("missing-platform", out _), Is.False);
         }
         finally
         {
@@ -75,7 +75,7 @@ public sealed class CatalogPhaseBReaderTests
         }
     }
 
-    [Fact]
+    [Test]
     public void CatalogPhaseB_emcon_rows_sort_by_platform_condition_emitter()
     {
         var rows = new[]
@@ -86,12 +86,12 @@ public sealed class CatalogPhaseBReaderTests
         };
 
         var sorted = CatalogSortKeyComparer.SortEmcon(rows);
-        Assert.Equal(["u1", "u1", "u2"], sorted.Select(r => r.PlatformId).ToArray());
-        Assert.Equal(["free", "silent", "free"], sorted.Select(r => r.Condition).ToArray());
-        Assert.Equal(["emitter-a", "emitter-a", "emitter-b"], sorted.Select(r => r.EmitterId).ToArray());
+        Assert.That(sorted.Select(r => r.PlatformId).ToArray(), Is.EqualTo(["u1", "u1", "u2"]));
+        Assert.That(sorted.Select(r => r.Condition).ToArray(), Is.EqualTo(["free", "silent", "free"]));
+        Assert.That(sorted.Select(r => r.EmitterId).ToArray(), Is.EqualTo(["emitter-a", "emitter-a", "emitter-b"]));
     }
 
-    [Fact]
+    [Test]
     public void CatalogPhaseB_export_resolver_returns_real_payload_when_snapshot_resolves()
     {
         var dbPath = Path.Combine(Path.GetTempPath(), $"aegis-phase-b-export-{Guid.NewGuid():N}.db");
@@ -100,13 +100,13 @@ public sealed class CatalogPhaseBReaderTests
             CatalogSeedBootstrap.SeedBalticPatrol(dbPath, overwrite: true);
             SeedPhaseBRows(dbPath);
 
-            Assert.True(PlatformCatalogExportResolver.TryResolve(dbPath, SnapshotId, out var data));
-            Assert.NotNull(data.Signatures);
-            Assert.Single(data.Signatures!);
-            Assert.Equal(-12, data.Signatures![0].RcsBandDbsm, precision: 3);
-            Assert.True(data.Sensors.Count > 0);
-            Assert.Equal(1, data.Mobility?.Count);
-            Assert.Equal(2, data.Emcon?.Count);
+            Assert.That(PlatformCatalogExportResolver.TryResolve(dbPath, SnapshotId, out var data), Is.True);
+            Assert.That(data.Signatures, Is.Not.Null);
+            Assert.That(data.Signatures!, Has.Exactly(1).Items);
+            Assert.That(data.Signatures![0].RcsBandDbsm, Is.EqualTo(-12).Within(0.005));
+            Assert.That(data.Sensors.Count > 0, Is.True);
+            Assert.That(data.Mobility?.Count, Is.EqualTo(1));
+            Assert.That(data.Emcon?.Count, Is.EqualTo(2));
         }
         finally
         {
@@ -114,11 +114,11 @@ public sealed class CatalogPhaseBReaderTests
         }
     }
 
-    [Fact]
+    [Test]
     public void CatalogPhaseB_export_resolver_falls_back_when_db_missing()
     {
-        Assert.False(PlatformCatalogExportResolver.TryResolve(null, SnapshotId, out var data));
-        Assert.Same(PlatformCatalogExportData.Empty, data);
+        Assert.That(PlatformCatalogExportResolver.TryResolve(null, SnapshotId, out var data), Is.False);
+        Assert.That(data, Is.SameAs(PlatformCatalogExportData.Empty));
     }
 
     private static void SeedPhaseBRows(string dbPath)

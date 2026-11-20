@@ -4,12 +4,12 @@ using System.IO;
 using ProjectAegis.Data.Catalog;
 using ProjectAegis.Data.Scenario.Authoring;
 using ProjectAegis.Data.Validation;
-using Xunit;
+using NUnit.Framework;
 
 /// <summary>AC-11: TeleportUnit actions are stripped at export with logged manifest entries.</summary>
 public sealed class TeleportUnitExportTests
 {
-    [Fact]
+    [Test]
     public void Export_removes_TeleportUnit_actions_and_logs_manifest_entries()
     {
         var source = new ScenarioDocumentDto
@@ -52,22 +52,20 @@ public sealed class TeleportUnitExportTests
 
         var result = ScenarioExportCommand.ApplyTeleportUnitExportTransform(source);
 
-        Assert.Single(result.ManifestEntries);
+        Assert.That(result.ManifestEntries, Has.Exactly(1).Items);
         var entry = result.ManifestEntries[0];
-        Assert.Equal("evt-teleport-test", entry.EventId);
-        Assert.Equal(0, entry.ActionIndex);
-        Assert.Equal("TeleportUnit", entry.ActionType);
-        Assert.Contains("Removed TeleportUnit", entry.Message, StringComparison.Ordinal);
+        Assert.That(entry.EventId, Is.EqualTo("evt-teleport-test"));
+        Assert.That(entry.ActionIndex, Is.EqualTo(0));
+        Assert.That(entry.ActionType, Is.EqualTo("TeleportUnit"));
+        Assert.That(entry.Message, Does.Contain("Removed TeleportUnit"));
 
-        var exportedEvent = Assert.Single(result.ExportedDocument.Events!);
-        var exportedAction = Assert.Single(exportedEvent.Actions);
-        Assert.Equal("ActivateMission", exportedAction.Type);
-        Assert.DoesNotContain(
-            exportedEvent.Actions,
-            a => string.Equals(a.Type, "TeleportUnit", StringComparison.OrdinalIgnoreCase));
+        var exportedEvent = ProjectAegis.Data.Tests.AssertEx.Single(result.ExportedDocument.Events!);
+        var exportedAction = ProjectAegis.Data.Tests.AssertEx.Single(exportedEvent.Actions);
+        Assert.That(exportedAction.Type, Is.EqualTo("ActivateMission"));
+        Assert.That(            exportedEvent.Actions.Any(            a => string.Equals(a.Type, "TeleportUnit", StringComparison.OrdinalIgnoreCase)), Is.False);
     }
 
-    [Fact]
+    [Test]
     public void ScenarioExportCommand_and_simulate_sample_share_identical_post_transform_event_set()
     {
         // S84-02 (AC-11): Teleport export transform track.
@@ -85,11 +83,9 @@ public sealed class TeleportUnitExportTests
         var exportPackage = ScenarioExportCommand.Prepare(source, catalog, config);
         var directTransform = ScenarioExportCommand.ApplyTeleportUnitExportTransform(source);
 
-        Assert.True(exportPackage.Allowed);
-        Assert.Equal(
-            ScenarioDocumentJsonWriter.Serialize(directTransform.ExportedDocument),
-            ScenarioDocumentJsonWriter.Serialize(exportPackage.ExportDocument));
-        Assert.Equal(directTransform.ManifestEntries.Count, exportPackage.TransformManifest.Count);
+        Assert.That(exportPackage.Allowed, Is.True);
+        Assert.That(            ScenarioDocumentJsonWriter.Serialize(exportPackage.ExportDocument), Is.EqualTo(            ScenarioDocumentJsonWriter.Serialize(directTransform.ExportedDocument)));
+        Assert.That(exportPackage.TransformManifest.Count, Is.EqualTo(directTransform.ManifestEntries.Count));
 
         // Simulate sample path (mimics ScenarioSimulateSampleCommand.Run: file load then Prepare)
         // Ensures post-transform event sets (serialized doc + manifest count + no TeleportUnit) identical.
@@ -102,14 +98,18 @@ public sealed class TeleportUnitExportTests
 
             var exportJson = ScenarioDocumentJsonWriter.Serialize(exportPackage.ExportDocument);
             var simJson = ScenarioDocumentJsonWriter.Serialize(simPackage.ExportDocument);
-            Assert.Equal(exportJson, simJson);  // identical post-transform event sets
-            Assert.Equal(directTransform.ManifestEntries.Count, simPackage.TransformManifest.Count);
+            Assert.That(simJson, Is.EqualTo(exportJson));  // identical post-transform event sets
+            Assert.That(simPackage.TransformManifest.Count, Is.EqualTo(directTransform.ManifestEntries.Count));
 
             // Explicit: no TeleportUnit survives in either path's output events
-            Assert.All(exportPackage.ExportDocument.Events ?? Array.Empty<ScenarioEventDto>(), e =>
-                Assert.DoesNotContain(e.Actions, a => string.Equals(a.Type, "TeleportUnit", StringComparison.OrdinalIgnoreCase)));
-            Assert.All(simPackage.ExportDocument.Events ?? Array.Empty<ScenarioEventDto>(), e =>
-                Assert.DoesNotContain(e.Actions, a => string.Equals(a.Type, "TeleportUnit", StringComparison.OrdinalIgnoreCase)));
+            foreach (var e in exportPackage.ExportDocument.Events ?? Array.Empty<ScenarioEventDto>())
+{
+Assert.That(e.Actions.Any(a => string.Equals(a.Type, "TeleportUnit", StringComparison.OrdinalIgnoreCase)), Is.False);
+}
+            foreach (var e in simPackage.ExportDocument.Events ?? Array.Empty<ScenarioEventDto>())
+{
+Assert.That(e.Actions.Any(a => string.Equals(a.Type, "TeleportUnit", StringComparison.OrdinalIgnoreCase)), Is.False);
+}
         }
         finally
         {
@@ -117,7 +117,7 @@ public sealed class TeleportUnitExportTests
         }
     }
 
-    [Fact]
+    [Test]
     public void ManifestBuilder_includes_export_transform_log_entries()
     {
         var source = ScenarioWithTeleportUnit();
@@ -130,11 +130,11 @@ public sealed class TeleportUnitExportTests
             report,
             exportTransformLog: transform.ManifestEntries);
 
-        Assert.Single(manifest.ExportTransformLog);
-        Assert.Contains("edit-test only", manifest.ExportTransformLog[0].Message, StringComparison.Ordinal);
+        Assert.That(manifest.ExportTransformLog, Has.Exactly(1).Items);
+        Assert.That(manifest.ExportTransformLog[0].Message, Does.Contain("edit-test only"));
 
         var serialized = ManifestBuilder.Serialize(manifest);
-        Assert.Contains("exportTransformLog", serialized, StringComparison.Ordinal);
+        Assert.That(serialized, Does.Contain("exportTransformLog"));
     }
 
     private static ScenarioDocumentDto ScenarioWithTeleportUnit() =>
@@ -176,7 +176,7 @@ public sealed class TeleportUnitExportTests
         };
 
     /// <summary>AC-11 additive: multiple TeleportUnits in one event all stripped, multiple manifest entries.</summary>
-    [Fact]
+    [Test]
     public void Export_removes_multiple_TeleportUnit_actions_and_logs_all()
     {
         var source = new ScenarioDocumentDto
@@ -200,9 +200,12 @@ public sealed class TeleportUnitExportTests
         };
 
         var result = ScenarioExportCommand.ApplyTeleportUnitExportTransform(source);
-        Assert.Equal(2, result.ManifestEntries.Count);
-        Assert.All(result.ManifestEntries, e => Assert.Equal("TeleportUnit", e.ActionType));
-        var kept = Assert.Single(Assert.Single(result.ExportedDocument.Events!).Actions);
-        Assert.Equal("ActivateMission", kept.Type);
+        Assert.That(result.ManifestEntries.Count, Is.EqualTo(2));
+        foreach (var e in result.ManifestEntries)
+{
+Assert.That(e.ActionType, Is.EqualTo("TeleportUnit"));
+}
+        var kept = ProjectAegis.Data.Tests.AssertEx.Single(ProjectAegis.Data.Tests.AssertEx.Single(result.ExportedDocument.Events!).Actions);
+        Assert.That(kept.Type, Is.EqualTo("ActivateMission"));
     }
 }

@@ -3,14 +3,14 @@ using ProjectAegis.Data.Catalog;
 using ProjectAegis.Data.Import;
 using ProjectAegis.Data.Snapshots;
 using ProjectAegis.Data.WriteGate;
-using Xunit;
+using NUnit.Framework;
 
 namespace ProjectAegis.Data.Tests.Snapshots;
 
-[Collection("CatalogSqlite")]
+[ProjectAegis.Data.Tests.Runner.CatalogSqliteCollection]
 public sealed class DbSnapshotBindingTests
 {
-    [Fact]
+    [Test]
     public void BindAfterApprove_records_content_hash_and_release_row()
     {
         var dbPath = Path.Combine(Path.GetTempPath(), $"aegis-p2-bind-{Guid.NewGuid():N}.db");
@@ -29,7 +29,7 @@ public sealed class DbSnapshotBindingTests
             using (var gate = new CatalogWriteGate(dbPath, new FixedCatalogClock(3001)))
             {
                 var decision = gate.ApproveBatch(batchId, "human", "p2-bind-test");
-                Assert.True(decision.Committed);
+                Assert.That(decision.Committed, Is.True);
             }
 
             var bind = CatalogSnapshotBinder.BindAfterApprove(
@@ -38,17 +38,17 @@ public sealed class DbSnapshotBindingTests
                 new FixedCatalogClock(3002));
 
             using var store = new DbSnapshotStore(dbPath);
-            Assert.True(store.TryGetContentHash(bind.SnapshotId, out var hash));
-            Assert.Equal(bind.ContentHashSha256, hash);
-            Assert.Matches("^[a-f0-9]{64}$", hash);
+            Assert.That(store.TryGetContentHash(bind.SnapshotId, out var hash), Is.True);
+            Assert.That(hash, Is.EqualTo(bind.ContentHashSha256));
+            Assert.That(hash, Does.Match("^[a-f0-9]{64}$"));
 
             var releases = store.GetSortedReleases();
-            Assert.Contains(releases, r => r.SnapshotId == bind.SnapshotId);
-            Assert.Contains(releases, r => r.Notes.Contains(batchId, StringComparison.Ordinal));
+            Assert.That(releases.Any(r => r.SnapshotId == bind.SnapshotId), Is.True);
+            Assert.That(releases.Any(r => r.Notes.Contains(batchId, StringComparison.Ordinal)), Is.True);
 
-            Assert.True(store.TryGetBranch(bind.SnapshotId, out var branch));
-            Assert.Equal(CatalogTlTier.Default, branch);
-            Assert.Equal(CatalogTlTier.Default, bind.TlTier);
+            Assert.That(store.TryGetBranch(bind.SnapshotId, out var branch), Is.True);
+            Assert.That(branch, Is.EqualTo(CatalogTlTier.Default));
+            Assert.That(bind.TlTier, Is.EqualTo(CatalogTlTier.Default));
         }
         finally
         {
@@ -56,16 +56,16 @@ public sealed class DbSnapshotBindingTests
         }
     }
 
-    [Fact]
+    [Test]
     public void Content_hash_stable_across_two_identical_approve_cycles()
     {
         var markdown = CmoMarkdownImporter.ResolveMiniFixturePath();
         var hashA = ApproveMiniFixtureAndGetHash(markdown);
         var hashB = ApproveMiniFixtureAndGetHash(markdown);
-        Assert.Equal(hashA, hashB);
+        Assert.That(hashB, Is.EqualTo(hashA));
     }
 
-    [Fact]
+    [Test]
     public void CatalogSnapshotHasher_is_order_independent()
     {
         var rows = new[]
@@ -76,7 +76,7 @@ public sealed class DbSnapshotBindingTests
 
         var forward = CatalogSnapshotHasher.ComputeSha256Hex(rows);
         var reverse = CatalogSnapshotHasher.ComputeSha256Hex(rows.Reverse().ToArray());
-        Assert.Equal(forward, reverse);
+        Assert.That(reverse, Is.EqualTo(forward));
     }
 
     private static string ApproveMiniFixtureAndGetHash(string markdownPath)
@@ -94,7 +94,7 @@ public sealed class DbSnapshotBindingTests
             var batchId = propose.Batches[0].BatchId;
             using (var gate = new CatalogWriteGate(dbPath, new FixedCatalogClock(4001)))
             {
-                Assert.True(gate.ApproveBatch(batchId, "human", "stable-test").Committed);
+                Assert.That(gate.ApproveBatch(batchId, "human", "stable-test").Committed, Is.True);
             }
 
             var bind = CatalogSnapshotBinder.BindAfterApprove(

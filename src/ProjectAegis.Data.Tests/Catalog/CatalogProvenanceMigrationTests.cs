@@ -1,12 +1,12 @@
 using ProjectAegis.Data.Catalog;
-using Xunit;
+using NUnit.Framework;
 
 namespace ProjectAegis.Data.Tests.Catalog;
 
-[Collection("CatalogSqlite")]
+[ProjectAegis.Data.Tests.Runner.CatalogSqliteCollection]
 public sealed class CatalogProvenanceMigrationTests
 {
-    [Fact]
+    [Test]
     public void Sqlite_reader_loads_provenance_columns()
     {
         var jsonPath = CatalogJsonImporter.ResolveBalticSensorsJsonPath();
@@ -16,10 +16,10 @@ public sealed class CatalogProvenanceMigrationTests
             CatalogJsonImporter.ImportToSqlite(jsonPath, dbPath);
             using var reader = new SqliteCatalogReader(dbPath, "p0-prov-test");
             var binding = reader.GetSortedSensorBindings()[0];
-            Assert.Equal("baltic-patrol-2026-06", binding.ImportBatchId);
-            Assert.Equal("sensors_baltic.json", binding.SourceFile);
-            Assert.Equal(CatalogReviewStates.Approved, binding.ReviewState);
-            Assert.Equal(9, binding.TrlLevel);
+            Assert.That(binding.ImportBatchId, Is.EqualTo("baltic-patrol-2026-06"));
+            Assert.That(binding.SourceFile, Is.EqualTo("sensors_baltic.json"));
+            Assert.That(binding.ReviewState, Is.EqualTo(CatalogReviewStates.Approved));
+            Assert.That(binding.TrlLevel, Is.EqualTo(9));
         }
         finally
         {

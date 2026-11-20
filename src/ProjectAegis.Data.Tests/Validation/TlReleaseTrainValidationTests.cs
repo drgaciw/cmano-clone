@@ -5,14 +5,14 @@ using ProjectAegis.Data.Scenario;
 using ProjectAegis.Data.Snapshots;
 using ProjectAegis.Data.Scenario.Authoring;
 using ProjectAegis.Data.Validation;
-using Xunit;
+using NUnit.Framework;
 
 public sealed class TlReleaseTrainValidationTests
 {
     private static readonly ScenarioValidationEngine Engine = new();
     private static readonly ValidationConfig Config = new();
 
-    [Fact]
+    [Test]
     public void Valid_tlBranch_without_explicit_dbRef_resolves_snapshot_at_load()
     {
         var scenario = new ScenarioDocumentDto
@@ -28,15 +28,15 @@ public sealed class TlReleaseTrainValidationTests
             releaseTrainSnapshotId: CatalogValidationDefaults.BalticSnapshotId);
         var report = Engine.Validate(scenario, catalog, Config);
 
-        Assert.DoesNotContain(report.Findings, f => f.Code.StartsWith("TL_RELEASE_TRAIN_", StringComparison.Ordinal));
-        Assert.DoesNotContain(report.Findings, f => f.Code.StartsWith("TL_BRANCH_", StringComparison.Ordinal));
+        Assert.That(report.Findings.Any(f => f.Code.StartsWith("TL_RELEASE_TRAIN_", StringComparison.Ordinal)), Is.False);
+        Assert.That(report.Findings.Any(f => f.Code.StartsWith("TL_BRANCH_", StringComparison.Ordinal)), Is.False);
 
         var package = ScenarioPackage.FromDocument("tl-release-bind", scenario, catalog);
-        Assert.Equal(CatalogValidationDefaults.BalticSnapshotId, package.DbSnapshotId);
-        Assert.Equal(CatalogValidationDefaults.BalticSnapshotId, package.DbRef);
+        Assert.That(package.DbSnapshotId, Is.EqualTo(CatalogValidationDefaults.BalticSnapshotId));
+        Assert.That(package.DbRef, Is.EqualTo(CatalogValidationDefaults.BalticSnapshotId));
     }
 
-    [Fact]
+    [Test]
     public void Missing_release_train_entry_emits_TL_RELEASE_TRAIN_NOT_FOUND()
     {
         var scenario = new ScenarioDocumentDto
@@ -49,12 +49,12 @@ public sealed class TlReleaseTrainValidationTests
 
         var catalog = new ReleaseTrainCatalogFixture(releaseTrainBranch: null);
         var report = Engine.Validate(scenario, catalog, Config);
-        var finding = Assert.Single(report.Findings, f => f.Code == "TL_RELEASE_TRAIN_NOT_FOUND");
-        Assert.Equal(CatalogTlTier.Tl2, finding.Data!["tlBranch"]);
-        Assert.False(report.CanExport(Config));
+        var finding = ProjectAegis.Data.Tests.AssertEx.Single(report.Findings, f => f.Code == "TL_RELEASE_TRAIN_NOT_FOUND");
+        Assert.That(finding.Data!["tlBranch"], Is.EqualTo(CatalogTlTier.Tl2));
+        Assert.That(report.CanExport(Config), Is.False);
     }
 
-    [Fact]
+    [Test]
     public void Explicit_dbRef_conflicting_with_release_train_emits_TL_RELEASE_TRAIN_MISMATCH()
     {
         const string alternateSnapshot = "tl-train-alt-snapshot";
@@ -73,14 +73,14 @@ public sealed class TlReleaseTrainValidationTests
             explicitDbRefSnapshotId: alternateSnapshot,
             explicitDbRefBranch: CatalogTlTier.Tl0);
         var report = Engine.Validate(scenario, catalog, Config);
-        var finding = Assert.Single(report.Findings, f => f.Code == "TL_RELEASE_TRAIN_MISMATCH");
-        Assert.Equal(CatalogTlTier.Tl0, finding.Data!["tlBranch"]);
-        Assert.Equal(alternateSnapshot, finding.Data!["explicitSnapshot"]);
-        Assert.Equal(CatalogValidationDefaults.BalticSnapshotId, finding.Data!["releaseTrainSnapshot"]);
-        Assert.False(report.CanExport(Config));
+        var finding = ProjectAegis.Data.Tests.AssertEx.Single(report.Findings, f => f.Code == "TL_RELEASE_TRAIN_MISMATCH");
+        Assert.That(finding.Data!["tlBranch"], Is.EqualTo(CatalogTlTier.Tl0));
+        Assert.That(finding.Data!["explicitSnapshot"], Is.EqualTo(alternateSnapshot));
+        Assert.That(finding.Data!["releaseTrainSnapshot"], Is.EqualTo(CatalogValidationDefaults.BalticSnapshotId));
+        Assert.That(report.CanExport(Config), Is.False);
     }
 
-    [Fact]
+    [Test]
     public void FromDocument_with_catalog_binds_resolved_snapshot_without_explicit_dbRef()
     {
         var doc = new ScenarioDocumentDto
@@ -96,9 +96,9 @@ public sealed class TlReleaseTrainValidationTests
             releaseTrainSnapshotId: CatalogValidationDefaults.BalticSnapshotId);
         var package = ScenarioPackage.FromDocument("tl-bind", doc, catalog);
 
-        Assert.Equal(CatalogValidationDefaults.BalticSnapshotId, package.DbSnapshotId);
-        Assert.Equal(CatalogValidationDefaults.BalticSnapshotId, package.DbRef);
-        Assert.Equal(CatalogTlTier.Tl0, package.TlBranch);
+        Assert.That(package.DbSnapshotId, Is.EqualTo(CatalogValidationDefaults.BalticSnapshotId));
+        Assert.That(package.DbRef, Is.EqualTo(CatalogValidationDefaults.BalticSnapshotId));
+        Assert.That(package.TlBranch, Is.EqualTo(CatalogTlTier.Tl0));
     }
 
     private sealed class ReleaseTrainCatalogFixture : ICatalogReader

@@ -1,7 +1,7 @@
 namespace ProjectAegis.Data.Tests.Architecture;
 
 using System.Xml.Linq;
-using Xunit;
+using NUnit.Framework;
 
 /// <summary>
 /// Pins the headless csproj ProjectReference graph for ADR-001 / ADR-006 / ADR-010 / ADR-030
@@ -82,19 +82,9 @@ public sealed class CsprojReferenceGraphPinTests
         "src/ProjectAegis.Ai.Contracts/ProjectAegis.Ai.Contracts.csproj",
     };
 
-    public static TheoryData<string> PinnedProjectPaths()
-    {
-        var data = new TheoryData<string>();
-        foreach (var path in AllowedProjectReferenceBasenames.Keys.OrderBy(p => p, StringComparer.Ordinal))
-        {
-            data.Add(path);
-        }
-
-        return data;
-    }
-
-    [Theory]
-    [MemberData(nameof(PinnedProjectPaths))]
+    public static IEnumerable<string> PinnedProjectPaths() =>
+        AllowedProjectReferenceBasenames.Keys.OrderBy(p => p, StringComparer.Ordinal);
+    [TestCaseSource(nameof(PinnedProjectPaths))]
     public void Project_reference_set_matches_adr_pin(string relativePath)
     {
         var path = ResolveRepoFile(relativePath.Split('/'));
@@ -111,15 +101,11 @@ public sealed class CsprojReferenceGraphPinTests
             .OrderBy(s => s, StringComparer.Ordinal)
             .ToArray();
 
-        Assert.True(
-            actual.SequenceEqual(expected, StringComparer.Ordinal),
-            $"'{relativePath}' ProjectReference set drifted from ADR-001/006/010/030 pin.\n" +
+        Assert.That(            actual.SequenceEqual(expected, StringComparer.Ordinal), Is.True,             $"'{relativePath}' ProjectReference set drifted from ADR-001/006/010/030 pin.\n" +
             $"Expected: [{string.Join(", ", expected)}]\n" +
             $"Actual:   [{string.Join(", ", actual)}]");
     }
-
-    [Theory]
-    [MemberData(nameof(PinnedProjectPaths))]
+    [TestCaseSource(nameof(PinnedProjectPaths))]
     public void Headless_csproj_has_no_unityengine_package_or_reference(string relativePath)
     {
         if (!HeadlessNoUnityEngineProjects.Contains(relativePath, StringComparer.Ordinal))
@@ -151,13 +137,11 @@ public sealed class CsprojReferenceGraphPinTests
                         || v.Contains("UnityEditor", StringComparison.OrdinalIgnoreCase))
             .ToList();
 
-        Assert.True(
-            packageHits.Count == 0 && projectHits.Count == 0 && refHits.Count == 0,
-            $"'{relativePath}' must not reference UnityEngine/UnityEditor (ADR-010). " +
+        Assert.That(            packageHits.Count == 0 && projectHits.Count == 0 && refHits.Count == 0, Is.True,             $"'{relativePath}' must not reference UnityEngine/UnityEditor (ADR-010). " +
             $"Hits: {string.Join(", ", packageHits.Concat(projectHits).Concat(refHits))}");
     }
 
-    [Fact]
+    [Test]
     public void Ai_contracts_has_zero_package_references()
     {
         var path = ResolveRepoFile("src", "ProjectAegis.Ai.Contracts", "ProjectAegis.Ai.Contracts.csproj");
@@ -168,20 +152,16 @@ public sealed class CsprojReferenceGraphPinTests
         }
 
         var includes = LoadPackageReferenceIncludes(path);
-        Assert.True(
-            includes.Count == 0,
-            $"Ai.Contracts must have zero PackageReference (ADR-030). Found: {string.Join(", ", includes)}");
+        Assert.That(            includes.Count == 0, Is.True,             $"Ai.Contracts must have zero PackageReference (ADR-030). Found: {string.Join(", ", includes)}");
     }
-
-    [Theory]
-    [InlineData("src/ProjectAegis.Data/ProjectAegis.Data.csproj")]
-    [InlineData("src/ProjectAegis.Sim/ProjectAegis.Sim.csproj")]
-    [InlineData("src/ProjectAegis.Delegation/ProjectAegis.Delegation.csproj")]
-    [InlineData("src/ProjectAegis.Delegation.UnityAdapter/ProjectAegis.Delegation.UnityAdapter.csproj")]
-    [InlineData("src/ProjectAegis.Ai.Contracts/ProjectAegis.Ai.Contracts.csproj")]
+    [TestCase("src/ProjectAegis.Data/ProjectAegis.Data.csproj")]
+    [TestCase("src/ProjectAegis.Sim/ProjectAegis.Sim.csproj")]
+    [TestCase("src/ProjectAegis.Delegation/ProjectAegis.Delegation.csproj")]
+    [TestCase("src/ProjectAegis.Delegation.UnityAdapter/ProjectAegis.Delegation.UnityAdapter.csproj")]
+    [TestCase("src/ProjectAegis.Ai.Contracts/ProjectAegis.Ai.Contracts.csproj")]
     public void Unity_bound_or_contracts_csproj_has_no_ai_provider_package(string relativePath)
     {
-        Assert.Contains(relativePath, UnityBoundNetstandardProjects);
+        Assert.That(UnityBoundNetstandardProjects, Does.Contain(relativePath));
         var path = ResolveRepoFile(relativePath.Split('/'));
         if (path is null)
         {
@@ -195,13 +175,11 @@ public sealed class CsprojReferenceGraphPinTests
             var offending = includes
                 .Where(i => i.Contains(forbidden, StringComparison.OrdinalIgnoreCase))
                 .ToList();
-            Assert.True(
-                offending.Count == 0,
-                $"'{relativePath}' references AI/provider package matching '{forbidden}': {string.Join(", ", offending)} (ADR-030).");
+            Assert.That(                offending.Count == 0, Is.True,                 $"'{relativePath}' references AI/provider package matching '{forbidden}': {string.Join(", ", offending)} (ADR-030).");
         }
     }
 
-    [Fact]
+    [Test]
     public void Data_has_no_project_references()
     {
         var path = ResolveRepoFile("src", "ProjectAegis.Data", "ProjectAegis.Data.csproj");
@@ -211,7 +189,7 @@ public sealed class CsprojReferenceGraphPinTests
             return;
         }
 
-        Assert.Empty(LoadProjectReferenceBasenames(path));
+        Assert.That(LoadProjectReferenceBasenames(path), Is.Empty);
     }
 
     private static List<string> LoadProjectReferenceBasenames(string csprojPath)

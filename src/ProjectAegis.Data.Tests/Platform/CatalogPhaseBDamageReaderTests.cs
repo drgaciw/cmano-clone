@@ -2,7 +2,7 @@ using Microsoft.Data.Sqlite;
 using ProjectAegis.Data.Catalog;
 using ProjectAegis.Data.Platform;
 using ProjectAegis.Data.WriteGate;
-using Xunit;
+using NUnit.Framework;
 
 namespace ProjectAegis.Data.Tests.Platform;
 
@@ -11,25 +11,25 @@ public sealed class CatalogPhaseBDamageReaderTests
 {
     private const string SnapshotId = CatalogValidationDefaults.BalticSnapshotId;
 
-    [Fact]
+    [Test]
     public void CatalogPhaseB_InMemoryReader_returns_empty_damage_collection()
     {
         var reader = InMemoryCatalogReader.BalticPatrolFixture();
 
-        Assert.Empty(reader.GetSortedPlatformDamage());
-        Assert.False(reader.TryGetPlatformDamage("u1", out _));
-        Assert.True(reader.TryGetBasePd("u1", "radar-1", out _));
+        Assert.That(reader.GetSortedPlatformDamage(), Is.Empty);
+        Assert.That(reader.TryGetPlatformDamage("u1", out _), Is.False);
+        Assert.That(reader.TryGetBasePd("u1", "radar-1", out _), Is.True);
     }
 
-    [Fact]
+    [Test]
     public void CatalogPhaseB_SqliteReader_returns_empty_when_damage_table_has_no_rows()
     {
         var dbPath = Path.Combine(Path.GetTempPath(), $"aegis-damage-empty-{Guid.NewGuid():N}.db");
         try
         {
             using var reader = new SqliteCatalogReader(dbPath, "damage-empty");
-            Assert.Empty(reader.GetSortedPlatformDamage());
-            Assert.False(reader.TryGetPlatformDamage("u1", out _));
+            Assert.That(reader.GetSortedPlatformDamage(), Is.Empty);
+            Assert.That(reader.TryGetPlatformDamage("u1", out _), Is.False);
         }
         finally
         {
@@ -37,7 +37,7 @@ public sealed class CatalogPhaseBDamageReaderTests
         }
     }
 
-    [Fact]
+    [Test]
     public void CatalogPhaseB_SqliteReader_reads_baltic_damage_row()
     {
         var dbPath = Path.Combine(Path.GetTempPath(), $"aegis-damage-read-{Guid.NewGuid():N}.db");
@@ -46,12 +46,12 @@ public sealed class CatalogPhaseBDamageReaderTests
             CatalogSeedBootstrap.SeedBalticPatrol(dbPath, overwrite: true);
 
             using var reader = new SqliteCatalogReader(dbPath, "damage-readback");
-            Assert.True(reader.TryGetPlatformDamage("u1", out var damage));
-            Assert.Equal(100, damage.MaxHp, precision: 3);
-            Assert.Equal(25, damage.WithdrawThresholdPct, precision: 3);
-            Assert.Equal(0, damage.CriticalFlags);
-            Assert.Single(reader.GetSortedPlatformDamage());
-            Assert.False(reader.TryGetPlatformDamage("missing-platform", out _));
+            Assert.That(reader.TryGetPlatformDamage("u1", out var damage), Is.True);
+            Assert.That(damage.MaxHp, Is.EqualTo(100).Within(0.005));
+            Assert.That(damage.WithdrawThresholdPct, Is.EqualTo(25).Within(0.005));
+            Assert.That(damage.CriticalFlags, Is.EqualTo(0));
+            Assert.That(reader.GetSortedPlatformDamage(), Has.Exactly(1).Items);
+            Assert.That(reader.TryGetPlatformDamage("missing-platform", out _), Is.False);
         }
         finally
         {
@@ -59,7 +59,7 @@ public sealed class CatalogPhaseBDamageReaderTests
         }
     }
 
-    [Fact]
+    [Test]
     public void CatalogPhaseB_damage_rows_sort_by_platform_id()
     {
         var rows = new[]
@@ -69,10 +69,10 @@ public sealed class CatalogPhaseBDamageReaderTests
         };
 
         var sorted = CatalogSortKeyComparer.SortPlatformDamage(rows);
-        Assert.Equal(["u1", "u2"], sorted.Select(r => r.PlatformId).ToArray());
+        Assert.That(sorted.Select(r => r.PlatformId).ToArray(), Is.EqualTo(["u1", "u2"]));
     }
 
-    [Fact]
+    [Test]
     public void CatalogPhaseB_export_includes_damage_columns_on_platforms_sheet()
     {
         var data = new PlatformCatalogExportData(
@@ -86,18 +86,16 @@ public sealed class CatalogPhaseBDamageReaderTests
 
         var workbook = Export(data);
         var platforms = workbook.FindSheet("Platforms");
-        Assert.NotNull(platforms);
-        Assert.Equal(
-            ["PlatformId", "LatDeg", "LonDeg", "CombatRadiusNm", "MaxHp", "WithdrawThresholdPct", "CriticalFlags"],
-            platforms.Header);
-        Assert.Single(platforms.Rows);
-        Assert.Equal("u1", platforms.Rows[0][0]);
-        Assert.Equal("100", platforms.Rows[0][4]);
-        Assert.Equal("25", platforms.Rows[0][5]);
-        Assert.Equal("1", platforms.Rows[0][6]);
+        Assert.That(platforms, Is.Not.Null);
+        Assert.That(            platforms!.Header, Is.EqualTo(            ["PlatformId", "LatDeg", "LonDeg", "CombatRadiusNm", "MaxHp", "WithdrawThresholdPct", "CriticalFlags"]));
+        Assert.That(platforms.Rows, Has.Exactly(1).Items);
+        Assert.That(platforms.Rows[0][0], Is.EqualTo("u1"));
+        Assert.That(platforms.Rows[0][4], Is.EqualTo("100"));
+        Assert.That(platforms.Rows[0][5], Is.EqualTo("25"));
+        Assert.That(platforms.Rows[0][6], Is.EqualTo("1"));
     }
 
-    [Fact]
+    [Test]
     public void CatalogPhaseB_export_resolver_returns_damage_from_db()
     {
         var dbPath = Path.Combine(Path.GetTempPath(), $"aegis-damage-export-{Guid.NewGuid():N}.db");
@@ -105,10 +103,10 @@ public sealed class CatalogPhaseBDamageReaderTests
         {
             CatalogSeedBootstrap.SeedBalticPatrol(dbPath, overwrite: true);
 
-            Assert.True(PlatformCatalogExportResolver.TryResolve(dbPath, SnapshotId, out var data));
-            Assert.NotNull(data.Damage);
-            Assert.Single(data.Damage!);
-            Assert.Equal(25, data.Damage![0].WithdrawThresholdPct, precision: 3);
+            Assert.That(PlatformCatalogExportResolver.TryResolve(dbPath, SnapshotId, out var data), Is.True);
+            Assert.That(data.Damage, Is.Not.Null);
+            Assert.That(data.Damage!, Has.Exactly(1).Items);
+            Assert.That(data.Damage![0].WithdrawThresholdPct, Is.EqualTo(25).Within(0.005));
         }
         finally
         {
@@ -116,14 +114,14 @@ public sealed class CatalogPhaseBDamageReaderTests
         }
     }
 
-    [Fact]
+    [Test]
     public void Meta_sheet_reports_schema_version_010()
     {
         var meta = Export(PlatformCatalogExportData.Empty).FindSheet(PlatformWorkbookHash.MetaSheetName);
-        Assert.NotNull(meta);
-        Assert.Contains(meta.Rows, row => row.Count >= 2
+        Assert.That(meta, Is.Not.Null);
+        Assert.That(meta!.Rows.Any(row => row.Count >= 2
             && string.Equals(row[0], "SchemaVersion", StringComparison.Ordinal)
-            && string.Equals(row[1], "010", StringComparison.Ordinal));
+            && string.Equals(row[1], "010", StringComparison.Ordinal)), Is.True);
     }
 
     private static PlatformWorkbook Export(PlatformCatalogExportData data) =>

@@ -1,11 +1,11 @@
 using ProjectAegis.Data.Catalog;
-using Xunit;
+using NUnit.Framework;
 
 namespace ProjectAegis.Data.Tests.Catalog;
 
 public sealed class CatalogTlReviewGateTests
 {
-    [Fact]
+    [Test]
     public void ApplyTlReviewGate_rejects_provisional_and_low_trl()
     {
         var bindings = new[]
@@ -17,7 +17,7 @@ public sealed class CatalogTlReviewGateTests
 
         var gated = CatalogImportGate.ApplyTlReviewGate(bindings);
 
-        Assert.Single(gated);
-        Assert.Equal("a", gated[0].SensorId);
+        Assert.That(gated, Has.Exactly(1).Items);
+        Assert.That(gated[0].SensorId, Is.EqualTo("a"));
     }
 }

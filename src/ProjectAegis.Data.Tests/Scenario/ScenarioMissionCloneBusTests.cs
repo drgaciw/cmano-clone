@@ -1,11 +1,11 @@
 using ProjectAegis.Data.Scenario.Authoring;
-using Xunit;
+using NUnit.Framework;
 
 namespace ProjectAegis.Data.Tests.Scenario;
 
 public sealed class ScenarioMissionCloneBusTests
 {
-    [Fact]
+    [Test]
     public void Bus_CloneMission_bumps_edit_version_and_validates()
     {
         var path = Path.Combine(Path.GetTempPath(), $"aegis-clone-{Guid.NewGuid():N}.json");
@@ -21,10 +21,10 @@ public sealed class ScenarioMissionCloneBusTests
             ], save: true);
 
             var r = session.Bus.CloneMission(session.EditVersion, "p1", "p2", save: true);
-            Assert.True(r.Ok);
-            Assert.Equal(3, r.EditVersion); // create=1, attach=2, clone=3
-            Assert.Equal(2, session.Editor.Missions.Count);
-            Assert.NotNull(r.Report);
+            Assert.That(r.Ok, Is.True);
+            Assert.That(r.EditVersion, Is.EqualTo(3)); // create=1, attach=2, clone=3
+            Assert.That(session.Editor.Missions.Count, Is.EqualTo(2));
+            Assert.That(r.Report, Is.Not.Null);
         }
         finally
         {
@@ -35,7 +35,7 @@ public sealed class ScenarioMissionCloneBusTests
         }
     }
 
-    [Fact]
+    [Test]
     public void Bus_CloneMission_stale_edit_version_conflict()
     {
         var path = Path.Combine(Path.GetTempPath(), $"aegis-clone-c-{Guid.NewGuid():N}.json");
@@ -51,9 +51,9 @@ public sealed class ScenarioMissionCloneBusTests
             ], save: true);
 
             var r = session.Bus.CloneMission(99, "p1", "p2", save: true);
-            Assert.False(r.Ok);
-            Assert.Equal(ScenarioEditVersionGuard.ConflictCode, r.ErrorCode);
-            Assert.Single(session.Editor.Missions);
+            Assert.That(r.Ok, Is.False);
+            Assert.That(r.ErrorCode, Is.EqualTo(ScenarioEditVersionGuard.ConflictCode));
+            Assert.That(session.Editor.Missions, Has.Exactly(1).Items);
         }
         finally
         {
@@ -64,7 +64,7 @@ public sealed class ScenarioMissionCloneBusTests
         }
     }
 
-    [Fact]
+    [Test]
     public void Bus_AddFromTemplate_and_DeleteMission()
     {
         var path = Path.Combine(Path.GetTempPath(), $"aegis-tpl-{Guid.NewGuid():N}.json");
@@ -73,12 +73,12 @@ public sealed class ScenarioMissionCloneBusTests
             ScenarioDocumentEditor.CreateNew().Save(path);
             using var session = ScenarioAuthoringSession.Open(path);
             var add = session.Bus.AddFromTemplate(1, "tpl-patrol-empty", "p-tpl", save: true);
-            Assert.True(add.Ok);
-            Assert.Single(session.Editor.Missions);
+            Assert.That(add.Ok, Is.True);
+            Assert.That(session.Editor.Missions, Has.Exactly(1).Items);
 
             var del = session.Bus.DeleteMission(session.EditVersion, "p-tpl", save: true);
-            Assert.True(del.Ok);
-            Assert.Empty(session.Editor.Missions);
+            Assert.That(del.Ok, Is.True);
+            Assert.That(session.Editor.Missions, Is.Empty);
         }
         finally
         {
@@ -89,7 +89,7 @@ public sealed class ScenarioMissionCloneBusTests
         }
     }
 
-    [Fact]
+    [Test]
     public void Bus_AddFromTemplate_live_findings_include_mission_no_units_for_empty_patrol()
     {
         var path = Path.Combine(Path.GetTempPath(), $"aegis-tpl-v-{Guid.NewGuid():N}.json");
@@ -98,8 +98,8 @@ public sealed class ScenarioMissionCloneBusTests
             ScenarioDocumentEditor.CreateNew().Save(path);
             using var session = ScenarioAuthoringSession.Open(path);
             var r = session.Bus.AddFromTemplate(1, "tpl-patrol-empty", "p-empty", save: true);
-            Assert.True(r.Ok);
-            Assert.Contains(r.Report!.Findings, f => f.Code == "MISSION_NO_UNITS");
+            Assert.That(r.Ok, Is.True);
+            Assert.That(r.Report!.Findings.Any(f => f.Code == "MISSION_NO_UNITS"), Is.True);
         }
         finally
         {

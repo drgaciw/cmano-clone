@@ -3,7 +3,7 @@ namespace ProjectAegis.Data.Tests.Scenario;
 using ProjectAegis.Data.Catalog;
 using ProjectAegis.Data.Scenario.Authoring;
 using ProjectAegis.Data.Validation;
-using Xunit;
+using NUnit.Framework;
 
 /// <summary>
 /// ME-W2 Track W2-b: pure EventStaticAnalyzer codes
@@ -41,14 +41,14 @@ public sealed class EventStaticAnalyzerTests
             ],
         };
 
-    [Fact]
+    [Test]
     public void Empty_events_emits_no_findings()
     {
         var findings = EventStaticAnalyzer.Analyze(Doc(Array.Empty<ScenarioEventDto>()));
-        Assert.Empty(findings);
+        Assert.That(findings, Is.Empty);
     }
 
-    [Fact]
+    [Test]
     public void Dead_trigger_when_zero_conditions_and_trigger_not_Time()
     {
         var doc = Doc([
@@ -63,13 +63,13 @@ public sealed class EventStaticAnalyzerTests
 
         var findings = EventStaticAnalyzer.Analyze(doc);
 
-        var f = Assert.Single(findings, x => x.Code == EventStaticAnalyzer.DeadTriggerCode);
-        Assert.Equal(ValidationSeverity.Warning, f.Severity);
-        Assert.Contains("evt-dead", f.Message, StringComparison.Ordinal);
-        Assert.Equal("evt-dead", EventStaticAnalyzer.EventIdOf(f));
+        var f = ProjectAegis.Data.Tests.AssertEx.Single(findings, x => x.Code == EventStaticAnalyzer.DeadTriggerCode);
+        Assert.That(f.Severity, Is.EqualTo(ValidationSeverity.Warning));
+        Assert.That(f.Message, Does.Contain("evt-dead"));
+        Assert.That(EventStaticAnalyzer.EventIdOf(f), Is.EqualTo("evt-dead"));
     }
 
-    [Fact]
+    [Test]
     public void Time_trigger_with_zero_conditions_is_not_dead()
     {
         var doc = Doc([
@@ -83,10 +83,10 @@ public sealed class EventStaticAnalyzerTests
         ]);
 
         var findings = EventStaticAnalyzer.Analyze(doc);
-        Assert.DoesNotContain(findings, f => f.Code == EventStaticAnalyzer.DeadTriggerCode);
+        Assert.That(findings.Any(f => f.Code == EventStaticAnalyzer.DeadTriggerCode), Is.False);
     }
 
-    [Fact]
+    [Test]
     public void Unreachable_ActivateMission_missing_mission_id()
     {
         var doc = Doc([
@@ -101,12 +101,12 @@ public sealed class EventStaticAnalyzerTests
 
         var findings = EventStaticAnalyzer.Analyze(doc);
 
-        var f = Assert.Single(findings, x => x.Code == EventStaticAnalyzer.UnreachableActionCode);
-        Assert.Contains("missing mission id", f.Message, StringComparison.OrdinalIgnoreCase);
-        Assert.Equal("evt-miss", EventStaticAnalyzer.EventIdOf(f));
+        var f = ProjectAegis.Data.Tests.AssertEx.Single(findings, x => x.Code == EventStaticAnalyzer.UnreachableActionCode);
+        Assert.That(f.Message, Does.Contain("missing mission id").IgnoreCase);
+        Assert.That(EventStaticAnalyzer.EventIdOf(f), Is.EqualTo("evt-miss"));
     }
 
-    [Fact]
+    [Test]
     public void Unreachable_ActivateMission_unknown_mission_id()
     {
         var doc = Doc(
@@ -123,12 +123,12 @@ public sealed class EventStaticAnalyzerTests
 
         var findings = EventStaticAnalyzer.Analyze(doc);
 
-        var f = Assert.Single(findings, x => x.Code == EventStaticAnalyzer.UnreachableActionCode);
-        Assert.Equal("no-such-mission", f.MissionId);
-        Assert.Contains("no-such-mission", f.Message, StringComparison.Ordinal);
+        var f = ProjectAegis.Data.Tests.AssertEx.Single(findings, x => x.Code == EventStaticAnalyzer.UnreachableActionCode);
+        Assert.That(f.MissionId, Is.EqualTo("no-such-mission"));
+        Assert.That(f.Message, Does.Contain("no-such-mission"));
     }
 
-    [Fact]
+    [Test]
     public void ActivateMission_known_mission_is_reachable()
     {
         var doc = Doc(
@@ -144,10 +144,10 @@ public sealed class EventStaticAnalyzerTests
             [Mission("patrol-1")]);
 
         var findings = EventStaticAnalyzer.Analyze(doc);
-        Assert.DoesNotContain(findings, f => f.Code == EventStaticAnalyzer.UnreachableActionCode);
+        Assert.That(findings.Any(f => f.Code == EventStaticAnalyzer.UnreachableActionCode), Is.False);
     }
 
-    [Fact]
+    [Test]
     public void Contradictory_when_Result_true_and_false_on_same_event()
     {
         var doc = Doc([
@@ -166,11 +166,11 @@ public sealed class EventStaticAnalyzerTests
 
         var findings = EventStaticAnalyzer.Analyze(doc);
 
-        var f = Assert.Single(findings, x => x.Code == EventStaticAnalyzer.ContradictoryCode);
-        Assert.Contains("evt-contra", f.Message, StringComparison.Ordinal);
+        var f = ProjectAegis.Data.Tests.AssertEx.Single(findings, x => x.Code == EventStaticAnalyzer.ContradictoryCode);
+        Assert.That(f.Message, Does.Contain("evt-contra"));
     }
 
-    [Fact]
+    [Test]
     public void Circular_two_event_ActivateMission_MissionComplete_cycle()
     {
         // A activates m1; B completes m1 and activates m2; A completes m2 → A↔B cycle.
@@ -202,12 +202,12 @@ public sealed class EventStaticAnalyzerTests
         var findings = EventStaticAnalyzer.Analyze(doc);
         var circular = findings.Where(f => f.Code == EventStaticAnalyzer.CircularCode).ToList();
 
-        Assert.Equal(2, circular.Count);
-        Assert.Contains(circular, f => EventStaticAnalyzer.EventIdOf(f) == "evt-a");
-        Assert.Contains(circular, f => EventStaticAnalyzer.EventIdOf(f) == "evt-b");
+        Assert.That(circular.Count, Is.EqualTo(2));
+        Assert.That(circular.Any(f => EventStaticAnalyzer.EventIdOf(f) == "evt-a"), Is.True);
+        Assert.That(circular.Any(f => EventStaticAnalyzer.EventIdOf(f) == "evt-b"), Is.True);
     }
 
-    [Fact]
+    [Test]
     public void One_way_ActivateMission_MissionComplete_is_not_circular()
     {
         var doc = Doc(
@@ -233,10 +233,10 @@ public sealed class EventStaticAnalyzerTests
             [Mission("m1")]);
 
         var findings = EventStaticAnalyzer.Analyze(doc);
-        Assert.DoesNotContain(findings, f => f.Code == EventStaticAnalyzer.CircularCode);
+        Assert.That(findings.Any(f => f.Code == EventStaticAnalyzer.CircularCode), Is.False);
     }
 
-    [Fact]
+    [Test]
     public void AnalyzeTcaGraph_formats_counts_nodes_and_findings()
     {
         var editor = ScenarioDocumentEditor.CreateNew();
@@ -251,13 +251,11 @@ public sealed class EventStaticAnalyzerTests
 
         var result = editor.AnalyzeTcaGraph();
 
-        Assert.Equal(
-            "TCA static analysis: dead=1 unreachable=0 contradictory=0 circular=0; " +
-            "graph nodes=[evt-dead]; findings=[EVENT_DEAD_TRIGGER:evt-dead]",
-            result);
+        Assert.That(            result, Is.EqualTo(            "TCA static analysis: dead=1 unreachable=0 contradictory=0 circular=0; " +
+            "graph nodes=[evt-dead]; findings=[EVENT_DEAD_TRIGGER:evt-dead]"));
     }
 
-    [Fact]
+    [Test]
     public void Engine_wires_static_findings_as_warnings_export_still_allowed()
     {
         var doc = Doc([
@@ -275,9 +273,9 @@ public sealed class EventStaticAnalyzerTests
             InMemoryCatalogReader.BalticPatrolFixture(),
             new ValidationConfig());
 
-        Assert.Contains(report.Findings, f =>
+        Assert.That(report.Findings.Any(f =>
             f.Code == EventStaticAnalyzer.DeadTriggerCode
-            && f.Severity == ValidationSeverity.Warning);
-        Assert.True(report.CanExport(new ValidationConfig()));
+            && f.Severity == ValidationSeverity.Warning), Is.True);
+        Assert.That(report.CanExport(new ValidationConfig()), Is.True);
     }
 }

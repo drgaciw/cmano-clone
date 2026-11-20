@@ -1,13 +1,13 @@
 using Microsoft.Data.Sqlite;
 using ProjectAegis.Data.Catalog;
-using Xunit;
+using NUnit.Framework;
 
 namespace ProjectAegis.Data.Tests.Catalog;
 
-[Collection("CatalogSqlite")]
+[ProjectAegis.Data.Tests.Runner.CatalogSqliteCollection]
 public sealed class SqliteCatalogReaderTests
 {
-    [Fact]
+    [Test]
     public void Sqlite_reader_loads_sorted_sensor_bindings()
     {
         var dbPath = Path.Combine(Path.GetTempPath(), $"aegis-catalog-{Guid.NewGuid():N}.db");
@@ -31,11 +31,11 @@ public sealed class SqliteCatalogReaderTests
             using (var reader = new SqliteCatalogReader(dbPath))
             {
                 var bindings = reader.GetSortedSensorBindings();
-                Assert.Equal(2, bindings.Count);
-                Assert.Equal("u1", bindings[0].PlatformId);
-                Assert.Equal("radar-a", bindings[0].SensorId);
-                Assert.True(reader.TryGetBasePd("u2", "radar-b", out var basePd));
-                Assert.Equal(0.5, basePd);
+                Assert.That(bindings.Count, Is.EqualTo(2));
+                Assert.That(bindings[0].PlatformId, Is.EqualTo("u1"));
+                Assert.That(bindings[0].SensorId, Is.EqualTo("radar-a"));
+                Assert.That(reader.TryGetBasePd("u2", "radar-b", out var basePd), Is.True);
+                Assert.That(basePd, Is.EqualTo(0.5));
             }
         }
         finally

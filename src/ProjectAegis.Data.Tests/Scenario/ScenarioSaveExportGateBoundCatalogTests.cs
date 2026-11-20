@@ -1,7 +1,7 @@
 using ProjectAegis.Data.Catalog;
 using ProjectAegis.Data.Scenario.Authoring;
 using ProjectAegis.Data.Validation;
-using Xunit;
+using NUnit.Framework;
 
 namespace ProjectAegis.Data.Tests.Scenario;
 
@@ -10,6 +10,7 @@ namespace ProjectAegis.Data.Tests.Scenario;
 /// Baltic fixture fallback. Unbound yields a stable actionable finding; Export stays gated;
 /// incomplete draft save remains allowed.
 /// </summary>
+[FixtureLifeCycle(LifeCycle.InstancePerTestCase)]
 public sealed class ScenarioSaveExportGateBoundCatalogTests : IDisposable
 {
     private readonly string _dir = Path.Combine(Path.GetTempPath(), $"aegis-drg372-bound-{Guid.NewGuid():N}");
@@ -24,26 +25,22 @@ public sealed class ScenarioSaveExportGateBoundCatalogTests : IDisposable
         }
     }
 
-    [Fact]
+    [Test]
     public void LiveValidate_with_null_bound_catalog_yields_stable_catalog_unbound_finding()
     {
         var document = ScenarioDocumentEditor.CreateNew(dbRef: "custom-theater-v1").ToDto();
 
         var report = ScenarioSaveExportGate.LiveValidate(document, boundCatalog: null);
 
-        Assert.Contains(
-            report.Findings,
-            f => f.Code == ScenarioSaveExportGate.CatalogUnboundFindingCode
-                 && f.Severity == ValidationSeverity.Error);
-        Assert.DoesNotContain(report.Findings, f => f.Code == "DB_MISMATCH");
-        Assert.DoesNotContain(report.Findings, f => f.Code == "STRIKE_NO_TARGETS");
-        Assert.Contains(
-            report.Findings,
-            f => f.Code == ScenarioSaveExportGate.CatalogUnboundFindingCode
-                 && f.Message.Contains("bound", StringComparison.OrdinalIgnoreCase));
+        Assert.That(            report.Findings.Any(            f => f.Code == ScenarioSaveExportGate.CatalogUnboundFindingCode
+                 && f.Severity == ValidationSeverity.Error), Is.True);
+        Assert.That(report.Findings.Any(f => f.Code == "DB_MISMATCH"), Is.False);
+        Assert.That(report.Findings.Any(f => f.Code == "STRIKE_NO_TARGETS"), Is.False);
+        Assert.That(            report.Findings.Any(            f => f.Code == ScenarioSaveExportGate.CatalogUnboundFindingCode
+                 && f.Message.Contains("bound", StringComparison.OrdinalIgnoreCase)), Is.True);
     }
 
-    [Fact]
+    [Test]
     public void SaveDraft_without_catalog_saves_with_catalog_unbound_and_never_uses_silent_Baltic()
     {
         var draftPath = Path.Combine(_dir, "unbound.json");
@@ -54,27 +51,25 @@ public sealed class ScenarioSaveExportGateBoundCatalogTests : IDisposable
         using var session = ScenarioAuthoringSession.Open(draftPath);
         var outcome = ScenarioSaveExportGate.SaveDraft(session);
 
-        Assert.True(outcome.Saved);
-        Assert.False(outcome.ExportArtifactWritten);
-        Assert.True(outcome.BlockingFindingCount >= 1);
-        Assert.Contains("not exported", outcome.StatusText, StringComparison.OrdinalIgnoreCase);
-        Assert.False(File.Exists(ScenarioSaveExportGate.ExportArtifactPathFor(draftPath)));
+        Assert.That(outcome.Saved, Is.True);
+        Assert.That(outcome.ExportArtifactWritten, Is.False);
+        Assert.That(outcome.BlockingFindingCount >= 1, Is.True);
+        Assert.That(outcome.StatusText, Does.Contain("not exported").IgnoreCase);
+        Assert.That(File.Exists(ScenarioSaveExportGate.ExportArtifactPathFor(draftPath)), Is.False);
 
         // Re-run the gate LiveValidate path the save uses: unbound, not Baltic fixture findings.
         var unbound = ScenarioSaveExportGate.LiveValidate(session.Editor.ToDto(), boundCatalog: null);
-        Assert.Contains(unbound.Findings, f => f.Code == ScenarioSaveExportGate.CatalogUnboundFindingCode);
+        Assert.That(unbound.Findings.Any(f => f.Code == ScenarioSaveExportGate.CatalogUnboundFindingCode), Is.True);
 
         var againstBaltic = new ScenarioValidationEngine().Validate(
             session.Editor.ToDto(),
             InMemoryCatalogReader.BalticPatrolFixture(),
             new ValidationConfig());
-        Assert.Contains(againstBaltic.Findings, f => f.Code == "STRIKE_NO_TARGETS");
-        Assert.DoesNotContain(
-            unbound.Findings,
-            f => f.Code == "STRIKE_NO_TARGETS");
+        Assert.That(againstBaltic.Findings.Any(f => f.Code == "STRIKE_NO_TARGETS"), Is.True);
+        Assert.That(            unbound.Findings.Any(            f => f.Code == "STRIKE_NO_TARGETS"), Is.False);
     }
 
-    [Fact]
+    [Test]
     public void SaveDraft_with_non_Baltic_bound_catalog_validates_against_that_catalog()
     {
         var draftPath = Path.Combine(_dir, "custom-bound.json");
@@ -85,25 +80,21 @@ public sealed class ScenarioSaveExportGateBoundCatalogTests : IDisposable
         using var session = ScenarioAuthoringSession.Open(draftPath);
         var outcome = ScenarioSaveExportGate.SaveDraft(session, custom);
 
-        Assert.True(outcome.Saved);
-        Assert.False(outcome.ExportArtifactWritten);
+        Assert.That(outcome.Saved, Is.True);
+        Assert.That(outcome.ExportArtifactWritten, Is.False);
 
         var boundReport = ScenarioSaveExportGate.LiveValidate(session.Editor.ToDto(), custom);
-        Assert.DoesNotContain(boundReport.Findings, f => f.Code == "DB_MISMATCH");
-        Assert.DoesNotContain(
-            boundReport.Findings,
-            f => f.Code == ScenarioSaveExportGate.CatalogUnboundFindingCode);
+        Assert.That(boundReport.Findings.Any(f => f.Code == "DB_MISMATCH"), Is.False);
+        Assert.That(            boundReport.Findings.Any(            f => f.Code == ScenarioSaveExportGate.CatalogUnboundFindingCode), Is.False);
 
         var balticReport = ScenarioSaveExportGate.LiveValidate(
             session.Editor.ToDto(),
             InMemoryCatalogReader.BalticPatrolFixture());
-        Assert.Contains(balticReport.Findings, f => f.Code == "DB_MISMATCH");
-        Assert.True(
-            outcome.BlockingFindingCount == boundReport.Findings.Count(f => f.Severity >= ValidationSeverity.Error),
-            "SaveDraft blocking count must come from the bound (non-Baltic) catalog, not Baltic.");
+        Assert.That(balticReport.Findings.Any(f => f.Code == "DB_MISMATCH"), Is.True);
+        Assert.That(            outcome.BlockingFindingCount == boundReport.Findings.Count(f => f.Severity >= ValidationSeverity.Error), Is.True,             "SaveDraft blocking count must come from the bound (non-Baltic) catalog, not Baltic.");
     }
 
-    [Fact]
+    [Test]
     public void Baltic_fixture_only_used_when_explicitly_passed_as_bound_catalog()
     {
         var draftPath = Path.Combine(_dir, "baltic-explicit.json");
@@ -115,18 +106,16 @@ public sealed class ScenarioSaveExportGateBoundCatalogTests : IDisposable
         var baltic = InMemoryCatalogReader.BalticPatrolFixture();
         var outcome = ScenarioSaveExportGate.SaveDraft(session, baltic);
 
-        Assert.True(outcome.Saved);
-        Assert.False(outcome.ExportArtifactWritten);
-        Assert.True(outcome.BlockingFindingCount >= 1);
+        Assert.That(outcome.Saved, Is.True);
+        Assert.That(outcome.ExportArtifactWritten, Is.False);
+        Assert.That(outcome.BlockingFindingCount >= 1, Is.True);
 
         var report = ScenarioSaveExportGate.LiveValidate(session.Editor.ToDto(), baltic);
-        Assert.Contains(report.Findings, f => f.Code == "STRIKE_NO_TARGETS");
-        Assert.DoesNotContain(
-            report.Findings,
-            f => f.Code == ScenarioSaveExportGate.CatalogUnboundFindingCode);
+        Assert.That(report.Findings.Any(f => f.Code == "STRIKE_NO_TARGETS"), Is.True);
+        Assert.That(            report.Findings.Any(            f => f.Code == ScenarioSaveExportGate.CatalogUnboundFindingCode), Is.False);
     }
 
-    [Fact]
+    [Test]
     public void Export_still_requires_catalog_and_stays_gated_when_draft_is_incomplete()
     {
         var draftPath = Path.Combine(_dir, "export-gate.json");
@@ -138,7 +127,7 @@ public sealed class ScenarioSaveExportGateBoundCatalogTests : IDisposable
 
         using var session = ScenarioAuthoringSession.Open(draftPath);
         var saved = ScenarioSaveExportGate.SaveDraft(session, custom);
-        Assert.True(saved.Saved);
+        Assert.That(saved.Saved, Is.True);
 
         var exported = ScenarioSaveExportGate.Export(
             session.Editor.ToDto(),
@@ -146,10 +135,10 @@ public sealed class ScenarioSaveExportGateBoundCatalogTests : IDisposable
             artifact,
             draftPath);
 
-        Assert.False(exported.Allowed);
-        Assert.Null(exported.ArtifactPath);
-        Assert.False(File.Exists(artifact));
-        Assert.Contains(exported.BlockingFindings, f => f.Code == "STRIKE_NO_TARGETS");
+        Assert.That(exported.Allowed, Is.False);
+        Assert.That(exported.ArtifactPath, Is.Null);
+        Assert.That(File.Exists(artifact), Is.False);
+        Assert.That(exported.BlockingFindings.Any(f => f.Code == "STRIKE_NO_TARGETS"), Is.True);
     }
 
     /// <summary>Minimal non-Baltic catalog that resolves only <c>custom-theater-v1</c>.</summary>

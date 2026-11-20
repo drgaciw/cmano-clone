@@ -4,7 +4,7 @@ using System.Collections.Generic;
 using ProjectAegis.Data.Catalog;
 using ProjectAegis.Data.Scenario.Authoring;
 using ProjectAegis.Data.Validation;
-using Xunit;
+using NUnit.Framework;
 
 using CatalogTlTier = ProjectAegis.Data.Catalog.CatalogTlTier;
 
@@ -19,7 +19,7 @@ using CatalogTlTier = ProjectAegis.Data.Catalog.CatalogTlTier;
 /// </summary>
 public sealed class SaveVsExportGateTests
 {
-    [Fact]
+    [Test]
     public void Save_succeeds_for_scenario_with_blocking_error()
     {
         var editor = ScenarioDocumentEditor.CreateNew(dbRef: "baltic_patrol");
@@ -30,17 +30,17 @@ public sealed class SaveVsExportGateTests
         {
             editor.Save(path);
 
-            Assert.True(File.Exists(path));
+            Assert.That(File.Exists(path), Is.True);
 
             var expectedJson = ScenarioDocumentJsonWriter.Serialize(editor.ToDto());
             var actualJson = File.ReadAllText(path);
-            Assert.Equal(expectedJson, actualJson);
+            Assert.That(actualJson, Is.EqualTo(expectedJson));
 
             var reloaded = ScenarioDocumentEditor.Load(path);
-            var mission = Assert.Single(reloaded.Missions);
-            Assert.Equal("strike-1", mission.Id);
-            Assert.Equal("Strike", mission.Type);
-            Assert.Empty(mission.TargetIds);
+            var mission = ProjectAegis.Data.Tests.AssertEx.Single(reloaded.Missions);
+            Assert.That(mission.Id, Is.EqualTo("strike-1"));
+            Assert.That(mission.Type, Is.EqualTo("Strike"));
+            Assert.That(mission.TargetIds, Is.Empty);
         }
         finally
         {
@@ -51,7 +51,7 @@ public sealed class SaveVsExportGateTests
         }
     }
 
-    [Fact]
+    [Test]
     public void Export_is_rejected_for_the_same_scenario_that_saved_successfully()
     {
         // S82-03 / AC-12 (qa-plan-scenario-editor-2026-07-01.md unit #12):
@@ -66,7 +66,7 @@ public sealed class SaveVsExportGateTests
         try
         {
             editor.Save(path);
-            Assert.True(File.Exists(path), "save must succeed for scenario with blocking validation errors");
+            Assert.That(File.Exists(path), Is.True, "save must succeed for scenario with blocking validation errors");
 
             // Reload from the persisted file to prove the saved artifact carries the bad state.
             var reloaded = ScenarioDocumentEditor.Load(path);
@@ -76,14 +76,14 @@ public sealed class SaveVsExportGateTests
 
             // Direct gate (used by scenario_validate and export_brief pre-check)
             var (allowed, report) = ScenarioValidationExportGate.EvaluateExport(reloadedDto, catalog);
-            Assert.False(allowed, "export must be blocked (via gate) for the scenario that saved successfully");
-            Assert.Contains(report.Findings, f => f.Code == "STRIKE_NO_TARGETS" && f.Severity == ValidationSeverity.Error);
+            Assert.That(allowed, Is.False, "export must be blocked (via gate) for the scenario that saved successfully");
+            Assert.That(report.Findings.Any(f => f.Code == "STRIKE_NO_TARGETS" && f.Severity == ValidationSeverity.Error), Is.True);
 
             // Real export pipeline path (Prepare applies transforms then gate; used by simulate + publish)
             var exportPackage = ScenarioExportCommand.Prepare(reloadedDto, catalog);
-            Assert.False(exportPackage.Allowed);
-            Assert.NotNull(exportPackage.ValidationReport);
-            Assert.Contains(exportPackage.ValidationReport.Findings, f => f.Code == "STRIKE_NO_TARGETS");
+            Assert.That(exportPackage.Allowed, Is.False);
+            Assert.That(exportPackage.ValidationReport, Is.Not.Null);
+            Assert.That(exportPackage.ValidationReport.Findings.Any(f => f.Code == "STRIKE_NO_TARGETS"), Is.True);
         }
         finally
         {
@@ -94,7 +94,7 @@ public sealed class SaveVsExportGateTests
         }
     }
 
-    [Fact]
+    [Test]
     public void Warning_only_scenario_saves_and_is_allowed_to_export_under_default_severity_floor()
     {
         // dbRef intentionally omitted: the test catalog fixture only resolves TL-0 via the
@@ -115,7 +115,7 @@ public sealed class SaveVsExportGateTests
         try
         {
             editor.Save(path);
-            Assert.True(File.Exists(path));
+            Assert.That(File.Exists(path), Is.True);
 
             var warningOnlyReport = ValidationReport.FromFindings(new List<ValidationFinding>
             {
@@ -128,11 +128,11 @@ public sealed class SaveVsExportGateTests
 
             // Hand-built report proves the gate's contract directly: Warning findings do not
             // block export under the default severity floor (Error).
-            Assert.True(warningOnlyReport.CanExport(new ValidationConfig()));
+            Assert.That(warningOnlyReport.CanExport(new ValidationConfig()), Is.True);
 
             var catalog = ValidationCatalogFixture.Default();
             var (allowed, _) = ScenarioValidationExportGate.EvaluateExport(editor.ToDto(), catalog);
-            Assert.True(allowed);
+            Assert.That(allowed, Is.True);
         }
         finally
         {
@@ -143,7 +143,7 @@ public sealed class SaveVsExportGateTests
         }
     }
 
-    [Fact]
+    [Test]
     public void Warning_only_report_is_blocked_when_severity_floor_is_tuned_to_warning()
     {
         var warningOnlyReport = ValidationReport.FromFindings(new List<ValidationFinding>
@@ -157,7 +157,7 @@ public sealed class SaveVsExportGateTests
 
         var strictConfig = new ValidationConfig(ExportBlockSeverityFloor: ValidationSeverity.Warning);
 
-        Assert.False(warningOnlyReport.CanExport(strictConfig));
+        Assert.That(warningOnlyReport.CanExport(strictConfig), Is.False);
     }
 
     /// <summary>Private, scoped test double for <see cref="ICatalogReader"/> — mirrors the fixture

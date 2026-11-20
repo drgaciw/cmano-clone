@@ -1,15 +1,15 @@
 using Microsoft.Data.Sqlite;
 using ProjectAegis.Data.Catalog;
 using ProjectAegis.Data.WriteGate;
-using Xunit;
+using NUnit.Framework;
 
 namespace ProjectAegis.Data.Tests.Catalog;
 
 /// <summary>S33-02 / DBI-1.5 dependency graph index and commit invalidation.</summary>
-[Collection("CatalogSqlite")]
+[ProjectAegis.Data.Tests.Runner.CatalogSqliteCollection]
 public sealed class DependencyGraphIndexTests
 {
-    [Fact]
+    [Test]
     public void DependencyGraph_BuildFrom_orders_edges_by_stable_sort_key()
     {
         var edges = CatalogDependencyGraphIndex.BuildFrom(
@@ -30,8 +30,7 @@ public sealed class DependencyGraphIndexTests
                 new CatalogSensorBinding("u1", "sensor-a", 0.6),
             ]);
 
-        Assert.Equal(
-            [
+        Assert.That(            edges.Select(e => (e.PlatformId, e.MountId, e.WeaponId, e.SensorId)).ToArray(), Is.EqualTo(            [
                 ("u1", "", "", "sensor-a"),
                 ("u1", "", "", "sensor-b"),
                 ("u1", "mount-a", "", ""),
@@ -39,11 +38,10 @@ public sealed class DependencyGraphIndexTests
                 ("u1", "mount-a", "weapon-z", ""),
                 ("u1", "mount-b", "", ""),
                 ("u2", "mount-b", "", ""),
-            ],
-            edges.Select(e => (e.PlatformId, e.MountId, e.WeaponId, e.SensorId)).ToArray());
+            ]));
     }
 
-    [Fact]
+    [Test]
     public void DependencyGraph_BuildFrom_emits_platform_mount_edges()
     {
         var edges = CatalogDependencyGraphIndex.BuildFrom(
@@ -51,15 +49,15 @@ public sealed class DependencyGraphIndexTests
             [],
             []);
 
-        var mountEdge = Assert.Single(edges);
-        Assert.Equal(CatalogDependencyEdgeKind.PlatformToMount, mountEdge.Kind);
-        Assert.Equal("u1", mountEdge.PlatformId);
-        Assert.Equal("vls-fwd", mountEdge.MountId);
-        Assert.Equal("", mountEdge.WeaponId);
-        Assert.Equal("", mountEdge.SensorId);
+        var mountEdge = ProjectAegis.Data.Tests.AssertEx.Single(edges);
+        Assert.That(mountEdge.Kind, Is.EqualTo(CatalogDependencyEdgeKind.PlatformToMount));
+        Assert.That(mountEdge.PlatformId, Is.EqualTo("u1"));
+        Assert.That(mountEdge.MountId, Is.EqualTo("vls-fwd"));
+        Assert.That(mountEdge.WeaponId, Is.EqualTo(""));
+        Assert.That(mountEdge.SensorId, Is.EqualTo(""));
     }
 
-    [Fact]
+    [Test]
     public void DependencyGraph_BuildFrom_emits_platform_mount_weapon_chain_edges()
     {
         var edges = CatalogDependencyGraphIndex.BuildFrom(
@@ -67,16 +65,16 @@ public sealed class DependencyGraphIndexTests
             [new CatalogMagazineEntry("u1", "asuw-default", "vls-fwd", CatalogWeaponIds.MvpDefault, 8)],
             []);
 
-        Assert.Equal(2, edges.Count);
-        Assert.Contains(edges, e => e.Kind == CatalogDependencyEdgeKind.PlatformToMount);
-        var weaponEdge = Assert.Single(edges, e => e.Kind == CatalogDependencyEdgeKind.PlatformToMountToWeapon);
-        Assert.Equal("u1", weaponEdge.PlatformId);
-        Assert.Equal("vls-fwd", weaponEdge.MountId);
-        Assert.Equal(CatalogWeaponIds.MvpDefault, weaponEdge.WeaponId);
-        Assert.Equal("", weaponEdge.SensorId);
+        Assert.That(edges.Count, Is.EqualTo(2));
+        Assert.That(edges.Any(e => e.Kind == CatalogDependencyEdgeKind.PlatformToMount), Is.True);
+        var weaponEdge = ProjectAegis.Data.Tests.AssertEx.Single(edges, e => e.Kind == CatalogDependencyEdgeKind.PlatformToMountToWeapon);
+        Assert.That(weaponEdge.PlatformId, Is.EqualTo("u1"));
+        Assert.That(weaponEdge.MountId, Is.EqualTo("vls-fwd"));
+        Assert.That(weaponEdge.WeaponId, Is.EqualTo(CatalogWeaponIds.MvpDefault));
+        Assert.That(weaponEdge.SensorId, Is.EqualTo(""));
     }
 
-    [Fact]
+    [Test]
     public void DependencyGraph_BuildFrom_emits_platform_sensor_edges()
     {
         var edges = CatalogDependencyGraphIndex.BuildFrom(
@@ -84,15 +82,15 @@ public sealed class DependencyGraphIndexTests
             [],
             [new CatalogSensorBinding("u1", "radar-1", 1.0, ReviewState: CatalogReviewStates.Approved)]);
 
-        var sensorEdge = Assert.Single(edges);
-        Assert.Equal(CatalogDependencyEdgeKind.PlatformToSensor, sensorEdge.Kind);
-        Assert.Equal("u1", sensorEdge.PlatformId);
-        Assert.Equal("", sensorEdge.MountId);
-        Assert.Equal("", sensorEdge.WeaponId);
-        Assert.Equal("radar-1", sensorEdge.SensorId);
+        var sensorEdge = ProjectAegis.Data.Tests.AssertEx.Single(edges);
+        Assert.That(sensorEdge.Kind, Is.EqualTo(CatalogDependencyEdgeKind.PlatformToSensor));
+        Assert.That(sensorEdge.PlatformId, Is.EqualTo("u1"));
+        Assert.That(sensorEdge.MountId, Is.EqualTo(""));
+        Assert.That(sensorEdge.WeaponId, Is.EqualTo(""));
+        Assert.That(sensorEdge.SensorId, Is.EqualTo("radar-1"));
     }
 
-    [Fact]
+    [Test]
     public void DependencyGraph_BuildFrom_excludes_rejected_mounts()
     {
         var edges = CatalogDependencyGraphIndex.BuildFrom(
@@ -100,10 +98,10 @@ public sealed class DependencyGraphIndexTests
             [new CatalogMagazineEntry("u1", "asuw-default", "vls-fwd", CatalogWeaponIds.MvpDefault, 4)],
             []);
 
-        Assert.Empty(edges);
+        Assert.That(edges, Is.Empty);
     }
 
-    [Fact]
+    [Test]
     public void DependencyGraph_BuildFrom_excludes_rejected_sensors()
     {
         var edges = CatalogDependencyGraphIndex.BuildFrom(
@@ -111,10 +109,10 @@ public sealed class DependencyGraphIndexTests
             [],
             [new CatalogSensorBinding("u1", "radar-1", 1.0, ReviewState: CatalogReviewStates.Rejected)]);
 
-        Assert.Empty(edges);
+        Assert.That(edges, Is.Empty);
     }
 
-    [Fact]
+    [Test]
     public void DependencyGraph_BalticMagazineFixture_exposes_weapon_chain_edges()
     {
         var reader = new InMemoryCatalogReader(
@@ -126,35 +124,36 @@ public sealed class DependencyGraphIndexTests
             magazines: InMemoryCatalogReader.BalticMagazineFixture(magazineQuantity: 12).GetSortedMagazines());
         var edges = reader.GetSortedDependencyEdges();
 
-        Assert.Contains(edges, e => e.Kind == CatalogDependencyEdgeKind.PlatformToSensor);
-        Assert.Contains(edges, e =>
+        Assert.That(edges.Any(e => e.Kind == CatalogDependencyEdgeKind.PlatformToSensor), Is.True);
+        Assert.That(edges.Any(e =>
             e.Kind == CatalogDependencyEdgeKind.PlatformToMountToWeapon &&
             e.PlatformId == "u1" &&
             e.MountId == "vls-fwd" &&
-            e.WeaponId == CatalogWeaponIds.MvpDefault);
+            e.WeaponId == CatalogWeaponIds.MvpDefault), Is.True);
     }
 
-    [Fact]
+    [Test]
     public void DependencyGraph_BalticPatrolFixture_exposes_sensor_edges_only()
     {
         var reader = InMemoryCatalogReader.BalticPatrolFixture();
         var edges = reader.GetSortedDependencyEdges();
 
-        Assert.Equal(4, edges.Count);
-        Assert.All(edges, e => Assert.Equal(CatalogDependencyEdgeKind.PlatformToSensor, e.Kind));
-        Assert.Equal(
-            [
+        Assert.That(edges.Count, Is.EqualTo(4));
+        foreach (var e in edges)
+{
+Assert.That(e.Kind, Is.EqualTo(CatalogDependencyEdgeKind.PlatformToSensor));
+}
+        Assert.That(            edges.Select(e => e.SensorId).ToArray(), Is.EqualTo(            [
                 "radar-1",
                 "radar-2",
                 CatalogSwarmPlatformDefaults.DefaultSensorId,
                 CatalogSwarmPlatformDefaults.UsnCecSensorId,
-            ],
-            edges.Select(e => e.SensorId).ToArray());
-        Assert.Contains(edges, e => e.PlatformId == CatalogSwarmPlatformDefaults.GenericSwarmPlatformId);
-        Assert.Contains(edges, e => e.PlatformId == CatalogSwarmPlatformDefaults.UsnCecSwarmPlatformId);
+            ]));
+        Assert.That(edges.Any(e => e.PlatformId == CatalogSwarmPlatformDefaults.GenericSwarmPlatformId), Is.True);
+        Assert.That(edges.Any(e => e.PlatformId == CatalogSwarmPlatformDefaults.UsnCecSwarmPlatformId), Is.True);
     }
 
-    [Fact]
+    [Test]
     public void DependencyGraph_BuildFrom_is_deterministic_across_rebuilds()
     {
         CatalogMount[] mounts = [new CatalogMount("u1", "mount-a", ReviewState: CatalogReviewStates.Approved)];
@@ -164,22 +163,22 @@ public sealed class DependencyGraphIndexTests
         var first = CatalogDependencyGraphIndex.BuildFrom(mounts, magazines, sensors);
         var second = CatalogDependencyGraphIndex.BuildFrom(mounts, magazines, sensors);
 
-        Assert.Equal(first.Count, second.Count);
+        Assert.That(second.Count, Is.EqualTo(first.Count));
         for (var i = 0; i < first.Count; i++)
         {
-            Assert.Equal(first[i], second[i]);
+            Assert.That(second[i], Is.EqualTo(first[i]));
         }
     }
 
-    [Fact]
+    [Test]
     public void DependencyGraph_NullCatalogReader_returns_empty_edges()
     {
         ICatalogReader reader = NullCatalogReader.Instance;
         var edges = reader.GetSortedDependencyEdges();
-        Assert.Empty(edges);
+        Assert.That(edges, Is.Empty);
     }
 
-    [Fact]
+    [Test]
     public void DependencyGraph_SqliteCatalogReader_caches_edges_until_invalidated()
     {
         var dbPath = Path.Combine(Path.GetTempPath(), $"aegis-dep-graph-cache-{Guid.NewGuid():N}.db");
@@ -190,12 +189,12 @@ public sealed class DependencyGraphIndexTests
 
             var first = reader.GetSortedDependencyEdges();
             var second = reader.GetSortedDependencyEdges();
-            Assert.Same(first, second);
+            Assert.That(second, Is.SameAs(first));
 
             CatalogDependencyGraphCacheInvalidator.InvalidateForDatabase(dbPath);
             var third = reader.GetSortedDependencyEdges();
-            Assert.NotSame(first, third);
-            Assert.Equal(first, third);
+            Assert.That(third, Is.Not.SameAs(first));
+            Assert.That(third, Is.EqualTo(first));
         }
         finally
         {
@@ -207,7 +206,7 @@ public sealed class DependencyGraphIndexTests
         }
     }
 
-    [Fact]
+    [Test]
     public void DependencyGraph_ApproveBatch_mount_commit_invalidates_reader_cache()
     {
         var dbPath = Path.Combine(Path.GetTempPath(), $"aegis-dep-graph-commit-{Guid.NewGuid():N}.db");
@@ -218,24 +217,24 @@ public sealed class DependencyGraphIndexTests
 
             var before = reader.GetSortedDependencyEdges();
             // Seed already has vls-fwd/gun-76; assert a new mount id is absent pre-commit.
-            Assert.DoesNotContain(before, e =>
+            Assert.That(before.Any(e =>
                 e.Kind == CatalogDependencyEdgeKind.PlatformToMount &&
-                e.MountId == "vls-aft");
+                e.MountId == "vls-aft"), Is.False);
 
             using (var gate = new CatalogWriteGate(dbPath, new FixedCatalogClock(33002)))
             {
                 var mount = new CatalogMount("u1", "vls-aft", MountType: "vls", ReviewState: CatalogReviewStates.Approved);
                 var batchId = gate.ProposeMountBatch([mount], "agent", "dep-graph-test");
                 var decision = gate.ApproveBatch(batchId, "human", "qa-reviewer");
-                Assert.True(decision.Committed);
+                Assert.That(decision.Committed, Is.True);
             }
 
             var after = reader.GetSortedDependencyEdges();
-            Assert.NotSame(before, after);
-            Assert.Contains(after, e =>
+            Assert.That(after, Is.Not.SameAs(before));
+            Assert.That(after.Any(e =>
                 e.Kind == CatalogDependencyEdgeKind.PlatformToMount &&
                 e.PlatformId == "u1" &&
-                e.MountId == "vls-aft");
+                e.MountId == "vls-aft"), Is.True);
         }
         finally
         {
@@ -247,7 +246,7 @@ public sealed class DependencyGraphIndexTests
         }
     }
 
-    [Fact]
+    [Test]
     public void DependencyGraph_ApproveBatch_sensor_commit_refreshes_sensor_edges()
     {
         var dbPath = Path.Combine(Path.GetTempPath(), $"aegis-dep-graph-sensor-{Guid.NewGuid():N}.db");
@@ -269,12 +268,12 @@ public sealed class DependencyGraphIndexTests
                     ValueTier: CatalogProvenanceTier.InterpretedValue);
                 var batchId = gate.ProposeSensorBatch([sensor], "agent", "dep-graph-sensor");
                 var decision = gate.ApproveBatch(batchId, "human", "qa-reviewer");
-                Assert.True(decision.Committed);
+                Assert.That(decision.Committed, Is.True);
             }
 
             var after = reader.GetSortedDependencyEdges();
-            Assert.Equal(beforeCount + 1, after.Count);
-            Assert.Contains(after, e => e.SensorId == "radar-new");
+            Assert.That(after.Count, Is.EqualTo(beforeCount + 1));
+            Assert.That(after.Any(e => e.SensorId == "radar-new"), Is.True);
         }
         finally
         {
@@ -287,7 +286,7 @@ public sealed class DependencyGraphIndexTests
     }
 
     // S36-03: PlatformToLink edges + tests + invalidation coverage
-    [Fact]
+    [Test]
     public void DependencyGraph_BuildFrom_emits_platform_link_edges_for_approved_comms()
     {
         var links = new[]
@@ -303,13 +302,16 @@ public sealed class DependencyGraphIndexTests
 
         var edges = CatalogDependencyGraphIndex.BuildFrom([], [], [], comms, links);
 
-        Assert.Equal(2, edges.Count);
-        Assert.All(edges, e => Assert.Equal(CatalogDependencyEdgeKind.PlatformToLink, e.Kind));
-        Assert.Contains(edges, e => e.PlatformId == "u1" && e.LinkId == "NATO_TADIL_J" && e.CommsFittingId == CatalogSortKeyComparer.FormatCommsKey(new CatalogCommsBinding("u1", "NATO_TADIL_J")));
-        Assert.Contains(edges, e => e.PlatformId == "u1" && e.LinkId == "SATCOM_B");
+        Assert.That(edges.Count, Is.EqualTo(2));
+        foreach (var e in edges)
+{
+Assert.That(e.Kind, Is.EqualTo(CatalogDependencyEdgeKind.PlatformToLink));
+}
+        Assert.That(edges.Any(e => e.PlatformId == "u1" && e.LinkId == "NATO_TADIL_J" && e.CommsFittingId == CatalogSortKeyComparer.FormatCommsKey(new CatalogCommsBinding("u1", "NATO_TADIL_J"))), Is.True);
+        Assert.That(edges.Any(e => e.PlatformId == "u1" && e.LinkId == "SATCOM_B"), Is.True);
     }
 
-    [Fact]
+    [Test]
     public void DependencyGraph_BuildFrom_excludes_rejected_comms_and_orphan_links()
     {
         var links = new[] { new CatalogLinkEntry("NATO_TADIL_J") };
@@ -321,10 +323,10 @@ public sealed class DependencyGraphIndexTests
 
         var edges = CatalogDependencyGraphIndex.BuildFrom([], [], [], comms, links);
 
-        Assert.Empty(edges);
+        Assert.That(edges, Is.Empty);
     }
 
-    [Fact]
+    [Test]
     public void DependencyGraph_BuildFrom_unifies_sort_keys_including_link_edges()
     {
         var links = new[] { new CatalogLinkEntry("L1") };
@@ -334,14 +336,14 @@ public sealed class DependencyGraphIndexTests
         var edges = CatalogDependencyGraphIndex.BuildFrom(mounts, [], [], comms, links);
 
         // mount first (p1), then link (p2) by platform ordinal
-        Assert.Equal(2, edges.Count);
-        Assert.Equal("p1", edges[0].PlatformId);
-        Assert.Equal(CatalogDependencyEdgeKind.PlatformToMount, edges[0].Kind);
-        Assert.Equal("p2", edges[1].PlatformId);
-        Assert.Equal(CatalogDependencyEdgeKind.PlatformToLink, edges[1].Kind);
+        Assert.That(edges.Count, Is.EqualTo(2));
+        Assert.That(edges[0].PlatformId, Is.EqualTo("p1"));
+        Assert.That(edges[0].Kind, Is.EqualTo(CatalogDependencyEdgeKind.PlatformToMount));
+        Assert.That(edges[1].PlatformId, Is.EqualTo("p2"));
+        Assert.That(edges[1].Kind, Is.EqualTo(CatalogDependencyEdgeKind.PlatformToLink));
     }
 
-    [Fact]
+    [Test]
     public void DependencyGraph_BuildFrom_is_deterministic_with_link_edges()
     {
         var links = new[] { new CatalogLinkEntry("L1") };
@@ -350,15 +352,15 @@ public sealed class DependencyGraphIndexTests
         var first = CatalogDependencyGraphIndex.BuildFrom([], [], [], comms, links);
         var second = CatalogDependencyGraphIndex.BuildFrom([], [], [], comms, links);
 
-        Assert.Equal(first.Count, second.Count);
+        Assert.That(second.Count, Is.EqualTo(first.Count));
         for (var i = 0; i < first.Count; i++)
         {
-            Assert.Equal(first[i], second[i]);
+            Assert.That(second[i], Is.EqualTo(first[i]));
         }
     }
 
     // S37-03: full kill-chain surfacing (platform→link + weapon→mount→sensor chains + API)
-    [Fact]
+    [Test]
     public void DependencyGraph_BuildFullKillChain_emits_platform_link_plus_weapon_mount_sensor_chains()
     {
         var mounts = new[]
@@ -390,21 +392,21 @@ public sealed class DependencyGraphIndexTests
                 links: links)
         );
 
-        Assert.Equal(4, edgesViaFull.Count); // 1 mount + 1 weapon + 1 sensor + 1 link (link uses comms key)
-        Assert.Equal(edgesViaFull.Count, edgesViaReader.Count);
+        Assert.That(edgesViaFull.Count, Is.EqualTo(4)); // 1 mount + 1 weapon + 1 sensor + 1 link (link uses comms key)
+        Assert.That(edgesViaReader.Count, Is.EqualTo(edgesViaFull.Count));
 
         var kinds = edgesViaFull.Select(e => e.Kind).ToHashSet();
-        Assert.Contains(CatalogDependencyEdgeKind.PlatformToMount, kinds);
-        Assert.Contains(CatalogDependencyEdgeKind.PlatformToMountToWeapon, kinds);
-        Assert.Contains(CatalogDependencyEdgeKind.PlatformToSensor, kinds);
-        Assert.Contains(CatalogDependencyEdgeKind.PlatformToLink, kinds);
+        Assert.That(kinds, Does.Contain(CatalogDependencyEdgeKind.PlatformToMount));
+        Assert.That(kinds, Does.Contain(CatalogDependencyEdgeKind.PlatformToMountToWeapon));
+        Assert.That(kinds, Does.Contain(CatalogDependencyEdgeKind.PlatformToSensor));
+        Assert.That(kinds, Does.Contain(CatalogDependencyEdgeKind.PlatformToLink));
 
         // Deterministic: full chains identical across calls
         var second = CatalogDependencyGraphIndex.BuildFullKillChain(mounts, magazines, sensors, comms, links);
-        Assert.Equal(edgesViaFull.Count, second.Count);
+        Assert.That(second.Count, Is.EqualTo(edgesViaFull.Count));
         for (int i = 0; i < edgesViaFull.Count; i++)
         {
-            Assert.Equal(edgesViaFull[i], second[i]);
+            Assert.That(second[i], Is.EqualTo(edgesViaFull[i]));
         }
     }
 }

@@ -1,7 +1,7 @@
 using ProjectAegis.Data.Catalog;
 using ProjectAegis.Data.Platform;
 using ProjectAegis.Data.WriteGate;
-using Xunit;
+using NUnit.Framework;
 
 namespace ProjectAegis.Data.Tests.Platform;
 
@@ -37,33 +37,31 @@ public sealed class PlatformWorkbookSwarmPeTests
     private static PlatformWorkbook Export(PlatformCatalogExportData data) =>
         new PlatformWorkbookExporter().Export(data, SnapshotId, new FixedCatalogClock(utcTicks: 0));
 
-    [Fact]
+    [Test]
     public void Export_includes_Swarms_sheet_with_headers_and_cec_rows()
     {
         var workbook = Export(SampleWithSwarm());
         var swarms = workbook.FindSheet("Swarms");
-        Assert.NotNull(swarms);
-        Assert.Equal(ExpectedSwarmsHeader, swarms.Header);
-        Assert.Equal(2, swarms.Rows.Count);
+        Assert.That(swarms, Is.Not.Null);
+        Assert.That(swarms!.Header, Is.EqualTo(ExpectedSwarmsHeader));
+        Assert.That(swarms.Rows.Count, Is.EqualTo(2));
 
         var usn = swarms.Rows.Single(r => r[0] == CatalogSwarmPlatformDefaults.UsnCecSwarmPlatformId);
-        Assert.Equal("1", usn[ExpectedSwarmsHeader.ToList().IndexOf("CecCapable")]);
-        Assert.Equal(
-            CatalogValidationDefaults.UsnCecSwarmPlatform().DefaultMode,
-            usn[ExpectedSwarmsHeader.ToList().IndexOf("DefaultMode")]);
+        Assert.That(usn[ExpectedSwarmsHeader.ToList().IndexOf("CecCapable")], Is.EqualTo("1"));
+        Assert.That(            usn[ExpectedSwarmsHeader.ToList().IndexOf("DefaultMode")], Is.EqualTo(            CatalogValidationDefaults.UsnCecSwarmPlatform().DefaultMode));
 
         var generic = swarms.Rows.Single(r => r[0] == CatalogSwarmPlatformDefaults.GenericSwarmPlatformId);
-        Assert.Equal("0", generic[ExpectedSwarmsHeader.ToList().IndexOf("CecCapable")]);
+        Assert.That(generic[ExpectedSwarmsHeader.ToList().IndexOf("CecCapable")], Is.EqualTo("0"));
     }
 
-    [Fact]
+    [Test]
     public void Validator_accepts_clean_Swarms_export()
     {
         var findings = PlatformWorkbookValidator.Validate(Export(SampleWithSwarm()));
-        Assert.DoesNotContain(findings, f => f.Code.StartsWith("PLE-SWARM", StringComparison.Ordinal));
+        Assert.That(findings.Any(f => f.Code.StartsWith("PLE-SWARM", StringComparison.Ordinal)), Is.False);
     }
 
-    [Fact]
+    [Test]
     public void Validator_flags_invalid_mode_and_orphan()
     {
         var source = Export(SampleWithSwarm());
@@ -84,11 +82,11 @@ public sealed class PlatformWorkbookSwarmPeTests
                     : s).ToArray());
 
         var findings = PlatformWorkbookValidator.Validate(edited);
-        Assert.Contains(findings, f => f.Code == PlatformWorkbookValidator.SwarmInvalidMode);
-        Assert.Contains(findings, f => f.Code == PlatformWorkbookValidator.SwarmOrphanPlatform);
+        Assert.That(findings.Any(f => f.Code == PlatformWorkbookValidator.SwarmInvalidMode), Is.True);
+        Assert.That(findings.Any(f => f.Code == PlatformWorkbookValidator.SwarmOrphanPlatform), Is.True);
     }
 
-    [Fact]
+    [Test]
     public void Importer_stages_and_approves_swarm_cec_edit()
     {
         var dbPath = Path.Combine(Path.GetTempPath(), $"swarm-pe-{Guid.NewGuid():N}.db");
@@ -100,15 +98,15 @@ public sealed class PlatformWorkbookSwarmPeTests
             var exported = service.ExportFromDatabase(dbPath, SnapshotId, clock);
 
             var swarms = exported.FindSheet("Swarms");
-            Assert.NotNull(swarms);
-            Assert.NotEmpty(swarms.Rows);
+            Assert.That(swarms, Is.Not.Null);
+            Assert.That(swarms!.Rows, Is.Not.Empty);
 
             var header = swarms.Header.ToList();
             var maxIdx = header.IndexOf("MaxDrones");
             var cecIdx = header.IndexOf("CecCapable");
             var rows = swarms.Rows.Select(r => r.ToArray()).ToList();
             var genericIdx = rows.FindIndex(r => r[0] == CatalogSwarmPlatformDefaults.GenericSwarmPlatformId);
-            Assert.True(genericIdx >= 0);
+            Assert.That(genericIdx >= 0, Is.True);
             rows[genericIdx][maxIdx] = "48";
             // keep generic non-CEC
             rows[genericIdx][cecIdx] = "0";
@@ -129,14 +127,14 @@ public sealed class PlatformWorkbookSwarmPeTests
 
             using var gate = new CatalogWriteGate(dbPath, clock);
             var result = importer.Stage(edited, gate, "human", "swarm-pe-qa");
-            Assert.True(result.Staged);
-            Assert.NotNull(result.SwarmBatchId);
-            Assert.True(gate.ApproveBatch(result.SwarmBatchId!, "human", "swarm-pe-qa").Committed);
+            Assert.That(result.Staged, Is.True);
+            Assert.That(result.SwarmBatchId, Is.Not.Null);
+            Assert.That(gate.ApproveBatch(result.SwarmBatchId!, "human", "swarm-pe-qa").Committed, Is.True);
 
             using var reader = new SqliteCatalogReader(dbPath, "swarm-pe-verify");
-            Assert.True(reader.TryGetSwarmPlatform(CatalogSwarmPlatformDefaults.GenericSwarmPlatformId, out var swarm));
-            Assert.Equal(48, swarm.MaxDrones);
-            Assert.False(swarm.CecCapable);
+            Assert.That(reader.TryGetSwarmPlatform(CatalogSwarmPlatformDefaults.GenericSwarmPlatformId, out var swarm), Is.True);
+            Assert.That(swarm.MaxDrones, Is.EqualTo(48));
+            Assert.That(swarm.CecCapable, Is.False);
         }
         finally
         {

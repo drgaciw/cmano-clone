@@ -3,15 +3,15 @@ using ProjectAegis.Data.Catalog;
 using ProjectAegis.Data.Import;
 using ProjectAegis.Data.Snapshots;
 using ProjectAegis.Data.WriteGate;
-using Xunit;
+using NUnit.Framework;
 
 namespace ProjectAegis.Data.Tests.Import;
 
 /// <summary>S29-03 / S30-04 curated nightly propose→approve→RecordRelease regression (off-CI path).</summary>
-[Collection("CatalogSqlite")]
+[ProjectAegis.Data.Tests.Runner.CatalogSqliteCollection]
 public sealed class CmoNightlyApproveWorkflowTests
 {
-    [Fact]
+    [Test]
     public void Nightly_platform_slice_propose_approve_records_pinned_snapshot_hash()
     {
         var platformPath = CmoMarkdownImporter.ResolveShipSlice100FixturePath();
@@ -28,14 +28,14 @@ public sealed class CmoNightlyApproveWorkflowTests
                 chunkSize: 500,
                 clock: new FixedCatalogClock(29031));
 
-            Assert.Equal(12, proposed.ParsedCount);
-            Assert.NotEmpty(proposed.Batches);
+            Assert.That(proposed.ParsedCount, Is.EqualTo(12));
+            Assert.That(proposed.Batches, Is.Not.Empty);
 
             using (var gate = new CatalogWriteGate(dbPath, new FixedCatalogClock(29032)))
             {
                 foreach (var batch in proposed.Batches)
                 {
-                    Assert.True(gate.ApproveBatch(batch.BatchId, "human", "nightly-curator").Committed);
+                    Assert.That(gate.ApproveBatch(batch.BatchId, "human", "nightly-curator").Committed, Is.True);
                 }
             }
 
@@ -49,22 +49,22 @@ public sealed class CmoNightlyApproveWorkflowTests
                 new FixedCatalogClock(29033),
                 releaseVersion: "nightly-platform-s29-03");
 
-            Assert.Matches("^[a-f0-9]{64}$", bind.ContentHashSha256);
-            Assert.Equal("nightly-platform-s29-03", bind.ReleaseVersion);
+            Assert.That(bind.ContentHashSha256, Does.Match("^[a-f0-9]{64}$"));
+            Assert.That(bind.ReleaseVersion, Is.EqualTo("nightly-platform-s29-03"));
 
             using var store = new DbSnapshotStore(dbPath);
-            Assert.True(store.TryGetContentHash(bind.SnapshotId, out var storedHash));
-            Assert.Equal(bind.ContentHashSha256, storedHash);
+            Assert.That(store.TryGetContentHash(bind.SnapshotId, out var storedHash), Is.True);
+            Assert.That(storedHash, Is.EqualTo(bind.ContentHashSha256));
 
             var releases = store.GetSortedReleases();
-            Assert.Contains(releases, r => r.ReleaseVersion == "nightly-platform-s29-03");
-            Assert.Contains(releases, r => r.Notes.Contains(platformBatchId, StringComparison.Ordinal));
+            Assert.That(releases.Any(r => r.ReleaseVersion == "nightly-platform-s29-03"), Is.True);
+            Assert.That(releases.Any(r => r.Notes.Contains(platformBatchId, StringComparison.Ordinal)), Is.True);
 
             using var connection = new SqliteConnection($"Data Source={dbPath};Pooling=false");
             connection.Open();
             foreach (var platform in expectedPlatforms)
             {
-                Assert.Equal(1, CountPlatformRows(connection, platform.PlatformId));
+                Assert.That(CountPlatformRows(connection, platform.PlatformId), Is.EqualTo(1));
             }
         }
         finally
@@ -73,7 +73,7 @@ public sealed class CmoNightlyApproveWorkflowTests
         }
     }
 
-    [Fact]
+    [Test]
     public void ProposePlatformsFromMarkdown_default_clock_assigns_unique_batch_ids_per_chunk()
     {
         var platformPath = CmoMarkdownImporter.ResolveShipSlice100FixturePath();
@@ -93,8 +93,8 @@ public sealed class CmoNightlyApproveWorkflowTests
                 .Select(batch => batch.BatchId)
                 .ToArray();
 
-            Assert.True(platformBatchIds.Length >= 2);
-            Assert.Equal(platformBatchIds.Length, platformBatchIds.Distinct(StringComparer.Ordinal).Count());
+            Assert.That(platformBatchIds.Length >= 2, Is.True);
+            Assert.That(platformBatchIds.Distinct(StringComparer.Ordinal).Count(), Is.EqualTo(platformBatchIds.Length));
         }
         finally
         {
@@ -106,7 +106,7 @@ public sealed class CmoNightlyApproveWorkflowTests
         }
     }
 
-    [Fact]
+    [Test]
     public void Nightly_multi_batch_platform_approve_commits_all_chunks_via_WriteGate()
     {
         var platformPath = CmoMarkdownImporter.ResolveShipSlice100FixturePath();
@@ -123,25 +123,28 @@ public sealed class CmoNightlyApproveWorkflowTests
                 chunkSize: 5,
                 clock: new FixedCatalogClock(29041));
 
-            Assert.Equal(12, proposed.ParsedCount);
+            Assert.That(proposed.ParsedCount, Is.EqualTo(12));
             var platformBatches = proposed.Batches
                 .Where(batch => batch.BatchId.StartsWith("batch-platform-", StringComparison.Ordinal))
                 .ToArray();
-            Assert.True(platformBatches.Length >= 2);
-            Assert.All(platformBatches, batch => Assert.True(batch.RecordCount > 0));
+            Assert.That(platformBatches.Length >= 2, Is.True);
+            foreach (var batch in platformBatches)
+{
+Assert.That(batch.RecordCount > 0, Is.True);
+}
 
             var batchIds = proposed.Batches
                 .Select(batch => batch.BatchId)
                 .Distinct(StringComparer.Ordinal)
                 .ToArray();
-            Assert.True(batchIds.Length >= 2);
+            Assert.That(batchIds.Length >= 2, Is.True);
 
             using (var gate = new CatalogWriteGate(dbPath, new FixedCatalogClock(29042)))
             {
                 foreach (var batchId in batchIds)
                 {
                     var decision = gate.ApproveBatch(batchId, "human", "nightly-curator");
-                    Assert.True(decision.Committed);
+                    Assert.That(decision.Committed, Is.True);
                 }
             }
 
@@ -149,7 +152,7 @@ public sealed class CmoNightlyApproveWorkflowTests
             connection.Open();
             foreach (var platform in expectedPlatforms)
             {
-                Assert.Equal(1, CountPlatformRows(connection, platform.PlatformId));
+                Assert.That(CountPlatformRows(connection, platform.PlatformId), Is.EqualTo(1));
             }
 
             using var batchCmd = connection.CreateCommand();
@@ -166,8 +169,11 @@ public sealed class CmoNightlyApproveWorkflowTests
                 approvedStates.Add(reader.GetString(0));
             }
 
-            Assert.True(approvedStates.Count >= 2);
-            Assert.All(approvedStates, state => Assert.Equal("approved", state));
+            Assert.That(approvedStates.Count >= 2, Is.True);
+            foreach (var state in approvedStates)
+{
+Assert.That(state, Is.EqualTo("approved"));
+}
         }
         finally
         {
@@ -175,7 +181,7 @@ public sealed class CmoNightlyApproveWorkflowTests
         }
     }
 
-    [Fact]
+    [Test]
     public void Nightly_sensor_slice_propose_approve_records_release_row()
     {
         var markdown = CmoMarkdownImporter.ResolveMiniFixturePath();
@@ -190,12 +196,12 @@ public sealed class CmoNightlyApproveWorkflowTests
                 chunkSize: 500,
                 clock: new FixedCatalogClock(29051));
 
-            Assert.Equal(10, proposed.ParsedCount);
+            Assert.That(proposed.ParsedCount, Is.EqualTo(10));
             var batchId = proposed.Batches[0].BatchId;
 
             using (var gate = new CatalogWriteGate(dbPath, new FixedCatalogClock(29052)))
             {
-                Assert.True(gate.ApproveBatch(batchId, "human", "nightly-curator").Committed);
+                Assert.That(gate.ApproveBatch(batchId, "human", "nightly-curator").Committed, Is.True);
             }
 
             var bind = CatalogSnapshotBinder.BindAfterApprove(
@@ -204,12 +210,12 @@ public sealed class CmoNightlyApproveWorkflowTests
                 new FixedCatalogClock(29053),
                 releaseVersion: "nightly-sensor-s29-03");
 
-            Assert.Matches("^[a-f0-9]{64}$", bind.ContentHashSha256);
-            Assert.True(bind.SensorRowCount >= 10);
+            Assert.That(bind.ContentHashSha256, Does.Match("^[a-f0-9]{64}$"));
+            Assert.That(bind.SensorRowCount >= 10, Is.True);
 
             using var store = new DbSnapshotStore(dbPath);
             var releases = store.GetSortedReleases();
-            Assert.Contains(releases, r => r.ReleaseVersion == "nightly-sensor-s29-03");
+            Assert.That(releases.Any(r => r.ReleaseVersion == "nightly-sensor-s29-03"), Is.True);
         }
         finally
         {

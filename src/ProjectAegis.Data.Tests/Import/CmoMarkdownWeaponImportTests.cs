@@ -2,14 +2,14 @@ using Microsoft.Data.Sqlite;
 using ProjectAegis.Data.Catalog;
 using ProjectAegis.Data.Import;
 using ProjectAegis.Data.WriteGate;
-using Xunit;
+using NUnit.Framework;
 
 namespace ProjectAegis.Data.Tests.Import;
 
-[Collection("CatalogSqlite")]
+[ProjectAegis.Data.Tests.Runner.CatalogSqliteCollection]
 public sealed class CmoMarkdownWeaponImportTests
 {
-    [Fact]
+    [Test]
     public void ProposeWeaponsFromMarkdown_stages_slice50_and_approve_commits()
     {
         var markdown = CmoMarkdownImporter.ResolveWeaponSlice50FixturePath();
@@ -24,14 +24,14 @@ public sealed class CmoMarkdownWeaponImportTests
                 chunkSize: 500,
                 clock: new FixedCatalogClock(2602));
 
-            Assert.Equal(50, result.ParsedCount);
-            Assert.Equal(50, result.ApprovedCount);
-            Assert.Single(result.Batches);
-            Assert.Equal(50, result.Batches[0].RecordCount);
+            Assert.That(result.ParsedCount, Is.EqualTo(50));
+            Assert.That(result.ApprovedCount, Is.EqualTo(50));
+            Assert.That(result.Batches, Has.Exactly(1).Items);
+            Assert.That(result.Batches[0].RecordCount, Is.EqualTo(50));
 
             using (var gate = new CatalogWriteGate(dbPath, new FixedCatalogClock(2603)))
             {
-                Assert.True(gate.ApproveBatch(result.Batches[0].BatchId, "human", "s26-weapon").Committed);
+                Assert.That(gate.ApproveBatch(result.Batches[0].BatchId, "human", "s26-weapon").Committed, Is.True);
             }
 
             using var connection = new SqliteConnection($"Data Source={dbPath};Pooling=false");
@@ -39,7 +39,7 @@ public sealed class CmoMarkdownWeaponImportTests
             using var cmd = connection.CreateCommand();
             cmd.CommandText = "SELECT COUNT(*) FROM weapon_catalog WHERE weapon_id LIKE 'cmo-weapon-%'";
             var count = Convert.ToInt32(cmd.ExecuteScalar(), System.Globalization.CultureInfo.InvariantCulture);
-            Assert.Equal(50, count);
+            Assert.That(count, Is.EqualTo(50));
         }
         finally
         {
@@ -51,7 +51,7 @@ public sealed class CmoMarkdownWeaponImportTests
         }
     }
 
-    [Fact]
+    [Test]
     public void Reference_weapon_markdown_parses_4403_records_for_off_ci_nightly_scale()
     {
         var path = CmoMarkdownImporter.ResolveReferenceWeaponMarkdownPath();
@@ -61,16 +61,16 @@ public sealed class CmoMarkdownWeaponImportTests
         }
 
         var weapons = CmoMarkdownImporter.ReadWeaponBindings(path);
-        Assert.Equal(4403, weapons.Count);
+        Assert.That(weapons.Count, Is.EqualTo(4403));
 
         var chunks = CmoMarkdownImportProposer.ChunkWeapons(weapons, chunkSize: 500);
-        Assert.Equal(9, chunks.Length);
-        Assert.Equal(500, chunks[0].Length);
-        Assert.Equal(500, chunks[7].Length);
-        Assert.Equal(403, chunks[8].Length);
+        Assert.That(chunks.Length, Is.EqualTo(9));
+        Assert.That(chunks[0].Length, Is.EqualTo(500));
+        Assert.That(chunks[7].Length, Is.EqualTo(500));
+        Assert.That(chunks[8].Length, Is.EqualTo(403));
     }
 
-    [Fact]
+    [Test]
     public void ChunkWeapons_with_501_rows_produces_two_batches_at_chunk_size_500()
     {
         var rows = Enumerable.Range(0, 501)
@@ -88,9 +88,9 @@ public sealed class CmoMarkdownWeaponImportTests
 
         var chunks = CmoMarkdownImportProposer.ChunkWeapons(rows, chunkSize: 500);
 
-        Assert.Equal(2, chunks.Length);
-        Assert.Equal(500, chunks[0].Length);
-        Assert.Single(chunks[1]);
-        Assert.Equal("cmo-weapon-0000", chunks[0][0].WeaponId);
+        Assert.That(chunks.Length, Is.EqualTo(2));
+        Assert.That(chunks[0].Length, Is.EqualTo(500));
+        Assert.That(chunks[1], Has.Exactly(1).Items);
+        Assert.That(chunks[0][0].WeaponId, Is.EqualTo("cmo-weapon-0000"));
     }
 }

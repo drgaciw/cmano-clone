@@ -3,14 +3,14 @@ using ProjectAegis.Data.Catalog;
 using ProjectAegis.Data.Osint;
 using ProjectAegis.Data.Osint.Connectors;
 using ProjectAegis.Data.WriteGate;
-using Xunit;
+using NUnit.Framework;
 
 namespace ProjectAegis.Data.Tests.Osint;
 
-[Collection("CatalogSqlite")]
+[ProjectAegis.Data.Tests.Runner.CatalogSqliteCollection]
 public sealed class OsintDigestRunnerTests
 {
-    [Fact]
+    [Test]
     public void DigestRunner_WithFixedDiscoveries_ProducesProposalsAndLogOnly()
     {
         var discoveries = new[]
@@ -20,7 +20,7 @@ public sealed class OsintDigestRunnerTests
         };
         var runner = new OsintDigestRunner(0.65);
         var (proposals, logOnly) = runner.Run(discoveries);
-        Assert.NotEmpty(proposals);
+        Assert.That(proposals, Is.Not.Empty);
         // TDD-GREEN (xUnit2012 fix for RC1): replaced Assert.True(coll.Any(pred)) with Assert.Contains(coll, pred)
         // per analyzer rule https://xunit.net/xunit.analyzers/rules/xUnit2012. Behavior preserved (exact match).
         // Cites: S41 ack ("i provide the ack") in production/gate-checks/scope-expansion-decision-2026-06-20-S41-close.md;
@@ -28,36 +28,39 @@ public sealed class OsintDigestRunnerTests
         // prior CatalogSensorBinding extension fix (pattern for safe catalog/osint surface changes);
         // docs/adr/s41-structural-debt-decision-telemetry-osint.md (Osint 68% cohesion, GitNexus impact MEDIUM pre-edit).
         // ZERO DelegationBridge touched; deterministic replay hashes preserved.
-        Assert.Contains(logOnly, r => r.CanonicalId == "low-conf-y");
-        Assert.All(proposals, p => Assert.True(p.RelevanceScore >= 0.65));
+        Assert.That(logOnly.Any(r => r.CanonicalId == "low-conf-y"), Is.True);
+        foreach (var p in proposals)
+{
+Assert.That(p.RelevanceScore >= 0.65, Is.True);
+}
         var (p2, l2) = runner.Run(discoveries);
-        Assert.Equal(proposals.Select(p => p.CanonicalId), p2.Select(p => p.CanonicalId));
-        Assert.Equal(logOnly.Select(r => r.CanonicalId), l2.Select(r => r.CanonicalId));
+        Assert.That(p2.Select(p => p.CanonicalId), Is.EqualTo(proposals.Select(p => p.CanonicalId)));
+        Assert.That(l2.Select(r => r.CanonicalId), Is.EqualTo(logOnly.Select(r => r.CanonicalId)));
     }
 
-    [Fact]
+    [Test]
     public void DigestRunner_EmptyInput_EmptyResults()
     {
         var runner = new OsintDigestRunner();
         var (proposals, logOnly) = runner.Run(Array.Empty<OsintDiscoveryRecord>());
-        Assert.Empty(proposals);
-        Assert.Empty(logOnly);
+        Assert.That(proposals, Is.Empty);
+        Assert.That(logOnly, Is.Empty);
     }
 
-    [Fact]
+    [Test]
     public void InMemoryConnector_FetchesAndFeedsRunner()
     {
         var connector = new InMemoryOsintConnector();
         var records = connector.Fetch();
-        Assert.NotEmpty(records);
+        Assert.That(records, Is.Not.Empty);
 
         var runner = new OsintDigestRunner(0.65);
         var (proposals, logOnly) = runner.Run(records);
-        Assert.NotEmpty(proposals);
-        Assert.Contains(logOnly, r => r.CanonicalId.Contains("low", StringComparison.OrdinalIgnoreCase) || r.RelevanceScore < 0.65);
+        Assert.That(proposals, Is.Not.Empty);
+        Assert.That(logOnly.Any(r => r.CanonicalId.Contains("low", StringComparison.OrdinalIgnoreCase) || r.RelevanceScore < 0.65), Is.True);
     }
 
-    [Fact]
+    [Test]
     public void OsintRunner_Proposals_MapAndProposeViaWriteGate_ApproveCommitsVisibleToReader()
     {
         var dbPath = Path.Combine(Path.GetTempPath(), $"aegis-osint-e2e-{Guid.NewGuid():N}.db");
@@ -79,12 +82,12 @@ public sealed class OsintDigestRunnerTests
             {
                 var batchId = gate.ProposeSensorBatch(bindings, "osint-digest", "s19-test");
                 var decision = gate.ApproveBatch(batchId, "human", "s19-reviewer");
-                Assert.True(decision.Committed);
+                Assert.That(decision.Committed, Is.True);
             }
 
             using var reader = new SqliteCatalogReader(dbPath, "osint-e2e");
             var anyVisible = bindings.Any(b => reader.TryGetBasePd(b.PlatformId, b.SensorId, out _));
-            Assert.True(anyVisible, "At least one OSINT-derived sensor should be committed and readable");
+            Assert.That(anyVisible, Is.True, "At least one OSINT-derived sensor should be committed and readable");
         }
         finally
         {
@@ -103,7 +106,7 @@ public sealed class OsintDigestRunnerTests
         }
     }
 
-    [Fact]
+    [Test]
     public void RunFromDigestFile_stages_proposals_via_write_gate_without_commit()
     {
         var digestPath = OsintDigestRunner.ResolveFixtureDigestPath();
@@ -116,21 +119,21 @@ public sealed class OsintDigestRunnerTests
                 digestPath,
                 clock: new FixedCatalogClock(42));
 
-            Assert.Equal(5, result.ParsedTotal);
-            Assert.Equal(3, result.ProposalCount);
-            Assert.Equal(1, result.LogOnlyCount);
-            Assert.NotNull(result.BatchId);
+            Assert.That(result.ParsedTotal, Is.EqualTo(5));
+            Assert.That(result.ProposalCount, Is.EqualTo(3));
+            Assert.That(result.LogOnlyCount, Is.EqualTo(1));
+            Assert.That(result.BatchId, Is.Not.Null);
 
             using var gate = new CatalogWriteGate(dbPath, new FixedCatalogClock(43));
             var pending = gate.ListPendingBatches();
-            Assert.Single(pending);
-            Assert.Equal(result.BatchId, pending[0].BatchId);
-            Assert.Equal(3, pending[0].RecordCount);
+            Assert.That(pending, Has.Exactly(1).Items);
+            Assert.That(pending[0].BatchId, Is.EqualTo(result.BatchId));
+            Assert.That(pending[0].RecordCount, Is.EqualTo(3));
 
             using var reader = new SqliteCatalogReader(dbPath, "osint-staging");
-            Assert.False(reader.TryGetBasePd("u-hypersonic", "radar-glide", out _));
-            Assert.False(reader.TryGetBasePd("speculative-rail-c", "speculative-rail-c", out _));
-            Assert.False(reader.TryGetBasePd("dedupe-target", "dedupe-target", out _));
+            Assert.That(reader.TryGetBasePd("u-hypersonic", "radar-glide", out _), Is.False);
+            Assert.That(reader.TryGetBasePd("speculative-rail-c", "speculative-rail-c", out _), Is.False);
+            Assert.That(reader.TryGetBasePd("dedupe-target", "dedupe-target", out _), Is.False);
         }
         finally
         {
@@ -142,7 +145,7 @@ public sealed class OsintDigestRunnerTests
         }
     }
 
-    [Fact]
+    [Test]
     public void RunFromDigestFile_empty_digest_skips_write_gate()
     {
         var digestPath = WriteDigest(
@@ -160,11 +163,11 @@ public sealed class OsintDigestRunnerTests
                 digestPath,
                 clock: new FixedCatalogClock(1));
 
-            Assert.Equal(0, result.ParsedTotal);
-            Assert.Equal(0, result.ProposalCount);
-            Assert.Equal(0, result.LogOnlyCount);
-            Assert.Null(result.BatchId);
-            Assert.False(File.Exists(dbPath));
+            Assert.That(result.ParsedTotal, Is.EqualTo(0));
+            Assert.That(result.ProposalCount, Is.EqualTo(0));
+            Assert.That(result.LogOnlyCount, Is.EqualTo(0));
+            Assert.That(result.BatchId, Is.Null);
+            Assert.That(File.Exists(dbPath), Is.False);
         }
         finally
         {
@@ -175,7 +178,7 @@ public sealed class OsintDigestRunnerTests
         }
     }
 
-    [Fact]
+    [Test]
     public void RunFromDigestFile_all_below_threshold_is_log_only_without_write_gate()
     {
         var digestPath = WriteDigest(
@@ -210,11 +213,11 @@ public sealed class OsintDigestRunnerTests
                 digestPath,
                 clock: new FixedCatalogClock(2));
 
-            Assert.Equal(2, result.ParsedTotal);
-            Assert.Equal(0, result.ProposalCount);
-            Assert.Equal(2, result.LogOnlyCount);
-            Assert.Null(result.BatchId);
-            Assert.False(File.Exists(dbPath));
+            Assert.That(result.ParsedTotal, Is.EqualTo(2));
+            Assert.That(result.ProposalCount, Is.EqualTo(0));
+            Assert.That(result.LogOnlyCount, Is.EqualTo(2));
+            Assert.That(result.BatchId, Is.Null);
+            Assert.That(File.Exists(dbPath), Is.False);
         }
         finally
         {
@@ -225,7 +228,7 @@ public sealed class OsintDigestRunnerTests
         }
     }
 
-    [Fact]
+    [Test]
     public void DedupeDiscoveries_keeps_higher_relevance_and_tie_breaks_source_url()
     {
         var hits = new[]
@@ -237,12 +240,12 @@ public sealed class OsintDigestRunnerTests
 
         var deduped = OsintDigestRunner.DedupeDiscoveries(hits);
 
-        Assert.Single(deduped);
-        Assert.Equal("https://example.org/m", deduped[0].SourceUrl);
-        Assert.Equal(0.8, deduped[0].RelevanceScore);
+        Assert.That(deduped, Has.Exactly(1).Items);
+        Assert.That(deduped[0].SourceUrl, Is.EqualTo("https://example.org/m"));
+        Assert.That(deduped[0].RelevanceScore, Is.EqualTo(0.8));
     }
 
-    [Fact]
+    [Test]
     public void MapProposalsToBindings_splits_canonical_id_and_maps_provenance_fields()
     {
         var proposals = new[]
@@ -265,20 +268,20 @@ public sealed class OsintDigestRunnerTests
 
         var bindings = OsintDigestRunner.MapProposalsToBindings(proposals, "osint-digest-fixture.json");
 
-        Assert.Equal(2, bindings.Length);
-        Assert.Equal("flat-id", bindings[0].PlatformId);
-        Assert.Equal("flat-id", bindings[0].SensorId);
-        Assert.Equal("u-hypersonic", bindings[1].PlatformId);
-        Assert.Equal("radar-glide", bindings[1].SensorId);
-        Assert.Equal(0.72, bindings[1].Confidence);
-        Assert.Equal(6, bindings[1].TrlLevel);
-        Assert.Equal("https://example.org/a", bindings[1].CitationRef);
-        Assert.Equal(CatalogReviewStates.Provisional, bindings[1].ReviewState);
-        Assert.Equal("osint-digest-fixture.json", bindings[0].SourceFile);
-        Assert.Equal("osint-digest-fixture.json", bindings[1].SourceFile);
+        Assert.That(bindings.Length, Is.EqualTo(2));
+        Assert.That(bindings[0].PlatformId, Is.EqualTo("flat-id"));
+        Assert.That(bindings[0].SensorId, Is.EqualTo("flat-id"));
+        Assert.That(bindings[1].PlatformId, Is.EqualTo("u-hypersonic"));
+        Assert.That(bindings[1].SensorId, Is.EqualTo("radar-glide"));
+        Assert.That(bindings[1].Confidence, Is.EqualTo(0.72));
+        Assert.That(bindings[1].TrlLevel, Is.EqualTo(6));
+        Assert.That(bindings[1].CitationRef, Is.EqualTo("https://example.org/a"));
+        Assert.That(bindings[1].ReviewState, Is.EqualTo(CatalogReviewStates.Provisional));
+        Assert.That(bindings[0].SourceFile, Is.EqualTo("osint-digest-fixture.json"));
+        Assert.That(bindings[1].SourceFile, Is.EqualTo("osint-digest-fixture.json"));
     }
 
-    [Fact]
+    [Test]
     public void RunFromDigestFile_preserves_deterministic_proposal_ordering()
     {
         var digestPath = WriteDigest(
@@ -320,13 +323,13 @@ public sealed class OsintDigestRunnerTests
                 ORDER BY platform_id ASC, sensor_id ASC
                 """;
             using var reader = cmd.ExecuteReader();
-            Assert.True(reader.Read());
-            Assert.Equal("a-first", reader.GetString(0));
-            Assert.Equal("a-first", reader.GetString(1));
-            Assert.True(reader.Read());
-            Assert.Equal("z-last", reader.GetString(0));
-            Assert.Equal("z-last", reader.GetString(1));
-            Assert.False(reader.Read());
+            Assert.That(reader.Read(), Is.True);
+            Assert.That(reader.GetString(0), Is.EqualTo("a-first"));
+            Assert.That(reader.GetString(1), Is.EqualTo("a-first"));
+            Assert.That(reader.Read(), Is.True);
+            Assert.That(reader.GetString(0), Is.EqualTo("z-last"));
+            Assert.That(reader.GetString(1), Is.EqualTo("z-last"));
+            Assert.That(reader.Read(), Is.False);
         }
         finally
         {
@@ -343,10 +346,10 @@ public sealed class OsintDigestRunnerTests
         }
     }
 
-    [Fact]
+    [Test]
     public void EnableRealtimeSocialStream_remains_false_for_mvp()
     {
-        Assert.False(OsintDigestRunner.EnableRealtimeSocialStream);
+        Assert.That(OsintDigestRunner.EnableRealtimeSocialStream, Is.False);
     }
 
     private static string WriteDigest(string json)

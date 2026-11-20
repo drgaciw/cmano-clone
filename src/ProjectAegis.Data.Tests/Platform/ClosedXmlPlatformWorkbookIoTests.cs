@@ -2,7 +2,7 @@ using ProjectAegis.Data.Catalog;
 using ProjectAegis.Data.Excel;
 using ProjectAegis.Data.Platform;
 using ProjectAegis.Data.WriteGate;
-using Xunit;
+using NUnit.Framework;
 
 namespace ProjectAegis.Data.Tests.Platform;
 
@@ -47,7 +47,7 @@ public sealed class ClosedXmlPlatformWorkbookIoTests
     private static PlatformWorkbook Export(PlatformCatalogExportData data) =>
         new PlatformWorkbookExporter().Export(data, SnapshotId, new FixedCatalogClock(utcTicks: 0));
 
-    [Fact]
+    [Test]
     public void ClosedXml_unedited_round_trip_yields_empty_diff()
     {
         var original = Export(SampleData());
@@ -56,10 +56,10 @@ public sealed class ClosedXmlPlatformWorkbookIoTests
         {
             var io = new ClosedXmlPlatformWorkbookIo();
             io.Write(original, path);
-            Assert.True(IsZipArchive(path), "export must emit a binary .xlsx (ZIP) workbook");
+            Assert.That(IsZipArchive(path), Is.True, "export must emit a binary .xlsx (ZIP) workbook");
 
             var roundTripped = io.Read(path);
-            Assert.True(PlatformWorkbookDiff.IsEmpty(original, roundTripped));
+            Assert.That(PlatformWorkbookDiff.IsEmpty(original, roundTripped), Is.True);
         }
         finally
         {
@@ -70,7 +70,7 @@ public sealed class ClosedXmlPlatformWorkbookIoTests
         }
     }
 
-    [Fact]
+    [Test]
     public void ClosedXml_meta_snapshot_and_workbook_hash_survive_binary_round_trip()
     {
         var original = Export(SampleData());
@@ -81,11 +81,11 @@ public sealed class ClosedXmlPlatformWorkbookIoTests
             io.Write(original, path);
             var roundTripped = io.Read(path);
             var meta = roundTripped.FindSheet(PlatformWorkbookHash.MetaSheetName);
-            Assert.NotNull(meta);
+            Assert.That(meta, Is.Not.Null);
 
-            Assert.Equal(SnapshotId, MetaValue(meta, "SourceSnapshotId"));
-            Assert.Equal(PlatformWorkbookExporter.SchemaVersion, MetaValue(meta, "SchemaVersion"));
-            Assert.Equal(PlatformWorkbookHash.Compute(original), MetaValue(meta, "WorkbookHash"));
+            Assert.That(MetaValue(meta!, "SourceSnapshotId"), Is.EqualTo(SnapshotId));
+            Assert.That(MetaValue(meta!, "SchemaVersion"), Is.EqualTo(PlatformWorkbookExporter.SchemaVersion));
+            Assert.That(MetaValue(meta!, "WorkbookHash"), Is.EqualTo(PlatformWorkbookHash.Compute(original)));
         }
         finally
         {
@@ -96,7 +96,7 @@ public sealed class ClosedXmlPlatformWorkbookIoTests
         }
     }
 
-    [Fact]
+    [Test]
     public void ClosedXml_text_format_prevents_numeric_coercion()
     {
         var workbook = Export(SampleData());
@@ -107,10 +107,10 @@ public sealed class ClosedXmlPlatformWorkbookIoTests
             io.Write(workbook, path);
             var roundTripped = io.Read(path);
             var platforms = roundTripped.FindSheet("Platforms");
-            Assert.NotNull(platforms);
-            var row = Assert.Single(platforms.Rows, r => r.Count > 0 && r[0] == "u1");
-            Assert.Equal("57", row[1]);
-            Assert.Equal("20", row[2]);
+            Assert.That(platforms, Is.Not.Null);
+            var row = ProjectAegis.Data.Tests.AssertEx.Single(platforms!.Rows, r => r.Count > 0 && r[0] == "u1");
+            Assert.That(row[1], Is.EqualTo("57"));
+            Assert.That(row[2], Is.EqualTo("20"));
         }
         finally
         {
@@ -121,7 +121,7 @@ public sealed class ClosedXmlPlatformWorkbookIoTests
         }
     }
 
-    [Fact]
+    [Test]
     public void ClosedXml_and_canonical_produce_same_logical_diff_for_edited_workbook()
     {
         var original = Export(SampleData());
@@ -148,8 +148,8 @@ public sealed class ClosedXmlPlatformWorkbookIoTests
             var canonicalChanges = PlatformWorkbookDiff.Compare(original, canonicalRoundTrip);
             var closedXmlChanges = PlatformWorkbookDiff.Compare(original, closedXmlRoundTrip);
 
-            Assert.Equal(canonicalChanges.Count, closedXmlChanges.Count);
-            Assert.Equal(canonicalChanges, closedXmlChanges);
+            Assert.That(closedXmlChanges.Count, Is.EqualTo(canonicalChanges.Count));
+            Assert.That(closedXmlChanges, Is.EqualTo(canonicalChanges));
         }
         finally
         {
@@ -165,18 +165,18 @@ public sealed class ClosedXmlPlatformWorkbookIoTests
         }
     }
 
-    [Fact]
+    [Test]
     public void IoSelection_defaults_to_closedxml_for_xlsx_paths()
     {
         var io = PlatformWorkbookIoSelection.Resolve("export.xlsx", ioFlag: null, PlatformWorkbookIoFactories.ClosedXml);
-        Assert.IsType<ClosedXmlPlatformWorkbookIo>(io);
+        Assert.That(io, Is.TypeOf<ClosedXmlPlatformWorkbookIo>());
     }
 
-    [Fact]
+    [Test]
     public void IoSelection_canonical_flag_uses_text_adapter()
     {
         var io = PlatformWorkbookIoSelection.Resolve("export.xlsx", PlatformWorkbookIoSelection.CanonicalFlag, PlatformWorkbookIoFactories.ClosedXml);
-        Assert.IsType<CanonicalTextWorkbookIo>(io);
+        Assert.That(io, Is.TypeOf<CanonicalTextWorkbookIo>());
     }
 
     private static string MetaValue(PlatformWorkbookSheet meta, string key)

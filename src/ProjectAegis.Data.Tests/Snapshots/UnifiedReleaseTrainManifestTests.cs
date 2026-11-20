@@ -6,17 +6,17 @@ using ProjectAegis.Data.Scenario.Authoring;
 using ProjectAegis.Data.Snapshots;
 using ProjectAegis.Data.Validation;
 using ProjectAegis.Data.WriteGate;
-using Xunit;
+using NUnit.Framework;
 
 namespace ProjectAegis.Data.Tests.Snapshots;
 
-[Collection("CatalogSqlite")]
+[ProjectAegis.Data.Tests.Runner.CatalogSqliteCollection]
 public sealed class UnifiedReleaseTrainManifestTests
 {
     private static readonly ScenarioValidationEngine Engine = new();
     private static readonly ValidationConfig Config = new();
 
-    [Fact]
+    [Test]
     public void RecordUnifiedRelease_consolidates_sorted_domain_rows_with_stable_hash()
     {
         var dbPath = Path.Combine(Path.GetTempPath(), $"aegis-unified-manifest-{Guid.NewGuid():N}.db");
@@ -46,19 +46,19 @@ public sealed class UnifiedReleaseTrainManifestTests
                     createdUtcTicks: 9002);
             }
 
-            Assert.Equal(unifiedVersion, first.ReleaseVersion);
-            Assert.Equal(CatalogTlTier.Tl0, first.TlTier);
-            Assert.Equal(["platform", "sensor"], first.DomainDrops.Select(d => d.Domain).ToArray());
-            Assert.Matches("^[a-f0-9]{64}$", first.ContentHashSha256);
-            Assert.Equal(first.ContentHashSha256, second.ContentHashSha256);
+            Assert.That(first.ReleaseVersion, Is.EqualTo(unifiedVersion));
+            Assert.That(first.TlTier, Is.EqualTo(CatalogTlTier.Tl0));
+            Assert.That(first.DomainDrops.Select(d => d.Domain).ToArray(), Is.EqualTo(["platform", "sensor"]));
+            Assert.That(first.ContentHashSha256, Does.Match("^[a-f0-9]{64}$"));
+            Assert.That(second.ContentHashSha256, Is.EqualTo(first.ContentHashSha256));
 
             using (var store = new DbSnapshotStore(dbPath))
             {
-                Assert.True(store.TryGetUnifiedManifest(unifiedVersion, out var loaded));
-                Assert.Equal(first.ContentHashSha256, loaded.ContentHashSha256);
-                Assert.Equal(2, loaded.DomainDrops.Count);
-                Assert.True(store.TryResolveReleaseVersion(unifiedVersion, out var snapshotId));
-                Assert.Equal(CatalogValidationDefaults.BalticSnapshotId, snapshotId);
+                Assert.That(store.TryGetUnifiedManifest(unifiedVersion, out var loaded), Is.True);
+                Assert.That(loaded.ContentHashSha256, Is.EqualTo(first.ContentHashSha256));
+                Assert.That(loaded.DomainDrops.Count, Is.EqualTo(2));
+                Assert.That(store.TryResolveReleaseVersion(unifiedVersion, out var snapshotId), Is.True);
+                Assert.That(snapshotId, Is.EqualTo(CatalogValidationDefaults.BalticSnapshotId));
             }
         }
         finally
@@ -67,7 +67,7 @@ public sealed class UnifiedReleaseTrainManifestTests
         }
     }
 
-    [Fact]
+    [Test]
     public void Manifest_hash_is_order_independent_for_domain_drops()
     {
         var dropsA = new[]
@@ -77,12 +77,10 @@ public sealed class UnifiedReleaseTrainManifestTests
         };
         var dropsB = dropsA.Reverse().ToArray();
 
-        Assert.Equal(
-            UnifiedReleaseTrainManifest.ComputeManifestHash(dropsA),
-            UnifiedReleaseTrainManifest.ComputeManifestHash(dropsB));
+        Assert.That(            UnifiedReleaseTrainManifest.ComputeManifestHash(dropsB), Is.EqualTo(            UnifiedReleaseTrainManifest.ComputeManifestHash(dropsA)));
     }
 
-    [Fact]
+    [Test]
     public void Scenario_validate_resolves_manifest_backed_dbRef_at_load()
     {
         var dbPath = Path.Combine(Path.GetTempPath(), $"aegis-unified-dbref-{Guid.NewGuid():N}.db");
@@ -127,12 +125,12 @@ public sealed class UnifiedReleaseTrainManifestTests
             };
 
             var report = Engine.Validate(scenario, catalog, Config);
-            Assert.DoesNotContain(report.Findings, f => f.Code == "DB_MISMATCH");
-            Assert.DoesNotContain(report.Findings, f => f.Code.StartsWith("TL_RELEASE_TRAIN_", StringComparison.Ordinal));
+            Assert.That(report.Findings.Any(f => f.Code == "DB_MISMATCH"), Is.False);
+            Assert.That(report.Findings.Any(f => f.Code.StartsWith("TL_RELEASE_TRAIN_", StringComparison.Ordinal)), Is.False);
 
             var package = ScenarioPackage.FromDocument("unified-dbref", scenario, catalog);
-            Assert.Equal(CatalogValidationDefaults.BalticSnapshotId, package.DbSnapshotId);
-            Assert.Equal(unifiedVersion, package.DbRef);
+            Assert.That(package.DbSnapshotId, Is.EqualTo(CatalogValidationDefaults.BalticSnapshotId));
+            Assert.That(package.DbRef, Is.EqualTo(unifiedVersion));
         }
         finally
         {
@@ -140,7 +138,7 @@ public sealed class UnifiedReleaseTrainManifestTests
         }
     }
 
-    [Fact]
+    [Test]
     public void TlBranch_resolution_prefers_unified_manifest_dbRef_when_present()
     {
         var dbPath = Path.Combine(Path.GetTempPath(), $"aegis-unified-tlbranch-{Guid.NewGuid():N}.db");
@@ -160,9 +158,9 @@ public sealed class UnifiedReleaseTrainManifestTests
             }
 
             using var catalog = new SqliteCatalogReader(dbPath, "unified-manifest-tlbranch");
-            Assert.True(catalog.TryResolveSnapshotForTlBranch(CatalogTlTier.Tl0, out var snapshotId, out var dbRef));
-            Assert.Equal(CatalogValidationDefaults.BalticSnapshotId, snapshotId);
-            Assert.Equal(unifiedVersion, dbRef);
+            Assert.That(catalog.TryResolveSnapshotForTlBranch(CatalogTlTier.Tl0, out var snapshotId, out var dbRef), Is.True);
+            Assert.That(snapshotId, Is.EqualTo(CatalogValidationDefaults.BalticSnapshotId));
+            Assert.That(dbRef, Is.EqualTo(unifiedVersion));
         }
         finally
         {
@@ -170,7 +168,7 @@ public sealed class UnifiedReleaseTrainManifestTests
         }
     }
 
-    [Fact]
+    [Test]
     public void CatalogExportManifest_resolves_unified_manifest_fields()
     {
         var dbPath = Path.Combine(Path.GetTempPath(), $"aegis-unified-export-{Guid.NewGuid():N}.db");
@@ -190,9 +188,9 @@ public sealed class UnifiedReleaseTrainManifestTests
             }
 
             var manifest = CatalogExportManifest.Resolve(dbPath, bind.SnapshotId, unifiedVersion);
-            Assert.Equal(unifiedVersion, manifest.DbVersion);
-            Assert.Equal(CatalogTlTier.Tl0, manifest.TlTier);
-            Assert.Matches("^[a-f0-9]{64}$", manifest.ContentHash);
+            Assert.That(manifest.DbVersion, Is.EqualTo(unifiedVersion));
+            Assert.That(manifest.TlTier, Is.EqualTo(CatalogTlTier.Tl0));
+            Assert.That(manifest.ContentHash, Does.Match("^[a-f0-9]{64}$"));
         }
         finally
         {
@@ -207,7 +205,7 @@ public sealed class UnifiedReleaseTrainManifestTests
     // GitNexus impact pre-edit confirmed LOW on edited manifest symbols; tests only (no CRIT symbols touched).
     // Pre-verif: dotnet test affected + full sln green (1229/0f); post will re-run + READ.
 
-    [Fact]
+    [Test]
     public void RecordUnifiedRelease_supports_baltic_v2_domain_drops_with_stable_content_hash()
     {
         // Arrange: v2-named domain releases (parse-safe as 'nightly-*-v2-*' -> domain from first post-nightly segment)
@@ -239,17 +237,17 @@ public sealed class UnifiedReleaseTrainManifestTests
             }
 
             // Act + Assert (manifest-level roundtrips and hash stability; these manifest tests do not drive full ScenarioDocumentDto validation like some older tests) [cite: S65 review + production/release-train-scope-boundary-2026-06-24.md + roadmap-062426.md §10]
-            Assert.Equal(unifiedVersion, first.ReleaseVersion);
-            Assert.Equal(CatalogTlTier.Tl0, first.TlTier);
-            Assert.Equal(["platform", "sensor"], first.DomainDrops.Select(d => d.Domain).ToArray());
-            Assert.Matches("^[a-f0-9]{64}$", first.ContentHashSha256);
-            Assert.Equal(first.ContentHashSha256, second.ContentHashSha256);  // order independent stable hash
+            Assert.That(first.ReleaseVersion, Is.EqualTo(unifiedVersion));
+            Assert.That(first.TlTier, Is.EqualTo(CatalogTlTier.Tl0));
+            Assert.That(first.DomainDrops.Select(d => d.Domain).ToArray(), Is.EqualTo(["platform", "sensor"]));
+            Assert.That(first.ContentHashSha256, Does.Match("^[a-f0-9]{64}$"));
+            Assert.That(second.ContentHashSha256, Is.EqualTo(first.ContentHashSha256));  // order independent stable hash
 
             using (var store = new DbSnapshotStore(dbPath))
             {
-                Assert.True(store.TryGetUnifiedManifest(unifiedVersion, out var loaded));
-                Assert.Equal(first.ContentHashSha256, loaded.ContentHashSha256);
-                Assert.Equal(2, loaded.DomainDrops.Count);
+                Assert.That(store.TryGetUnifiedManifest(unifiedVersion, out var loaded), Is.True);
+                Assert.That(loaded.ContentHashSha256, Is.EqualTo(first.ContentHashSha256));
+                Assert.That(loaded.DomainDrops.Count, Is.EqualTo(2));
             }
         }
         finally
@@ -258,7 +256,7 @@ public sealed class UnifiedReleaseTrainManifestTests
         }
     }
 
-    [Fact]
+    [Test]
     public void Manifest_v2_scenario_refs_resolve_stable_hash_and_notes_roundtrip()
     {
         // Arrange: unified for v2 scenario (refs baltic-v2-patrol etc from S64 goldens corpus)
@@ -285,11 +283,11 @@ public sealed class UnifiedReleaseTrainManifestTests
             var parsedOk = UnifiedReleaseTrainManifest.TryParseFromNotes(notes, unifiedVersion, out var roundtrip);
 
             // Assert
-            Assert.StartsWith(UnifiedReleaseTrainManifest.NotesPrefix, notes, StringComparison.Ordinal);
-            Assert.True(parsedOk);
-            Assert.Equal(manifest.ContentHashSha256, roundtrip.ContentHashSha256);
-            Assert.Equal("sensor", roundtrip.DomainDrops.Single().Domain);
-            Assert.Contains("baltic-v2", roundtrip.DomainDrops.Single().ReleaseVersion, StringComparison.Ordinal);
+            Assert.That(notes, Does.StartWith(UnifiedReleaseTrainManifest.NotesPrefix));
+            Assert.That(parsedOk, Is.True);
+            Assert.That(roundtrip.ContentHashSha256, Is.EqualTo(manifest.ContentHashSha256));
+            Assert.That(roundtrip.DomainDrops.Single().Domain, Is.EqualTo("sensor"));
+            Assert.That(roundtrip.DomainDrops.Single().ReleaseVersion, Does.Contain("baltic-v2"));
         }
         finally
         {
@@ -297,7 +295,7 @@ public sealed class UnifiedReleaseTrainManifestTests
         }
     }
 
-    [Fact]
+    [Test]
     public void V2_domain_drops_hash_is_order_independent_like_v1()
     {
         // Covers v2 corpus domain hash stability (aligns with S64 v2 goldens determinism)
@@ -308,9 +306,7 @@ public sealed class UnifiedReleaseTrainManifestTests
         };
         var dropsV2b = dropsV2a.Reverse().ToArray();
 
-        Assert.Equal(
-            UnifiedReleaseTrainManifest.ComputeManifestHash(dropsV2a),
-            UnifiedReleaseTrainManifest.ComputeManifestHash(dropsV2b));
+        Assert.That(            UnifiedReleaseTrainManifest.ComputeManifestHash(dropsV2b), Is.EqualTo(            UnifiedReleaseTrainManifest.ComputeManifestHash(dropsV2a)));
     }
 
     private static CatalogSnapshotBinder.BindResult SeedDomainRelease(
@@ -327,7 +323,7 @@ public sealed class UnifiedReleaseTrainManifestTests
 
         using (var gate = new CatalogWriteGate(dbPath, new FixedCatalogClock(8001)))
         {
-            Assert.True(gate.ApproveBatch(propose.Batches[0].BatchId, "human", "unified-manifest-test").Committed);
+            Assert.That(gate.ApproveBatch(propose.Batches[0].BatchId, "human", "unified-manifest-test").Committed, Is.True);
         }
 
         return CatalogSnapshotBinder.BindAfterApprove(

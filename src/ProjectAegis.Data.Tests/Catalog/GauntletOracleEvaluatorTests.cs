@@ -1,5 +1,5 @@
 using ProjectAegis.Data.Catalog;
-using Xunit;
+using NUnit.Framework;
 
 namespace ProjectAegis.Data.Tests.Catalog;
 
@@ -29,15 +29,15 @@ public sealed class GauntletOracleEvaluatorTests
         gauntlet-t1-patrol-a,42,BLUE,100,1,1,0,PolicyUpdate|1|ContactChange|u1|hostile-1
         """;
 
-    [Fact]
+    [Test]
     public void EvaluateFromPolicyAndCsv_pass_when_row_within_expect_bounds()
     {
         var result = GauntletOracleEvaluator.EvaluateFromPolicyAndCsv(PassPolicy, PassCsv);
-        Assert.True(result.Passed, string.Join("; ", result.Failures));
-        Assert.Empty(result.Failures);
+        Assert.That(result.Passed, Is.True, string.Join("; ", result.Failures));
+        Assert.That(result.Failures, Is.Empty);
     }
 
-    [Fact]
+    [Test]
     public void EvaluateFromPolicyAndCsv_fail_closed_when_missiles_exceed_max()
     {
         var policy = """
@@ -53,11 +53,11 @@ public sealed class GauntletOracleEvaluatorTests
             x,42,BLUE,100,1,1,0,fp-nonempty
             """;
         var result = GauntletOracleEvaluator.EvaluateFromPolicyAndCsv(policy, csv);
-        Assert.False(result.Passed);
-        Assert.Contains(result.Failures, f => f.Contains("missilesFired", StringComparison.Ordinal));
+        Assert.That(result.Passed, Is.False);
+        Assert.That(result.Failures.Any(f => f.Contains("missilesFired", StringComparison.Ordinal)), Is.True);
     }
 
-    [Fact]
+    [Test]
     public void EvaluateFromPolicyAndCsv_fail_closed_on_empty_fingerprint()
     {
         var policy = """
@@ -73,20 +73,20 @@ public sealed class GauntletOracleEvaluatorTests
             x,42,BLUE,0,0,0,0,
             """;
         var result = GauntletOracleEvaluator.EvaluateFromPolicyAndCsv(policy, csv);
-        Assert.False(result.Passed);
-        Assert.Contains(result.Failures, f => f.Contains("empty fingerprint", StringComparison.Ordinal));
+        Assert.That(result.Passed, Is.False);
+        Assert.That(result.Failures.Any(f => f.Contains("empty fingerprint", StringComparison.Ordinal)), Is.True);
     }
 
-    [Fact]
+    [Test]
     public void EvaluateFromPolicyAndCsv_fail_when_expect_missing()
     {
         var policy = """{ "id": "x", "gauntlet": { "intent": "only" } }""";
         var result = GauntletOracleEvaluator.EvaluateFromPolicyAndCsv(policy, PassCsv);
-        Assert.False(result.Passed);
-        Assert.Contains(result.Failures, f => f.Contains("missing gauntlet.expect", StringComparison.Ordinal));
+        Assert.That(result.Passed, Is.False);
+        Assert.That(result.Failures.Any(f => f.Contains("missing gauntlet.expect", StringComparison.Ordinal)), Is.True);
     }
 
-    [Fact]
+    [Test]
     public void EvaluateFromPolicyAndCsv_fail_when_required_fingerprint_substring_missing()
     {
         var policy = """
@@ -105,11 +105,11 @@ public sealed class GauntletOracleEvaluatorTests
             inject,42,BLUE,0,0,0,0,EventFired|1|0|0|inject-marker|ladder_seeded_inject
             """;
         var result = GauntletOracleEvaluator.EvaluateFromPolicyAndCsv(policy, csv);
-        Assert.False(result.Passed);
-        Assert.Contains(result.Failures, f => f.Contains("CommsStateChange", StringComparison.Ordinal));
+        Assert.That(result.Passed, Is.False);
+        Assert.That(result.Failures.Any(f => f.Contains("CommsStateChange", StringComparison.Ordinal)), Is.True);
     }
 
-    [Fact]
+    [Test]
     public void EvaluateFromPolicyAndCsv_fail_when_required_true_launched_shooter_missing()
     {
         var policy = """
@@ -129,12 +129,12 @@ public sealed class GauntletOracleEvaluatorTests
             md,42,BLUE,100,1,2,0,Engagement|1|1|1|k-31-visby-2009|1|True|Launched EngagementOutcome|2|1|1|1|em-sovremenny-i-pr-956-sarych|Kill|0.1
             """;
         var result = GauntletOracleEvaluator.EvaluateFromPolicyAndCsv(policy, csv);
-        Assert.False(result.Passed);
-        Assert.Contains(result.Failures, f => f.Contains("jas-39c-gripen-2005", StringComparison.Ordinal));
-        Assert.Contains(result.Failures, f => f.Contains("a-19-gotland-2022", StringComparison.Ordinal));
+        Assert.That(result.Passed, Is.False);
+        Assert.That(result.Failures.Any(f => f.Contains("jas-39c-gripen-2005", StringComparison.Ordinal)), Is.True);
+        Assert.That(result.Failures.Any(f => f.Contains("a-19-gotland-2022", StringComparison.Ordinal)), Is.True);
     }
 
-    [Fact]
+    [Test]
     public void EvaluateFromPolicyAndCsv_pass_when_inject_and_multidomain_tokens_present()
     {
         var policy = """
@@ -154,10 +154,10 @@ public sealed class GauntletOracleEvaluatorTests
             ok,42,BLUE,50,1,4,0,CommsStateChange|38|2|2|net|Nominal|Degraded|seeded Engagement|25|1|1|jas-39c-gripen-2005|1|True|Launched Engagement|28|1|1|a-19-gotland-2022|2|True|Launched
             """;
         var result = GauntletOracleEvaluator.EvaluateFromPolicyAndCsv(policy, csv);
-        Assert.True(result.Passed, string.Join("; ", result.Failures));
+        Assert.That(result.Passed, Is.True, string.Join("; ", result.Failures));
     }
 
-    [Fact]
+    [Test]
     public void EvaluateFromPolicyAndCsv_default_profile_uses_ladder_expect_not_expectCi()
     {
         // Ladder authority: denials ~80 / negative score at T5@40 must pass expect,
@@ -196,14 +196,14 @@ public sealed class GauntletOracleEvaluatorTests
             gauntlet-t5-roe-change,42,BLUE,-200,2,4,80,CommsStateChange|3|3|3|net|Nominal|Degraded|roe
             """;
         var ladder = GauntletOracleEvaluator.EvaluateFromPolicyAndCsv(policy, ladderCsv);
-        Assert.True(ladder.Passed, string.Join("; ", ladder.Failures));
+        Assert.That(ladder.Passed, Is.True, string.Join("; ", ladder.Failures));
 
         // Same rows against CI profile must fail (wrong tick budget)
         var ciOnLadder = GauntletOracleEvaluator.EvaluateFromPolicyAndCsv(policy, ladderCsv, profile: "ci");
-        Assert.False(ciOnLadder.Passed);
+        Assert.That(ciOnLadder.Passed, Is.False);
     }
 
-    [Fact]
+    [Test]
     public void EvaluateFromPolicyAndCsv_ci_profile_uses_expectCi()
     {
         var policy = """
@@ -236,13 +236,13 @@ public sealed class GauntletOracleEvaluatorTests
             gauntlet-t5-roe-change,42,BLUE,100,2,4,20,CommsStateChange|3|3|3|net|Nominal|Degraded|roe
             """;
         var defaultWouldFail = GauntletOracleEvaluator.EvaluateFromPolicyAndCsv(policy, ciCsv);
-        Assert.False(defaultWouldFail.Passed, "ladder expect must reject CI-tick numerics");
+        Assert.That(defaultWouldFail.Passed, Is.False, "ladder expect must reject CI-tick numerics");
 
         var ci = GauntletOracleEvaluator.EvaluateFromPolicyAndCsv(policy, ciCsv, profile: "ci");
-        Assert.True(ci.Passed, string.Join("; ", ci.Failures));
+        Assert.That(ci.Passed, Is.True, string.Join("; ", ci.Failures));
     }
 
-    [Fact]
+    [Test]
     public void EvaluateFromPolicyAndCsv_ci_profile_fails_closed_when_expectCi_absent()
     {
         var policy = """
@@ -261,11 +261,11 @@ public sealed class GauntletOracleEvaluatorTests
             x,42,BLUE,0,1,0,0,fp
             """;
         var result = GauntletOracleEvaluator.EvaluateFromPolicyAndCsv(policy, csv, profile: "ci");
-        Assert.False(result.Passed);
-        Assert.Contains(result.Failures, f => f.Contains("missing gauntlet.expectCi", StringComparison.Ordinal));
+        Assert.That(result.Passed, Is.False);
+        Assert.That(result.Failures.Any(f => f.Contains("missing gauntlet.expectCi", StringComparison.Ordinal)), Is.True);
     }
 
-    [Fact]
+    [Test]
     public void EvaluateFromPolicyAndCsv_unknown_gauntlet_key_fails_closed_without_cli()
     {
         var policy = """
@@ -286,11 +286,11 @@ public sealed class GauntletOracleEvaluatorTests
             }
             """;
         var result = GauntletOracleEvaluator.EvaluateFromPolicyAndCsv(policy, PassCsv);
-        Assert.False(result.Passed);
-        Assert.Contains(result.Failures, f => f.Contains("emconPhases", StringComparison.Ordinal));
+        Assert.That(result.Passed, Is.False);
+        Assert.That(result.Failures.Any(f => f.Contains("emconPhases", StringComparison.Ordinal)), Is.True);
     }
 
-    [Fact]
+    [Test]
     public void EvaluateFromPolicyAndCsv_legacy_emcon_fails_oracle()
     {
         var policy = """
@@ -311,7 +311,7 @@ public sealed class GauntletOracleEvaluatorTests
             }
             """;
         var result = GauntletOracleEvaluator.EvaluateFromPolicyAndCsv(policy, PassCsv);
-        Assert.False(result.Passed);
-        Assert.Contains(result.Failures, f => f.Contains("emcon", StringComparison.Ordinal));
+        Assert.That(result.Passed, Is.False);
+        Assert.That(result.Failures.Any(f => f.Contains("emcon", StringComparison.Ordinal)), Is.True);
     }
 }

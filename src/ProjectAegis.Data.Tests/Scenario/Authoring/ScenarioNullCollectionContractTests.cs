@@ -1,5 +1,5 @@
 using ProjectAegis.Data.Scenario.Authoring;
-using Xunit;
+using NUnit.Framework;
 
 namespace ProjectAegis.Data.Tests.Scenario.Authoring;
 
@@ -8,7 +8,7 @@ namespace ProjectAegis.Data.Tests.Scenario.Authoring;
 /// </summary>
 public sealed class ScenarioNullCollectionContractTests
 {
-    [Fact]
+    [Test]
     public void Load_stores_explicit_null_conditions_and_postures_as_empty()
     {
         var path = Path.GetTempFileName();
@@ -26,7 +26,7 @@ public sealed class ScenarioNullCollectionContractTests
 
             AssertEmptyConditionsAndPostures(tolerant);
             AssertEmptyConditionsAndPostures(strict);
-            Assert.Equal("Message", strict.Events![0].Actions[0].Type);
+            Assert.That(strict.Events![0].Actions[0].Type, Is.EqualTo("Message"));
         }
         finally
         {
@@ -34,7 +34,7 @@ public sealed class ScenarioNullCollectionContractTests
         }
     }
 
-    [Fact]
+    [Test]
     public void Load_keeps_populated_conditions_and_postures()
     {
         var path = Path.GetTempFileName();
@@ -52,9 +52,9 @@ public sealed class ScenarioNullCollectionContractTests
                 """);
 
             var document = ScenarioDocumentJsonLoader.LoadFromFile(path, strict: true);
-            Assert.Equal(["defensive"], document.Sides[0].Postures);
-            Assert.Equal("UnitEntersZone", document.Events![0].Conditions[0].Type);
-            Assert.Equal("u1", document.Events[0].Conditions[0].UnitId);
+            Assert.That(document.Sides[0].Postures, Is.EqualTo(["defensive"]));
+            Assert.That(document.Events![0].Conditions[0].Type, Is.EqualTo("UnitEntersZone"));
+            Assert.That(document.Events[0].Conditions[0].UnitId, Is.EqualTo("u1"));
         }
         finally
         {
@@ -62,7 +62,7 @@ public sealed class ScenarioNullCollectionContractTests
         }
     }
 
-    [Fact]
+    [Test]
     public void Editor_deep_copy_stores_null_conditions_and_postures_as_empty()
     {
         var editor = ScenarioDocumentEditor.CreateNew();
@@ -80,22 +80,22 @@ public sealed class ScenarioNullCollectionContractTests
             Postures = null!,
         });
 
-        Assert.Empty(editor.Events[0].Conditions);
-        Assert.Equal("Message", editor.Events[0].Actions[0].Type);
+        Assert.That(editor.Events[0].Conditions, Is.Empty);
+        Assert.That(editor.Events[0].Actions[0].Type, Is.EqualTo("Message"));
         var document = editor.ToDto();
-        Assert.Empty(document.Sides[0].Postures);
+        Assert.That(document.Sides[0].Postures, Is.Empty);
         var json = ScenarioStableJsonWriter.Serialize(document);
-        Assert.Contains("\"id\": \"e1\"", json, StringComparison.Ordinal);
-        Assert.Contains("\"id\": \"blue\"", json, StringComparison.Ordinal);
+        Assert.That(json, Does.Contain("\"id\": \"e1\""));
+        Assert.That(json, Does.Contain("\"id\": \"blue\""));
     }
 
     private static void AssertEmptyConditionsAndPostures(ScenarioDocumentDto document)
     {
-        var side = Assert.Single(document.Sides);
-        Assert.NotNull(side.Postures);
-        Assert.Empty(side.Postures);
-        var evt = Assert.Single(document.Events!);
-        Assert.NotNull(evt.Conditions);
-        Assert.Empty(evt.Conditions);
+        var side = ProjectAegis.Data.Tests.AssertEx.Single(document.Sides);
+        Assert.That(side.Postures, Is.Not.Null);
+        Assert.That(side.Postures, Is.Empty);
+        var evt = ProjectAegis.Data.Tests.AssertEx.Single(document.Events!);
+        Assert.That(evt.Conditions, Is.Not.Null);
+        Assert.That(evt.Conditions, Is.Empty);
     }
 }

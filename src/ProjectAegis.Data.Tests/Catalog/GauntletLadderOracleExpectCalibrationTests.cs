@@ -1,5 +1,5 @@
 using ProjectAegis.Data.Catalog;
-using Xunit;
+using NUnit.Framework;
 
 namespace ProjectAegis.Data.Tests.Catalog;
 
@@ -10,7 +10,7 @@ namespace ProjectAegis.Data.Tests.Catalog;
 /// </summary>
 public sealed class GauntletLadderOracleExpectCalibrationTests
 {
-    [Fact]
+    [Test]
     public void T1_patrol_b_multi_seed_kills_variance_passes_expect()
     {
         // seed=7 → 2 kills, seed=123 → 1 kill under ticks=6 denser ORBAT
@@ -24,10 +24,10 @@ public sealed class GauntletLadderOracleExpectCalibrationTests
             """;
 
         var result = GauntletOracleEvaluator.EvaluateFromPolicyAndCsv(policy, csv);
-        Assert.True(result.Passed, string.Join("; ", result.Failures));
+        Assert.That(result.Passed, Is.True, string.Join("; ", result.Failures));
     }
 
-    [Fact]
+    [Test]
     public void T3_event_chain_high_score_passes_expect()
     {
         var policy = File.ReadAllText(PolicyPath("gauntlet-t3-event-chain"));
@@ -40,10 +40,10 @@ public sealed class GauntletLadderOracleExpectCalibrationTests
             """;
 
         var result = GauntletOracleEvaluator.EvaluateFromPolicyAndCsv(policy, csv);
-        Assert.True(result.Passed, string.Join("; ", result.Failures));
+        Assert.That(result.Passed, Is.True, string.Join("; ", result.Failures));
     }
 
-    [Fact]
+    [Test]
     public void T3_id_roe_weapons_tight_denial_storm_passes_expect()
     {
         // ID-required / WeaponsTight: zero kills, high denials across seeds (deterministic)
@@ -57,10 +57,10 @@ public sealed class GauntletLadderOracleExpectCalibrationTests
             """;
 
         var result = GauntletOracleEvaluator.EvaluateFromPolicyAndCsv(policy, csv);
-        Assert.True(result.Passed, string.Join("; ", result.Failures));
+        Assert.That(result.Passed, Is.True, string.Join("; ", result.Failures));
     }
 
-    [Fact]
+    [Test]
     public void T5_roe_change_long_run_denial_storm_passes_expect()
     {
         // ticks=40 denser ORBAT + WeaponsTight window → denials≈360, score≈-1700
@@ -74,10 +74,10 @@ public sealed class GauntletLadderOracleExpectCalibrationTests
             """;
 
         var result = GauntletOracleEvaluator.EvaluateFromPolicyAndCsv(policy, csv);
-        Assert.True(result.Passed, string.Join("; ", result.Failures));
+        Assert.That(result.Passed, Is.True, string.Join("; ", result.Failures));
     }
 
-    [Fact]
+    [Test]
     public void T5_roe_change_ci_profile_uses_denser_orbat_expectCi()
     {
         // CI smoke ticks=10 seed=42 after denser ORBAT: denials=90 score=-350.
@@ -90,7 +90,7 @@ public sealed class GauntletLadderOracleExpectCalibrationTests
             """;
 
         var ci = GauntletOracleEvaluator.EvaluateFromPolicyAndCsv(policy, csv, profile: "ci");
-        Assert.True(ci.Passed, string.Join("; ", ci.Failures));
+        Assert.That(ci.Passed, Is.True, string.Join("; ", ci.Failures));
     }
 
     private static string PolicyPath(string scenarioId)
@@ -107,7 +107,7 @@ public sealed class GauntletLadderOracleExpectCalibrationTests
             dir = dir.Parent;
         }
 
-        Assert.NotNull(dir);
-        return dir.FullName;
+        Assert.That(dir, Is.Not.Null);
+        return dir!.FullName;
     }
 }

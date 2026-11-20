@@ -1,12 +1,12 @@
 using ProjectAegis.Data.Scenario.Authoring;
-using Xunit;
+using NUnit.Framework;
 
 namespace ProjectAegis.Data.Tests.Scenario;
 
 /// <summary>DRG-101 / SWARM-B9: scenario editor place/configure swarm (SWARM-22).</summary>
 public sealed class SwarmScenarioPlacementTests
 {
-    [Fact]
+    [Test]
     public void Place_swarm_with_count_within_max_succeeds()
     {
         var editor = ScenarioDocumentEditor.CreateNew();
@@ -19,12 +19,12 @@ public sealed class SwarmScenarioPlacementTests
             20.0,
             droneCount: 12,
             maxDrones: 24);
-        Assert.Equal(12, unit.DroneCount);
-        Assert.Equal("usn-cec-swarm", unit.PlatformId);
-        Assert.Single(editor.ToDto().Orbat!.Units);
+        Assert.That(unit.DroneCount, Is.EqualTo(12));
+        Assert.That(unit.PlatformId, Is.EqualTo("usn-cec-swarm"));
+        Assert.That(editor.ToDto().Orbat!.Units, Has.Exactly(1).Items);
     }
 
-    [Fact]
+    [Test]
     public void Place_with_count_over_max_fails()
     {
         var editor = ScenarioDocumentEditor.CreateNew();
@@ -37,10 +37,10 @@ public sealed class SwarmScenarioPlacementTests
                 20.0,
                 droneCount: 30,
                 maxDrones: 24));
-        Assert.Contains(SwarmScenarioValidation.CountExceedsMax, ex.Message, StringComparison.Ordinal);
+        Assert.That(ex!.Message, Does.Contain(SwarmScenarioValidation.CountExceedsMax));
     }
 
-    [Fact]
+    [Test]
     public void Host_assign_persists_on_dto()
     {
         var editor = ScenarioDocumentEditor.CreateNew();
@@ -61,11 +61,11 @@ public sealed class SwarmScenarioPlacementTests
             droneCount: 8,
             hostUnitId: "host-ship",
             maxDrones: 24);
-        Assert.Equal("host-ship", swarm.HostUnitId);
-        Assert.Equal("host-ship", editor.ToDto().Orbat!.Units.Single(u => u.Id == "swarm-1").HostUnitId);
+        Assert.That(swarm.HostUnitId, Is.EqualTo("host-ship"));
+        Assert.That(editor.ToDto().Orbat!.Units.Single(u => u.Id == "swarm-1").HostUnitId, Is.EqualTo("host-ship"));
     }
 
-    [Fact]
+    [Test]
     public void Round_trip_json_preserves_DroneCount_and_HostUnitId()
     {
         var path = Path.Combine(Path.GetTempPath(), $"aegis-swarm-scenario-{Guid.NewGuid():N}.json");
@@ -94,8 +94,8 @@ public sealed class SwarmScenarioPlacementTests
 
             var loaded = ScenarioDocumentJsonLoader.LoadFromFile(path);
             var swarm = loaded.Orbat!.Units.Single(u => u.Id == "swarm-1");
-            Assert.Equal(15, swarm.DroneCount);
-            Assert.Equal("host-ship", swarm.HostUnitId);
+            Assert.That(swarm.DroneCount, Is.EqualTo(15));
+            Assert.That(swarm.HostUnitId, Is.EqualTo("host-ship"));
         }
         finally
         {
@@ -106,25 +106,25 @@ public sealed class SwarmScenarioPlacementTests
         }
     }
 
-    [Fact]
+    [Test]
     public void Missing_platform_id_fails()
     {
         var editor = ScenarioDocumentEditor.CreateNew();
         var ex = Assert.Throws<InvalidOperationException>(() =>
             editor.PlaceSwarmUnit("swarm-1", "blue", "  ", 57.0, 20.0, droneCount: 5, maxDrones: 10));
-        Assert.Contains(SwarmScenarioValidation.PlatformMissing, ex.Message, StringComparison.Ordinal);
+        Assert.That(ex!.Message, Does.Contain(SwarmScenarioValidation.PlatformMissing));
     }
 
-    [Fact]
+    [Test]
     public void Configure_updates_count()
     {
         var editor = ScenarioDocumentEditor.CreateNew();
         editor.PlaceSwarmUnit("swarm-1", "blue", "usn-cec-swarm", 57.0, 20.0, droneCount: 5, maxDrones: 20);
         editor.ConfigureSwarmUnit("swarm-1", droneCount: 10, maxDrones: 20);
-        Assert.Equal(10, editor.ToDto().Orbat!.Units[0].DroneCount);
+        Assert.That(editor.ToDto().Orbat!.Units[0].DroneCount, Is.EqualTo(10));
     }
 
-    [Fact]
+    [Test]
     public void Missing_host_fails_validation()
     {
         var editor = ScenarioDocumentEditor.CreateNew();
@@ -138,14 +138,14 @@ public sealed class SwarmScenarioPlacementTests
                 droneCount: 5,
                 hostUnitId: "no-such-host",
                 maxDrones: 20));
-        Assert.Contains(SwarmScenarioValidation.HostMissing, ex.Message, StringComparison.Ordinal);
+        Assert.That(ex!.Message, Does.Contain(SwarmScenarioValidation.HostMissing));
     }
 
-    [Fact]
+    [Test]
     public void Pure_validation_count_exceeds_max()
     {
         var r = SwarmScenarioValidation.ValidatePlacement("p", 25, 10, null, true);
-        Assert.False(r.IsValid);
-        Assert.Equal(SwarmScenarioValidation.CountExceedsMax, r.ErrorCode);
+        Assert.That(r.IsValid, Is.False);
+        Assert.That(r.ErrorCode, Is.EqualTo(SwarmScenarioValidation.CountExceedsMax));
     }
 }

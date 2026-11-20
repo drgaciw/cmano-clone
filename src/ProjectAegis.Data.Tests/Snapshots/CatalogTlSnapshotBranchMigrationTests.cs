@@ -1,13 +1,13 @@
 using Microsoft.Data.Sqlite;
 using ProjectAegis.Data.Catalog;
-using Xunit;
+using NUnit.Framework;
 
 namespace ProjectAegis.Data.Tests.Snapshots;
 
-[Collection("CatalogSqlite")]
+[ProjectAegis.Data.Tests.Runner.CatalogSqliteCollection]
 public sealed class CatalogTlSnapshotBranchMigrationTests
 {
-    [Fact]
+    [Test]
     public void Migration_010_applies_idempotently_and_defaults_existing_rows_to_tl0()
     {
         var jsonPath = CatalogJsonImporter.ResolveBalticSensorsJsonPath();
@@ -31,18 +31,18 @@ public sealed class CatalogTlSnapshotBranchMigrationTests
         }
     }
 
-    [Fact]
+    [Test]
     public void CatalogTlTier_accepts_tl0_through_tl5_only()
     {
         foreach (var tier in CatalogTlTier.All)
         {
-            Assert.True(CatalogTlTier.IsValid(tier));
-            Assert.Equal(tier, CatalogTlTier.Normalize(tier));
+            Assert.That(CatalogTlTier.IsValid(tier), Is.True);
+            Assert.That(CatalogTlTier.Normalize(tier), Is.EqualTo(tier));
         }
 
-        Assert.False(CatalogTlTier.IsValid("TL-6"));
-        Assert.Equal(CatalogTlTier.Default, CatalogTlTier.Normalize("TL-6"));
-        Assert.Equal(CatalogTlTier.Default, CatalogTlTier.Normalize(null));
+        Assert.That(CatalogTlTier.IsValid("TL-6"), Is.False);
+        Assert.That(CatalogTlTier.Normalize("TL-6"), Is.EqualTo(CatalogTlTier.Default));
+        Assert.That(CatalogTlTier.Normalize(null), Is.EqualTo(CatalogTlTier.Default));
     }
 
     private static void AssertBranchColumnExists(string dbPath)
@@ -55,7 +55,7 @@ public sealed class CatalogTlSnapshotBranchMigrationTests
             SELECT COUNT(*) FROM pragma_table_info('catalog_snapshot')
             WHERE name = 'branch'
             """;
-        Assert.Equal(1, Convert.ToInt32(cmd.ExecuteScalar(), System.Globalization.CultureInfo.InvariantCulture));
+        Assert.That(Convert.ToInt32(cmd.ExecuteScalar(), System.Globalization.CultureInfo.InvariantCulture), Is.EqualTo(1));
     }
 
     private static void AssertAllSnapshotBranchesDefaultToTl0(string dbPath)
@@ -68,11 +68,11 @@ public sealed class CatalogTlSnapshotBranchMigrationTests
         var count = 0;
         while (reader.Read())
         {
-            Assert.Equal(CatalogTlTier.Tl0, reader.GetString(0));
+            Assert.That(reader.GetString(0), Is.EqualTo(CatalogTlTier.Tl0));
             count++;
         }
 
-        Assert.True(count > 0);
+        Assert.That(count > 0, Is.True);
     }
 
     private static void Cleanup(string dbPath)

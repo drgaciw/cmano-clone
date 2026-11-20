@@ -1,12 +1,12 @@
 using Microsoft.Data.Sqlite;
 using ProjectAegis.Data.Catalog;
-using Xunit;
+using NUnit.Framework;
 
 namespace ProjectAegis.Data.Tests.Platform;
 
 public sealed class CatalogPhaseBDamageMigrationTests
 {
-    [Fact]
+    [Test]
     public void Migration_009_applies_idempotently()
     {
         var jsonPath = CatalogJsonImporter.ResolveBalticSensorsJsonPath();
@@ -35,7 +35,7 @@ public sealed class CatalogPhaseBDamageMigrationTests
         }
     }
 
-    [Fact]
+    [Test]
     public void Baltic_seed_inserts_u1_damage_row()
     {
         var dbPath = Path.Combine(Path.GetTempPath(), $"aegis-baltic-damage-{Guid.NewGuid():N}.db");
@@ -54,11 +54,11 @@ public sealed class CatalogPhaseBDamageMigrationTests
                 WHERE platform_id = 'u1'
                 """;
             using var reader = cmd.ExecuteReader();
-            Assert.True(reader.Read());
-            Assert.Equal(100d, reader.GetDouble(0));
-            Assert.Equal(25d, reader.GetDouble(1));
-            Assert.Equal(0, reader.GetInt32(2));
-            Assert.Equal(CatalogReviewStates.Provisional, reader.GetString(3));
+            Assert.That(reader.Read(), Is.True);
+            Assert.That(reader.GetDouble(0), Is.EqualTo(100d));
+            Assert.That(reader.GetDouble(1), Is.EqualTo(25d));
+            Assert.That(reader.GetInt32(2), Is.EqualTo(0));
+            Assert.That(reader.GetString(3), Is.EqualTo(CatalogReviewStates.Provisional));
         }
         finally
         {
@@ -70,17 +70,17 @@ public sealed class CatalogPhaseBDamageMigrationTests
         }
     }
 
-    [Fact]
+    [Test]
     public void CatalogPlatformDamage_record_defaults_match_schema()
     {
         var damage = new CatalogPlatformDamage("u1");
-        Assert.Equal("u1", damage.PlatformId);
-        Assert.Equal(100, damage.MaxHp);
-        Assert.Equal(0, damage.WithdrawThresholdPct);
-        Assert.Equal(0, damage.CriticalFlags);
-        Assert.Equal(CatalogReviewStates.Provisional, damage.ReviewState);
-        Assert.Equal(9, damage.TrlLevel);
-        Assert.Equal(CatalogProvenanceTier.GameplayAbstraction, damage.ValueTier);
+        Assert.That(damage.PlatformId, Is.EqualTo("u1"));
+        Assert.That(damage.MaxHp, Is.EqualTo(100));
+        Assert.That(damage.WithdrawThresholdPct, Is.EqualTo(0));
+        Assert.That(damage.CriticalFlags, Is.EqualTo(0));
+        Assert.That(damage.ReviewState, Is.EqualTo(CatalogReviewStates.Provisional));
+        Assert.That(damage.TrlLevel, Is.EqualTo(9));
+        Assert.That(damage.ValueTier, Is.EqualTo(CatalogProvenanceTier.GameplayAbstraction));
     }
 
     private static void AssertTableExists(string dbPath, string table)
@@ -90,6 +90,6 @@ public sealed class CatalogPhaseBDamageMigrationTests
         using var cmd = connection.CreateCommand();
         cmd.CommandText = "SELECT COUNT(*) FROM sqlite_master WHERE type='table' AND name=$name";
         cmd.Parameters.AddWithValue("$name", table);
-        Assert.Equal(1, Convert.ToInt32(cmd.ExecuteScalar(), System.Globalization.CultureInfo.InvariantCulture));
+        Assert.That(Convert.ToInt32(cmd.ExecuteScalar(), System.Globalization.CultureInfo.InvariantCulture), Is.EqualTo(1));
     }
 }

@@ -1,12 +1,12 @@
 using ProjectAegis.Data.Catalog;
-using Xunit;
+using NUnit.Framework;
 
 namespace ProjectAegis.Data.Tests.Catalog;
 
-[Collection("CatalogSqlite")]
+[ProjectAegis.Data.Tests.Runner.CatalogSqliteCollection]
 public sealed class CmoCatalogExportTests
 {
-    [Fact]
+    [Test]
     public void Cmo_export_fixture_imports_deterministically()
     {
         var fixture = CatalogJsonImporter.ResolveRepoRelative(
@@ -20,11 +20,11 @@ public sealed class CmoCatalogExportTests
         {
             ResolveExportJson(fixture, outJson);
             var bindings = CatalogJsonImporter.ReadSensorBindings(outJson);
-            Assert.True(bindings.Count >= 2);
+            Assert.That(bindings.Count >= 2, Is.True);
             CatalogJsonImporter.WriteSqlite(dbPath, bindings);
             using var reader = new SqliteCatalogReader(dbPath, "cmo-export-test");
-            Assert.True(reader.TryGetBasePd("test-radar-an-spy-1", "cmo-sensor-1001", out var pd1));
-            Assert.True(pd1 > 0);
+            Assert.That(reader.TryGetBasePd("test-radar-an-spy-1", "cmo-sensor-1001", out var pd1), Is.True);
+            Assert.That(pd1 > 0, Is.True);
         }
         finally
         {

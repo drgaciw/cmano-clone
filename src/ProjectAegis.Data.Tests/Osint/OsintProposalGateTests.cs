@@ -1,11 +1,11 @@
 using ProjectAegis.Data.Osint;
-using Xunit;
+using NUnit.Framework;
 
 namespace ProjectAegis.Data.Tests.Osint;
 
 public sealed class OsintProposalGateTests
 {
-    [Fact]
+    [Test]
     public void Partition_promotes_records_at_or_above_confidence_threshold()
     {
         var hits = new[]
@@ -17,14 +17,14 @@ public sealed class OsintProposalGateTests
 
         var (proposals, logOnly) = OsintProposalGate.Partition(hits);
 
-        Assert.Single(logOnly);
-        Assert.Equal("hypersonic-glide-a", logOnly[0].CanonicalId);
-        Assert.Equal(2, proposals.Length);
-        Assert.Equal("hypersonic-glide-b", proposals[0].CanonicalId);
-        Assert.Equal("speculative-rail-c", proposals[1].CanonicalId);
+        Assert.That(logOnly, Has.Exactly(1).Items);
+        Assert.That(logOnly[0].CanonicalId, Is.EqualTo("hypersonic-glide-a"));
+        Assert.That(proposals.Length, Is.EqualTo(2));
+        Assert.That(proposals[0].CanonicalId, Is.EqualTo("hypersonic-glide-b"));
+        Assert.That(proposals[1].CanonicalId, Is.EqualTo("speculative-rail-c"));
     }
 
-    [Fact]
+    [Test]
     public void Partition_orders_deterministically_by_source_then_canonical_id()
     {
         var hits = new[]
@@ -35,7 +35,7 @@ public sealed class OsintProposalGateTests
 
         var (proposals, _) = OsintProposalGate.Partition(hits);
 
-        Assert.Equal("a-first", proposals[0].CanonicalId);
-        Assert.Equal("z-last", proposals[1].CanonicalId);
+        Assert.That(proposals[0].CanonicalId, Is.EqualTo("a-first"));
+        Assert.That(proposals[1].CanonicalId, Is.EqualTo("z-last"));
     }
 }

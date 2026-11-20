@@ -1,15 +1,15 @@
 using Microsoft.Data.Sqlite;
 using ProjectAegis.Data.Catalog;
 using ProjectAegis.Data.WriteGate;
-using Xunit;
+using NUnit.Framework;
 
 namespace ProjectAegis.Data.Tests.WriteGate;
 
 /// <summary>S24-03: Phase B write-gate staging commit (extend-only CatalogWriteGate).</summary>
-[Collection("CatalogSqlite")]
+[ProjectAegis.Data.Tests.Runner.CatalogSqliteCollection]
 public sealed class CatalogWriteGatePhaseBApproveTests
 {
-    [Fact]
+    [Test]
     public void CatalogPhaseB_ApproveBatch_mobility_staging_commits_and_reader_read_back()
     {
         var dbPath = Path.Combine(Path.GetTempPath(), $"aegis-mobility-approve-{Guid.NewGuid():N}.db");
@@ -30,13 +30,13 @@ public sealed class CatalogWriteGatePhaseBApproveTests
             {
                 var batchId = gate.ProposeMobilityBatch([mobility], "agent", "phase-b-gate-test");
                 var decision = gate.ApproveBatch(batchId, "human", "qa-reviewer");
-                Assert.True(decision.Committed);
+                Assert.That(decision.Committed, Is.True);
             }
 
             using var reader = new SqliteCatalogReader(dbPath, "phase-b-gate-readback");
-            Assert.True(reader.TryGetMobility("u1", out var committed));
-            Assert.Equal(28, committed.MaxSpeedKnots, precision: 3);
-            Assert.Equal(3900, committed.RangeNm, precision: 3);
+            Assert.That(reader.TryGetMobility("u1", out var committed), Is.True);
+            Assert.That(committed.MaxSpeedKnots, Is.EqualTo(28).Within(0.005));
+            Assert.That(committed.RangeNm, Is.EqualTo(3900).Within(0.005));
         }
         finally
         {
@@ -44,7 +44,7 @@ public sealed class CatalogWriteGatePhaseBApproveTests
         }
     }
 
-    [Fact]
+    [Test]
     public void CatalogPhaseB_RejectBatch_discards_mobility_staging_without_live_commit()
     {
         var dbPath = Path.Combine(Path.GetTempPath(), $"aegis-mobility-reject-{Guid.NewGuid():N}.db");
@@ -57,15 +57,15 @@ public sealed class CatalogWriteGatePhaseBApproveTests
                     [new CatalogMobility("u1", MaxSpeedKnots: 99)],
                     "agent",
                     "reject-test");
-                Assert.False(gate.RejectBatch(batchId, "human", "qa").Committed);
+                Assert.That(gate.RejectBatch(batchId, "human", "qa").Committed, Is.False);
             }
 
             using var reader = new SqliteCatalogReader(dbPath, "phase-b-reject");
-            Assert.False(reader.TryGetMobility("u1", out _));
+            Assert.That(reader.TryGetMobility("u1", out _), Is.False);
 
             using var connection = new SqliteConnection($"Data Source={dbPath};Pooling=false");
             connection.Open();
-            Assert.Equal(0, CountRows(connection, "catalog_staging_mobility"));
+            Assert.That(CountRows(connection, "catalog_staging_mobility"), Is.EqualTo(0));
         }
         finally
         {
@@ -73,7 +73,7 @@ public sealed class CatalogWriteGatePhaseBApproveTests
         }
     }
 
-    [Fact]
+    [Test]
     public void CatalogPhaseB_ApproveBatch_rejects_orphan_platform_mobility()
     {
         var dbPath = Path.Combine(Path.GetTempPath(), $"aegis-mobility-orphan-{Guid.NewGuid():N}.db");
@@ -86,8 +86,8 @@ public sealed class CatalogWriteGatePhaseBApproveTests
                     "agent",
                     "orphan-test");
                 var decision = gate.ApproveBatch(batchId, "human", "qa");
-                Assert.False(decision.Committed);
-                Assert.Contains(decision.Errors, e => e.Contains("orphan_platform", StringComparison.Ordinal));
+                Assert.That(decision.Committed, Is.False);
+                Assert.That(decision.Errors.Any(e => e.Contains("orphan_platform", StringComparison.Ordinal)), Is.True);
             }
         }
         finally
@@ -96,7 +96,7 @@ public sealed class CatalogWriteGatePhaseBApproveTests
         }
     }
 
-    [Fact]
+    [Test]
     public void CatalogPhaseB_sensor_approve_regression_unchanged_after_extend_only()
     {
         var dbPath = Path.Combine(Path.GetTempPath(), $"aegis-sensor-regression-{Guid.NewGuid():N}.db");
@@ -111,12 +111,12 @@ public sealed class CatalogWriteGatePhaseBApproveTests
                     0.71,
                     ReviewState: CatalogReviewStates.Approved);
                 var batchId = gate.ProposeSensorBatch([proposal], "agent", "regression-test");
-                Assert.True(gate.ApproveBatch(batchId, "human", "qa").Committed);
+                Assert.That(gate.ApproveBatch(batchId, "human", "qa").Committed, Is.True);
             }
 
             using var reader = new SqliteCatalogReader(dbPath, "sensor-regression");
-            Assert.True(reader.TryGetBasePd("u-test", "radar-phase-b-regression", out var basePd));
-            Assert.Equal(0.71, basePd, precision: 3);
+            Assert.That(reader.TryGetBasePd("u-test", "radar-phase-b-regression", out var basePd), Is.True);
+            Assert.That(basePd, Is.EqualTo(0.71).Within(0.005));
         }
         finally
         {

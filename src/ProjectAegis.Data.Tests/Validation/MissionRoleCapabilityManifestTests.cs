@@ -3,7 +3,7 @@ namespace ProjectAegis.Data.Tests.Validation;
 using ProjectAegis.Data.Catalog;
 using ProjectAegis.Data.Scenario.Authoring;
 using ProjectAegis.Data.Validation;
-using Xunit;
+using NUnit.Framework;
 
 /// <summary>
 /// DRG-345 / proposed AME-6.11: the mission role capability manifest discloses whether the
@@ -14,22 +14,20 @@ public sealed class MissionRoleCapabilityManifestTests
 {
     private static readonly ValidationConfig Config = new();
 
-    public static TheoryData<string, string?, MissionRoleExecution, string?> RoleTable => new()
+    public static IEnumerable<TestCaseData> RoleTable()
     {
-        { "Patrol", null, MissionRoleExecution.Executed, null },
-        { "Strike", null, MissionRoleExecution.Executed, null },
-        { "Ferry", null, MissionRoleExecution.NotExecuted, MissionRoleCapabilityManifest.CodeRoleNotExecuted },
-        { "Support", "Tanker", MissionRoleExecution.NotExecuted, MissionRoleCapabilityManifest.CodeRoleNotExecuted },
-        { "Support", "AEW", MissionRoleExecution.NotExecuted, MissionRoleCapabilityManifest.CodeRoleNotExecuted },
-        { "Support", "EW", MissionRoleExecution.NotExecuted, MissionRoleCapabilityManifest.CodeRoleNotExecuted },
-        { "Support", null, MissionRoleExecution.Unknown, MissionRoleCapabilityManifest.CodeRoleUnknown },
-        { "Support", "Jammer", MissionRoleExecution.Unknown, MissionRoleCapabilityManifest.CodeRoleUnknown },
-        { "Escort", null, MissionRoleExecution.Unknown, MissionRoleCapabilityManifest.CodeRoleUnknown },
-        { "", null, MissionRoleExecution.Unknown, MissionRoleCapabilityManifest.CodeRoleUnknown },
-    };
-
-    [Theory]
-    [MemberData(nameof(RoleTable))]
+        yield return new TestCaseData("Patrol", null, MissionRoleExecution.Executed, null);
+        yield return new TestCaseData("Strike", null, MissionRoleExecution.Executed, null);
+        yield return new TestCaseData("Ferry", null, MissionRoleExecution.NotExecuted, MissionRoleCapabilityManifest.CodeRoleNotExecuted);
+        yield return new TestCaseData("Support", "Tanker", MissionRoleExecution.NotExecuted, MissionRoleCapabilityManifest.CodeRoleNotExecuted);
+        yield return new TestCaseData("Support", "AEW", MissionRoleExecution.NotExecuted, MissionRoleCapabilityManifest.CodeRoleNotExecuted);
+        yield return new TestCaseData("Support", "EW", MissionRoleExecution.NotExecuted, MissionRoleCapabilityManifest.CodeRoleNotExecuted);
+        yield return new TestCaseData("Support", null, MissionRoleExecution.Unknown, MissionRoleCapabilityManifest.CodeRoleUnknown);
+        yield return new TestCaseData("Support", "Jammer", MissionRoleExecution.Unknown, MissionRoleCapabilityManifest.CodeRoleUnknown);
+        yield return new TestCaseData("Escort", null, MissionRoleExecution.Unknown, MissionRoleCapabilityManifest.CodeRoleUnknown);
+        yield return new TestCaseData("", null, MissionRoleExecution.Unknown, MissionRoleCapabilityManifest.CodeRoleUnknown);
+    }
+    [TestCaseSource(nameof(RoleTable))]
     public void Assess_classifies_authored_role_against_default_backend(
         string type,
         string? supportRole,
@@ -40,69 +38,72 @@ public sealed class MissionRoleCapabilityManifestTests
 
         var assessment = MissionRoleCapabilityManifest.Assess(mission);
 
-        Assert.Equal(expected, assessment.Execution);
-        Assert.Equal(expectedCode, assessment.FindingCode);
-        Assert.Equal(MissionRoleCapabilityManifest.DefaultBackendId, assessment.BackendId);
-        Assert.Equal("m1", assessment.MissionId);
-        Assert.False(string.IsNullOrWhiteSpace(assessment.Message));
+        Assert.That(assessment.Execution, Is.EqualTo(expected));
+        Assert.That(assessment.FindingCode, Is.EqualTo(expectedCode));
+        Assert.That(assessment.BackendId, Is.EqualTo(MissionRoleCapabilityManifest.DefaultBackendId));
+        Assert.That(assessment.MissionId, Is.EqualTo("m1"));
+        Assert.That(string.IsNullOrWhiteSpace(assessment.Message), Is.False);
     }
-
-    [Theory]
-    [InlineData("support", "tanker")]
-    [InlineData("SUPPORT", "Tanker")]
-    [InlineData(" Support ", " AEW ")]
+    [TestCase("support", "tanker")]
+    [TestCase("SUPPORT", "Tanker")]
+    [TestCase(" Support ", " AEW ")]
     public void Assess_role_matching_is_case_and_whitespace_insensitive(string type, string role)
     {
         var assessment = MissionRoleCapabilityManifest.Assess(
             new ScenarioMissionDto { Id = "m1", Type = type, SupportRole = role });
 
-        Assert.Equal(MissionRoleExecution.NotExecuted, assessment.Execution);
+        Assert.That(assessment.Execution, Is.EqualTo(MissionRoleExecution.NotExecuted));
     }
 
-    [Fact]
+    [Test]
     public void Unknown_backend_marks_every_mission_unknown_backend()
     {
         var mission = new ScenarioMissionDto { Id = "p1", Type = "Patrol" };
 
         var assessment = MissionRoleCapabilityManifest.Assess(mission, "no-such-backend");
 
-        Assert.Equal(MissionRoleExecution.Unknown, assessment.Execution);
-        Assert.Equal(MissionRoleCapabilityManifest.CodeBackendUnknown, assessment.FindingCode);
-        Assert.Equal("no-such-backend", assessment.BackendId);
+        Assert.That(assessment.Execution, Is.EqualTo(MissionRoleExecution.Unknown));
+        Assert.That(assessment.FindingCode, Is.EqualTo(MissionRoleCapabilityManifest.CodeBackendUnknown));
+        Assert.That(assessment.BackendId, Is.EqualTo("no-such-backend"));
     }
 
-    [Fact]
+    [Test]
     public void Findings_are_error_severity_with_stable_codes_and_actionable_messages()
     {
         var doc = LoadFixture("role-capability-unsupported.json");
 
         var findings = MissionRoleCapabilityManifest.EvaluateFindings(doc);
 
-        Assert.Equal(
-            new[]
+        Assert.That(            findings.Select(f => (f.MissionId!, f.Code)).ToArray(), Is.EqualTo(            new[]
             {
                 ("escort-1", MissionRoleCapabilityManifest.CodeRoleUnknown),
                 ("ferry-1", MissionRoleCapabilityManifest.CodeRoleNotExecuted),
                 ("support-aew", MissionRoleCapabilityManifest.CodeRoleNotExecuted),
                 ("support-ew", MissionRoleCapabilityManifest.CodeRoleNotExecuted),
                 ("support-tanker", MissionRoleCapabilityManifest.CodeRoleNotExecuted),
-            },
-            findings.Select(f => (f.MissionId!, f.Code)).ToArray());
-        Assert.All(findings, f => Assert.Equal(ValidationSeverity.Error, f.Severity));
-        Assert.All(findings, f => Assert.Contains("Save remains available", f.Message, StringComparison.Ordinal));
-        Assert.All(findings, f => Assert.Equal(MissionRoleCapabilityManifest.DefaultBackendId, f.Data!["backend"]));
+            }));
+        foreach (var f in findings)
+{
+Assert.That(f.Severity, Is.EqualTo(ValidationSeverity.Error));
+}
+        foreach (var f in findings)
+{
+Assert.That(f.Message, Does.Contain("Save remains available"));
+}
+        foreach (var f in findings)
+{
+Assert.That(f.Data!["backend"], Is.EqualTo(MissionRoleCapabilityManifest.DefaultBackendId));
+}
 
-        var tanker = Assert.Single(findings, f => f.MissionId == "support-tanker");
-        Assert.Equal(
-            "Support mission 'support-tanker' role 'Tanker' is not executed by backend 'baltic-replay-harness'. "
-            + "Export and Play are blocked; Save remains available. Remove the mission or change it to a supported role (Patrol, Strike).",
-            tanker.Message);
-        Assert.Equal("Support", tanker.Data!["missionType"]);
-        Assert.Equal("Tanker", tanker.Data!["supportRole"]);
-        Assert.Equal("NotExecuted", tanker.Data!["execution"]);
+        var tanker = ProjectAegis.Data.Tests.AssertEx.Single(findings, f => f.MissionId == "support-tanker");
+        Assert.That(            tanker.Message, Is.EqualTo(            "Support mission 'support-tanker' role 'Tanker' is not executed by backend 'baltic-replay-harness'. "
+            + "Export and Play are blocked; Save remains available. Remove the mission or change it to a supported role (Patrol, Strike)."));
+        Assert.That(tanker.Data!["missionType"], Is.EqualTo("Support"));
+        Assert.That(tanker.Data!["supportRole"], Is.EqualTo("Tanker"));
+        Assert.That(tanker.Data!["execution"], Is.EqualTo("NotExecuted"));
     }
 
-    [Fact]
+    [Test]
     public void Findings_are_deterministic_regardless_of_authored_mission_order()
     {
         var doc = LoadFixture("role-capability-unsupported.json");
@@ -118,41 +119,37 @@ public sealed class MissionRoleCapabilityManifestTests
         static string[] Key(IEnumerable<ValidationFinding> fs) => fs
             .Select(f => $"{f.Severity}|{f.Code}|{f.MissionId}|{f.Message}|{string.Join(",", f.Data!.Select(kv => kv.Key + "=" + kv.Value))}")
             .ToArray();
-        Assert.Equal(Key(a), Key(b));
-        Assert.Equal(
-
-            MissionRoleCapabilityManifest.AssessDocument(doc).Select(x => x.MissionId),
-            MissionRoleCapabilityManifest.AssessDocument(reversed).Select(x => x.MissionId));
+        Assert.That(Key(b), Is.EqualTo(Key(a)));
+        Assert.That(            MissionRoleCapabilityManifest.AssessDocument(reversed).Select(x => x.MissionId), Is.EqualTo(
+            MissionRoleCapabilityManifest.AssessDocument(doc).Select(x => x.MissionId)));
     }
 
-    [Fact]
+    [Test]
     public void AssessDocument_discloses_supported_and_unsupported_missions_in_mission_id_order()
     {
         var doc = LoadFixture("role-capability-unsupported.json");
 
         var rows = MissionRoleCapabilityManifest.AssessDocument(doc);
 
-        Assert.Equal(
-            new[] { "escort-1", "ferry-1", "patrol-1", "support-aew", "support-ew", "support-tanker" },
-            rows.Select(r => r.MissionId).ToArray());
-        var patrol = Assert.Single(rows, r => r.MissionId == "patrol-1");
-        Assert.Equal(MissionRoleExecution.Executed, patrol.Execution);
-        Assert.Null(patrol.FindingCode);
+        Assert.That(            rows.Select(r => r.MissionId).ToArray(), Is.EqualTo(            new[] { "escort-1", "ferry-1", "patrol-1", "support-aew", "support-ew", "support-tanker" }));
+        var patrol = ProjectAegis.Data.Tests.AssertEx.Single(rows, r => r.MissionId == "patrol-1");
+        Assert.That(patrol.Execution, Is.EqualTo(MissionRoleExecution.Executed));
+        Assert.That(patrol.FindingCode, Is.Null);
     }
 
-    [Fact]
+    [Test]
     public void Supported_fixture_has_no_capability_findings_and_exports()
     {
         var doc = LoadFixture("role-capability-supported.json");
 
-        Assert.Empty(MissionRoleCapabilityManifest.EvaluateFindings(doc));
+        Assert.That(MissionRoleCapabilityManifest.EvaluateFindings(doc), Is.Empty);
         var (allowed, report) = ScenarioValidationExportGate.EvaluateExport(
             doc, InMemoryCatalogReader.BalticPatrolFixture(), Config);
-        Assert.True(allowed);
-        Assert.DoesNotContain(report.Findings, f => MissionRoleCapabilityManifest.IsCapabilityCode(f.Code));
+        Assert.That(allowed, Is.True);
+        Assert.That(report.Findings.Any(f => MissionRoleCapabilityManifest.IsCapabilityCode(f.Code)), Is.False);
     }
 
-    [Fact]
+    [Test]
     public void Validation_engine_export_gate_and_prepare_all_block_unsupported_roles()
     {
         var doc = LoadFixture("role-capability-unsupported.json");
@@ -163,18 +160,16 @@ public sealed class MissionRoleCapabilityManifestTests
         var (allowed, gateReport) = ScenarioValidationExportGate.EvaluateExport(doc, catalog, Config);
         var package = ScenarioExportCommand.Prepare(doc, catalog, Config);
 
-        Assert.False(allowed);
-        Assert.False(package.Allowed);
+        Assert.That(allowed, Is.False);
+        Assert.That(package.Allowed, Is.False);
         foreach (var r in new[] { report, gateReport, package.ValidationReport })
         {
             var capability = r.Findings.Where(f => MissionRoleCapabilityManifest.IsCapabilityCode(f.Code)).ToArray();
-            Assert.Equal(
-                expected.Select(f => (f.Code, f.Severity, f.MissionId, f.Message)).OrderBy(x => x.MissionId, StringComparer.Ordinal),
-                capability.Select(f => (f.Code, f.Severity, f.MissionId, f.Message)).OrderBy(x => x.MissionId, StringComparer.Ordinal));
+            Assert.That(                capability.Select(f => (f.Code, f.Severity, f.MissionId, f.Message)).OrderBy(x => x.MissionId, StringComparer.Ordinal), Is.EqualTo(                expected.Select(f => (f.Code, f.Severity, f.MissionId, f.Message)).OrderBy(x => x.MissionId, StringComparer.Ordinal)));
         }
     }
 
-    [Fact]
+    [Test]
     public void Draft_with_unsupported_role_saves_and_reloads_while_export_stays_blocked()
     {
         var editor = ScenarioDocumentEditor.CreateNew(dbRef: "baltic_patrol");
@@ -185,11 +180,11 @@ public sealed class MissionRoleCapabilityManifestTests
             editor.Save(path);
 
             var reloaded = ScenarioDocumentEditor.Load(path);
-            var mission = Assert.Single(reloaded.Missions);
-            Assert.Equal("Tanker", mission.SupportRole);
+            var mission = ProjectAegis.Data.Tests.AssertEx.Single(reloaded.Missions);
+            Assert.That(mission.SupportRole, Is.EqualTo("Tanker"));
             var live = reloaded.LiveValidate();
-            Assert.Contains(live.Findings, f => f.Code == MissionRoleCapabilityManifest.CodeRoleNotExecuted && f.MissionId == "support-1");
-            Assert.False(ScenarioExportCommand.Prepare(reloaded.ToDto(), InMemoryCatalogReader.BalticPatrolFixture(), Config).Allowed);
+            Assert.That(live.Findings.Any(f => f.Code == MissionRoleCapabilityManifest.CodeRoleNotExecuted && f.MissionId == "support-1"), Is.True);
+            Assert.That(ScenarioExportCommand.Prepare(reloaded.ToDto(), InMemoryCatalogReader.BalticPatrolFixture(), Config).Allowed, Is.False);
         }
         finally
         {
@@ -200,32 +195,37 @@ public sealed class MissionRoleCapabilityManifestTests
         }
     }
 
-    [Fact]
+    [Test]
     public void Every_built_in_template_is_disclosed_by_the_manifest()
     {
         foreach (var template in MissionTemplateCatalog.All)
         {
             var mission = MissionTemplateCatalog.Materialize(template.TemplateId, "m-" + template.TemplateId);
             var assessment = MissionRoleCapabilityManifest.Assess(mission);
-            Assert.NotEqual(MissionRoleExecution.Unknown, assessment.Execution);
+            Assert.That(assessment.Execution, Is.Not.EqualTo(MissionRoleExecution.Unknown));
         }
 
-        Assert.Equal(
-            MissionRoleExecution.NotExecuted,
-            MissionRoleCapabilityManifest.Assess(MissionTemplateCatalog.Materialize("tpl-support-tanker", "t")).Execution);
+        Assert.That(            MissionRoleCapabilityManifest.Assess(MissionTemplateCatalog.Materialize("tpl-support-tanker", "t")).Execution, Is.EqualTo(            MissionRoleExecution.NotExecuted));
     }
 
-    [Fact]
+    [Test]
     public void Manifest_entries_are_stable_and_ordered()
     {
         var entries = MissionRoleCapabilityManifest.Entries;
 
-        Assert.Equal(
-            new[] { "Ferry", "Patrol", "Strike", "Support/AEW", "Support/EW", "Support/Tanker" },
-            entries.Select(e => e.SupportRole == null ? e.MissionType : e.MissionType + "/" + e.SupportRole).ToArray());
-        Assert.All(entries, e => Assert.Equal(MissionRoleCapabilityManifest.DefaultBackendId, e.BackendId));
-        Assert.All(entries, e => Assert.NotEmpty(e.RequiredOrderKinds));
-        Assert.All(entries, e => Assert.False(string.IsNullOrWhiteSpace(e.RuntimeEvidence)));
+        Assert.That(            entries.Select(e => e.SupportRole == null ? e.MissionType : e.MissionType + "/" + e.SupportRole).ToArray(), Is.EqualTo(            new[] { "Ferry", "Patrol", "Strike", "Support/AEW", "Support/EW", "Support/Tanker" }));
+        foreach (var e in entries)
+{
+Assert.That(e.BackendId, Is.EqualTo(MissionRoleCapabilityManifest.DefaultBackendId));
+}
+        foreach (var e in entries)
+{
+Assert.That(e.RequiredOrderKinds, Is.Not.Empty);
+}
+        foreach (var e in entries)
+{
+Assert.That(string.IsNullOrWhiteSpace(e.RuntimeEvidence), Is.False);
+}
     }
 
     private static ScenarioDocumentDto LoadFixture(string fileName)

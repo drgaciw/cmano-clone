@@ -2,17 +2,16 @@ using Microsoft.Data.Sqlite;
 using ProjectAegis.Data.Catalog;
 using ProjectAegis.Data.Osint;
 using ProjectAegis.Data.WriteGate;
-using Xunit;
+using NUnit.Framework;
 
 namespace ProjectAegis.Data.Tests.Osint;
 
-[Collection("CatalogSqlite")]
+[ProjectAegis.Data.Tests.Runner.CatalogSqliteCollection]
 public sealed class OsintCatalogMapperTests
 {
-    [Theory]
-    [InlineData("09", 7, 7, "branch:doc-09", "osint:09")]
-    [InlineData("10", 4, 4, "branch:doc-10", "osint:10")]
-    [InlineData("9", 6, 6, "branch:doc-09", "osint:09")]
+    [TestCase("09", 7, 7, "branch:doc-09", "osint:09")]
+    [TestCase("10", 4, 4, "branch:doc-10", "osint:10")]
+    [TestCase("9", 6, 6, "branch:doc-09", "osint:09")]
     public void ToSensorBinding_maps_proposed_trl_and_target_doc_to_staged_metadata(
         string targetDoc,
         int proposedTrl,
@@ -30,20 +29,20 @@ public sealed class OsintCatalogMapperTests
 
         var binding = OsintCatalogMapper.ToSensorBinding(record, "osint-platform");
 
-        Assert.Equal(expectedTrl, binding.TrlLevel);
-        Assert.Equal(expectedBranch, binding.ImportBatchId);
-        Assert.Equal(expectedSourceFactId, binding.SourceFactId);
-        Assert.Equal(CatalogReviewStates.Provisional, binding.ReviewState);
+        Assert.That(binding.TrlLevel, Is.EqualTo(expectedTrl));
+        Assert.That(binding.ImportBatchId, Is.EqualTo(expectedBranch));
+        Assert.That(binding.SourceFactId, Is.EqualTo(expectedSourceFactId));
+        Assert.That(binding.ReviewState, Is.EqualTo(CatalogReviewStates.Provisional));
     }
 
-    [Fact]
+    [Test]
     public void ResolveTrlLevel_clamps_out_of_range_values()
     {
-        Assert.Equal(1, OsintCatalogMapper.ResolveTrlLevel(0));
-        Assert.Equal(9, OsintCatalogMapper.ResolveTrlLevel(12));
+        Assert.That(OsintCatalogMapper.ResolveTrlLevel(0), Is.EqualTo(1));
+        Assert.That(OsintCatalogMapper.ResolveTrlLevel(12), Is.EqualTo(9));
     }
 
-    [Fact]
+    [Test]
     public void ToSensorBindings_orders_deterministically_by_platform_then_sensor()
     {
         var records = new[]
@@ -56,15 +55,11 @@ public sealed class OsintCatalogMapperTests
         var first = OsintCatalogMapper.ToSensorBindings(records, "osint-platform");
         var second = OsintCatalogMapper.ToSensorBindings(records.Reverse(), "osint-platform");
 
-        Assert.Equal(
-            first.Select(b => (b.PlatformId, b.SensorId)),
-            second.Select(b => (b.PlatformId, b.SensorId)));
-        Assert.Equal(
-            new[] { "osint-a-sensor", "osint-m-sensor", "osint-z-sensor" },
-            first.Select(b => b.SensorId).ToArray());
+        Assert.That(            second.Select(b => (b.PlatformId, b.SensorId)), Is.EqualTo(            first.Select(b => (b.PlatformId, b.SensorId))));
+        Assert.That(            first.Select(b => b.SensorId).ToArray(), Is.EqualTo(            new[] { "osint-a-sensor", "osint-m-sensor", "osint-z-sensor" }));
     }
 
-    [Fact]
+    [Test]
     public void Mapper_exposes_only_pure_binding_projection_without_write_gate_types()
     {
         var methods = typeof(OsintCatalogMapper)
@@ -73,10 +68,10 @@ public sealed class OsintCatalogMapperTests
 
         foreach (var method in methods)
         {
-            Assert.DoesNotContain("IWriteGate", method.ReturnType.FullName ?? string.Empty);
+            Assert.That(method.ReturnType.FullName ?? string.Empty, Does.Not.Contain("IWriteGate"));
             foreach (var param in method.GetParameters())
             {
-                Assert.DoesNotContain("IWriteGate", param.ParameterType.FullName ?? string.Empty);
+                Assert.That(param.ParameterType.FullName ?? string.Empty, Does.Not.Contain("IWriteGate"));
             }
         }
 
@@ -85,11 +80,11 @@ public sealed class OsintCatalogMapperTests
             new OsintDiscoveryRecord("pure-map", "https://example.org/pure", "snippet", 0.72, "09", 6),
         ]);
 
-        Assert.Single(bindings);
-        Assert.IsType<CatalogSensorBinding>(bindings[0]);
+        Assert.That(bindings, Has.Exactly(1).Items);
+        Assert.That(bindings[0], Is.TypeOf<CatalogSensorBinding>());
     }
 
-    [Fact]
+    [Test]
     public void Low_trl_binding_quarantined_by_import_gate_never_promotes()
     {
         var record = new OsintDiscoveryRecord(
@@ -104,11 +99,11 @@ public sealed class OsintCatalogMapperTests
 
         var (_, quarantined) = CatalogImportGate.PartitionForImport([binding], requireApproved: false);
 
-        Assert.Single(quarantined);
-        Assert.Equal("trl_below_minimum", quarantined[0].RejectionReason);
+        Assert.That(quarantined, Has.Exactly(1).Items);
+        Assert.That(quarantined[0].RejectionReason, Is.EqualTo("trl_below_minimum"));
     }
 
-    [Fact]
+    [Test]
     public void Propose_via_write_gate_preserves_tl_routing_on_staged_rows()
     {
         var dbPath = Path.Combine(Path.GetTempPath(), $"aegis-osint-mapper-{Guid.NewGuid():N}.db");
@@ -140,18 +135,18 @@ public sealed class OsintCatalogMapperTests
             cmd.Parameters.AddWithValue("$batch", batchId);
 
             using var reader = cmd.ExecuteReader();
-            Assert.True(reader.Read());
-            Assert.Equal("osint-near-future-radar", reader.GetString(0));
-            Assert.Equal(7, reader.GetInt32(1));
-            Assert.Equal("branch:doc-09", reader.GetString(2));
-            Assert.Equal("osint:09", reader.GetString(3));
+            Assert.That(reader.Read(), Is.True);
+            Assert.That(reader.GetString(0), Is.EqualTo("osint-near-future-radar"));
+            Assert.That(reader.GetInt32(1), Is.EqualTo(7));
+            Assert.That(reader.GetString(2), Is.EqualTo("branch:doc-09"));
+            Assert.That(reader.GetString(3), Is.EqualTo("osint:09"));
 
-            Assert.True(reader.Read());
-            Assert.Equal("osint-speculative-rail", reader.GetString(0));
-            Assert.Equal(5, reader.GetInt32(1));
-            Assert.Equal("branch:doc-10", reader.GetString(2));
-            Assert.Equal("osint:10", reader.GetString(3));
-            Assert.False(reader.Read());
+            Assert.That(reader.Read(), Is.True);
+            Assert.That(reader.GetString(0), Is.EqualTo("osint-speculative-rail"));
+            Assert.That(reader.GetInt32(1), Is.EqualTo(5));
+            Assert.That(reader.GetString(2), Is.EqualTo("branch:doc-10"));
+            Assert.That(reader.GetString(3), Is.EqualTo("osint:10"));
+            Assert.That(reader.Read(), Is.False);
         }
         finally
         {

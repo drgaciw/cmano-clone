@@ -3,14 +3,14 @@ using ProjectAegis.Data.Import;
 using ProjectAegis.Data.Platform;
 using ProjectAegis.Data.Snapshots;
 using ProjectAegis.Data.WriteGate;
-using Xunit;
+using NUnit.Framework;
 
 namespace ProjectAegis.Data.Tests.Snapshots;
 
-[Collection("CatalogSqlite")]
+[ProjectAegis.Data.Tests.Runner.CatalogSqliteCollection]
 public sealed class CatalogExportManifestTests
 {
-    [Fact]
+    [Test]
     public void Export_meta_sheet_carries_tl_export_manifest_fields()
     {
         var exporter = new PlatformWorkbookExporter();
@@ -28,15 +28,15 @@ public sealed class CatalogExportManifestTests
             manifest);
 
         var meta = workbook.FindSheet(PlatformWorkbookHash.MetaSheetName);
-        Assert.NotNull(meta);
-        Assert.Equal("db-20261001-tl0-001", MetaValue(meta, "DbVersion"));
-        Assert.Equal(CatalogTlTier.Tl2, MetaValue(meta, "TlTier"));
-        Assert.Equal(CatalogTlTier.CatalogSchemaVersion, MetaValue(meta, "CatalogSchemaVersion"));
-        Assert.Equal("abc123", MetaValue(meta, "ContentHash"));
-        Assert.Equal(CatalogTlTier.ExportManifestSchemaVersion, MetaValue(meta, "ExportSchemaVersion"));
+        Assert.That(meta, Is.Not.Null);
+        Assert.That(MetaValue(meta!, "DbVersion"), Is.EqualTo("db-20261001-tl0-001"));
+        Assert.That(MetaValue(meta!, "TlTier"), Is.EqualTo(CatalogTlTier.Tl2));
+        Assert.That(MetaValue(meta!, "CatalogSchemaVersion"), Is.EqualTo(CatalogTlTier.CatalogSchemaVersion));
+        Assert.That(MetaValue(meta!, "ContentHash"), Is.EqualTo("abc123"));
+        Assert.That(MetaValue(meta!, "ExportSchemaVersion"), Is.EqualTo(CatalogTlTier.ExportManifestSchemaVersion));
     }
 
-    [Fact]
+    [Test]
     public void BindAfterApprove_persists_branch_and_manifest_resolves_tl_tier()
     {
         var dbPath = Path.Combine(Path.GetTempPath(), $"aegis-tl-manifest-{Guid.NewGuid():N}.db");
@@ -54,7 +54,7 @@ public sealed class CatalogExportManifestTests
 
             using (var gate = new CatalogWriteGate(dbPath, new FixedCatalogClock(5001)))
             {
-                Assert.True(gate.ApproveBatch(batchId, "human", "tl-manifest-test").Committed);
+                Assert.That(gate.ApproveBatch(batchId, "human", "tl-manifest-test").Committed, Is.True);
             }
 
             var bind = CatalogSnapshotBinder.BindAfterApprove(
@@ -64,16 +64,16 @@ public sealed class CatalogExportManifestTests
                 tlTier: CatalogTlTier.Tl3);
 
             using var store = new DbSnapshotStore(dbPath);
-            Assert.True(store.TryGetBranch(bind.SnapshotId, out var branch));
-            Assert.Equal(CatalogTlTier.Tl3, branch);
-            Assert.Equal(CatalogTlTier.Tl3, bind.TlTier);
+            Assert.That(store.TryGetBranch(bind.SnapshotId, out var branch), Is.True);
+            Assert.That(branch, Is.EqualTo(CatalogTlTier.Tl3));
+            Assert.That(bind.TlTier, Is.EqualTo(CatalogTlTier.Tl3));
 
             var manifest = CatalogExportManifest.Resolve(dbPath, bind.SnapshotId, bind.ReleaseVersion);
-            Assert.Equal(bind.ReleaseVersion, manifest.DbVersion);
-            Assert.Equal(CatalogTlTier.Tl3, manifest.TlTier);
-            Assert.Equal(bind.ContentHashSha256, manifest.ContentHash);
-            Assert.Equal(CatalogTlTier.CatalogSchemaVersion, manifest.SchemaVersion);
-            Assert.Equal(CatalogTlTier.ExportManifestSchemaVersion, manifest.ExportSchemaVersion);
+            Assert.That(manifest.DbVersion, Is.EqualTo(bind.ReleaseVersion));
+            Assert.That(manifest.TlTier, Is.EqualTo(CatalogTlTier.Tl3));
+            Assert.That(manifest.ContentHash, Is.EqualTo(bind.ContentHashSha256));
+            Assert.That(manifest.SchemaVersion, Is.EqualTo(CatalogTlTier.CatalogSchemaVersion));
+            Assert.That(manifest.ExportSchemaVersion, Is.EqualTo(CatalogTlTier.ExportManifestSchemaVersion));
         }
         finally
         {
@@ -81,7 +81,7 @@ public sealed class CatalogExportManifestTests
         }
     }
 
-    [Fact]
+    [Test]
     public void CatalogImportGate_partition_unchanged_when_branch_column_present()
     {
         var jsonPath = CatalogJsonImporter.ResolveBalticSensorsJsonPath();
@@ -93,8 +93,8 @@ public sealed class CatalogExportManifestTests
             var bindings = reader.GetSortedSensorBindings();
 
             var (approved, quarantined) = CatalogImportGate.PartitionForImport(bindings);
-            Assert.NotEmpty(approved);
-            Assert.Empty(quarantined);
+            Assert.That(approved, Is.Not.Empty);
+            Assert.That(quarantined, Is.Empty);
         }
         finally
         {

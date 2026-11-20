@@ -1,15 +1,15 @@
 using Microsoft.Data.Sqlite;
 using ProjectAegis.Data.Catalog;
 using ProjectAegis.Data.WriteGate;
-using Xunit;
+using NUnit.Framework;
 
 namespace ProjectAegis.Data.Tests.Catalog;
 
 /// <summary>Req-16 read path: loadout/magazine rows via ICatalogReader (write-gate seeded).</summary>
-[Collection("CatalogSqlite")]
+[ProjectAegis.Data.Tests.Runner.CatalogSqliteCollection]
 public sealed class CatalogMagazineReaderTests
 {
-    [Fact]
+    [Test]
     public void SqliteCatalogReader_exposes_magazine_rows_after_write_gate_approve()
     {
         var dbPath = Path.Combine(Path.GetTempPath(), $"aegis-s28-magazine-read-{Guid.NewGuid():N}.db");
@@ -30,15 +30,15 @@ public sealed class CatalogMagazineReaderTests
                     "agent",
                     "s28-read");
 
-                Assert.True(gate.ApproveBatch(mountBatch, "human", "s28-read").Committed);
-                Assert.True(gate.ApproveBatch(loadoutBatch, "human", "s28-read").Committed);
-                Assert.True(gate.ApproveBatch(magazineBatch, "human", "s28-read").Committed);
+                Assert.That(gate.ApproveBatch(mountBatch, "human", "s28-read").Committed, Is.True);
+                Assert.That(gate.ApproveBatch(loadoutBatch, "human", "s28-read").Committed, Is.True);
+                Assert.That(gate.ApproveBatch(magazineBatch, "human", "s28-read").Committed, Is.True);
             }
 
             using var reader = new SqliteCatalogReader(dbPath, "s28-read-test");
-            Assert.Single(reader.GetSortedLoadouts());
-            Assert.Single(reader.GetSortedMagazines());
-            Assert.Equal(12, reader.GetSortedMagazines()[0].Quantity);
+            Assert.That(reader.GetSortedLoadouts(), Has.Exactly(1).Items);
+            Assert.That(reader.GetSortedMagazines(), Has.Exactly(1).Items);
+            Assert.That(reader.GetSortedMagazines()[0].Quantity, Is.EqualTo(12));
         }
         finally
         {

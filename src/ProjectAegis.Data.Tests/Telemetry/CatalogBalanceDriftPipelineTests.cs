@@ -4,12 +4,12 @@ using ProjectAegis.Data.Import;
 using ProjectAegis.Data.Platform;
 using ProjectAegis.Data.Telemetry;
 using ProjectAegis.Data.WriteGate;
-using Xunit;
+using NUnit.Framework;
 
 namespace ProjectAegis.Data.Tests.Telemetry;
 
 /// <summary>S29-10: balance drift advisory on catalog import/approve diff paths.</summary>
-[Collection("CatalogSqlite")]
+[ProjectAegis.Data.Tests.Runner.CatalogSqliteCollection]
 public sealed class CatalogBalanceDriftPipelineTests
 {
     private const string SnapshotId = CatalogValidationDefaults.BalticSnapshotId;
@@ -21,7 +21,7 @@ public sealed class CatalogBalanceDriftPipelineTests
         DefaultExpectedWinRate = 0.5,
     };
 
-    [Fact]
+    [Test]
     public void Propose_diff_default_disabled_emits_empty_advisory()
     {
         var dbPath = CreateTempDbPath("balance-pipeline-default");
@@ -40,12 +40,10 @@ public sealed class CatalogBalanceDriftPipelineTests
                 "human",
                 "balance-pipeline");
 
-            Assert.True(result.Proposed);
-            Assert.False(result.BalanceDriftAdvisory.DriftDetectionEnabled);
-            Assert.Empty(result.BalanceDriftAdvisory.Findings);
-            Assert.DoesNotContain(
-                result.Import.Notes,
-                note => note.StartsWith("balance_drift_advisory:", StringComparison.Ordinal));
+            Assert.That(result.Proposed, Is.True);
+            Assert.That(result.BalanceDriftAdvisory.DriftDetectionEnabled, Is.False);
+            Assert.That(result.BalanceDriftAdvisory.Findings, Is.Empty);
+            Assert.That(                result.Import.Notes.Any(                note => note.StartsWith("balance_drift_advisory:", StringComparison.Ordinal)), Is.False);
         }
         finally
         {
@@ -53,7 +51,7 @@ public sealed class CatalogBalanceDriftPipelineTests
         }
     }
 
-    [Fact]
+    [Test]
     public void Propose_diff_surfaces_drift_advisory_when_enabled_beyond_eight_percent()
     {
         var dbPath = CreateTempDbPath("balance-pipeline-propose");
@@ -74,10 +72,10 @@ public sealed class CatalogBalanceDriftPipelineTests
                 "human",
                 "balance-pipeline");
 
-            var finding = Assert.Single(result.BalanceDriftAdvisory.Findings);
-            Assert.Equal("BALANCE_WIN_RATE_DRIFT", finding.Code);
-            Assert.Equal("u1", finding.EntityId);
-            Assert.Contains(result.Import.Notes, note => note.Contains("u1", StringComparison.Ordinal));
+            var finding = ProjectAegis.Data.Tests.AssertEx.Single(result.BalanceDriftAdvisory.Findings);
+            Assert.That(finding.Code, Is.EqualTo("BALANCE_WIN_RATE_DRIFT"));
+            Assert.That(finding.EntityId, Is.EqualTo("u1"));
+            Assert.That(result.Import.Notes.Any(note => note.Contains("u1", StringComparison.Ordinal)), Is.True);
         }
         finally
         {
@@ -85,7 +83,7 @@ public sealed class CatalogBalanceDriftPipelineTests
         }
     }
 
-    [Fact]
+    [Test]
     public void Propose_empty_diff_emits_no_drift_findings_when_enabled()
     {
         var dbPath = CreateTempDbPath("balance-pipeline-empty-diff");
@@ -103,9 +101,9 @@ public sealed class CatalogBalanceDriftPipelineTests
                 "human",
                 "balance-pipeline");
 
-            Assert.False(result.Proposed);
-            Assert.True(result.BalanceDriftAdvisory.DriftDetectionEnabled);
-            Assert.Empty(result.BalanceDriftAdvisory.Findings);
+            Assert.That(result.Proposed, Is.False);
+            Assert.That(result.BalanceDriftAdvisory.DriftDetectionEnabled, Is.True);
+            Assert.That(result.BalanceDriftAdvisory.Findings, Is.Empty);
         }
         finally
         {
@@ -113,7 +111,7 @@ public sealed class CatalogBalanceDriftPipelineTests
         }
     }
 
-    [Fact]
+    [Test]
     public void Approve_diff_surfaces_drift_advisory_when_enabled()
     {
         var dbPath = CreateTempDbPath("balance-pipeline-approve");
@@ -132,7 +130,7 @@ public sealed class CatalogBalanceDriftPipelineTests
                 new FixedCatalogClock(9831),
                 "human",
                 "balance-pipeline");
-            var batchId = Assert.Single(propose.BatchIds);
+            var batchId = ProjectAegis.Data.Tests.AssertEx.Single(propose.BatchIds);
 
             var approve = writeService.ApproveBatches(
                 dbPath,
@@ -141,10 +139,10 @@ public sealed class CatalogBalanceDriftPipelineTests
                 "human",
                 "qa-reviewer");
 
-            Assert.True(approve.AllCommitted);
-            var finding = Assert.Single(approve.BalanceDriftAdvisory.Findings);
-            Assert.Equal("u1", finding.EntityId);
-            Assert.Equal("BALANCE_WIN_RATE_DRIFT", finding.Code);
+            Assert.That(approve.AllCommitted, Is.True);
+            var finding = ProjectAegis.Data.Tests.AssertEx.Single(approve.BalanceDriftAdvisory.Findings);
+            Assert.That(finding.EntityId, Is.EqualTo("u1"));
+            Assert.That(finding.Code, Is.EqualTo("BALANCE_WIN_RATE_DRIFT"));
         }
         finally
         {
@@ -152,7 +150,7 @@ public sealed class CatalogBalanceDriftPipelineTests
         }
     }
 
-    [Fact]
+    [Test]
     public void Approve_diff_advisory_does_not_block_write_gate_commit()
     {
         var dbPath = CreateTempDbPath("balance-pipeline-no-bypass");
@@ -171,7 +169,7 @@ public sealed class CatalogBalanceDriftPipelineTests
                 new FixedCatalogClock(9841),
                 "human",
                 "balance-pipeline");
-            var batchId = Assert.Single(propose.BatchIds);
+            var batchId = ProjectAegis.Data.Tests.AssertEx.Single(propose.BatchIds);
 
             var approve = writeService.ApproveBatches(
                 dbPath,
@@ -180,12 +178,12 @@ public sealed class CatalogBalanceDriftPipelineTests
                 "human",
                 "qa-reviewer");
 
-            Assert.True(approve.AllCommitted);
-            Assert.NotEmpty(approve.BalanceDriftAdvisory.Findings);
+            Assert.That(approve.AllCommitted, Is.True);
+            Assert.That(approve.BalanceDriftAdvisory.Findings, Is.Not.Empty);
 
             using var reader = new SqliteCatalogReader(dbPath, "balance-pipeline-readback");
-            Assert.True(reader.TryGetBasePd("u1", "radar-1", out var basePd));
-            Assert.Equal(0.59, basePd, precision: 6);
+            Assert.That(reader.TryGetBasePd("u1", "radar-1", out var basePd), Is.True);
+            Assert.That(basePd, Is.EqualTo(0.59).Within(0.000005));
         }
         finally
         {
@@ -193,7 +191,7 @@ public sealed class CatalogBalanceDriftPipelineTests
         }
     }
 
-    [Fact]
+    [Test]
     public void Import_propose_surfaces_drift_advisory_for_touched_platform()
     {
         var platformPath = CmoMarkdownImporter.ResolveShipSlice100FixturePath();
@@ -213,10 +211,10 @@ public sealed class CatalogBalanceDriftPipelineTests
                 clock: new FixedCatalogClock(9850),
                 balanceDrift: EnabledSettings(sink));
 
-            Assert.Equal(1, proposed.ParsedCount);
-            var finding = Assert.Single(proposed.BalanceDriftAdvisory.Findings);
-            Assert.Equal(firstPlatformId, finding.EntityId);
-            Assert.Equal("BALANCE_WIN_RATE_DRIFT", finding.Code);
+            Assert.That(proposed.ParsedCount, Is.EqualTo(1));
+            var finding = ProjectAegis.Data.Tests.AssertEx.Single(proposed.BalanceDriftAdvisory.Findings);
+            Assert.That(finding.EntityId, Is.EqualTo(firstPlatformId));
+            Assert.That(finding.Code, Is.EqualTo("BALANCE_WIN_RATE_DRIFT"));
         }
         finally
         {
@@ -224,7 +222,7 @@ public sealed class CatalogBalanceDriftPipelineTests
         }
     }
 
-    [Fact]
+    [Test]
     public void Drift_at_exactly_eight_percent_band_emits_no_pipeline_advisory()
     {
         var dbPath = CreateTempDbPath("balance-pipeline-threshold");
@@ -244,8 +242,8 @@ public sealed class CatalogBalanceDriftPipelineTests
                 "human",
                 "balance-pipeline");
 
-            Assert.True(result.BalanceDriftAdvisory.DriftDetectionEnabled);
-            Assert.Empty(result.BalanceDriftAdvisory.Findings);
+            Assert.That(result.BalanceDriftAdvisory.DriftDetectionEnabled, Is.True);
+            Assert.That(result.BalanceDriftAdvisory.Findings, Is.Empty);
         }
         finally
         {
@@ -273,9 +271,9 @@ public sealed class CatalogBalanceDriftPipelineTests
         string keyColumn,
         string keyValue)
     {
-        var sheet = Assert.Single(workbook.Sheets, s => string.Equals(s.Name, sheetName, StringComparison.Ordinal));
+        var sheet = ProjectAegis.Data.Tests.AssertEx.Single(workbook.Sheets, s => string.Equals(s.Name, sheetName, StringComparison.Ordinal));
         var colIndex = Array.IndexOf(sheet.Header.ToArray(), keyColumn);
-        Assert.True(colIndex >= 0, $"Column '{keyColumn}' not found on sheet '{sheetName}'.");
+        Assert.That(colIndex >= 0, Is.True, $"Column '{keyColumn}' not found on sheet '{sheetName}'.");
         for (var i = 0; i < sheet.Rows.Count; i++)
         {
             var row = sheet.Rows[i];
@@ -305,7 +303,7 @@ public sealed class CatalogBalanceDriftPipelineTests
             }
 
             var colIndex = Array.IndexOf(sheet.Header.ToArray(), columnName);
-            Assert.True(colIndex >= 0, $"Column '{columnName}' not found on sheet '{sheetName}'.");
+            Assert.That(colIndex >= 0, Is.True, $"Column '{columnName}' not found on sheet '{sheetName}'.");
 
             var rows = sheet.Rows.Select((row, i) =>
             {

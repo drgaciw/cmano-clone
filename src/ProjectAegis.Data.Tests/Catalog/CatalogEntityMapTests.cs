@@ -1,35 +1,33 @@
 using ProjectAegis.Data.Catalog;
-using Xunit;
+using NUnit.Framework;
 
 namespace ProjectAegis.Data.Tests.Catalog;
 
 public sealed class CatalogEntityMapTests
 {
-    [Fact]
+    [Test]
     public void Entity_map_includes_sensor_and_audit_tables()
     {
-        Assert.True(CatalogEntityMap.TryGetTable("CatalogSensorBinding", out var sensor));
-        Assert.Equal("sensor", sensor.TableName);
+        Assert.That(CatalogEntityMap.TryGetTable("CatalogSensorBinding", out var sensor), Is.True);
+        Assert.That(sensor.TableName, Is.EqualTo("sensor"));
 
-        Assert.True(CatalogEntityMap.TryGetTable("CatalogChangeLogEntry", out var audit));
-        Assert.Equal("catalog_change_log", audit.TableName);
+        Assert.That(CatalogEntityMap.TryGetTable("CatalogChangeLogEntry", out var audit), Is.True);
+        Assert.That(audit.TableName, Is.EqualTo("catalog_change_log"));
     }
-
-    [Theory]
-    [InlineData("CatalogMount", "platform_mount", "platform_id ASC, mount_id ASC")]
-    [InlineData("CatalogLoadout", "platform_loadout", "platform_id ASC, loadout_id ASC")]
-    [InlineData("CatalogMagazineEntry", "platform_magazine", "platform_id ASC, loadout_id ASC, mount_id ASC, weapon_id ASC")]
-    [InlineData("CatalogCommsBinding", "platform_comms", "platform_id ASC, link_id ASC")]
-    [InlineData("CatalogLinkEntry", "link_catalog", "link_id ASC")]
-    [InlineData("CatalogPlatformBinding", "platform", "platform_id ASC")]
-    [InlineData("CatalogWeaponRecord", "weapon_catalog", "weapon_id ASC")]
+    [TestCase("CatalogMount", "platform_mount", "platform_id ASC, mount_id ASC")]
+    [TestCase("CatalogLoadout", "platform_loadout", "platform_id ASC, loadout_id ASC")]
+    [TestCase("CatalogMagazineEntry", "platform_magazine", "platform_id ASC, loadout_id ASC, mount_id ASC, weapon_id ASC")]
+    [TestCase("CatalogCommsBinding", "platform_comms", "platform_id ASC, link_id ASC")]
+    [TestCase("CatalogLinkEntry", "link_catalog", "link_id ASC")]
+    [TestCase("CatalogPlatformBinding", "platform", "platform_id ASC")]
+    [TestCase("CatalogWeaponRecord", "weapon_catalog", "weapon_id ASC")]
     public void Entity_map_includes_phase_b_catalog_types_with_stable_order_by(
         string entityName,
         string tableName,
         string orderBy)
     {
-        Assert.True(CatalogEntityMap.TryGetTable(entityName, out var binding));
-        Assert.Equal(tableName, binding.TableName);
-        Assert.Equal(orderBy, binding.DeterministicOrderBy);
+        Assert.That(CatalogEntityMap.TryGetTable(entityName, out var binding), Is.True);
+        Assert.That(binding.TableName, Is.EqualTo(tableName));
+        Assert.That(binding.DeterministicOrderBy, Is.EqualTo(orderBy));
     }
 }

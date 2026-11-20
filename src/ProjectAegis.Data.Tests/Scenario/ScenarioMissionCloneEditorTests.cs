@@ -1,11 +1,11 @@
 using ProjectAegis.Data.Scenario.Authoring;
-using Xunit;
+using NUnit.Framework;
 
 namespace ProjectAegis.Data.Tests.Scenario;
 
 public sealed class ScenarioMissionCloneEditorTests
 {
-    [Fact]
+    [Test]
     public void CloneMission_copies_fields_under_new_id()
     {
         var editor = ScenarioDocumentEditor.CreateNew();
@@ -17,14 +17,14 @@ public sealed class ScenarioMissionCloneEditorTests
         ]);
         editor.CloneMission("patrol-1", "patrol-1-copy");
 
-        Assert.Equal(2, editor.Missions.Count);
+        Assert.That(editor.Missions.Count, Is.EqualTo(2));
         var copy = editor.Missions.Single(m => m.Id == "patrol-1-copy");
-        Assert.Equal("Patrol", copy.Type);
-        Assert.Equal(new[] { "u1" }, copy.AssignedUnitIds);
-        Assert.Equal(3, copy.PatrolZone.Count);
+        Assert.That(copy.Type, Is.EqualTo("Patrol"));
+        Assert.That(copy.AssignedUnitIds, Is.EqualTo(new[] { "u1" }));
+        Assert.That(copy.PatrolZone.Count, Is.EqualTo(3));
     }
 
-    [Fact]
+    [Test]
     public void CloneMission_duplicate_new_id_throws()
     {
         var editor = ScenarioDocumentEditor.CreateNew();
@@ -32,14 +32,14 @@ public sealed class ScenarioMissionCloneEditorTests
         Assert.Throws<InvalidOperationException>(() => editor.CloneMission("s1", "s1"));
     }
 
-    [Fact]
+    [Test]
     public void CloneMission_missing_source_throws()
     {
         var editor = ScenarioDocumentEditor.CreateNew();
         Assert.Throws<InvalidOperationException>(() => editor.CloneMission("nope", "x"));
     }
 
-    [Fact]
+    [Test]
     public void CloneMission_strike_and_ferry_and_support()
     {
         var editor = ScenarioDocumentEditor.CreateNew();
@@ -54,8 +54,8 @@ public sealed class ScenarioMissionCloneEditorTests
         editor.CloneMission("s1", "s2");
         editor.CloneMission("f1", "f2");
         editor.CloneMission("sup1", "sup2");
-        Assert.Equal("Strike", editor.Missions.Single(m => m.Id == "s2").Type);
-        Assert.Equal("base-a", editor.Missions.Single(m => m.Id == "f2").FerryDestinationBaseId);
-        Assert.Equal("Tanker", editor.Missions.Single(m => m.Id == "sup2").SupportRole);
+        Assert.That(editor.Missions.Single(m => m.Id == "s2").Type, Is.EqualTo("Strike"));
+        Assert.That(editor.Missions.Single(m => m.Id == "f2").FerryDestinationBaseId, Is.EqualTo("base-a"));
+        Assert.That(editor.Missions.Single(m => m.Id == "sup2").SupportRole, Is.EqualTo("Tanker"));
     }
 }

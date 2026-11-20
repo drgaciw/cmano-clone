@@ -4,14 +4,14 @@ using Microsoft.Data.Sqlite;
 using ProjectAegis.Data.Catalog;
 using ProjectAegis.Data.Import;
 using ProjectAegis.Data.WriteGate;
-using Xunit;
+using NUnit.Framework;
 
 namespace ProjectAegis.Data.Tests.Import;
 
-[Collection("CatalogSqlite")]
+[ProjectAegis.Data.Tests.Runner.CatalogSqliteCollection]
 public sealed class CmoMarkdownBulkImportTests
 {
-    [Fact]
+    [Test]
     public void ChunkBindings_with_501_rows_produces_two_batches_at_chunk_size_500()
     {
         var rows = Enumerable.Range(0, 501)
@@ -20,12 +20,12 @@ public sealed class CmoMarkdownBulkImportTests
 
         var chunks = CmoMarkdownImportProposer.ChunkBindings(rows, chunkSize: 500);
 
-        Assert.Equal(2, chunks.Length);
-        Assert.Equal(500, chunks[0].Length);
-        Assert.Single(chunks[1]);
+        Assert.That(chunks.Length, Is.EqualTo(2));
+        Assert.That(chunks[0].Length, Is.EqualTo(500));
+        Assert.That(chunks[1], Has.Exactly(1).Items);
     }
 
-    [Fact]
+    [Test]
     public void ProposeFromMarkdown_with_501_sensors_produces_two_propose_batches()
     {
         var markdownPath = WriteBulkFixture(sensorCount: 501, quarantineSensorIndex: -1);
@@ -40,12 +40,12 @@ public sealed class CmoMarkdownBulkImportTests
                 chunkSize: 500,
                 clock: new FixedCatalogClock(100));
 
-            Assert.Equal(501, result.ApprovedCount);
-            Assert.Equal(0, result.QuarantinedCount);
-            Assert.Equal(2, result.Batches.Count);
-            Assert.Equal(500, result.Batches[0].RecordCount);
-            Assert.Equal(1, result.Batches[1].RecordCount);
-            Assert.Empty(result.QuarantineReport);
+            Assert.That(result.ApprovedCount, Is.EqualTo(501));
+            Assert.That(result.QuarantinedCount, Is.EqualTo(0));
+            Assert.That(result.Batches.Count, Is.EqualTo(2));
+            Assert.That(result.Batches[0].RecordCount, Is.EqualTo(500));
+            Assert.That(result.Batches[1].RecordCount, Is.EqualTo(1));
+            Assert.That(result.QuarantineReport, Is.Empty);
         }
         finally
         {
@@ -53,7 +53,7 @@ public sealed class CmoMarkdownBulkImportTests
         }
     }
 
-    [Fact]
+    [Test]
     public void ProposeFromMarkdown_quarantine_rows_written_and_report_populated()
     {
         var markdownPath = WriteBulkFixture(sensorCount: 3, quarantineSensorIndex: 1);
@@ -68,17 +68,17 @@ public sealed class CmoMarkdownBulkImportTests
                 chunkSize: 500,
                 clock: new FixedCatalogClock(101));
 
-            Assert.Equal(2, result.ApprovedCount);
-            Assert.Equal(1, result.QuarantinedCount);
-            Assert.Single(result.QuarantineReport);
-            Assert.Equal("confidence_below_minimum", result.QuarantineReport[0].Reason);
+            Assert.That(result.ApprovedCount, Is.EqualTo(2));
+            Assert.That(result.QuarantinedCount, Is.EqualTo(1));
+            Assert.That(result.QuarantineReport, Has.Exactly(1).Items);
+            Assert.That(result.QuarantineReport[0].Reason, Is.EqualTo("confidence_below_minimum"));
 
             using var connection = new SqliteConnection($"Data Source={dbPath};Pooling=false");
             connection.Open();
             using var cmd = connection.CreateCommand();
             cmd.CommandText = "SELECT COUNT(*) FROM sensor_quarantine";
             var count = Convert.ToInt32(cmd.ExecuteScalar(), CultureInfo.InvariantCulture);
-            Assert.Equal(1, count);
+            Assert.That(count, Is.EqualTo(1));
         }
         finally
         {

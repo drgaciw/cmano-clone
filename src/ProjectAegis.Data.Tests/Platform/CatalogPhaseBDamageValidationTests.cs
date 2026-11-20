@@ -2,7 +2,7 @@ using ProjectAegis.Data.Catalog;
 using ProjectAegis.Data.Platform;
 using ProjectAegis.Data.Validation;
 using ProjectAegis.Data.WriteGate;
-using Xunit;
+using NUnit.Framework;
 
 namespace ProjectAegis.Data.Tests.Platform;
 
@@ -35,23 +35,23 @@ public sealed class CatalogPhaseBDamageValidationTests
     private static PlatformWorkbookImporter ImporterFor(PlatformCatalogExportData source) =>
         new(id => string.Equals(id, SnapshotId, StringComparison.Ordinal) ? source : null, new FixedCatalogClock(0));
 
-    [Fact]
+    [Test]
     public void CatalogPhaseB_damage_clean_workbook_has_no_validation_findings()
     {
-        Assert.Empty(PlatformWorkbookValidator.Validate(Export(PhaseBData())));
+        Assert.That(PlatformWorkbookValidator.Validate(Export(PhaseBData())), Is.Empty);
     }
 
-    [Fact]
+    [Test]
     public void CatalogPhaseB_platforms_header_mismatch_is_blocking()
     {
         var workbook = WithPlatformsHeader(Export(PhaseBData()), ["PlatformId", "BadColumn"]);
 
         var findings = PlatformWorkbookValidator.Validate(workbook);
-        var finding = Assert.Single(findings, f => f.Code == PlatformWorkbookValidator.PlatformsHeaderMismatch);
-        Assert.Equal(ValidationSeverity.Error, finding.Severity);
+        var finding = ProjectAegis.Data.Tests.AssertEx.Single(findings, f => f.Code == PlatformWorkbookValidator.PlatformsHeaderMismatch);
+        Assert.That(finding.Severity, Is.EqualTo(ValidationSeverity.Error));
     }
 
-    [Fact]
+    [Test]
     public void CatalogPhaseB_non_positive_MaxHp_is_blocking()
     {
         var workbook = WithPlatformCell(
@@ -61,11 +61,11 @@ public sealed class CatalogPhaseBDamageValidationTests
             "0");
 
         var findings = PlatformWorkbookValidator.Validate(workbook);
-        var finding = Assert.Single(findings, f => f.Code == PlatformWorkbookValidator.DamageNonPositiveMaxHp);
-        Assert.Equal("u1", finding.UnitId);
+        var finding = ProjectAegis.Data.Tests.AssertEx.Single(findings, f => f.Code == PlatformWorkbookValidator.DamageNonPositiveMaxHp);
+        Assert.That(finding.UnitId, Is.EqualTo("u1"));
     }
 
-    [Fact]
+    [Test]
     public void CatalogPhaseB_negative_MaxHp_is_blocking()
     {
         var workbook = WithPlatformCell(
@@ -75,29 +75,29 @@ public sealed class CatalogPhaseBDamageValidationTests
             "-5");
 
         var findings = PlatformWorkbookValidator.Validate(workbook);
-        Assert.Contains(findings, f => f.Code == PlatformWorkbookValidator.DamageNonPositiveMaxHp);
+        Assert.That(findings.Any(f => f.Code == PlatformWorkbookValidator.DamageNonPositiveMaxHp), Is.True);
     }
 
-    [Fact]
+    [Test]
     public void CatalogPhaseB_MaxHp_above_ceiling_is_blocking()
     {
         var over = (PlatformWorkbookValidator.MaxHpCeiling + 1).ToString(System.Globalization.CultureInfo.InvariantCulture);
         var workbook = WithPlatformCell(Export(PhaseBData()), "u1", "MaxHp", over);
 
-        var finding = Assert.Single(PlatformWorkbookValidator.Validate(workbook));
-        Assert.Equal(PlatformWorkbookValidator.DamageMaxHpExceedsCeiling, finding.Code);
+        var finding = ProjectAegis.Data.Tests.AssertEx.Single(PlatformWorkbookValidator.Validate(workbook));
+        Assert.That(finding.Code, Is.EqualTo(PlatformWorkbookValidator.DamageMaxHpExceedsCeiling));
     }
 
-    [Fact]
+    [Test]
     public void CatalogPhaseB_negative_withdraw_threshold_is_blocking()
     {
         var workbook = WithPlatformCell(Export(PhaseBData()), "u1", "WithdrawThresholdPct", "-1");
 
-        var finding = Assert.Single(PlatformWorkbookValidator.Validate(workbook));
-        Assert.Equal(PlatformWorkbookValidator.DamageWithdrawThresholdInvalid, finding.Code);
+        var finding = ProjectAegis.Data.Tests.AssertEx.Single(PlatformWorkbookValidator.Validate(workbook));
+        Assert.That(finding.Code, Is.EqualTo(PlatformWorkbookValidator.DamageWithdrawThresholdInvalid));
     }
 
-    [Fact]
+    [Test]
     public void CatalogPhaseB_withdraw_threshold_above_MaxHp_is_blocking()
     {
         var workbook = WithPlatformCell(
@@ -106,11 +106,11 @@ public sealed class CatalogPhaseBDamageValidationTests
             "WithdrawThresholdPct",
             "75");
 
-        var finding = Assert.Single(PlatformWorkbookValidator.Validate(workbook));
-        Assert.Equal(PlatformWorkbookValidator.DamageWithdrawThresholdInvalid, finding.Code);
+        var finding = ProjectAegis.Data.Tests.AssertEx.Single(PlatformWorkbookValidator.Validate(workbook));
+        Assert.That(finding.Code, Is.EqualTo(PlatformWorkbookValidator.DamageWithdrawThresholdInvalid));
     }
 
-    [Fact]
+    [Test]
     public void CatalogPhaseB_withdraw_threshold_at_zero_and_MaxHp_boundary_passes()
     {
         var workbook = WithPlatformCell(
@@ -119,10 +119,10 @@ public sealed class CatalogPhaseBDamageValidationTests
             "WithdrawThresholdPct",
             "0");
 
-        Assert.Empty(PlatformWorkbookValidator.Validate(workbook));
+        Assert.That(PlatformWorkbookValidator.Validate(workbook), Is.Empty);
     }
 
-    [Fact]
+    [Test]
     public void CatalogPhaseB_withdraw_threshold_equal_to_MaxHp_passes()
     {
         var workbook = WithPlatformCell(
@@ -131,30 +131,30 @@ public sealed class CatalogPhaseBDamageValidationTests
             "WithdrawThresholdPct",
             "100");
 
-        Assert.Empty(PlatformWorkbookValidator.Validate(workbook));
+        Assert.That(PlatformWorkbookValidator.Validate(workbook), Is.Empty);
     }
 
-    [Fact]
+    [Test]
     public void CatalogPhaseB_negative_critical_flags_is_blocking()
     {
         var workbook = WithPlatformCell(Export(PhaseBData()), "u1", "CriticalFlags", "-1");
 
-        var finding = Assert.Single(PlatformWorkbookValidator.Validate(workbook));
-        Assert.Equal(PlatformWorkbookValidator.DamageCriticalFlagsInvalid, finding.Code);
+        var finding = ProjectAegis.Data.Tests.AssertEx.Single(PlatformWorkbookValidator.Validate(workbook));
+        Assert.That(finding.Code, Is.EqualTo(PlatformWorkbookValidator.DamageCriticalFlagsInvalid));
     }
 
-    [Fact]
+    [Test]
     public void CatalogPhaseB_damage_fixture_validation_hash_matches_golden()
     {
         var workbook = BuildDamageFixtureWorkbookWithErrors();
         var report = ValidationReport.FromFindings(PlatformWorkbookValidator.Validate(workbook));
 
-        Assert.False(report.Passed);
-        Assert.Equal(ValidationGoldenHashes.PhaseBDamageFixtureErrors, report.ReportHash);
-        Assert.Equal(report.ReportHash, ValidationReport.FromFindings(PlatformWorkbookValidator.Validate(workbook)).ReportHash);
+        Assert.That(report.Passed, Is.False);
+        Assert.That(report.ReportHash, Is.EqualTo(ValidationGoldenHashes.PhaseBDamageFixtureErrors));
+        Assert.That(ValidationReport.FromFindings(PlatformWorkbookValidator.Validate(workbook)).ReportHash, Is.EqualTo(report.ReportHash));
     }
 
-    [Fact]
+    [Test]
     public void CatalogPhaseB_damage_validation_error_blocks_importer_staging()
     {
         var source = PhaseBData();
@@ -163,13 +163,13 @@ public sealed class CatalogPhaseBDamageValidationTests
 
         var result = ImporterFor(source).Stage(edited, gate, "human", "drgamtd");
 
-        Assert.True(result.Plan.Blocked);
-        Assert.False(result.Staged);
-        Assert.Empty(gate.DamageProposals);
-        Assert.Contains(result.Plan.Findings, f => f.Code == PlatformWorkbookValidator.DamageNonPositiveMaxHp);
+        Assert.That(result.Plan.Blocked, Is.True);
+        Assert.That(result.Staged, Is.False);
+        Assert.That(gate.DamageProposals, Is.Empty);
+        Assert.That(result.Plan.Findings.Any(f => f.Code == PlatformWorkbookValidator.DamageNonPositiveMaxHp), Is.True);
     }
 
-    [Fact]
+    [Test]
     public void CatalogPhaseB_valid_damage_edit_still_stages_when_other_fields_valid()
     {
         var source = PhaseBData(maxHp: 100);
@@ -178,9 +178,9 @@ public sealed class CatalogPhaseBDamageValidationTests
 
         var result = ImporterFor(source).Stage(edited, gate, "human", "drgamtd");
 
-        Assert.False(result.Plan.Blocked);
-        Assert.True(result.Staged);
-        Assert.NotNull(result.DamageBatchId);
+        Assert.That(result.Plan.Blocked, Is.False);
+        Assert.That(result.Staged, Is.True);
+        Assert.That(result.DamageBatchId, Is.Not.Null);
     }
 
     private static PlatformWorkbook BuildDamageFixtureWorkbookWithErrors()
@@ -219,11 +219,11 @@ public sealed class CatalogPhaseBDamageValidationTests
         string value)
     {
         var sheet = workbook.FindSheet("Platforms");
-        Assert.NotNull(sheet);
-        var platformCol = Array.IndexOf(sheet.Header.ToArray(), "PlatformId");
+        Assert.That(sheet, Is.Not.Null);
+        var platformCol = Array.IndexOf(sheet!.Header.ToArray(), "PlatformId");
         var targetCol = Array.IndexOf(sheet.Header.ToArray(), columnName);
-        Assert.True(platformCol >= 0);
-        Assert.True(targetCol >= 0);
+        Assert.That(platformCol >= 0, Is.True);
+        Assert.That(targetCol >= 0, Is.True);
 
         var rowIndex = -1;
         for (var i = 0; i < sheet.Rows.Count; i++)
@@ -236,7 +236,7 @@ public sealed class CatalogPhaseBDamageValidationTests
             }
         }
 
-        Assert.True(rowIndex >= 0, $"Platform '{platformId}' not found on Platforms sheet.");
+        Assert.That(rowIndex >= 0, Is.True, $"Platform '{platformId}' not found on Platforms sheet.");
 
         var sheets = workbook.Sheets.Select(s =>
         {

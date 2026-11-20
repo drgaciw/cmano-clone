@@ -2,7 +2,7 @@ using Microsoft.Data.Sqlite;
 using ProjectAegis.Data.Catalog;
 using ProjectAegis.Data.Platform;
 using ProjectAegis.Data.WriteGate;
-using Xunit;
+using NUnit.Framework;
 
 namespace ProjectAegis.Data.Tests.Platform;
 
@@ -66,7 +66,7 @@ public sealed class PlatformWorkbookPhaseBSheetTests
     private static PlatformWorkbook Export(PlatformCatalogExportData data) =>
         new PlatformWorkbookExporter().Export(data, SnapshotId, new FixedCatalogClock(utcTicks: 0));
 
-    [Fact]
+    [Test]
     public void Export_includes_Phase_B_stub_sheets_with_Req21_headers()
     {
         var workbook = Export(PlatformCatalogExportData.Empty);
@@ -76,23 +76,23 @@ public sealed class PlatformWorkbookPhaseBSheetTests
         var emcon = workbook.FindSheet("Emcon");
 
         var swarms = workbook.FindSheet("Swarms");
-        Assert.NotNull(mobility);
-        Assert.NotNull(signatures);
-        Assert.NotNull(emcon);
-        Assert.NotNull(swarms);
+        Assert.That(mobility, Is.Not.Null);
+        Assert.That(signatures, Is.Not.Null);
+        Assert.That(emcon, Is.Not.Null);
+        Assert.That(swarms, Is.Not.Null);
 
-        Assert.Equal(ExpectedMobilityHeader, mobility.Header);
-        Assert.Equal(ExpectedSignaturesHeader, signatures.Header);
-        Assert.Equal(ExpectedEmconHeader, emcon.Header);
-        Assert.Equal(ExpectedSwarmsHeader, swarms.Header);
+        Assert.That(mobility!.Header, Is.EqualTo(ExpectedMobilityHeader));
+        Assert.That(signatures!.Header, Is.EqualTo(ExpectedSignaturesHeader));
+        Assert.That(emcon!.Header, Is.EqualTo(ExpectedEmconHeader));
+        Assert.That(swarms!.Header, Is.EqualTo(ExpectedSwarmsHeader));
 
-        Assert.Empty(mobility.Rows);
-        Assert.Empty(signatures.Rows);
-        Assert.Empty(emcon.Rows);
-        Assert.Empty(swarms.Rows);
+        Assert.That(mobility.Rows, Is.Empty);
+        Assert.That(signatures.Rows, Is.Empty);
+        Assert.That(emcon.Rows, Is.Empty);
+        Assert.That(swarms.Rows, Is.Empty);
     }
 
-    [Fact]
+    [Test]
     public void Phase_A_sheet_order_is_unchanged_before_Phase_B_stubs()
     {
         var dataSheetNames = Export(PlatformCatalogExportData.Empty).Sheets
@@ -101,51 +101,51 @@ public sealed class PlatformWorkbookPhaseBSheetTests
             .ToArray();
 
         var phaseAEnd = Array.IndexOf(dataSheetNames, "LinkCatalog");
-        Assert.Equal(PhaseADataSheetOrder, dataSheetNames.Take(phaseAEnd + 1).ToArray());
-        Assert.Equal(["Mobility", "Signatures", "Emcon", "Swarms"], dataSheetNames.Skip(phaseAEnd + 1).ToArray());
+        Assert.That(dataSheetNames.Take(phaseAEnd + 1).ToArray(), Is.EqualTo(PhaseADataSheetOrder));
+        Assert.That(dataSheetNames.Skip(phaseAEnd + 1).ToArray(), Is.EqualTo(["Mobility", "Signatures", "Emcon", "Swarms"]));
     }
 
-    [Fact]
+    [Test]
     public void Phase_B_rows_export_with_stable_OrderBy_keys()
     {
         var workbook = Export(SampleData());
 
         var mobility = workbook.FindSheet("Mobility")!;
-        Assert.Single(mobility.Rows);
-        Assert.Equal("u1", mobility.Rows[0][0]);
-        Assert.Equal("30", mobility.Rows[0][1]);
+        Assert.That(mobility.Rows, Has.Exactly(1).Items);
+        Assert.That(mobility.Rows[0][0], Is.EqualTo("u1"));
+        Assert.That(mobility.Rows[0][1], Is.EqualTo("30"));
 
         var signatures = workbook.FindSheet("Signatures")!;
-        Assert.Single(signatures.Rows);
-        Assert.Equal("-10", signatures.Rows[0][1]);
+        Assert.That(signatures.Rows, Has.Exactly(1).Items);
+        Assert.That(signatures.Rows[0][1], Is.EqualTo("-10"));
 
         var emcon = workbook.FindSheet("Emcon")!;
-        Assert.Equal(2, emcon.Rows.Count);
-        Assert.Equal("free", emcon.Rows[0][1]);
-        Assert.Equal("silent", emcon.Rows[1][1]);
+        Assert.That(emcon.Rows.Count, Is.EqualTo(2));
+        Assert.That(emcon.Rows[0][1], Is.EqualTo("free"));
+        Assert.That(emcon.Rows[1][1], Is.EqualTo("silent"));
     }
 
-    [Fact]
+    [Test]
     public void Unedited_Phase_B_stub_sheets_do_not_produce_spurious_diff_entries()
     {
         var original = Export(PlatformCatalogExportData.Empty);
         var roundTripped = CanonicalTextWorkbookIo.Deserialize(CanonicalTextWorkbookIo.Serialize(original));
 
-        Assert.True(PlatformWorkbookDiff.IsEmpty(original, roundTripped));
-        Assert.Empty(PlatformWorkbookDiff.Compare(original, roundTripped));
+        Assert.That(PlatformWorkbookDiff.IsEmpty(original, roundTripped), Is.True);
+        Assert.That(PlatformWorkbookDiff.Compare(original, roundTripped), Is.Empty);
     }
 
-    [Fact]
+    [Test]
     public void Meta_sheet_reports_schema_version_010()
     {
         var meta = Export(PlatformCatalogExportData.Empty).FindSheet(PlatformWorkbookHash.MetaSheetName);
-        Assert.NotNull(meta);
-        Assert.Contains(meta.Rows, row => row.Count >= 2
+        Assert.That(meta, Is.Not.Null);
+        Assert.That(meta!.Rows.Any(row => row.Count >= 2
             && string.Equals(row[0], "SchemaVersion", StringComparison.Ordinal)
-            && string.Equals(row[1], "010", StringComparison.Ordinal));
+            && string.Equals(row[1], "010", StringComparison.Ordinal)), Is.True);
     }
 
-    [Fact]
+    [Test]
     public void Migration_008_applies_idempotently()
     {
         var jsonPath = CatalogJsonImporter.ResolveBalticSensorsJsonPath();
@@ -182,6 +182,6 @@ public sealed class PlatformWorkbookPhaseBSheetTests
         using var cmd = connection.CreateCommand();
         cmd.CommandText = "SELECT COUNT(*) FROM sqlite_master WHERE type='table' AND name=$name";
         cmd.Parameters.AddWithValue("$name", table);
-        Assert.Equal(1, Convert.ToInt32(cmd.ExecuteScalar(), System.Globalization.CultureInfo.InvariantCulture));
+        Assert.That(Convert.ToInt32(cmd.ExecuteScalar(), System.Globalization.CultureInfo.InvariantCulture), Is.EqualTo(1));
     }
 }

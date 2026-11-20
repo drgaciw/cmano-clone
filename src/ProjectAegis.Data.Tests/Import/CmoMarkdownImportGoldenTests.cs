@@ -2,15 +2,15 @@ using Microsoft.Data.Sqlite;
 using ProjectAegis.Data.Catalog;
 using ProjectAegis.Data.Import;
 using ProjectAegis.Data.WriteGate;
-using Xunit;
+using NUnit.Framework;
 
 namespace ProjectAegis.Data.Tests.Import;
 
 /// <summary>S26-04 — import E2E golden hygiene: snapshot stability and catalog state unchanged on re-import.</summary>
-[Collection("CatalogSqlite")]
+[ProjectAegis.Data.Tests.Runner.CatalogSqliteCollection]
 public sealed class CmoMarkdownImportGoldenTests
 {
-    [Fact]
+    [Test]
     public void Weapon_import_reapprove_identical_slice_preserves_catalog_ordering_hash()
     {
         var markdown = CmoMarkdownImporter.ResolveMiniWeaponFixturePath();
@@ -20,7 +20,7 @@ public sealed class CmoMarkdownImportGoldenTests
         {
             var hashBefore = ImportApproveAndHashWeapons(dbPath, markdown, clockSeed: 26041);
             var hashAfter = ImportApproveAndHashWeapons(dbPath, markdown, clockSeed: 26042);
-            Assert.Equal(hashBefore, hashAfter);
+            Assert.That(hashAfter, Is.EqualTo(hashBefore));
         }
         finally
         {
@@ -32,7 +32,7 @@ public sealed class CmoMarkdownImportGoldenTests
         }
     }
 
-    [Fact]
+    [Test]
     public void Weapon_platform_combined_import_regression_WriteGate_and_replay_unchanged()
     {
         var platformPath = CmoMarkdownImporter.ResolveBalticPlatformFixturePath();
@@ -50,11 +50,11 @@ public sealed class CmoMarkdownImportGoldenTests
 
             using (var gate = new CatalogWriteGate(dbPath, new FixedCatalogClock(26044)))
             {
-                Assert.True(gate.ApproveBatch(proposed.PlatformBatchId!, "human", "s26-regression").Committed);
-                Assert.True(gate.ApproveBatch(proposed.WeaponBatchId!, "human", "s26-regression").Committed);
-                Assert.True(gate.ApproveBatch(proposed.MountBatchId!, "human", "s26-regression").Committed);
-                Assert.True(gate.ApproveBatch(proposed.LoadoutBatchId!, "human", "s26-regression").Committed);
-                Assert.True(gate.ApproveBatch(proposed.MagazineBatchId!, "human", "s26-regression").Committed);
+                Assert.That(gate.ApproveBatch(proposed.PlatformBatchId!, "human", "s26-regression").Committed, Is.True);
+                Assert.That(gate.ApproveBatch(proposed.WeaponBatchId!, "human", "s26-regression").Committed, Is.True);
+                Assert.That(gate.ApproveBatch(proposed.MountBatchId!, "human", "s26-regression").Committed, Is.True);
+                Assert.That(gate.ApproveBatch(proposed.LoadoutBatchId!, "human", "s26-regression").Committed, Is.True);
+                Assert.That(gate.ApproveBatch(proposed.MagazineBatchId!, "human", "s26-regression").Committed, Is.True);
             }
 
             var weaponLookup = CmoMarkdownImporter.BuildWeaponNameLookup(CmoMarkdownImporter.ReadWeaponBindings(weaponPath));
@@ -73,7 +73,7 @@ public sealed class CmoMarkdownImportGoldenTests
                 Magazines: magazines,
                 Comms: []);
 
-            Assert.Equal(CatalogSortKeyGoldenHashes.BalticCmoImportWithFittings, CatalogSortKeyComparer.ComputeOrderingHash(fixture));
+            Assert.That(CatalogSortKeyComparer.ComputeOrderingHash(fixture), Is.EqualTo(CatalogSortKeyGoldenHashes.BalticCmoImportWithFittings));
         }
         finally
         {
@@ -85,7 +85,7 @@ public sealed class CmoMarkdownImportGoldenTests
         }
     }
 
-    [Fact]
+    [Test]
     public void Platform_fittings_reimport_identical_slice_preserves_catalog_ordering_hash()
     {
         var platformPath = CmoMarkdownImporter.ResolveBalticPlatformFixturePath();
@@ -96,8 +96,8 @@ public sealed class CmoMarkdownImportGoldenTests
         {
             var hashBefore = ImportApproveAndHashFittings(dbPath, platformPath, weaponPath, clockSeed: 27041);
             var hashAfter = ImportApproveAndHashFittings(dbPath, platformPath, weaponPath, clockSeed: 27042);
-            Assert.Equal(hashBefore, hashAfter);
-            Assert.Equal(CatalogSortKeyGoldenHashes.BalticCmoImportWithFittings, hashBefore);
+            Assert.That(hashAfter, Is.EqualTo(hashBefore));
+            Assert.That(hashBefore, Is.EqualTo(CatalogSortKeyGoldenHashes.BalticCmoImportWithFittings));
         }
         finally
         {
@@ -109,7 +109,7 @@ public sealed class CmoMarkdownImportGoldenTests
         }
     }
 
-    [Fact]
+    [Test]
     public void Platform_ship_slice100_reimport_identical_slice_preserves_catalog_ordering_hash()
     {
         var platformPath = CmoMarkdownImporter.ResolveShipSlice100FixturePath();
@@ -119,8 +119,8 @@ public sealed class CmoMarkdownImportGoldenTests
         {
             var hashBefore = ImportApproveAndHashPlatforms(dbPath, platformPath, clockSeed: 28031);
             var hashAfter = ImportApproveAndHashPlatforms(dbPath, platformPath, clockSeed: 28032);
-            Assert.Equal(hashBefore, hashAfter);
-            Assert.Equal(CatalogSortKeyGoldenHashes.ShipSlice100PlatformV2, hashBefore);
+            Assert.That(hashAfter, Is.EqualTo(hashBefore));
+            Assert.That(hashBefore, Is.EqualTo(CatalogSortKeyGoldenHashes.ShipSlice100PlatformV2));
         }
         finally
         {
@@ -132,7 +132,7 @@ public sealed class CmoMarkdownImportGoldenTests
         }
     }
 
-    [Fact]
+    [Test]
     public void Platform_ship_slice100_corpus_roundtrip_through_WriteGate_pins_ordering_hash()
     {
         var platformPath = CmoMarkdownImporter.ResolveShipSlice100FixturePath();
@@ -148,14 +148,14 @@ public sealed class CmoMarkdownImportGoldenTests
                 chunkSize: 500,
                 clock: new FixedCatalogClock(28033));
 
-            Assert.Equal(100, proposed.ParsedCount);
-            Assert.Equal(100, proposed.ApprovedCount);
-            Assert.Single(proposed.Batches);
-            Assert.Equal(100, proposed.Batches[0].RecordCount);
+            Assert.That(proposed.ParsedCount, Is.EqualTo(100));
+            Assert.That(proposed.ApprovedCount, Is.EqualTo(100));
+            Assert.That(proposed.Batches, Has.Exactly(1).Items);
+            Assert.That(proposed.Batches[0].RecordCount, Is.EqualTo(100));
 
             using (var gate = new CatalogWriteGate(dbPath, new FixedCatalogClock(28034)))
             {
-                Assert.True(gate.ApproveBatch(proposed.Batches[0].BatchId, "human", "s28-golden").Committed);
+                Assert.That(gate.ApproveBatch(proposed.Batches[0].BatchId, "human", "s28-golden").Committed, Is.True);
             }
 
             var fixture = new CatalogSortKeyFixture(
@@ -167,7 +167,7 @@ public sealed class CmoMarkdownImportGoldenTests
                 Magazines: [],
                 Comms: []);
 
-            Assert.Equal(CatalogSortKeyGoldenHashes.ShipSlice100PlatformV2, CatalogSortKeyComparer.ComputeOrderingHash(fixture));
+            Assert.That(CatalogSortKeyComparer.ComputeOrderingHash(fixture), Is.EqualTo(CatalogSortKeyGoldenHashes.ShipSlice100PlatformV2));
         }
         finally
         {
@@ -179,7 +179,7 @@ public sealed class CmoMarkdownImportGoldenTests
         }
     }
 
-    [Fact]
+    [Test]
     public void Sensor_import_path_unchanged_after_weapon_platform_cli_additions()
     {
         var markdown = CmoMarkdownImporter.ResolveMiniFixturePath();
@@ -194,8 +194,8 @@ public sealed class CmoMarkdownImportGoldenTests
                 chunkSize: 500,
                 clock: new FixedCatalogClock(26045));
 
-            Assert.Equal(12, result.ApprovedCount);
-            Assert.Single(result.Batches);
+            Assert.That(result.ApprovedCount, Is.EqualTo(12));
+            Assert.That(result.Batches, Has.Exactly(1).Items);
         }
         finally
         {
@@ -219,7 +219,7 @@ public sealed class CmoMarkdownImportGoldenTests
         foreach (var batch in propose.Batches)
         {
             using var gate = new CatalogWriteGate(dbPath, new FixedCatalogClock(clockSeed + 1));
-            Assert.True(gate.ApproveBatch(batch.BatchId, "human", "s26-golden").Committed);
+            Assert.That(gate.ApproveBatch(batch.BatchId, "human", "s26-golden").Committed, Is.True);
         }
 
         var weapons = CmoMarkdownImporter.ReadWeaponBindings(markdownPath);
@@ -250,11 +250,11 @@ public sealed class CmoMarkdownImportGoldenTests
 
         using (var gate = new CatalogWriteGate(dbPath, new FixedCatalogClock(clockSeed + 1)))
         {
-            Assert.True(gate.ApproveBatch(proposed.PlatformBatchId!, "human", "s27-golden").Committed);
-            Assert.True(gate.ApproveBatch(proposed.WeaponBatchId!, "human", "s27-golden").Committed);
-            Assert.True(gate.ApproveBatch(proposed.MountBatchId!, "human", "s27-golden").Committed);
-            Assert.True(gate.ApproveBatch(proposed.LoadoutBatchId!, "human", "s27-golden").Committed);
-            Assert.True(gate.ApproveBatch(proposed.MagazineBatchId!, "human", "s27-golden").Committed);
+            Assert.That(gate.ApproveBatch(proposed.PlatformBatchId!, "human", "s27-golden").Committed, Is.True);
+            Assert.That(gate.ApproveBatch(proposed.WeaponBatchId!, "human", "s27-golden").Committed, Is.True);
+            Assert.That(gate.ApproveBatch(proposed.MountBatchId!, "human", "s27-golden").Committed, Is.True);
+            Assert.That(gate.ApproveBatch(proposed.LoadoutBatchId!, "human", "s27-golden").Committed, Is.True);
+            Assert.That(gate.ApproveBatch(proposed.MagazineBatchId!, "human", "s27-golden").Committed, Is.True);
         }
 
         var weaponLookup = CmoMarkdownImporter.BuildWeaponNameLookup(CmoMarkdownImporter.ReadWeaponBindings(weaponPath));
@@ -290,7 +290,7 @@ public sealed class CmoMarkdownImportGoldenTests
         {
             foreach (var batch in proposed.Batches)
             {
-                Assert.True(gate.ApproveBatch(batch.BatchId, "human", "s28-golden").Committed);
+                Assert.That(gate.ApproveBatch(batch.BatchId, "human", "s28-golden").Committed, Is.True);
             }
         }
 

@@ -2,7 +2,7 @@ using ProjectAegis.Data.Catalog;
 using ProjectAegis.Data.Platform;
 using ProjectAegis.Data.Validation;
 using ProjectAegis.Data.WriteGate;
-using Xunit;
+using NUnit.Framework;
 
 namespace ProjectAegis.Data.Tests.Platform;
 
@@ -35,45 +35,45 @@ public sealed class CatalogPhaseBValidationTests
     private static PlatformWorkbookImporter ImporterFor(PlatformCatalogExportData source) =>
         new(id => string.Equals(id, SnapshotId, StringComparison.Ordinal) ? source : null, new FixedCatalogClock(0));
 
-    [Fact]
+    [Test]
     public void CatalogPhaseB_clean_workbook_has_no_validation_findings()
     {
         var workbook = Export(PhaseBData());
 
-        Assert.Empty(PlatformWorkbookValidator.Validate(workbook));
+        Assert.That(PlatformWorkbookValidator.Validate(workbook), Is.Empty);
     }
 
-    [Fact]
+    [Test]
     public void CatalogPhaseB_mobility_header_mismatch_is_blocking()
     {
         var workbook = WithSheetHeader(Export(PhaseBData()), "Mobility", ["PlatformId", "BadColumn"]);
 
-        var finding = Assert.Single(PlatformWorkbookValidator.Validate(workbook));
-        Assert.Equal(PlatformWorkbookValidator.MobilityHeaderMismatch, finding.Code);
-        Assert.Equal(ValidationSeverity.Error, finding.Severity);
+        var finding = ProjectAegis.Data.Tests.AssertEx.Single(PlatformWorkbookValidator.Validate(workbook));
+        Assert.That(finding.Code, Is.EqualTo(PlatformWorkbookValidator.MobilityHeaderMismatch));
+        Assert.That(finding.Severity, Is.EqualTo(ValidationSeverity.Error));
     }
 
-    [Fact]
+    [Test]
     public void CatalogPhaseB_signatures_header_mismatch_is_blocking()
     {
         var workbook = WithSheetHeader(Export(PhaseBData()), "Signatures", ["PlatformId", "BadColumn"]);
 
-        var finding = Assert.Single(PlatformWorkbookValidator.Validate(workbook));
-        Assert.Equal(PlatformWorkbookValidator.SignaturesHeaderMismatch, finding.Code);
-        Assert.Equal(ValidationSeverity.Error, finding.Severity);
+        var finding = ProjectAegis.Data.Tests.AssertEx.Single(PlatformWorkbookValidator.Validate(workbook));
+        Assert.That(finding.Code, Is.EqualTo(PlatformWorkbookValidator.SignaturesHeaderMismatch));
+        Assert.That(finding.Severity, Is.EqualTo(ValidationSeverity.Error));
     }
 
-    [Fact]
+    [Test]
     public void CatalogPhaseB_emcon_header_mismatch_is_blocking()
     {
         var workbook = WithSheetHeader(Export(PhaseBData()), "Emcon", ["PlatformId", "BadColumn"]);
 
-        var finding = Assert.Single(PlatformWorkbookValidator.Validate(workbook));
-        Assert.Equal(PlatformWorkbookValidator.EmconHeaderMismatch, finding.Code);
-        Assert.Equal(ValidationSeverity.Error, finding.Severity);
+        var finding = ProjectAegis.Data.Tests.AssertEx.Single(PlatformWorkbookValidator.Validate(workbook));
+        Assert.That(finding.Code, Is.EqualTo(PlatformWorkbookValidator.EmconHeaderMismatch));
+        Assert.That(finding.Severity, Is.EqualTo(ValidationSeverity.Error));
     }
 
-    [Fact]
+    [Test]
     public void CatalogPhaseB_orphan_mobility_platform_is_blocking()
     {
         var data = PhaseBData() with
@@ -81,12 +81,12 @@ public sealed class CatalogPhaseBValidationTests
             Mobility = new[] { new CatalogMobility("ghost-platform", MaxSpeedKnots: 20) },
         };
 
-        var finding = Assert.Single(PlatformWorkbookValidator.Validate(Export(data)));
-        Assert.Equal(PlatformWorkbookValidator.PhaseBOrphanPlatform, finding.Code);
-        Assert.Equal("ghost-platform", finding.UnitId);
+        var finding = ProjectAegis.Data.Tests.AssertEx.Single(PlatformWorkbookValidator.Validate(Export(data)));
+        Assert.That(finding.Code, Is.EqualTo(PlatformWorkbookValidator.PhaseBOrphanPlatform));
+        Assert.That(finding.UnitId, Is.EqualTo("ghost-platform"));
     }
 
-    [Fact]
+    [Test]
     public void CatalogPhaseB_orphan_signature_platform_is_blocking()
     {
         var data = PhaseBData() with
@@ -94,12 +94,12 @@ public sealed class CatalogPhaseBValidationTests
             Signatures = new[] { new CatalogSignature("ghost-platform", RcsBandDbsm: -5) },
         };
 
-        var finding = Assert.Single(PlatformWorkbookValidator.Validate(Export(data)));
-        Assert.Equal(PlatformWorkbookValidator.PhaseBOrphanPlatform, finding.Code);
-        Assert.Equal("ghost-platform", finding.UnitId);
+        var finding = ProjectAegis.Data.Tests.AssertEx.Single(PlatformWorkbookValidator.Validate(Export(data)));
+        Assert.That(finding.Code, Is.EqualTo(PlatformWorkbookValidator.PhaseBOrphanPlatform));
+        Assert.That(finding.UnitId, Is.EqualTo("ghost-platform"));
     }
 
-    [Fact]
+    [Test]
     public void CatalogPhaseB_orphan_emcon_platform_is_blocking()
     {
         var data = PhaseBData() with
@@ -107,32 +107,32 @@ public sealed class CatalogPhaseBValidationTests
             Emcon = new[] { new CatalogEmcon("ghost-platform", "silent", "radar-1", "off") },
         };
 
-        var finding = Assert.Single(PlatformWorkbookValidator.Validate(Export(data)));
-        Assert.Equal(PlatformWorkbookValidator.PhaseBOrphanPlatform, finding.Code);
-        Assert.Equal("ghost-platform", finding.UnitId);
+        var finding = ProjectAegis.Data.Tests.AssertEx.Single(PlatformWorkbookValidator.Validate(Export(data)));
+        Assert.That(finding.Code, Is.EqualTo(PlatformWorkbookValidator.PhaseBOrphanPlatform));
+        Assert.That(finding.UnitId, Is.EqualTo("ghost-platform"));
     }
 
-    [Fact]
+    [Test]
     public void CatalogPhaseB_invalid_emcon_condition_is_blocking()
     {
         var workbook = WithSheetCell(Export(PhaseBData()), "Emcon", 0, "Condition", "loud");
 
-        var finding = Assert.Single(PlatformWorkbookValidator.Validate(workbook));
-        Assert.Equal(PlatformWorkbookValidator.EmconInvalidCondition, finding.Code);
-        Assert.Equal(ValidationSeverity.Error, finding.Severity);
+        var finding = ProjectAegis.Data.Tests.AssertEx.Single(PlatformWorkbookValidator.Validate(workbook));
+        Assert.That(finding.Code, Is.EqualTo(PlatformWorkbookValidator.EmconInvalidCondition));
+        Assert.That(finding.Severity, Is.EqualTo(ValidationSeverity.Error));
     }
 
-    [Fact]
+    [Test]
     public void CatalogPhaseB_invalid_emcon_posture_is_blocking()
     {
         var workbook = WithSheetCell(Export(PhaseBData()), "Emcon", 0, "Posture", "passive");
 
-        var finding = Assert.Single(PlatformWorkbookValidator.Validate(workbook));
-        Assert.Equal(PlatformWorkbookValidator.EmconInvalidPosture, finding.Code);
-        Assert.Equal(ValidationSeverity.Error, finding.Severity);
+        var finding = ProjectAegis.Data.Tests.AssertEx.Single(PlatformWorkbookValidator.Validate(workbook));
+        Assert.That(finding.Code, Is.EqualTo(PlatformWorkbookValidator.EmconInvalidPosture));
+        Assert.That(finding.Severity, Is.EqualTo(ValidationSeverity.Error));
     }
 
-    [Fact]
+    [Test]
     public void CatalogPhaseB_emcon_enums_accept_case_insensitive_values()
     {
         var workbook = WithSheetCell(
@@ -142,30 +142,30 @@ public sealed class CatalogPhaseBValidationTests
             "Posture",
             "ACTIVE");
 
-        Assert.Empty(PlatformWorkbookValidator.Validate(workbook));
+        Assert.That(PlatformWorkbookValidator.Validate(workbook), Is.Empty);
     }
 
-    [Fact]
+    [Test]
     public void CatalogPhaseB_negative_max_speed_is_blocking()
     {
         var workbook = WithSheetCell(Export(PhaseBData()), "Mobility", 0, "MaxSpeedKnots", "-1");
 
-        var finding = Assert.Single(PlatformWorkbookValidator.Validate(workbook));
-        Assert.Equal(PlatformWorkbookValidator.MobilityNegativeSpeed, finding.Code);
-        Assert.Equal(ValidationSeverity.Error, finding.Severity);
+        var finding = ProjectAegis.Data.Tests.AssertEx.Single(PlatformWorkbookValidator.Validate(workbook));
+        Assert.That(finding.Code, Is.EqualTo(PlatformWorkbookValidator.MobilityNegativeSpeed));
+        Assert.That(finding.Severity, Is.EqualTo(ValidationSeverity.Error));
     }
 
-    [Fact]
+    [Test]
     public void CatalogPhaseB_negative_range_is_blocking()
     {
         var workbook = WithSheetCell(Export(PhaseBData()), "Mobility", 0, "RangeNm", "-5");
 
-        var finding = Assert.Single(PlatformWorkbookValidator.Validate(workbook));
-        Assert.Equal(PlatformWorkbookValidator.MobilityNegativeRange, finding.Code);
-        Assert.Equal(ValidationSeverity.Error, finding.Severity);
+        var finding = ProjectAegis.Data.Tests.AssertEx.Single(PlatformWorkbookValidator.Validate(workbook));
+        Assert.That(finding.Code, Is.EqualTo(PlatformWorkbookValidator.MobilityNegativeRange));
+        Assert.That(finding.Severity, Is.EqualTo(ValidationSeverity.Error));
     }
 
-    [Fact]
+    [Test]
     public void CatalogPhaseB_validation_findings_are_sorted_deterministically()
     {
         var data = PhaseBData() with
@@ -178,32 +178,32 @@ public sealed class CatalogPhaseBValidationTests
         var first = PlatformWorkbookValidator.Validate(workbook);
         var second = PlatformWorkbookValidator.Validate(workbook);
 
-        Assert.Equal(first.Select(f => f.Code), second.Select(f => f.Code));
-        Assert.Equal(first.Select(f => f.Message), second.Select(f => f.Message));
+        Assert.That(second.Select(f => f.Code), Is.EqualTo(first.Select(f => f.Code)));
+        Assert.That(second.Select(f => f.Message), Is.EqualTo(first.Select(f => f.Message)));
     }
 
-    [Fact]
+    [Test]
     public void CatalogPhaseB_clean_workbook_validation_hash_matches_golden()
     {
         var report = ValidationReport.FromFindings(PlatformWorkbookValidator.Validate(Export(PhaseBData())));
 
-        Assert.True(report.Passed);
-        Assert.Equal(ValidationGoldenHashes.PhaseBCleanWorkbook, report.ReportHash);
-        Assert.Equal(report.ReportHash, ValidationReport.FromFindings(PlatformWorkbookValidator.Validate(Export(PhaseBData()))).ReportHash);
+        Assert.That(report.Passed, Is.True);
+        Assert.That(report.ReportHash, Is.EqualTo(ValidationGoldenHashes.PhaseBCleanWorkbook));
+        Assert.That(ValidationReport.FromFindings(PlatformWorkbookValidator.Validate(Export(PhaseBData()))).ReportHash, Is.EqualTo(report.ReportHash));
     }
 
-    [Fact]
+    [Test]
     public void CatalogPhaseB_fixture_workbook_validation_hash_matches_golden()
     {
         var workbook = BuildFixtureWorkbookWithErrors();
         var report = ValidationReport.FromFindings(PlatformWorkbookValidator.Validate(workbook));
 
-        Assert.False(report.Passed);
-        Assert.Equal(ValidationGoldenHashes.PhaseBFixtureErrors, report.ReportHash);
-        Assert.Equal(report.ReportHash, ValidationReport.FromFindings(PlatformWorkbookValidator.Validate(workbook)).ReportHash);
+        Assert.That(report.Passed, Is.False);
+        Assert.That(report.ReportHash, Is.EqualTo(ValidationGoldenHashes.PhaseBFixtureErrors));
+        Assert.That(ValidationReport.FromFindings(PlatformWorkbookValidator.Validate(workbook)).ReportHash, Is.EqualTo(report.ReportHash));
     }
 
-    [Fact]
+    [Test]
     public void CatalogPhaseB_validation_error_blocks_importer_staging()
     {
         var source = PhaseBData();
@@ -212,10 +212,10 @@ public sealed class CatalogPhaseBValidationTests
 
         var result = ImporterFor(source).Stage(edited, gate, "human", "drgamtd");
 
-        Assert.True(result.Plan.Blocked);
-        Assert.False(result.Staged);
-        Assert.Empty(gate.EmconProposals);
-        Assert.Contains(result.Plan.Findings, f => f.Code == PlatformWorkbookValidator.EmconInvalidPosture);
+        Assert.That(result.Plan.Blocked, Is.True);
+        Assert.That(result.Staged, Is.False);
+        Assert.That(gate.EmconProposals, Is.Empty);
+        Assert.That(result.Plan.Findings.Any(f => f.Code == PlatformWorkbookValidator.EmconInvalidPosture), Is.True);
     }
 
     private static PlatformWorkbook BuildFixtureWorkbookWithErrors()
@@ -257,7 +257,7 @@ public sealed class CatalogPhaseBValidationTests
             }
 
             var colIndex = Array.IndexOf(sheet.Header.ToArray(), columnName);
-            Assert.True(colIndex >= 0, $"Column '{columnName}' not found on sheet '{sheetName}'.");
+            Assert.That(colIndex >= 0, Is.True, $"Column '{columnName}' not found on sheet '{sheetName}'.");
 
             var rows = sheet.Rows.Select((row, i) =>
             {

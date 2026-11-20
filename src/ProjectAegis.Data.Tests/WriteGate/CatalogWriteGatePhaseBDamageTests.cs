@@ -1,15 +1,15 @@
 using Microsoft.Data.Sqlite;
 using ProjectAegis.Data.Catalog;
 using ProjectAegis.Data.WriteGate;
-using Xunit;
+using NUnit.Framework;
 
 namespace ProjectAegis.Data.Tests.WriteGate;
 
 /// <summary>S25-04: Phase B damage write-gate staging commit (extend-only CatalogWriteGate).</summary>
-[Collection("CatalogSqlite")]
+[ProjectAegis.Data.Tests.Runner.CatalogSqliteCollection]
 public sealed class CatalogWriteGatePhaseBDamageTests
 {
-    [Fact]
+    [Test]
     public void CatalogPhaseB_ApproveBatch_damage_staging_commits_and_reader_read_back()
     {
         var dbPath = Path.Combine(Path.GetTempPath(), $"aegis-damage-approve-{Guid.NewGuid():N}.db");
@@ -30,14 +30,14 @@ public sealed class CatalogWriteGatePhaseBDamageTests
             {
                 var batchId = gate.ProposePlatformDamageBatch([damage], "agent", "phase-b-damage-gate");
                 var decision = gate.ApproveBatch(batchId, "human", "qa-reviewer");
-                Assert.True(decision.Committed);
+                Assert.That(decision.Committed, Is.True);
             }
 
             using var reader = new SqliteCatalogReader(dbPath, "phase-b-damage-readback");
-            Assert.True(reader.TryGetPlatformDamage("u1", out var committed));
-            Assert.Equal(88, committed.MaxHp, precision: 3);
-            Assert.Equal(30, committed.WithdrawThresholdPct, precision: 3);
-            Assert.Equal(2, committed.CriticalFlags);
+            Assert.That(reader.TryGetPlatformDamage("u1", out var committed), Is.True);
+            Assert.That(committed.MaxHp, Is.EqualTo(88).Within(0.005));
+            Assert.That(committed.WithdrawThresholdPct, Is.EqualTo(30).Within(0.005));
+            Assert.That(committed.CriticalFlags, Is.EqualTo(2));
         }
         finally
         {
@@ -45,7 +45,7 @@ public sealed class CatalogWriteGatePhaseBDamageTests
         }
     }
 
-    [Fact]
+    [Test]
     public void CatalogPhaseB_RejectBatch_discards_damage_staging_without_live_commit()
     {
         var dbPath = Path.Combine(Path.GetTempPath(), $"aegis-damage-reject-{Guid.NewGuid():N}.db");
@@ -58,17 +58,17 @@ public sealed class CatalogWriteGatePhaseBDamageTests
                     [new CatalogPlatformDamage("u1", MaxHp: 99)],
                     "agent",
                     "reject-test");
-                Assert.False(gate.RejectBatch(batchId, "human", "qa").Committed);
+                Assert.That(gate.RejectBatch(batchId, "human", "qa").Committed, Is.False);
             }
 
             using var reader = new SqliteCatalogReader(dbPath, "phase-b-damage-reject");
-            Assert.True(reader.TryGetPlatformDamage("u1", out var seed));
-            Assert.Equal(100, seed.MaxHp, precision: 3);
-            Assert.Equal(25, seed.WithdrawThresholdPct, precision: 3);
+            Assert.That(reader.TryGetPlatformDamage("u1", out var seed), Is.True);
+            Assert.That(seed.MaxHp, Is.EqualTo(100).Within(0.005));
+            Assert.That(seed.WithdrawThresholdPct, Is.EqualTo(25).Within(0.005));
 
             using var connection = new SqliteConnection($"Data Source={dbPath};Pooling=false");
             connection.Open();
-            Assert.Equal(0, CountRows(connection, "catalog_staging_damage"));
+            Assert.That(CountRows(connection, "catalog_staging_damage"), Is.EqualTo(0));
         }
         finally
         {
@@ -76,7 +76,7 @@ public sealed class CatalogWriteGatePhaseBDamageTests
         }
     }
 
-    [Fact]
+    [Test]
     public void CatalogPhaseB_ApproveBatch_rejects_orphan_platform_damage()
     {
         var dbPath = Path.Combine(Path.GetTempPath(), $"aegis-damage-orphan-{Guid.NewGuid():N}.db");
@@ -89,8 +89,8 @@ public sealed class CatalogWriteGatePhaseBDamageTests
                     "agent",
                     "orphan-test");
                 var decision = gate.ApproveBatch(batchId, "human", "qa");
-                Assert.False(decision.Committed);
-                Assert.Contains(decision.Errors, e => e.Contains("orphan_platform", StringComparison.Ordinal));
+                Assert.That(decision.Committed, Is.False);
+                Assert.That(decision.Errors.Any(e => e.Contains("orphan_platform", StringComparison.Ordinal)), Is.True);
             }
         }
         finally
@@ -99,7 +99,7 @@ public sealed class CatalogWriteGatePhaseBDamageTests
         }
     }
 
-    [Fact]
+    [Test]
     public void CatalogPhaseB_ProposePlatformDamageBatch_rejects_empty_batch()
     {
         var dbPath = Path.Combine(Path.GetTempPath(), $"aegis-damage-empty-{Guid.NewGuid():N}.db");
@@ -108,7 +108,7 @@ public sealed class CatalogWriteGatePhaseBDamageTests
             using var gate = new CatalogWriteGate(dbPath, new FixedCatalogClock(9604));
             var ex = Assert.Throws<ArgumentException>(() =>
                 gate.ProposePlatformDamageBatch([], "agent", "empty-test"));
-            Assert.Contains("damage row", ex.Message, StringComparison.OrdinalIgnoreCase);
+            Assert.That(ex!.Message, Does.Contain("damage row").IgnoreCase);
         }
         finally
         {
@@ -116,7 +116,7 @@ public sealed class CatalogWriteGatePhaseBDamageTests
         }
     }
 
-    [Fact]
+    [Test]
     public void CatalogPhaseB_sensor_approve_regression_unchanged_after_damage_extend()
     {
         var dbPath = Path.Combine(Path.GetTempPath(), $"aegis-sensor-damage-regression-{Guid.NewGuid():N}.db");
@@ -131,12 +131,12 @@ public sealed class CatalogWriteGatePhaseBDamageTests
                     0.71,
                     ReviewState: CatalogReviewStates.Approved);
                 var batchId = gate.ProposeSensorBatch([proposal], "agent", "regression-test");
-                Assert.True(gate.ApproveBatch(batchId, "human", "qa").Committed);
+                Assert.That(gate.ApproveBatch(batchId, "human", "qa").Committed, Is.True);
             }
 
             using var reader = new SqliteCatalogReader(dbPath, "sensor-damage-regression");
-            Assert.True(reader.TryGetBasePd("u-test", "radar-damage-regression", out var basePd));
-            Assert.Equal(0.71, basePd, precision: 3);
+            Assert.That(reader.TryGetBasePd("u-test", "radar-damage-regression", out var basePd), Is.True);
+            Assert.That(basePd, Is.EqualTo(0.71).Within(0.005));
         }
         finally
         {
@@ -144,7 +144,7 @@ public sealed class CatalogWriteGatePhaseBDamageTests
         }
     }
 
-    [Fact]
+    [Test]
     public void CatalogPhaseB_mobility_approve_regression_unchanged_after_damage_extend()
     {
         var dbPath = Path.Combine(Path.GetTempPath(), $"aegis-mobility-damage-regression-{Guid.NewGuid():N}.db");
@@ -157,12 +157,12 @@ public sealed class CatalogWriteGatePhaseBDamageTests
                     [new CatalogMobility("u1", MaxSpeedKnots: 22)],
                     "agent",
                     "mobility-regression");
-                Assert.True(gate.ApproveBatch(batchId, "human", "qa").Committed);
+                Assert.That(gate.ApproveBatch(batchId, "human", "qa").Committed, Is.True);
             }
 
             using var reader = new SqliteCatalogReader(dbPath, "mobility-damage-regression");
-            Assert.True(reader.TryGetMobility("u1", out var mobility));
-            Assert.Equal(22, mobility.MaxSpeedKnots, precision: 3);
+            Assert.That(reader.TryGetMobility("u1", out var mobility), Is.True);
+            Assert.That(mobility.MaxSpeedKnots, Is.EqualTo(22).Within(0.005));
         }
         finally
         {

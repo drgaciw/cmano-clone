@@ -1,14 +1,14 @@
 namespace ProjectAegis.Data.Tests.Validation;
 
 using ProjectAegis.Data.Validation;
-using Xunit;
+using NUnit.Framework;
 
 public sealed class ReachabilityCalculatorTests
 {
     private const double Pad = 50;
     private const double FuelFrac = 0.85;
 
-    [Fact]
+    [Test]
     public void TryClassifyStrikeUnreachable_fuel_dominated_when_inside_combat_radius()
     {
         var ok = ReachabilityCalculator.TryClassifyStrikeUnreachable(
@@ -19,12 +19,12 @@ public sealed class ReachabilityCalculatorTests
             out var excess,
             out var code);
 
-        Assert.True(ok);
-        Assert.Equal("STRIKE_UNREACHABLE_FUEL", code);
-        Assert.Equal(60, excess, precision: 1);
+        Assert.That(ok, Is.True);
+        Assert.That(code, Is.EqualTo("STRIKE_UNREACHABLE_FUEL"));
+        Assert.That(excess, Is.EqualTo(60).Within(0.5));
     }
 
-    [Fact]
+    [Test]
     public void TryClassifyStrikeUnreachable_combat_radius_when_beyond_radius()
     {
         var ok = ReachabilityCalculator.TryClassifyStrikeUnreachable(
@@ -35,14 +35,14 @@ public sealed class ReachabilityCalculatorTests
             out var excess,
             out var code);
 
-        Assert.True(ok);
-        Assert.Equal("STRIKE_UNREACHABLE", code);
-        Assert.Equal(100, excess, precision: 1);
+        Assert.That(ok, Is.True);
+        Assert.That(code, Is.EqualTo("STRIKE_UNREACHABLE"));
+        Assert.That(excess, Is.EqualTo(100).Within(0.5));
     }
 
-    [Fact]
+    [Test]
     public void IsReachable_true_when_within_fuel_budget()
     {
-        Assert.True(ReachabilityCalculator.IsReachable(280, 400, Pad, FuelFrac, out _));
+        Assert.That(ReachabilityCalculator.IsReachable(280, 400, Pad, FuelFrac, out _), Is.True);
     }
 }

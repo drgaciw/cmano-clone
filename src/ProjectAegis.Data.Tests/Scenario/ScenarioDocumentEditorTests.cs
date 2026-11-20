@@ -1,11 +1,11 @@
 using ProjectAegis.Data.Scenario.Authoring;
-using Xunit;
+using NUnit.Framework;
 
 namespace ProjectAegis.Data.Tests.Scenario;
 
 public sealed class ScenarioDocumentEditorTests
 {
-    [Fact]
+    [Test]
     public void Add_patrol_bumps_edit_version_and_round_trips_json()
     {
         var path = Path.Combine(Path.GetTempPath(), $"aegis-scenario-{Guid.NewGuid():N}.json");
@@ -28,10 +28,10 @@ public sealed class ScenarioDocumentEditorTests
             loaded.Save(path);
 
             var roundTrip = ScenarioDocumentJsonLoader.LoadFromFile(path);
-            Assert.Equal(2, roundTrip.Metadata.EditVersion);
-            Assert.Single(roundTrip.Missions);
-            Assert.Equal("Patrol", roundTrip.Missions[0].Type);
-            Assert.Equal(3, roundTrip.Missions[0].PatrolZone.Count);
+            Assert.That(roundTrip.Metadata.EditVersion, Is.EqualTo(2));
+            Assert.That(roundTrip.Missions, Has.Exactly(1).Items);
+            Assert.That(roundTrip.Missions[0].Type, Is.EqualTo("Patrol"));
+            Assert.That(roundTrip.Missions[0].PatrolZone.Count, Is.EqualTo(3));
         }
         finally
         {
@@ -42,15 +42,15 @@ public sealed class ScenarioDocumentEditorTests
         }
     }
 
-    [Fact]
+    [Test]
     public void Stale_edit_version_throws_conflict()
     {
         var editor = ScenarioDocumentEditor.CreateNew();
         var ex = Assert.Throws<ScenarioEditConflictException>(() => editor.RequireEditVersion(99));
-        Assert.Equal(ScenarioEditVersionGuard.ConflictCode, ex.Code);
+        Assert.That(ex!.Code, Is.EqualTo(ScenarioEditVersionGuard.ConflictCode));
     }
 
-    [Fact]
+    [Test]
     public void Rollback_known_snapshot_restores_captured_document()
     {
         var editor = ScenarioDocumentEditor.CreateNew();
@@ -70,13 +70,13 @@ public sealed class ScenarioDocumentEditorTests
 
         var result = editor.RollbackToSnapshot(snapshotId);
 
-        Assert.Contains($"restored {snapshotId}", result, StringComparison.Ordinal);
-        Assert.Equal(expectedHash, editor.ComputeFileHash());
-        Assert.Single(editor.Missions);
-        Assert.Equal("patrol-before", editor.Missions[0].Id);
+        Assert.That(result, Does.Contain($"restored {snapshotId}"));
+        Assert.That(editor.ComputeFileHash(), Is.EqualTo(expectedHash));
+        Assert.That(editor.Missions, Has.Exactly(1).Items);
+        Assert.That(editor.Missions[0].Id, Is.EqualTo("patrol-before"));
     }
 
-    [Fact]
+    [Test]
     public void Rollback_unknown_snapshot_reports_failure_without_mutating_document()
     {
         var editor = ScenarioDocumentEditor.CreateNew();
@@ -89,12 +89,12 @@ public sealed class ScenarioDocumentEditorTests
 
         var result = editor.RollbackToSnapshot("missing-snapshot");
 
-        Assert.Contains("not found", result, StringComparison.OrdinalIgnoreCase);
-        Assert.Equal(beforeHash, editor.ComputeFileHash());
-        Assert.Single(editor.Missions);
+        Assert.That(result, Does.Contain("not found").IgnoreCase);
+        Assert.That(editor.ComputeFileHash(), Is.EqualTo(beforeHash));
+        Assert.That(editor.Missions, Has.Exactly(1).Items);
     }
 
-    [Fact]
+    [Test]
     public void Update_and_delete_mission_round_trip()
     {
         var path = Path.Combine(Path.GetTempPath(), $"aegis-scenario-{Guid.NewGuid():N}.json");
@@ -120,14 +120,14 @@ public sealed class ScenarioDocumentEditorTests
 
             var afterUpdate = ScenarioDocumentEditor.Load(path);
             afterUpdate.RequireEditVersion(3);
-            Assert.Equal(2, afterUpdate.Missions[0].AssignedUnitIds.Count);
-            Assert.True(afterUpdate.TryRemoveMission("patrol-1"));
+            Assert.That(afterUpdate.Missions[0].AssignedUnitIds.Count, Is.EqualTo(2));
+            Assert.That(afterUpdate.TryRemoveMission("patrol-1"), Is.True);
             afterUpdate.CommitMutation();
             afterUpdate.Save(path);
 
             var finalDto = ScenarioDocumentJsonLoader.LoadFromFile(path);
-            Assert.Empty(finalDto.Missions);
-            Assert.Equal(4, finalDto.Metadata.EditVersion);
+            Assert.That(finalDto.Missions, Is.Empty);
+            Assert.That(finalDto.Metadata.EditVersion, Is.EqualTo(4));
         }
         finally
         {

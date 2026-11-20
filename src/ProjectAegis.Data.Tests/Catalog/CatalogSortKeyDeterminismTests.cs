@@ -2,14 +2,14 @@ using Microsoft.Data.Sqlite;
 using ProjectAegis.Data.Catalog;
 using ProjectAegis.Data.Platform;
 using ProjectAegis.Data.WriteGate;
-using Xunit;
+using NUnit.Framework;
 
 namespace ProjectAegis.Data.Tests.Catalog;
 
 /// <summary>
 /// S23-06 / DBI-7.3: golden-pinned sort-key ordering for Catalog* types across propose, export, and read paths.
 /// </summary>
-[Collection("CatalogSqlite")]
+[ProjectAegis.Data.Tests.Runner.CatalogSqliteCollection]
 public sealed class CatalogSortKeyDeterminismTests
 {
     private static CatalogSortKeyFixture PlatformEditorSample() => new(
@@ -46,24 +46,22 @@ public sealed class CatalogSortKeyDeterminismTests
             new CatalogCommsBinding("u1", "NATO_TADIL_J", "txrx", SatcomCapable: false),
         ]);
 
-    [Fact]
+    [Test]
     public void CatalogSortKey_fixture_ordering_hash_is_stable_across_runs()
     {
         var fixture = PlatformEditorSample();
         var first = CatalogSortKeyComparer.ComputeOrderingHash(fixture);
         var second = CatalogSortKeyComparer.ComputeOrderingHash(fixture);
-        Assert.Equal(first, second);
-        Assert.Equal(CatalogSortKeyGoldenHashes.PlatformEditorSample, first);
+        Assert.That(second, Is.EqualTo(first));
+        Assert.That(first, Is.EqualTo(CatalogSortKeyGoldenHashes.PlatformEditorSample));
     }
-
-    [Theory]
-    [InlineData("sensor", "catalog_staging_sensor", "platform_id || '/' || sensor_id")]
-    [InlineData("platform", "catalog_staging_platform", "platform_id")]
-    [InlineData("weapon", "catalog_staging_weapon", "weapon_id")]
-    [InlineData("mount", "catalog_staging_mount", "platform_id || '/' || mount_id")]
-    [InlineData("loadout", "catalog_staging_loadout", "platform_id || '/' || loadout_id")]
-    [InlineData("magazine", "catalog_staging_magazine", "platform_id || '/' || loadout_id || '/' || mount_id || '/' || weapon_id")]
-    [InlineData("comms", "catalog_staging_comms", "platform_id || '/' || link_id")]
+    [TestCase("sensor", "catalog_staging_sensor", "platform_id || '/' || sensor_id")]
+    [TestCase("platform", "catalog_staging_platform", "platform_id")]
+    [TestCase("weapon", "catalog_staging_weapon", "weapon_id")]
+    [TestCase("mount", "catalog_staging_mount", "platform_id || '/' || mount_id")]
+    [TestCase("loadout", "catalog_staging_loadout", "platform_id || '/' || loadout_id")]
+    [TestCase("magazine", "catalog_staging_magazine", "platform_id || '/' || loadout_id || '/' || mount_id || '/' || weapon_id")]
+    [TestCase("comms", "catalog_staging_comms", "platform_id || '/' || link_id")]
     public void ProposeBatch_staging_insert_order_is_stable_for_shuffled_input(
         string entity,
         string stagingTable,
@@ -86,8 +84,8 @@ public sealed class CatalogSortKeyDeterminismTests
 
             var orderA = ReadStagingKeys(dbPath, stagingTable, keyExpr, batchA);
             var orderB = ReadStagingKeys(dbPath, stagingTable, keyExpr, batchB);
-            Assert.Equal(orderA, orderB);
-            Assert.Equal(orderA, orderA.OrderBy(k => k, StringComparer.Ordinal).ToArray());
+            Assert.That(orderB, Is.EqualTo(orderA));
+            Assert.That(orderA.OrderBy(k => k, StringComparer.Ordinal).ToArray(), Is.EqualTo(orderA));
         }
         finally
         {
@@ -95,19 +93,17 @@ public sealed class CatalogSortKeyDeterminismTests
         }
     }
 
-    [Fact]
+    [Test]
     public void Display_name_alias_does_not_rewrite_platform_sort_key()
     {
         var original = new CatalogPlatformBinding("u1", "Patrol Frigate", PlatformClass: "Frigate");
         var aliased = original with { DisplayName = "Renamed Frigate (alias only)" };
 
-        Assert.Equal(
-            CatalogSortKeyComparer.FormatPlatformKey(original),
-            CatalogSortKeyComparer.FormatPlatformKey(aliased));
-        Assert.Equal("u1", CatalogSortKeyComparer.FormatPlatformKey(aliased));
+        Assert.That(            CatalogSortKeyComparer.FormatPlatformKey(aliased), Is.EqualTo(            CatalogSortKeyComparer.FormatPlatformKey(original)));
+        Assert.That(CatalogSortKeyComparer.FormatPlatformKey(aliased), Is.EqualTo("u1"));
     }
 
-    [Fact]
+    [Test]
     public void Export_workbook_row_keys_match_catalog_sort_keys()
     {
         var fixture = PlatformEditorSample();
@@ -125,34 +121,22 @@ public sealed class CatalogSortKeyDeterminismTests
 
         var workbook = new PlatformWorkbookExporter().Export(data, "baltic_patrol", new FixedCatalogClock(0));
 
-        Assert.Equal(
-            CatalogSortKeyComparer.SortPlatforms(fixture.Platforms).Select(CatalogSortKeyComparer.FormatPlatformKey).ToArray(),
-            SheetKeys(workbook, "Platforms", 0));
+        Assert.That(            SheetKeys(workbook, "Platforms", 0), Is.EqualTo(            CatalogSortKeyComparer.SortPlatforms(fixture.Platforms).Select(CatalogSortKeyComparer.FormatPlatformKey).ToArray()));
 
-        Assert.Equal(
-            CatalogSortKeyComparer.SortSensors(fixture.Sensors).Select(CatalogSortKeyComparer.FormatSensorKey).ToArray(),
-            SheetKeys(workbook, "Sensors", 0, 1));
+        Assert.That(            SheetKeys(workbook, "Sensors", 0, 1), Is.EqualTo(            CatalogSortKeyComparer.SortSensors(fixture.Sensors).Select(CatalogSortKeyComparer.FormatSensorKey).ToArray()));
 
-        Assert.Equal(
-            CatalogSortKeyComparer.SortMounts(fixture.Mounts).Select(CatalogSortKeyComparer.FormatMountKey).ToArray(),
-            SheetKeys(workbook, "Mounts", 0, 1));
+        Assert.That(            SheetKeys(workbook, "Mounts", 0, 1), Is.EqualTo(            CatalogSortKeyComparer.SortMounts(fixture.Mounts).Select(CatalogSortKeyComparer.FormatMountKey).ToArray()));
 
-        Assert.Equal(
-            CatalogSortKeyComparer.SortLoadouts(fixture.Loadouts).Select(CatalogSortKeyComparer.FormatLoadoutKey).ToArray(),
-            SheetKeys(workbook, "Loadouts", 0, 1));
+        Assert.That(            SheetKeys(workbook, "Loadouts", 0, 1), Is.EqualTo(            CatalogSortKeyComparer.SortLoadouts(fixture.Loadouts).Select(CatalogSortKeyComparer.FormatLoadoutKey).ToArray()));
 
-        Assert.Equal(
-            CatalogSortKeyComparer.SortMagazines(fixture.Magazines).Select(CatalogSortKeyComparer.FormatMagazineKey).ToArray(),
-            SheetKeys(workbook, "Magazines", 0, 1, 2, 3));
+        Assert.That(            SheetKeys(workbook, "Magazines", 0, 1, 2, 3), Is.EqualTo(            CatalogSortKeyComparer.SortMagazines(fixture.Magazines).Select(CatalogSortKeyComparer.FormatMagazineKey).ToArray()));
 
-        Assert.Equal(
-            CatalogSortKeyComparer.SortComms(fixture.Comms).Select(CatalogSortKeyComparer.FormatCommsKey).ToArray(),
-            SheetKeys(workbook, "Comms", 0, 1));
+        Assert.That(            SheetKeys(workbook, "Comms", 0, 1), Is.EqualTo(            CatalogSortKeyComparer.SortComms(fixture.Comms).Select(CatalogSortKeyComparer.FormatCommsKey).ToArray()));
 
-        Assert.NotNull(workbook.FindSheet("LinkCatalog"));
+        Assert.That(workbook.FindSheet("LinkCatalog"), Is.Not.Null);
     }
 
-    [Fact]
+    [Test]
     public void Export_workbook_hash_matches_pinned_golden()
     {
         var fixture = PlatformEditorSample();
@@ -171,8 +155,8 @@ public sealed class CatalogSortKeyDeterminismTests
         var workbook = new PlatformWorkbookExporter().Export(data, "baltic_patrol", new FixedCatalogClock(0));
         var withoutMeta = new PlatformWorkbook(workbook.Sheets.Where(s => s.Name != PlatformWorkbookHash.MetaSheetName).ToArray());
         var hash = PlatformWorkbookHash.Compute(withoutMeta);
-        Assert.Equal(hash, PlatformWorkbookHash.Compute(withoutMeta));
-        Assert.Equal(CatalogSortKeyGoldenHashes.PlatformEditorWorkbook, hash);
+        Assert.That(PlatformWorkbookHash.Compute(withoutMeta), Is.EqualTo(hash));
+        Assert.That(hash, Is.EqualTo(CatalogSortKeyGoldenHashes.PlatformEditorWorkbook));
     }
 
     private static string ProposeForEntity(CatalogWriteGate gate, string entity, object rows) => entity switch
@@ -238,8 +222,8 @@ public sealed class CatalogSortKeyDeterminismTests
     private static string[] SheetKeys(PlatformWorkbook workbook, string sheetName, params int[] keyColumns)
     {
         var sheet = workbook.FindSheet(sheetName);
-        Assert.NotNull(sheet);
-        return sheet.Rows
+        Assert.That(sheet, Is.Not.Null);
+        return sheet!.Rows
             .Select(row => string.Join('\t', keyColumns.Select(i => row[i])))
             .ToArray();
     }

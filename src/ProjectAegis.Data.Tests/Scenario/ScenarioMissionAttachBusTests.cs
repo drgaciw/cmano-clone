@@ -1,5 +1,5 @@
 using ProjectAegis.Data.Scenario.Authoring;
-using Xunit;
+using NUnit.Framework;
 
 namespace ProjectAegis.Data.Tests.Scenario;
 
@@ -9,7 +9,7 @@ namespace ProjectAegis.Data.Tests.Scenario;
 /// </summary>
 public sealed class ScenarioMissionAttachBusTests
 {
-    [Fact]
+    [Test]
     public void Attach_patrol_uses_selected_unit_ids()
     {
         var path = Path.Combine(Path.GetTempPath(), $"aegis-attach-{Guid.NewGuid():N}.json");
@@ -42,9 +42,9 @@ public sealed class ScenarioMissionAttachBusTests
                 zone,
                 save: true);
 
-            Assert.True(r.Ok);
-            Assert.Equal("Patrol", session.Editor.Missions.Single().Type);
-            Assert.Equal(new[] { "u1" }, session.Editor.Missions.Single().AssignedUnitIds);
+            Assert.That(r.Ok, Is.True);
+            Assert.That(session.Editor.Missions.Single().Type, Is.EqualTo("Patrol"));
+            Assert.That(session.Editor.Missions.Single().AssignedUnitIds, Is.EqualTo(new[] { "u1" }));
         }
         finally
         {
@@ -55,7 +55,7 @@ public sealed class ScenarioMissionAttachBusTests
         }
     }
 
-    [Fact]
+    [Test]
     public void Attach_strike_from_selection_persists_targets()
     {
         var path = Path.Combine(Path.GetTempPath(), $"aegis-attach-s-{Guid.NewGuid():N}.json");
@@ -93,14 +93,14 @@ public sealed class ScenarioMissionAttachBusTests
                 targetIds: new[] { "hostile-1" },
                 save: true);
 
-            Assert.True(r.Ok);
+            Assert.That(r.Ok, Is.True);
             var mission = session.Editor.Missions.Single();
-            Assert.Equal("Strike", mission.Type);
-            Assert.Equal(new[] { "u1" }, mission.AssignedUnitIds);
-            Assert.Equal(new[] { "hostile-1" }, mission.TargetIds);
+            Assert.That(mission.Type, Is.EqualTo("Strike"));
+            Assert.That(mission.AssignedUnitIds, Is.EqualTo(new[] { "u1" }));
+            Assert.That(mission.TargetIds, Is.EqualTo(new[] { "hostile-1" }));
 
             var reloaded = ScenarioDocumentJsonLoader.LoadFromFile(path);
-            Assert.Equal(new[] { "hostile-1" }, reloaded.Missions.Single().TargetIds);
+            Assert.That(reloaded.Missions.Single().TargetIds, Is.EqualTo(new[] { "hostile-1" }));
         }
         finally
         {
@@ -111,7 +111,7 @@ public sealed class ScenarioMissionAttachBusTests
         }
     }
 
-    [Fact]
+    [Test]
     public void Attach_support_from_selection_sets_role()
     {
         var path = Path.Combine(Path.GetTempPath(), $"aegis-attach-sup-{Guid.NewGuid():N}.json");
@@ -145,11 +145,11 @@ public sealed class ScenarioMissionAttachBusTests
                 stationZone: station,
                 save: true);
 
-            Assert.True(r.Ok);
+            Assert.That(r.Ok, Is.True);
             var mission = session.Editor.Missions.Single();
-            Assert.Equal("Support", mission.Type);
-            Assert.Equal("Tanker", mission.SupportRole);
-            Assert.Equal(new[] { "u1" }, mission.AssignedUnitIds);
+            Assert.That(mission.Type, Is.EqualTo("Support"));
+            Assert.That(mission.SupportRole, Is.EqualTo("Tanker"));
+            Assert.That(mission.AssignedUnitIds, Is.EqualTo(new[] { "u1" }));
         }
         finally
         {

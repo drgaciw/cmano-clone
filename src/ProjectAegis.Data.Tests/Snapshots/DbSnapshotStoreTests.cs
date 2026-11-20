@@ -1,13 +1,13 @@
 using ProjectAegis.Data.Catalog;
 using ProjectAegis.Data.Snapshots;
-using Xunit;
+using NUnit.Framework;
 
 namespace ProjectAegis.Data.Tests.Snapshots;
 
-[Collection("CatalogSqlite")]
+[ProjectAegis.Data.Tests.Runner.CatalogSqliteCollection]
 public sealed class DbSnapshotStoreTests
 {
-    [Fact]
+    [Test]
     public void Release_train_reads_sorted_releases()
     {
         var dbPath = Path.Combine(Path.GetTempPath(), $"aegis-release-{Guid.NewGuid():N}.db");
@@ -16,8 +16,8 @@ public sealed class DbSnapshotStoreTests
             CatalogSeedBootstrap.SeedBalticPatrol(dbPath, overwrite: true);
             using var store = new DbSnapshotStore(dbPath);
             var releases = store.GetSortedReleases();
-            Assert.Contains(releases, r => r.ReleaseVersion == "catalog-p0-2026-06-04");
-            Assert.Contains(store.GetSortedSnapshotIds(), id => id == CatalogValidationDefaults.BalticSnapshotId);
+            Assert.That(releases.Any(r => r.ReleaseVersion == "catalog-p0-2026-06-04"), Is.True);
+            Assert.That(store.GetSortedSnapshotIds().Any(id => id == CatalogValidationDefaults.BalticSnapshotId), Is.True);
         }
         finally
         {

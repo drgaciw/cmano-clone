@@ -3,7 +3,7 @@ using ProjectAegis.Data.Catalog;
 using ProjectAegis.Data.Platform;
 using ProjectAegis.Data.Validation;
 using ProjectAegis.Data.WriteGate;
-using Xunit;
+using NUnit.Framework;
 
 namespace ProjectAegis.Data.Tests.Platform;
 
@@ -37,7 +37,7 @@ public sealed class PlatformWorkbookContractTests
     private static PlatformWorkbookImporter ImporterFor(PlatformCatalogExportData source) =>
         new(id => string.Equals(id, SnapshotId, StringComparison.Ordinal) ? source : null, new FixedCatalogClock(0));
 
-    [Fact]
+    [Test]
     public void Exporter_sheets_and_columns_match_contract_in_order()
     {
         var workbook = Export(FullData());
@@ -45,36 +45,32 @@ public sealed class PlatformWorkbookContractTests
             .Where(s => !string.Equals(s.Name, PlatformWorkbookHash.MetaSheetName, StringComparison.Ordinal))
             .ToArray();
 
-        Assert.Equal(
-            PlatformWorkbookContract.Sheets.Select(s => s.Name),
-            dataSheets.Select(s => s.Name));
+        Assert.That(            dataSheets.Select(s => s.Name), Is.EqualTo(            PlatformWorkbookContract.Sheets.Select(s => s.Name)));
         foreach (var sheet in dataSheets)
         {
             var contract = PlatformWorkbookContract.Find(sheet.Name)!;
-            Assert.Equal(contract.Columns, sheet.Header);
+            Assert.That(sheet.Header, Is.EqualTo(contract.Columns));
         }
 
-        Assert.Empty(PlatformWorkbookContract.CheckDrift(workbook));
-        Assert.Equal(PlatformWorkbookExporter.SchemaVersion, PlatformWorkbookContract.SchemaVersion);
+        Assert.That(PlatformWorkbookContract.CheckDrift(workbook), Is.Empty);
+        Assert.That(PlatformWorkbookContract.SchemaVersion, Is.EqualTo(PlatformWorkbookExporter.SchemaVersion));
     }
 
-    [Fact]
+    [Test]
     public void Documented_contract_matches_code_contract()
     {
         var documented = ReadDocumentedContract();
 
-        Assert.Equal(PlatformWorkbookContract.Sheets.Select(s => s.Name), documented.Select(d => d.Sheet));
+        Assert.That(documented.Select(d => d.Sheet), Is.EqualTo(PlatformWorkbookContract.Sheets.Select(s => s.Name)));
         foreach (var (sheet, columns, stageable) in documented)
         {
             var contract = PlatformWorkbookContract.Find(sheet)!;
-            Assert.True(contract.Columns.SequenceEqual(columns), $"{sheet} columns drifted from doc: [{string.Join(",", columns)}]");
-            Assert.True(
-                contract.StageableColumns.SequenceEqual(stageable),
-                $"{sheet} stageable columns drifted from doc: [{string.Join(",", stageable)}]");
+            Assert.That(contract.Columns.SequenceEqual(columns), Is.True, $"{sheet} columns drifted from doc: [{string.Join(",", columns)}]");
+            Assert.That(                contract.StageableColumns.SequenceEqual(stageable), Is.True,                 $"{sheet} stageable columns drifted from doc: [{string.Join(",", stageable)}]");
         }
     }
 
-    [Fact]
+    [Test]
     public void Every_contract_column_edit_is_classified_as_the_contract_says()
     {
         var source = FullData();
@@ -87,16 +83,14 @@ public sealed class PlatformWorkbookContractTests
             {
                 var edited = WithCell(exported, contract.Name, 0, column, "77");
                 var plan = importer.Plan(edited);
-                var change = Assert.Single(plan.Changes);
+                var change = ProjectAegis.Data.Tests.AssertEx.Single(plan.Changes);
                 var supported = plan.SupportedChanges.Contains(change);
-                Assert.True(
-                    supported == contract.IsColumnStageable(column),
-                    $"{contract.Name}.{column}: supported={supported}, contract stageable={contract.IsColumnStageable(column)}");
+                Assert.That(                    supported == contract.IsColumnStageable(column), Is.True,                     $"{contract.Name}.{column}: supported={supported}, contract stageable={contract.IsColumnStageable(column)}");
             }
         }
     }
 
-    [Fact]
+    [Test]
     public void CheckDrift_reports_unknown_and_missing_sheets_and_columns()
     {
         var workbook = Export(FullData());
@@ -107,16 +101,16 @@ public sealed class PlatformWorkbookContractTests
 
         var drift = PlatformWorkbookContract.CheckDrift(workbook);
 
-        Assert.Contains(drift, d => d.Kind == PlatformWorkbookContractDriftKind.UnknownColumn && d.Sheet == "Sensors" && d.Column == "Notes");
-        Assert.Contains(drift, d => d.Kind == PlatformWorkbookContractDriftKind.MissingColumn && d.Sheet == "Mounts" && d.Column == "ArcDeg");
-        Assert.Contains(drift, d => d.Kind == PlatformWorkbookContractDriftKind.UnknownSheet && d.Sheet == "Scratch");
-        Assert.Contains(drift, d => d.Kind == PlatformWorkbookContractDriftKind.MissingSheet && d.Sheet == "Emcon");
-        Assert.DoesNotContain(drift, d => string.IsNullOrWhiteSpace(d.Detail));
-        Assert.Contains(drift, d => d.Column == "Notes" && d.Detail.Contains("values are not imported", StringComparison.Ordinal));
-        Assert.Contains(drift, d => d.Sheet == "Scratch" && d.Detail.Contains("rows are not imported", StringComparison.Ordinal));
+        Assert.That(drift.Any(d => d.Kind == PlatformWorkbookContractDriftKind.UnknownColumn && d.Sheet == "Sensors" && d.Column == "Notes"), Is.True);
+        Assert.That(drift.Any(d => d.Kind == PlatformWorkbookContractDriftKind.MissingColumn && d.Sheet == "Mounts" && d.Column == "ArcDeg"), Is.True);
+        Assert.That(drift.Any(d => d.Kind == PlatformWorkbookContractDriftKind.UnknownSheet && d.Sheet == "Scratch"), Is.True);
+        Assert.That(drift.Any(d => d.Kind == PlatformWorkbookContractDriftKind.MissingSheet && d.Sheet == "Emcon"), Is.True);
+        Assert.That(drift.Any(d => string.IsNullOrWhiteSpace(d.Detail)), Is.False);
+        Assert.That(drift.Any(d => d.Column == "Notes" && d.Detail.Contains("values are not imported", StringComparison.Ordinal)), Is.True);
+        Assert.That(drift.Any(d => d.Sheet == "Scratch" && d.Detail.Contains("rows are not imported", StringComparison.Ordinal)), Is.True);
     }
 
-    [Fact]
+    [Test]
     public void CheckDrift_reports_column_reorder()
     {
         var workbook = Export(FullData());
@@ -129,25 +123,25 @@ public sealed class PlatformWorkbookContractTests
 
         var drift = PlatformWorkbookContract.CheckDrift(workbook);
 
-        var order = Assert.Single(drift, d => d.Kind == PlatformWorkbookContractDriftKind.ColumnOrder && d.Sheet == "Signatures");
-        Assert.StartsWith("expected [PlatformId,RcsBandDbsm,", order.Detail, StringComparison.Ordinal);
+        var order = ProjectAegis.Data.Tests.AssertEx.Single(drift, d => d.Kind == PlatformWorkbookContractDriftKind.ColumnOrder && d.Sheet == "Signatures");
+        Assert.That(order.Detail, Does.StartWith("expected [PlatformId,RcsBandDbsm,"));
     }
 
-    [Fact]
+    [Test]
     public void Clean_round_trip_reports_zero_silent_drops()
     {
         var source = FullData();
 
         var plan = ImporterFor(source).Plan(Export(source));
 
-        Assert.Empty(plan.ContractDrift);
-        Assert.False(plan.DropCounts.HasDrops);
-        Assert.Equal(0, plan.DropCounts.IgnoredRows);
-        Assert.Equal(0, plan.DropCounts.IgnoredFields);
-        Assert.Contains("0 ignored", plan.DropCounts.Summary, StringComparison.Ordinal);
+        Assert.That(plan.ContractDrift, Is.Empty);
+        Assert.That(plan.DropCounts.HasDrops, Is.False);
+        Assert.That(plan.DropCounts.IgnoredRows, Is.EqualTo(0));
+        Assert.That(plan.DropCounts.IgnoredFields, Is.EqualTo(0));
+        Assert.That(plan.DropCounts.Summary, Does.Contain("0 ignored"));
     }
 
-    [Fact]
+    [Test]
     public void Unknown_column_fields_are_counted_not_silently_dropped()
     {
         var source = FullData();
@@ -155,14 +149,14 @@ public sealed class PlatformWorkbookContractTests
 
         var plan = ImporterFor(source).Plan(edited);
 
-        Assert.Equal(1, plan.DropCounts.UnknownColumnFields);
-        Assert.Equal(1, plan.DropCounts.HeaderDriftRows);
-        Assert.True(plan.DropCounts.HasDrops);
-        Assert.Contains(plan.ContractDrift, d => d.Column == "Notes");
-        Assert.Contains("unknown-column field", plan.DropCounts.Summary, StringComparison.Ordinal);
+        Assert.That(plan.DropCounts.UnknownColumnFields, Is.EqualTo(1));
+        Assert.That(plan.DropCounts.HeaderDriftRows, Is.EqualTo(1));
+        Assert.That(plan.DropCounts.HasDrops, Is.True);
+        Assert.That(plan.ContractDrift.Any(d => d.Column == "Notes"), Is.True);
+        Assert.That(plan.DropCounts.Summary, Does.Contain("unknown-column field"));
     }
 
-    [Fact]
+    [Test]
     public void Rows_in_unknown_sheets_are_counted()
     {
         var source = FullData();
@@ -172,11 +166,11 @@ public sealed class PlatformWorkbookContractTests
 
         var plan = ImporterFor(source).Plan(edited);
 
-        Assert.Equal(1, plan.DropCounts.UnknownSheets);
-        Assert.Equal(2, plan.DropCounts.UnknownSheetRows);
+        Assert.That(plan.DropCounts.UnknownSheets, Is.EqualTo(1));
+        Assert.That(plan.DropCounts.UnknownSheetRows, Is.EqualTo(2));
     }
 
-    [Fact]
+    [Test]
     public void Removed_rows_overflow_cells_and_unstageable_platform_edits_are_counted()
     {
         var source = FullData();
@@ -192,12 +186,12 @@ public sealed class PlatformWorkbookContractTests
 
         var plan = ImporterFor(source).Plan(edited);
 
-        Assert.Equal(2, plan.DropCounts.UnstageableEdits);
-        Assert.Equal(1, plan.DropCounts.RemovedRowsNotStaged);
-        Assert.Equal(1, plan.DropCounts.OverflowFields);
+        Assert.That(plan.DropCounts.UnstageableEdits, Is.EqualTo(2));
+        Assert.That(plan.DropCounts.RemovedRowsNotStaged, Is.EqualTo(1));
+        Assert.That(plan.DropCounts.OverflowFields, Is.EqualTo(1));
     }
 
-    [Fact]
+    [Test]
     public void Stage_surfaces_silent_drop_note_and_result_counts_include_stage_quarantine()
     {
         var source = FullData();
@@ -206,12 +200,12 @@ public sealed class PlatformWorkbookContractTests
 
         var result = ImporterFor(source).Stage(edited, new RecordingGate(), "human", "drgamtd");
 
-        Assert.Contains(result.Notes, n => n.StartsWith("Silent-drop guard:", StringComparison.Ordinal));
-        Assert.Equal(result.QuarantineEntries.Count, result.DropCounts.QuarantinedRows);
-        Assert.True(result.DropCounts.HasDrops);
+        Assert.That(result.Notes.Any(n => n.StartsWith("Silent-drop guard:", StringComparison.Ordinal)), Is.True);
+        Assert.That(result.DropCounts.QuarantinedRows, Is.EqualTo(result.QuarantineEntries.Count));
+        Assert.That(result.DropCounts.HasDrops, Is.True);
     }
 
-    [Fact]
+    [Test]
     public void Out_of_range_platform_latlon_is_flagged_with_actionable_warning()
     {
         var source = FullData();
@@ -220,25 +214,25 @@ public sealed class PlatformWorkbookContractTests
 
         var plan = ImporterFor(source).Plan(edited);
 
-        Assert.Equal(2, plan.LatLonFindings.Count);
+        Assert.That(plan.LatLonFindings.Count, Is.EqualTo(2));
         foreach (var finding in plan.LatLonFindings)
         {
-            Assert.Equal(PlatformWorkbookLatLonDiagnostics.FindingCode, finding.Code);
-            Assert.Equal(ValidationSeverity.Warning, finding.Severity);
-            Assert.Equal("u1", finding.UnitId);
-            Assert.Contains("Mission Editor", finding.Message, StringComparison.Ordinal);
+            Assert.That(finding.Code, Is.EqualTo(PlatformWorkbookLatLonDiagnostics.FindingCode));
+            Assert.That(finding.Severity, Is.EqualTo(ValidationSeverity.Warning));
+            Assert.That(finding.UnitId, Is.EqualTo("u1"));
+            Assert.That(finding.Message, Does.Contain("Mission Editor"));
         }
-        Assert.Contains(plan.LatLonFindings, f => f.Message.Contains("between -90 and 90", StringComparison.Ordinal));
-        Assert.Contains(plan.LatLonFindings, f => f.Message.Contains("decimal", StringComparison.Ordinal));
-        Assert.False(plan.Blocked);
+        Assert.That(plan.LatLonFindings.Any(f => f.Message.Contains("between -90 and 90", StringComparison.Ordinal)), Is.True);
+        Assert.That(plan.LatLonFindings.Any(f => f.Message.Contains("decimal", StringComparison.Ordinal)), Is.True);
+        Assert.That(plan.Blocked, Is.False);
     }
 
-    [Fact]
+    [Test]
     public void Valid_platform_latlon_produces_no_messages()
     {
         var source = FullData();
 
-        Assert.Empty(PlatformWorkbookLatLonDiagnostics.Check(Export(source)));
+        Assert.That(PlatformWorkbookLatLonDiagnostics.Check(Export(source)), Is.Empty);
     }
 
     private static IReadOnlyList<(string Sheet, string[] Columns, string[] Stageable)> ReadDocumentedContract()
@@ -247,7 +241,7 @@ public sealed class PlatformWorkbookContractTests
         var text = File.ReadAllText(path);
         var start = text.IndexOf("<!-- contract:start -->", StringComparison.Ordinal);
         var end = text.IndexOf("<!-- contract:end -->", StringComparison.Ordinal);
-        Assert.True(start >= 0 && end > start, "contract markers missing from platform-workbook-contract.md");
+        Assert.That(start >= 0 && end > start, Is.True, "contract markers missing from platform-workbook-contract.md");
 
         var rows = new List<(string, string[], string[])>();
         foreach (var line in text[start..end].Split('\n'))

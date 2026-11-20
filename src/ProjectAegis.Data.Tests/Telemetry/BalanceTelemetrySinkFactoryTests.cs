@@ -1,22 +1,22 @@
 using ProjectAegis.Data.Telemetry;
-using Xunit;
+using NUnit.Framework;
 
 namespace ProjectAegis.Data.Tests.Telemetry;
 
 public sealed class BalanceTelemetrySinkFactoryTests
 {
-    [Fact]
+    [Test]
     public void Default_feature_flags_return_no_op_sink()
     {
         var sink = BalanceTelemetrySinkFactory.Create();
-        Assert.Same(NoOpBalanceTelemetrySink.Instance, sink);
-        Assert.False(new BalanceDriftFeatureFlags().EnableBalanceDrift);
+        Assert.That(sink, Is.SameAs(NoOpBalanceTelemetrySink.Instance));
+        Assert.That(new BalanceDriftFeatureFlags().EnableBalanceDrift, Is.False);
     }
 
-    [Fact]
+    [Test]
     public void Enabled_feature_flag_returns_real_accumulator()
     {
         var sink = BalanceTelemetrySinkFactory.Create(new BalanceDriftFeatureFlags { EnableBalanceDrift = true });
-        Assert.IsType<BalanceTelemetryAccumulator>(sink);
+        Assert.That(sink, Is.TypeOf<BalanceTelemetryAccumulator>());
     }
 }

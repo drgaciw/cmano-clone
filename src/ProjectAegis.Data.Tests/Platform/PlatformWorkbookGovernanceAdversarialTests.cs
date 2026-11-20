@@ -3,7 +3,7 @@ using ProjectAegis.Data.Catalog;
 using ProjectAegis.Data.Platform;
 using ProjectAegis.Data.Snapshots;
 using ProjectAegis.Data.WriteGate;
-using Xunit;
+using NUnit.Framework;
 
 namespace ProjectAegis.Data.Tests.Platform;
 
@@ -12,7 +12,7 @@ namespace ProjectAegis.Data.Tests.Platform;
 /// TRL gate (PLE-4.4). Strengthens existing governance against silent gate leakage,
 /// sort drift, and release bookkeeping corruption.
 /// </summary>
-[Collection("CatalogSqlite")]
+[ProjectAegis.Data.Tests.Runner.CatalogSqliteCollection]
 public sealed class PlatformWorkbookGovernanceAdversarialTests
 {
     private const string SnapshotId = "baltic_patrol";
@@ -23,7 +23,7 @@ public sealed class PlatformWorkbookGovernanceAdversarialTests
     /// Attack: orphan FK must never touch any FakeWriteGate proposal collection
     /// (not only MobilityProposals).
     /// </summary>
-    [Fact]
+    [Test]
     public void Adversarial_orphan_fk_never_reaches_any_FakeWriteGate_collection()
     {
         var source = BaseDataWithPhaseB();
@@ -35,19 +35,19 @@ public sealed class PlatformWorkbookGovernanceAdversarialTests
 
         var result = ImporterFor(source).Stage(Export(editedData), gate, "human", "adv-w2", "orphan");
 
-        Assert.False(result.Staged);
+        Assert.That(result.Staged, Is.False);
         AssertGateUntouched(gate);
-        Assert.NotEmpty(result.QuarantineEntries);
-        Assert.Contains(result.QuarantineEntries, q =>
+        Assert.That(result.QuarantineEntries, Is.Not.Empty);
+        Assert.That(result.QuarantineEntries.Any(q =>
             q.Reason == PlatformWorkbookValidator.PhaseBOrphanPlatform
-            && q.PlatformId == "unknown-platform");
+            && q.PlatformId == "unknown-platform"), Is.True);
     }
 
     /// <summary>
     /// Attack: two dangling magazine FKs → ≥2 quarantine entries, sorted by
     /// (EntityKind, PlatformId, EntityId).
     /// </summary>
-    [Fact]
+    [Test]
     public void Adversarial_multiple_fk_findings_quarantine_sorted_deterministically()
     {
         var source = BaseData();
@@ -63,11 +63,11 @@ public sealed class PlatformWorkbookGovernanceAdversarialTests
 
         var result = ImporterFor(source).Stage(Export(editedData), gate, "human", "adv-w2", "multi-fk");
 
-        Assert.False(result.Staged);
+        Assert.That(result.Staged, Is.False);
         AssertGateUntouched(gate);
-        Assert.True(result.QuarantineEntries.Count >= 2, $"expected ≥2 quarantine, got {result.QuarantineEntries.Count}");
-        Assert.Contains(result.QuarantineEntries, q => q.Reason == PlatformWorkbookValidator.MagazineUnknownMount);
-        Assert.Contains(result.QuarantineEntries, q => q.Reason == PlatformWorkbookValidator.MagazineUnknownLoadout);
+        Assert.That(result.QuarantineEntries.Count >= 2, Is.True, $"expected ≥2 quarantine, got {result.QuarantineEntries.Count}");
+        Assert.That(result.QuarantineEntries.Any(q => q.Reason == PlatformWorkbookValidator.MagazineUnknownMount), Is.True);
+        Assert.That(result.QuarantineEntries.Any(q => q.Reason == PlatformWorkbookValidator.MagazineUnknownLoadout), Is.True);
 
         AssertQuarantineSortedByEntityKindPlatformIdEntityId(result.QuarantineEntries);
         AssertQuarantineSortedByEntityKindPlatformIdEntityId(result.Plan.QuarantineEntries);
@@ -77,7 +77,7 @@ public sealed class PlatformWorkbookGovernanceAdversarialTests
     /// Attack: plan-time quarantine for pure FK must be a subset of stage-time when Stage
     /// adds no TRL rows (blocked early on validation errors).
     /// </summary>
-    [Fact]
+    [Test]
     public void Adversarial_plan_time_quarantine_subset_of_stage_for_pure_fk()
     {
         var source = BaseData();
@@ -94,23 +94,23 @@ public sealed class PlatformWorkbookGovernanceAdversarialTests
         var plan = importer.Plan(edited);
         var stage = importer.Stage(edited, new FakeWriteGate(), "human", "adv-w2", "plan-stage-parity");
 
-        Assert.NotEmpty(plan.QuarantineEntries);
-        Assert.True(plan.Blocked);
+        Assert.That(plan.QuarantineEntries, Is.Not.Empty);
+        Assert.That(plan.Blocked, Is.True);
         // Pure FK: Stage returns EmptyImportResult with plan quarantine only (no TRL append).
-        Assert.Equal(plan.QuarantineEntries.Count, stage.QuarantineEntries.Count);
+        Assert.That(stage.QuarantineEntries.Count, Is.EqualTo(plan.QuarantineEntries.Count));
         foreach (var planEntry in plan.QuarantineEntries)
         {
-            Assert.Contains(stage.QuarantineEntries, s =>
+            Assert.That(stage.QuarantineEntries.Any(s =>
                 s.EntityKind == planEntry.EntityKind
                 && s.PlatformId == planEntry.PlatformId
                 && s.EntityId == planEntry.EntityId
                 && s.Reason == planEntry.Reason
-                && s.SourceSheet == planEntry.SourceSheet);
+                && s.SourceSheet == planEntry.SourceSheet), Is.True);
         }
     }
 
     /// <summary>Attack: every quarantine entry must carry non-empty Reason and SourceSheet.</summary>
-    [Fact]
+    [Test]
     public void Adversarial_quarantine_detail_reason_and_source_sheet_always_set()
     {
         var source = BaseDataWithPhaseB();
@@ -124,16 +124,16 @@ public sealed class PlatformWorkbookGovernanceAdversarialTests
         };
         var result = ImporterFor(source).Stage(Export(editedData), new FakeWriteGate(), "human", "adv-w2");
 
-        Assert.NotEmpty(result.QuarantineEntries);
+        Assert.That(result.QuarantineEntries, Is.Not.Empty);
         foreach (var q in result.QuarantineEntries)
         {
-            Assert.False(string.IsNullOrWhiteSpace(q.Reason), $"Reason empty for {q.EntityKind}/{q.PlatformId}/{q.EntityId}");
-            Assert.False(string.IsNullOrWhiteSpace(q.SourceSheet), $"SourceSheet empty for {q.EntityKind}/{q.PlatformId}/{q.EntityId}");
+            Assert.That(string.IsNullOrWhiteSpace(q.Reason), Is.False, $"Reason empty for {q.EntityKind}/{q.PlatformId}/{q.EntityId}");
+            Assert.That(string.IsNullOrWhiteSpace(q.SourceSheet), Is.False, $"SourceSheet empty for {q.EntityKind}/{q.PlatformId}/{q.EntityId}");
         }
     }
 
     /// <summary>Attack: clean / unedited paths must leave quarantine empty.</summary>
-    [Fact]
+    [Test]
     public void Adversarial_approved_clean_paths_have_zero_quarantine()
     {
         var source = BaseData(
@@ -160,12 +160,12 @@ public sealed class PlatformWorkbookGovernanceAdversarialTests
         };
 
         var unedited = ImporterFor(source).Stage(Export(source), new FakeWriteGate(), "human", "adv-w2");
-        Assert.Empty(unedited.QuarantineEntries);
-        Assert.Empty(unedited.Plan.QuarantineEntries);
+        Assert.That(unedited.QuarantineEntries, Is.Empty);
+        Assert.That(unedited.Plan.QuarantineEntries, Is.Empty);
 
         var cleanEdit = ImporterFor(source).Stage(Export(editedClean), new FakeWriteGate(), "human", "adv-w2");
-        Assert.True(cleanEdit.Staged);
-        Assert.Empty(cleanEdit.QuarantineEntries);
+        Assert.That(cleanEdit.Staged, Is.True);
+        Assert.That(cleanEdit.QuarantineEntries, Is.Empty);
     }
 
     // ── PLE-4.4 TRL gate ────────────────────────────────────────────────────
@@ -174,7 +174,7 @@ public sealed class PlatformWorkbookGovernanceAdversarialTests
     /// Attack: mixed batch — only high-TRL approved stages; low-TRL provisional quarantined
     /// with CatalogImportGate rejection reason string present.
     /// </summary>
-    [Fact]
+    [Test]
     public void Adversarial_mixed_batch_only_high_trl_approved_stages()
     {
         var source = SensorPairSource(
@@ -187,48 +187,48 @@ public sealed class PlatformWorkbookGovernanceAdversarialTests
 
         var result = ImporterFor(source).Stage(Export(edited), gate, "human", "adv-w2", "mixed");
 
-        Assert.True(result.Staged);
-        var proposed = Assert.Single(Assert.Single(gate.SensorProposals));
-        Assert.Equal("sensor-hi", proposed.SensorId);
+        Assert.That(result.Staged, Is.True);
+        var proposed = ProjectAegis.Data.Tests.AssertEx.Single(ProjectAegis.Data.Tests.AssertEx.Single(gate.SensorProposals));
+        Assert.That(proposed.SensorId, Is.EqualTo("sensor-hi"));
 
-        var q = Assert.Single(result.QuarantineEntries, e => e.EntityId == "sensor-lo");
-        Assert.Equal("sensor", q.EntityKind);
-        Assert.Contains(q.Reason, new[] { "trl_below_minimum", "review_state_provisional" });
+        var q = ProjectAegis.Data.Tests.AssertEx.Single(result.QuarantineEntries, e => e.EntityId == "sensor-lo");
+        Assert.That(q.EntityKind, Is.EqualTo("sensor"));
+        Assert.That(new[] { "trl_below_minimum", "review_state_provisional" }, Does.Contain(q.Reason));
         // CatalogImportGate reason must match PartitionForImport output for same binding.
         var lowBinding = edited.Sensors.Single(s => s.SensorId == "sensor-lo");
         var (_, gatedOut) = CatalogImportGate.PartitionForImport([lowBinding]);
-        Assert.Equal(gatedOut[0].RejectionReason, q.Reason);
+        Assert.That(q.Reason, Is.EqualTo(gatedOut[0].RejectionReason));
     }
 
     /// <summary>Attack: TrlLevel == DefaultMinimumTrl (4) + approved stages; 3 + approved quarantines.</summary>
-    [Fact]
+    [Test]
     public void Adversarial_boundary_trl_default_minimum_inclusive()
     {
-        Assert.Equal(4, CatalogImportGate.DefaultMinimumTrl);
+        Assert.That(CatalogImportGate.DefaultMinimumTrl, Is.EqualTo(4));
 
         var atFloor = StageSingleSensor(
             ReviewState: CatalogReviewStates.Approved,
             TrlLevel: CatalogImportGate.DefaultMinimumTrl,
             basePdBefore: 0.80,
             basePdAfter: 0.60);
-        Assert.True(atFloor.Result.Staged);
-        Assert.Empty(atFloor.Result.QuarantineEntries);
-        Assert.Equal("sensor-boundary", Assert.Single(Assert.Single(atFloor.Gate.SensorProposals)).SensorId);
+        Assert.That(atFloor.Result.Staged, Is.True);
+        Assert.That(atFloor.Result.QuarantineEntries, Is.Empty);
+        Assert.That(ProjectAegis.Data.Tests.AssertEx.Single(ProjectAegis.Data.Tests.AssertEx.Single(atFloor.Gate.SensorProposals)).SensorId, Is.EqualTo("sensor-boundary"));
 
         var below = StageSingleSensor(
             ReviewState: CatalogReviewStates.Approved,
             TrlLevel: CatalogImportGate.DefaultMinimumTrl - 1,
             basePdBefore: 0.80,
             basePdAfter: 0.60);
-        Assert.False(below.Result.Staged);
-        Assert.Empty(below.Gate.SensorProposals);
-        var q = Assert.Single(below.Result.QuarantineEntries);
-        Assert.Equal("trl_below_minimum", q.Reason);
-        Assert.Equal("sensor-boundary", q.EntityId);
+        Assert.That(below.Result.Staged, Is.False);
+        Assert.That(below.Gate.SensorProposals, Is.Empty);
+        var q = ProjectAegis.Data.Tests.AssertEx.Single(below.Result.QuarantineEntries);
+        Assert.That(q.Reason, Is.EqualTo("trl_below_minimum"));
+        Assert.That(q.EntityId, Is.EqualTo("sensor-boundary"));
     }
 
     /// <summary>Attack: Approved review state with TRL below floor must still quarantine (both gates).</summary>
-    [Fact]
+    [Test]
     public void Adversarial_approved_but_below_trl_quarantines()
     {
         var staged = StageSingleSensor(
@@ -237,19 +237,19 @@ public sealed class PlatformWorkbookGovernanceAdversarialTests
             basePdBefore: 0.70,
             basePdAfter: 0.40);
 
-        Assert.False(staged.Result.Staged);
+        Assert.That(staged.Result.Staged, Is.False);
         AssertGateUntouched(staged.Gate);
-        var q = Assert.Single(staged.Result.QuarantineEntries);
-        Assert.Equal("trl_below_minimum", q.Reason);
-        Assert.Contains("TrlLevel=2", q.Detail, StringComparison.Ordinal);
-        Assert.Contains("ReviewState=approved", q.Detail, StringComparison.OrdinalIgnoreCase);
+        var q = ProjectAegis.Data.Tests.AssertEx.Single(staged.Result.QuarantineEntries);
+        Assert.That(q.Reason, Is.EqualTo("trl_below_minimum"));
+        Assert.That(q.Detail, Does.Contain("TrlLevel=2"));
+        Assert.That(q.Detail, Does.Contain("ReviewState=approved").IgnoreCase);
     }
 
     /// <summary>
     /// Attack: ReviewState casing must match CatalogImportGate OrdinalIgnoreCase —
     /// "Approved" and "approved" both pass when TRL is high.
     /// </summary>
-    [Fact]
+    [Test]
     public void Adversarial_review_state_casing_matches_CatalogImportGate()
     {
         // Direct gate: mixed case approved is accepted.
@@ -258,8 +258,8 @@ public sealed class PlatformWorkbookGovernanceAdversarialTests
         var lowerCase = new CatalogSensorBinding(
             "u1", "s2", 0.9, ReviewState: "approved", TrlLevel: 9);
         var (gateApproved, gateQuarantined) = CatalogImportGate.PartitionForImport([titleCase, lowerCase]);
-        Assert.Equal(2, gateApproved.Length);
-        Assert.Empty(gateQuarantined);
+        Assert.That(gateApproved.Length, Is.EqualTo(2));
+        Assert.That(gateQuarantined, Is.Empty);
 
         // Importer path: Title Case "Approved" written into workbook must stage like lowercase.
         var source = BaseData(sensors: new[]
@@ -281,17 +281,12 @@ public sealed class PlatformWorkbookGovernanceAdversarialTests
         var gate = new FakeWriteGate();
         var result = ImporterFor(source).Stage(editedWb, gate, "human", "adv-w2", "case");
 
-        Assert.True(result.Staged);
-        Assert.Empty(result.QuarantineEntries);
-        var proposed = Assert.Single(Assert.Single(gate.SensorProposals));
-        Assert.Equal("sensor-case", proposed.SensorId);
+        Assert.That(result.Staged, Is.True);
+        Assert.That(result.QuarantineEntries, Is.Empty);
+        var proposed = ProjectAegis.Data.Tests.AssertEx.Single(ProjectAegis.Data.Tests.AssertEx.Single(gate.SensorProposals));
+        Assert.That(proposed.SensorId, Is.EqualTo("sensor-case"));
         // Gate accepts Title Case the same as lowercase approved.
-        Assert.Equal(
-            CatalogReviewStates.Approved,
-            proposed.ReviewState,
-            ignoreCase: true,
-            ignoreLineEndingDifferences: false,
-            ignoreWhiteSpaceDifferences: false);
+        Assert.That(            proposed.ReviewState, Is.EqualTo(            CatalogReviewStates.Approved).IgnoreCase);
     }
 
     // ── PLE-3.5 release ─────────────────────────────────────────────────────
@@ -299,7 +294,7 @@ public sealed class PlatformWorkbookGovernanceAdversarialTests
     /// <summary>
     /// Attack: RejectBatches / empty Approve must not invent a db_release row or ReleaseVersion.
     /// </summary>
-    [Fact]
+    [Test]
     public void Adversarial_no_commit_no_new_release()
     {
         var writeService = new PlatformWorkbookWriteService();
@@ -318,25 +313,25 @@ public sealed class PlatformWorkbookGovernanceAdversarialTests
 
             var propose = writeService.Propose(
                 dbPath, edited, new FixedCatalogClock(9801), "human", "adv-w2", "no-release");
-            var batchId = Assert.Single(propose.BatchIds);
+            var batchId = ProjectAegis.Data.Tests.AssertEx.Single(propose.BatchIds);
 
             // Empty approve list: no commit → no release metadata.
             var emptyApprove = writeService.ApproveBatches(
                 dbPath, Array.Empty<string>(), new FixedCatalogClock(9802), "human", "qa");
-            Assert.Empty(emptyApprove.CommittedBatchIds);
-            Assert.Null(emptyApprove.ReleaseVersion);
-            Assert.Null(emptyApprove.SnapshotId);
-            Assert.Null(emptyApprove.ContentHashSha256);
+            Assert.That(emptyApprove.CommittedBatchIds, Is.Empty);
+            Assert.That(emptyApprove.ReleaseVersion, Is.Null);
+            Assert.That(emptyApprove.SnapshotId, Is.Null);
+            Assert.That(emptyApprove.ContentHashSha256, Is.Null);
 
             var reject = writeService.RejectBatches(
                 dbPath, [batchId], new FixedCatalogClock(9803), "human", "qa", "reject");
-            Assert.Empty(reject.CommittedBatchIds);
-            Assert.Null(reject.ReleaseVersion);
-            Assert.Null(reject.SnapshotId);
-            Assert.Null(reject.ContentHashSha256);
+            Assert.That(reject.CommittedBatchIds, Is.Empty);
+            Assert.That(reject.ReleaseVersion, Is.Null);
+            Assert.That(reject.SnapshotId, Is.Null);
+            Assert.That(reject.ContentHashSha256, Is.Null);
 
             using var storeAfter = new DbSnapshotStore(dbPath);
-            Assert.Equal(releaseCountBefore, storeAfter.GetSortedReleases().Count);
+            Assert.That(storeAfter.GetSortedReleases().Count, Is.EqualTo(releaseCountBefore));
         }
         finally
         {
@@ -348,7 +343,7 @@ public sealed class PlatformWorkbookGovernanceAdversarialTests
     /// Attack: second ApproveBatches of already-committed ids must not crash and must not
     /// invent a second release version (staging gone → no commit → no BindAfterApprove).
     /// </summary>
-    [Fact]
+    [Test]
     public void Adversarial_double_ApproveBatches_idempotent_release_bookkeeping()
     {
         var writeService = new PlatformWorkbookWriteService();
@@ -361,34 +356,34 @@ public sealed class PlatformWorkbookGovernanceAdversarialTests
 
             var propose = writeService.Propose(
                 dbPath, edited, new FixedCatalogClock(9811), "human", "adv-w2", "double");
-            var batchId = Assert.Single(propose.BatchIds);
+            var batchId = ProjectAegis.Data.Tests.AssertEx.Single(propose.BatchIds);
 
             var first = writeService.ApproveBatches(
                 dbPath, [batchId], new FixedCatalogClock(9812), "human", "qa");
-            Assert.True(first.AllCommitted);
-            Assert.False(string.IsNullOrWhiteSpace(first.ReleaseVersion));
+            Assert.That(first.AllCommitted, Is.True);
+            Assert.That(string.IsNullOrWhiteSpace(first.ReleaseVersion), Is.False);
 
             int releaseCountAfterFirst;
             using (var store = new DbSnapshotStore(dbPath))
             {
                 releaseCountAfterFirst = store.GetSortedReleases().Count;
-                Assert.Contains(store.GetSortedReleases(), r =>
-                    string.Equals(r.ReleaseVersion, first.ReleaseVersion, StringComparison.Ordinal));
+                Assert.That(store.GetSortedReleases().Any(r =>
+                    string.Equals(r.ReleaseVersion, first.ReleaseVersion, StringComparison.Ordinal)), Is.True);
             }
 
             // Second approve of the same batch: staging cleared → explicit error, no new commit/release.
             var second = writeService.ApproveBatches(
                 dbPath, [batchId], new FixedCatalogClock(9813), "human", "qa");
-            Assert.Empty(second.CommittedBatchIds);
-            Assert.Contains(batchId, second.ProcessedBatchIds);
-            Assert.True(second.Errors.ContainsKey(batchId));
-            Assert.Null(second.ReleaseVersion);
-            Assert.Null(second.SnapshotId);
+            Assert.That(second.CommittedBatchIds, Is.Empty);
+            Assert.That(second.ProcessedBatchIds, Does.Contain(batchId));
+            Assert.That(second.Errors.ContainsKey(batchId), Is.True);
+            Assert.That(second.ReleaseVersion, Is.Null);
+            Assert.That(second.SnapshotId, Is.Null);
 
             using var storeAfter = new DbSnapshotStore(dbPath);
-            Assert.Equal(releaseCountAfterFirst, storeAfter.GetSortedReleases().Count);
-            Assert.Equal(1, storeAfter.GetSortedReleases()
-                .Count(r => string.Equals(r.ReleaseVersion, first.ReleaseVersion, StringComparison.Ordinal)));
+            Assert.That(storeAfter.GetSortedReleases().Count, Is.EqualTo(releaseCountAfterFirst));
+            Assert.That(storeAfter.GetSortedReleases()
+                .Count(r => string.Equals(r.ReleaseVersion, first.ReleaseVersion, StringComparison.Ordinal)), Is.EqualTo(1));
         }
         finally
         {
@@ -399,7 +394,7 @@ public sealed class PlatformWorkbookGovernanceAdversarialTests
     /// <summary>
     /// Attack: propose-only path never creates a release (negative of BindAfterApprove on commit).
     /// </summary>
-    [Fact]
+    [Test]
     public void Adversarial_propose_only_never_creates_release()
     {
         var writeService = new PlatformWorkbookWriteService();
@@ -418,11 +413,11 @@ public sealed class PlatformWorkbookGovernanceAdversarialTests
 
             var propose = writeService.Propose(
                 dbPath, edited, new FixedCatalogClock(9821), "human", "adv-w2", "propose-only");
-            Assert.True(propose.Proposed);
-            Assert.NotEmpty(propose.BatchIds);
+            Assert.That(propose.Proposed, Is.True);
+            Assert.That(propose.BatchIds, Is.Not.Empty);
 
             using var storeAfter = new DbSnapshotStore(dbPath);
-            Assert.Equal(releaseCountBefore, storeAfter.GetSortedReleases().Count);
+            Assert.That(storeAfter.GetSortedReleases().Count, Is.EqualTo(releaseCountBefore));
         }
         finally
         {
@@ -504,18 +499,18 @@ public sealed class PlatformWorkbookGovernanceAdversarialTests
 
     private static void AssertGateUntouched(FakeWriteGate gate)
     {
-        Assert.Empty(gate.SensorProposals);
-        Assert.Empty(gate.MountProposals);
-        Assert.Empty(gate.LoadoutProposals);
-        Assert.Empty(gate.MagazineProposals);
-        Assert.Empty(gate.CommsProposals);
-        Assert.Empty(gate.LinkProposals);
-        Assert.Empty(gate.MobilityProposals);
-        Assert.Empty(gate.SignatureProposals);
-        Assert.Empty(gate.EmconProposals);
-        Assert.Empty(gate.DamageProposals);
-        Assert.Empty(gate.PlatformProposals);
-        Assert.Empty(gate.WeaponProposals);
+        Assert.That(gate.SensorProposals, Is.Empty);
+        Assert.That(gate.MountProposals, Is.Empty);
+        Assert.That(gate.LoadoutProposals, Is.Empty);
+        Assert.That(gate.MagazineProposals, Is.Empty);
+        Assert.That(gate.CommsProposals, Is.Empty);
+        Assert.That(gate.LinkProposals, Is.Empty);
+        Assert.That(gate.MobilityProposals, Is.Empty);
+        Assert.That(gate.SignatureProposals, Is.Empty);
+        Assert.That(gate.EmconProposals, Is.Empty);
+        Assert.That(gate.DamageProposals, Is.Empty);
+        Assert.That(gate.PlatformProposals, Is.Empty);
+        Assert.That(gate.WeaponProposals, Is.Empty);
     }
 
     private static void AssertQuarantineSortedByEntityKindPlatformIdEntityId(
@@ -526,7 +521,7 @@ public sealed class PlatformWorkbookGovernanceAdversarialTests
             .ThenBy(e => e.PlatformId, StringComparer.Ordinal)
             .ThenBy(e => e.EntityId, StringComparer.Ordinal)
             .ToArray();
-        Assert.Equal(expected, entries.ToArray());
+        Assert.That(entries.ToArray(), Is.EqualTo(expected));
     }
 
     private static PlatformWorkbook WithSheetCell(
@@ -544,7 +539,7 @@ public sealed class PlatformWorkbookGovernanceAdversarialTests
             }
 
             var colIndex = Array.IndexOf(sheet.Header.ToArray(), columnName);
-            Assert.True(colIndex >= 0, $"Column '{columnName}' not found on sheet '{sheetName}'.");
+            Assert.That(colIndex >= 0, Is.True, $"Column '{columnName}' not found on sheet '{sheetName}'.");
 
             var rows = sheet.Rows.Select((row, i) =>
             {

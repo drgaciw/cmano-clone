@@ -1,7 +1,7 @@
 using System.Text.Json;
 using ProjectAegis.Data.Scenario;
 using ProjectAegis.Data.Scenario.Policy;
-using Xunit;
+using NUnit.Framework;
 
 namespace ProjectAegis.Data.Tests.Scenario;
 
@@ -27,42 +27,37 @@ public sealed class GauntletT2EscortPassiveEmconStandinTests
         }
         """;
 
-    [Fact]
+    [Test]
     public void All_perfect_detection_pairs_are_not_a_passive_emcon_standin()
     {
         var dto = JsonSerializer.Deserialize<ScenarioPolicyJsonDto>(AllOnesPolicy, Options);
-        Assert.NotNull(dto);
-        Assert.False(
-            HasReducedPassiveStandIn(dto),
-            "origin/main defect shape: every (basePd, envMask) pair is (1.0, 1.0)");
+        Assert.That(dto, Is.Not.Null);
+        Assert.That(            HasReducedPassiveStandIn(dto!), Is.False,             "origin/main defect shape: every (basePd, envMask) pair is (1.0, 1.0)");
     }
 
-    [Fact]
+    [Test]
     public void Shipped_gauntlet_t2_escort_passive_has_reduced_detection_on_every_blue_trial()
     {
         var dir = ScenarioDataPaths.TryResolveScenariosDirectory();
-        Assert.NotNull(dir);
-        var path = Path.Combine(dir, "gauntlet-t2-escort-passive.policy.json");
-        Assert.True(File.Exists(path), path);
+        Assert.That(dir, Is.Not.Null);
+        var path = Path.Combine(dir!, "gauntlet-t2-escort-passive.policy.json");
+        Assert.That(File.Exists(path), Is.True, path);
 
         var dto = JsonSerializer.Deserialize<ScenarioPolicyJsonDto>(File.ReadAllText(path), Options);
-        Assert.NotNull(dto);
-        Assert.Equal("gauntlet-t2-escort-passive", dto.Id);
-        Assert.NotNull(dto.Detection);
-        Assert.NotEmpty(dto.Detection);
+        Assert.That(dto, Is.Not.Null);
+        Assert.That(dto!.Id, Is.EqualTo("gauntlet-t2-escort-passive"));
+        Assert.That(dto.Detection, Is.Not.Null);
+        Assert.That(dto.Detection, Is.Not.Empty);
 
         var blueTrials = GetBlueDetectionTrials(dto);
-        Assert.Equal(4, blueTrials.Length);
+        Assert.That(blueTrials.Length, Is.EqualTo(4));
 
-        Assert.True(
-            HasReducedPassiveStandIn(dto),
-            "gauntlet-t2-escort-passive still ships perfect (basePd=1.0, envMask=1.0) on one or more blue trials — BUG-t2-escort-passive-emcon-claim-unimplemented");
+        Assert.That(            HasReducedPassiveStandIn(dto), Is.True,             "gauntlet-t2-escort-passive still ships perfect (basePd=1.0, envMask=1.0) on one or more blue trials — BUG-t2-escort-passive-emcon-claim-unimplemented");
 
-        Assert.All(
-            blueTrials,
-            t => Assert.True(
-                IsReducedPassiveStandInPair(t.BasePd, t.EnvMask),
-                $"blue trial observer={t.ObserverId} must use reduced basePd/envMask (~0.3–0.45), got ({t.BasePd}, {t.EnvMask})"));
+        foreach (var t in             blueTrials)
+{
+Assert.That(                IsReducedPassiveStandInPair(t.BasePd, t.EnvMask), Is.True,                 $"blue trial observer={t.ObserverId} must use reduced basePd/envMask (~0.3–0.45), got ({t.BasePd}, {t.EnvMask})");
+}
     }
 
     private const double ReducedStandInMin = 0.3;
