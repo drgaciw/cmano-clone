@@ -157,7 +157,7 @@ Resolve any trunk ahead first (per smoke-66 notes). Cite S86 closeout + boundary
 ---
 
 ## Next (S87)
-Per sprint-86 + kickoff + roadmap + future-sprint-roadpmap: S87 Unity roundtrip (playmode-roundtrip + manual-qa-ac8 tracks). Dispatch after this closeout + user ack + gt submit. See `production/sprints/sprint-87-unity-roundtrip.md` + `production/agentic/sprint-87-parallel-kickoff-2026-07-04.md` (prepped). S88 gate after.
+Per sprint-86 + kickoff + roadmap + future-sprint-roadmap: S87 Unity roundtrip (playmode-roundtrip + manual-qa-ac8 tracks). Dispatch after this closeout + user ack + gt submit. See `production/sprints/sprint-87-unity-roundtrip.md` + `production/agentic/sprint-87-parallel-kickoff-2026-07-04.md` (prepped). S88 gate after.
 
 ---
 

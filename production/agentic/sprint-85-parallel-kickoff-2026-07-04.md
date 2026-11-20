@@ -2,7 +2,7 @@
 
 **Date:** 2026-07-04 (post S84)  
 **Sprint:** S85  
-**Authority:** `roadmap-execute-plan-07042026.md` §4 (S85), `scenario-editor-scope-boundary-2026-07-04.md`, `future-sprint-roadpmap-07042026.md`, `qa-plan-scenario-editor-2026-07-01.md` (units #2, #6, #17), `implementation-tracker-2026-07-04.md`, `Game-Requirements/requirements/11-Agentic-Mission-Editor.md` (AC-2, AC-6, #17), S81–S84 parallel kickoffs + sprint plans + closeouts, AGENTS.md + CLAUDE.md
+**Authority:** `roadmap-execute-plan-07042026.md` §4 (S85), `scenario-editor-scope-boundary-2026-07-04.md`, `docs/reports/archive/roadmaps/future-sprint-roadmap-07042026.md`, `qa-plan-scenario-editor-2026-07-01.md` (units #2, #6, #17), `implementation-tracker-2026-07-04.md`, `Game-Requirements/requirements/11-Agentic-Mission-Editor.md` (AC-2, AC-6, #17), S81–S84 parallel kickoffs + sprint plans + closeouts, AGENTS.md + CLAUDE.md
 
 ## Context
 S84 (Event debugger + teleport + ADR-016) complete. In-flight editor work integrated or ready.
@@ -113,7 +113,7 @@ bash tools/ci/smoke-ac6.sh
 - AC-6 smoke run on every relevant change + in CI
 
 ## Cites (include in every commit message / doc / PR description)
-`roadmap-execute-plan-07042026.md` §4 S85 + `future-sprint-roadpmap-07042026.md` + `scenario-editor-scope-boundary-2026-07-04.md` + `qa-plan-scenario-editor-2026-07-01.md` (units #2,#6,#17) + `implementation-tracker-2026-07-04.md` + `Game-Requirements/requirements/11-Agentic-Mission-Editor.md` (AC-2, AC-6, #17) + AGENTS.md + this kickoff + `production/sprints/sprint-85-determinism-ci.md`
+`roadmap-execute-plan-07042026.md` §4 S85 + `docs/reports/archive/roadmaps/future-sprint-roadmap-07042026.md` + `scenario-editor-scope-boundary-2026-07-04.md` + `qa-plan-scenario-editor-2026-07-01.md` (units #2,#6,#17) + `implementation-tracker-2026-07-04.md` + `Game-Requirements/requirements/11-Agentic-Mission-Editor.md` (AC-2, AC-6, #17) + AGENTS.md + this kickoff + `production/sprints/sprint-85-determinism-ci.md`
 
 ## GitNexus Pre (per AGENTS.md — always before edit)
 Run `impact({target: "...", direction: "upstream"})` and report blast radius (direct callers, affected processes, risk HIGH/CRITICAL). Use `context()` for full callers/callees/flows. `detect_changes()` before any commit.

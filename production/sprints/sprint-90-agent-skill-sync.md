@@ -3,7 +3,7 @@
 **Dates:** 2026-07-09 → 2026-07-14 (est. 3–5 days)  
 **Lead:** unity-specialist / producer (local closeout)  
 **Program:** S89–S92 Post-Editor Engineering Hygiene + Asset Spec Production — sprint 2 of 4  
-**Authority:** [`future-sprint-roadpmap-07092026.md`](../../docs/reports/future-sprint-roadpmap-07092026.md) §3/§6, [`roadmap-execute-plan-07092026.md`](../../docs/reports/roadmap-execute-plan-07092026.md) §3/§4 (S90), [`post-editor-hygiene-scope-boundary-2026-07-09.md`](../post-editor-hygiene-scope-boundary-2026-07-09.md), [`tech-stack-agent-skill-recommendations-2026-07-08.md`](../../docs/reports/tech-stack-agent-skill-recommendations-2026-07-08.md) §A/§B/§E/§F P0, [`Tech-Stack.md`](../../Tech-Stack.md), AGENTS.md, this file.
+**Authority:** [`docs/reports/archive/roadmaps/future-sprint-roadmap-07092026.md`](../../docs/reports/archive/roadmaps/future-sprint-roadmap-07092026.md) §3/§6, [`roadmap-execute-plan-07092026.md`](../../docs/reports/roadmap-execute-plan-07092026.md) §3/§4 (S90), [`post-editor-hygiene-scope-boundary-2026-07-09.md`](../post-editor-hygiene-scope-boundary-2026-07-09.md), [`tech-stack-agent-skill-recommendations-2026-07-08.md`](../../docs/reports/tech-stack-agent-skill-recommendations-2026-07-08.md) §A/§B/§E/§F P0, [`Tech-Stack.md`](../../Tech-Stack.md), AGENTS.md, this file.
 
 **Roadmap approval:** User approved S89–S92 roadmap **2026-07-09**.  
 **Plan approval:** User approved write of this plan **2026-07-09**.

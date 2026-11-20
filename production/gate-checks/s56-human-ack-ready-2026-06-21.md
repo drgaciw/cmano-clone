@@ -4,7 +4,7 @@
 
 **Gate file:** production/gate-checks/s56-internal-engineering-gate-2026-06-21.md (PASS — 1227/0f, 6/6, 18/18, hash 17144800277401907079, ZERO DelegationBridge, GitNexus pre, 21/21 aggregated from S49–S56 closeouts).
 
-**Cites:** post-release-scope-boundary-2026-06-21.md (S56 E1 + program exit) + future-sprint-roadpmap-062126.md §10 S56 + §0/§7/§12.
+**Cites:** post-release-scope-boundary-2026-06-21.md (S56 E1 + program exit) + docs/reports/archive/roadmaps/future-sprint-roadmap-062126.md §10 S56 + §0/§7/§12.
 
 **Parallel verif subs (dispatched):**
 - 019eebd7-70fd-7643-89cc-dac4720cede6 (gate wt)

@@ -2,7 +2,7 @@
 
 **Date:** 2026-07-04  
 **Sprint:** S87 (Unity AC-8 round-trip)  
-**Authority:** `production/sprints/sprint-87-unity-roundtrip.md` + `production/agentic/sprint-87-parallel-kickoff-2026-07-04.md` + `roadmap-execute-plan-07042026.md` §3/§4 (S87) + `production/scenario-editor-scope-boundary-2026-07-04.md` + `docs/reports/future-sprint-roadpmap-07042026.md` + `production/qa/qa-plan-scenario-editor-2026-07-01.md` (unit #8 AC-8) + `Game-Requirements/implementation-tracker-2026-07-04.md` + `Game-Requirements/requirements/11-Agentic-Mission-Editor.md` (AC-8) + AGENTS.md + CLAUDE.md  
+**Authority:** `production/sprints/sprint-87-unity-roundtrip.md` + `production/agentic/sprint-87-parallel-kickoff-2026-07-04.md` + `roadmap-execute-plan-07042026.md` §3/§4 (S87) + `production/scenario-editor-scope-boundary-2026-07-04.md` + `docs/reports/archive/roadmaps/future-sprint-roadmap-07042026.md` + `production/qa/qa-plan-scenario-editor-2026-07-01.md` (unit #8 AC-8) + `Game-Requirements/implementation-tracker-2026-07-04.md` + `Game-Requirements/requirements/11-Agentic-Mission-Editor.md` (AC-8) + AGENTS.md + CLAUDE.md  
 **Tracks:** S87-01 PlayMode headless load (primary; unity-ui-specialist) ∥ S87-02 manual QA evidence (qa-tester) → S87-03 closeout (c-sharp-devops-engineer, local)  
 **Status:** S87-03 COMPLETE. All gates RUN+READ. AC-8 delivered via PlayMode proxy + test assertions. No manual screenshots needed as PlayMode harness provides deterministic evidence.
 
@@ -115,4 +115,4 @@ User ack "S87 complete" → S88 gate verification (aggregate S81–S87 closeouts
 
 **All gates PASS. S87 complete per verification-before.**
 
-*Part of S81–S88 Scenario Editor program. Cites: production/scenario-editor-scope-boundary-2026-07-04.md + docs/reports/roadmap-execute-plan-07042026.md + docs/reports/future-sprint-roadpmap-07042026.md + production/qa/qa-plan-scenario-editor-2026-07-01.md + Game-Requirements/implementation-tracker-2026-07-04.md + Game-Requirements/requirements/11-Agentic-Mission-Editor.md + AGENTS.md. Local Unity track.*
+*Part of S81–S88 Scenario Editor program. Cites: production/scenario-editor-scope-boundary-2026-07-04.md + docs/reports/roadmap-execute-plan-07042026.md + docs/reports/archive/roadmaps/future-sprint-roadmap-07042026.md + production/qa/qa-plan-scenario-editor-2026-07-01.md + Game-Requirements/implementation-tracker-2026-07-04.md + Game-Requirements/requirements/11-Agentic-Mission-Editor.md + AGENTS.md. Local Unity track.*

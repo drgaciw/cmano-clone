@@ -3,7 +3,7 @@
 **Dates:** 2026-07-15 → 2026-07-21 (est. 4–6 days)  
 **Lead:** art-director / producer (local closeout)  
 **Program:** S89–S92 Post-Editor Engineering Hygiene + Asset Spec Production — sprint 3 of 4  
-**Authority:** [`future-sprint-roadpmap-07092026.md`](../../docs/reports/future-sprint-roadpmap-07092026.md) §3/§6, [`roadmap-execute-plan-07092026.md`](../../docs/reports/roadmap-execute-plan-07092026.md) §3/§4 (S91), [`post-editor-hygiene-scope-boundary-2026-07-09.md`](../post-editor-hygiene-scope-boundary-2026-07-09.md), [`design/assets/asset-manifest.md`](../../design/assets/asset-manifest.md), [`design/art/art-bible.md`](../../design/art/art-bible.md), AGENTS.md, this file.
+**Authority:** [`docs/reports/archive/roadmaps/future-sprint-roadmap-07092026.md`](../../docs/reports/archive/roadmaps/future-sprint-roadmap-07092026.md) §3/§6, [`roadmap-execute-plan-07092026.md`](../../docs/reports/roadmap-execute-plan-07092026.md) §3/§4 (S91), [`post-editor-hygiene-scope-boundary-2026-07-09.md`](../post-editor-hygiene-scope-boundary-2026-07-09.md), [`design/assets/asset-manifest.md`](../../design/assets/asset-manifest.md), [`design/art/art-bible.md`](../../design/art/art-bible.md), AGENTS.md, this file.
 
 **Roadmap approval:** User approved S89–S92 roadmap **2026-07-09**.  
 **Plan approval:** User approved write of this plan **2026-07-09**.  

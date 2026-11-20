@@ -2,7 +2,7 @@
 
 **Date:** 2026-07-09  
 **Status:** S89-01 deliverable (boundary first per `roadmap-execute-plan-07092026.md` §3/§4). Published before S89 artifact tracks dispatch. Supersedes `production/scenario-editor-scope-boundary-2026-07-04.md` for **S89+ only** (archive prior, do not delete; carry invariants only).  
-**Authority:** [`docs/reports/future-sprint-roadpmap-07092026.md`](../docs/reports/future-sprint-roadpmap-07092026.md) §3/§6/§7/§10 + [`docs/reports/roadmap-execute-plan-07092026.md`](../docs/reports/roadmap-execute-plan-07092026.md) §3/§4 + [`production/scenario-editor-scope-boundary-2026-07-04.md`](./scenario-editor-scope-boundary-2026-07-04.md) (invariants only) + [`production/platform-editor-completion-scope-boundary-2026-07-09.md`](./platform-editor-completion-scope-boundary-2026-07-09.md) + AGENTS.md + [`docs/reports/tech-stack-agent-skill-recommendations-2026-07-08.md`](../docs/reports/tech-stack-agent-skill-recommendations-2026-07-08.md)  
+**Authority:** [`docs/reports/archive/roadmaps/future-sprint-roadmap-07092026.md`](../docs/reports/archive/roadmaps/future-sprint-roadmap-07092026.md) §3/§6/§7/§10 + [`docs/reports/roadmap-execute-plan-07092026.md`](../docs/reports/roadmap-execute-plan-07092026.md) §3/§4 + [`production/scenario-editor-scope-boundary-2026-07-04.md`](./scenario-editor-scope-boundary-2026-07-04.md) (invariants only) + [`production/platform-editor-completion-scope-boundary-2026-07-09.md`](./platform-editor-completion-scope-boundary-2026-07-09.md) + AGENTS.md + [`docs/reports/tech-stack-agent-skill-recommendations-2026-07-08.md`](../docs/reports/tech-stack-agent-skill-recommendations-2026-07-08.md)  
 **Lead Epic:** Post-editor engineering hygiene + asset spec production  
 **Sprints:** S89–S92 (serial; 2–4 parallel tracks inside each; local coordinator owns boundary/closeout/human; cloud for docs/tests/hygiene)  
 **Exit:** S92 hygiene gate (human ack **"post-editor hygiene program complete"**; **stage remains Release**; no `production/stage.txt` advance unless explicit separate decision)
@@ -15,7 +15,7 @@ S89–S92 focuses on **post-editor engineering hygiene** after S81–S88 scenari
 
 **Stage policy:** Remains **Release** throughout S89–S92. S92 documents hygiene-complete only; any Launch decision is separate/future.
 
-Every story / artifact / commit **must** cite this boundary + `future-sprint-roadpmap-07092026.md` + `roadmap-execute-plan-07092026.md` + prior editor boundaries (invariants) + AGENTS.md.
+Every story / artifact / commit **must** cite this boundary + `docs/reports/archive/roadmaps/future-sprint-roadmap-07092026.md` + `roadmap-execute-plan-07092026.md` + prior editor boundaries (invariants) + AGENTS.md.
 
 ---
 

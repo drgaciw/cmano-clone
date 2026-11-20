@@ -4,7 +4,7 @@
 **Trunk:** `main` @ (post-S43)  
 **Predecessor:** Sprint 43 — COMPLETE; **S41 ADR required**  
 **Stage:** Release Enablement (Track B)  
-**Authority:** B3 epic — [`docs/reports/future-sprint-roadpmap.md`](../../docs/reports/future-sprint-roadpmap.md) §5, §9. Requires S41 structural-debt ADR + scope gate.
+**Authority:** B3 epic — [`docs/reports/future-sprint-roadmap.md`](../../docs/reports/future-sprint-roadmap.md) §5, §9. Requires S41 structural-debt ADR + scope gate.
 
 > **OUT-OF-BOUNDARY — PLANNING ONLY.**
 

@@ -6,7 +6,7 @@
 **Capacity:** Cloud for S74-01/02 scenarios + goldens; local closeout.
 **Model:** Per roadmap-execute-plan-062526.01.md §4/5 + baltic-v3-scope-boundary-2026-06-25.md. Parallel after S73-01 boundary. Isolated worktrees. GitNexus pre mandatory. verification-before on all. team-simulation skill pattern. Cite boundary + execute-plan + design + AGENTS.md + S72/S69 + v2 ref (no mutate).
 
-Cites: production/baltic-v3-scope-boundary-2026-06-25.md + docs/superpowers/specs/2026-06-25-baltic-v3-content-expansion-design.md §3/§5/§8 + docs/reports/roadmap-execute-plan-062526.01.md §4 + AGENTS.md + future-sprint-roadpmap-062526.01.md + S72/S69 complete + v2 baltic (read ref).
+Cites: production/baltic-v3-scope-boundary-2026-06-25.md + docs/superpowers/specs/2026-06-25-baltic-v3-content-expansion-design.md §3/§5/§8 + docs/reports/roadmap-execute-plan-062526.01.md §4 + AGENTS.md + docs/reports/archive/roadmaps/future-sprint-roadmap-062526.01.md + S72/S69 complete + v2 baltic (read ref).
 
 ## Tasks / Tracks (from execute-plan §4)
 

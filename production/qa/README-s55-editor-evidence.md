@@ -26,4 +26,4 @@ See S55-EDITOR-VERIF.md for full status, test outputs (fresh), GitNexus prefligh
 
 **Evidence readiness:** Populated + verifiable. Awaiting PNG attachments (describe mode active).
 
-Cites: future-sprint-roadpmap-062126.md §10 S55, post-release-scope-boundary-2026-06-21.md
+Cites: docs/reports/archive/roadmaps/future-sprint-roadmap-062126.md §10 S55, post-release-scope-boundary-2026-06-21.md

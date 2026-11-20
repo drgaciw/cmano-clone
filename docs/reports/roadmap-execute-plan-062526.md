@@ -8,7 +8,7 @@
 
 **Tech Stack:** Markdown docs, Graphite (`gt`), GitNexus MCP, headless .NET gates (no sim changes expected), optional Buildkite doc parity check in S71.
 
-**Authority:** [`future-sprint-roadpmap-062526.md`](future-sprint-roadpmap-062526.md) §3/§10/§12 (when published), [`local-cloud-agent-routing.md`](../../production/agentic/local-cloud-agent-routing.md), [`graphite-github-substitute-plan.md`](../engineering/graphite-github-substitute-plan.md), prior S46 B5 template [`sprint-46-launch-artifacts.md`](../../production/sprints/sprint-46-launch-artifacts.md)
+**Authority:** [`docs/reports/archive/roadmaps/future-sprint-roadmap-062526.md`](archive/roadmaps/future-sprint-roadmap-062526.md) §3/§10/§12 (when published), [`local-cloud-agent-routing.md`](../../production/agentic/local-cloud-agent-routing.md), [`graphite-github-substitute-plan.md`](../engineering/graphite-github-substitute-plan.md), prior S46 B5 template [`sprint-46-launch-artifacts.md`](../../production/sprints/sprint-46-launch-artifacts.md)
 
 ---
 
@@ -102,7 +102,7 @@ Stack workflow: Graphite — `gt create`, `gt submit --stack --no-interactive`, 
 
 Must include:
 
-- Cite [`future-sprint-roadpmap-062526.md`](future-sprint-roadpmap-062526.md) §3/§6/§7/§10
+- Cite [`docs/reports/archive/roadmaps/future-sprint-roadmap-062526.md`](archive/roadmaps/future-sprint-roadmap-062526.md) §3/§6/§7/§10
 - Supersede [`production/release-train-scope-boundary-2026-06-24.md`](../../production/release-train-scope-boundary-2026-06-24.md) for **S69+ only** (archive prior, do not delete)
 - **In scope:** E7 launch prep (store drafts, i18n spec, launch docs, checklist v3, evidence index)
 - **Out of scope:** store submission, paid marketing, production locale translation, E9 new content, multiplayer, `DelegationBridge` edits, production hash change without ADR
@@ -277,7 +277,7 @@ rg "DelegationBridge" src/ --glob "!**/DelegationBridge.cs" -l || true
 Publish production/commercial-launch-scope-boundary-2026-06-25.md for S69–S72 E7 commercial launch PREP.
 
 SCOPE:
-- Cite docs/reports/future-sprint-roadpmap-062526.md §3/§6/§7/§10
+- Cite docs/reports/archive/roadmaps/future-sprint-roadmap-062526.md §3/§6/§7/§10
 - Supersede production/release-train-scope-boundary-2026-06-24.md for S69+ only (archive, don't delete)
 - List in/out of scope: E7 prep IN; store submission OUT; E9 content OUT; E10 maintenance read-only
 - Carry standing invariants (1232 floor, hash, ZERO bridge, extend-only catalog)
@@ -319,7 +319,7 @@ UPDATE (additive): production/sprint-status.yaml indexed_commit if policy allows
 RETURN: nodes/edges stats, staleness cleared, impact §5 table (expect 178/97/127/52).
 ```
 
-**S69-03 COMPLETE (independent cloud track):** CLI run: "Repository indexed successfully (26.3s) 19,962 nodes | 37,627 edges | 366 clusters | 300 flows". MCP list_repos (canonical /home/username01/projects/active/cmano-clone/cmano-clone): 19962/37627/2462 files. GitNexus pre (search_tool first + use_tool): detect_changes unstaged 24 changed/0 affected/low risk (doc md only, exact pre-verif match); impacts CatalogWriteGate=178 CRITICAL, Patrol=97 CRITICAL, DelegationBridge=127 CRITICAL (exact), BalticReplayHarness=52 CRITICAL (exact). Verification-before: build 0e/0w, replay 6/6, C2 18/18 re-ran + READ full before claim. Pre baseline 19792/37427/2455 @28c582d cited. Per §3/§4/§5/§9 + AGENTS.md + commercial-launch-scope-boundary-2026-06-25.md + future-sprint-roadpmap-062526.md §3/§6/§7/§10. Low risk only (docs). S69-03 COMPLETE.
+**S69-03 COMPLETE (independent cloud track):** CLI run: "Repository indexed successfully (26.3s) 19,962 nodes | 37,627 edges | 366 clusters | 300 flows". MCP list_repos (canonical /home/username01/projects/active/cmano-clone/cmano-clone): 19962/37627/2462 files. GitNexus pre (search_tool first + use_tool): detect_changes unstaged 24 changed/0 affected/low risk (doc md only, exact pre-verif match); impacts CatalogWriteGate=178 CRITICAL, Patrol=97 CRITICAL, DelegationBridge=127 CRITICAL (exact), BalticReplayHarness=52 CRITICAL (exact). Verification-before: build 0e/0w, replay 6/6, C2 18/18 re-ran + READ full before claim. Pre baseline 19792/37427/2455 @28c582d cited. Per §3/§4/§5/§9 + AGENTS.md + commercial-launch-scope-boundary-2026-06-25.md + docs/reports/archive/roadmaps/future-sprint-roadmap-062526.md §3/§6/§7/§10. Low risk only (docs). S69-03 COMPLETE.
 
 ---
 
@@ -336,7 +336,7 @@ RETURN: nodes/edges stats, staleness cleared, impact §5 table (expect 178/97/12
 ### Program artifacts
 
 - [x] S65–S68 COMPLETE — [`s68-release-train-gate-2026-06-25.md`](../../production/gate-checks/s68-release-train-gate-2026-06-25.md)
-- [ ] Roadmap — [`future-sprint-roadpmap-062526.md`](future-sprint-roadpmap-062526.md) (publish with or before this plan)
+- [ ] Roadmap — [`docs/reports/archive/roadmaps/future-sprint-roadmap-062526.md`](archive/roadmaps/future-sprint-roadmap-062526.md) (publish with or before this plan)
 - [x] Prior execute plan (archived program) — [`roadmap-execute-plan-062426.md`](roadmap-execute-plan-062426.md)
 - [x] This execute plan — `docs/reports/roadmap-execute-plan-062526.md`
 - [ ] Scope boundary — `production/commercial-launch-scope-boundary-2026-06-25.md` (@ S69-01)
@@ -362,9 +362,9 @@ RETURN: nodes/edges stats, staleness cleared, impact §5 table (expect 178/97/12
 
 | Artifact | Path |
 |----------|------|
-| Roadmap (canonical, S69+) | [`future-sprint-roadpmap-062526.md`](future-sprint-roadpmap-062526.md) |
-| Roadmap alias | [`future-sprint-roadpmap.md`](future-sprint-roadpmap.md) |
-| Prior roadmap (archived) | [`future-sprint-roadpmap-062426.md`](future-sprint-roadpmap-062426.md) |
+| Roadmap (canonical, S69+) | [`docs/reports/archive/roadmaps/future-sprint-roadmap-062526.md`](archive/roadmaps/future-sprint-roadmap-062526.md) |
+| Roadmap alias | [`docs/reports/future-sprint-roadmap.md`](future-sprint-roadmap.md) |
+| Prior roadmap (archived) | [`docs/reports/archive/roadmaps/future-sprint-roadmap-062426.md`](archive/roadmaps/future-sprint-roadmap-062426.md) |
 | Prior execute plan (archived) | [`roadmap-execute-plan-062426.md`](roadmap-execute-plan-062426.md) |
 | Release train gate | [`production/gate-checks/s68-release-train-gate-2026-06-25.md`](../../production/gate-checks/s68-release-train-gate-2026-06-25.md) |
 | Release checklist v2 | [`production/release/release-checklist-v2.md`](../../production/release/release-checklist-v2.md) |
@@ -402,13 +402,13 @@ RETURN: nodes/edges stats, staleness cleared, impact §5 table (expect 178/97/12
 
 **Do not dispatch S69 artifact tracks until:**
 
-- User approves this plan + [`future-sprint-roadpmap-062526.md`](future-sprint-roadpmap-062526.md)
+- User approves this plan + [`docs/reports/archive/roadmaps/future-sprint-roadmap-062526.md`](archive/roadmaps/future-sprint-roadmap-062526.md)
 - S69-01 boundary is published
 
 **Recommended next docs (not blocking this plan):**
 
 - Design spec: `docs/superpowers/specs/2026-06-25-e7-commercial-launch-prep-design.md`
-- Update stable alias [`future-sprint-roadpmap.md`](future-sprint-roadpmap.md) → 062526 snapshot
+- Update stable alias [`docs/reports/future-sprint-roadmap.md`](future-sprint-roadmap.md) → 062526 snapshot
 
 ---
 

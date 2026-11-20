@@ -6,7 +6,7 @@
 **Capacity:** Both tracks local.
 **Model:** Per roadmap-execute-plan-062526.01.md §4/§5 + baltic-v3-scope-boundary-2026-06-25.md. Serial (gate then sign-off). Isolated worktrees. GitNexus pre mandatory. verification-before on all. devops + producer pattern. Cite boundary + execute-plan + design + AGENTS.md + S79+ complete.
 
-Cites: production/baltic-v3-scope-boundary-2026-06-25.md + docs/superpowers/specs/2026-06-25-baltic-v3-content-expansion-design.md §3/§5/§8 + docs/reports/roadmap-execute-plan-062526.01.md §4 + AGENTS.md + future-sprint-roadpmap-062526.01.md + S79/S78/S77/S76/S75/S74/S73/S72 complete + v2 refs (read only).
+Cites: production/baltic-v3-scope-boundary-2026-06-25.md + docs/superpowers/specs/2026-06-25-baltic-v3-content-expansion-design.md §3/§5/§8 + docs/reports/roadmap-execute-plan-062526.01.md §4 + AGENTS.md + docs/reports/archive/roadmaps/future-sprint-roadmap-062526.01.md + S79/S78/S77/S76/S75/S74/S73/S72 complete + v2 refs (read only).
 
 ## Tasks / Tracks (from execute-plan §4)
 

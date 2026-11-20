@@ -7,7 +7,7 @@
 **Sprint File:** `production/sprints/sprint-91-asset-spec-production.md`  
 **Authority / MANDATORY Citations:**
 - [`post-editor-hygiene-scope-boundary-2026-07-09.md`](../post-editor-hygiene-scope-boundary-2026-07-09.md)
-- [`future-sprint-roadpmap-07092026.md`](../../docs/reports/future-sprint-roadpmap-07092026.md) §3/§6
+- [`docs/reports/archive/roadmaps/future-sprint-roadmap-07092026.md`](../../docs/reports/archive/roadmaps/future-sprint-roadmap-07092026.md) §3/§6
 - [`roadmap-execute-plan-07092026.md`](../../docs/reports/roadmap-execute-plan-07092026.md) §3/§4 (S91)
 - [`design/assets/asset-manifest.md`](../../design/assets/asset-manifest.md)
 - [`design/art/art-bible.md`](../../design/art/art-bible.md)

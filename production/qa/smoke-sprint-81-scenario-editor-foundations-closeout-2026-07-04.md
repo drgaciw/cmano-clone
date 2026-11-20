@@ -62,7 +62,7 @@ Both subagents operated with isolated prompts, specific output requirements, and
 ## Latest Verification (post S82 dispatch start)
 
 - Branch: fix-scenario-publish-cli-wiring
-- Modified (includes our S81/S82 prep): .cursor state, AGENTS.md, scenario-document.schema.json, future-sprint-roadpmap docs
+- Modified (includes our S81/S82 prep): .cursor state, AGENTS.md, scenario-document.schema.json, future-sprint-roadmap docs
 - Editor subset filter (Doctrine|DerivedOnly|SaveVsExport|SchemaConformance): **20 passed / 0 failed** (improved from initial 16)
 - GitNexus detect-changes: 9 files, 3 symbols, **medium** risk (from doc + schema edits during prep)
 - sprint-status.yaml: present (old sprint1 + program status up to S56+; header says DO NOT edit manually — use /story-done). No manual update performed for S81.
@@ -121,13 +121,13 @@ Next: S82 validation tracks A+C (after ack).
 ## Latest post-S82-dispatch Verification (S81-04 coordinator automated run)
 
 **Verif timestamp:** 2026-07-04 (on `fix-scenario-publish-cli-wiring` @17d426c + local prep changes)  
-**Authority / Cites:** `production/scenario-editor-scope-boundary-2026-07-04.md` (S81-01) + `production/agentic/scenario-editor-branch-integration-plan-2026-07-04.md` (S81-02) + `docs/reports/roadmap-execute-plan-07042026.md` (execute plan §5 Phase 0 block) + `docs/reports/future-sprint-roadpmap-07042026.md` + AGENTS.md + boundary invariants.  
+**Authority / Cites:** `production/scenario-editor-scope-boundary-2026-07-04.md` (S81-01) + `production/agentic/scenario-editor-branch-integration-plan-2026-07-04.md` (S81-02) + `docs/reports/roadmap-execute-plan-07042026.md` (execute plan §5 Phase 0 block) + `docs/reports/archive/roadmaps/future-sprint-roadmap-07042026.md` + AGENTS.md + boundary invariants.  
 **Non-conflicting with S82:** Focused on docs/verif/gates only; S82 parallel agents (doctrine/schema/save-export) running in background via worktrees.
 
 ### Branch & Worktree Status
 - Current branch: `fix-scenario-publish-cli-wiring`
 - Ahead: 13 commits
-- Git status: 21 items (9 modified tracked + untracked). Tracked mods: AGENTS.md, scenario-document.schema.json, future-sprint-roadpmap-*, Data.Tests editor files, ScenarioValidationExportGate.cs, .cursor state. Untracked include new S81/S82 artifacts + `data/scenarios/validation/`.
+- Git status: 21 items (9 modified tracked + untracked). Tracked mods: AGENTS.md, scenario-document.schema.json, future-sprint-roadmap-*, Data.Tests editor files, ScenarioValidationExportGate.cs, .cursor state. Untracked include new S81/S82 artifacts + `data/scenarios/validation/`.
 - **Worktrees S82 setup:** `.worktrees/stack/sprint82/` has `closeout/`, `doctrine-validation/`, `save-export-gate/`, `schema-conformance/`. S81 worktrees (`boundary/`, `branch-integration/`, `gitnexus-reindex/`, `closeout/`) also present under `.worktrees/stack/sprint81/`.
 - **sprint-status.yaml:** Present at production/sprint-status.yaml (legacy content for sprint 1 + programs to S56+). **Policy note (no manual edit):** Header states "DO NOT edit manually — use /story-done to update story status." No edits performed.
 
@@ -163,7 +163,7 @@ All present:
 - Parallel kickoff: `production/agentic/sprint-81-parallel-kickoff-2026-07-04.md`
 - Closeout (this file): `production/qa/smoke-sprint-81-scenario-editor-foundations-closeout-2026-07-04.md`
 - Execute plan: `docs/reports/roadmap-execute-plan-07042026.md`
-- Roadmap snapshots: `docs/reports/future-sprint-roadpmap-07042026.md` (stable alias `future-sprint-roadpmap.md` points latest), dated variants.
+- Roadmap snapshots: `docs/reports/archive/roadmaps/future-sprint-roadmap-07042026.md` (stable alias `docs/reports/future-sprint-roadmap.md` points latest), dated variants.
 - Tracker: `Game-Requirements/implementation-tracker-2026-07-04.md`
 - Additional: qa-plan-scenario-editor-2026-07-01.md, implementation-tracker-2026-07-04.md, 11-Agentic-Mission-Editor.md.
 
@@ -278,6 +278,6 @@ dotnet test ProjectAegis.sln -v minimal
 
 **S82 note:** After S81 merge+restack, S82 stacks submit from their worktree branches (e.g. `stack/sprint82/doctrine-validation`) using identical verification-before + `gt submit --stack --no-interactive` + main restack/closeout verif. S82 closeout owns re-verif + update to this closeout family. See execute-plan §4 for S82 tracks.
 
-**Cites (mandatory):** `production/scenario-editor-scope-boundary-2026-07-04.md` + `docs/reports/roadmap-execute-plan-07042026.md` §5/§12 + `docs/reports/future-sprint-roadpmap-07042026.md` + AGENTS.md + `docs/engineering/graphite-github-substitute-plan.md` + `production/release-train-scope-boundary-2026-06-24.md` (verif-before pattern for trunk). All RUN outputs READ.
+**Cites (mandatory):** `production/scenario-editor-scope-boundary-2026-07-04.md` + `docs/reports/roadmap-execute-plan-07042026.md` §5/§12 + `docs/reports/archive/roadmaps/future-sprint-roadmap-07042026.md` + AGENTS.md + `docs/engineering/graphite-github-substitute-plan.md` + `production/release-train-scope-boundary-2026-06-24.md` (verif-before pattern for trunk). All RUN outputs READ.
 
 **Commands block ready for user execution post-ack.** (See full details in branch-integration-plan.)

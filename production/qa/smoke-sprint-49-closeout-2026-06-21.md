@@ -13,7 +13,7 @@
 - `production/release-enablement-scope-boundary-2026-06-20.md` (B1–B6 complete; cites S41 "i provide the ack" 2026-06-20)  
 - `production/gate-checks/scope-expansion-decision-2026-06-20-S41-close.md`  
 - `production/agentic/s39-s48-program-execution-guide.md` + `s39-s48-worktree-manifest.md` + `local-cloud-agent-routing.md`  
-- `docs/reports/future-sprint-roadpmap.md` (roadmap §0.4 merge gate coordination, §5/§9 Track B)  
+- `docs/reports/future-sprint-roadmap.md` (roadmap §0.4 merge gate coordination, §5/§9 Track B)  
 - Prior smokes: `production/qa/smoke-sprint-43-closeout-2026-06-20.md`, `smoke-sprint-42-closeout-2026-06-20.md`, `smoke-sprint-40-closeout-2026-06-20.md`, `smoke-sprint-39-closeout-2026-06-20.md`, `smoke-sprint-38-closeout-2026-06-20.md`  
 - `production/sprint-status.yaml` (S48 complete, ten_sprint_program_complete, stage Release)  
 - AGENTS.md, CLAUDE.md, .claude/rules/* (GitNexus impact/detect mandatory, verification-before-completion)  
@@ -47,7 +47,7 @@
 | Tracks (mcp/osint/infra) evidence aggregation | **PASS** — artifacts ready and consistent | mcp-production/: sprint-21-mcp-osint-..., sprint-48-*, smoke up to 38/48, sprint-status S48 COMPLETE; osint-production/: same + osint facts/scenarios; agentic-infra/: infra focus + duplicates of program/agentic files. All confirm 1227/6/6/18/18 gates, S48 PASS, boundary cites, no regression. Parallel worktrees isolated. |
 | Evidence / playtest / retro cadence | ADEQUATE (carry from S43+) | playtests/README.md, retrospectives/ (S38–S43 cited); S49 closeout adds smoke + status |
 | S48 exit / program complete carry | **MET** | ten_sprint_program_complete true; RC1 ready; stage Release pending final ack chain |
-| Merge gate coordination (roadmap §0.4) | Coordinated | Per future-sprint-roadpmap.md + merge-gate patterns (docs/reports/merge-gate-milsim-c1-2026-06-02.md precedent); Graphite-first (gt create/submit/sync implied; worktree stack/sprint49/closeout); no direct gh; verification clean for merge into main post closeout. |
+| Merge gate coordination (roadmap §0.4) | Coordinated | Per docs/reports/future-sprint-roadmap.md + merge-gate patterns (docs/reports/merge-gate-milsim-c1-2026-06-02.md precedent); Graphite-first (gt create/submit/sync implied; worktree stack/sprint49/closeout); no direct gh; verification clean for merge into main post closeout. |
 
 ## Per-project counts (S49 closeout; 1227)
 | Project | Passed |
@@ -241,7 +241,7 @@ S49 Tracks COMPLETE
 ```
 Cites roadmap §0.4 + Req 05/07 .
 
-**future-sprint-roadpmap.md (read) + §10 S49 refs in sibling notes:** roadmap sections reference S49 tracks per §10 E2 Req05/07 (via kickoff manifests + post-release).
+**docs/reports/future-sprint-roadmap.md (read) + §10 S49 refs in sibling notes:** roadmap sections reference S49 tracks per §10 E2 Req05/07 (via kickoff manifests + post-release).
 
 **Verification-before-completion note (this subagent):** All steps: run cmds first, read_file EVERY stdout/log (build 24l, test 61l, targeted 14l each, artifacts), GitNexus impact/context/detect BEFORE claims, no hotpath mutation, additive only (qa/status), citations forced everywhere. Sub ID: verification-subagent-s49-closeout-2026-06-21 . PASS all criteria. 
 
@@ -314,4 +314,4 @@ Cites roadmap §0.4 + Req 05/07 .
 **Task ID:** S49-CLOSEOUT-VERIF-2026-06-21  
 All steps executed narrow (closeout verification only). No feature work. Additive update to this report only (in wt).
 
-*End of fresh evidence block. Citations: production/post-release-scope-boundary-2026-06-21.md + docs/reports/future-sprint-roadpmap.md §10 S49 + Req05/07 E2 applied.*
+*End of fresh evidence block. Citations: production/post-release-scope-boundary-2026-06-21.md + docs/reports/future-sprint-roadmap.md §10 S49 + Req05/07 E2 applied.*

@@ -4,7 +4,7 @@
 **Trunk:** `main` @ post-S56 internal engineering gate  
 **Predecessor:** Sprint 56 — COMPLETE (21/21 program exit; human ack 2026-06-22)  
 **Stage:** Release (Baltic v2 program opens; no stage advance)  
-**Authority:** [`docs/reports/future-sprint-roadpmap-062226.md`](../../docs/reports/future-sprint-roadpmap-062226.md) §10 S57; [`production/baltic-v2-scope-boundary-2026-06-22.md`](../baltic-v2-scope-boundary-2026-06-22.md) (publish with S57-01)
+**Authority:** [`docs/reports/archive/roadmaps/future-sprint-roadmap-062226.md`](../../docs/reports/archive/roadmaps/future-sprint-roadmap-062226.md) §10 S57; [`production/baltic-v2-scope-boundary-2026-06-22.md`](../baltic-v2-scope-boundary-2026-06-22.md) (publish with S57-01)
 
 > **READY TO PLAN** — Baltic v2 program kickoff. E1 lead (AAR Topic 1 code fix); playtest harness prep for S63. E9 scenario content (**S58**) blocked until S57 AAR policy lands.
 
@@ -168,7 +168,7 @@ dotnet test src/ProjectAegis.Delegation.UnityAdapter.Tests/ProjectAegis.Delegati
 
 | Artifact | Path |
 |----------|------|
-| Roadmap | `docs/reports/future-sprint-roadpmap-062226.md` §10 S57 |
+| Roadmap | `docs/reports/archive/roadmaps/future-sprint-roadmap-062226.md` §10 S57 |
 | Scope boundary | `production/baltic-v2-scope-boundary-2026-06-22.md` |
 | S56 AAR analysis | `production/qa/s56-aar-remediation-track-2026-06-21.md` |
 | Playtest AAR | `game-players-report-0620206.md` |

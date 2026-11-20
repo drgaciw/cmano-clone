@@ -5,7 +5,7 @@
 **CWD:** /home/username01/projects/active/cmano-clone/.worktrees/stack/sprint55/closeout
 **Cites (mandatory):** 
 - production/post-release-scope-boundary-2026-06-21.md (S55 E4 Req20; from sibling checkout for citation; invariants: ≥1227 tests, ZERO DelegationBridge, GitNexus impact/detect, Baltic hash 17144800277401907079 pinned, CatalogWriteGate extend-only)
-- docs/reports/future-sprint-roadpmap.md §10 S55 + §0.4 (merge gate; cites roadmap §9/10 dispatch, §0.4, invariants everywhere in docs/comments)
+- docs/reports/future-sprint-roadmap.md §10 S55 + §0.4 (merge gate; cites roadmap §9/10 dispatch, §0.4, invariants everywhere in docs/comments)
 - production/release-enablement-scope-boundary-2026-06-20.md (Req20: globe/Cesium + HYPERSONIC_ALERT as post-v1 epic handoff; Track B boundary)
 - production/polish-scope-boundary-2026-06-19.md (handoff)
 - AGENTS.md / CLAUDE.md (GitNexus preflight mandatory, verification-before-completion, using-git-worktrees, dispatching-parallel-agents, superpowers)
@@ -43,7 +43,7 @@
 - Evidence: production/qa/cesium-s55-production-evidence.md (preflight GitNexus, delivered: CesiumGlobeBridge enhanced + GlobeCameraController new + host; build/test green; gaps: full Editor PNG needs local Unity+ion; shadow evidence parallel).
 - Code: unity/.../CesiumGlobeBridge.cs (DelegationBridgeHost wiring, live refresh, select forwarding); GlobeCameraController.cs (milsim LMB drag/zoom/arrows/F center); additive #if guards.
 - Verif in wt: builds/tests green; no placeholder change, useGlobeMap contract preserved.
-- Citations: release-enablement... , future-sprint-roadpmap.md , polish... , Game-Reqs 20/09.
+- Citations: release-enablement... , docs/reports/future-sprint-roadmap.md , polish... , Game-Reqs 20/09.
 
 **Hypersonic track (hypersonic wt):**
 - Progress.md (S55 Hypersonic UI (E4)): Implemented HYPERSONIC_ALERT topbar UI + C2 tie-in (projection, host, UXML/USS); new UI safe (no sim); builds green, tests pass, GitNexus LOW; cites all boundaries + roadmap + reqs 09/20 + design docs.

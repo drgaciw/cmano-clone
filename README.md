@@ -6,7 +6,7 @@ The recorded stage is **Release**. This repository contains a headless .NET simu
 
 ## Current status
 
-Recorded stage is **Release** (`production/stage.txt`). The current roadmap snapshot still defers Launch: [`docs/reports/future-sprint-roadpmap.md`](docs/reports/future-sprint-roadpmap.md) (dated file [`future-sprint-roadmap-09302026.md`](docs/reports/future-sprint-roadmap-09302026.md)).
+Recorded stage is **Release** (`production/stage.txt`). The current roadmap snapshot still defers Launch: [`docs/reports/future-sprint-roadmap.md`](docs/reports/future-sprint-roadmap.md) (dated file [`future-sprint-roadmap-09302026.md`](docs/reports/future-sprint-roadmap-09302026.md)).
 
 The numbered program in that snapshot is **S122–S127**. [`production/sprint-status-s122-s127.yaml`](production/sprint-status-s122-s127.yaml) (follow-up dated 2026-10-01) is a planning snapshot. Delivery status is on Linear. The index is [`production/sprints/sprint-122-127-index.md`](production/sprints/sprint-122-127-index.md). Owner Play Mode acceptance is [DRG-208](https://linear.app/drgamtd-workspace/issue/DRG-208). Behavior on `main` is the code and the tests, which have kept moving after 2026-10-01.
 
@@ -97,7 +97,7 @@ Determinism rules, hashing, and how golden files are updated: [determinism-and-r
 | [`tests/regression/`](tests/regression/) | Replay golden text fixtures |
 | [`docs/architecture/`](docs/architecture/architecture.md) | Architecture narrative and ADRs |
 | [`docs/engineering/`](docs/engineering/README.md) | Build, CI, and subsystem guides |
-| [`docs/reports/`](docs/reports/future-sprint-roadpmap.md) | Roadmap snapshots (the un-dated `future-sprint-roadpmap.md` is an alias) |
+| [`docs/reports/`](docs/reports/future-sprint-roadmap.md) | Roadmap alias `docs/reports/future-sprint-roadmap.md`; dated snapshots in `docs/reports/archive/roadmaps/` |
 | [`design/gdd/`](design/gdd/systems-index.md) | Game design documents |
 | [`Game-Requirements/`](Game-Requirements/Game-Requirements-Index.md) | Requirements corpus |
 | [`production/`](production/stage.txt) | Stage file, sprint plans, QA evidence, test floor |
@@ -249,5 +249,5 @@ Agents working in this checkout should start at [`AGENTS.md`](AGENTS.md) (headle
 | Scenario documents | [`docs/engineering/scenario-document-authoring.md`](docs/engineering/scenario-document-authoring.md) |
 | Mission Editor CLI | [`docs/engineering/mission-editor-cli.md`](docs/engineering/mission-editor-cli.md) |
 | Capability gaps | [`docs/engineering/sim-capability-gap-backlog.md`](docs/engineering/sim-capability-gap-backlog.md) |
-| Current roadmap alias | [`docs/reports/future-sprint-roadpmap.md`](docs/reports/future-sprint-roadpmap.md) |
+| Current roadmap alias | [`docs/reports/future-sprint-roadmap.md`](docs/reports/future-sprint-roadmap.md) |
 | Tech stack notes | [`Tech-Stack.md`](Tech-Stack.md) (editor build: use `ProjectVersion.txt`) |

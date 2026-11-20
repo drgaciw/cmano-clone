@@ -3,7 +3,7 @@
 **Dates:** 2026-07-04 start (est. 6–8 days)  
 **Lead:** E11 / team-data + game-designer + c-sharp-devops-engineer  
 **Program:** S81–S88 Scenario Editor (req 11 / E11)  
-**Authority:** `roadmap-execute-plan-07042026.md` §3/§4 (S83), `future-sprint-roadpmap-07042026.md` §3/§4/§10, `scenario-editor-scope-boundary-2026-07-04.md`, `qa-plan-scenario-editor-2026-07-01.md` (units #5, #13, #14), `implementation-tracker-2026-07-04.md`, prior S81 `sprint-81-scenario-editor-foundations.md` + S82 `sprint-82-validation-tracks-ac.md` + closeouts, AGENTS.md
+**Authority:** `roadmap-execute-plan-07042026.md` §3/§4 (S83), `docs/reports/archive/roadmaps/future-sprint-roadmap-07042026.md` §3/§4/§10, `scenario-editor-scope-boundary-2026-07-04.md`, `qa-plan-scenario-editor-2026-07-01.md` (units #5, #13, #14), `implementation-tracker-2026-07-04.md`, prior S81 `sprint-81-scenario-editor-foundations.md` + S82 `sprint-82-validation-tracks-ac.md` + closeouts, AGENTS.md
 
 ## Sprint Goal
 Deliver track D command surface per roadmap: 
@@ -103,7 +103,7 @@ User ack + gt submit / restack → S84 dispatch (debugger + teleport + ADR-016).
 
 **References (heavy citation required in all deliverables):**
 - `docs/reports/roadmap-execute-plan-07042026.md` §3/§4 S83 + §5/§6/§7
-- `docs/reports/future-sprint-roadpmap-07042026.md`
+- `docs/reports/archive/roadmaps/future-sprint-roadmap-07042026.md`
 - `production/scenario-editor-scope-boundary-2026-07-04.md` (invariants, ownership, scope)
 - `production/qa/qa-plan-scenario-editor-2026-07-01.md` (#5 AC-5, #13 AME-8.4 ferry, #14 AME-8.5 undo, open item on persistence)
 - `Game-Requirements/implementation-tracker-2026-07-04.md` (track D status, CLI verbs)

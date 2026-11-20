@@ -16,7 +16,7 @@ mkdir -p "$OUT_DIR"
 
 echo "=== S63 E1 Playtest Batch (worktree: stack/sprint63) ==="
 echo "Manifest: $MANIFEST"
-echo "Cites: production/baltic-v2-scope-boundary-2026-06-22.md + docs/reports/future-sprint-roadpmap-062226.md §10 S63"
+echo "Cites: production/baltic-v2-scope-boundary-2026-06-22.md + docs/reports/archive/roadmaps/future-sprint-roadmap-062226.md §10 S63"
 echo "Gates: baseline (dotnet test count), ReplayGolden 6/6, C2 proxy 18/18 (PlayModeSmokeHarnessTests), human signoff"
 echo "GitNexus: CRITICAL on BalticReplayHarness (52 upstream); LOW on batch/test classes. Pre-run impact done."
 echo ""

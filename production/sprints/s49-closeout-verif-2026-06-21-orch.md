@@ -5,7 +5,7 @@
 **Worktree:** /home/username01/projects/active/cmano-clone/.worktrees/stack/sprint49/closeout (isolated)  
 **Branch:** stack/sprint49/closeout @ be8dfb7  
 **Superpowers:** dispatching-parallel-agents + using-git-worktrees + verification-before-completion  
-**Citations (mandatory on all artifacts):** post-release-scope-boundary-2026-06-21.md + docs/reports/future-sprint-roadpmap-062126.md §10 S49 E2 Req05/07 + release-enablement-scope-boundary-2026-06-20.md + S41 "i provide the ack" + S48 gate packet + smoke-sprint-49-closeout-2026-06-21.md  
+**Citations (mandatory on all artifacts):** post-release-scope-boundary-2026-06-21.md + docs/reports/archive/roadmaps/future-sprint-roadmap-062126.md §10 S49 E2 Req05/07 + release-enablement-scope-boundary-2026-06-20.md + S41 "i provide the ack" + S48 gate packet + smoke-sprint-49-closeout-2026-06-21.md  
 
 **Task:** S49 closeout verif per roadmap-062126.md §10 S49 E2 Req05/07 + post-release-scope-boundary-2026-06-21.md. Additive/docs only. No src mutation on CRITICALs (CatalogWriteGate, SimulationSession, etc.). Verification-before-completion: RUN commands, READ full outputs/logs BEFORE any PASS claim.
 
@@ -113,7 +113,7 @@ Passed!  - Failed:     0, Passed:    18, Skipped:     0, Total:    18, Duration:
 - production/qa/smoke-sprint-49-closeout-2026-06-21.md (detailed gates, logs, verif blocks, sibling agg, citations)
 - production/sprint-status.yaml (program_note for S49, s49_closeout: "PASS (verification-subagent-s49-closeout-2026-06-21); ... 1227/0f, 6/6 replay, 18/18 C2, hash 17144800277401907079, ZERO DelegationBridge, extend-only CatalogWriteGate, GitNexus impact preflight (CRITICAL on CatalogWriteGate/SimulationSession); all artifacts cite ...")
 - production/post-release-scope-boundary-2026-06-21.md (Sustained Invariants, Req05/07 status, S49 Tracks COMPLETE, §0.4 protocol)
-- docs/reports/future-sprint-roadpmap.md (S49 refs via §10 E2 Req05/07 in status/smoke; standing invariants match: Baltic hash, 6/6, 18/18, Catalog extend-only, GitNexus, monotonic tests)
+- docs/reports/future-sprint-roadmap.md (S49 refs via §10 E2 Req05/07 in status/smoke; standing invariants match: Baltic hash, 6/6, 18/18, Catalog extend-only, GitNexus, monotonic tests)
 - production/qa/s49-0.4-merge-gate-notes-2026-06-21.md (protocol, dispatching, citations, merge prep)
 
 ## Report Produced + Evidence
@@ -146,4 +146,4 @@ S49 closeout verif complete per §10 S49 E2 Req05/07 + post-release boundary. Re
 
 **Evidence read statement:** Every command (build, full test, targeted filters, git, grep, MCP) executed; stdout + dedicated log files + key artifacts fully read via read_file/cat/terminal before any PASS/invariant claim. Verification-before-completion strictly followed.
 
-*Produced 2026-06-21 by 019eeb42-orch-s49. Cites: post-release-scope-boundary-2026-06-21.md + docs/reports/future-sprint-roadpmap-062126.md §10 S49 E2 Req05/07 + superpowers + isolation + preflight runs.*
+*Produced 2026-06-21 by 019eeb42-orch-s49. Cites: post-release-scope-boundary-2026-06-21.md + docs/reports/archive/roadmaps/future-sprint-roadmap-062126.md §10 S49 E2 Req05/07 + superpowers + isolation + preflight runs.*

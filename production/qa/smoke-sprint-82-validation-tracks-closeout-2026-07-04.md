@@ -86,7 +86,7 @@ Affected processes: 4
 Risk level: medium
 
 Changed symbols:
-  Symbol Future Sprint Roadmap — Stable Alias → docs/reports/future-sprint-roadpmap-062126.md
+  Symbol Future Sprint Roadmap — Stable Alias → docs/reports/archive/roadmaps/future-sprint-roadmap-062126.md
   Symbol EvaluateExport → src/ProjectAegis.Data/Validation/ScenarioValidationExportGate.cs
   Symbol ScenarioValidationExportGate → src/ProjectAegis.Data/Validation/ScenarioValidationExportGate.cs
 

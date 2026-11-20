@@ -7,7 +7,7 @@
 **Gate position:** Final gate of the **S94–S97 Release Continuity** program (asset wave 2 → gauntlet productization → architecture hygiene → continuity ack).  
 **Authority:**  
 [`docs/reports/roadmap-execution-plan-071426.md`](../../docs/reports/roadmap-execution-plan-071426.md) ·  
-[`docs/reports/future-sprint-roadmap-07142026.md`](../../docs/reports/future-sprint-roadmap-07142026.md) ·  
+[`docs/reports/archive/roadmaps/future-sprint-roadmap-07142026.md`](../../docs/reports/archive/roadmaps/future-sprint-roadmap-07142026.md) ·  
 [`production/sprints/sprint-97-release-continuity-gate.md`](../sprints/sprint-97-release-continuity-gate.md) ·  
 [`production/gate-checks/post-s93-project-release-hold-gate-2026-07-14.md`](post-s93-project-release-hold-gate-2026-07-14.md) ·  
 [`production/gate-checks/post-s93-concerns-remediation-closeout-2026-07-14.md`](post-s93-concerns-remediation-closeout-2026-07-14.md) ·  
@@ -288,7 +288,7 @@ Stage remains Release. Launch / commercial execution remains deferred.
 | Doc | Path |
 |-----|------|
 | Execute plan S94–S97 | `docs/reports/roadmap-execution-plan-071426.md` |
-| Forward roadmap 0714 | `docs/reports/future-sprint-roadmap-07142026.md` |
+| Forward roadmap 0714 | `docs/reports/archive/roadmaps/future-sprint-roadmap-07142026.md` |
 | Post-S93 Release-hold gate | `production/gate-checks/post-s93-project-release-hold-gate-2026-07-14.md` |
 | Post-S93 remediation closeout | `production/gate-checks/post-s93-concerns-remediation-closeout-2026-07-14.md` |
 | Gauntlet land evidence | `production/qa/evidence/gates-gauntlet-land-post-2026-07-14.log` |

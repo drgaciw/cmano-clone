@@ -6,7 +6,7 @@
 **Capacity:** Cloud for S76-01/02/03; local closeout.
 **Model:** Per roadmap-execute-plan-062526.01.md §4/§5 + baltic-v3-scope-boundary-2026-06-25.md. Parallel after prior. Isolated worktrees. GitNexus pre mandatory. verification-before on all. team-simulation + narrative pattern. Cite boundary + execute-plan + design + AGENTS.md + S75/S74 + v2 ref (no mutate).
 
-Cites: production/baltic-v3-scope-boundary-2026-06-25.md + docs/superpowers/specs/2026-06-25-baltic-v3-content-expansion-design.md §3/§5/§8 + docs/reports/roadmap-execute-plan-062526.01.md §4 + AGENTS.md + future-sprint-roadpmap-062526.01.md + S75/S74/S73/S72 complete + v2 baltic narrative (read ref).
+Cites: production/baltic-v3-scope-boundary-2026-06-25.md + docs/superpowers/specs/2026-06-25-baltic-v3-content-expansion-design.md §3/§5/§8 + docs/reports/roadmap-execute-plan-062526.01.md §4 + AGENTS.md + docs/reports/archive/roadmaps/future-sprint-roadmap-062526.01.md + S75/S74/S73/S72 complete + v2 baltic narrative (read ref).
 
 ## Tasks / Tracks (from execute-plan §4)
 
@@ -73,4 +73,4 @@ gt restack
 - Status: sprint-status.yaml s76_status + s76_complete (S76-04/S76 COMPLETE)
 - Stage: appended (remains Release)
 - All per boundary + execute-plan §4/§5/§9 + AGENTS. GT ready for stack/sprint76/* . Independent closeout applied verification-before + cites. S76 COMPLETE.
-Cites: production/baltic-v3-scope-boundary-2026-06-25.md + roadmap-execute-plan-062526.01.md §3/4/5/9 + future-sprint-roadpmap-062526.01.md + AGENTS.md + S75 complete.
+Cites: production/baltic-v3-scope-boundary-2026-06-25.md + roadmap-execute-plan-062526.01.md §3/4/5/9 + docs/reports/archive/roadmaps/future-sprint-roadmap-062526.01.md + AGENTS.md + S75 complete.

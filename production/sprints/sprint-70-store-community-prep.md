@@ -4,7 +4,7 @@
 **Lead:** E7 Commercial Launch Prep  
 **Goal:** Produce store page drafts (S70-01/02), community templates (S70-03), release-checklist-v3.md skeleton (S70-04); closeout (S70-05). Prep artifacts for Steam/community use in E7. Extend S46 B5 paths + S66 v2 corpus.  
 **Capacity:** 6–8 days, 1 local / 3 cloud (cap 4). Cloud for store/community/checklist; local closeout.  
-**Model:** Per roadmap-execute-plan-062526.md §3/§4 (serial S69→S72; parallel inside after baseline; GitNexus + verification-before; dispatching-parallel-agents + worktrees). Stage remains **Release**. Cite commercial-launch-scope-boundary-2026-06-25.md + future-sprint-roadpmap-062526.md §3/§6/§7/§10 + execute-plan + AGENTS + S69 + S66 v2 on all. Docs-only.  
+**Model:** Per roadmap-execute-plan-062526.md §3/§4 (serial S69→S72; parallel inside after baseline; GitNexus + verification-before; dispatching-parallel-agents + worktrees). Stage remains **Release**. Cite commercial-launch-scope-boundary-2026-06-25.md + docs/reports/archive/roadmaps/future-sprint-roadmap-062526.md §3/§6/§7/§10 + execute-plan + AGENTS + S69 + S66 v2 on all. Docs-only.  
 
 ## Tasks / Tracks (from execute-plan §3/§4 exact S70 table)
 
@@ -56,6 +56,6 @@ S70 baseline (coordinator) → (W1 store pages S70-01/02 ∥ W2 community S70-03
 
 **S70 tracks partial complete (store/community/checklist skeletons + notes). Closeout S70-05 later per execute-plan. Low risk: docs only.**  
 
-Cites: production/commercial-launch-scope-boundary-2026-06-25.md ; future-sprint-roadpmap-062526.md §3/§6/§7/§10 ; roadmap-execute-plan-062526.md §3/§4 ; AGENTS.md ; S69 artifacts ; S66 release-checklist-v2.md + Baltic v2 corpus. Pre state + gates PASS + GitNexus pre confirmed.  
+Cites: production/commercial-launch-scope-boundary-2026-06-25.md ; docs/reports/archive/roadmaps/future-sprint-roadmap-062526.md §3/§6/§7/§10 ; roadmap-execute-plan-062526.md §3/§4 ; AGENTS.md ; S69 artifacts ; S66 release-checklist-v2.md + Baltic v2 corpus. Pre state + gates PASS + GitNexus pre confirmed.  
 
 *Independent subagent for S70 Store + community prep tracks (cloud per execute-plan, dispatching-parallel-agents).*

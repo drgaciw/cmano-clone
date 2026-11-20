@@ -56,7 +56,7 @@ var result = BalticReplayHarness.Run(seed: 53, "baltic-patrol", ticks: 10, nearF
 
 **Next (post S53):** perf scale B4 integration; full DOTS spawn separate track (dots-spawn worktree); dedicated MASS scenario data for 5k profile + tools/batch-replay polish. Demo+harness now enable scale benchmarks.
 
-Cites: release-enablement-scope-boundary-2026-06-20.md , future-sprint-roadpmap.md (post S48 horizons), implementation-tracker (Req09), mass-tier worktree isolation.
+Cites: release-enablement-scope-boundary-2026-06-20.md , docs/reports/future-sprint-roadmap.md (post S48 horizons), implementation-tracker (Req09), mass-tier worktree isolation.
 
 **Status:** S53 MASS tier full impl COMPLETE in this worktree (sub ID: S53-MASS-SUB-01).
 
@@ -66,5 +66,5 @@ Cites: release-enablement-scope-boundary-2026-06-20.md , future-sprint-roadpmap.
 - Full sln: ~1232 tests (monotonic >=1227 baseline); smoke 18/18
 - Demo MASS: `dotnet run ... --near-future "swarm-saturation:..." --max-swarm-tier Mass` → NF spawn + csv; ~3.37s/5ticks
 - GitNexus pre: impact upstream on RegisterNearFutureUnits/PlanSpawns/Run (CRITICAL ~95-97, RunBatch/CLI affected; LOW SwarmTier); post-edit detect high but scoped to expected (demo+md+prior S53)
-- Cites throughout: production/release-enablement-scope-boundary-2026-06-20.md + docs/reports/future-sprint-roadpmap.md §10 + gate-matrix S53
+- Cites throughout: production/release-enablement-scope-boundary-2026-06-20.md + docs/reports/future-sprint-roadmap.md §10 + gate-matrix S53
 - No default path regression (Medium preserved); isolated worktree.

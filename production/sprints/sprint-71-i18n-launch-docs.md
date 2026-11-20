@@ -4,7 +4,7 @@
 **Lead:** E7 Commercial Launch Prep  
 **Goal:** i18n pipeline spec + string inventory + extraction plan (S71-01/02); launch doc pack (patch-notes-template, faq, support-runbook, evidence-index) (S71-03/04); localization QA plan (S71-05: locale smoke strategy); closeout (S71-06). Prep i18n/launch for post-prep (P0 en-US only; no production translations). Extend S46 B5 + S70 checklist v3.  
 **Capacity:** 6–8 days, **1 local / 3 cloud** (cap 4). Cloud for i18n/launch/l10n-qa; local closeout.  
-**Model:** Per roadmap-execute-plan-062526.md §3/§4 (serial S69→S72; parallel inside after baseline; GitNexus + verification-before; dispatching-parallel-agents + worktrees). Stage remains **Release**. Cite commercial-launch-scope-boundary-2026-06-25.md + future-sprint-roadpmap-062526.md §3/§6/§7/§10 + roadmap-execute-plan-062526.md §3/§4 + AGENTS.md + S69/S70 + S66 v2 on all. Docs-only.  
+**Model:** Per roadmap-execute-plan-062526.md §3/§4 (serial S69→S72; parallel inside after baseline; GitNexus + verification-before; dispatching-parallel-agents + worktrees). Stage remains **Release**. Cite commercial-launch-scope-boundary-2026-06-25.md + docs/reports/archive/roadmaps/future-sprint-roadmap-062526.md §3/§6/§7/§10 + roadmap-execute-plan-062526.md §3/§4 + AGENTS.md + S69/S70 + S66 v2 on all. Docs-only.  
 
 ## Tasks / Tracks (from execute-plan §3/§4 exact S71 table)
 
@@ -67,6 +67,6 @@ GitNexus pre (search+use list/detect/impact CRITICAL §5 exact): 19962/37627/246
 
 **S71 tracks readiness for dispatch + closeout prep (l10n QA + stub).** Low risk: docs only. S71-05/06 focus in this independent subagent run. S71-01/02 deliverables landed; update release-checklist-v3 i18n section on closeout.
 
-Cites: production/commercial-launch-scope-boundary-2026-06-25.md ; docs/reports/future-sprint-roadpmap-062526.md §3/§6/§7/§10 ; docs/reports/roadmap-execute-plan-062526.md §3/§4/§5/§9 ; AGENTS.md ; S69/S70 complete (smoke + plan/kickoff) + S66 release-checklist-v2.md + Baltic v2 corpus/manifest + release-checklist-v3.md ; GitNexus pre + verif-before (19962/37627/2462 + 178/97/127/52 exact; gates 0e/1232/0f/6/6/18/18/hash/ZERO RUN+READ). Independent subagent for S71-01/02 i18n pipeline spec track + S71-05 l10n QA plan + S71 closeout prep (cloud/local mix per plan, execute-plan §4).
+Cites: production/commercial-launch-scope-boundary-2026-06-25.md ; docs/reports/archive/roadmaps/future-sprint-roadmap-062526.md §3/§6/§7/§10 ; docs/reports/roadmap-execute-plan-062526.md §3/§4/§5/§9 ; AGENTS.md ; S69/S70 complete (smoke + plan/kickoff) + S66 release-checklist-v2.md + Baltic v2 corpus/manifest + release-checklist-v3.md ; GitNexus pre + verif-before (19962/37627/2462 + 178/97/127/52 exact; gates 0e/1232/0f/6/6/18/18/hash/ZERO RUN+READ). Independent subagent for S71-01/02 i18n pipeline spec track + S71-05 l10n QA plan + S71 closeout prep (cloud/local mix per plan, execute-plan §4).
 
 *Docs only. Cites everywhere. GitNexus pre + verif-before executed.*

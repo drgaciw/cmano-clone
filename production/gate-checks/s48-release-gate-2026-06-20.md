@@ -3,7 +3,7 @@
 **Date:** 2026-06-20  
 **Status:** **S48 RELEASE GATE PASS — HUMAN ACK RECEIVED** (2026-06-20; user: "i provide the ack"; S41 closeout ack cited throughout; 10-sprint program / RC1 cut complete)  
 **Gate position:** After S47 Release Dry Run (B6 prep); final `/gate-check` Polish→Release per sprint-48 plan. Stage advance to Release if PASS.  
-**Authority:** [`production/release-enablement-scope-boundary-2026-06-20.md`](../release-enablement-scope-boundary-2026-06-20.md) (B6), [`production/sprints/sprint-48-release-gate.md`](../sprints/sprint-48-release-gate.md), [`production/gate-checks/scope-expansion-decision-2026-06-20-S41-close.md`](scope-expansion-decision-2026-06-20-S41-close.md) (S41 CLOSEOUT PASS + "i provide the ack"), [`docs/reports/future-sprint-roadpmap.md`](../../docs/reports/future-sprint-roadpmap.md) §5, §9, S47 dry-run, release-checklist-v1.md, AGENTS.md, team-release / gate-check patterns.  
+**Authority:** [`production/release-enablement-scope-boundary-2026-06-20.md`](../release-enablement-scope-boundary-2026-06-20.md) (B6), [`production/sprints/sprint-48-release-gate.md`](../sprints/sprint-48-release-gate.md), [`production/gate-checks/scope-expansion-decision-2026-06-20-S41-close.md`](scope-expansion-decision-2026-06-20-S41-close.md) (S41 CLOSEOUT PASS + "i provide the ack"), [`docs/reports/future-sprint-roadmap.md`](../../docs/reports/future-sprint-roadmap.md) §5, §9, S47 dry-run, release-checklist-v1.md, AGENTS.md, team-release / gate-check patterns.  
 **Prior:** S41 ack packet + S42–S45 closeouts (smokes, GitNexus, replays, determinism) + release-checklist-v1.md (B5 artifacts).  
 
 > **S48 serial gate (1-2 agents).** All prior gates held. RC1 cut ready. Human sign-off mandatory on verdict for stage advance + program close.  

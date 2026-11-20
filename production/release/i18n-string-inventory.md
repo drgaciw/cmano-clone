@@ -6,7 +6,7 @@
 
 **Cites (mandatory):**  
 `production/commercial-launch-scope-boundary-2026-06-25.md` (i18n spec IN; no prod trans; GitNexus pre + verif-before + 0e/1232/0f/6/6/18/18/hash/ZERO; stage Release)  
-`docs/reports/future-sprint-roadpmap-062526.md` §3/§6/§7/§10 (S71 i18n deliverables)  
+`docs/reports/archive/roadmaps/future-sprint-roadmap-062526.md` §3/§6/§7/§10 (S71 i18n deliverables)  
 `docs/reports/roadmap-execute-plan-062526.md` §3/§4 (string-inventory.md deliverable; cite Game-Requirements)  
 `AGENTS.md` (GitNexus pre; detect before commit)  
 S69/S70 complete + S66 v2: `production/sprints/sprint-69-commercial-launch-foundation.md`, `production/agentic/sprint-69-parallel-kickoff-2026-06-25.md`, `production/qa/smoke-sprint-69-closeout-2026-06-25.md`, `production/sprints/sprint-70-store-community-prep.md`, `production/release/release-checklist-v3.md`, `production/release/release-checklist-v2.md`, `production/qa/evidence/baltic-v2-playtest-index.md`, `production/playtests/baltic-v2-scenario-manifest.yaml`  

@@ -24,7 +24,7 @@ jobs:
           sparse-checkout-cone-mode: false
           sparse-checkout: |
             /*
-            !/docs/reports/future-sprint-roadpmap.md
+            !/docs/reports/future-sprint-roadmap.md
       - uses: actions/setup-python@v7
         with:
           python-version: '3.15'

@@ -8,7 +8,7 @@
 
 **Tech Stack:** .NET 8, Graphite (`gt`), GitNexus MCP, Buildkite (`.buildkite/`), headless Play Mode harness.
 
-**Authority:** [`future-sprint-roadpmap-062426.md`](future-sprint-roadpmap-062426.md) §3/§10/§12, [`local-cloud-agent-routing.md`](../../production/agentic/local-cloud-agent-routing.md), [`graphite-github-substitute-plan.md`](../engineering/graphite-github-substitute-plan.md)
+**Authority:** [`docs/reports/archive/roadmaps/future-sprint-roadmap-062426.md`](archive/roadmaps/future-sprint-roadmap-062426.md) §3/§10/§12, [`local-cloud-agent-routing.md`](../../production/agentic/local-cloud-agent-routing.md), [`graphite-github-substitute-plan.md`](../engineering/graphite-github-substitute-plan.md)
 
 ---
 
@@ -221,7 +221,7 @@ dotnet test src/ProjectAegis.Delegation.UnityAdapter.Tests/ProjectAegis.Delegati
 Publish production/release-train-scope-boundary-2026-06-24.md for S65–S68 release train.
 
 SCOPE:
-- Cite docs/reports/future-sprint-roadpmap-062426.md §3/§6/§7
+- Cite docs/reports/archive/roadmaps/future-sprint-roadmap-062426.md §3/§6/§7
 - Supersede production/baltic-v2-scope-boundary-2026-06-22.md for S65+ only (archive, don't delete)
 - List in/out of scope: E10 in; E7 commercial out; E9 content on hold
 - Carry standing invariants (1229 floor, hash, ZERO bridge, extend-only catalog)
@@ -296,7 +296,7 @@ RETURN: nodes/edges stats, staleness cleared, impact §5 table.
 ### Program artifacts
 
 - [x] S57–S64 COMPLETE — [`s57-s64-program-closeout-2026-06-22.md`](../../production/qa/s57-s64-program-closeout-2026-06-22.md)
-- [x] Roadmap — [`future-sprint-roadpmap-062426.md`](future-sprint-roadpmap-062426.md)
+- [x] Roadmap — [`docs/reports/archive/roadmaps/future-sprint-roadmap-062426.md`](archive/roadmaps/future-sprint-roadmap-062426.md)
 - [x] This execute plan — `docs/reports/roadmap-execute-plan-062426.md`
 - [ ] Scope boundary — `production/release-train-scope-boundary-2026-06-24.md` (@ S65-01)
 - [ ] Sprint plan S65 — `production/sprints/sprint-65-release-train-foundation.md`
@@ -320,8 +320,8 @@ RETURN: nodes/edges stats, staleness cleared, impact §5 table.
 
 | Artifact | Path |
 |----------|------|
-| Roadmap (canonical) | [`future-sprint-roadpmap-062426.md`](future-sprint-roadpmap-062426.md) |
-| Roadmap alias | [`future-sprint-roadpmap.md`](future-sprint-roadpmap.md) |
+| Roadmap (canonical) | [`docs/reports/archive/roadmaps/future-sprint-roadmap-062426.md`](archive/roadmaps/future-sprint-roadmap-062426.md) |
+| Roadmap alias | [`docs/reports/future-sprint-roadmap.md`](future-sprint-roadmap.md) |
 | This plan | `docs/reports/roadmap-execute-plan-062426.md` |
 | Baltic v2 closeout | `production/qa/s57-s64-program-closeout-2026-06-22.md` |
 | Release checklist v1 | `production/release/release-checklist-v1.md` |
@@ -342,7 +342,7 @@ RETURN: nodes/edges stats, staleness cleared, impact §5 table.
 2. **Inline Execution** — execute S65 tasks in-session with checkpoints. REQUIRED SUB-SKILL: `superpowers:executing-plans`.
 
 **Do not dispatch S65 code tracks until:**
-- User approves this plan + [`future-sprint-roadpmap-062426.md`](future-sprint-roadpmap-062426.md)
+- User approves this plan + [`docs/reports/archive/roadmaps/future-sprint-roadmap-062426.md`](archive/roadmaps/future-sprint-roadmap-062426.md)
 - S65-01 boundary is published
 
 ---

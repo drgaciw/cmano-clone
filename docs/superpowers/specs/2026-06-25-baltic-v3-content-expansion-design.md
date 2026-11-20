@@ -3,7 +3,7 @@
 **Date:** 2026-06-25  
 **Project:** Project Aegis (cmano-clone)  
 **Status:** Approved for planning and S73 dispatch  
-**Authority:** [`future-sprint-roadpmap-062526.01.md`](../../reports/future-sprint-roadpmap-062526.01.md), user decisions 2026-06-25  
+**Authority:** [`docs/reports/archive/roadmaps/future-sprint-roadmap-062526.01.md`](../../reports/archive/roadmaps/future-sprint-roadmap-062526.01.md), user decisions 2026-06-25  
 **Prior programs:** S57–S64 Baltic v2 (reference pattern), S69–S72 E7 prep (COMPLETE)
 
 ---
@@ -161,7 +161,7 @@ dotnet test src/ProjectAegis.Delegation.UnityAdapter.Tests/ProjectAegis.Delegati
 
 | Artifact | Path |
 |----------|------|
-| Roadmap | `docs/reports/future-sprint-roadpmap-062526.01.md` |
+| Roadmap | `docs/reports/archive/roadmaps/future-sprint-roadmap-062526.01.md` |
 | Execute plan | `docs/reports/roadmap-execute-plan-062526.01.md` |
 | v2 reference | `production/baltic-v2-scope-boundary-2026-06-22.md` |
 | v2 manifest | `production/playtests/baltic-v2-scenario-manifest.yaml` |

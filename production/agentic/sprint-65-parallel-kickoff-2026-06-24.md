@@ -1,7 +1,7 @@
 # S65 Parallel Kickoff — Release Train Foundation (E10)
 
 **Date:** 2026-06-24
-**Per:** roadmap-execute-plan-062426.md §9, future-sprint-roadpmap-062426.md §9/10, sprint-65 plan
+**Per:** roadmap-execute-plan-062426.md §9, docs/reports/archive/roadmaps/future-sprint-roadmap-062426.md §9/10, sprint-65 plan
 
 ## Prereqs (✓ or status)
 - Boundary PUBLISHED: production/release-train-scope-boundary-2026-06-24.md

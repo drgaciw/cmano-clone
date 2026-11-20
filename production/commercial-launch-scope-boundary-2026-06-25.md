@@ -2,7 +2,7 @@
 
 **Date:** 2026-06-25  
 **Status:** S69-01 deliverable (boundary first per roadmap-execute-plan-062526.md §3/§4/§8; wave 1 local producer style). Published before any S69 artifact tracks dispatch. Supersedes `production/release-train-scope-boundary-2026-06-24.md` for **S69+ only** (archive prior, do not delete; carry invariants only).  
-**Authority:** [`docs/reports/future-sprint-roadpmap-062526.md`](../docs/reports/future-sprint-roadpmap-062526.md) §3/§6/§7/§10 + [`docs/reports/roadmap-execute-plan-062526.md`](../docs/reports/roadmap-execute-plan-062526.md) §3/§4/§8 + [`production/release-train-scope-boundary-2026-06-24.md`](./release-train-scope-boundary-2026-06-24.md) (invariants only) + AGENTS.md  
+**Authority:** [`docs/reports/archive/roadmaps/future-sprint-roadmap-062526.md`](../docs/reports/archive/roadmaps/future-sprint-roadmap-062526.md) §3/§6/§7/§10 + [`docs/reports/roadmap-execute-plan-062526.md`](../docs/reports/roadmap-execute-plan-062526.md) §3/§4/§8 + [`production/release-train-scope-boundary-2026-06-24.md`](./release-train-scope-boundary-2026-06-24.md) (invariants only) + AGENTS.md  
 **Lead Epic:** E7 Commercial Launch Prep  
 **Sprints:** S69–S72 (serial; 2–4 parallel tracks inside each; local coordinator owns boundary/closeout/human; cloud for docs)  
 **Exit:** S72 prep-complete gate (human ack "commercial launch prep complete"; **stage remains Release**; no `production/stage.txt` advance to Launch)  
@@ -15,7 +15,7 @@ S69–S72 focuses on **commercial launch prep** for Baltic v2 (E7 lead): store p
 
 **Stage policy (execute-plan §1/§3/§4/§6/§7):** Remains **Release** throughout S69–S72. S72 documents "prep-complete" only; any Launch decision is separate/future and requires explicit stage.txt update + new boundary.
 
-Every story / artifact / commit **must** cite this boundary + `future-sprint-roadpmap-062526.md` §3/§6/§7/§10 + `roadmap-execute-plan-062526.md` + prior release-train boundary (invariants) + AGENTS.md.
+Every story / artifact / commit **must** cite this boundary + `docs/reports/archive/roadmaps/future-sprint-roadmap-062526.md` §3/§6/§7/§10 + `roadmap-execute-plan-062526.md` + prior release-train boundary (invariants) + AGENTS.md.
 
 **S69-01 deliverable only.** This file. Wave: boundary first → (parallel gate-matrix/reindex) → closeout per execute-plan §4.
 
@@ -124,13 +124,13 @@ Supersedes release-train-scope-boundary-2026-06-24.md for S69+ scope (carries it
 
 ## References + Related
 
-- Roadmap: `docs/reports/future-sprint-roadpmap-062526.md` (cite §3/§6/§7/§10)
+- Roadmap: `docs/reports/archive/roadmaps/future-sprint-roadmap-062526.md` (cite §3/§6/§7/§10)
 - Execute plan: `docs/reports/roadmap-execute-plan-062526.md` (primary; §3/§4/§6/§8/§9)
 - Prior boundary (invariants): `production/release-train-scope-boundary-2026-06-24.md`
 - AGENTS.md (GitNexus discipline, verification-before, stage facts)
 - S68 gate: `production/gate-checks/s68-release-train-gate-2026-06-25.md`
 - Future: S69 sprint plan/kickoff, gate-matrix-commercial-launch-*.md, release-checklist-v3.md etc. (post this)
-- Stable alias update (per roadmap §10): `docs/reports/future-sprint-roadpmap.md`
+- Stable alias update (per roadmap §10): `docs/reports/future-sprint-roadmap.md`
 
 **All S65–S68 COMPLETE.** S69 foundation starts here (boundary first).
 

@@ -2,7 +2,7 @@
 
 **Sub ID:** S56-proxy-filter-expand-verif  
 **Worktree/Branch:** stack/sprint56/proxy-filter (isolated) @ be8dfb7  
-**Authority/Cites:** `production/release-enablement-scope-boundary-2026-06-20.md`, `post-release-scope-boundary-2026-06-21.md` (referenced), `docs/reports/future-sprint-roadpmap.md` §10 S56, S55 hypersonic/cesium matrix append per PlayMode comment. Per roadmap §10 S56 + post-release boundary. Parallel to AAR/gate tracks.
+**Authority/Cites:** `production/release-enablement-scope-boundary-2026-06-20.md`, `post-release-scope-boundary-2026-06-21.md` (referenced), `docs/reports/future-sprint-roadmap.md` §10 S56, S55 hypersonic/cesium matrix append per PlayMode comment. Per roadmap §10 S56 + post-release boundary. Parallel to AAR/gate tracks.
 
 ## Isolation Check (cmds + read)
 - `pwd`: /home/username01/projects/active/cmano-clone/.worktrees/stack/sprint56/proxy-filter
@@ -31,7 +31,7 @@ Repo targeted via full path to current-indexed (dots-spawn sibling at matching c
   - Explicit comment (lines ~168-169):
     ```
     // S37-04: extend C2 proxy filters with graph surfacing checks (viewer/panel/highlights/bind); maintain 18/18+
-    // S56-03 (per future-sprint-roadpmap-062126.md §10 + post-release-scope-boundary-2026-06-21.md): retain DelegationBadge|SimulationMode matrix + append for new E1/UI (S55 hypersonic/Cesium) if applicable; 18/18+ baseline. Harness identified: PlayModeSmokeHarnessTests (C2 proxy). GitNexus impact pre-edit. Additive only.
+    // S56-03 (per docs/reports/archive/roadmaps/future-sprint-roadmap-062126.md §10 + post-release-scope-boundary-2026-06-21.md): retain DelegationBadge|SimulationMode matrix + append for new E1/UI (S55 hypersonic/Cesium) if applicable; 18/18+ baseline. Harness identified: PlayModeSmokeHarnessTests (C2 proxy). GitNexus impact pre-edit. Additive only.
     ```
   - Filter matrix in docs (release-enablement etc.): PlayModeSmoke|C2Selection|...|Graph*|DelegationBadge|SimulationMode|HypersonicAlert|Cesium
   - Uses BalticReplayHarness.Run extensively for proxy snapshots; SimulationModeProfile; no direct bridge mutation here.
@@ -62,7 +62,7 @@ Repo targeted via full path to current-indexed (dots-spawn sibling at matching c
 
 ## Report
 - Counts: full 1227/0f; replay 6/6; C2 PlayMode 18/18+ (expanded matrix incl S55)
-- Paths: src/ProjectAegis.Delegation.UnityAdapter.Tests/Bridge/PlayModeSmokeHarnessTests.cs ; production/qa/gate-matrix-track-b-2026-06-20.md ; production/sprint-status.yaml ; production/release-enablement-scope-boundary-2026-06-20.md ; docs/reports/future-sprint-roadpmap.md (refs)
+- Paths: src/ProjectAegis.Delegation.UnityAdapter.Tests/Bridge/PlayModeSmokeHarnessTests.cs ; production/qa/gate-matrix-track-b-2026-06-20.md ; production/sprint-status.yaml ; production/release-enablement-scope-boundary-2026-06-20.md ; docs/reports/future-sprint-roadmap.md (refs)
 - PASS
 - Cites: as above + AGENTS.md / verification-before-completion
 

@@ -2,7 +2,7 @@
 
 **Date:** 2026-07-04 (post S86)  
 **Sprint:** S87  
-**Authority:** `roadmap-execute-plan-07042026.md` §4 (S87), `scenario-editor-scope-boundary-2026-07-04.md`, `qa-plan-scenario-editor-2026-07-01.md`, `future-sprint-roadpmap-07042026.md`, `implementation-tracker-2026-07-04.md`, `Game-Requirements/requirements/11-Agentic-Mission-Editor.md` (AC-8)
+**Authority:** `roadmap-execute-plan-07042026.md` §4 (S87), `scenario-editor-scope-boundary-2026-07-04.md`, `qa-plan-scenario-editor-2026-07-01.md`, `docs/reports/archive/roadmaps/future-sprint-roadmap-07042026.md`, `implementation-tracker-2026-07-04.md`, `Game-Requirements/requirements/11-Agentic-Mission-Editor.md` (AC-8)
 
 ## Context
 S86 (CLI/MCP polish + UA triage) complete. In-flight editor work integrated or ready. S81–S86 validation tracks A–D, commands, determinism, etc. delivered.
@@ -109,7 +109,7 @@ grep -r "DelegationBridge" src/ --include="*.cs" | grep -v "DelegationBridge.cs"
 - Manual fallback allowed and documented per qa-plan
 
 ## Cites (include in every commit message / doc / PR description)
-`roadmap-execute-plan-07042026.md` §4 S87 + `future-sprint-roadpmap-07042026.md` + `scenario-editor-scope-boundary-2026-07-04.md` + `qa-plan-scenario-editor-2026-07-01.md` (unit #8 AC-8) + `implementation-tracker-2026-07-04.md` + `Game-Requirements/requirements/11-Agentic-Mission-Editor.md` (AC-8) + AGENTS.md + this kickoff + `production/sprints/sprint-87-unity-roundtrip.md`
+`roadmap-execute-plan-07042026.md` §4 S87 + `docs/reports/archive/roadmaps/future-sprint-roadmap-07042026.md` + `scenario-editor-scope-boundary-2026-07-04.md` + `qa-plan-scenario-editor-2026-07-01.md` (unit #8 AC-8) + `implementation-tracker-2026-07-04.md` + `Game-Requirements/requirements/11-Agentic-Mission-Editor.md` (AC-8) + AGENTS.md + this kickoff + `production/sprints/sprint-87-unity-roundtrip.md`
 
 ## GitNexus Pre (per AGENTS.md — always before edit)
 Run `impact({target: "...", direction: "upstream"})` and report blast radius (direct callers, affected processes, risk HIGH/CRITICAL). Use `context()` for full callers/callees/flows on symbols. `detect_changes()` before any commit.

@@ -3,7 +3,7 @@
 **Dates:** Following S83 (est. 6–8 days)  
 **Lead:** E11 / team-simulation + c-sharp-test-engineer  
 **Program:** S81–S88 Scenario Editor (req 11)  
-**Authority:** `roadmap-execute-plan-07042026.md` §3/§4 (S84), `future-sprint-roadpmap-07042026.md`, `scenario-editor-scope-boundary-2026-07-04.md`, `qa-plan-scenario-editor-2026-07-01.md`, `implementation-tracker-2026-07-04.md`, `Game-Requirements/requirements/11-Agentic-Mission-Editor.md` (AC-7, AC-11, #16 ADR-016), AGENTS.md
+**Authority:** `roadmap-execute-plan-07042026.md` §3/§4 (S84), `docs/reports/archive/roadmaps/future-sprint-roadmap-07042026.md`, `scenario-editor-scope-boundary-2026-07-04.md`, `qa-plan-scenario-editor-2026-07-01.md`, `implementation-tracker-2026-07-04.md`, `Game-Requirements/requirements/11-Agentic-Mission-Editor.md` (AC-7, AC-11, #16 ADR-016), AGENTS.md
 
 ## Sprint Goal
 Complete Event debugger track B: deliver AC-7 (structured event debugger JSON for unmet conditions), AC-11 (TeleportUnit logged export transform), and ADR-016 event-graph complexity caps unit test (#16). Advance primary files `EventDebuggerTrace`, CLI command, teleport export tests, `EventGraphComplexityTests`, `ValidationRules`. Maintain all standing invariants.
@@ -96,7 +96,7 @@ Coordinate: if S84-01/03 both need ValidationRules, one owner.
 
 ## Cites (MANDATORY on all artifacts / commits / PRs)
 - `roadmap-execute-plan-07042026.md` §3/§4 (S84)
-- `future-sprint-roadpmap-07042026.md`
+- `docs/reports/archive/roadmaps/future-sprint-roadmap-07042026.md`
 - `scenario-editor-scope-boundary-2026-07-04.md`
 - `qa-plan-scenario-editor-2026-07-01.md` (units 7,11,16)
 - `implementation-tracker-2026-07-04.md`

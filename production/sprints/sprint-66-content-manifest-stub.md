@@ -1,9 +1,9 @@
 # S66 Content Manifest Stub Note — UnifiedReleaseTrain Tools (Baltic v2)
 
 **Date:** 2026-06-25 (S66 prep scaffold)  
-**Per:** S65 manifest hardening complete; release-train-scope-boundary-2026-06-24.md S66 tracks; roadmap-execute-plan-062426.md §4 (S66 content manifest inputs); future-sprint-roadpmap-062426.md §10.
+**Per:** S65 manifest hardening complete; release-train-scope-boundary-2026-06-24.md S66 tracks; roadmap-execute-plan-062426.md §4 (S66 content manifest inputs); docs/reports/archive/roadmaps/future-sprint-roadmap-062426.md §10.
 
-Cites: release-train-scope-boundary-2026-06-24.md + future-sprint-roadpmap-062426.md §0/3/5/7/10 + roadmap-execute-plan-062426.md §4/5/6/8/9 + superpowers:dispatching-parallel-agents + verification-before
+Cites: release-train-scope-boundary-2026-06-24.md + docs/reports/archive/roadmaps/future-sprint-roadmap-062426.md §0/3/5/7/10 + roadmap-execute-plan-062426.md §4/5/6/8/9 + superpowers:dispatching-parallel-agents + verification-before
 
 ## Purpose (Scaffold Only)
 Minimal note for S66-01/02 track: how to record a baltic-v2 unified release from the 10 policies + 9 goldens using now-hardened UnifiedReleaseTrain tools (UnifiedReleaseTrainManifest, UnifiedReleaseTrainDiffReport, CatalogReleaseDiffCommand post-S65).

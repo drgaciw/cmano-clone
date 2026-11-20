@@ -4,7 +4,7 @@
 **Trunk:** `main` @ (post-S42)  
 **Predecessor:** Sprint 42 — COMPLETE (B1 wave 1, art bible 1–4)  
 **Stage:** Release Enablement (Track B)  
-**Authority:** Post-gate boundary doc + [`docs/reports/future-sprint-roadpmap.md`](../../docs/reports/future-sprint-roadpmap.md) §9 (B1 wave 2 + B2 complete). **Requires scope-expansion decision** (must be recorded before S42; inherited).
+**Authority:** Post-gate boundary doc + [`docs/reports/future-sprint-roadmap.md`](../../docs/reports/future-sprint-roadmap.md) §9 (B1 wave 2 + B2 complete). **Requires scope-expansion decision** (must be recorded before S42; inherited).
 
 > **OUT-OF-BOUNDARY — PLANNING ONLY** until scope gate recorded and S42 complete.
 

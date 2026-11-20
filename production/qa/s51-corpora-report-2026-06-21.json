@@ -13,7 +13,7 @@
   "s51_track": "S51-05 import-cohesion",
   "mapper_extended": "OsintCatalogMapper.ToCorporaSensor* (S51) + import monitor",
   "gate_usage": "extend-only Propose via catalog_import_markdown + test",
-  "citation": "production/post-release-scope-boundary-2026-06-21.md (S51 Req06 import cohesion) + future-sprint-roadpmap.md §10 S51 + §0/§7 + S49 OSINT mapper",
+  "citation": "production/post-release-scope-boundary-2026-06-21.md (S51 Req06 import cohesion) + docs/reports/future-sprint-roadmap.md §10 S51 + §0/§7 + S49 OSINT mapper",
   "isolation": "worktree-only corpora-ci",
   "gitnexus_preflight": "CatalogWriteGate CRITICAL (151) noted; mapper LOW; import symbols LOW"
 }

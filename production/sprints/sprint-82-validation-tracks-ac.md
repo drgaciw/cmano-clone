@@ -3,7 +3,7 @@
 **Dates:** Following S81 (est. 6–8 days)  
 **Lead:** E11 / team-data + c-sharp-test-engineer  
 **Program:** S81–S88 Scenario Editor (req 11)  
-**Authority:** `roadmap-execute-plan-07042026.md` §3/§4 (S82), `future-sprint-roadpmap-07042026.md`, `scenario-editor-scope-boundary-2026-07-04.md`, `qa-plan-scenario-editor-2026-07-01.md`, `implementation-tracker-2026-07-04.md`
+**Authority:** `roadmap-execute-plan-07042026.md` §3/§4 (S82), `docs/reports/archive/roadmaps/future-sprint-roadmap-07042026.md`, `scenario-editor-scope-boundary-2026-07-04.md`, `qa-plan-scenario-editor-2026-07-01.md`, `implementation-tracker-2026-07-04.md`
 
 ## Sprint Goal
 Harden validation tracks A and C: Doctrine inheritance (AC-4), Schema conformance (AC-9 + AME-2.6), Save-vs-export gate (AC-12). Make the editor subset test filter green while maintaining all standing invariants (floor ≥1232, no DelegationBridge edits, etc.).

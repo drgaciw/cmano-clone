@@ -45,7 +45,7 @@ The dashboard snapshot assumes **GT-01 blocked** (main ahead ~20, S66/S67 payloa
 
 **Expert direction (no user retroactive stacks):**
 - **Close GT-01/02 as resolved** — update status docs; do not recreate S66–S71 Graphite history.
-- **Next GT integration target:** Baltic v3 (`stack/sprint73/*` … `stack/sprint75/*`) per [`docs/reports/future-sprint-roadpmap-062526.01.md`](docs/reports/future-sprint-roadpmap-062526.01.md).
+- **Next GT integration target:** Baltic v3 (`stack/sprint73/*` … `stack/sprint75/*`) per [`docs/reports/archive/roadmaps/future-sprint-roadmap-062526.01.md`](docs/reports/archive/roadmaps/future-sprint-roadmap-062526.01.md).
 - **Forward program:** E9 Baltic v3 (S73–S80), not commercial launch execution (item 9 stays gated).
 
 ```mermaid
@@ -185,7 +185,7 @@ grep -r "DelegationBridge" --include="*.cs" . | grep -vE 'adapter|UnityAdapter|B
 ### Task C1: Baltic v3 forward program — commit S73–S75 (item 7 primary)
 
 **Authority:**
-- [`docs/reports/future-sprint-roadpmap-062526.01.md`](docs/reports/future-sprint-roadpmap-062526.01.md)
+- [`docs/reports/archive/roadmaps/future-sprint-roadmap-062526.01.md`](docs/reports/archive/roadmaps/future-sprint-roadmap-062526.01.md)
 - [`docs/reports/roadmap-execute-plan-062526.01.md`](docs/reports/roadmap-execute-plan-062526.01.md)
 - [`production/baltic-v3-scope-boundary-2026-06-25.md`](production/baltic-v3-scope-boundary-2026-06-25.md)
 - Closeouts: `production/qa/smoke-sprint-73/74/75-closeout-2026-06-25.md`
@@ -211,7 +211,7 @@ grep -r "DelegationBridge" --include="*.cs" . | grep -vE 'adapter|UnityAdapter|B
 - [ ] **Step 4:** Per stack: gates RUN+READ → `gt submit --stack --no-interactive`
 - [ ] **Step 5:** Closeout track: `gt sync` → `gt restack` → full gates → merge coordinator commit
 - [ ] **Step 6:** Re-run Task A3 GitNexus analyze post-merge
-- [ ] **Step 7:** Update stable alias [`docs/reports/future-sprint-roadpmap.md`](docs/reports/future-sprint-roadpmap.md) → `062526.01` if not synced
+- [ ] **Step 7:** Update stable alias [`docs/reports/future-sprint-roadmap.md`](docs/reports/future-sprint-roadmap.md) → `062526.01` if not synced
 
 **Hash note:** Production hash `17144800277401907079` stays on v2 path; v3 goldens use `baltic-v3-*` isolated fixtures until S80 promotion ADR.
 

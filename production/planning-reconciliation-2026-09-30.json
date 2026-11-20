@@ -68,7 +68,7 @@
       "anchor": "proposed-criteria-requiring-new-delivery-evidence"
     },
     {
-      "path": "docs/reports/future-sprint-roadpmap.md"
+      "path": "docs/reports/future-sprint-roadmap.md"
     },
     {
       "path": "docs/reports/project-dashboard.md"
@@ -82,7 +82,7 @@
   ],
   "pointers": [
     {
-      "path": "docs/reports/future-sprint-roadpmap.md",
+      "path": "docs/reports/future-sprint-roadmap.md",
       "relativeTo": "docs/reports",
       "selector": "^> \\*\\*Canonical document:\\*\\*.*\\]\\((?<target>[^)]+)\\)"
     },

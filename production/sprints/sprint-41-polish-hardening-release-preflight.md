@@ -4,7 +4,7 @@
 **Trunk:** `main` @ (post-S40 commit)  
 **Predecessor:** Sprint 40 — COMPLETE (Catalog/Import surfacing, perf P1, replay maint, evidence/playtest 12, closeout)  
 **Stage:** Polish (final in-boundary horizon)  
-**Authority:** `production/polish-scope-boundary-2026-06-19.md` — Horizon 3 only ([`docs/reports/future-sprint-roadpmap.md`](../../docs/reports/future-sprint-roadpmap.md) §3). Read-only structural-debt ADR, determinism audit, Polish-exit evidence pack, Track B gap analysis + scope-decision packet. **NO production code refactor.** NO launch artifacts. Prepares scope-expansion gate (roadmap §4).
+**Authority:** `production/polish-scope-boundary-2026-06-19.md` — Horizon 3 only ([`docs/reports/future-sprint-roadmap.md`](../../docs/reports/future-sprint-roadmap.md) §3). Read-only structural-debt ADR, determinism audit, Polish-exit evidence pack, Track B gap analysis + scope-decision packet. **NO production code refactor.** NO launch artifacts. Prepares scope-expansion gate (roadmap §4).
 
 ## Sprint Goal
 
@@ -127,7 +127,7 @@ Per boundary + roadmap §4 (Track B requires scope decision):
 
 | Artifact | Path |
 |----------|------|
-| Roadmap | `docs/reports/future-sprint-roadpmap.md` §3–§4 |
+| Roadmap | `docs/reports/future-sprint-roadmap.md` §3–§4 |
 | Scope gate template | `production/gate-checks/scope-expansion-decision-template-2026-06-20.md` |
 | Parallel kickoff | `production/agentic/sprint-41-parallel-kickoff-2026-06-20.md` |
 | Boundary | `production/polish-scope-boundary-2026-06-19.md` |

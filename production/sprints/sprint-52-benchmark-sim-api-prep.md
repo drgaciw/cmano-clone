@@ -1,7 +1,7 @@
 # Sprint 52 E6 Prep — Benchmark + Sim API (parallel track)
 
 **Date:** 2026-06-21 (subagent prep)
-**Scope:** Per roadmap §10/§12 (future-sprint-roadpmap-062126.md), post-release-scope-boundary-2026-06-21.md (Req 01 + 08, E6).
+**Scope:** Per roadmap §10/§12 (docs/reports/archive/roadmaps/future-sprint-roadmap-062126.md), post-release-scope-boundary-2026-06-21.md (Req 01 + 08, E6).
 **Status:** Prep complete. Skeletons/plans produced. No implementation edits.
 
 ## Parallel Tracks (fan-out)
@@ -27,4 +27,4 @@
 
 **Next:** Full sprint-plan after S51; dispatch per roadmap to worktrees.
 
-Cites: production/post-release-scope-boundary-2026-06-21.md, docs/reports/future-sprint-roadpmap-062126.md, GitNexus MCP results, determinism audits.
+Cites: production/post-release-scope-boundary-2026-06-21.md, docs/reports/archive/roadmaps/future-sprint-roadmap-062126.md, GitNexus MCP results, determinism audits.

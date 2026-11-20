@@ -4,7 +4,7 @@
 **Trunk:** `main` @ (post-S46)  
 **Predecessor:** Sprint 46 — COMPLETE (B5 artifacts)  
 **Stage:** Release Enablement (Track B)  
-**Authority:** B6 prep — [`docs/reports/future-sprint-roadpmap.md`](../../docs/reports/future-sprint-roadpmap.md) §5, §9.
+**Authority:** B6 prep — [`docs/reports/future-sprint-roadmap.md`](../../docs/reports/future-sprint-roadmap.md) §5, §9.
 
 > **OUT-OF-BOUNDARY — PLANNING ONLY.**
 

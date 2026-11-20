@@ -46,7 +46,7 @@
 ## Authority chain
 
 1. This boundary file
-2. `docs/reports/future-sprint-roadmap-07142026.md`
+2. `docs/reports/archive/roadmaps/future-sprint-roadmap-07142026.md`
 3. `production/gate-checks/post-s93-concerns-remediation-closeout-2026-07-14.md`
 4. `production/agentic/critical-hub-merge-playbook-2026-07-14.md`
 

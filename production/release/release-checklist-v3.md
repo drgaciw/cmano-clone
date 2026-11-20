@@ -5,7 +5,7 @@
 **Track:** S70-04 Checklist v3 skeleton (Cloud, release-manager per roadmap-execute-plan-062526.md §4)  
 **Authority / MANDATORY CITES:**  
 - `production/commercial-launch-scope-boundary-2026-06-25.md` (E7 prep: store/i18n/launch/checklist IN; submission OUT; invariants; stage Release)  
-- `docs/reports/future-sprint-roadpmap-062526.md` §3/§6/§7/§10  
+- `docs/reports/archive/roadmaps/future-sprint-roadmap-062526.md` §3/§6/§7/§10  
 - `docs/reports/roadmap-execute-plan-062526.md` §3/§4 (S70: checklist-v3 S70-04; cites v2 + S69)  
 - `AGENTS.md` (GitNexus pre search+use list/detect/impact; verification-before RUN+READ)  
 - S69 artifacts (COMPLETE): `production/qa/smoke-sprint-69-closeout-2026-06-25.md`, commercial-launch-scope-boundary-2026-06-25.md, gate-matrix-commercial-launch-2026-06-25.md, production/sprints/sprint-69-commercial-launch-foundation.md, production/agentic/sprint-69-parallel-kickoff-2026-06-25.md  
@@ -89,7 +89,7 @@
 - [ ] Templates linked in evidence-index (S71)  
 
 **i18n / Launch Docs (S71):**  
-- [x] i18n-pipeline-spec.md + string-inventory + extraction-plan (P0 en-US only) — S71-01/02 COMPLETE (cloud independent subagent; cites boundary + future-sprint-roadpmap-062526.md §3/6/7/10 + roadmap-execute-plan-062526.md §3/4 + AGENTS + S69/S70/S66 v2 + Game-Requirements; GitNexus pre + verif-before; see sprint-status s71_ + production/release/*.md)  
+- [x] i18n-pipeline-spec.md + string-inventory + extraction-plan (P0 en-US only) — S71-01/02 COMPLETE (cloud independent subagent; cites boundary + docs/reports/archive/roadmaps/future-sprint-roadmap-062526.md §3/6/7/10 + roadmap-execute-plan-062526.md §3/4 + AGENTS + S69/S70/S66 v2 + Game-Requirements; GitNexus pre + verif-before; see sprint-status s71_ + production/release/*.md)  
 - [ ] launch/ pack: patch-notes-template.md, faq-draft.md, support-runbook-draft.md, evidence-index.md (links S57–S71 prep + S66 v2)  
 - [ ] Localization QA plan (qa/) — `production/qa/qa-plan-sprint-71-l10n-prep-2026-06-25.md` created (S71-05; locale smoke strategy; cites execute-plan §3/§4 + boundary + GitNexus pre + verif; no PlayMode); ready S71/S72. See sprint-71-i18n-launch-docs.md + smoke-sprint-71 stub.  
 
@@ -136,6 +136,6 @@ rg DelegationBridge src/ --glob "!**/DelegationBridge.cs" -l
 
 **S70-04 partial complete (skeleton).** Supersedes release-checklist-v2.md for E7 prep slice only (v2 remains authoritative for Baltic ops). All cites present. Low risk docs.  
 
-Cites: commercial-launch-scope-boundary-2026-06-25.md + future-sprint-roadpmap-062526.md §3/§6/§7/§10 + roadmap-execute-plan-062526.md §3/§4 + AGENTS.md + S69 artifacts + S66 release-checklist-v2.md + Baltic v2 corpus. Pre state + GitNexus pre (list/detect/impact) + gates RUN+READ.  
+Cites: commercial-launch-scope-boundary-2026-06-25.md + docs/reports/archive/roadmaps/future-sprint-roadmap-062526.md §3/§6/§7/§10 + roadmap-execute-plan-062526.md §3/§4 + AGENTS.md + S69 artifacts + S66 release-checklist-v2.md + Baltic v2 corpus. Pre state + GitNexus pre (list/detect/impact) + gates RUN+READ.  
 
 *Independent subagent. S70 tracks partial complete (note closeout later).*

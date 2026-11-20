@@ -8,7 +8,7 @@
 
 **Tech Stack:** .NET 8, Graphite (`gt`), GitNexus MCP, Buildkite (`.buildkite/preflight-s67.yml` parity), headless Play Mode harness, scenario policy JSON, replay goldens.
 
-**Authority:** [`future-sprint-roadpmap-062526.01.md`](future-sprint-roadpmap-062526.01.md) §3/§10/§12, [`2026-06-25-baltic-v3-content-expansion-design.md`](../superpowers/specs/2026-06-25-baltic-v3-content-expansion-design.md), [`local-cloud-agent-routing.md`](../../production/agentic/local-cloud-agent-routing.md), [`graphite-github-substitute-plan.md`](../engineering/graphite-github-substitute-plan.md), prior pattern [`future-sprint-roadpmap-062226.md`](future-sprint-roadpmap-062226.md) §10
+**Authority:** [`docs/reports/archive/roadmaps/future-sprint-roadmap-062526.01.md`](archive/roadmaps/future-sprint-roadmap-062526.01.md) §3/§10/§12, [`2026-06-25-baltic-v3-content-expansion-design.md`](../superpowers/specs/2026-06-25-baltic-v3-content-expansion-design.md), [`local-cloud-agent-routing.md`](../../production/agentic/local-cloud-agent-routing.md), [`graphite-github-substitute-plan.md`](../engineering/graphite-github-substitute-plan.md), prior pattern [`docs/reports/archive/roadmaps/future-sprint-roadmap-062226.md`](archive/roadmaps/future-sprint-roadmap-062226.md) §10
 
 ---
 
@@ -118,7 +118,7 @@ Stack workflow: Graphite — `gt create`, `gt submit --stack --no-interactive`, 
 
 Must include:
 
-- Cite [`future-sprint-roadpmap-062526.01.md`](future-sprint-roadpmap-062526.01.md) §3/§6/§7/§10 + this execute plan
+- Cite [`docs/reports/archive/roadmaps/future-sprint-roadmap-062526.01.md`](archive/roadmaps/future-sprint-roadmap-062526.01.md) §3/§6/§7/§10 + this execute plan
 - Supersede [`production/commercial-launch-scope-boundary-2026-06-25.md`](../../production/commercial-launch-scope-boundary-2026-06-25.md) for **S73+ only** (archive prior, do not delete)
 - **In scope:** E9 v3 content (§3 themes); **Out:** E7 submission, multiplayer, bridge edits, hash change w/o ADR
 - Carry standing invariants (1232 floor, hash, ZERO bridge, extend-only catalog)
@@ -296,7 +296,7 @@ rg "17144800277401907079" tests/regression/ -n
 Publish production/baltic-v3-scope-boundary-2026-06-25.md for S73–S80 Baltic v3 E9.
 
 SCOPE:
-- Cite future-sprint-roadpmap-062526.01.md §3/§6/§7/§10 + roadmap-execute-plan-062526.01.md
+- Cite docs/reports/archive/roadmaps/future-sprint-roadmap-062526.01.md §3/§6/§7/§10 + roadmap-execute-plan-062526.01.md
 - Supersede commercial-launch-scope-boundary-2026-06-25.md for S73+ only (archive, don't delete)
 - List in/out of scope per design spec §1
 - Carry standing invariants (1232 floor, hash, ZERO bridge, extend-only catalog, baltic-v3-* prefix)
@@ -350,7 +350,7 @@ RETURN: nodes/edges stats; expect CRITICAL 178/97/127/52 exact.
 ### Program artifacts
 
 - [x] S69–S72 COMPLETE — [`s72-commercial-launch-prep-gate-2026-06-25.md`](../../production/gate-checks/s72-commercial-launch-prep-gate-2026-06-25.md)
-- [x] Roadmap — [`future-sprint-roadpmap-062526.01.md`](future-sprint-roadpmap-062526.01.md)
+- [x] Roadmap — [`docs/reports/archive/roadmaps/future-sprint-roadmap-062526.01.md`](archive/roadmaps/future-sprint-roadmap-062526.01.md)
 - [x] Design spec — [`2026-06-25-baltic-v3-content-expansion-design.md`](../superpowers/specs/2026-06-25-baltic-v3-content-expansion-design.md)
 - [x] This execute plan — `docs/reports/roadmap-execute-plan-062526.01.md`
 - [ ] Scope boundary — `production/baltic-v3-scope-boundary-2026-06-25.md` (@ S73-01)
@@ -368,11 +368,11 @@ RETURN: nodes/edges stats; expect CRITICAL 178/97/127/52 exact.
 
 | Artifact | Path |
 |----------|------|
-| Roadmap (canonical) | [`future-sprint-roadpmap-062526.01.md`](future-sprint-roadpmap-062526.01.md) |
-| Roadmap alias | [`future-sprint-roadpmap.md`](future-sprint-roadpmap.md) |
+| Roadmap (canonical) | [`docs/reports/archive/roadmaps/future-sprint-roadmap-062526.01.md`](archive/roadmaps/future-sprint-roadmap-062526.01.md) |
+| Roadmap alias | [`docs/reports/future-sprint-roadmap.md`](future-sprint-roadmap.md) |
 | Design spec | [`2026-06-25-baltic-v3-content-expansion-design.md`](../superpowers/specs/2026-06-25-baltic-v3-content-expansion-design.md) |
 | Prior execute plan (E7) | [`roadmap-execute-plan-062526.md`](roadmap-execute-plan-062526.md) |
-| v2 roadmap pattern | [`future-sprint-roadpmap-062226.md`](future-sprint-roadpmap-062226.md) |
+| v2 roadmap pattern | [`docs/reports/archive/roadmaps/future-sprint-roadmap-062226.md`](archive/roadmaps/future-sprint-roadmap-062226.md) |
 | v2 boundary (reference) | [`production/baltic-v2-scope-boundary-2026-06-22.md`](../../production/baltic-v2-scope-boundary-2026-06-22.md) |
 | S72 gate | [`production/gate-checks/s72-commercial-launch-prep-gate-2026-06-25.md`](../../production/gate-checks/s72-commercial-launch-prep-gate-2026-06-25.md) |
 | Local/cloud routing | [`production/agentic/local-cloud-agent-routing.md`](../../production/agentic/local-cloud-agent-routing.md) |

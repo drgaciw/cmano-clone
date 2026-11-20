@@ -62,7 +62,7 @@ Conclusion: ZERO core mutation. Risks reported (general CRITICAL for SimSession 
   Headless tests >=1227 ; ReplayGolden 6/6 ; C2 proxy 18/18+ ; Baltic hash immutable.
   (full § in read: lines 65-67, 29, 85-88 etc.)
 
-- future-sprint-roadpmap-062126.md (read canonical):
+- docs/reports/archive/roadmaps/future-sprint-roadmap-062126.md (read canonical):
   ## 10. S49–S56 per-sprint parallel decomposition
   ### S54 — E3: Speculative systems (orbital DEW, escalation)
   Parallel tracks (2):
@@ -85,7 +85,7 @@ Conclusion: ZERO core mutation. Risks reported (general CRITICAL for SimSession 
   Matches EscalationTier.cs values and test.
 
 - Also present in this wt:
-  00-Master-Index.md (MANDATORY CITES section): explicitly lists post-release-...-2026-06-21.md §S54 E3, docs/reports/future-sprint-roadpmap-062126.md §10 S54, Req10 § Escalation Ladder. "cites: post-release-scope-boundary-2026-06-21.md + future-sprint-roadpmap-062126.md §10 S54 + Req10"
+  00-Master-Index.md (MANDATORY CITES section): explicitly lists post-release-...-2026-06-21.md §S54 E3, docs/reports/archive/roadmaps/future-sprint-roadmap-062126.md §10 S54, Req10 § Escalation Ladder. "cites: post-release-scope-boundary-2026-06-21.md + docs/reports/archive/roadmaps/future-sprint-roadmap-062126.md §10 S54 + Req10"
   New .cs files headers: "per Req 10, S54 prep+initial", "Citations (MANDATORY)..." in orbital sibling.
 
 Citations verified in all required.

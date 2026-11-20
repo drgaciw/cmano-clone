@@ -3,7 +3,7 @@
 **Dates:** 2026-07-09 start (est. 3–5 days)  
 **Lead:** c-sharp-devops-engineer / producer (local closeout)  
 **Program:** S89–S92 Post-Editor Engineering Hygiene + Asset Spec Production — sprint 1 of 4  
-**Authority:** [`future-sprint-roadpmap-07092026.md`](../../docs/reports/future-sprint-roadpmap-07092026.md) §3/§6, [`roadmap-execute-plan-07092026.md`](../../docs/reports/roadmap-execute-plan-07092026.md) §3/§4 (S89), [`post-editor-hygiene-scope-boundary-2026-07-09.md`](../post-editor-hygiene-scope-boundary-2026-07-09.md), [`qa-plan-sprint-89-post-editor-hygiene-2026-07-09.md`](../qa/qa-plan-sprint-89-post-editor-hygiene-2026-07-09.md), [`implementation-tracker-2026-07-04.md`](../../Game-Requirements/implementation-tracker-2026-07-04.md), AGENTS.md, this file.
+**Authority:** [`docs/reports/archive/roadmaps/future-sprint-roadmap-07092026.md`](../../docs/reports/archive/roadmaps/future-sprint-roadmap-07092026.md) §3/§6, [`roadmap-execute-plan-07092026.md`](../../docs/reports/roadmap-execute-plan-07092026.md) §3/§4 (S89), [`post-editor-hygiene-scope-boundary-2026-07-09.md`](../post-editor-hygiene-scope-boundary-2026-07-09.md), [`qa-plan-sprint-89-post-editor-hygiene-2026-07-09.md`](../qa/qa-plan-sprint-89-post-editor-hygiene-2026-07-09.md), [`implementation-tracker-2026-07-04.md`](../../Game-Requirements/implementation-tracker-2026-07-04.md), AGENTS.md, this file.
 
 **Roadmap approval:** User approved S89–S92 roadmap **2026-07-09**.
 

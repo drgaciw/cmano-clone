@@ -1,7 +1,7 @@
 # Baltic v2 Playtest Corpus Index — S57–S64 (E9 Content Expansion)
 
 **Date:** 2026-06-25  
-**Scope:** Strictly S57–S64 per `production/release-train-scope-boundary-2026-06-24.md` (supersedes baltic-v2 for S65+; cites S65 foundation). **Cites:** `production/baltic-v2-scope-boundary-2026-06-22.md` + `production/release-train-scope-boundary-2026-06-24.md` + `docs/reports/future-sprint-roadpmap-062426.md` §0/3/5/7/10 + `production/release/release-checklist-v2.md` §Playtest Corpus Index + `production/sprints/sprint-66-content-manifest-playtest.md` (S66-03) + `production/qa/s65-gate-matrix-2026-06-24.md` + `production/qa/smoke-sprint-65-closeout-2026-06-24.md`. S65 closeout reference. No E9 new content; no S65+.
+**Scope:** Strictly S57–S64 per `production/release-train-scope-boundary-2026-06-24.md` (supersedes baltic-v2 for S65+; cites S65 foundation). **Cites:** `production/baltic-v2-scope-boundary-2026-06-22.md` + `production/release-train-scope-boundary-2026-06-24.md` + `docs/reports/archive/roadmaps/future-sprint-roadmap-062426.md` §0/3/5/7/10 + `production/release/release-checklist-v2.md` §Playtest Corpus Index + `production/sprints/sprint-66-content-manifest-playtest.md` (S66-03) + `production/qa/s65-gate-matrix-2026-06-24.md` + `production/qa/smoke-sprint-65-closeout-2026-06-24.md`. S65 closeout reference. No E9 new content; no S65+.
 
 **Authority:** S57–S64 COMPLETE (human ack "i provide the ack" 2026-06-22; merge complete). 10 policies + 9 goldens baseline. GitNexus impact/detect pre (low for docs; CRITICALs CatalogWriteGate 178 / PatrolCandidateEngagePolicy 97 / BalticReplayHarness 52 confirmed upstream). verification-before on all RUN+READ.
 
@@ -18,7 +18,7 @@
   - production/qa/qa-plan-sprint-57-2026-06-22.md (sprints/ copy)
   - production/sprints/sprint-57-aar-playtest-foundations.md
 - **Playtest Harness/Manifest:** production/playtests/baltic-v2-scenario-manifest.yaml (S63 batch: baseline + v2_slots + bands A/B/C + seeds 42/7/123)
-- **Other:** production/sprint-status.yaml (s57_s64_* blocks), docs/reports/future-sprint-roadpmap-062226.md §10, AGENTS.md citations. Automated via BalticReplayHarness + replay-verify 6/6.
+- **Other:** production/sprint-status.yaml (s57_s64_* blocks), docs/reports/archive/roadmaps/future-sprint-roadmap-062226.md §10, AGENTS.md citations. Automated via BalticReplayHarness + replay-verify 6/6.
 - **Human Sessions:** S63 template prep (≥1 per band planned; aggregated in S57–S64 closeout; prior human in playtests/human/ are S34–S43 baseline). No new dedicated S57–S64 human logs beyond prep/AAR synthesis (per boundary program exit via S64 aggregation).
 - **Counts:** ~6+ qa/sprint closeouts + 10 policies + 9 goldens + 1 manifest + AAR/playtest foundations. Total artifacts referenced: 30+ (goldens/policies + docs). Full evidence in .worktrees/stack/sprint57/* + main post-merge.
 

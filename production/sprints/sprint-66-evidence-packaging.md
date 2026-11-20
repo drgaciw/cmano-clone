@@ -20,7 +20,7 @@
 Same as S65: 0e build, 0f tests >=1232, 6/6 replay, 18/18 C2, hash, ZERO, GitNexus pre/detect low.
 
 ## Cites
-release-train-scope-boundary-2026-06-24.md + future-sprint-roadpmap-062426.md §0/3/5/7/10 + roadmap-execute-plan-062426.md §4/5/6/8/9 + superpowers:dispatching-parallel-agents + verification-before.
+release-train-scope-boundary-2026-06-24.md + docs/reports/archive/roadmaps/future-sprint-roadmap-062426.md §0/3/5/7/10 + roadmap-execute-plan-062426.md §4/5/6/8/9 + superpowers:dispatching-parallel-agents + verification-before.
 
 **Detailed artifacts (S66 prep):**
 - Plan/kickoff: production/sprints/sprint-66-content-manifest-playtest.md

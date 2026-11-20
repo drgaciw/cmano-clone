@@ -1,7 +1,7 @@
 # Sprint 70 Kickoff — Store + Community Prep (Parallel Dispatch)
 
 **Date:** 2026-06-25 (post S69 COMPLETE)  
-**Authority / CITES:** production/commercial-launch-scope-boundary-2026-06-25.md ; future-sprint-roadpmap-062526.md §3/§6/§7/§10 ; roadmap-execute-plan-062526.md §3/§4 (S70 tracks: store S70-01/02, community S70-03, checklist S70-04, closeout S70-05); AGENTS.md ; S69 COMPLETE artifacts (smoke-sprint-69-closeout + boundary + gate-matrix + sprint-69 foundation); S66 release-checklist-v2.md (input).  
+**Authority / CITES:** production/commercial-launch-scope-boundary-2026-06-25.md ; docs/reports/archive/roadmaps/future-sprint-roadmap-062526.md §3/§6/§7/§10 ; roadmap-execute-plan-062526.md §3/§4 (S70 tracks: store S70-01/02, community S70-03, checklist S70-04, closeout S70-05); AGENTS.md ; S69 COMPLETE artifacts (smoke-sprint-69-closeout + boundary + gate-matrix + sprint-69 foundation); S66 release-checklist-v2.md (input).  
 
 **Pre state:** GitNexus 19962/37627/2462 low; gates PASS 0e/1232/0f/6/6/18/18/hash/ZERO=0; S69 COMPLETE.  
 

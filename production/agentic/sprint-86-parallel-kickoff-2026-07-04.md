@@ -2,7 +2,7 @@
 
 **Date:** 2026-07-04  
 **Sprint:** S86  
-**Authority:** `roadmap-execute-plan-07042026.md` §3/§4 (S86), `scenario-editor-scope-boundary-2026-07-04.md`, `future-sprint-roadpmap-07042026.md` §3/§4/§10, `qa-plan-scenario-editor-2026-07-01.md` (units #19, UA pair), `implementation-tracker-2026-07-04.md`, `Game-Requirements/requirements/11-Agentic-Mission-Editor.md`, S81–S85 parallel kickoffs + sprint plans + closeouts, AGENTS.md + CLAUDE.md
+**Authority:** `roadmap-execute-plan-07042026.md` §3/§4 (S86), `scenario-editor-scope-boundary-2026-07-04.md`, `docs/reports/archive/roadmaps/future-sprint-roadmap-07042026.md` §3/§4/§10, `qa-plan-scenario-editor-2026-07-01.md` (units #19, UA pair), `implementation-tracker-2026-07-04.md`, `Game-Requirements/requirements/11-Agentic-Mission-Editor.md`, S81–S85 parallel kickoffs + sprint plans + closeouts, AGENTS.md + CLAUDE.md
 
 ## Context
 S85 (determinism + AC-6 CI + stub pins) complete. In-flight work from `fix-scenario-publish-cli-wiring` @ 17d426c integrated per prior merge plan.
@@ -114,7 +114,7 @@ bash tools/ci/smoke-ac6.sh || true
 
 ## References (cite in all work)
 - `docs/reports/roadmap-execute-plan-07042026.md` (S86 tables, primary files mcp-tools.json/McpToolsManifestTests/NoDynamic..., UA failures exact names, wave, Phase 0/1/2, hard gates, ownership)
-- `docs/reports/future-sprint-roadpmap-07042026.md`
+- `docs/reports/archive/roadmaps/future-sprint-roadmap-07042026.md`
 - `production/scenario-editor-scope-boundary-2026-07-04.md` (standing invariants, scope in/out, file ownership, CRITICAL symbols incl. BalticReplayHarness 52)
 - `production/qa/qa-plan-scenario-editor-2026-07-01.md` (#19 NFR details, test path, UA context)
 - `Game-Requirements/implementation-tracker-2026-07-04.md` (CLI/MCP surface status, #19)

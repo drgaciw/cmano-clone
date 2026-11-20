@@ -1,7 +1,7 @@
 # S71 Parallel Kickoff — i18n + Launch Docs + l10n QA Prep (E7)
 
 **Date:** 2026-06-25  
-**Per:** `production/commercial-launch-scope-boundary-2026-06-25.md`, `docs/reports/roadmap-execute-plan-062526.md` §3/§4/§5/§9 (S71 tracks table exact, wave (W1 i18n ∥ W2 launch) → W3 l10n-qa-plan (post-inventory) → W4 closeout S71-06, prereqs S70 complete, create/update sprint-71 plan + kickoff at dispatch/prep), `docs/reports/future-sprint-roadpmap-062526.md` §3/§4/§9/§10, `production/sprints/sprint-71-i18n-launch-docs.md` (this prep), S70 COMPLETE + S66 v2 + release-checklist-v3.md inputs, sprint-status, stack/sprint71 gt notes.
+**Per:** `production/commercial-launch-scope-boundary-2026-06-25.md`, `docs/reports/roadmap-execute-plan-062526.md` §3/§4/§5/§9 (S71 tracks table exact, wave (W1 i18n ∥ W2 launch) → W3 l10n-qa-plan (post-inventory) → W4 closeout S71-06, prereqs S70 complete, create/update sprint-71 plan + kickoff at dispatch/prep), `docs/reports/archive/roadmaps/future-sprint-roadmap-062526.md` §3/§4/§9/§10, `production/sprints/sprint-71-i18n-launch-docs.md` (this prep), S70 COMPLETE + S66 v2 + release-checklist-v3.md inputs, sprint-status, stack/sprint71 gt notes.
 
 ## Prereqs (S70 complete ✓ + S69/S66)
 - [x] S70 full COMPLETE (smoke-sprint-70-closeout-2026-06-25.md + sprint-status s70_status; store + community + checklist-v3 + release-checklist-v3.md i18n/launch sections skeleton)
@@ -36,11 +36,11 @@ All tracks: isolated; GitNexus pre + verification-before required on every artif
 - Evidence: full self-contained in launch/*.md + sprint-status.yaml s71_* entries.
 - Kickoff update: this section. Pre i18n parallel close + S71-06. Docs only. Per execute-plan §4.
 
-Cites: commercial-launch-scope-boundary-2026-06-25.md ; future-sprint-roadpmap-062526.md §3/§4/§6/§7/§10 ; roadmap-execute-plan-062526.md §3/§4 ; AGENTS.md ; S69/S70 + S57–S68 priors. Ready for S71 closeout.
+Cites: commercial-launch-scope-boundary-2026-06-25.md ; docs/reports/archive/roadmaps/future-sprint-roadmap-062526.md §3/§4/§6/§7/§10 ; roadmap-execute-plan-062526.md §3/§4 ; AGENTS.md ; S69/S70 + S57–S68 priors. Ready for S71 closeout.
 **S71-05 note:** Locale smoke strategy only. **No PlayMode unless ack.**
 
 ## S71-01/02/03/04/05 Deliverables (execute §4)
-- i18n: `production/release/i18n-pipeline-spec.md` (extraction, P0 en-US, UI Toolkit vs UGUI); `i18n-string-inventory.md` (C2/HUD/menu paths); `i18n-extraction-plan.md` — **S71-01/02 COMPLETE** (cloud independent subagent per execute-plan §4; GitNexus pre search+use list/detect/impact CRITICAL §5 exact: 19962/37627/2462 + 178/97/127/52; verif-before gates 0e/1232/0f/6/6/18/18/hash/ZERO RUN+READ; cites boundary + future-sprint-roadpmap-062526 §3/6/7/10 + roadmap-execute-plan-062526 §3/4 + AGENTS + S69/S70 complete + S66 v2 + Game-Requirements/20-Command-And-Control-UI.md). Low risk docs-only.
+- i18n: `production/release/i18n-pipeline-spec.md` (extraction, P0 en-US, UI Toolkit vs UGUI); `i18n-string-inventory.md` (C2/HUD/menu paths); `i18n-extraction-plan.md` — **S71-01/02 COMPLETE** (cloud independent subagent per execute-plan §4; GitNexus pre search+use list/detect/impact CRITICAL §5 exact: 19962/37627/2462 + 178/97/127/52; verif-before gates 0e/1232/0f/6/6/18/18/hash/ZERO RUN+READ; cites boundary + future-sprint-roadmap-062526 §3/6/7/10 + roadmap-execute-plan-062526 §3/4 + AGENTS + S69/S70 complete + S66 v2 + Game-Requirements/20-Command-And-Control-UI.md). Low risk docs-only.
 - Launch: `production/release/launch/{patch-notes-template.md, faq-draft.md, support-runbook-draft.md, evidence-index.md}` (links S57–S71 + S66 v2)
 - l10n QA: `production/qa/qa-plan-sprint-71-l10n-prep-2026-06-25.md` (locale smoke strategy; P0 en-US; string freeze; no PlayMode)
 - All under GitNexus discipline + cites. Stack/sprint71 gt notes. S71-01/02 landed; feeds W3.

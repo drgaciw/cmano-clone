@@ -2,7 +2,7 @@
 
 **Date:** 2026-07-09  
 **Sprint:** S89  
-**Authority:** [`roadmap-execute-plan-07092026.md`](../../docs/reports/roadmap-execute-plan-07092026.md) §3/§4 (S89), [`post-editor-hygiene-scope-boundary-2026-07-09.md`](../post-editor-hygiene-scope-boundary-2026-07-09.md), [`future-sprint-roadpmap-07092026.md`](../../docs/reports/future-sprint-roadpmap-07092026.md) §3/§6, [`qa-plan-sprint-89-post-editor-hygiene-2026-07-09.md`](../qa/qa-plan-sprint-89-post-editor-hygiene-2026-07-09.md), [`implementation-tracker-2026-07-04.md`](../../Game-Requirements/implementation-tracker-2026-07-04.md), AGENTS.md + CLAUDE.md
+**Authority:** [`roadmap-execute-plan-07092026.md`](../../docs/reports/roadmap-execute-plan-07092026.md) §3/§4 (S89), [`post-editor-hygiene-scope-boundary-2026-07-09.md`](../post-editor-hygiene-scope-boundary-2026-07-09.md), [`docs/reports/archive/roadmaps/future-sprint-roadmap-07092026.md`](../../docs/reports/archive/roadmaps/future-sprint-roadmap-07092026.md) §3/§6, [`qa-plan-sprint-89-post-editor-hygiene-2026-07-09.md`](../qa/qa-plan-sprint-89-post-editor-hygiene-2026-07-09.md), [`implementation-tracker-2026-07-04.md`](../../Game-Requirements/implementation-tracker-2026-07-04.md), AGENTS.md + CLAUDE.md
 
 ## Context
 

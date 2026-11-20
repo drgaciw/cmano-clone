@@ -6,7 +6,7 @@
 **Authority:** User decisions 2026-07-08 (whole-corpus scope; Approach A wave program)  
 **Origin story:** [story-001-project-overview.md](../../../production/epics/requirements-maturity-slice/story-001-project-overview.md) (S12 Complete — process handoff only)  
 **Prior pattern:** [mission-editor-requirements-improvement-plan.md](../../../Game-Requirements/mission-editor-requirements-improvement-plan.md)  
-**Active code train:** [future-sprint-roadpmap-07042026.md](../../reports/future-sprint-roadpmap-07042026.md) (S81–S88 scenario editor / req 11) — **not superseded** by this program
+**Active code train:** [docs/reports/archive/roadmaps/future-sprint-roadmap-07042026.md](../../reports/archive/roadmaps/future-sprint-roadmap-07042026.md) (S81–S88 scenario editor / req 11) — **not superseded** by this program
 
 ---
 
@@ -424,7 +424,7 @@ After this spec is **user-approved**:
 - `Agentic-Development-Plan.md` (Template A/B)
 - `docs/reports/requirements-consistency-2026-06-04.md`
 - `docs/architecture/requirements-traceability.md`
-- `docs/reports/future-sprint-roadpmap-07042026.md`
+- `docs/reports/archive/roadmaps/future-sprint-roadmap-07042026.md`
 - `AGENTS.md` (invariants)
 
 ---

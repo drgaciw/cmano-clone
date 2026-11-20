@@ -148,7 +148,7 @@ Additive content and ops only. Does **not** change S56 MVP row grades. (Unchange
 
 - Prior trackers: [2026-06-30](implementation-tracker-2026-06-30.md) | [2026-06-04 (full S56 evidence)](implementation-tracker-2026-06-04.md)
 - [research-traceability.md](research-traceability.md)
-- Roadmap: [future-sprint-roadpmap-062526.01.md](../docs/reports/future-sprint-roadpmap-062526.01.md) (S73–S80 COMPLETE)
+- Roadmap: [docs/reports/archive/roadmaps/future-sprint-roadmap-062526.01.md](../docs/reports/archive/roadmaps/future-sprint-roadmap-062526.01.md) (S73–S80 COMPLETE)
 - Scenario editor research: [scenario-editor-research.md](../docs/research/scenario-editor-research.md)
 - S73–S80 closeout: [smoke-sprint-73-80-closeout-2026-06-26.md](../production/qa/smoke-sprint-73-80-closeout-2026-06-26.md)
 - Baltic v3 boundary: [baltic-v3-scope-boundary-2026-06-25.md](../production/baltic-v3-scope-boundary-2026-06-25.md)

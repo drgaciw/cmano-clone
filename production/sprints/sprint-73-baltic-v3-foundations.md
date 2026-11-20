@@ -4,14 +4,14 @@
 **Lead:** E9 Baltic v3 content expansion (S73 foundations)  
 **Goal:** Publish `baltic-v3-scope-boundary-2026-06-25.md` (supersedes commercial-launch for S73+ only), playtest manifest v3, GitNexus re-index, closeout with full verification. Foundation for S74–S80 (scenarios v3, theater, catalog, C2, playtest).  
 **Capacity:** ~5–7 days total, 20% buffer. Local coordinator owns boundary/closeout/human; cloud for manifest + re-index (cap 4 tracks).  
-**Model:** Per `roadmap-execute-plan-062526.01.md` §3/§4/§5 (serial S73–S80; parallel tracks inside after boundary; GitNexus + verification-before; dispatching-parallel-agents + isolated worktrees). Stage remains **Release**. Cite `baltic-v3-scope-boundary-2026-06-25.md` + `future-sprint-roadpmap-062526.01.md` + execute-plan + design spec heavily on all artifacts. Prereqs: S72 complete (human ack "commercial launch prep complete").  
+**Model:** Per `roadmap-execute-plan-062526.01.md` §3/§4/§5 (serial S73–S80; parallel tracks inside after boundary; GitNexus + verification-before; dispatching-parallel-agents + isolated worktrees). Stage remains **Release**. Cite `baltic-v3-scope-boundary-2026-06-25.md` + `docs/reports/archive/roadmaps/future-sprint-roadmap-062526.01.md` + execute-plan + design spec heavily on all artifacts. Prereqs: S72 complete (human ack "commercial launch prep complete").  
 
 ## Tasks / Tracks (from roadmap-execute-plan-062526.01.md §4 exact)
 
 ### Must Have (Critical Path per §3/§4)
 | ID | Task | Agent/Owner | Est. Days | Dependencies | Acceptance Criteria |
 |----|------|-------------|-----------|--------------|---------------------|
-| S73-01 | Scope boundary publish | producer (Local) | 1 | — | `production/baltic-v3-scope-boundary-2026-06-25.md` published (cites `future-sprint-roadpmap-062526.01.md` §3/§6/§7/§10 + `roadmap-execute-plan-062526.01.md` §3/§4 + commercial-launch-scope-boundary-2026-06-25.md (supersede for S73+); in/out scope per execute §4 + design; carry invariants 1232/6/6/18/18/hash 17144800277401907079/ZERO/ extend-only; GitNexus pre list/detect/impact exact 178/97/127/52 low risk; gates 0e/1232/0f/6/6/18/18/hash/ZERO RUN+READ; stage=Release) |
+| S73-01 | Scope boundary publish | producer (Local) | 1 | — | `production/baltic-v3-scope-boundary-2026-06-25.md` published (cites `docs/reports/archive/roadmaps/future-sprint-roadmap-062526.01.md` §3/§6/§7/§10 + `roadmap-execute-plan-062526.01.md` §3/§4 + commercial-launch-scope-boundary-2026-06-25.md (supersede for S73+); in/out scope per execute §4 + design; carry invariants 1232/6/6/18/18/hash 17144800277401907079/ZERO/ extend-only; GitNexus pre list/detect/impact exact 178/97/127/52 low risk; gates 0e/1232/0f/6/6/18/18/hash/ZERO RUN+READ; stage=Release) |
 | S73-02 | Playtest manifest v3 | qa-lead (Cloud) | 1 | S73-01 boundary | `production/playtests/baltic-v3-scenario-manifest.yaml` (extends v2; defines v3 slots, difficulty bands, human template refs; cites boundary + execute §4 + design §2 isolation model; GitNexus pre) |
 | S73-03 | GitNexus re-index | c-sharp-devops-engineer (Cloud) | 1 | Boundary | CLI analyze (if stale) + MCP list_repos canonical; detect low; impacts CRITICAL 178/97/127/52 exact; update index notes; verif gates; cite boundary + execute §5/§9 |
 | S73-04 | Closeout | c-sharp-devops-engineer (Local) | 1–2 | All prior | gt submit/restack; re-run Phase 0 gates (build/test/replay/C2/hash/ZERO/GitNexus); smoke closeout doc; update sprint-status.yaml + qa/; all artifacts cite boundary + roadmaps + execute + design; human review |
@@ -52,7 +52,7 @@
 - Gates PASS (build 0e, test ≥1232 0f, replay 6/6, C2 18/18, hash preserved, ZERO bridge)
 - GitNexus preflights + detect_changes clean (doc-only expected); impacts §5/§7 exact
 - Artifacts: `baltic-v3-scope-boundary-2026-06-25.md`, `baltic-v3-scenario-manifest.yaml`, sprint-73-*.md + agentic kickoff, smoke-closeout, status updates, production/sprints/...
-- All cite `baltic-v3-scope-boundary-2026-06-25.md` (target) + `future-sprint-roadpmap-062526.01.md` §3/6/7/10 + `roadmap-execute-plan-062526.01.md` §3/4/5/6/7/9 + design + AGENTS.md + commercial-launch-scope-boundary (invariants)
+- All cite `baltic-v3-scope-boundary-2026-06-25.md` (target) + `docs/reports/archive/roadmaps/future-sprint-roadmap-062526.01.md` §3/6/7/10 + `roadmap-execute-plan-062526.01.md` §3/4/5/6/7/9 + design + AGENTS.md + commercial-launch-scope-boundary (invariants)
 - S72 prereqs confirmed complete; stage remains Release (no stage.txt advance)
 - Worktree isolation (baltic-v3-boundary + siblings); gt ready post closeout
 
@@ -65,6 +65,6 @@ S73-01 GitNexus + verification-before COMPLETE (search_tool first + use list_rep
 - S73-04 closeout (local): re-verif, smoke, status, gt restack notes
 - S73 full COMPLETE after gates + human review; ready S74 dispatch
 
-**Cites (MANDATORY on all S73 artifacts):** `production/baltic-v3-scope-boundary-2026-06-25.md` ; `docs/reports/future-sprint-roadpmap-062526.01.md` §3/§6/§7/§10 ; `docs/reports/roadmap-execute-plan-062526.01.md` §3/§4/§5/§6/§7/§9 ; `docs/superpowers/specs/2026-06-25-baltic-v3-content-expansion-design.md` ; `production/commercial-launch-scope-boundary-2026-06-25.md` (supersede S73+ invariants) ; AGENTS.md ; S72 complete evidence (gate + smoke + ack) ; prior Baltic v2 boundary (for baseline pattern).
+**Cites (MANDATORY on all S73 artifacts):** `production/baltic-v3-scope-boundary-2026-06-25.md` ; `docs/reports/archive/roadmaps/future-sprint-roadmap-062526.01.md` §3/§6/§7/§10 ; `docs/reports/roadmap-execute-plan-062526.01.md` §3/§4/§5/§6/§7/§9 ; `docs/superpowers/specs/2026-06-25-baltic-v3-content-expansion-design.md` ; `production/commercial-launch-scope-boundary-2026-06-25.md` (supersede S73+ invariants) ; AGENTS.md ; S72 complete evidence (gate + smoke + ack) ; prior Baltic v2 boundary (for baseline pattern).
 
 *Independent subagent: S73-01 boundary (local producer). GitNexus pre + verif-before executed. Docs-only. "S73-01 COMPLETE". 2026-06-25.*

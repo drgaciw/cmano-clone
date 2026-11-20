@@ -5,12 +5,12 @@
 **Tracks:** scenario-workers (019eeaf0-3a5b-7093-9ffb-4da59dd21765), monte-carlo (019eeb09-4a20-7c10-a3c1-408190696aa0), nl-editor (019eeb09-4a20-7c10-a3c1-4095b5e334ba)  
 **CWD / Isolation:** /home/username01/projects/active/cmano-clone/.worktrees/stack/sprint50or51/scenario-workers (branch: stack/sprint50or51/scenario-workers @ be8dfb7195aa17ec6234914233180cc81d545d7a)  
 **Superpowers:** dispatching-parallel-agents + using-git-worktrees + verification-before-completion (isolated only)  
-**Scope:** S50 E2 Req 07/11 per post-release-scope-boundary-2026-06-21.md + roadmap-062126.md §10 S50 E2 Req07/11 + docs/reports/future-sprint-roadpmap.md §10 S50  
+**Scope:** S50 E2 Req 07/11 per post-release-scope-boundary-2026-06-21.md + roadmap-062126.md §10 S50 E2 Req07/11 + docs/reports/future-sprint-roadmap.md §10 S50  
 **Protocol:** verification-before: cmds run + FULL output read_file/cat BEFORE any claim/PASS. Additive/docs only. No CRITICAL mutations.  
 
 **Cites (verbatim required):**  
 - production/post-release-scope-boundary-2026-06-21.md (S50 E2 rows 07/11 + gates + standing invariants)  
-- docs/reports/future-sprint-roadpmap.md §10 S50 + E2 (Req 07/11)  
+- docs/reports/future-sprint-roadmap.md §10 S50 + E2 (Req 07/11)  
 - production/roadmap-062126.md §10 S50 + Req 07/11 E2 (roadmap tracking)  
 - release-enablement-scope-boundary-2026-06-20.md  
 - AGENTS.md (GitNexus, 1227 floor, ZERO DB, hash 17144800277401907079, worktree isolation)  
@@ -131,7 +131,7 @@ Relevant copied (additive):
 (Executed via cp after full verification reads; additive only.)
 
 ## Verdict
-**VERIFICATION COMPLETE** — S50-06 PASS. All gates held monotonically. Tracks aggregated (scenario-workers + monte-carlo + nl-editor). No CRITICAL mutations (GitNexus detect 0 symbols changed; additive/docs). Hash pinned, ZERO bridge. Cites included verbatim. Evidence-before-claim (all /tmp/s50-*.log + read_file + MCP + sibling reads). Ready per post-release-scope-boundary-2026-06-21.md + future-sprint-roadpmap-062126.md §10 S50 E2 Req07/11 + roadmap §0.4 equiv.
+**VERIFICATION COMPLETE** — S50-06 PASS. All gates held monotonically. Tracks aggregated (scenario-workers + monte-carlo + nl-editor). No CRITICAL mutations (GitNexus detect 0 symbols changed; additive/docs). Hash pinned, ZERO bridge. Cites included verbatim. Evidence-before-claim (all /tmp/s50-*.log + read_file + MCP + sibling reads). Ready per post-release-scope-boundary-2026-06-21.md + docs/reports/archive/roadmaps/future-sprint-roadmap-062126.md §10 S50 E2 Req07/11 + roadmap §0.4 equiv.
 
 **Return:** summary (above) + subID S50-06 + report path production/qa/s50-closeout-verif-2026-06-21-orch.md + VERIFICATION COMPLETE.
 

@@ -26,7 +26,7 @@ Executed via MCP gitnexus tools (list_repos → query → context → impact) on
 - Declarative manifest: `cmano-clone/AGENTS.md` (GitNexus mandates, Hindsight integration, Polish stage rules, replay invariants).
 - Sprint-41: `cmano-clone/production/sprints/sprint-41-polish-hardening-release-preflight.md` (read-only only; S41-01..08; evidence/ADR/determinism/closeout; **no src**; ReplayGolden 6/6 gate; blocks S42).
 - Agentic kickoff: `cmano-clone/production/agentic/sprint-41-parallel-kickoff-2026-06-20.md` (parallel waves, file ownership matrix: src/** = none).
-- Roadmap/plan: `cmano-clone/docs/reports/future-sprint-roadpmap.md`, `cmano-clone/production/release-enablement-scope-boundary-2026-06-20.md`, `cmano-clone/production/agentic/s39-s48-program-execution-guide.md` (S41 Horizon 3 Polish exit; Req17 scrub UI stub noted; post-gate B-track extensions).
+- Roadmap/plan: `cmano-clone/docs/reports/future-sprint-roadmap.md`, `cmano-clone/production/release-enablement-scope-boundary-2026-06-20.md`, `cmano-clone/production/agentic/s39-s48-program-execution-guide.md` (S41 Horizon 3 Polish exit; Req17 scrub UI stub noted; post-gate B-track extensions).
 - GDD/UX: `cmano-clone/design/gdd/order-log-replay.md` (projection-only message log; checkpoints every N ticks or engagement; scrub to Engagement/seq; ACs 1-6 map Req17; tuning knobs), `cmano-clone/design/ux/c2-command-post.md` (bottom MESSAGE LOG; P1 "Click message log row → select sequenceId/unit"; replay scrub future; playtest 11 S39-07 note), `cmano-clone/design/ux/interaction-patterns.md` (P-C2-02 selection sync map/OOB/detail/log P1; C2 drawer patterns).
 - Req 17: `cmano-clone/Game-Requirements/requirements/17-Replay-AAR-And-Order-Log.md` (P0 scrub timeline by simtime/tick; message log projection + click → select + explain; AAR grounded in log; ACs 1-6; phased MVP defers full scrub UI).
 - ADR: `cmano-clone/docs/architecture/adr-003-order-log-schema.md` (message log = projection, not second truth; IOrderLog evolution).
@@ -142,7 +142,7 @@ Maps directly to:
 ## Mapping to Playtest 11, Roadmap S41 + Plan S41-10
 
 - **Playtest 11 (production/playtests/README.md §S39-07):** "Evidence / Playtest + Art/UX residual (S39-07/09)". Focus: C2/Platform deeper polish (S39-03: density, tooltips, surfacing); proxy evidence + s37 PNGs; message log / C2 UX. This spike **extends the message log path** (bottom log as clickable evidence) for replay/AAR context. Lean evidence in spike (no new PNGs) aligns with boundary lean proxy approach. Routed to team-qa / team-unity isolated.
-- **Roadmap S41 AAR & Replay Player UX minimal:** Per future-sprint-roadpmap + release boundary + req17 phased: MVP has order log + checkpoints + projection message log; "scrub UI" + AAR deferred. This is **minimal nav seam** in existing C2 log path (not full player).
+- **Roadmap S41 AAR & Replay Player UX minimal:** Per future-sprint-roadmap + release boundary + req17 phased: MVP has order log + checkpoints + projection message log; "scrub UI" + AAR deferred. This is **minimal nav seam** in existing C2 log path (not full player).
 - **S41-10 extension from plan:** S41 plan lists S41-01 to S41-09 (baseline, QA, ADR read-only, determinism, evidence, closeout, gap). S41-10 is logical next for AAR/Replay UX planning (agentic docs). Spike placed in production/agentic/ as isolated design input for post-S41-closeout (post scope gate). Does not execute in S41 (no src).
 - Trace: Req17 §Message Log / Replay + order-log-replay.md + c2-command-post P1 + polish C2 path.
 

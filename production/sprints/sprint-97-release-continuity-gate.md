@@ -3,7 +3,7 @@
 **Dates:** 2026-07-15 → 2026-07-18 (est. 2–3 days)  
 **Lead:** producer / release-manager (local)  
 **Program:** S94–S97 Release Continuity — **S97 only** (program gate)  
-**Authority:** [`docs/reports/roadmap-execution-plan-071426.md`](../../docs/reports/roadmap-execution-plan-071426.md), [`docs/reports/future-sprint-roadmap-07142026.md`](../../docs/reports/future-sprint-roadmap-07142026.md)
+**Authority:** [`docs/reports/roadmap-execution-plan-071426.md`](../../docs/reports/roadmap-execution-plan-071426.md), [`docs/reports/archive/roadmaps/future-sprint-roadmap-07142026.md`](../../docs/reports/archive/roadmaps/future-sprint-roadmap-07142026.md)
 
 **Predecessors COMPLETE:**  
 - S94 asset wave 2 · S95 gauntlet productization · S96 architecture hygiene  

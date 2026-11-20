@@ -8,7 +8,7 @@
 **Kickoff:** `production/agentic/sprint-40-parallel-kickoff-2026-06-20.md`  
 **Trunk:** `main` @ `9e72d24` (post Spirit1 G1 merge)  
 **Review mode:** Lean (PR-SPRINT skipped)  
-**Authority:** `production/polish-scope-boundary-2026-06-19.md` + `docs/reports/future-sprint-roadpmap.md` §Horizon 2  
+**Authority:** `production/polish-scope-boundary-2026-06-19.md` + `docs/reports/future-sprint-roadmap.md` §Horizon 2  
 
 **Scope compliance:** Projection-side Catalog/Import surfacing only; extend-only `CatalogWriteGate`; ZERO `DelegationBridge.cs`; Baltic hash `17144800277401907079` immutable; Catalog cluster **single agent** with mandatory GitNexus `impact()`. **S40-02 blocks all feature waves (S40-03+).**
 

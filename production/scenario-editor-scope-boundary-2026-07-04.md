@@ -2,7 +2,7 @@
 
 **Date:** 2026-07-04  
 **Status:** S81-01 deliverable (boundary first per `roadmap-execute-plan-07042026.md` §4/§5/§9; wave 1 local producer). Published before parallel S81 tracks dispatch. Supersedes `production/baltic-v3-scope-boundary-2026-06-25.md` for **S81+ only** (archive prior, do not delete; carry invariants only).  
-**Authority:** [`docs/reports/future-sprint-roadpmap-07042026.md`](../docs/reports/future-sprint-roadpmap-07042026.md) §3/§6/§7/§10 + [`docs/reports/roadmap-execute-plan-07042026.md`](../docs/reports/roadmap-execute-plan-07042026.md) §3/§4/§5/§6 + [`production/qa/qa-plan-scenario-editor-2026-07-01.md`](../production/qa/qa-plan-scenario-editor-2026-07-01.md) + [`Game-Requirements/implementation-tracker-2026-07-04.md`](../Game-Requirements/implementation-tracker-2026-07-04.md) + [`Game-Requirements/requirements/11-Agentic-Mission-Editor.md`](../Game-Requirements/requirements/11-Agentic-Mission-Editor.md) + AGENTS.md + prior roadmap/execute-plan 062526.01.md  
+**Authority:** [`docs/reports/archive/roadmaps/future-sprint-roadmap-07042026.md`](../docs/reports/archive/roadmaps/future-sprint-roadmap-07042026.md) §3/§6/§7/§10 + [`docs/reports/roadmap-execute-plan-07042026.md`](../docs/reports/roadmap-execute-plan-07042026.md) §3/§4/§5/§6 + [`production/qa/qa-plan-scenario-editor-2026-07-01.md`](../production/qa/qa-plan-scenario-editor-2026-07-01.md) + [`Game-Requirements/implementation-tracker-2026-07-04.md`](../Game-Requirements/implementation-tracker-2026-07-04.md) + [`Game-Requirements/requirements/11-Agentic-Mission-Editor.md`](../Game-Requirements/requirements/11-Agentic-Mission-Editor.md) + AGENTS.md + prior roadmap/execute-plan 062526.01.md  
 **Lead:** E11 / req 11 (Agentic Mission Editor)  
 **Sprints:** S81–S88 (serial sprints; 2–4 parallel tracks inside each; local coordinator owns boundary/closeout/merge/human gates/Unity AC-8; cloud agents for validation/CLI/schema/tests/docs)  
 **Exit:** S88 program gate (human ack "scenario editor program complete" for the headless slice; stage remains **Release**; no mandatory `production/stage.txt` advance unless explicit separate decision)  
@@ -18,7 +18,7 @@ S81–S88 delivers the **headless slice of the Scenario Editor** (req 11 / E11 l
 
 Every story / artifact / commit / subagent dispatch **must** cite:
 - This boundary (`scenario-editor-scope-boundary-2026-07-04.md`)
-- `future-sprint-roadpmap-07042026.md` §3/§6/§7/§10
+- `docs/reports/archive/roadmaps/future-sprint-roadmap-07042026.md` §3/§6/§7/§10
 - `roadmap-execute-plan-07042026.md`
 - `qa-plan-scenario-editor-2026-07-01.md`
 - `implementation-tracker-2026-07-04.md`

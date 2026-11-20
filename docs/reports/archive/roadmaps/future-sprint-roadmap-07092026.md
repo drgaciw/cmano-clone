@@ -1,11 +1,11 @@
 # Future Sprint Roadmap — Project Aegis (cmano-clone)
 > **Parallel-Agentic Edition — Post–Editor Completion (S89+ Engineering Hygiene)**
 
-> **Status:** Living document. Authored **2026-07-09**; supersedes planning intent in [`future-sprint-roadpmap-07042026.md`](future-sprint-roadpmap-07042026.md) (2026-07-04 S81–S88 scenario editor program, now archived).
+> **Status:** Living document. Authored **2026-07-09**; supersedes planning intent in [`docs/reports/archive/roadmaps/future-sprint-roadmap-07042026.md`](future-sprint-roadmap-07042026.md) (2026-07-04 S81–S88 scenario editor program, now archived).
 > **Edition:** Optimized for serial sprints **S89–S92** (engineering hygiene + asset spec production) with parallel tracks inside each sprint; stage **Release** throughout; **docs + tests + asset specs** (no Launch advance); GitNexus mandatory; verification-before-completion on all claims.
-> **Stable alias:** [`future-sprint-roadpmap.md`](future-sprint-roadpmap.md) → this file (updated 2026-07-09).
-> **Primary authority (S89–S92):** This file + [`post-editor-hygiene-scope-boundary-2026-07-09.md`](../../production/post-editor-hygiene-scope-boundary-2026-07-09.md) + [`roadmap-execute-plan-07092026.md`](roadmap-execute-plan-07092026.md) + [`implementation-tracker-2026-07-04.md`](../../Game-Requirements/implementation-tracker-2026-07-04.md).
-> **Invariants carryover:** [`production/scenario-editor-scope-boundary-2026-07-04.md`](../../production/scenario-editor-scope-boundary-2026-07-04.md) + [`production/platform-editor-completion-scope-boundary-2026-07-09.md`](../../production/platform-editor-completion-scope-boundary-2026-07-09.md) (superseded for S89+ scope only; standing invariants carried).
+> **Stable alias:** [`docs/reports/future-sprint-roadmap.md`](../../future-sprint-roadmap.md) → this file (updated 2026-07-09).
+> **Primary authority (S89–S92):** This file + [`post-editor-hygiene-scope-boundary-2026-07-09.md`](../../../../production/post-editor-hygiene-scope-boundary-2026-07-09.md) + [`roadmap-execute-plan-07092026.md`](../../roadmap-execute-plan-07092026.md) + [`implementation-tracker-2026-07-04.md`](../../../../Game-Requirements/implementation-tracker-2026-07-04.md).
+> **Invariants carryover:** [`production/scenario-editor-scope-boundary-2026-07-04.md`](../../../../production/scenario-editor-scope-boundary-2026-07-04.md) + [`production/platform-editor-completion-scope-boundary-2026-07-09.md`](../../../../production/platform-editor-completion-scope-boundary-2026-07-09.md) (superseded for S89+ scope only; standing invariants carried).
 > **GitNexus @ doc authoring (2026-07-09):** **24,418** symbols / **47,032** edges / **424** clusters / **300** flows (CLI `node .gitnexus/run.cjs analyze` @ `223a5fe`; status ✅ up-to-date). `impact --summary-only` upstream: **ScenarioDocumentEditor 233 CRITICAL**, **CatalogWriteGate 186 CRITICAL**, **DelegationBridge 145 CRITICAL**, **PatrolCandidateEngagePolicy 113 CRITICAL**, **BalticReplayHarness 54 CRITICAL**.
 > **Verification @ doc authoring (RUN+READ):** build **0e/0w**; test **1599/0f** (Sim **311**, Del **260**, UA **286**, Excel **24**, Data **616**, Cli **102**); ReplayGolden **6/6**; C2 proxy **20/20**; hash **`17144800277401907079`** preserved (18 paths); ZERO `DelegationBridge` hotpath edits; UA engage filter **3/3** green.
 > **Stage:** **Release** (`production/stage.txt`) — S88 + ME Phase 2 + PE **COMPLETE** (2026-07-09); **no stage advance** until explicit future decision.
@@ -18,7 +18,7 @@ This roadmap is **direction, not a commitment**. Per `docs/COLLABORATIVE-DESIGN-
 
 ## 0. Parallel execution model (S89+ program)
 
-Every sprint is a **serial program** (S89 → … → S92) with **parallel dispatch** inside each sprint. Model proven S39–S88; see [`future-sprint-roadpmap-07042026.md`](future-sprint-roadpmap-07042026.md) §0 for full protocol reference.
+Every sprint is a **serial program** (S89 → … → S92) with **parallel dispatch** inside each sprint. Model proven S39–S88; see [`docs/reports/archive/roadmaps/future-sprint-roadmap-07042026.md`](future-sprint-roadmap-07042026.md) §0 for full protocol reference.
 
 ### 0.1 Agent environments
 
@@ -83,15 +83,15 @@ Every sprint is a **serial program** (S89 → … → S92) with **parallel dispa
 
 ### S81–S88 Scenario Editor (req 11) — COMPLETE
 
-See [`future-sprint-roadpmap-07042026.md`](future-sprint-roadpmap-07042026.md) §2–§10 + [`production/gate-checks/s88-scenario-editor-gate-2026-07-04.md`](../../production/gate-checks/s88-scenario-editor-gate-2026-07-04.md).
+See [`docs/reports/archive/roadmaps/future-sprint-roadmap-07042026.md`](future-sprint-roadmap-07042026.md) §2–§10 + [`production/gate-checks/s88-scenario-editor-gate-2026-07-04.md`](../../../../production/gate-checks/s88-scenario-editor-gate-2026-07-04.md).
 
 ### Prior programs — see archived roadmaps
 
 | Program | Roadmap snapshot |
 |---------|------------------|
-| S73–S80 Baltic v3 | [`future-sprint-roadpmap-062526.01.md`](future-sprint-roadpmap-062526.01.md) |
-| S69–S72 E7 prep | [`future-sprint-roadpmap-062526.md`](future-sprint-roadpmap-062526.md) |
-| S65–S68 release train | [`future-sprint-roadpmap-062426.md`](future-sprint-roadpmap-062426.md) |
+| S73–S80 Baltic v3 | [`docs/reports/archive/roadmaps/future-sprint-roadmap-062526.01.md`](future-sprint-roadmap-062526.01.md) |
+| S69–S72 E7 prep | [`docs/reports/archive/roadmaps/future-sprint-roadmap-062526.md`](future-sprint-roadmap-062526.md) |
+| S65–S68 release train | [`docs/reports/archive/roadmaps/future-sprint-roadmap-062426.md`](future-sprint-roadmap-062426.md) |
 
 ---
 
@@ -139,7 +139,7 @@ flowchart TD
 | DelegationBridge | **ZERO** hotpath edits |
 | CatalogWriteGate | **extend-only** |
 
-Evidence: [`production/qa/evidence/gates-post-editor-hygiene-2026-07-09.log`](../../production/qa/evidence/gates-post-editor-hygiene-2026-07-09.log)
+Evidence: [`production/qa/evidence/gates-post-editor-hygiene-2026-07-09.log`](../../../../production/qa/evidence/gates-post-editor-hygiene-2026-07-09.log)
 
 ---
 
@@ -166,9 +166,9 @@ Evidence: [`production/qa/evidence/gates-post-editor-hygiene-2026-07-09.log`](..
 - [x] Kickoff `production/agentic/sprint-89-parallel-kickoff-2026-07-09.md`
 - [ ] GitNexus pre + gates RUN+READ before track dispatch (re-run at S89 kickoff)
 - [x] Dispatch S89-01 + S89-02 parallel tracks — **COMPLETE 2026-07-09**
-- [x] S89 closeout — [`smoke-sprint-89-closeout-2026-07-09.md`](../../production/qa/smoke-sprint-89-closeout-2026-07-09.md)
-- [x] S91 closeout — [`smoke-sprint-91-closeout-2026-07-09.md`](../../production/qa/smoke-sprint-91-closeout-2026-07-09.md)
-- [x] S92 verification — [`s92-post-editor-hygiene-gate-2026-07-09.md`](../../production/gate-checks/s92-post-editor-hygiene-gate-2026-07-09.md)
+- [x] S89 closeout — [`smoke-sprint-89-closeout-2026-07-09.md`](../../../../production/qa/smoke-sprint-89-closeout-2026-07-09.md)
+- [x] S91 closeout — [`smoke-sprint-91-closeout-2026-07-09.md`](../../../../production/qa/smoke-sprint-91-closeout-2026-07-09.md)
+- [x] S92 verification — [`s92-post-editor-hygiene-gate-2026-07-09.md`](../../../../production/gate-checks/s92-post-editor-hygiene-gate-2026-07-09.md)
 - [x] Human ack: "post-editor hygiene program complete" (S89–S92 program exit) — **"i acknowledge"** 2026-07-09
 
 ---
@@ -184,4 +184,4 @@ Evidence: [`production/qa/evidence/gates-post-editor-hygiene-2026-07-09.log`](..
 | Asset manifest | `design/assets/asset-manifest.md` |
 | Dashboard snapshot | `docs/reports/dashboard-snapshots/2026-07-09-am.md` |
 
-**End of future-sprint-roadpmap-07092026.md (S89–S92 hygiene focus). Supersedes 07042026 for forward planning; carries invariants. Publish → update alias → dispatch S89.**
+**End of docs/reports/archive/roadmaps/future-sprint-roadmap-07092026.md (S89–S92 hygiene focus). Supersedes 07042026 for forward planning; carries invariants. Publish → update alias → dispatch S89.**

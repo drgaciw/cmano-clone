@@ -62,7 +62,7 @@ Stage remains Release. Launch / commercial execution remains deferred.
 
 ## Forward
 
-Post-S92 engineering is **not** Launch — consult [`future-sprint-roadpmap-07092026.md`](../../docs/reports/future-sprint-roadpmap-07092026.md) for next planning cycle.
+Post-S92 engineering is **not** Launch — consult [`docs/reports/archive/roadmaps/future-sprint-roadmap-07092026.md`](../../docs/reports/archive/roadmaps/future-sprint-roadmap-07092026.md) for next planning cycle.
 
 ---
 *S92 closeout. S89–S92 program COMPLETE. Human ack recorded. Stage remains Release.*

@@ -4,9 +4,9 @@
 **Branch/Head (confirmed):** `fix-scenario-publish-cli-wiring` @ `cb14438`  
 **GitNexus status (RUN+READ):** ✅ up-to-date (indexed commit cb14438 matches current; branch snapshot fresh).  
 **Unstaged changes (RUN+READ + GitNexus detect):** 7 files only (docs/tools/buildkite/cursor state):  
-`.buildkite/pipeline.yml`, `.cursor/hooks/state/continual-learning-index.json`, `.cursor/hooks/state/continual-learning.json`, `docs/engineering/buildkite-ci.md`, `docs/reports/future-sprint-roadpmap-062126.md`, `tools/buildkite/dotnet-ci.sh`, `tools/verify-ci-local.ps1`.  
+`.buildkite/pipeline.yml`, `.cursor/hooks/state/continual-learning-index.json`, `.cursor/hooks/state/continual-learning.json`, `docs/engineering/buildkite-ci.md`, `docs/reports/archive/roadmaps/future-sprint-roadmap-062126.md`, `tools/buildkite/dotnet-ci.sh`, `tools/verify-ci-local.ps1`.  
 **GitNexus detect_changes --scope unstaged:** Changes: 7 files, 3 symbols, Affected processes: 0, Risk level: **low**. (No high-risk source, no DelegationBridge hotpath, no goldens, no CatalogWriteGate/Policy edits.)  
-**Cites (mandatory):** `production/gate-checks/s88-scenario-editor-gate-2026-07-04.md` + `production/scenario-editor-scope-boundary-2026-07-04.md` + `production/agentic/scenario-editor-branch-integration-plan-2026-07-04.md` + `docs/reports/roadmap-execute-plan-07042026.md` + `docs/reports/future-sprint-roadpmap-07042026.md` + AGENTS.md + `production/qa/qa-plan-scenario-editor-2026-07-01.md` + implementation-tracker-2026-07-04.md.
+**Cites (mandatory):** `production/gate-checks/s88-scenario-editor-gate-2026-07-04.md` + `production/scenario-editor-scope-boundary-2026-07-04.md` + `production/agentic/scenario-editor-branch-integration-plan-2026-07-04.md` + `docs/reports/roadmap-execute-plan-07042026.md` + `docs/reports/archive/roadmaps/future-sprint-roadmap-07042026.md` + AGENTS.md + `production/qa/qa-plan-scenario-editor-2026-07-01.md` + implementation-tracker-2026-07-04.md.
 
 **Status:** POST-ACK PREP COMPLETE (read-only additive note only). No git push/submit executed. Awaiting human ack phrase ("scenario editor program complete" or equivalent per S88 gate) to proceed with user-driven gt commands.
 

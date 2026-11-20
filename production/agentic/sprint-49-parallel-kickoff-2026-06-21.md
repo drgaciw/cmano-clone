@@ -99,4 +99,4 @@ Parent path: `/home/username01/cmano-clone/.worktrees/` (per AGENTS.md).
 
 ---
 
-*S49 parallel kickoff 2026-06-21. Cites post-release-scope-boundary + future-sprint-roadpmap §9.*
+*S49 parallel kickoff 2026-06-21. Cites post-release-scope-boundary + future-sprint-roadmap §9.*

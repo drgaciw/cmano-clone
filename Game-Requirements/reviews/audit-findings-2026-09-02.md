@@ -65,7 +65,7 @@ Key numbers behind the register: ~700 commits since the tracker's last update (2
 | C-08 | P1 | 00-Master-Index, `directory-structure.md`, `technical-preferences.md` | CLAUDE.md includes carry the oldest floors (1213/1215) and an unpopulated studio config ("[TO BE CONFIGURED]") | `.claude/docs/technical-preferences.md` every field unset | Populate or stop including; move S36–S39 sign-offs to `production/qa/` |
 | C-09 | P1 | `architecture-traceability-index.md`, README, `unity-ci.yml`, VERSION.md | Unity/package pin drift | 6000.3.14f1 vs ProjectVersion 6000.3.22f1; manifest Addressables 2.9.1/Burst 1.8.30 vs VERSION.md 2.3.16/1.8.29 | Pin once, assert from one file |
 | C-10 | P2 | tracker | Tracker cites Graphite PR #237 "draft, +9 commits" and a branch base from 2026-07-04 | PRs now at #597 | Regenerate tracker |
-| C-11 | P2 | GR index | Roadmap link points at `future-sprint-roadpmap-07042026.md`; three newer roadmaps exist | `docs/reports/` | Retarget to the stable alias |
+| C-11 | P2 | GR index | Roadmap link points at `docs/reports/archive/roadmaps/future-sprint-roadmap-07042026.md`; three newer roadmaps exist | `docs/reports/` | Retarget to the stable alias |
 
 ## D. Per-document defects
 

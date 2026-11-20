@@ -4,7 +4,7 @@
 **Subagent:** verification-before-completion (this worktree: stack/sprint55/closeout)  
 **Cites (mandatory, referenced throughout):**  
 - production/post-release-scope-boundary-2026-06-21.md (S55 E4 Req20; invariants: ≥1227 tests, 0f, ZERO DelegationBridge.cs, GitNexus impact/detect before symbols, Baltic hash 17144800277401907079 pinned, CatalogWriteGate extend-only, worktree isolation)  
-- docs/reports/future-sprint-roadpmap.md §10 S55 + §0.4 (merge gate protocol; cites roadmap dispatch, §0.4, invariants everywhere)  
+- docs/reports/future-sprint-roadmap.md §10 S55 + §0.4 (merge gate protocol; cites roadmap dispatch, §0.4, invariants everywhere)  
 - production/release-enablement-scope-boundary-2026-06-20.md (Req 20 globe/Cesium + HYPERSONIC_ALERT UI as post-v1.0 epic handoff; Track B)  
 - production/polish-scope-boundary-2026-06-19.md (handoff + scope)  
 - production/sprints/sprint-55-cesium-globe-production.md (cesium track plan)  
@@ -79,7 +79,7 @@ Commands: export PATH="$HOME/.dotnet:$PATH"; dotnet ... (from closeout wt)
 
 ## 4. Key S55 Artifacts Read + Confirmation (protocol step 4)
 **Cesium integration (from cesium wt, additive):**
-- unity/.../CesiumGlobeBridge.cs: S55 comments cite post-release-scope-boundary-2026-06-21.md, release-enablement..., future-sprint-roadpmap.md §10 S55, Req20, ADR-007. Live refresh (Update 10hz), bridgeHost.LastMapSymbols preferred, GetBillboardMarkers/GetCurrentPositions, Select forwarding. #if guards. Baltic bbox. No sim mutation.  
+- unity/.../CesiumGlobeBridge.cs: S55 comments cite post-release-scope-boundary-2026-06-21.md, release-enablement..., docs/reports/future-sprint-roadmap.md §10 S55, Req20, ADR-007. Live refresh (Update 10hz), bridgeHost.LastMapSymbols preferred, GetBillboardMarkers/GetCurrentPositions, Select forwarding. #if guards. Baltic bbox. No sim mutation.  
 - unity/.../GlobeCameraController.cs: S55 milsim (LMB drag orbit/pan, wheel zoom, arrows, F center, Space reset). Refs CesiumGeoreference + bridge. Tuning knobs documented. Cites req20/c2-*.md.  
 - unity/.../CesiumGlobeHost.cs: S55 cameraController hookup + JumpCameraToSymbol. Ion note (NEVER commit).  
 - Evidence: production/qa/cesium-s55-production-evidence.md (read). Plan: sprint-55-cesium-globe-production.md (read, cites everywhere).
@@ -133,7 +133,7 @@ Commands: export PATH="$HOME/.dotnet:$PATH"; dotnet ... (from closeout wt)
 - Cesium: CesiumGlobeBridge.cs, GlobeCameraController.cs (new), CesiumGlobeHost.cs (cesium wt)
 - Hyp: C2TopBarProjection.cs, C2TopBarState.cs, C2TopBarPanelHost.cs, C2TopBarProjectionTests.cs (hyp wt)
 - Plans/Evidence: sprint-55-cesium-globe-production.md, cesium-s55-production-evidence.md, progress.md (hyp), S55-closeout-smoke-qa-report.md
-- Boundaries: post-release-scope-boundary-2026-06-21.md, release-enablement-scope-boundary-2026-06-20.md, polish-scope-boundary-2026-06-19.md, future-sprint-roadpmap.md
+- Boundaries: post-release-scope-boundary-2026-06-21.md, release-enablement-scope-boundary-2026-06-20.md, polish-scope-boundary-2026-06-19.md, docs/reports/future-sprint-roadmap.md
 - Status: production/sprint-status.yaml (s55_* entries)
 - Tests: PlayModeSmokeHarnessTests.cs, ReplayGolden* in UnityAdapter.Tests
 

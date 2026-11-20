@@ -348,7 +348,7 @@ When the art bible or asset standards change, the art-director must notify:
 - **Local vs cloud:** Editor PNG evidence + coordinator merge = **local only**; code/test/hygiene/docs/perf/replay = cloud-eligible. Catalog cluster (S40–S42): **single agent per symbol cluster**, local lead preferred.
 - **Status sync:** Per-track independent `production/sprint-status.yaml` keys + `production/session-state/active.md` appends; coordinator merges at closeout only.
 - **Scope gate:** S41 produces scope packet; human fills `production/gate-checks/scope-expansion-decision-template-2026-06-20.md` → signed record before S42 bootstrap.
-- **Roadmap decomposition:** `docs/reports/future-sprint-roadpmap.md` §9 maps B1–B6 epics to S42–S48 sprint numbers.
+- **Roadmap decomposition:** `docs/reports/future-sprint-roadmap.md` §9 maps B1–B6 epics to S42–S48 sprint numbers.
 - **Backward compat:** S36–S39 patterns unchanged; this block extends coordination for the full release train only.
 
 ## Anti-Patterns to Avoid

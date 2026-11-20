@@ -1,7 +1,7 @@
 # S69 Parallel Kickoff — Commercial Launch Foundation (E7)
 
 **Date:** 2026-06-25  
-**Per:** `production/commercial-launch-scope-boundary-2026-06-25.md` (target), `docs/reports/roadmap-execute-plan-062526.md` §3/§4/§5/§9, `docs/reports/future-sprint-roadpmap-062526.md` §3/§4/§9/§10, sprint-69 plan, S68 gate + S65–S68 COMPLETE  
+**Per:** `production/commercial-launch-scope-boundary-2026-06-25.md` (target), `docs/reports/roadmap-execute-plan-062526.md` §3/§4/§5/§9, `docs/reports/archive/roadmaps/future-sprint-roadmap-062526.md` §3/§4/§9/§10, sprint-69 plan, S68 gate + S65–S68 COMPLETE  
 
 ## Prereqs (✓ or status)
 - [ ] Boundary PUBLISHED: `production/commercial-launch-scope-boundary-2026-06-25.md` (S69-01; supersedes release-train-scope-boundary-2026-06-24.md for S69+ only; cites 062526 roadmap §3/§6/§7/§10 + execute-plan; in/out scope per execute §4; carry invariants; stage=Release)  
@@ -74,12 +74,12 @@ gt create ; gt submit --stack --no-interactive ; gt restack ; gt sync
 - Closeout track after parallel: integrate, gt restack on main, full gates re-run + verification-before + GitNexus, update status + qa/smoke, no merge until all PASS + boundary cites  
 - Monitor subs via worktrees; cloud for gate-matrix/reindex; local for boundary/closeout  
 - All artifacts docs-only (E7 prep scope); no DelegationBridge / catalog behavior / hash changes without explicit user ack + GitNexus CRITICAL review + ADR  
-- Cite everywhere: commercial-launch-scope-boundary-2026-06-25.md + roadmap-execute-plan-062526.md + future-sprint-roadpmap-062526.md + S68 gate  
+- Cite everywhere: commercial-launch-scope-boundary-2026-06-25.md + roadmap-execute-plan-062526.md + docs/reports/archive/roadmaps/future-sprint-roadmap-062526.md + S68 gate  
 
 ## Next
 - Publish boundary (S69-01 local)
 
-**S69-04 Closeout Update (2026-06-25):** S69-04 COMPLETE per smoke-sprint-69-closeout-2026-06-25.md. Full gates PASS (0e/1232/0f/6/6/18/18/hash/ZERO). GitNexus pre confirmed (list/detect/impact low for docs, CRITICALs exact). All tracks (boundary + gate-matrix + re-index + closeout) COMPLETE. Phase 2 integrate done. GT notes: staged S69 docs + prior payload; clean: gt sync/restack/verif/submit --stack (S69). Cite commercial-launch-scope-boundary-2026-06-25.md + roadmap-execute-plan-062526.md §3/§4/§5/§9 + future-sprint-roadpmap-062526.md §3/§6/§7/§10 + AGENTS.md + this kickoff. **S69-04 COMPLETE. S69 full COMPLETE.** Ready S70. (Closeout track local coordinator; verif-before strict.)  
+**S69-04 Closeout Update (2026-06-25):** S69-04 COMPLETE per smoke-sprint-69-closeout-2026-06-25.md. Full gates PASS (0e/1232/0f/6/6/18/18/hash/ZERO). GitNexus pre confirmed (list/detect/impact low for docs, CRITICALs exact). All tracks (boundary + gate-matrix + re-index + closeout) COMPLETE. Phase 2 integrate done. GT notes: staged S69 docs + prior payload; clean: gt sync/restack/verif/submit --stack (S69). Cite commercial-launch-scope-boundary-2026-06-25.md + roadmap-execute-plan-062526.md §3/§4/§5/§9 + docs/reports/archive/roadmaps/future-sprint-roadmap-062526.md §3/§6/§7/§10 + AGENTS.md + this kickoff. **S69-04 COMPLETE. S69 full COMPLETE.** Ready S70. (Closeout track local coordinator; verif-before strict.)  
 - Dispatch parallel (W1 gate-matrix ∥ W2 re-index) via sub-agents + worktrees  
 - Closeout (S69-04) → re-verif → S70 dispatch  
 - Monitor: sprint-status.yaml, production/qa/ , agentic/ logs  
@@ -94,6 +94,6 @@ gt create ; gt submit --stack --no-interactive ; gt restack ; gt sync
 
 Status: S69 PREP / KICKOFF COMPLETE (isolated). verification-before + GitNexus pre FIRST applied. Ready for boundary then parallel dispatch.  
 
-Cites (heavy): `production/commercial-launch-scope-boundary-2026-06-25.md` (target) + `docs/reports/roadmap-execute-plan-062526.md` §3/§4/§5/§6/§7/§9 + `docs/reports/future-sprint-roadpmap-062526.md` §3/§4/§7/§9/§10 + `production/gate-checks/s68-release-train-gate-2026-06-25.md` + sprint-69 plan + sprint-65/sprint-67 kickoffs + AGENTS.md + `production/agentic/local-cloud-agent-routing.md` + superpowers (dispatching-parallel-agents + verification-before-completion + GitNexus discipline).  
+Cites (heavy): `production/commercial-launch-scope-boundary-2026-06-25.md` (target) + `docs/reports/roadmap-execute-plan-062526.md` §3/§4/§5/§6/§7/§9 + `docs/reports/archive/roadmaps/future-sprint-roadmap-062526.md` §3/§4/§7/§9/§10 + `production/gate-checks/s68-release-train-gate-2026-06-25.md` + sprint-69 plan + sprint-65/sprint-67 kickoffs + AGENTS.md + `production/agentic/local-cloud-agent-routing.md` + superpowers (dispatching-parallel-agents + verification-before-completion + GitNexus discipline).  
 
 *Kickoff for S69 dispatch. Parallel tracks table direct from execute-plan §4. GitNexus pre + local/cloud routing required. verification-before everywhere.*

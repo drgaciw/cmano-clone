@@ -196,7 +196,7 @@ Charter for product vision, scope tiers, NFR spine, and **corpus index** (FR map
 | Production stage | **Release** (no Launch advance without explicit decision) |
 | MVP (S56) | 21/21 rows MVP-done or documented Partial+ — **grades frozen** |
 | Content (S57–S80) | Baltic v2 + v3 content programs complete; v3 isolated (`baltic-v3-*`) |
-| Active engineering | **Scenario editor (req 11)** — headless-first; see roadmap `docs/reports/future-sprint-roadpmap-07042026.md` |
+| Active engineering | **Scenario editor (req 11)** — headless-first; see roadmap `docs/reports/archive/roadmaps/future-sprint-roadmap-07042026.md` |
 | Working title | Project Aegis (commercial name **Open**) |
 ```
 
@@ -412,7 +412,7 @@ Replace `## Future Extensibility` body with:
 ```markdown
 ## Future Extensibility
 
-1. **Active:** Scenario editor program (req 11) — complete headless ACs, then Unity edit-mode Phase 2 ([roadmap 2026-07-04](../../docs/reports/future-sprint-roadpmap-07042026.md))
+1. **Active:** Scenario editor program (req 11) — complete headless ACs, then Unity edit-mode Phase 2 ([roadmap 2026-07-04](../../reports/archive/roadmaps/future-sprint-roadmap-07042026.md))
 2. **Active / Partial+:** Platform editor (req 21) polish (live Editor evidence)
 3. **Later:** Global/strategic campaigns and live multiplayer (out of first commercial release)
 4. **Later:** External RL/co-simulation agents on the headless farm

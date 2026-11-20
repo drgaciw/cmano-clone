@@ -3,7 +3,7 @@
 **Dates:** 2026-07-15 → 2026-07-21 (est. 3–5 days)  
 **Lead:** architect / producer (local closeout)  
 **Program:** S94–S97 Release Continuity — **S96 only** (Architecture / docs hygiene)  
-**Authority:** [`docs/reports/roadmap-execution-plan-071426.md`](../../docs/reports/roadmap-execution-plan-071426.md), [`docs/reports/future-sprint-roadmap-07142026.md`](../../docs/reports/future-sprint-roadmap-07142026.md), [`architecture-review-post-s93-2026-07-14.md`](../../docs/architecture/architecture-review-post-s93-2026-07-14.md), [`critical-hub-merge-playbook-2026-07-14.md`](../agentic/critical-hub-merge-playbook-2026-07-14.md)
+**Authority:** [`docs/reports/roadmap-execution-plan-071426.md`](../../docs/reports/roadmap-execution-plan-071426.md), [`docs/reports/archive/roadmaps/future-sprint-roadmap-07142026.md`](../../docs/reports/archive/roadmaps/future-sprint-roadmap-07142026.md), [`architecture-review-post-s93-2026-07-14.md`](../../docs/architecture/architecture-review-post-s93-2026-07-14.md), [`critical-hub-merge-playbook-2026-07-14.md`](../agentic/critical-hub-merge-playbook-2026-07-14.md)
 
 **Predecessor:** **S95 COMPLETE** — gauntlet expect/CI discipline + defect-registry hygiene; smoke `smoke-sprint-95-closeout-2026-07-14.md`; suite **≥1638** cited; stage **Release**.  
 **QA plan:** [`production/qa/qa-plan-sprint-96-architecture-hygiene-2026-07-15.md`](../qa/qa-plan-sprint-96-architecture-hygiene-2026-07-15.md)  

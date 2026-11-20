@@ -3,7 +3,7 @@
 **Date:** 2026-06-20  
 **Authority:** [`production/gate-checks/scope-expansion-decision-2026-06-20.md`](gate-checks/scope-expansion-decision-2026-06-20.md) — **APPROVED** (user sign-off 2026-06-20)  
 **Supersedes for Track B:** [`production/polish-scope-boundary-2026-06-19.md`](polish-scope-boundary-2026-06-19.md) (remains Track A authority for S39–S41 only)  
-**Roadmap:** [`docs/reports/future-sprint-roadpmap.md`](../docs/reports/future-sprint-roadpmap.md) §5, §9  
+**Roadmap:** [`docs/reports/future-sprint-roadmap.md`](../docs/reports/future-sprint-roadmap.md) §5, §9  
 **Release target:** Baltic vertical slice v1.0 — shippable C2 + Platform Editor + Baltic replay path; not full Req 01–21 corpus MVP-done
 
 ## Purpose
@@ -145,7 +145,7 @@ Carry forward unchanged from Polish + scope-expansion decision §7:
 | **S47** | B6 prep | Full gate-check dry run; consolidated evidence |
 | **S48** | B6 | `/gate-check` Polish→Release; stage advance |
 
-See [`docs/reports/future-sprint-roadpmap.md`](../docs/reports/future-sprint-roadpmap.md) §9 for sprint plans, kickoffs, and dispatch status.
+See [`docs/reports/future-sprint-roadmap.md`](../docs/reports/future-sprint-roadmap.md) §9 for sprint plans, kickoffs, and dispatch status.
 
 ---
 

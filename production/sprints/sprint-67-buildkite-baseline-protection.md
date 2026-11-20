@@ -6,7 +6,7 @@
 **Capacity:** ~5–7 days total, 20% buffer. Cloud for Buildkite preflight + protection updates; local for baseline lock + closeout.
 **Model:** Per roadmap-062426 §0 + execute-plan §4/5. Parallel after baseline. Isolated worktrees. GitNexus impact preflights mandatory. verification-before on all claims. Cite boundary + roadmap §0/5/7/10 + execute §6 gates.
 
-Cites: release-train-scope-boundary-2026-06-24.md + future-sprint-roadpmap-062426.md §0/3/5/7/10 + roadmap-execute-plan-062426.md §4/5/6/8/9 + superpowers (dispatching-parallel-agents + verification-before + using-git-worktrees)
+Cites: release-train-scope-boundary-2026-06-24.md + docs/reports/archive/roadmaps/future-sprint-roadmap-062426.md §0/3/5/7/10 + roadmap-execute-plan-062426.md §4/5/6/8/9 + superpowers (dispatching-parallel-agents + verification-before + using-git-worktrees)
 
 ## Tracks Table (3 parallel — from boundary S67 row)
 

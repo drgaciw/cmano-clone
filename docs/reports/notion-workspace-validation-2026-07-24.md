@@ -227,8 +227,8 @@ They are **10 distinct Milestones rows**, each with a unique UID sourced from a 
 
 Fixing them in Notion would be overwritten on the next sync. All three confirmed firsthand:
 
-1. **`docs/reports/future-sprint-roadpmap.md` is a broken symlink** whose target string is the entire 2.4 KB markdown body rather than a path. It resolves to nothing.
-2. **`docs/reports/future-sprint-roadpmap-062126.md` appears clobbered.** Its H1 reads `# Future Sprint Roadmap — Stable Alias`, though the alias table says it should hold S49–S56. Corroborating evidence: the file is **1.5 KB** where sibling snapshots are 16–40 KB.
+1. **`docs/reports/future-sprint-roadmap.md` is a broken symlink** whose target string is the entire 2.4 KB markdown body rather than a path. It resolves to nothing.
+2. **`docs/reports/archive/roadmaps/future-sprint-roadmap-062126.md` appears clobbered.** Its H1 reads `# Future Sprint Roadmap — Stable Alias`, though the alias table says it should hold S49–S56. Corroborating evidence: the file is **1.5 KB** where sibling snapshots are 16–40 KB.
 3. **Two golden fixtures are byte-identical** — `replay-golden-baltic-destroyed-reengage-merged.txt` and `replay-golden-baltic-destroyed-reengage-2026-06-22.txt`, both md5 `bbeff2aafe6b6e1fcee9d280a8d013f1`.
 
 Additional smaller items: the Notion page `Implementation Plan` has duplicated body lines, suggesting the sync **appends rather than replaces** on re-run — worth checking whether other re-synced pages accumulate the same way.
@@ -278,8 +278,8 @@ Two coherent options; the current state is neither.
 7. Move the 46 non-milestone rows out of the Milestones database.
 
 ### P3 — Fix the Git-origin defects
-8. Restore `docs/reports/future-sprint-roadpmap.md` as a real file or a correct symlink.
-9. Recover the S49–S56 content in `future-sprint-roadpmap-062126.md` and fix its H1.
+8. Restore `docs/reports/future-sprint-roadmap.md` as a real file or a correct symlink.
+9. Recover the S49–S56 content in `docs/reports/archive/roadmaps/future-sprint-roadmap-062126.md` and fix its H1.
 10. De-duplicate the identical golden fixture pair in `tests/regression/`.
 11. Check whether the Notion sync appends rather than replaces on re-run.
 

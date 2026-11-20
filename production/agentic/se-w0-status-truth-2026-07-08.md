@@ -21,7 +21,7 @@
 
 ## Hygiene actions (this wave)
 
-1. Roadmap stable alias → current = `future-sprint-roadpmap-07042026.md` (scenario editor)  
+1. Roadmap stable alias → current = `docs/reports/archive/roadmaps/future-sprint-roadmap-07042026.md` (scenario editor)  
 2. Tracker forward note + row 11 next-stack = AC-8 productionize  
 3. Epic `scenario-editor-completion` created  
 

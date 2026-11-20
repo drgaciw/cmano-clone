@@ -5,7 +5,7 @@
 **Track:** S70-01/02 Store page drafts (Cloud, community-manager per execute-plan §4 S70 table)  
 **Authority / MANDATORY CITES (everywhere):**  
 - `production/commercial-launch-scope-boundary-2026-06-25.md` (E7 prep only: store drafts IN; submission/marketing/E9/multiplayer/bridge edits OUT; invariants 1232/6/6/18/18/hash/ZERO; GitNexus pre; stage Release)  
-- `docs/reports/future-sprint-roadpmap-062526.md` §3/§6/§7/§10 (S70 Store+community; parallel tracks; docs-heavy; serial S69→S72)  
+- `docs/reports/archive/roadmaps/future-sprint-roadmap-062526.md` §3/§6/§7/§10 (S70 Store+community; parallel tracks; docs-heavy; serial S69→S72)  
 - `docs/reports/roadmap-execute-plan-062526.md` §3/§4 (S70 table: store pages S70-01/02, community S70-03, checklist-v3 S70-04, closeout S70-05; deliverables store-page-draft.md + asset-checklist.md + platform-notes.md)  
 - `AGENTS.md` (GitNexus `search_tool`+`use_tool` list/detect/impact CRITICALs pre; verification-before RUN+READ gates before claims)  
 - S69 artifacts: `production/qa/smoke-sprint-69-closeout-2026-06-25.md` (S69 COMPLETE; gates PASS 0e/1232/0f/6/6/18/18/hash/ZERO=0; GitNexus 19962/37627/2462 low risk), `production/commercial-launch-scope-boundary-2026-06-25.md`, `production/qa/gate-matrix-commercial-launch-2026-06-25.md`, `production/sprints/sprint-69-commercial-launch-foundation.md`, `production/agentic/sprint-69-parallel-kickoff-2026-06-25.md`  

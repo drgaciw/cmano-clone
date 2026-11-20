@@ -2,7 +2,7 @@
 
 **Date:** 2026-06-25  
 **Track:** S71-04 Launch doc pack — faq-draft (Cloud per roadmap-execute-plan-062526.md §3/§4)  
-**Authority / MANDATORY CITES:** production/commercial-launch-scope-boundary-2026-06-25.md ; docs/reports/future-sprint-roadpmap-062526.md §3/§6/§7/§10 ; docs/reports/roadmap-execute-plan-062526.md §3/§4 (S71-03/04 deliverables in production/release/launch/); AGENTS.md ; S69/S70 artifacts (sprint-69-commercial-launch-foundation.md, smoke-sprint-69-closeout-2026-06-25.md, sprint-70-store-community-prep.md + kickoffs, release-checklist-v3.md, store/*, community-templates.md); prior S57–S68 (baltic-v2-playtest-index.md, release-checklist-v2.md, baltic-v2-scope-boundary-2026-06-22.md, release-train-scope-boundary-2026-06-24.md invariants only).  
+**Authority / MANDATORY CITES:** production/commercial-launch-scope-boundary-2026-06-25.md ; docs/reports/archive/roadmaps/future-sprint-roadmap-062526.md §3/§6/§7/§10 ; docs/reports/roadmap-execute-plan-062526.md §3/§4 (S71-03/04 deliverables in production/release/launch/); AGENTS.md ; S69/S70 artifacts (sprint-69-commercial-launch-foundation.md, smoke-sprint-69-closeout-2026-06-25.md, sprint-70-store-community-prep.md + kickoffs, release-checklist-v3.md, store/*, community-templates.md); prior S57–S68 (baltic-v2-playtest-index.md, release-checklist-v2.md, baltic-v2-scope-boundary-2026-06-22.md, release-train-scope-boundary-2026-06-24.md invariants only).  
 
 **GitNexus pre (this track):** list_repos canonical 19962/37627/2462; detect 24/0 low (docs); impact Catalog 178 / Patrol 97 / Bridge 127 / Baltic 52 CRITICAL exact. Low risk.  
 
@@ -61,6 +61,6 @@ A: See production/release/launch/support-runbook-draft.md (internal triage) and 
 - Expand with actual player questions post any playtest or announcement.  
 - Keep factual, cite evidence-index for all claims.  
 
-**Self-contained draft. All preflight + gates RUN+READ. Cites: commercial-launch-scope-boundary-2026-06-25.md + roadmap-execute-plan-062526.md §3/§4 + future-sprint-roadpmap-062526.md + AGENTS.md + S69/S70 + S57–S68.**
+**Self-contained draft. All preflight + gates RUN+READ. Cites: commercial-launch-scope-boundary-2026-06-25.md + roadmap-execute-plan-062526.md §3/§4 + docs/reports/archive/roadmaps/future-sprint-roadmap-062526.md + AGENTS.md + S69/S70 + S57–S68.**
 
 *Cloud subagent S71-03/04. Docs only. Ready for S71-06 closeout.*

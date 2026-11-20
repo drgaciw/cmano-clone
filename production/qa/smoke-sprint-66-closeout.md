@@ -10,7 +10,7 @@
 - `production/sprints/sprint-66-content-manifest-stub.md` (UnifiedReleaseTrain record flow for 10 policies + 9 goldens)  
 - `production/sprints/sprint-66-evidence-packaging.md` (tracks, hard gates)  
 - `production/agentic/sprint-65-parallel-kickoff-2026-06-24.md` + S65 closeout patterns (smoke-sprint-65-closeout-2026-06-24.md)  
-- `docs/reports/future-sprint-roadpmap-062426.md` §0/3/5/7/10 + `roadmap-execute-plan-062426.md` §4/5/6/8/9  
+- `docs/reports/archive/roadmaps/future-sprint-roadmap-062426.md` §0/3/5/7/10 + `roadmap-execute-plan-062426.md` §4/5/6/8/9  
 - Prior S65: `production/qa/smoke-sprint-65-closeout-2026-06-24.md`, s65-gate-matrix, manifest hardening  
 - AGENTS.md (gt sync/restack/submit, GitNexus discipline) + graphite-github-substitute-plan.md  
 - S65 smoke examples (smoke-sprint-52-closeout-2026-06-21.md, smoke-sprint-49-closeout-2026-06-21.md, smoke-sprint-65-closeout) for structure  
@@ -18,7 +18,7 @@
 - `production/release/release-checklist-v2.md` (in progress supersede)  
 - GitNexus + verification-before-completion on all claims  
 
-Cites: release-train-scope-boundary-2026-06-24.md + future-sprint-roadpmap-062426.md §0/3/5/7/10 + roadmap-execute-plan-062426.md §4/5/6/8/9 + superpowers (dispatching-parallel-agents + verification-before-completion + using-git-worktrees) + AGENTS.md + S65 artifacts. All S66 artifacts cite boundary + S65.
+Cites: release-train-scope-boundary-2026-06-24.md + docs/reports/archive/roadmaps/future-sprint-roadmap-062426.md §0/3/5/7/10 + roadmap-execute-plan-062426.md §4/5/6/8/9 + superpowers (dispatching-parallel-agents + verification-before-completion + using-git-worktrees) + AGENTS.md + S65 artifacts. All S66 artifacts cite boundary + S65.
 
 ## Tracks Summary (from sprint-66-content-manifest-playtest.md)
 - **S66-01/02 Content manifest (cloud):** Package Baltic v2 (10 policies: data/scenarios/baltic-v2-*.policy.json + 9 goldens: tests/regression/replay-golden-baltic-v2-*.txt) using S65-hardened UnifiedReleaseTrainManifest / DiffReport / CatalogReleaseDiffCommand. Record baltic-v2 unified release. GitNexus impact pre on CatalogWriteGate (CRITICAL) + Manifest. TDD/roundtrip.
@@ -63,7 +63,7 @@ Cites: release-train-scope-boundary-2026-06-24.md + future-sprint-roadpmap-06242
 | Other | `dotnet test ... --filter Replay / golden subsets`; hash check; gt status post | All green; 0f on targeted |
 
 **Actual Verification Results (S66-05 closeout + S67 polish final execution — RUN + READ full outputs before any PASS claim; verification-before on EVERY gate + updates):**  
-**Cites:** production/release-train-scope-boundary-2026-06-24.md (S66/S67/S68 sections exactly, standing invariants, GitNexus preflight mandatory before edits/commits, CRITICAL symbols CatalogWriteGate 178/PatrolCandidateEngagePolicy 97/DelegationBridge 127/BalticReplayHarness 52, hash `17144800277401907079` immutable, replay 6/6, C2 18/18, ZERO DelegationBridge, CatalogWriteGate extend-only, verification-before on all claims/updates, all artifacts cite boundary + future-sprint-roadpmap-062426.md §0/3/5/7/10 + roadmap-execute-plan-062426.md §4/6 + AGENTS.md) + sprint-66-*.md + sprint-67-buildkite-baseline-protection.md + release-checklist-v2.md + sprint-status.yaml + S66-gt-integration.md. GitNexus first (search_tool schema then use_tool). Latest reindex per S67: 19792 nodes / 37427 edges / 2455 files @ 28c582d (2026-06-25T13:34Z). S67 tracks (Buildkite preflight, baseline lock, branch-protection) COMPLETE per sprint-67 doc + status. S66/S67 CLOSEOUT POLISHED.
+**Cites:** production/release-train-scope-boundary-2026-06-24.md (S66/S67/S68 sections exactly, standing invariants, GitNexus preflight mandatory before edits/commits, CRITICAL symbols CatalogWriteGate 178/PatrolCandidateEngagePolicy 97/DelegationBridge 127/BalticReplayHarness 52, hash `17144800277401907079` immutable, replay 6/6, C2 18/18, ZERO DelegationBridge, CatalogWriteGate extend-only, verification-before on all claims/updates, all artifacts cite boundary + docs/reports/archive/roadmaps/future-sprint-roadmap-062426.md §0/3/5/7/10 + roadmap-execute-plan-062426.md §4/6 + AGENTS.md) + sprint-66-*.md + sprint-67-buildkite-baseline-protection.md + release-checklist-v2.md + sprint-status.yaml + S66-gt-integration.md. GitNexus first (search_tool schema then use_tool). Latest reindex per S67: 19792 nodes / 37427 edges / 2455 files @ 28c582d (2026-06-25T13:34Z). S67 tracks (Buildkite preflight, baseline lock, branch-protection) COMPLETE per sprint-67 doc + status. S66/S67 CLOSEOUT POLISHED.
 
 - **Build gate:** Command: `cd /home/username01/cmano-clone/cmano-clone && export PATH="$HOME/.dotnet:$PATH" && dotnet build ProjectAegis.sln --no-restore -v minimal 2>&1 | tail -5`  
   RUN output (READ): Build succeeded. 0 Warning(s) 0 Error(s). Time Elapsed 00:00:02.76. **VERIFIED PASS (0e/0w)**. (S67 preflight parity confirmed).
@@ -493,7 +493,7 @@ Cites: production/release-train-scope-boundary-2026-06-24.md (S66/S67/S68) + spr
 ## FINAL CLOSEOUT NOTE — S65-S68 (E10 Release Train)
 
 **Date:** 2026-06-25  
-**Cites (mandatory):** production/release-train-scope-boundary-2026-06-24.md (S65–S68 rows exactly, standing invariants: tests ≥1229/0f monotonic, ReplayGolden 6/6, C2 18/18, hash `17144800277401907079` immutable, ZERO DelegationBridge, CatalogWriteGate extend-only, GitNexus `impact()` + `detect_changes()` BEFORE any edits/commits/submit, verification-before on EVERY claim, E10 only) + AGENTS.md (Graphite-first gt sync/restack/submit --stack --no-interactive + GitNexus discipline) + production/qa/smoke-sprint-66-closeout.md + production/qa/S66-gt-integration.md + sprint-status.yaml + future-sprint-roadpmap-062426.md §0/3/5/7/10 + roadmap-execute-plan-062426.md + S65 closeouts/gate/matrix + S67 buildkite doc + s68-release-train-gate-2026-06-25.md + release-checklist-v2.md .
+**Cites (mandatory):** production/release-train-scope-boundary-2026-06-24.md (S65–S68 rows exactly, standing invariants: tests ≥1229/0f monotonic, ReplayGolden 6/6, C2 18/18, hash `17144800277401907079` immutable, ZERO DelegationBridge, CatalogWriteGate extend-only, GitNexus `impact()` + `detect_changes()` BEFORE any edits/commits/submit, verification-before on EVERY claim, E10 only) + AGENTS.md (Graphite-first gt sync/restack/submit --stack --no-interactive + GitNexus discipline) + production/qa/smoke-sprint-66-closeout.md + production/qa/S66-gt-integration.md + sprint-status.yaml + docs/reports/archive/roadmaps/future-sprint-roadmap-062426.md §0/3/5/7/10 + roadmap-execute-plan-062426.md + S65 closeouts/gate/matrix + S67 buildkite doc + s68-release-train-gate-2026-06-25.md + release-checklist-v2.md .
 
 **Summary (S65-S68):**  
 - S65: Scope boundary published, gate matrix, manifest hardening (Unified* +3 TDD tests), GitNexus re-index (to 19665 then final 19792), closeout. All gates PASS.  

@@ -3,7 +3,7 @@
 **Date:** 2026-06-20  
 **Repo:** `/home/username01/cmano-clone/cmano-clone`  
 **Program:** 9 sprints (S40–S48) on the 10-sprint release train (S39 COMPLETE)  
-**Authority:** [`future-sprint-roadpmap.md`](future-sprint-roadpmap.md) §9, [`s39-s48-program-execution-guide.md`](../production/agentic/s39-s48-program-execution-guide.md), [`local-cloud-agent-routing.md`](../production/agentic/local-cloud-agent-routing.md), [`s39-s48-worktree-manifest.md`](../production/agentic/s39-s48-worktree-manifest.md)
+**Authority:** [`docs/reports/future-sprint-roadmap.md`](future-sprint-roadmap.md) §9, [`s39-s48-program-execution-guide.md`](../production/agentic/s39-s48-program-execution-guide.md), [`local-cloud-agent-routing.md`](../production/agentic/local-cloud-agent-routing.md), [`s39-s48-worktree-manifest.md`](../production/agentic/s39-s48-worktree-manifest.md)
 
 ---
 
@@ -421,7 +421,7 @@ Run this **once** before S40-01; re-verify items marked ⟳ at each sprint bound
 
 | Artifact | Path |
 |----------|------|
-| Roadmap §9 | [`future-sprint-roadpmap.md`](future-sprint-roadpmap.md) |
+| Roadmap §9 | [`docs/reports/future-sprint-roadmap.md`](future-sprint-roadmap.md) |
 | This plan | `docs/reports/s40-s48-local-cloud-agent-execution-plan-2026-06-20.md` |
 | Program guide | `production/agentic/s39-s48-program-execution-guide.md` |
 | Worktree manifest | `production/agentic/s39-s48-worktree-manifest.md` |

@@ -10,7 +10,7 @@
 
 **Naming note:** This file uses OBJECTIVE basename `roadmap-execution-plan-071426.md` (date token `071426`). Historical series uses `roadmap-execute-plan-MMDDYYYY.md` (e.g. `roadmap-execute-plan-07092026.md`). Do not mass-rename historical files.
 
-**Primary authority:** [`future-sprint-roadmap-07142026.md`](future-sprint-roadmap-07142026.md) (§0–§10).  
+**Primary authority:** [`docs/reports/archive/roadmaps/future-sprint-roadmap-07142026.md`](archive/roadmaps/future-sprint-roadmap-07142026.md) (§0–§10).  
 **Supporting authority:**  
 [`post-s93-concerns-remediation-closeout-2026-07-14.md`](../../production/gate-checks/post-s93-concerns-remediation-closeout-2026-07-14.md) ·  
 [`post-s93-project-release-hold-gate-2026-07-14.md`](../../production/gate-checks/post-s93-project-release-hold-gate-2026-07-14.md) ·  
@@ -194,7 +194,7 @@ Prefer ordered **cherry-pick** over whole-branch merge when dual histories diver
 - [x] Post-S93 Release-hold gate + Tracks A–C remediation — 2026-07-14
 - [x] Gauntlet land on Release program branch; suite floor **1638/0f**
 - [x] GitNexus re-analyze @ `257d9e9` — 2026-07-14
-- [x] Roadmap snapshot [`future-sprint-roadmap-07142026.md`](future-sprint-roadmap-07142026.md) + alias Current
+- [x] Roadmap snapshot [`docs/reports/archive/roadmaps/future-sprint-roadmap-07142026.md`](archive/roadmaps/future-sprint-roadmap-07142026.md) + alias Current
 
 ### Before first S94 track dispatch
 
@@ -307,7 +307,7 @@ Matches 0714 roadmap §3 / §10:
 
 | Doc | Path |
 |-----|------|
-| Forward roadmap (primary) | `docs/reports/future-sprint-roadmap-07142026.md` |
+| Forward roadmap (primary) | `docs/reports/archive/roadmaps/future-sprint-roadmap-07142026.md` |
 | Prior execute plan (pattern) | `docs/reports/roadmap-execute-plan-07092026.md` |
 | Post-S93 remediation closeout | `production/gate-checks/post-s93-concerns-remediation-closeout-2026-07-14.md` |
 | Post-S93 Release-hold gate | `production/gate-checks/post-s93-project-release-hold-gate-2026-07-14.md` |
@@ -328,7 +328,7 @@ Launch requires: explicit human decision + executable commercial gate + checklis
 ---
 
 **End of roadmap-execution-plan-071426.md.**  
-Authority: `future-sprint-roadmap-07142026.md`. Serial S94→S97; floors **≥1638**; hubs CRITICAL; stage **Release**.  
+Authority: `docs/reports/archive/roadmaps/future-sprint-roadmap-07142026.md`. Serial S94→S97; floors **≥1638**; hubs CRITICAL; stage **Release**.  
 Next human action: approve plan → `/sprint-plan new` for **S94 only**.
 
 <!-- workspace: cmano-clone/docs/reports (harness tree) -->

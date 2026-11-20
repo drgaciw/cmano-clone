@@ -8,7 +8,7 @@
 
 **Authority (mandatory citations):**  
 - `production/post-release-scope-boundary-2026-06-21.md` (S56 E1 sweep + program exit; 21 rows; invariants: ≥1227 tests monotonic, ReplayGolden 6/6, C2 proxy 18/18+, Baltic hash `17144800277401907079`, DelegationBridge ZERO, CatalogWriteGate extend-only, GitNexus impact()+detect_changes())  
-- `docs/reports/future-sprint-roadpmap-062126.md` §10 S56 (E1 + exit gate: Playtest AAR remediation || proxy expand || internal gate (21/21 rows MVP)), §0 (parallel dispatch, worktrees, merge gate protocol), §12 (dep matrix)  
+- `docs/reports/archive/roadmaps/future-sprint-roadmap-062126.md` §10 S56 (E1 + exit gate: Playtest AAR remediation || proxy expand || internal gate (21/21 rows MVP)), §0 (parallel dispatch, worktrees, merge gate protocol), §12 (dep matrix)  
 - Prior: s48-release-gate-2026-06-20.md, smoke-sprint-52-closeout-2026-06-21.md, gate-matrix-post-release-2026-06-21.md, s56-internal-engineering-gate-2026-06-21.md, s56-aar-remediation-track-2026-06-21.md, s56-aar-verif-2026-06-21.md, Game-Requirements/implementation-tracker-2026-06-04.md, game-players-report-0620206.md  
 - Superpowers + verification-before + using-git-worktrees enforced (GitNexus preflight first; full reads before claims/runs; fresh cmds every time; isolation via worktree list + branch)  
 - NO edits to src/DelegationBridge; additive/doc only in gate + aar/proxy (docs/qa)
@@ -156,7 +156,7 @@ All invariants held (1227/0f, 6/6, 18/18, hash pinned, ZERO bridge, GitNexus, 21
 - Isolation: worktree list (aar/proxy on sprint56/*); gate cwd for verif  
 **S56-GATE-VERIF: PASS all fresh outputs read. READY FOR HUMAN ACK 'i provide the ack'**  
 
-Cites: post-release-scope-boundary-2026-06-21.md + future-sprint-roadpmap-062126.md §10 S56 E1 + §0/§12 + s56-internal-engineering-gate + aar-track/verif + game-players + tracker + S52 smoke. All superpowers followed. No merge instructions per task.
+Cites: post-release-scope-boundary-2026-06-21.md + docs/reports/archive/roadmaps/future-sprint-roadmap-062126.md §10 S56 E1 + §0/§12 + s56-internal-engineering-gate + aar-track/verif + game-players + tracker + S52 smoke. All superpowers followed. No merge instructions per task.
 
 (End; all evidence read pre-claim.)
 
@@ -240,7 +240,7 @@ changed_symbols: mostly production/ old gate docs + PlayModeSmokeHarnessTests.cs
 - s56-aar-*.md (aar-sweep: verif, sweep-final-verif-orch, remediation-track, proxy-verif, logs) + sibling proxy qa/s56-proxy-verif + main production/sprints/qa copies
 - s56-final-ack-prep-verif* (this + copies; prior appends)
 - sprint-status.yaml (main + aar-sweep wt; program_note S56: "S56 gate PASS ... 1227/0f 6/6 18/18 ... cites post-release... + roadmap §10 S56 E1 + superpowers + verification-before"; s56_status COMPLETE; 21/21)
-- docs/reports/future-sprint-roadpmap-062126.md (full §0 worktrees/dispatch, §10 S56 E1 (AAR||proxy||gate tracks; exit 21/21 + 6/6+18/18+hash+ZERO), §12 dep matrix, CRITICAL symbols table, cites boundary)
+- docs/reports/archive/roadmaps/future-sprint-roadmap-062126.md (full §0 worktrees/dispatch, §10 S56 E1 (AAR||proxy||gate tracks; exit 21/21 + 6/6+18/18+hash+ZERO), §12 dep matrix, CRITICAL symbols table, cites boundary)
 - production/post-release-scope-boundary-2026-06-21.md (full program map S49-S56, 21 rows, invariants, cut rules, ZERO DelegationBridge, extend-only Catalog, hash immutable)
 - Sibling wt reports via abs: .../aar-sweep/production/qa/*s56* + .../proxy-filter/production/qa/* (isolation, gates, GitNexus, doc-only confirm)
 - Also: s56-program-exit-status-snippet.md, implementation-tracker, game-players-report (AAR TDRs), prior smokes/gates
@@ -263,7 +263,7 @@ changed_symbols: mostly production/ old gate docs + PlayModeSmokeHarnessTests.cs
 **All from fresh RUN+ full READ. Evidence-before-claim.**
 
 ### 7. Citations (mandatory everywhere)
-post-release-scope-boundary-2026-06-21.md + future-sprint-roadpmap-062126.md §10 S56 E1 + 21/21 MVP + §0/§12 (parallel dispatch, worktrees, invariants, gate tracks) + s56-internal-engineering-gate-2026-06-21.md + s56-aar-*-verif + prior S52 smoke + tracker + game-players-report. Superpowers: dispatching-parallel-agents + using-git-worktrees + verification-before-completion.
+post-release-scope-boundary-2026-06-21.md + docs/reports/archive/roadmaps/future-sprint-roadmap-062126.md §10 S56 E1 + 21/21 MVP + §0/§12 (parallel dispatch, worktrees, invariants, gate tracks) + s56-internal-engineering-gate-2026-06-21.md + s56-aar-*-verif + prior S52 smoke + tracker + game-players-report. Superpowers: dispatching-parallel-agents + using-git-worktrees + verification-before-completion.
 
 ### 8. Superpowers Used
 - dispatching-parallel-agents (S56 tracks aar/proxy/gate fanout; MCP/terminal parallel)

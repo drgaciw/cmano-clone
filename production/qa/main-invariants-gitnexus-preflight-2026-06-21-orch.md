@@ -18,7 +18,7 @@
 
 ## 1. Documents Read (verbatim key excerpts + cites)
 
-### docs/reports/future-sprint-roadpmap-062126.md
+### docs/reports/archive/roadmaps/future-sprint-roadmap-062126.md
 - §0.5 Shared-resource: `CatalogWriteGate` (Extend-only, one owner/sprint, impact() CRITICAL); `DelegationBridge` (ZERO touch, ADR); `OsintCatalogMapper` (HIGH blast); `BalticBatchRunner` (HIGH if sim); Baltic hash immutable; test >=1227 monotonic.  
 - §0.6 Pre-flight checklist (per track): GitNexus `impact()` on every symbol; report risk (CRITICAL/HIGH → ack); confirm worktree isolation; cite `post-release-scope-boundary-2026-06-21.md` + row/epic; verify baseline `dotnet test` before change.  
 - §5 GitNexus pre-flight map (S49+ hot symbols):  
@@ -105,7 +105,7 @@ tests/regression/replay-golden-baltic-catalog-2026-06-02.txt
 - **detect_changes (on main path, current no-change state):**  
   (scope=unstaged):  
   ```json
-  {"summary":{"changed_count":12,"affected_count":0,"changed_files":11,"risk_level":"low"},"changed_symbols":[ "Game-Requirements/implementation-tracker-2026-06-04.md sections (Verdict, MVP status...)", "docs/reports/future-sprint-roadpmap.md", "production/gate-checks/s48-release-gate-2026-06-20.md sections", "tools/hindsight/README.md" ], "affected_processes":[] }
+  {"summary":{"changed_count":12,"affected_count":0,"changed_files":11,"risk_level":"low"},"changed_symbols":[ "Game-Requirements/implementation-tracker-2026-06-04.md sections (Verdict, MVP status...)", "docs/reports/future-sprint-roadmap.md", "production/gate-checks/s48-release-gate-2026-06-20.md sections", "tools/hindsight/README.md" ], "affected_processes":[] }
   ```
   (scope=compare base_ref=main + scope=all): identical — **12 changed (docs/sections only), 0 affected, risk LOW. NO CRITICAL symbols (CatalogWriteGate etc.) in changed list.** Pre-existing local state (no our edits).
 - **impact (summaryOnly + context, upstream, repo=main path; current state):**  
@@ -135,6 +135,6 @@ All per post-release-scope-boundary-2026-06-21.md + roadmap §7/§10 + S56 gates
 ## 6. Conclusions + Cites
 - **All green per verification-before.** Main baseline clean (build 0e/0w, 1227/0f, 6/6, 18/18); goldens pinned; GitNexus on CRITICALs: documented blast (no changes to them); detects LOW/0 affected (docs only). Invariants held post all S49-S56 parallel. S56 gate 21/21 MVP ready (human ack pending).  
 - No edits performed (no src, no yaml append — program_note already records main re-verif).  
-- **Cites:** `production/post-release-scope-boundary-2026-06-21.md` (invariants §); `docs/reports/future-sprint-roadpmap-062126.md` (§0.6/§5/§7/§10/§12); S56 gates (s56-internal-engineering-gate-2026-06-21.md etc.); sprint-status.yaml; AGENTS.md/CLAUDE.md (GitNexus rules); superpowers (dispatching-parallel-agents, verification-before-completion, using-git-worktrees).  
+- **Cites:** `production/post-release-scope-boundary-2026-06-21.md` (invariants §); `docs/reports/archive/roadmaps/future-sprint-roadmap-062126.md` (§0.6/§5/§7/§10/§12); S56 gates (s56-internal-engineering-gate-2026-06-21.md etc.); sprint-status.yaml; AGENTS.md/CLAUDE.md (GitNexus rules); superpowers (dispatching-parallel-agents, verification-before-completion, using-git-worktrees).  
 
 **Main + GitNexus preflight complete. Verbatim gates + impacts. All green per verification-before. No edits performed.**

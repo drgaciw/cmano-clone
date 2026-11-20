@@ -5,7 +5,7 @@
 **Worktree:** /home/username01/projects/active/cmano-clone/.worktrees/stack/sprint49/closeout (isolated)  
 **Branch:** stack/sprint49/closeout @ be8dfb7  
 **Superpowers:** dispatching-parallel-agents + using-git-worktrees + verification-before-completion  
-**Citations (mandatory):** post-release-scope-boundary-2026-06-21.md + docs/reports/future-sprint-roadpmap-062126.md §10 S49 (MCP/OSINT/Infra tracks + closeout) E2 Req05/07 + release-enablement-scope-boundary-2026-06-20.md + smoke-sprint-49-closeout-2026-06-21.md + s49-closeout-verif-2026-06-21-orch.md + sprint-49-agentic-kickoff-mcp-osint-infra.md
+**Citations (mandatory):** post-release-scope-boundary-2026-06-21.md + docs/reports/archive/roadmaps/future-sprint-roadmap-062126.md §10 S49 (MCP/OSINT/Infra tracks + closeout) E2 Req05/07 + release-enablement-scope-boundary-2026-06-20.md + smoke-sprint-49-closeout-2026-06-21.md + s49-closeout-verif-2026-06-21-orch.md + sprint-49-agentic-kickoff-mcp-osint-infra.md
 
 **Task:** S49 E2 closeout final sweep per roadmap §10 S49, post-release-scope-boundary-2026-06-21.md. Additive/docs/evidence ONLY. ZERO src mutation on CRITICAL: CatalogWriteGate, SimulationSession, BalticBatchRunner, SensorHotPath, DelegationBridge. Isolation MANDATORY. Verification-before: RUN then READ full outputs before claim. GitNexus discipline. Update sprint-status (cmano-clone + local). Produce this final verif.
 
@@ -27,7 +27,7 @@ git worktree list | grep sprint49
 - production/qa/s49-closeout-verif-2026-06-21-orch.md (read full via read_file)
 - production/qa/smoke-sprint-49-closeout-2026-06-21.md (read full)
 - cmano-clone/production/sprint-status.yaml (and closeout's) program_note (read via read_file + python/awk for end)
-- docs/reports/future-sprint-roadpmap.md §10 S49 refs + production/post-release-scope-boundary-2026-06-21.md (read)
+- docs/reports/future-sprint-roadmap.md §10 S49 refs + production/post-release-scope-boundary-2026-06-21.md (read)
 All read; cite strings extracted for use in updates.
 
 ## 2. Re-run verification-before (export PATH; RUN fresh; READ FULL outputs)

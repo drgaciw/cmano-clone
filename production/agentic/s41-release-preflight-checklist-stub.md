@@ -5,7 +5,7 @@
 **Status:** Analysis / stub only. **No artifacts produced.** Feeds S41 scope packet + S46/S47.  
 **Authorities (cited):**  
 - `production/sprints/sprint-41-polish-hardening-release-preflight.md` (S41-08)  
-- `docs/reports/future-sprint-roadpmap.md` §5 B5/B6 + §9  
+- `docs/reports/future-sprint-roadmap.md` §5 B5/B6 + §9  
 - `production/release-enablement-scope-boundary-2026-06-20.md` §B5/B6 + gate matrix + cut-lines  
 - `production/gate-checks/scope-expansion-decision-2026-06-20.md` (APPROVED)  
 - `.claude/skills/release-checklist/release-checklist/SKILL.md` (B5 template)  

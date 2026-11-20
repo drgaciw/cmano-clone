@@ -1,7 +1,7 @@
 # Cesium S55 Production Evidence (E4)
 
 **Date:** 2026-06-21  
-**Cites:** production/sprints/sprint-55-cesium-globe-production.md, release-enablement-scope-boundary-2026-06-20.md (Req 20), future-sprint-roadpmap.md §10, ADR-007, req 20, cesium-phase-b-spike-checklist (foundation extended).  
+**Cites:** production/sprints/sprint-55-cesium-globe-production.md, release-enablement-scope-boundary-2026-06-20.md (Req 20), docs/reports/future-sprint-roadmap.md §10, ADR-007, req 20, cesium-phase-b-spike-checklist (foundation extended).  
 **Scope:** Production globe integration (live sync, milsim camera, C2 selection) additive to spike.
 
 ## Preflight

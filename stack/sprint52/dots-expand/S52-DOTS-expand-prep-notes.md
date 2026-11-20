@@ -2,7 +2,7 @@
 
 Per roadmap §10: DOTS determinism review shared across E6 tracks. Expand S45 pilot.
 
-**Key cites:** ADR-005, post-release-scope-boundary (E6), future-sprint-roadpmap §12 (S52 DOTS expand track `stack/sprint52/dots-expand`), S45 artifacts in production.
+**Key cites:** ADR-005, post-release-scope-boundary (E6), future-sprint-roadmap §12 (S52 DOTS expand track `stack/sprint52/dots-expand`), S45 artifacts in production.
 
 **Dependencies:** S52 sim-api surface for snapshot export; benchmark for scale test cases; S51 corpora data.
 

@@ -4,7 +4,7 @@
 **Trunk:** `main` @ (post-S47 dry run)  
 **Predecessor:** Sprint 47 — COMPLETE; Go/No-Go checklist green or explicitly waived  
 **Stage:** Release Enablement → **Release** (stage advance if PASS)  
-**Authority:** B6 — [`docs/reports/future-sprint-roadpmap.md`](../../docs/reports/future-sprint-roadpmap.md) §5, §9. `/gate-check` Polish→Release.
+**Authority:** B6 — [`docs/reports/future-sprint-roadmap.md`](../../docs/reports/future-sprint-roadmap.md) §5, §9. `/gate-check` Polish→Release.
 
 > **OUT-OF-BOUNDARY — PLANNING ONLY.**
 

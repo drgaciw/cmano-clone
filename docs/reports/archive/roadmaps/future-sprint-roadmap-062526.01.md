@@ -1,12 +1,12 @@
 # Future Sprint Roadmap — Project Aegis (cmano-clone)
 > **Parallel-Agentic Edition — Post–S72 E7 Prep (S73+ Baltic v3)**
 
-> **Status:** Living document. Authored **2026-06-25** (revision `.01`); supersedes planning intent in [`future-sprint-roadpmap-062526.md`](future-sprint-roadpmap-062526.md) (2026-06-25 S69–S72 E7 program, now archived).
+> **Status:** Living document. Authored **2026-06-25** (revision `.01`); supersedes planning intent in [`docs/reports/archive/roadmaps/future-sprint-roadmap-062526.md`](future-sprint-roadmap-062526.md) (2026-06-25 S69–S72 E7 program, now archived).
 > **Edition:** Optimized for serial sprints S73–S80 (E9 lead) with parallel tracks inside each sprint; stage **Release** throughout; code + content allowed (unlike E7 docs-only); GitNexus mandatory; verification-before on all claims.
-> **Stable alias:** [`future-sprint-roadpmap.md`](future-sprint-roadpmap.md) → this file.
-> **Execute plan:** [`roadmap-execute-plan-062526.01.md`](roadmap-execute-plan-062526.01.md)
-> **Design spec:** [`docs/superpowers/specs/2026-06-25-baltic-v3-content-expansion-design.md`](../superpowers/specs/2026-06-25-baltic-v3-content-expansion-design.md)
-> **Prior execute plan (archived program):** [`roadmap-execute-plan-062526.md`](roadmap-execute-plan-062526.md) (S69–S72 COMPLETE).
+> **Stable alias:** [`docs/reports/future-sprint-roadmap.md`](../../future-sprint-roadmap.md) → this file.
+> **Execute plan:** [`roadmap-execute-plan-062526.01.md`](../../roadmap-execute-plan-062526.01.md)
+> **Design spec:** [`docs/superpowers/specs/2026-06-25-baltic-v3-content-expansion-design.md`](../../../superpowers/specs/2026-06-25-baltic-v3-content-expansion-design.md)
+> **Prior execute plan (archived program):** [`roadmap-execute-plan-062526.md`](../../roadmap-execute-plan-062526.md) (S69–S72 COMPLETE).
 > **GitNexus @ doc authoring (2026-06-25):** MCP `list_repos` canonical `/home/username01/projects/active/cmano-clone/cmano-clone` — **20,193** symbols / **37,859** edges / **2,487** files (pre S73-03). Post S73-03 re-index (CLI analyze --force + MCP): **20,322** symbols / **38,055** edges / **2,491** files @ HEAD `b2c9411` fresh (no staleness). `impact` upstream summaryOnly: **CatalogWriteGate 178**, **PatrolCandidateEngagePolicy 97**, **DelegationBridge 127**, **BalticReplayHarness 52** (exact §5 match). `detect_changes` unstaged low (docs only). S73-03 COMPLETE. Re-index @ S73-03.
 > **Verification @ doc authoring:** build 0e/0w; test **1232/0f** (Sim 279, Cli 43, Del 247, Excel 5, UA 252, Data 406); ReplayGolden **6/6**; C2 proxy **18/18**; hash **`17144800277401907079`** preserved; ZERO `DelegationBridge` source edits.
 > **Stage:** **Release** (`production/stage.txt`) — S72 commercial launch prep complete (human ack 2026-06-25); **no stage advance** at S80 unless explicit new decision.
@@ -15,13 +15,13 @@
 
 > This roadmap is **direction, not a commitment**. Per `docs/COLLABORATIVE-DESIGN-PRINCIPLE.md`,
 > each sprint is still planned via `/sprint-plan` with user approval. Filename retains the
-> `roadpmap` spelling for link stability.
+> `roadmap` spelling for link stability.
 
 ---
 
 ## 0. Parallel execution model (S73+ program)
 
-Every sprint is a **serial program** (S73 → … → S80) with **parallel dispatch** inside each sprint — multiple agent tracks run concurrently in isolated git worktrees, merging at sprint-close. Model proven S39–S72; see [`future-sprint-roadpmap-062226.md`](future-sprint-roadpmap-062226.md) §0 and [`future-sprint-roadpmap-062426.md`](future-sprint-roadpmap-062426.md) §0 for full protocol reference.
+Every sprint is a **serial program** (S73 → … → S80) with **parallel dispatch** inside each sprint — multiple agent tracks run concurrently in isolated git worktrees, merging at sprint-close. Model proven S39–S72; see [`docs/reports/archive/roadmaps/future-sprint-roadmap-062226.md`](future-sprint-roadmap-062226.md) §0 and [`docs/reports/archive/roadmaps/future-sprint-roadmap-062426.md`](future-sprint-roadmap-062426.md) §0 for full protocol reference.
 
 ### 0.1 Agent environments
 
@@ -62,7 +62,7 @@ Every sprint is a **serial program** (S73 → … → S80) with **parallel dispa
 4. Hard gates pass (determinism, replay, proxy, test floor) → merge.
 5. GitNexus re-index after merge.
 
-**Graphite:** `gt sync`, `gt restack`, `gt submit --stack --no-interactive` — see [`docs/engineering/graphite-github-substitute-plan.md`](../engineering/graphite-github-substitute-plan.md).
+**Graphite:** `gt sync`, `gt restack`, `gt submit --stack --no-interactive` — see [`docs/engineering/graphite-github-substitute-plan.md`](../../../engineering/graphite-github-substitute-plan.md).
 
 ### 0.5 Shared-resource coordination (S73+)
 
@@ -90,10 +90,10 @@ Every sprint is a **serial program** (S73 → … → S80) with **parallel dispa
 
 | Dimension | State | Evidence |
 |---|---|---|
-| Stage | **Release** — RC1 + internal + Baltic v2 + release train + E7 prep complete | `production/stage.txt`, [`s72-commercial-launch-prep-gate-2026-06-25.md`](../../production/gate-checks/s72-commercial-launch-prep-gate-2026-06-25.md) |
-| Closed milestone (Baltic v2) | **S57–S64 — CLOSED** | [`s57-s64-program-closeout-2026-06-22.md`](../../production/qa/s57-s64-program-closeout-2026-06-22.md) |
-| Closed milestone (release train) | **S65–S68 E10 — CLOSED** | [`s68-release-train-gate-2026-06-25.md`](../../production/gate-checks/s68-release-train-gate-2026-06-25.md) |
-| Closed milestone (E7 prep) | **S69–S72 — CLOSED** | [`s72-commercial-launch-prep-gate-2026-06-25.md`](../../production/gate-checks/s72-commercial-launch-prep-gate-2026-06-25.md) + human ack 2026-06-25 |
+| Stage | **Release** — RC1 + internal + Baltic v2 + release train + E7 prep complete | `production/stage.txt`, [`s72-commercial-launch-prep-gate-2026-06-25.md`](../../../../production/gate-checks/s72-commercial-launch-prep-gate-2026-06-25.md) |
+| Closed milestone (Baltic v2) | **S57–S64 — CLOSED** | [`s57-s64-program-closeout-2026-06-22.md`](../../../../production/qa/s57-s64-program-closeout-2026-06-22.md) |
+| Closed milestone (release train) | **S65–S68 E10 — CLOSED** | [`s68-release-train-gate-2026-06-25.md`](../../../../production/gate-checks/s68-release-train-gate-2026-06-25.md) |
+| Closed milestone (E7 prep) | **S69–S72 — CLOSED** | [`s72-commercial-launch-prep-gate-2026-06-25.md`](../../../../production/gate-checks/s72-commercial-launch-prep-gate-2026-06-25.md) + human ack 2026-06-25 |
 | Last sprint | **S72 complete** — commercial launch prep gate | S72 gate + ack 2026-06-25 |
 | Next sprint | **S73 planned** — Baltic v3 foundations | §10 |
 | Test baseline | **1232/1232** headless, **ReplayGolden 6/6**, **C2 proxy 18/18** | Verified 2026-06-25 |
@@ -120,16 +120,16 @@ Every sprint is a **serial program** (S73 → … → S80) with **parallel dispa
 | **S71** | E7 | i18n spec + launch doc pack + l10n QA plan | PASS 2026-06-25 |
 | **S72** | Gate | Full verification + human ack (prep complete) | PASS + ack 2026-06-25 |
 
-**Archive:** [`commercial-launch-scope-boundary-2026-06-25.md`](../../production/commercial-launch-scope-boundary-2026-06-25.md) (superseded for S73+), [`roadmap-execute-plan-062526.md`](roadmap-execute-plan-062526.md), smoke closeouts `production/qa/smoke-sprint-{69..72}-closeout-2026-06-25.md`.
+**Archive:** [`commercial-launch-scope-boundary-2026-06-25.md`](../../../../production/commercial-launch-scope-boundary-2026-06-25.md) (superseded for S73+), [`roadmap-execute-plan-062526.md`](../../roadmap-execute-plan-062526.md), smoke closeouts `production/qa/smoke-sprint-{69..72}-closeout-2026-06-25.md`.
 
 ### Prior programs — see archived roadmaps
 
 | Program | Roadmap snapshot |
 |---------|------------------|
-| S65–S68 release train | [`future-sprint-roadpmap-062426.md`](future-sprint-roadpmap-062426.md) |
-| S57–S64 Baltic v2 | [`future-sprint-roadpmap-062226.md`](future-sprint-roadpmap-062226.md) |
-| S49–S56 internal eng | [`future-sprint-roadpmap-062126.md`](future-sprint-roadpmap-062126.md) |
-| S39–S48 Release enablement | [`future-sprint-roadpmap-062026.md`](future-sprint-roadpmap-062026.md) |
+| S65–S68 release train | [`docs/reports/archive/roadmaps/future-sprint-roadmap-062426.md`](future-sprint-roadmap-062426.md) |
+| S57–S64 Baltic v2 | [`docs/reports/archive/roadmaps/future-sprint-roadmap-062226.md`](future-sprint-roadmap-062226.md) |
+| S49–S56 internal eng | [`docs/reports/archive/roadmaps/future-sprint-roadmap-062126.md`](future-sprint-roadmap-062126.md) |
+| S39–S48 Release enablement | [`docs/reports/archive/roadmaps/future-sprint-roadmap-062026.md`](future-sprint-roadmap-062026.md) |
 
 ---
 
@@ -219,7 +219,7 @@ Release checklist v3 + v2 corpus remain authoritative; no release-train code chu
 | 3 | Sprint count | **8 sprints** (mirror S57–S64) |
 | 4 | Stage advance | **Stay at Release** through S80 unless explicit gate decision |
 | 5 | Lead epic | **E9 Baltic v3 content** (S74–S80); S73 foundations prerequisite |
-| 6 | Filename | **`future-sprint-roadpmap-062526.01.md`** snapshot; update stable alias on publish |
+| 6 | Filename | **`docs/reports/archive/roadmaps/future-sprint-roadmap-062526.01.md`** snapshot; update stable alias on publish |
 | 7 | E7 commercial | **On hold** — prep complete; submission out of S73–S80 |
 | 8 | v2 corpus | **Frozen** as shippable baseline; v3 uses isolated prefix until S80 |
 
@@ -227,7 +227,7 @@ Release checklist v3 + v2 corpus remain authoritative; no release-train code chu
 
 **`production/baltic-v3-scope-boundary-2026-06-25.md`** — draft at S73 planning:
 
-- Supersedes [`commercial-launch-scope-boundary-2026-06-25.md`](../../production/commercial-launch-scope-boundary-2026-06-25.md) for S73+ only (archived, not deleted).
+- Supersedes [`commercial-launch-scope-boundary-2026-06-25.md`](../../../../production/commercial-launch-scope-boundary-2026-06-25.md) for S73+ only (archived, not deleted).
 - Cites §3 committed themes + E9 lead + Baltic v3 exit at S80.
 - Carries standing invariants from §7 unchanged unless ADR.
 
@@ -269,8 +269,8 @@ Every S73+ sprint **fails** if any invariant regresses:
 | Artifact | Path | Status |
 |----------|------|--------|
 | Baltic v3 scope boundary | `production/baltic-v3-scope-boundary-2026-06-25.md` | **Draft @ S73-01** |
-| Execute plan | [`roadmap-execute-plan-062526.01.md`](roadmap-execute-plan-062526.01.md) | **Published** |
-| Design spec | [`docs/superpowers/specs/2026-06-25-baltic-v3-content-expansion-design.md`](../superpowers/specs/2026-06-25-baltic-v3-content-expansion-design.md) | **Published** |
+| Execute plan | [`roadmap-execute-plan-062526.01.md`](../../roadmap-execute-plan-062526.01.md) | **Published** |
+| Design spec | [`docs/superpowers/specs/2026-06-25-baltic-v3-content-expansion-design.md`](../../../superpowers/specs/2026-06-25-baltic-v3-content-expansion-design.md) | **Published** |
 | Sprint 73 plan | `production/sprints/sprint-73-baltic-v3-foundations.md` | **Draft @ dispatch** |
 | Sprint 73 kickoff | `production/agentic/sprint-73-parallel-kickoff-2026-06-25.md` | **Draft @ dispatch** |
 
@@ -393,17 +393,17 @@ Every S73+ sprint **fails** if any invariant regresses:
 
 | Artifact | Path |
 |----------|------|
-| Stable alias (update on publish) | [`future-sprint-roadpmap.md`](future-sprint-roadpmap.md) |
-| Prior snapshot (S69–S72) | [`future-sprint-roadpmap-062526.md`](future-sprint-roadpmap-062526.md) |
-| Prior execute plan (S69–S72) | [`roadmap-execute-plan-062526.md`](roadmap-execute-plan-062526.md) |
-| Execute plan | [`roadmap-execute-plan-062526.01.md`](roadmap-execute-plan-062526.01.md) |
-| Design spec | [`docs/superpowers/specs/2026-06-25-baltic-v3-content-expansion-design.md`](../superpowers/specs/2026-06-25-baltic-v3-content-expansion-design.md) |
-| S72 gate | [`production/gate-checks/s72-commercial-launch-prep-gate-2026-06-25.md`](../../production/gate-checks/s72-commercial-launch-prep-gate-2026-06-25.md) |
-| E7 prep boundary (archived) | [`production/commercial-launch-scope-boundary-2026-06-25.md`](../../production/commercial-launch-scope-boundary-2026-06-25.md) |
-| Baltic v2 boundary (reference) | [`production/baltic-v2-scope-boundary-2026-06-22.md`](../../production/baltic-v2-scope-boundary-2026-06-22.md) |
-| v2 playtest index | [`production/qa/evidence/baltic-v2-playtest-index.md`](../../production/qa/evidence/baltic-v2-playtest-index.md) |
-| Release checklist v3 | [`production/release/release-checklist-v3.md`](../../production/release/release-checklist-v3.md) |
-| v2 scenario manifest | [`production/playtests/baltic-v2-scenario-manifest.yaml`](../../production/playtests/baltic-v2-scenario-manifest.yaml) |
+| Stable alias (update on publish) | [`docs/reports/future-sprint-roadmap.md`](../../future-sprint-roadmap.md) |
+| Prior snapshot (S69–S72) | [`docs/reports/archive/roadmaps/future-sprint-roadmap-062526.md`](future-sprint-roadmap-062526.md) |
+| Prior execute plan (S69–S72) | [`roadmap-execute-plan-062526.md`](../../roadmap-execute-plan-062526.md) |
+| Execute plan | [`roadmap-execute-plan-062526.01.md`](../../roadmap-execute-plan-062526.01.md) |
+| Design spec | [`docs/superpowers/specs/2026-06-25-baltic-v3-content-expansion-design.md`](../../../superpowers/specs/2026-06-25-baltic-v3-content-expansion-design.md) |
+| S72 gate | [`production/gate-checks/s72-commercial-launch-prep-gate-2026-06-25.md`](../../../../production/gate-checks/s72-commercial-launch-prep-gate-2026-06-25.md) |
+| E7 prep boundary (archived) | [`production/commercial-launch-scope-boundary-2026-06-25.md`](../../../../production/commercial-launch-scope-boundary-2026-06-25.md) |
+| Baltic v2 boundary (reference) | [`production/baltic-v2-scope-boundary-2026-06-22.md`](../../../../production/baltic-v2-scope-boundary-2026-06-22.md) |
+| v2 playtest index | [`production/qa/evidence/baltic-v2-playtest-index.md`](../../../../production/qa/evidence/baltic-v2-playtest-index.md) |
+| Release checklist v3 | [`production/release/release-checklist-v3.md`](../../../../production/release/release-checklist-v3.md) |
+| v2 scenario manifest | [`production/playtests/baltic-v2-scenario-manifest.yaml`](../../../../production/playtests/baltic-v2-scenario-manifest.yaml) |
 
 ---
 

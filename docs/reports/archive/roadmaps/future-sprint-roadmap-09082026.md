@@ -13,7 +13,7 @@ This snapshot adds the owner-authorized Unity UX/UI slice to the [July 14 roadma
 | G2 integrated C2 acceptance | [DRG-235](https://linear.app/drgamtd-workspace/issue/DRG-235) | Backlog; depends on G1 |
 | G3 Mission/Platform Editor acceptance | [DRG-236](https://linear.app/drgamtd-workspace/issue/DRG-236) | Backlog; depends on G1 |
 
-[Repository plan](../superpowers/plans/2026-09-08-slice-g-unity-ux-ui.md) defines task criteria, evidence provenance and architecture boundaries. [Notion](https://app.notion.com/p/3d5f7cb4e4df812186c2db1a397b17d1) holds the scope/acceptance contract; Linear remains delivery authority.
+[Repository plan](../../../superpowers/plans/2026-09-08-slice-g-unity-ux-ui.md) defines task criteria, evidence provenance and architecture boundaries. [Notion](https://app.notion.com/p/3d5f7cb4e4df812186c2db1a397b17d1) holds the scope/acceptance contract; Linear remains delivery authority.
 
 ## Dependency Order
 
@@ -29,8 +29,8 @@ Audit D/E/F are finding categories in the September 2 audit, not confirmed deliv
 
 - HEAD `37e6ba6d` plus existing uncommitted Slice C layout/metadata/evidence. Preserve that work.
 - Fresh verification: build 0 warnings/errors, 3,216 solution tests, 24 proxy smoke and six canonical replay tests, all passing. SDK 8.0.424 is selected by the current roll-forward configuration.
-- [Slice C evidence](../superpowers/reviews/2026-09-08-slice-c-playmode-acceptance.md) records technical Editor smoke PASS; owner acceptance remains pending. Positive live group/BDA flow and live authored coverage are not proven by that package.
+- [Slice C evidence](../../../superpowers/reviews/2026-09-08-slice-c-playmode-acceptance.md) records technical Editor smoke PASS; owner acceptance remains pending. Positive live group/BDA flow and live authored coverage are not proven by that package.
 - GitNexus refresh reported Ladybug WAL assertions and unavailable FTS; it was interrupted after approximately nine minutes without completion. DRG-197 remains the recovery owner; no fresh graph acceptance is claimed here.
 - No new Unity visual or frame-time measurement was made for this planning update.
 
-[Dashboard snapshot](dashboard-snapshots/2026-09-08-slice-g.md) records this same bounded update. The stable alias points here; historical roadmap content remains preserved in the dated snapshots.
+[Dashboard snapshot](../../dashboard-snapshots/2026-09-08-slice-g.md) records this same bounded update. The stable alias points here; historical roadmap content remains preserved in the dated snapshots.

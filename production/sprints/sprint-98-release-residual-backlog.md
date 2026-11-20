@@ -4,7 +4,7 @@
 **Lead:** producer / qa-lead (local)  
 **Program:** Post–S94–S97 **Release residual** open — **S98 only** (not a new multi-sprint Launch train)  
 **Authority:**  
-[`docs/reports/future-sprint-roadmap-07142026.md`](../../docs/reports/future-sprint-roadmap-07142026.md) §1 residuals ·  
+[`docs/reports/archive/roadmaps/future-sprint-roadmap-07142026.md`](../../docs/reports/archive/roadmaps/future-sprint-roadmap-07142026.md) §1 residuals ·  
 [`docs/reports/roadmap-execution-plan-071426.md`](../../docs/reports/roadmap-execution-plan-071426.md) (S94–S97 **COMPLETE** + ack) ·  
 [`design/assets/approved-criteria-2026-07-14.md`](../../design/assets/approved-criteria-2026-07-14.md) ·  
 [`production/qa/gauntlet-defect-registry.json`](../qa/gauntlet-defect-registry.json) ·  

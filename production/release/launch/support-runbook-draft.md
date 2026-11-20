@@ -4,7 +4,7 @@
 **Track:** S71-03/04 Launch doc pack — support-runbook-draft (Cloud, execute-plan §4 S71 table)  
 **Authority / MANDATORY CITES:**  
 - production/commercial-launch-scope-boundary-2026-06-25.md (E7 prep docs scope; support runbook IN; no live ops yet)  
-- docs/reports/future-sprint-roadpmap-062526.md §3/§6/§7/§10  
+- docs/reports/archive/roadmaps/future-sprint-roadmap-062526.md §3/§6/§7/§10  
 - docs/reports/roadmap-execute-plan-062526.md §3/§4 (S71-03/04: support-runbook-draft.md)  
 - AGENTS.md (GitNexus + verification-before)  
 - S69/S70 complete/partial: sprint-*-kickoff-*.md, smoke-*-closeout-*.md, release-checklist-v3.md, community-templates.md  

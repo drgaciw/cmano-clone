@@ -2,7 +2,7 @@
 
 **Date:** 2026-06-20 (template — do not treat as approved decision)  
 **Gate position:** After S41 Polish-exit; before S42 agent dispatch  
-**Authority:** [`docs/reports/future-sprint-roadpmap.md`](../../docs/reports/future-sprint-roadpmap.md) §4  
+**Authority:** [`docs/reports/future-sprint-roadmap.md`](../../docs/reports/future-sprint-roadmap.md) §4  
 **Inputs required:** S41 Polish-exit report, Track B gap analysis, consolidated evidence pack
 
 > **⛔ BLOCKED:** No S42–S48 feature agents may dispatch until this record is completed and signed by user/creative-director.

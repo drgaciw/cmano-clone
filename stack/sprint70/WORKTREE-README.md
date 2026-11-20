@@ -30,7 +30,7 @@ gt submit --stack --no-interactive
 
 **Verification:** Always RUN+READ full build/test/replay/C2/hash/bridge + GitNexus after restack.
 
-**Cites:** commercial-launch-scope-boundary-2026-06-25.md + roadmap-execute-plan-062526.md §3/§4/§5/§9 + future-sprint-roadpmap-062526.md + AGENTS.md + sprint-70-*.md + smoke-70
+**Cites:** commercial-launch-scope-boundary-2026-06-25.md + roadmap-execute-plan-062526.md §3/§4/§5/§9 + docs/reports/archive/roadmaps/future-sprint-roadmap-062526.md + AGENTS.md + sprint-70-*.md + smoke-70
 
 **S70-05 closeout note:** Use this for gt notes. S70 dispatch ready.
 

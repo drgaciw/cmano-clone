@@ -5,7 +5,7 @@
 **Sign-off date:** 2026-06-20  
 **Sign-off authority:** User (creative-director approval via chat — "Approve Track B default")  
 **Gate position:** After S41 Polish-exit; before S42 agent dispatch  
-**Authority:** [`docs/reports/future-sprint-roadpmap.md`](../../docs/reports/future-sprint-roadpmap.md) §4, §5, §9  
+**Authority:** [`docs/reports/future-sprint-roadmap.md`](../../docs/reports/future-sprint-roadmap.md) §4, §5, §9  
 **Template source:** [`scope-expansion-decision-template-2026-06-20.md`](scope-expansion-decision-template-2026-06-20.md)
 
 > **Scope gate APPROVED.** S42–S48 may proceed per program guide once Track A exit criteria are met.  
@@ -29,7 +29,7 @@
 
 ## Interim Track B gap analysis (S41-07 substitute)
 
-**Sources:** [`Game-Requirements/implementation-tracker-2026-06-04.md`](../../Game-Requirements/implementation-tracker-2026-06-04.md) (all Req 01–21 **Partial**), [`production/polish-scope-boundary-2026-06-19.md`](../polish-scope-boundary-2026-06-19.md) §Explicitly Out of Scope + §Sprint 35 Handoff Candidates, [`docs/reports/future-sprint-roadpmap.md`](../../docs/reports/future-sprint-roadpmap.md) §1 release blockers, [`design/art/art-bible.md`](../../design/art/art-bible.md) lean header.
+**Sources:** [`Game-Requirements/implementation-tracker-2026-06-04.md`](../../Game-Requirements/implementation-tracker-2026-06-04.md) (all Req 01–21 **Partial**), [`production/polish-scope-boundary-2026-06-19.md`](../polish-scope-boundary-2026-06-19.md) §Explicitly Out of Scope + §Sprint 35 Handoff Candidates, [`docs/reports/future-sprint-roadmap.md`](../../docs/reports/future-sprint-roadmap.md) §1 release blockers, [`design/art/art-bible.md`](../../design/art/art-bible.md) lean header.
 
 | Release blocker (roadmap §1) | Current state | Track B epic | Proposed resolution |
 |---|---|---|---|
@@ -316,7 +316,7 @@ Reply **"Approve Track B default"** to accept:
 - [x] Copy completed record to `production/gate-checks/scope-expansion-decision-2026-06-20.md`
 - [x] Publish `production/release-enablement-scope-boundary-2026-06-20.md`
 - [x] Update `production/sprint-status.yaml` — `ten_sprint_program.scope_gate` → `approved`
-- [x] Update `docs/reports/future-sprint-roadpmap.md` §9 dispatch status
+- [x] Update `docs/reports/future-sprint-roadmap.md` §9 dispatch status
 - [ ] Run `/qa-plan sprint 42` before S42-03+ waves
 - [ ] Bootstrap worktrees per `production/agentic/s39-s48-worktree-manifest.md`
 - [ ] Reconcile S41 outputs when available (ADR, polish-exit pack, formal gap analysis)
@@ -328,7 +328,7 @@ Reply **"Approve Track B default"** to accept:
 | Artifact | Path |
 |----------|------|
 | Scope template | `production/gate-checks/scope-expansion-decision-template-2026-06-20.md` |
-| Roadmap §4–§5, §9 | `docs/reports/future-sprint-roadpmap.md` |
+| Roadmap §4–§5, §9 | `docs/reports/future-sprint-roadmap.md` |
 | Polish boundary | `production/polish-scope-boundary-2026-06-19.md` |
 | Implementation tracker | `Game-Requirements/implementation-tracker-2026-06-04.md` |
 | S39 retro + gates | `production/retrospectives/retro-sprint-39-2026-06-20.md` |

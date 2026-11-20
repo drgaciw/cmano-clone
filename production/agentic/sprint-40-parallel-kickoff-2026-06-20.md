@@ -4,7 +4,7 @@
 **Trunk:** `main` @ (post-S39) — **≥1213**, ReplayGolden 6/6, C2 18/18+  
 **Sprint plan:** `production/sprints/sprint-40-deeper-polish-catalog-import-perf.md`  
 **QA plan:** `production/qa/qa-plan-sprint-40-*.md` (TBD via /qa-plan)  
-**Authority:** `production/polish-scope-boundary-2026-06-19.md` + [`docs/reports/future-sprint-roadpmap.md`](../../docs/reports/future-sprint-roadpmap.md) §Horizon 2. Lean. ZERO DelegationBridge. Extend-only CatalogWriteGate. Immutable Baltic hash.
+**Authority:** `production/polish-scope-boundary-2026-06-19.md` + [`docs/reports/future-sprint-roadmap.md`](../../docs/reports/future-sprint-roadmap.md) §Horizon 2. Lean. ZERO DelegationBridge. Extend-only CatalogWriteGate. Immutable Baltic hash.
 
 ## Sprint Goal (recap)
 

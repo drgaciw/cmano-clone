@@ -18,7 +18,7 @@
 
 **Cites (boundary/roadmap):**
 - production/post-release-scope-boundary-2026-06-21.md §S52 E6 (Req01/08)
-- docs/reports/future-sprint-roadpmap-062126.md §0 (parallel), §10 (E6), §12 (S52→S53 DOTS/MASS), dep matrix
+- docs/reports/archive/roadmaps/future-sprint-roadmap-062126.md §0 (parallel), §10 (E6), §12 (S52→S53 DOTS/MASS), dep matrix
 - S49 dispatch: S52 prep COMPLETE recorded
 
 **S53 Prep:** 

@@ -5,7 +5,7 @@
 **Worktree:** /home/username01/projects/active/cmano-clone/.worktrees/stack/sprint54/escalation (isolated sibling; no dedicated closeout/ for S54)  
 **Branch:** stack/sprint54/escalation @ be8dfb7  
 **Superpowers:** dispatching-parallel-agents + using-git-worktrees + verification-before-completion  
-**Citations (mandatory on all artifacts):** post-release-scope-boundary-2026-06-21.md + future-sprint-roadpmap-062126.md §10 S54 E3 Req10 + Game-Requirements/requirements/10-Speculative-Systems.md + 00-Master-Index.md + s54-*-verif-2026-06-21.* + release-enablement-scope-boundary-2026-06-20.md
+**Citations (mandatory on all artifacts):** post-release-scope-boundary-2026-06-21.md + docs/reports/archive/roadmaps/future-sprint-roadmap-062126.md §10 S54 E3 Req10 + Game-Requirements/requirements/10-Speculative-Systems.md + 00-Master-Index.md + s54-*-verif-2026-06-21.* + release-enablement-scope-boundary-2026-06-20.md
 
 **Task:** S54 closeout verif per roadmap-062126.md §10 S54 E3 Req10 + post-release-scope-boundary-2026-06-21.md. Aggregate orbital-dew + escalation tracks. Additive only (new Scenario symbols + tests, feature-flagged, no hash impact). Strict: run cmds + read outputs before any claim. No CRITICAL edits.
 
@@ -148,7 +148,7 @@ Passed!  - Failed:     0, Passed:    10, Skipped:     0, Total:    10, Duration:
   ...
   | **Headless tests** | **≥1227** ... | **ReplayGolden** | **6/6** ... | **C2 proxy** | **18/18+** ... | **Baltic hash** | **`17144800277401907079`** ... | **DelegationBridge** | **ZERO touch** ... | **GitNexus** | `impact()` before edit; `detect_changes()` before commit ...
   ```
-- future-sprint-roadpmap-062126.md §10:
+- docs/reports/archive/roadmaps/future-sprint-roadmap-062126.md §10:
   ```
   ### S54 — E3: Speculative systems (orbital DEW, escalation)
   Parallel tracks (2):
@@ -174,7 +174,7 @@ All gates fresh-run + outputs READ:
 - Citations + aggregate (escalation ∥ orbital-dew): PASS
 - No critical edits performed.
 
-Per superpowers verification-before-completion + AGENTS.md + CLAUDE.md + post-release-scope-boundary-2026-06-21.md + future-sprint-roadpmap-062126.md §10 S54 E3 Req10.
+Per superpowers verification-before-completion + AGENTS.md + CLAUDE.md + post-release-scope-boundary-2026-06-21.md + docs/reports/archive/roadmaps/future-sprint-roadmap-062126.md §10 S54 E3 Req10.
 
 Ready for merge gate (gt restack + verify in closeout track if created; or sibling aggregate).
 

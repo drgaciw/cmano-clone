@@ -6,7 +6,7 @@
 **Worktree:** `stack/sprint56/aar-sweep` (this; parallel: proxy-filter for S56-03, gate sibling for S56-04 coordination). Isolation confirmed.  
 **Authority (mandatory citations everywhere):**  
 - `production/post-release-scope-boundary-2026-06-21.md` (S56 — E1 sweep + program gate; 21/21 rows; Playtest AAR remediation per game-players-report-0620206.md; standing invariants)  
-- `docs/reports/future-sprint-roadpmap-062126.md` §10 S56 (E1 + exit gate: AAR remediation S56-01/02 || Proxy filter expand S56-03 || Internal gate S56-04 (21/21)), §0 (parallel model, worktrees, GitNexus pre-flight), §3 (committed rows), §7 (invariants)  
+- `docs/reports/archive/roadmaps/future-sprint-roadmap-062126.md` §10 S56 (E1 + exit gate: AAR remediation S56-01/02 || Proxy filter expand S56-03 || Internal gate S56-04 (21/21)), §0 (parallel model, worktrees, GitNexus pre-flight), §3 (committed rows), §7 (invariants)  
 - `Game-Requirements/implementation-tracker-2026-06-04.md` (21/21 MVP at S56 gate)  
 - Prior: `production/gate-checks/s48-release-gate-2026-06-20.md`, `production/qa/gate-matrix-post-release-2026-06-21.md`, `production/qa/smoke-sprint-49-closeout-2026-06-21.md`, `production/qa/smoke-sprint-52-closeout-2026-06-21.md` + S50–S55 closeouts in sibling wts, `production/sprints/s56-aar-remediation-track-2026-06-21.md`  
 - AGENTS.md / CLAUDE.md (GitNexus MUST impact before edit + detect before commit; ZERO DelegationBridge; verification-before; boundary cites)  
@@ -129,7 +129,7 @@ All 21/21 MVP (or Partial+ Baltic ACs) per S56; cites boundary + roadmap §10 + 
 
 ## Evidence List + Citations
 - Boundary: production/post-release-scope-boundary-2026-06-21.md (S56 E1 + 21/21)
-- Roadmap: docs/reports/future-sprint-roadpmap-062126.md §10 S56
+- Roadmap: docs/reports/archive/roadmaps/future-sprint-roadmap-062126.md §10 S56
 - Tracker: Game-Requirements/implementation-tracker-2026-06-04.md
 - AAR: game-players-report-0620206.md ; production/sprints/s56-aar-remediation-track-2026-06-21.md
 - Prior gates/smokes: s48-release-gate-2026-06-20.md, gate-matrix-post-release-2026-06-21.md, smoke-sprint-49/52-closeout-*.md + sibling S50/S51/S53–S55

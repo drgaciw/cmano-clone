@@ -753,7 +753,7 @@ Pipe outputs to `/tmp` and grep summary lines as shown; do not paste raw logs in
 ## 5. Not in scope (tracked elsewhere)
 
 - The five watched residuals in `production/qa/gauntlet-defect-registry.json` (`GAUNTLET-RES-*`) are a QA-gauntlet ledger, not `production/qa/bugs/` reports.
-- Repo hygiene surfaced while auditing (stale `production/qa/AGENTS.md`/`CLAUDE.md` copies, 71 duplicated skill directories, broken `docs/reports/future-sprint-roadpmap.md` symlink, 55 LFS-pattern binaries showing as permanently modified, AGENTS.md test-floor numbers) — separate hygiene PR.
+- Repo hygiene surfaced while auditing (stale `production/qa/AGENTS.md`/`CLAUDE.md` copies, 71 duplicated skill directories, broken `docs/reports/future-sprint-roadmap.md` symlink, 55 LFS-pattern binaries showing as permanently modified, AGENTS.md test-floor numbers) — separate hygiene PR.
 - Closing the 11 reports already marked `Fixed`/`Verified Fixed` via `/bug-report close` — optional sweep once Task 2's guard is in place.
 
 ## 6. Self-review

@@ -6,7 +6,7 @@
 - [`production/sprints/sprint-42-release-kickoff-content-art-bible-w1.md`](../sprints/sprint-42-release-kickoff-content-art-bible-w1.md)  
 - [`production/agentic/sprint-42-parallel-kickoff-2026-06-20.md`](./sprint-42-parallel-kickoff-2026-06-20.md)  
 - [`production/release-enablement-scope-boundary-2026-06-20.md`](../release-enablement-scope-boundary-2026-06-20.md)  
-- [`docs/reports/future-sprint-roadpmap.md`](../../docs/reports/future-sprint-roadpmap.md) §9 (S42–S48 mapping)  
+- [`docs/reports/future-sprint-roadmap.md`](../../docs/reports/future-sprint-roadmap.md) §9 (S42–S48 mapping)  
 - [`production/agentic/s39-s48-worktree-manifest.md`](./s39-s48-worktree-manifest.md) §S42  
 - [`production/agentic/local-cloud-agent-routing.md`](./local-cloud-agent-routing.md)  
 - S41 artifacts (handoff): [`production/sprints/sprint-41-polish-hardening-release-preflight.md`](../sprints/sprint-41-polish-hardening-release-preflight.md), [`production/agentic/sprint-41-parallel-kickoff-2026-06-20.md`](./sprint-41-parallel-kickoff-2026-06-20.md), [`production/agentic/s41-track-b-gap-analysis.md`](./s41-track-b-gap-analysis.md), [`production/gate-checks/scope-expansion-decision-2026-06-20.md`](../gate-checks/scope-expansion-decision-2026-06-20.md), [`production/gate-checks/scope-expansion-decision-template-2026-06-20.md`](../gate-checks/scope-expansion-decision-template-2026-06-20.md), [`production/qa/qa-plan-sprint-41-2026-06-20.md`](../qa/qa-plan-sprint-41-2026-06-20.md), [`docs/adr/s41-structural-debt-decision-telemetry-osint.md`](../../docs/adr/s41-structural-debt-decision-telemetry-osint.md), [`production/determinism/determinism-audit-2026-06-20.md`](../determinism/determinism-audit-2026-06-20.md)  

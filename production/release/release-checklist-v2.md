@@ -1,10 +1,10 @@
 # Release Checklist — Baltic v2 (S66 Evidence Packaging)
 
 **Date:** 2026-06-25  
-**Authority:** S65 foundation complete (see production/qa/smoke-sprint-65-closeout-2026-06-24.md); S66 per release-train-scope-boundary-2026-06-24.md (full S66 section) + future-sprint-roadpmap-062426.md §10 + roadmap-execute-plan-062426.md §4  
+**Authority:** S65 foundation complete (see production/qa/smoke-sprint-65-closeout-2026-06-24.md); S66 per release-train-scope-boundary-2026-06-24.md (full S66 section) + docs/reports/archive/roadmaps/future-sprint-roadmap-062426.md §10 + roadmap-execute-plan-062426.md §4  
 **Target:** Ship Baltic v2 content manifest (10 policies + 9 goldens) + playtest corpus index + evidence bundle for release train ops-complete (E10). Supersedes release-checklist-v1.md for Baltic v2 slice. Stage remains Release.
 
-Cites: release-train-scope-boundary-2026-06-24.md + future-sprint-roadpmap-062426.md §0/3/5/7/10 + roadmap-execute-plan-062426.md §4/5/6/8/9 + superpowers (dispatching-parallel-agents + verification-before-completion + using-git-worktrees)
+Cites: release-train-scope-boundary-2026-06-24.md + docs/reports/archive/roadmaps/future-sprint-roadmap-062426.md §0/3/5/7/10 + roadmap-execute-plan-062426.md §4/5/6/8/9 + superpowers (dispatching-parallel-agents + verification-before-completion + using-git-worktrees)
 
 ## Pre-requisites (S57–S65)
 - [x] S57–S64 Baltic v2 content expansion COMPLETE (human ack "i provide the ack" 2026-06-22; 10 policies + 9+ goldens delivered; merge + restack) — see [`production/qa/s57-s64-program-closeout-2026-06-22.md`](../qa/s57-s64-program-closeout-2026-06-22.md) + [`production/qa/s57-s64-program-closeout-merged-2026-06-22.md`](../qa/s57-s64-program-closeout-merged-2026-06-22.md) + sprint-status s57_s64_* 
@@ -107,6 +107,6 @@ git grep -l DelegationBridge -- '*.cs' | head
 - Human ack (per S64 pattern "i provide the ack"): ___________________________ Date: ___________
 - Ready for S67 dispatch + S68 gate verification.
 
-Cites: release-train-scope-boundary-2026-06-24.md + future-sprint-roadpmap-062426.md §0/3/5/7/10 + roadmap-execute-plan-062426.md §4/5/6/8/9 + superpowers:dispatching-parallel-agents + verification-before. All tracks cite boundary. S65 foundation reference (smoke-sprint-65-closeout-2026-06-24.md, s65-gate-matrix-2026-06-24.md, s57-s64-program-closeout-2026-06-22.md).
+Cites: release-train-scope-boundary-2026-06-24.md + docs/reports/archive/roadmaps/future-sprint-roadmap-062426.md §0/3/5/7/10 + roadmap-execute-plan-062426.md §4/5/6/8/9 + superpowers:dispatching-parallel-agents + verification-before. All tracks cite boundary. S65 foundation reference (smoke-sprint-65-closeout-2026-06-24.md, s65-gate-matrix-2026-06-24.md, s57-s64-program-closeout-2026-06-22.md).
 
 *Populated S66-04 per S65 foundation + boundary S66 scope + S66 plan. Supersedes v1 for Baltic v2. No scope creep. verification-before applied.*

@@ -1,6 +1,6 @@
 # S52 E6 Prep Worktree Convention (Planning Only)
 
-**Per roadmap §0/§10/§12 (future-sprint-roadpmap-062126.md)** and **post-release-scope-boundary-2026-06-21.md** (01/08 rows).
+**Per roadmap §0/§10/§12 (docs/reports/archive/roadmaps/future-sprint-roadmap-062126.md)** and **post-release-scope-boundary-2026-06-21.md** (01/08 rows).
 
 ## Tracks
 - `benchmark/` — Req01 Multi-k headless benchmark skeleton (MVP gate). Depends: S51 corpora.
@@ -11,7 +11,7 @@
 
 **Cites:**
 - `production/post-release-scope-boundary-2026-06-21.md` §S52 E6 (Req 01 + Req 08)
-- `docs/reports/future-sprint-roadpmap.md` (and -062126) §3, §10, §12
+- `docs/reports/future-sprint-roadmap.md` (and -062126) §3, §10, §12
 - GitNexus impact() + determinism-audit-2026-06-20.md + replay invariants required.
 - verification-before-completion enforced.
 

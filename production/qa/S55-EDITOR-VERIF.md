@@ -5,7 +5,7 @@
 **Status:** PASS (verification-before complete; tests fresh run + read; evidence populated)  
 **Superpowers:** unity-engineer (PNG evidence capture), c-sharp-engineer (hypersonic UI shadow), devops-engineer (closeout/evidence packaging)  
 **Cites (mandatory):**  
-- roadmap §10 S55 Req20 E4: `docs/reports/future-sprint-roadpmap-062126.md` (S55 — E4: Cesium/globe production + hypersonic C2 UI; Editor PNG evidence S55-05 local shadow; "Cesium globe ∥ Hypersonic UI ∥ Editor evidence (shadow: code done → screenshot)"; `HYPERSONIC_ALERT` new UI no blast radius)  
+- roadmap §10 S55 Req20 E4: `docs/reports/archive/roadmaps/future-sprint-roadmap-062126.md` (S55 — E4: Cesium/globe production + hypersonic C2 UI; Editor PNG evidence S55-05 local shadow; "Cesium globe ∥ Hypersonic UI ∥ Editor evidence (shadow: code done → screenshot)"; `HYPERSONIC_ALERT` new UI no blast radius)  
 - boundary: `production/post-release-scope-boundary-2026-06-21.md` (S55 E4 Req20: Cesium/globe + `HYPERSONIC_ALERT` UI + live Editor PNG evidence refresh; C2 proxy 18/18+ expand for new UI; all artifacts cite boundary)  
 - Also: `production/release-enablement-scope-boundary-2026-06-20.md`, `Game-Requirements/requirements/20-Command-And-Control-UI.md`, `Game-Requirements/requirements/09-Near-Future-Technologies.md`, `Game-Requirements/implementation-tracker-2026-06-04.md`, hypersonic wts `stack/sprint55/hypersonic`, cesium wts `stack/sprint55/cesium`, closeout `stack/sprint55/closeout`  
 - AGENTS.md / CLAUDE.md / using-git-worktrees / dispatching-parallel-agents patterns.

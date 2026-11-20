@@ -8,7 +8,7 @@
 - `production/sprints/sprint-41-polish-hardening-release-preflight.md` (S41-05 AC)  
 - `production/agentic/sprint-41-parallel-kickoff-2026-06-20.md`  
 - `production/polish-scope-boundary-2026-06-19.md`  
-- `docs/reports/future-sprint-roadpmap.md` §Horizon 3  
+- `docs/reports/future-sprint-roadmap.md` §Horizon 3  
 - `docs/reports/s40-s48-local-cloud-agent-execution-plan-2026-06-20.md` (declarative manifest — Evidence pack track: Local + Cloud, `stack/sprint41/evidence-pack`)  
 - `production/release-enablement-scope-boundary-2026-06-20.md` (post-gate reference)  
 

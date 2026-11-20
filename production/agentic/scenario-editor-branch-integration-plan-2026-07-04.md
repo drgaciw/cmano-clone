@@ -2,7 +2,7 @@
 
 **Date:** 2026-07-04 (verified **2026-07-05**)  
 **Status:** S81-02 deliverable (docs-only). Phase 0 block automated in `tools/ci/smoke-scenario-editor-phase0.sh` + `BranchIntegrationPhase0SmokeTests` (TDD gap closed 2026-07-05).  
-**Authority:** `production/scenario-editor-scope-boundary-2026-07-04.md` (S81-01) + `docs/reports/roadmap-execute-plan-07042026.md` §4 S81 + §5/§8 + `docs/reports/future-sprint-roadpmap-07042026.md` §0/§3/§10 + `Game-Requirements/implementation-tracker-2026-07-04.md` + AGENTS.md + `docs/engineering/graphite-github-substitute-plan.md` + `production/release-train-scope-boundary-2026-06-24.md` (verif-before pattern)
+**Authority:** `production/scenario-editor-scope-boundary-2026-07-04.md` (S81-01) + `docs/reports/roadmap-execute-plan-07042026.md` §4 S81 + §5/§8 + `docs/reports/archive/roadmaps/future-sprint-roadmap-07042026.md` §0/§3/§10 + `Game-Requirements/implementation-tracker-2026-07-04.md` + AGENTS.md + `docs/engineering/graphite-github-substitute-plan.md` + `production/release-train-scope-boundary-2026-06-24.md` (verif-before pattern)
 
 ---
 
@@ -161,7 +161,7 @@ bash tools/ci/smoke-ac6.sh
 
 Use `.worktrees/stack/sprint81/*` (and sprint82+) for S81+ tracks per roadmap/execute-plan. **Never** use `gh pr create` or raw `git push` on Graphite stacks.
 
-**Cites:** scenario-editor-scope-boundary-2026-07-04.md + roadmap-execute-plan-07042026.md §5/§6 + future-sprint-roadpmap-07042026.md + AGENTS.md (verification-before + detect_changes before commit) + graphite-github-substitute-plan.md + release-train-scope-boundary-2026-06-24.md.
+**Cites:** scenario-editor-scope-boundary-2026-07-04.md + roadmap-execute-plan-07042026.md §5/§6 + docs/reports/archive/roadmaps/future-sprint-roadmap-07042026.md + AGENTS.md (verification-before + detect_changes before commit) + graphite-github-substitute-plan.md + release-train-scope-boundary-2026-06-24.md.
 
 ---
 
