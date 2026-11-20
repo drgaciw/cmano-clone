@@ -20,7 +20,12 @@ permissions:
 
 concurrency:
   group: gitnexus-reindex-main
-  cancel-in-progress: true
+  # Do not cancel an in-progress reindex. The job is read-only (contents: read,
+  # GITNEXUS_SHARED_STORE=off, one artifact per SHA). cancel-in-progress killed
+  # run 44744769182 at 11m40s and run 44747283887 mid-analyze. With false, the
+  # running SHA finishes; GitHub still keeps only the latest pending run in
+  # this group, so back-to-back merges queue instead of discarding that work.
+  cancel-in-progress: false
 
 jobs:
   reindex:

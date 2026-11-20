@@ -245,6 +245,15 @@ unity/ProjectAegis/ProjectSettings/ProjectVersion.txt text eol=lf
 
 # Images
 *.png  filter=lfs diff=lfs merge=lfs -text
+# Buildkite skill icons were committed as plain PNG blobs (d3db76db, 2026-06-18),
+# before this *.png LFS rule (#567). With git-lfs filters installed (GitHub-hosted
+# runners set them in /etc/gitconfig), the clean filter emits a pointer that does
+# not match the stored blob. Checkout warns "should have been pointers, but
+# weren't" and `git status` reports the files modified, which fails
+# tools/gitnexus-safe-reindex.sh. Exempt these 20 paths so the attribute matches
+# the blobs. Do not renormalize them onto LFS.
+.claude/skills/buildkite-*/assets/buildkite-icon-*.png -filter -diff -merge -text
+.cursor/skills/buildkite-*/assets/buildkite-icon-*.png -filter -diff -merge -text
 *.jpg  filter=lfs diff=lfs merge=lfs -text
 *.jpeg filter=lfs diff=lfs merge=lfs -text
 *.gif  filter=lfs diff=lfs merge=lfs -text
