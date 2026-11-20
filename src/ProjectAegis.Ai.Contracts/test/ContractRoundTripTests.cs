@@ -1,10 +1,11 @@
 using System.Text.Json;
 using System.Text.Json.Nodes;
-using Xunit;
+using NUnit.Framework;
 
 namespace ProjectAegis.Ai.Contracts.Tests;
 
 /// <summary>Deterministic JSON round-trips with fixed property order (declaration order).</summary>
+[TestFixture]
 public sealed class ContractRoundTripTests
 {
     private static readonly JsonSerializerOptions Options = new()
@@ -13,14 +14,14 @@ public sealed class ContractRoundTripTests
         PropertyNamingPolicy = null,
     };
 
-    [Fact]
+    [Test]
     public void Schema_version_is_current()
     {
-        Assert.Equal(2, AiContractSchema.Version);
-        Assert.Equal("2", AiContractSchema.VersionString);
+        Assert.That(AiContractSchema.Version, Is.EqualTo(2));
+        Assert.That(AiContractSchema.VersionString, Is.EqualTo("2"));
     }
 
-    [Fact]
+    [Test]
     public void AdviceExplanationContent_round_trip_preserves_property_order()
     {
         var content = new AdviceExplanationContent(
@@ -41,13 +42,13 @@ public sealed class ContractRoundTripTests
             "PromptVersion");
     }
 
-    [Fact]
+    [Test]
     public void EvidenceId_format_is_prefix_colon_sequence()
     {
-        Assert.Equal("abc123:42", EvidenceId.From("abc123", 42));
+        Assert.That(EvidenceId.From("abc123", 42), Is.EqualTo("abc123:42"));
     }
 
-    [Fact]
+    [Test]
     public void EvidenceHeader_round_trip_preserves_property_order()
     {
         var header = new EvidenceHeader(
@@ -72,7 +73,7 @@ public sealed class ContractRoundTripTests
             "EvidenceIds");
     }
 
-    [Fact]
+    [Test]
     public void EvidenceEntry_round_trip_preserves_property_order()
     {
         var entry = new EvidenceEntry(
@@ -97,7 +98,7 @@ public sealed class ContractRoundTripTests
             "Attributes");
     }
 
-    [Fact]
+    [Test]
     public void EvidenceDocument_round_trip()
     {
         var doc = new EvidenceDocument(
@@ -117,11 +118,11 @@ public sealed class ContractRoundTripTests
 
         var json = JsonSerializer.Serialize(doc, Options);
         var again = JsonSerializer.Deserialize<EvidenceDocument>(json, Options);
-        Assert.NotNull(again);
-        Assert.Equal(json, JsonSerializer.Serialize(again, Options));
+        Assert.That(again, Is.Not.Null);
+        Assert.That(JsonSerializer.Serialize(again, Options), Is.EqualTo(json));
     }
 
-    [Fact]
+    [Test]
     public void ArtifactEnvelope_round_trip_preserves_property_order()
     {
         var envelope = new ArtifactEnvelope(
@@ -156,7 +157,7 @@ public sealed class ContractRoundTripTests
             "ContentHash");
     }
 
-    [Fact]
+    [Test]
     public void AiArtifactTransport_round_trip()
     {
         var transport = new AiArtifactTransport(
@@ -180,36 +181,35 @@ public sealed class ContractRoundTripTests
 
         var json = JsonSerializer.Serialize(transport, Options);
         var again = JsonSerializer.Deserialize<AiArtifactTransport>(json, Options);
-        Assert.NotNull(again);
-        Assert.Equal(json, JsonSerializer.Serialize(again, Options));
+        Assert.That(again, Is.Not.Null);
+        Assert.That(JsonSerializer.Serialize(again, Options), Is.EqualTo(json));
     }
 
-    [Theory]
-    [InlineData(GenerationStatus.Succeeded)]
-    [InlineData(GenerationStatus.TimedOut)]
-    [InlineData(GenerationStatus.Cancelled)]
-    [InlineData(GenerationStatus.MalformedOutput)]
-    [InlineData(GenerationStatus.ProviderUnavailable)]
-    [InlineData(GenerationStatus.RejectedCitation)]
-    [InlineData(GenerationStatus.RejectedNumber)]
+    [TestCase(GenerationStatus.Succeeded)]
+    [TestCase(GenerationStatus.TimedOut)]
+    [TestCase(GenerationStatus.Cancelled)]
+    [TestCase(GenerationStatus.MalformedOutput)]
+    [TestCase(GenerationStatus.ProviderUnavailable)]
+    [TestCase(GenerationStatus.RejectedCitation)]
+    [TestCase(GenerationStatus.RejectedNumber)]
     public void GenerationStatus_round_trips(GenerationStatus status)
     {
         var json = JsonSerializer.Serialize(status, Options);
         var again = JsonSerializer.Deserialize<GenerationStatus>(json, Options);
-        Assert.Equal(status, again);
+        Assert.That(again, Is.EqualTo(status));
     }
 
     private static void RoundTripAndAssertOrder<T>(T value, params string[] expectedPropertyOrder)
     {
         var json = JsonSerializer.Serialize(value, Options);
         var again = JsonSerializer.Deserialize<T>(json, Options);
-        Assert.NotNull(again);
+        Assert.That(again, Is.Not.Null);
         // Compare via JSON so IReadOnlyList array vs List deserializations still match.
-        Assert.Equal(json, JsonSerializer.Serialize(again, Options));
+        Assert.That(JsonSerializer.Serialize(again, Options), Is.EqualTo(json));
 
         var node = JsonNode.Parse(json) as JsonObject
             ?? throw new InvalidOperationException("Expected JSON object.");
         var actual = node.Select(p => p.Key).ToArray();
-        Assert.Equal(expectedPropertyOrder, actual);
+        Assert.That(actual, Is.EqualTo(expectedPropertyOrder));
     }
 }
