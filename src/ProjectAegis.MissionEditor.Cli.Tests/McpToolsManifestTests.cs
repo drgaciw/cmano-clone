@@ -1,8 +1,9 @@
 using System.Text.Json;
-using Xunit;
+using NUnit.Framework;
 
 namespace ProjectAegis.MissionEditor.Cli.Tests;
 
+[TestFixture]
 public sealed class McpToolsManifestTests
 {
     private static readonly string[] RequiredCliVerbs =
@@ -60,15 +61,15 @@ public sealed class McpToolsManifestTests
         "platform_design_propose",
     ];
 
-    [Fact]
+    [Test]
     public void mcp_tools_json_lists_all_headless_verbs()
     {
         var path = ResolveManifestPath();
         using var doc = JsonDocument.Parse(File.ReadAllText(path));
 
         // S86-01 polish: assert manifest schema and structure
-        Assert.Equal(2, doc.RootElement.GetProperty("schemaVersion").GetInt32());
-        Assert.Equal("Headless mission-editor MCP tool bindings (Unity-MCP host registers these commands).", doc.RootElement.GetProperty("description").GetString());
+        Assert.That(doc.RootElement.GetProperty("schemaVersion").GetInt32(), Is.EqualTo(2));
+        Assert.That(doc.RootElement.GetProperty("description").GetString(), Is.EqualTo("Headless mission-editor MCP tool bindings (Unity-MCP host registers these commands)."));
 
         var tools = doc.RootElement.GetProperty("tools").EnumerateArray().ToList();
         var names = tools
@@ -78,7 +79,7 @@ public sealed class McpToolsManifestTests
 
         foreach (var verb in RequiredCliVerbs)
         {
-            Assert.Contains(verb, names);
+            Assert.That(names, Does.Contain(verb));
         }
 
         // Every listed tool must have inputSchema (verb polish hygiene)
@@ -87,19 +88,19 @@ public sealed class McpToolsManifestTests
             var name = tool.GetProperty("name").GetString();
             if (RequiredCliVerbs.Contains(name))
             {
-                Assert.True(tool.TryGetProperty("inputSchema", out _), $"MCP tool '{name}' missing inputSchema in manifest.");
+                Assert.That(tool.TryGetProperty("inputSchema", out _), Is.True, $"MCP tool '{name}' missing inputSchema in manifest.");
             }
         }
 
         // DRG-747: mission_plan_suggest exposes opt-in provider fake args in the schema.
         var suggest = tools.Single(t => t.GetProperty("name").GetString() == "mission_plan_suggest");
         var props = suggest.GetProperty("inputSchema").GetProperty("properties");
-        Assert.True(props.TryGetProperty("provider", out var providerProp));
-        Assert.Equal("fake", providerProp.GetProperty("enum")[0].GetString());
-        Assert.True(props.TryGetProperty("fixture", out _));
-        Assert.True(props.TryGetProperty("script", out _));
-        Assert.True(props.TryGetProperty("expectedEditVersion", out _));
-        Assert.True(props.TryGetProperty("currentEditVersion", out _));
+        Assert.That(props.TryGetProperty("provider", out var providerProp), Is.True);
+        Assert.That(providerProp.GetProperty("enum")[0].GetString(), Is.EqualTo("fake"));
+        Assert.That(props.TryGetProperty("fixture", out _), Is.True);
+        Assert.That(props.TryGetProperty("script", out _), Is.True);
+        Assert.That(props.TryGetProperty("expectedEditVersion", out _), Is.True);
+        Assert.That(props.TryGetProperty("currentEditVersion", out _), Is.True);
     }
 
     private static string ResolveManifestPath()

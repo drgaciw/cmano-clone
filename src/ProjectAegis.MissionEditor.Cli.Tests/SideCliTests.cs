@@ -1,14 +1,15 @@
 using ProjectAegis.Data.Scenario.Authoring;
-using Xunit;
+using NUnit.Framework;
 
 namespace ProjectAegis.MissionEditor.Cli.Tests;
 
 /// <summary>
 /// CLI/MCP parity tests for side_list / side_upsert / side_delete (ME-W3 / AME-4.5).
 /// </summary>
+[TestFixture]
 public sealed class SideCliTests
 {
-    [Fact]
+    [Test]
     public void Side_list_returns_sides()
     {
         var path = Path.Combine(Path.GetTempPath(), $"aegis-side-list-{Guid.NewGuid():N}.json");
@@ -38,12 +39,12 @@ public sealed class SideCliTests
             using var writer = new StringWriter();
             var code = SideListCommand.Run(path, writer);
 
-            Assert.Equal(0, code);
+            Assert.That(code, Is.EqualTo(0));
             var json = writer.ToString();
-            Assert.Contains("\"ok\":true", json);
-            Assert.Contains("\"id\":\"blue\"", json);
-            Assert.Contains("\"id\":\"red\"", json);
-            Assert.Contains("Blue Force", json);
+            Assert.That(json, Does.Contain("\"ok\":true"));
+            Assert.That(json, Does.Contain("\"id\":\"blue\""));
+            Assert.That(json, Does.Contain("\"id\":\"red\""));
+            Assert.That(json, Does.Contain("Blue Force"));
         }
         finally
         {
@@ -54,7 +55,7 @@ public sealed class SideCliTests
         }
     }
 
-    [Fact]
+    [Test]
     public void Side_upsert_ok_bumps_edit_version_and_persists()
     {
         var path = Path.Combine(Path.GetTempPath(), $"aegis-side-cli-{Guid.NewGuid():N}.json");
@@ -73,18 +74,19 @@ public sealed class SideCliTests
                 postures: ["defensive"],
                 writer);
 
-            Assert.Equal(0, code);
-            Assert.Contains("\"ok\":true", writer.ToString());
-            Assert.Contains("\"sideId\":\"blue\"", writer.ToString());
+            Assert.That(code, Is.EqualTo(0));
+            Assert.That(writer.ToString(), Does.Contain("\"ok\":true"));
+            Assert.That(writer.ToString(), Does.Contain("\"sideId\":\"blue\""));
 
             var dto = ScenarioDocumentJsonLoader.LoadFromFile(path);
-            Assert.Equal(2, dto.Metadata.EditVersion);
-            var side = Assert.Single(dto.Sides);
-            Assert.Equal("blue", side.Id);
-            Assert.Equal("Blue Force", side.Name);
-            Assert.Equal("WeaponsFree", side.DefaultRoe);
-            Assert.Equal("Active", side.DefaultEmcon);
-            Assert.Equal(new[] { "defensive" }, side.Postures);
+            Assert.That(dto.Metadata.EditVersion, Is.EqualTo(2));
+            Assert.That(dto.Sides, Has.Exactly(1).Items);
+            var side = dto.Sides.Single();
+            Assert.That(side.Id, Is.EqualTo("blue"));
+            Assert.That(side.Name, Is.EqualTo("Blue Force"));
+            Assert.That(side.DefaultRoe, Is.EqualTo("WeaponsFree"));
+            Assert.That(side.DefaultEmcon, Is.EqualTo("Active"));
+            Assert.That(side.Postures, Is.EqualTo(new[] { "defensive" }));
         }
         finally
         {
@@ -101,7 +103,7 @@ public sealed class SideCliTests
         }
     }
 
-    [Fact]
+    [Test]
     public void Side_upsert_stale_edit_version_returns_conflict()
     {
         var path = Path.Combine(Path.GetTempPath(), $"aegis-side-conflict-cli-{Guid.NewGuid():N}.json");
@@ -121,11 +123,11 @@ public sealed class SideCliTests
                 postures: null,
                 writer);
 
-            Assert.Equal(3, code);
-            Assert.Contains("CONFLICT", writer.ToString());
-            Assert.Equal(before, File.ReadAllText(path));
-            Assert.Equal(1, ScenarioDocumentJsonLoader.LoadFromFile(path).Metadata.EditVersion);
-            Assert.Empty(ScenarioDocumentJsonLoader.LoadFromFile(path).Sides);
+            Assert.That(code, Is.EqualTo(3));
+            Assert.That(writer.ToString(), Does.Contain("CONFLICT"));
+            Assert.That(File.ReadAllText(path), Is.EqualTo(before));
+            Assert.That(ScenarioDocumentJsonLoader.LoadFromFile(path).Metadata.EditVersion, Is.EqualTo(1));
+            Assert.That(ScenarioDocumentJsonLoader.LoadFromFile(path).Sides, Is.Empty);
         }
         finally
         {
@@ -136,7 +138,7 @@ public sealed class SideCliTests
         }
     }
 
-    [Fact]
+    [Test]
     public void Side_delete_ok_removes_side()
     {
         var path = Path.Combine(Path.GetTempPath(), $"aegis-side-del-cli-{Guid.NewGuid():N}.json");
@@ -145,9 +147,7 @@ public sealed class SideCliTests
             ScenarioDocumentEditor.CreateNew().Save(path);
             using (var seed = new StringWriter())
             {
-                Assert.Equal(
-                    0,
-                    SideUpsertCommand.Run(
+                Assert.That(SideUpsertCommand.Run(
                         path,
                         editVersion: 1,
                         sideId: "to-delete",
@@ -155,19 +155,19 @@ public sealed class SideCliTests
                         defaultRoe: null,
                         defaultEmcon: null,
                         postures: null,
-                        seed));
+                        seed), Is.EqualTo(0));
             }
 
             using var writer = new StringWriter();
             var code = SideDeleteCommand.Run(path, editVersion: 2, sideId: "to-delete", writer);
 
-            Assert.Equal(0, code);
-            Assert.Contains("\"ok\":true", writer.ToString());
-            Assert.Contains("\"deletedSideId\":\"to-delete\"", writer.ToString());
+            Assert.That(code, Is.EqualTo(0));
+            Assert.That(writer.ToString(), Does.Contain("\"ok\":true"));
+            Assert.That(writer.ToString(), Does.Contain("\"deletedSideId\":\"to-delete\""));
 
             var dto = ScenarioDocumentJsonLoader.LoadFromFile(path);
-            Assert.Equal(3, dto.Metadata.EditVersion);
-            Assert.Empty(dto.Sides);
+            Assert.That(dto.Metadata.EditVersion, Is.EqualTo(3));
+            Assert.That(dto.Sides, Is.Empty);
         }
         finally
         {

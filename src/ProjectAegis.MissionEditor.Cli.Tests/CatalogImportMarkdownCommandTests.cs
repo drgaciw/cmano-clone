@@ -1,10 +1,12 @@
 using System.Text;
 using System.Text.Json;
 using ProjectAegis.Data.Import;
-using Xunit;
+using NUnit.Framework;
 
 namespace ProjectAegis.MissionEditor.Cli.Tests;
 
+[FixtureLifeCycle(LifeCycle.InstancePerTestCase)]
+[TestFixture]
 public sealed class CatalogImportMarkdownCommandTests : IDisposable
 {
     private const string PublicCorpusEnvName = "AEGIS_PUBLIC_CORPUS";
@@ -22,7 +24,7 @@ public sealed class CatalogImportMarkdownCommandTests : IDisposable
         Environment.SetEnvironmentVariable(PublicCorpusEnvName, _previousPublicCorpus);
     }
 
-    [Fact]
+    [Test]
     public void catalog_import_markdown_proposes_batches_for_mini_fixture()
     {
         var dbPath = Path.Combine(Path.GetTempPath(), $"aegis-cli-p2-{Guid.NewGuid():N}.db");
@@ -31,15 +33,13 @@ public sealed class CatalogImportMarkdownCommandTests : IDisposable
         try
         {
             using var writer = new StringWriter();
-            Assert.Equal(
-                0,
-                CatalogImportMarkdownCommand.Run(dbPath, markdown, maxRecords: 12, chunkSize: 500, writer));
+            Assert.That(CatalogImportMarkdownCommand.Run(dbPath, markdown, maxRecords: 12, chunkSize: 500, writer), Is.EqualTo(0));
 
             var json = writer.ToString();
-            Assert.Contains("\"ok\": true", json);
-            Assert.Contains("\"parsedCount\": 12", json);
-            Assert.Contains("\"batchId\":", json);
-            Assert.DoesNotContain("quarantineReport", json);
+            Assert.That(json, Does.Contain("\"ok\": true"));
+            Assert.That(json, Does.Contain("\"parsedCount\": 12"));
+            Assert.That(json, Does.Contain("\"batchId\":"));
+            Assert.That(json, Does.Not.Contain("quarantineReport"));
         }
         finally
         {
@@ -50,7 +50,7 @@ public sealed class CatalogImportMarkdownCommandTests : IDisposable
         }
     }
 
-    [Fact]
+    [Test]
     public void catalog_import_markdown_includes_quarantine_report_when_rows_quarantined()
     {
         var dbPath = Path.Combine(Path.GetTempPath(), $"aegis-cli-p2-q-{Guid.NewGuid():N}.db");
@@ -59,17 +59,15 @@ public sealed class CatalogImportMarkdownCommandTests : IDisposable
         try
         {
             using var writer = new StringWriter();
-            Assert.Equal(
-                0,
-                CatalogImportMarkdownCommand.Run(dbPath, markdownPath, maxRecords: null, chunkSize: 500, writer));
+            Assert.That(CatalogImportMarkdownCommand.Run(dbPath, markdownPath, maxRecords: null, chunkSize: 500, writer), Is.EqualTo(0));
 
             using var doc = JsonDocument.Parse(writer.ToString());
             var root = doc.RootElement;
-            Assert.Equal(1, root.GetProperty("quarantinedCount").GetInt32());
+            Assert.That(root.GetProperty("quarantinedCount").GetInt32(), Is.EqualTo(1));
             var report = root.GetProperty("quarantineReport");
-            Assert.Equal(JsonValueKind.Array, report.ValueKind);
-            Assert.Equal(1, report.GetArrayLength());
-            Assert.Equal("confidence_below_minimum", report[0].GetProperty("reason").GetString());
+            Assert.That(report.ValueKind, Is.EqualTo(JsonValueKind.Array));
+            Assert.That(report.GetArrayLength(), Is.EqualTo(1));
+            Assert.That(report[0].GetProperty("reason").GetString(), Is.EqualTo("confidence_below_minimum"));
         }
         finally
         {
@@ -85,7 +83,7 @@ public sealed class CatalogImportMarkdownCommandTests : IDisposable
         }
     }
 
-    [Fact]
+    [Test]
     public void catalog_import_markdown_weapon_entity_proposes_fifty_weapons()
     {
         var dbPath = Path.Combine(Path.GetTempPath(), $"aegis-cli-s26-weapon-{Guid.NewGuid():N}.db");
@@ -94,22 +92,20 @@ public sealed class CatalogImportMarkdownCommandTests : IDisposable
         try
         {
             using var writer = new StringWriter();
-            Assert.Equal(
-                0,
-                CatalogImportMarkdownCommand.Run(
+            Assert.That(CatalogImportMarkdownCommand.Run(
                     dbPath,
                     markdown,
                     maxRecords: null,
                     chunkSize: 500,
                     writer,
                     reportOutPath: null,
-                    entity: CmoMarkdownImportEntity.Weapon));
+                    entity: CmoMarkdownImportEntity.Weapon), Is.EqualTo(0));
 
             using var doc = JsonDocument.Parse(writer.ToString());
             var root = doc.RootElement;
-            Assert.Equal("weapon", root.GetProperty("entity").GetString());
-            Assert.Equal(50, root.GetProperty("parsedCount").GetInt32());
-            Assert.Equal(1, root.GetProperty("batchCount").GetInt32());
+            Assert.That(root.GetProperty("entity").GetString(), Is.EqualTo("weapon"));
+            Assert.That(root.GetProperty("parsedCount").GetInt32(), Is.EqualTo(50));
+            Assert.That(root.GetProperty("batchCount").GetInt32(), Is.EqualTo(1));
         }
         finally
         {
@@ -120,7 +116,7 @@ public sealed class CatalogImportMarkdownCommandTests : IDisposable
         }
     }
 
-    [Fact]
+    [Test]
     public void catalog_import_markdown_platform_entity_proposes_platform_and_mount_batches()
     {
         var dbPath = Path.Combine(Path.GetTempPath(), $"aegis-cli-s26-platform-{Guid.NewGuid():N}.db");
@@ -131,9 +127,7 @@ public sealed class CatalogImportMarkdownCommandTests : IDisposable
         try
         {
             using var writer = new StringWriter();
-            Assert.Equal(
-                0,
-                CatalogImportMarkdownCommand.Run(
+            Assert.That(CatalogImportMarkdownCommand.Run(
                     dbPath,
                     markdown,
                     maxRecords: null,
@@ -142,16 +136,16 @@ public sealed class CatalogImportMarkdownCommandTests : IDisposable
                     reportOutPath: null,
                     entity: CmoMarkdownImportEntity.Platform,
                     mapBalticPlatformIds: true,
-                    weaponMarkdownPath: weaponMarkdown));
+                    weaponMarkdownPath: weaponMarkdown), Is.EqualTo(0));
 
             using var doc = JsonDocument.Parse(writer.ToString());
             var root = doc.RootElement;
-            Assert.Equal("platform", root.GetProperty("entity").GetString());
-            Assert.Equal(3, root.GetProperty("parsedCount").GetInt32());
+            Assert.That(root.GetProperty("entity").GetString(), Is.EqualTo("platform"));
+            Assert.That(root.GetProperty("parsedCount").GetInt32(), Is.EqualTo(3));
             // platform + mount + loadout + magazine
-            Assert.Equal(4, root.GetProperty("batchCount").GetInt32());
+            Assert.That(root.GetProperty("batchCount").GetInt32(), Is.EqualTo(4));
             // Generic ASuW Missile has no weapon-mini match.
-            Assert.Equal(1, root.GetProperty("quarantinedCount").GetInt32());
+            Assert.That(root.GetProperty("quarantinedCount").GetInt32(), Is.EqualTo(1));
         }
         finally
         {
@@ -162,7 +156,7 @@ public sealed class CatalogImportMarkdownCommandTests : IDisposable
         }
     }
 
-    [Fact]
+    [Test]
     public void catalog_import_markdown_platform_with_weapon_corpus_reduces_fitting_quarantine()
     {
         var dbPath = Path.Combine(Path.GetTempPath(), $"aegis-cli-weapon-md-{Guid.NewGuid():N}.db");
@@ -173,9 +167,7 @@ public sealed class CatalogImportMarkdownCommandTests : IDisposable
         try
         {
             using var writerNoWeapon = new StringWriter();
-            Assert.Equal(
-                0,
-                CatalogImportMarkdownCommand.Run(
+            Assert.That(CatalogImportMarkdownCommand.Run(
                     dbPath,
                     platformMd,
                     maxRecords: null,
@@ -183,16 +175,14 @@ public sealed class CatalogImportMarkdownCommandTests : IDisposable
                     writerNoWeapon,
                     weaponMarkdownPath: missingWeapon,
                     entity: CmoMarkdownImportEntity.Platform,
-                    mapBalticPlatformIds: true));
+                    mapBalticPlatformIds: true), Is.EqualTo(0));
 
             var withoutWeapon = JsonDocument.Parse(writerNoWeapon.ToString()).RootElement
                 .GetProperty("quarantinedCount").GetInt32();
 
             var dbPath2 = Path.Combine(Path.GetTempPath(), $"aegis-cli-weapon-md2-{Guid.NewGuid():N}.db");
             using var writerWithWeapon = new StringWriter();
-            Assert.Equal(
-                0,
-                CatalogImportMarkdownCommand.Run(
+            Assert.That(CatalogImportMarkdownCommand.Run(
                     dbPath2,
                     platformMd,
                     maxRecords: null,
@@ -200,12 +190,12 @@ public sealed class CatalogImportMarkdownCommandTests : IDisposable
                     writerWithWeapon,
                     weaponMarkdownPath: weaponMd,
                     entity: CmoMarkdownImportEntity.Platform,
-                    mapBalticPlatformIds: true));
+                    mapBalticPlatformIds: true), Is.EqualTo(0));
 
             var withWeapon = JsonDocument.Parse(writerWithWeapon.ToString()).RootElement
                 .GetProperty("quarantinedCount").GetInt32();
 
-            Assert.True(withWeapon < withoutWeapon);
+            Assert.That(withWeapon < withoutWeapon, Is.True);
             if (File.Exists(dbPath2))
             {
                 File.Delete(dbPath2);
@@ -220,21 +210,20 @@ public sealed class CatalogImportMarkdownCommandTests : IDisposable
         }
     }
 
-    [Fact]
+    [Test]
     public void ResolveWeaponMarkdownPath_defaults_to_public_weapon_corpus_for_platform_entity()
     {
         var path = CatalogImportMarkdownCommand.ResolveWeaponMarkdownPath(
             CmoMarkdownImportEntity.Platform,
             weaponMarkdownPath: null);
-        Assert.NotNull(path);
-        Assert.EndsWith("weapon.md", path, StringComparison.OrdinalIgnoreCase);
-        Assert.True(File.Exists(path));
+        Assert.That(path, Is.Not.Null);
+        Assert.That(path, Does.EndWith("weapon.md").IgnoreCase);
+        Assert.That(File.Exists(path), Is.True);
     }
 
-    [Theory]
-    [InlineData("aircraft", 100)]
-    [InlineData("submarine", 100)]
-    [InlineData("facility", 100)]
+    [TestCase("aircraft", 100)]
+    [TestCase("submarine", 100)]
+    [TestCase("facility", 100)]
     public void catalog_import_markdown_entity_slice_proposes_platform_batches(string entity, int expectedCount)
     {
         var dbPath = Path.Combine(Path.GetTempPath(), $"aegis-cli-s30-{entity}-{Guid.NewGuid():N}.db");
@@ -249,22 +238,20 @@ public sealed class CatalogImportMarkdownCommandTests : IDisposable
         try
         {
             using var writer = new StringWriter();
-            Assert.Equal(
-                0,
-                CatalogImportMarkdownCommand.Run(
+            Assert.That(CatalogImportMarkdownCommand.Run(
                     dbPath,
                     markdown,
                     maxRecords: null,
                     chunkSize: 500,
                     writer,
                     reportOutPath: null,
-                    entity: CatalogImportMarkdownCommand.ParseEntity(entity)));
+                    entity: CatalogImportMarkdownCommand.ParseEntity(entity)), Is.EqualTo(0));
 
             using var doc = JsonDocument.Parse(writer.ToString());
             var root = doc.RootElement;
-            Assert.Equal(entity, root.GetProperty("entity").GetString());
-            Assert.Equal(expectedCount, root.GetProperty("parsedCount").GetInt32());
-            Assert.Equal(1, root.GetProperty("batchCount").GetInt32());
+            Assert.That(root.GetProperty("entity").GetString(), Is.EqualTo(entity));
+            Assert.That(root.GetProperty("parsedCount").GetInt32(), Is.EqualTo(expectedCount));
+            Assert.That(root.GetProperty("batchCount").GetInt32(), Is.EqualTo(1));
         }
         finally
         {
@@ -275,7 +262,7 @@ public sealed class CatalogImportMarkdownCommandTests : IDisposable
         }
     }
 
-    [Fact]
+    [Test]
     public void catalog_import_markdown_writes_report_out_file()
     {
         var dbPath = Path.Combine(Path.GetTempPath(), $"aegis-cli-p2-out-{Guid.NewGuid():N}.db");
@@ -285,20 +272,18 @@ public sealed class CatalogImportMarkdownCommandTests : IDisposable
         try
         {
             using var writer = new StringWriter();
-            Assert.Equal(
-                0,
-                CatalogImportMarkdownCommand.Run(
+            Assert.That(CatalogImportMarkdownCommand.Run(
                     dbPath,
                     markdown,
                     maxRecords: 5,
                     chunkSize: 500,
                     writer,
-                    reportOutPath: reportPath));
+                    reportOutPath: reportPath), Is.EqualTo(0));
 
-            Assert.True(File.Exists(reportPath));
+            Assert.That(File.Exists(reportPath), Is.True);
             var fileJson = File.ReadAllText(reportPath);
-            Assert.Contains("\"batchCount\":", fileJson);
-            Assert.Contains("\"approvedCount\":", fileJson);
+            Assert.That(fileJson, Does.Contain("\"batchCount\":"));
+            Assert.That(fileJson, Does.Contain("\"approvedCount\":"));
         }
         finally
         {

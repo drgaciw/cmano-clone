@@ -1,12 +1,13 @@
 namespace ProjectAegis.MissionEditor.Cli.Tests;
 
 using Cli;
-using Xunit;
+using NUnit.Framework;
 
 /// <summary>
 /// Cli surface: unknown keys / legacy emcon failures come from Data
 /// <c>GauntletOracleEvaluator.EvaluateFromPolicyAndCsv</c> (no Cli whitelist).
 /// </summary>
+[TestFixture]
 public class GauntletOracleEvalStrictKeysTests
 {
     private const string Csv =
@@ -32,25 +33,25 @@ public class GauntletOracleEvalStrictKeysTests
         }
         """;
 
-    [Fact]
+    [Test]
     public void Unknown_key_fails_eval_with_exit_1()
     {
         var policy = WriteTemp("p.policy.json", PolicyJson(", \"emconPhases\": []"));
         var csv = WriteTemp("r.csv", Csv);
         using var sw = new StringWriter();
         var exit = GauntletOracleEvalCommand.Run(policy, null, csv, null, sw);
-        Assert.Equal(1, exit);
-        Assert.Contains("emconPhases", sw.ToString());
+        Assert.That(exit, Is.EqualTo(1));
+        Assert.That(sw.ToString(), Does.Contain("emconPhases"));
     }
 
-    [Fact]
+    [Test]
     public void Legacy_emcon_fails_eval_with_exit_1()
     {
         var policy = WriteTemp("p.policy.json", PolicyJson(", \"emcon\": \"phased\""));
         var csv = WriteTemp("r.csv", Csv);
         using var sw = new StringWriter();
         var exit = GauntletOracleEvalCommand.Run(policy, null, csv, null, sw);
-        Assert.Equal(1, exit);
-        Assert.Contains("emcon", sw.ToString());
+        Assert.That(exit, Is.EqualTo(1));
+        Assert.That(sw.ToString(), Does.Contain("emcon"));
     }
 }

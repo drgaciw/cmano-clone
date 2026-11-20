@@ -2,13 +2,14 @@ using System.Text;
 using System.Text.Json;
 using ProjectAegis.Ai.Contracts;
 using ProjectAegis.Ai.Host.Evidence;
-using Xunit;
+using NUnit.Framework;
 
 namespace ProjectAegis.MissionEditor.Cli.Tests;
 
+[TestFixture]
 public sealed class AarExplainCommandTests
 {
-    [Fact]
+    [Test]
     public async Task Disabled_by_default_returns_deterministic_report_and_explicit_status()
     {
         var evidence = await WriteSampleEvidenceAsync();
@@ -23,14 +24,14 @@ public sealed class AarExplainCommandTests
                 scriptPath: null,
                 writer);
 
-            Assert.Equal(0, code);
+            Assert.That(code, Is.EqualTo(0));
             using var doc = JsonDocument.Parse(sb.ToString());
             var root = doc.RootElement;
-            Assert.True(root.GetProperty("ok").GetBoolean());
-            Assert.Equal("ProviderUnavailable", root.GetProperty("status").GetString());
-            Assert.Equal("disabled", root.GetProperty("skipReason").GetString());
-            Assert.True(root.TryGetProperty("deterministicReport", out var report));
-            Assert.True(report.TryGetProperty("engagementCount", out _));
+            Assert.That(root.GetProperty("ok").GetBoolean(), Is.True);
+            Assert.That(root.GetProperty("status").GetString(), Is.EqualTo("ProviderUnavailable"));
+            Assert.That(root.GetProperty("skipReason").GetString(), Is.EqualTo("disabled"));
+            Assert.That(root.TryGetProperty("deterministicReport", out var report), Is.True);
+            Assert.That(report.TryGetProperty("engagementCount", out _), Is.True);
         }
         finally
         {
@@ -38,7 +39,7 @@ public sealed class AarExplainCommandTests
         }
     }
 
-    [Fact]
+    [Test]
     public async Task Enabled_fake_client_returns_succeeded_structured_result()
     {
         var evidence = await WriteSampleEvidenceAsync();
@@ -54,15 +55,15 @@ public sealed class AarExplainCommandTests
                 scriptPath: null,
                 writer);
 
-            Assert.Equal(0, code);
+            Assert.That(code, Is.EqualTo(0));
             using var doc = JsonDocument.Parse(sb.ToString());
             var root = doc.RootElement;
-            Assert.True(root.GetProperty("ok").GetBoolean());
-            Assert.Equal("Succeeded", root.GetProperty("status").GetString());
-            Assert.True(root.GetProperty("envelopePublished").GetBoolean());
-            Assert.Equal("aar-explain-1", root.GetProperty("promptVersion").GetString());
-            Assert.NotNull(root.GetProperty("modelDraft").GetProperty("summary").GetString());
-            Assert.True(File.Exists(Path.Combine(artifactRoot, "aar-explain.envelope.json")));
+            Assert.That(root.GetProperty("ok").GetBoolean(), Is.True);
+            Assert.That(root.GetProperty("status").GetString(), Is.EqualTo("Succeeded"));
+            Assert.That(root.GetProperty("envelopePublished").GetBoolean(), Is.True);
+            Assert.That(root.GetProperty("promptVersion").GetString(), Is.EqualTo("aar-explain-1"));
+            Assert.That(root.GetProperty("modelDraft").GetProperty("summary").GetString(), Is.Not.Null);
+            Assert.That(File.Exists(Path.Combine(artifactRoot, "aar-explain.envelope.json")), Is.True);
         }
         finally
         {
@@ -71,7 +72,7 @@ public sealed class AarExplainCommandTests
         }
     }
 
-    [Fact]
+    [Test]
     public async Task Missing_evidence_returns_exit_1()
     {
         var sb = new StringBuilder();
@@ -82,8 +83,8 @@ public sealed class AarExplainCommandTests
             artifactRoot: null,
             scriptPath: null,
             writer);
-        Assert.Equal(1, code);
-        Assert.Contains("MISSING_EVIDENCE", sb.ToString(), StringComparison.Ordinal);
+        Assert.That(code, Is.EqualTo(1));
+        Assert.That(sb.ToString(), Does.Contain("MISSING_EVIDENCE"));
     }
 
     private static async Task<string> WriteSampleEvidenceAsync()
@@ -123,13 +124,13 @@ public sealed class AarExplainCommandTests
         var directory = Path.GetDirectoryName(path)
             ?? throw new InvalidOperationException("Temp evidence path had no directory.");
         var fileName = Path.GetFileName(path);
-        Assert.False(string.IsNullOrEmpty(fileName));
+        Assert.That(string.IsNullOrEmpty(fileName), Is.False);
 
         var writer = new JsonlEvidenceWriter();
         var result = await writer.WriteAsync(doc, directory, fileName);
-        Assert.True(result.Published);
-        Assert.False(string.IsNullOrEmpty(result.PublishedPath));
-        return result.PublishedPath;
+        Assert.That(result.Published, Is.True);
+        Assert.That(string.IsNullOrEmpty(result.PublishedPath), Is.False);
+        return result.PublishedPath!;
     }
 
     private static void TryDelete(string path)

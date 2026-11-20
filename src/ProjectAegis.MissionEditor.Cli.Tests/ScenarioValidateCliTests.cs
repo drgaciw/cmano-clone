@@ -1,25 +1,26 @@
 namespace ProjectAegis.MissionEditor.Cli.Tests;
 
 using Cli;
-using Xunit;
+using NUnit.Framework;
 
+[TestFixture]
 public sealed class ScenarioValidateCliTests
 {
     /// <summary>
     /// Adversarial CLI process contract: missing file → exit 2 + JSON error (not crash / exit 0).
     /// </summary>
-    [Fact]
+    [Test]
     public void scenario_validate_missing_file_returns_exit_2_json_error()
     {
         var missing = Path.Combine(Path.GetTempPath(), $"aegis-nope-{Guid.NewGuid():N}.json");
         using var writer = new StringWriter();
-        Assert.Equal(2, ScenarioValidateCommand.Run(missing, quiet: false, writer));
+        Assert.That(ScenarioValidateCommand.Run(missing, quiet: false, writer), Is.EqualTo(2));
         var text = writer.ToString();
-        Assert.Contains("file not found", text, StringComparison.OrdinalIgnoreCase);
-        Assert.Contains("error", text, StringComparison.OrdinalIgnoreCase);
+        Assert.That(text, Does.Contain("file not found").IgnoreCase);
+        Assert.That(text, Does.Contain("error").IgnoreCase);
     }
 
-    [Fact]
+    [Test]
     public void scenario_validate_clean_fixture_returns_exit_0()
     {
         var path = ResolveFixture("golden_clean.json");
@@ -29,11 +30,11 @@ public sealed class ScenarioValidateCliTests
         }
 
         using var writer = new StringWriter();
-        Assert.Equal(0, ScenarioValidateCommand.Run(path, quiet: false, writer));
-        Assert.Contains("passed", writer.ToString(), StringComparison.OrdinalIgnoreCase);
+        Assert.That(ScenarioValidateCommand.Run(path, quiet: false, writer), Is.EqualTo(0));
+        Assert.That(writer.ToString(), Does.Contain("passed").IgnoreCase);
     }
 
-    [Fact]
+    [Test]
     public void scenario_validate_missing_tlBranch_returns_exit_1_with_finding()
     {
         var path = Path.Combine(Path.GetTempPath(), $"aegis-tl-missing-{Guid.NewGuid():N}.json");
@@ -60,8 +61,8 @@ public sealed class ScenarioValidateCliTests
                 """);
 
             using var writer = new StringWriter();
-            Assert.Equal(1, ScenarioValidateCommand.Run(path, quiet: false, writer));
-            Assert.Contains("TL_BRANCH_MISSING", writer.ToString());
+            Assert.That(ScenarioValidateCommand.Run(path, quiet: false, writer), Is.EqualTo(1));
+            Assert.That(writer.ToString(), Does.Contain("TL_BRANCH_MISSING"));
         }
         finally
         {
@@ -72,7 +73,7 @@ public sealed class ScenarioValidateCliTests
         }
     }
 
-    [Fact]
+    [Test]
     public void scenario_validate_missing_release_train_returns_exit_1_with_finding()
     {
         var path = Path.Combine(Path.GetTempPath(), $"aegis-tl-not-found-{Guid.NewGuid():N}.json");
@@ -99,8 +100,8 @@ public sealed class ScenarioValidateCliTests
                 """);
 
             using var writer = new StringWriter();
-            Assert.Equal(1, ScenarioValidateCommand.Run(path, quiet: false, writer));
-            Assert.Contains("TL_RELEASE_TRAIN_NOT_FOUND", writer.ToString());
+            Assert.That(ScenarioValidateCommand.Run(path, quiet: false, writer), Is.EqualTo(1));
+            Assert.That(writer.ToString(), Does.Contain("TL_RELEASE_TRAIN_NOT_FOUND"));
         }
         finally
         {
@@ -111,7 +112,7 @@ public sealed class ScenarioValidateCliTests
         }
     }
 
-    [Fact]
+    [Test]
     public void scenario_validate_unknown_manifest_dbRef_returns_exit_1_with_DB_MISMATCH()
     {
         var path = Path.Combine(Path.GetTempPath(), $"aegis-unified-db-mismatch-{Guid.NewGuid():N}.json");
@@ -141,8 +142,8 @@ public sealed class ScenarioValidateCliTests
                 """);
 
             using var writer = new StringWriter();
-            Assert.Equal(1, ScenarioValidateCommand.Run(path, quiet: false, writer));
-            Assert.Contains("DB_MISMATCH", writer.ToString());
+            Assert.That(ScenarioValidateCommand.Run(path, quiet: false, writer), Is.EqualTo(1));
+            Assert.That(writer.ToString(), Does.Contain("DB_MISMATCH"));
         }
         finally
         {
@@ -153,7 +154,7 @@ public sealed class ScenarioValidateCliTests
         }
     }
 
-    [Fact]
+    [Test]
     public void scenario_validate_unreachable_fixture_returns_exit_1()
     {
         var path = ResolveFixture("golden_strike_unreachable.json");
@@ -163,8 +164,8 @@ public sealed class ScenarioValidateCliTests
         }
 
         using var writer = new StringWriter();
-        Assert.Equal(1, ScenarioValidateCommand.Run(path, quiet: false, writer));
-        Assert.Contains("STRIKE_UNREACHABLE", writer.ToString());
+        Assert.That(ScenarioValidateCommand.Run(path, quiet: false, writer), Is.EqualTo(1));
+        Assert.That(writer.ToString(), Does.Contain("STRIKE_UNREACHABLE"));
     }
 
     private static string? ResolveFixture(string fileName)
