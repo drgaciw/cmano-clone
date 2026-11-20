@@ -77,7 +77,7 @@ Assert.That(string.IsNullOrWhiteSpace(p.PlatformId), Is.False);
             // Live catalog not mutated until ApproveBatch.
             using var live = new SqliteCatalogReader(dbPath, "pda-propose-live");
             Assert.That(live.TryGetBasePd("u1", "radar-1", out var stillPd), Is.True);
-            Assert.That(stillPd, Is.EqualTo(originalPd).Within(0.000005));
+            Assert.That(stillPd, Is.EqualTo(originalPd).Within(0.0000005));
             Assert.That(live.TryGetPlatformDamage("opv-baltic-scout", out _), Is.False);
         }
         finally
@@ -107,9 +107,9 @@ Assert.That(string.IsNullOrWhiteSpace(p.PlatformId), Is.False);
 
             Assert.That(result.Proposal.Binding.ApplyCorePosition, Is.True);
             Assert.That(result.Proposal.CombatRadiusNm > 0, Is.True);
-            Assert.That(result.Proposal.Binding.CombatRadiusNm, Is.EqualTo(result.Proposal.CombatRadiusNm).Within(0.0005));
-            Assert.That(result.Proposal.Binding.LatDeg, Is.EqualTo(result.Proposal.LatDeg).Within(0.0005));
-            Assert.That(result.Proposal.Binding.LonDeg, Is.EqualTo(result.Proposal.LonDeg).Within(0.0005));
+            Assert.That(result.Proposal.Binding.CombatRadiusNm, Is.EqualTo(result.Proposal.CombatRadiusNm).Within(0.00005));
+            Assert.That(result.Proposal.Binding.LatDeg, Is.EqualTo(result.Proposal.LatDeg).Within(0.00005));
+            Assert.That(result.Proposal.Binding.LonDeg, Is.EqualTo(result.Proposal.LonDeg).Within(0.00005));
 
             var write = new PlatformWorkbookWriteService();
             Assert.That(write.ApproveBatches(
@@ -121,10 +121,10 @@ Assert.That(string.IsNullOrWhiteSpace(p.PlatformId), Is.False);
 
             using var live = new SqliteCatalogReader(dbPath, "pda-core-pos-live");
             Assert.That(live.TryGetCombatRadiusNm("opv-core-pos", out var radius), Is.True);
-            Assert.That(radius, Is.EqualTo(result.Proposal.CombatRadiusNm).Within(0.0005));
+            Assert.That(radius, Is.EqualTo(result.Proposal.CombatRadiusNm).Within(0.00005));
             Assert.That(live.TryGetPlatformPosition("opv-core-pos", out var lat, out var lon), Is.True);
-            Assert.That(lat, Is.EqualTo(result.Proposal.LatDeg).Within(0.0005));
-            Assert.That(lon, Is.EqualTo(result.Proposal.LonDeg).Within(0.0005));
+            Assert.That(lat, Is.EqualTo(result.Proposal.LatDeg).Within(0.00005));
+            Assert.That(lon, Is.EqualTo(result.Proposal.LonDeg).Within(0.00005));
         }
         finally
         {

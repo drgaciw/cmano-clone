@@ -252,7 +252,7 @@ public sealed class CmoMarkdownImporterTests
         Assert.That(bindings.Count >= 10, Is.True);
         var radar = AssertEx.Single(bindings, b => b.SensorId == "cmo-sensor-1001");
         Assert.That(radar.PlatformId, Is.EqualTo("test-radar-an-spy-1"));
-        Assert.That(radar.BasePd, Is.EqualTo(0.75).Within(0.000005));
+        Assert.That(radar.BasePd, Is.EqualTo(0.75).Within(0.0000005));
     }
 
     [Test]

@@ -60,7 +60,7 @@ public sealed class SwarmPlatformCatalogTests
                 CatalogSwarmPlatformDefaults.GenericSwarmPlatformId,
                 CatalogSwarmPlatformDefaults.DefaultSensorId,
                 out var pd), Is.True);
-            Assert.That(pd, Is.EqualTo(0.80).Within(0.000000005));
+            Assert.That(pd, Is.EqualTo(0.80).Within(0.0000000005));
 
             Assert.That(                reader.GetSortedSwarmPlatforms().Any(                s => s.PlatformId == CatalogSwarmPlatformDefaults.GenericSwarmPlatformId), Is.True);
         }
@@ -118,7 +118,7 @@ public sealed class SwarmPlatformCatalogTests
         Assert.That(integrity.DroneCount, Is.EqualTo(25));
         Assert.That(integrity.MaxDrones, Is.EqualTo(40));
         Assert.That(integrity.IsDestroyed, Is.False);
-        Assert.That(integrity.IntegrityFraction, Is.EqualTo(0.625).Within(0.000000005));
+        Assert.That(integrity.IntegrityFraction, Is.EqualTo(0.625).Within(0.0000000005));
     }
 
     [Test]

@@ -52,8 +52,8 @@ public sealed class BalanceTelemetryAccumulatorTests
 
         var finding = AssertEx.Single(sink.EvaluateDrift().Findings);
         Assert.That(finding.Code, Is.EqualTo("BALANCE_WIN_RATE_DRIFT"));
-        Assert.That(finding.ActualWinRate, Is.EqualTo(0.7).Within(0.00005));
-        Assert.That(finding.DriftDelta, Is.EqualTo(0.2).Within(0.00005));
+        Assert.That(finding.ActualWinRate, Is.EqualTo(0.7).Within(0.000005));
+        Assert.That(finding.DriftDelta, Is.EqualTo(0.2).Within(0.000005));
     }
 
     [Test]
@@ -79,7 +79,7 @@ public sealed class BalanceTelemetryAccumulatorTests
 
         var finding = AssertEx.Single(sink.EvaluateDrift().Findings);
         Assert.That(finding.DriftDelta < 0, Is.True);
-        Assert.That(finding.DriftDelta, Is.EqualTo(-0.2).Within(0.00005));
+        Assert.That(finding.DriftDelta, Is.EqualTo(-0.2).Within(0.000005));
     }
 
     [Test]
@@ -93,8 +93,8 @@ public sealed class BalanceTelemetryAccumulatorTests
         }
 
         var finding = AssertEx.Single(sink.EvaluateDrift().Findings);
-        Assert.That(finding.ExpectedWinRate, Is.EqualTo(0.7).Within(0.00005));
-        Assert.That(finding.DriftDelta, Is.EqualTo(0.09).Within(0.00005));
+        Assert.That(finding.ExpectedWinRate, Is.EqualTo(0.7).Within(0.000005));
+        Assert.That(finding.DriftDelta, Is.EqualTo(0.09).Within(0.000005));
     }
 
     [Test]

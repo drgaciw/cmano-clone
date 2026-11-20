@@ -35,8 +35,8 @@ public sealed class CatalogWriteGatePhaseBApproveTests
 
             using var reader = new SqliteCatalogReader(dbPath, "phase-b-gate-readback");
             Assert.That(reader.TryGetMobility("u1", out var committed), Is.True);
-            Assert.That(committed.MaxSpeedKnots, Is.EqualTo(28).Within(0.005));
-            Assert.That(committed.RangeNm, Is.EqualTo(3900).Within(0.005));
+            Assert.That(committed.MaxSpeedKnots, Is.EqualTo(28).Within(0.0005));
+            Assert.That(committed.RangeNm, Is.EqualTo(3900).Within(0.0005));
         }
         finally
         {
@@ -116,7 +116,7 @@ public sealed class CatalogWriteGatePhaseBApproveTests
 
             using var reader = new SqliteCatalogReader(dbPath, "sensor-regression");
             Assert.That(reader.TryGetBasePd("u-test", "radar-phase-b-regression", out var basePd), Is.True);
-            Assert.That(basePd, Is.EqualTo(0.71).Within(0.005));
+            Assert.That(basePd, Is.EqualTo(0.71).Within(0.0005));
         }
         finally
         {

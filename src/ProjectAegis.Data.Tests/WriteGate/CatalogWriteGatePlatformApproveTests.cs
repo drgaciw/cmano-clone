@@ -43,9 +43,9 @@ public sealed class CatalogWriteGatePlatformApproveTests
             Assert.That(committed.Nationality, Is.EqualTo("NATO"));
             Assert.That(committed.GameTechnologyLevel, Is.EqualTo(7));
             // ApplyCorePosition false → new rows keep default combat radius 1.0
-            Assert.That(ReadLiveCorePosition(connection, "u-test-platform").CombatRadiusNm, Is.EqualTo(1.0).Within(0.0005));
-            Assert.That(ReadLiveCorePosition(connection, "u-test-platform").LatDeg, Is.EqualTo(0).Within(0.0005));
-            Assert.That(ReadLiveCorePosition(connection, "u-test-platform").LonDeg, Is.EqualTo(0).Within(0.0005));
+            Assert.That(ReadLiveCorePosition(connection, "u-test-platform").CombatRadiusNm, Is.EqualTo(1.0).Within(0.00005));
+            Assert.That(ReadLiveCorePosition(connection, "u-test-platform").LatDeg, Is.EqualTo(0).Within(0.00005));
+            Assert.That(ReadLiveCorePosition(connection, "u-test-platform").LonDeg, Is.EqualTo(0).Within(0.00005));
         }
         finally
         {
@@ -78,9 +78,9 @@ public sealed class CatalogWriteGatePlatformApproveTests
             using var connection = new SqliteConnection($"Data Source={dbPath};Pooling=false");
             connection.Open();
             var core = ReadLiveCorePosition(connection, "u-core-pos");
-            Assert.That(core.LatDeg, Is.EqualTo(57.25).Within(0.0005));
-            Assert.That(core.LonDeg, Is.EqualTo(20.75).Within(0.0005));
-            Assert.That(core.CombatRadiusNm, Is.EqualTo(145.5).Within(0.0005));
+            Assert.That(core.LatDeg, Is.EqualTo(57.25).Within(0.00005));
+            Assert.That(core.LonDeg, Is.EqualTo(20.75).Within(0.00005));
+            Assert.That(core.CombatRadiusNm, Is.EqualTo(145.5).Within(0.00005));
         }
         finally
         {
@@ -111,9 +111,9 @@ public sealed class CatalogWriteGatePlatformApproveTests
             using var connection = new SqliteConnection($"Data Source={dbPath};Pooling=false");
             connection.Open();
             var core = ReadLiveCorePosition(connection, "u-core-zero-r");
-            Assert.That(core.LatDeg, Is.EqualTo(10).Within(0.0005));
-            Assert.That(core.LonDeg, Is.EqualTo(20).Within(0.0005));
-            Assert.That(core.CombatRadiusNm, Is.EqualTo(1.0).Within(0.0005));
+            Assert.That(core.LatDeg, Is.EqualTo(10).Within(0.00005));
+            Assert.That(core.LonDeg, Is.EqualTo(20).Within(0.00005));
+            Assert.That(core.CombatRadiusNm, Is.EqualTo(1.0).Within(0.00005));
         }
         finally
         {

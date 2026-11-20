@@ -40,7 +40,7 @@ public sealed class CatalogJsonRoundTripTests
             Assert.That(bindings[1].PlatformId, Is.EqualTo("z-plat"));
             var zRow = bindings.Single(b => b.PlatformId == "z-plat");
             Assert.That(zRow.ImportBatchId, Is.EqualTo("rt-batch"));
-            Assert.That(zRow.Confidence, Is.EqualTo(0.88).Within(0.005));
+            Assert.That(zRow.Confidence, Is.EqualTo(0.88).Within(0.0005));
         }
         finally
         {

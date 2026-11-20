@@ -69,11 +69,11 @@ public sealed class PlatformRelativeScalerTests
             PeerPlatformIds: ["peer-mid"]));
 
         Assert.That(proposal.Binding.ApplyCorePosition, Is.True);
-        Assert.That(proposal.Binding.CombatRadiusNm, Is.EqualTo(proposal.CombatRadiusNm).Within(0.0005));
-        Assert.That(proposal.Binding.LatDeg, Is.EqualTo(proposal.LatDeg).Within(0.0005));
-        Assert.That(proposal.Binding.LonDeg, Is.EqualTo(proposal.LonDeg).Within(0.0005));
-        Assert.That(proposal.LatDeg, Is.EqualTo(57.5).Within(0.0005));
-        Assert.That(proposal.LonDeg, Is.EqualTo(20.5).Within(0.0005));
+        Assert.That(proposal.Binding.CombatRadiusNm, Is.EqualTo(proposal.CombatRadiusNm).Within(0.00005));
+        Assert.That(proposal.Binding.LatDeg, Is.EqualTo(proposal.LatDeg).Within(0.00005));
+        Assert.That(proposal.Binding.LonDeg, Is.EqualTo(proposal.LonDeg).Within(0.00005));
+        Assert.That(proposal.LatDeg, Is.EqualTo(57.5).Within(0.00005));
+        Assert.That(proposal.LonDeg, Is.EqualTo(20.5).Within(0.00005));
     }
 
     [Test]

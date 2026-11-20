@@ -78,7 +78,7 @@ public sealed class PlatformWorkbookPhaseDWriteTests
 
             using var reader = new SqliteCatalogReader(dbPath, "phase-d-sensor-readback");
             Assert.That(reader.TryGetBasePd("u1", "radar-1", out var basePd), Is.True);
-            Assert.That(basePd, Is.EqualTo(0.55).Within(0.000005));
+            Assert.That(basePd, Is.EqualTo(0.55).Within(0.0000005));
         }
         finally
         {
@@ -122,7 +122,7 @@ public sealed class PlatformWorkbookPhaseDWriteTests
 
             using var readerAfter = new SqliteCatalogReader(dbPath, "phase-d-reject-after");
             Assert.That(readerAfter.TryGetBasePd("u1", "radar-1", out var unchangedBasePd), Is.True);
-            Assert.That(unchangedBasePd, Is.EqualTo(originalBasePd).Within(0.000005));
+            Assert.That(unchangedBasePd, Is.EqualTo(originalBasePd).Within(0.0000005));
 
             using var connection = new SqliteConnection($"Data Source={dbPath};Pooling=false");
             connection.Open();
@@ -168,9 +168,9 @@ public sealed class PlatformWorkbookPhaseDWriteTests
 
             using var reader = new SqliteCatalogReader(dbPath, "phase-d-multi-readback");
             Assert.That(reader.TryGetBasePd("u1", "radar-1", out var basePd), Is.True);
-            Assert.That(basePd, Is.EqualTo(0.61).Within(0.000005));
+            Assert.That(basePd, Is.EqualTo(0.61).Within(0.0000005));
             Assert.That(reader.TryGetMobility("u1", out var mobility), Is.True);
-            Assert.That(mobility.MaxSpeedKnots, Is.EqualTo(34).Within(0.005));
+            Assert.That(mobility.MaxSpeedKnots, Is.EqualTo(34).Within(0.0005));
         }
         finally
         {

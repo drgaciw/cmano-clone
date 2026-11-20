@@ -47,8 +47,8 @@ public sealed class CatalogPhaseBDamageReaderTests
 
             using var reader = new SqliteCatalogReader(dbPath, "damage-readback");
             Assert.That(reader.TryGetPlatformDamage("u1", out var damage), Is.True);
-            Assert.That(damage.MaxHp, Is.EqualTo(100).Within(0.005));
-            Assert.That(damage.WithdrawThresholdPct, Is.EqualTo(25).Within(0.005));
+            Assert.That(damage.MaxHp, Is.EqualTo(100).Within(0.0005));
+            Assert.That(damage.WithdrawThresholdPct, Is.EqualTo(25).Within(0.0005));
             Assert.That(damage.CriticalFlags, Is.EqualTo(0));
             Assert.That(reader.GetSortedPlatformDamage(), Has.Exactly(1).Items);
             Assert.That(reader.TryGetPlatformDamage("missing-platform", out _), Is.False);
@@ -106,7 +106,7 @@ public sealed class CatalogPhaseBDamageReaderTests
             Assert.That(PlatformCatalogExportResolver.TryResolve(dbPath, SnapshotId, out var data), Is.True);
             Assert.That(data.Damage, Is.Not.Null);
             Assert.That(data.Damage!, Has.Exactly(1).Items);
-            Assert.That(data.Damage![0].WithdrawThresholdPct, Is.EqualTo(25).Within(0.005));
+            Assert.That(data.Damage![0].WithdrawThresholdPct, Is.EqualTo(25).Within(0.0005));
         }
         finally
         {

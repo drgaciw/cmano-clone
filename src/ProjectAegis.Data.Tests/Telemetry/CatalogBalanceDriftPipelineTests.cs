@@ -183,7 +183,7 @@ public sealed class CatalogBalanceDriftPipelineTests
 
             using var reader = new SqliteCatalogReader(dbPath, "balance-pipeline-readback");
             Assert.That(reader.TryGetBasePd("u1", "radar-1", out var basePd), Is.True);
-            Assert.That(basePd, Is.EqualTo(0.59).Within(0.000005));
+            Assert.That(basePd, Is.EqualTo(0.59).Within(0.0000005));
         }
         finally
         {

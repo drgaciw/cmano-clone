@@ -21,7 +21,7 @@ public sealed class ReachabilityCalculatorTests
 
         Assert.That(ok, Is.True);
         Assert.That(code, Is.EqualTo("STRIKE_UNREACHABLE_FUEL"));
-        Assert.That(excess, Is.EqualTo(60).Within(0.5));
+        Assert.That(excess, Is.EqualTo(60).Within(0.05));
     }
 
     [Test]
@@ -37,7 +37,7 @@ public sealed class ReachabilityCalculatorTests
 
         Assert.That(ok, Is.True);
         Assert.That(code, Is.EqualTo("STRIKE_UNREACHABLE"));
-        Assert.That(excess, Is.EqualTo(100).Within(0.5));
+        Assert.That(excess, Is.EqualTo(100).Within(0.05));
     }
 
     [Test]

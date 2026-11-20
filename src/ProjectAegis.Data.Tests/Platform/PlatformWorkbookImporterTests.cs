@@ -76,7 +76,7 @@ public sealed class PlatformWorkbookImporterTests
         var proposed = AssertEx.Single(gate.SensorProposals);
         Assert.That(proposed[0].PlatformId, Is.EqualTo("u1"));
         Assert.That(proposed[0].SensorId, Is.EqualTo("cmo-sensor-1"));
-        Assert.That(proposed[0].BasePd, Is.EqualTo(0.50).Within(0.000005));
+        Assert.That(proposed[0].BasePd, Is.EqualTo(0.50).Within(0.0000005));
     }
 
     [Test]
@@ -335,7 +335,7 @@ public sealed class PlatformWorkbookImporterTests
         var proposed = AssertEx.Single(gate.SensorProposals);
         var only = AssertEx.Single(proposed);
         Assert.That(only.SensorId, Is.EqualTo("sensor-approved-high"));
-        Assert.That(only.BasePd, Is.EqualTo(0.50).Within(0.000005));
+        Assert.That(only.BasePd, Is.EqualTo(0.50).Within(0.0000005));
         Assert.That(only.ReviewState, Is.EqualTo(CatalogReviewStates.Approved));
         Assert.That(only.TrlLevel, Is.EqualTo(9));
 

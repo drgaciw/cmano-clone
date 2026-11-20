@@ -58,11 +58,11 @@ public sealed class CatalogPhaseBReaderTests
 
             using var reader = new SqliteCatalogReader(dbPath, "phase-b-readback");
             Assert.That(reader.TryGetMobility("u1", out var mobility), Is.True);
-            Assert.That(mobility.MaxSpeedKnots, Is.EqualTo(32).Within(0.005));
-            Assert.That(mobility.RangeNm, Is.EqualTo(4200).Within(0.005));
+            Assert.That(mobility.MaxSpeedKnots, Is.EqualTo(32).Within(0.0005));
+            Assert.That(mobility.RangeNm, Is.EqualTo(4200).Within(0.0005));
 
             Assert.That(reader.TryGetSignature("u1", out var signature), Is.True);
-            Assert.That(signature.RcsBandDbsm, Is.EqualTo(-12).Within(0.005));
+            Assert.That(signature.RcsBandDbsm, Is.EqualTo(-12).Within(0.0005));
 
             Assert.That(reader.TryGetEmcon("u1", "free", "radar-1", out var emcon), Is.True);
             Assert.That(emcon.Posture, Is.EqualTo("active"));
@@ -103,7 +103,7 @@ public sealed class CatalogPhaseBReaderTests
             Assert.That(PlatformCatalogExportResolver.TryResolve(dbPath, SnapshotId, out var data), Is.True);
             Assert.That(data.Signatures, Is.Not.Null);
             Assert.That(data.Signatures!, Has.Exactly(1).Items);
-            Assert.That(data.Signatures![0].RcsBandDbsm, Is.EqualTo(-12).Within(0.005));
+            Assert.That(data.Signatures![0].RcsBandDbsm, Is.EqualTo(-12).Within(0.0005));
             Assert.That(data.Sensors.Count > 0, Is.True);
             Assert.That(data.Mobility?.Count, Is.EqualTo(1));
             Assert.That(data.Emcon?.Count, Is.EqualTo(2));

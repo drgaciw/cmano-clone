@@ -11,7 +11,7 @@ public sealed class CmoMarkdownImporterUnitTests
     public void InferBasePd_maps_range_units_deterministically(double range, string unit, double expected)
     {
         var actual = CmoMarkdownImporter.InferBasePd(range, unit);
-        Assert.That(actual, Is.EqualTo(expected).Within(0.000000000005));
+        Assert.That(actual, Is.EqualTo(expected).Within(0.0000000000005));
     }
     [TestCase("Test Radar AN/SPY-1", "test-radar-an-spy-1")]
     [TestCase("Acoustic Intercept [MG-13 Svet] , Diesel Submarines", "acoustic-intercept-mg-13-svet")]

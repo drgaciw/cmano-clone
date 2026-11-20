@@ -14,10 +14,10 @@ public sealed class BalticV3UcavCatalogTests
         Assert.That(catalog.TryGetBasePd("ucav-red", "internal-ir", out var redPd), Is.True);
         Assert.That(catalog.TryGetBasePd("ucav-blue", "recon-radar", out var blueRadarPd), Is.True);
         Assert.That(catalog.TryGetBasePd("ucav-red", "recon-radar", out var redRadarPd), Is.True);
-        Assert.That(bluePd, Is.EqualTo(0.85).Within(0.000000005));
-        Assert.That(redPd, Is.EqualTo(0.75).Within(0.000000005));
-        Assert.That(blueRadarPd, Is.EqualTo(0.70).Within(0.000000005));
-        Assert.That(redRadarPd, Is.EqualTo(0.65).Within(0.000000005));
+        Assert.That(bluePd, Is.EqualTo(0.85).Within(0.0000000005));
+        Assert.That(redPd, Is.EqualTo(0.75).Within(0.0000000005));
+        Assert.That(blueRadarPd, Is.EqualTo(0.70).Within(0.0000000005));
+        Assert.That(redRadarPd, Is.EqualTo(0.65).Within(0.0000000005));
 
         var loadouts = catalog.GetSortedLoadouts();
         Assert.That(loadouts.Any(l =>

@@ -35,8 +35,8 @@ public sealed class CatalogWriteGatePhaseBDamageTests
 
             using var reader = new SqliteCatalogReader(dbPath, "phase-b-damage-readback");
             Assert.That(reader.TryGetPlatformDamage("u1", out var committed), Is.True);
-            Assert.That(committed.MaxHp, Is.EqualTo(88).Within(0.005));
-            Assert.That(committed.WithdrawThresholdPct, Is.EqualTo(30).Within(0.005));
+            Assert.That(committed.MaxHp, Is.EqualTo(88).Within(0.0005));
+            Assert.That(committed.WithdrawThresholdPct, Is.EqualTo(30).Within(0.0005));
             Assert.That(committed.CriticalFlags, Is.EqualTo(2));
         }
         finally
@@ -63,8 +63,8 @@ public sealed class CatalogWriteGatePhaseBDamageTests
 
             using var reader = new SqliteCatalogReader(dbPath, "phase-b-damage-reject");
             Assert.That(reader.TryGetPlatformDamage("u1", out var seed), Is.True);
-            Assert.That(seed.MaxHp, Is.EqualTo(100).Within(0.005));
-            Assert.That(seed.WithdrawThresholdPct, Is.EqualTo(25).Within(0.005));
+            Assert.That(seed.MaxHp, Is.EqualTo(100).Within(0.0005));
+            Assert.That(seed.WithdrawThresholdPct, Is.EqualTo(25).Within(0.0005));
 
             using var connection = new SqliteConnection($"Data Source={dbPath};Pooling=false");
             connection.Open();
@@ -149,7 +149,7 @@ public sealed class CatalogWriteGatePhaseBDamageTests
 
             using var reader = new SqliteCatalogReader(dbPath, "sensor-damage-regression");
             Assert.That(reader.TryGetBasePd("u-test", "radar-damage-regression", out var basePd), Is.True);
-            Assert.That(basePd, Is.EqualTo(0.71).Within(0.005));
+            Assert.That(basePd, Is.EqualTo(0.71).Within(0.0005));
         }
         finally
         {
@@ -175,7 +175,7 @@ public sealed class CatalogWriteGatePhaseBDamageTests
 
             using var reader = new SqliteCatalogReader(dbPath, "mobility-damage-regression");
             Assert.That(reader.TryGetMobility("u1", out var mobility), Is.True);
-            Assert.That(mobility.MaxSpeedKnots, Is.EqualTo(22).Within(0.005));
+            Assert.That(mobility.MaxSpeedKnots, Is.EqualTo(22).Within(0.0005));
         }
         finally
         {

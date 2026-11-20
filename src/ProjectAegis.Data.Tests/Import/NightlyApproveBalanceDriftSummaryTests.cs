@@ -94,7 +94,7 @@ public sealed class NightlyApproveBalanceDriftSummaryTests
 
             using var reader = new SqliteCatalogReader(dbPath, "nightly-balance-readback");
             Assert.That(reader.TryGetBasePd("u1", "radar-1", out var basePd), Is.True);
-            Assert.That(basePd, Is.EqualTo(0.57).Within(0.000005));
+            Assert.That(basePd, Is.EqualTo(0.57).Within(0.0000005));
         }
         finally
         {

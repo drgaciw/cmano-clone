@@ -98,7 +98,7 @@ public sealed class PlatformWorkbookPhaseBImportTests
         Assert.That(result.MobilityBatchId, Is.Not.Null);
         var proposed = AssertEx.Single(gate.MobilityProposals);
         Assert.That(proposed[0].PlatformId, Is.EqualTo("u1"));
-        Assert.That(proposed[0].MaxSpeedKnots, Is.EqualTo(35).Within(0.000005));
+        Assert.That(proposed[0].MaxSpeedKnots, Is.EqualTo(35).Within(0.0000005));
     }
 
     [Test]
@@ -114,7 +114,7 @@ public sealed class PlatformWorkbookPhaseBImportTests
         Assert.That(result.SignatureBatchId, Is.Not.Null);
         var proposed = AssertEx.Single(gate.SignatureProposals);
         Assert.That(proposed[0].PlatformId, Is.EqualTo("u1"));
-        Assert.That(proposed[0].RcsBandDbsm, Is.EqualTo(-15).Within(0.000005));
+        Assert.That(proposed[0].RcsBandDbsm, Is.EqualTo(-15).Within(0.0000005));
     }
 
     [Test]
@@ -130,7 +130,7 @@ public sealed class PlatformWorkbookPhaseBImportTests
         Assert.That(result.DamageBatchId, Is.Not.Null);
         var proposed = AssertEx.Single(gate.DamageProposals);
         Assert.That(proposed[0].PlatformId, Is.EqualTo("u1"));
-        Assert.That(proposed[0].MaxHp, Is.EqualTo(120).Within(0.000005));
+        Assert.That(proposed[0].MaxHp, Is.EqualTo(120).Within(0.0000005));
     }
 
     [Test]
@@ -236,8 +236,8 @@ public sealed class PlatformWorkbookPhaseBImportTests
 
             using var reader = new SqliteCatalogReader(dbPath, "phase-b-e2e-damage");
             Assert.That(reader.TryGetPlatformDamage("u1", out var damage), Is.True);
-            Assert.That(damage.MaxHp, Is.EqualTo(120).Within(0.005));
-            Assert.That(damage.WithdrawThresholdPct, Is.EqualTo(25).Within(0.005));
+            Assert.That(damage.MaxHp, Is.EqualTo(120).Within(0.0005));
+            Assert.That(damage.WithdrawThresholdPct, Is.EqualTo(25).Within(0.0005));
         }
         finally
         {
@@ -268,8 +268,8 @@ public sealed class PlatformWorkbookPhaseBImportTests
 
             using var reader = new SqliteCatalogReader(dbPath, "phase-b-e2e-mobility");
             Assert.That(reader.TryGetMobility("u1", out var mobility), Is.True);
-            Assert.That(mobility.MaxSpeedKnots, Is.EqualTo(36).Within(0.005));
-            Assert.That(mobility.RangeNm, Is.EqualTo(4200).Within(0.005));
+            Assert.That(mobility.MaxSpeedKnots, Is.EqualTo(36).Within(0.0005));
+            Assert.That(mobility.RangeNm, Is.EqualTo(4200).Within(0.0005));
         }
         finally
         {
@@ -306,10 +306,10 @@ public sealed class PlatformWorkbookPhaseBImportTests
 
             using var reader = new SqliteCatalogReader(dbPath, "phase-b-e2e-all");
             Assert.That(reader.TryGetMobility("u1", out var mobility), Is.True);
-            Assert.That(mobility.MaxSpeedKnots, Is.EqualTo(36).Within(0.005));
+            Assert.That(mobility.MaxSpeedKnots, Is.EqualTo(36).Within(0.0005));
 
             Assert.That(reader.TryGetSignature("u1", out var signature), Is.True);
-            Assert.That(signature.RcsBandDbsm, Is.EqualTo(-18).Within(0.005));
+            Assert.That(signature.RcsBandDbsm, Is.EqualTo(-18).Within(0.0005));
 
             Assert.That(reader.TryGetEmcon("u1", "silent", "radar-1", out var emcon), Is.True);
             Assert.That(emcon.Posture, Is.EqualTo("standby"));
@@ -344,8 +344,8 @@ public sealed class PlatformWorkbookPhaseBImportTests
             cmd.CommandText = "SELECT max_speed_knots, range_nm FROM platform_mobility WHERE platform_id = 'u1'";
             using var reader = cmd.ExecuteReader();
             Assert.That(reader.Read(), Is.True);
-            Assert.That(reader.GetDouble(0), Is.EqualTo(35).Within(0.000005));
-            Assert.That(reader.GetDouble(1), Is.EqualTo(5000).Within(0.000005));
+            Assert.That(reader.GetDouble(0), Is.EqualTo(35).Within(0.0000005));
+            Assert.That(reader.GetDouble(1), Is.EqualTo(5000).Within(0.0000005));
         }
         finally
         {

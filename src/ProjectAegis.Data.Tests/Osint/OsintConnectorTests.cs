@@ -47,7 +47,7 @@ public sealed class OsintConnectorTests : IDisposable
         Assert.That(records.Length, Is.EqualTo(2));
         // Stable sort: by SourceUrl then CanonicalId (matches gate/runner)
         Assert.That(records[0].CanonicalId, Is.EqualTo("test-hypersonic"));
-        Assert.That(records[0].RelevanceScore, Is.EqualTo(0.78).Within(0.005));
+        Assert.That(records[0].RelevanceScore, Is.EqualTo(0.78).Within(0.0005));
         foreach (var r in records)
 {
 Assert.That(string.IsNullOrEmpty(r.SourceUrl), Is.False);
