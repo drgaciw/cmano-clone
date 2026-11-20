@@ -1,28 +1,28 @@
-using Xunit;
+using NUnit.Framework;
 
 namespace ProjectAegis.Ai.LiveEval;
 
 /// <summary>AC: LiveEval stays outside ProjectAegis.sln / CI.</summary>
 public sealed class LiveEvalIsolationGateTests
 {
-    [Fact]
+    [Test]
     public void ProjectAegis_sln_does_not_reference_LiveEval()
     {
         var sln = FindSolutionFile();
         var text = File.ReadAllText(sln);
-        Assert.DoesNotContain("ProjectAegis.Ai.LiveEval", text, StringComparison.Ordinal);
-        Assert.DoesNotContain("Ai.LiveEval", text, StringComparison.Ordinal);
+        Assert.That(text, Does.Not.Contain("ProjectAegis.Ai.LiveEval"));
+        Assert.That(text, Does.Not.Contain("Ai.LiveEval"));
     }
 
-    [Fact]
+    [Test]
     public void LiveEval_csproj_does_not_pin_paid_provider_or_evaluation_packages()
     {
         var csproj = Path.Combine(FindLiveEvalRoot(), "ProjectAegis.Ai.LiveEval.csproj");
         var text = File.ReadAllText(csproj);
-        Assert.DoesNotContain("Microsoft.Extensions.AI.Evaluation", text, StringComparison.Ordinal);
-        Assert.DoesNotContain("OpenAI", text, StringComparison.OrdinalIgnoreCase);
-        Assert.DoesNotContain("Anthropic", text, StringComparison.OrdinalIgnoreCase);
-        Assert.DoesNotContain("Azure.AI", text, StringComparison.OrdinalIgnoreCase);
+        Assert.That(text, Does.Not.Contain("Microsoft.Extensions.AI.Evaluation"));
+        Assert.That(text, Does.Not.Contain("OpenAI").IgnoreCase);
+        Assert.That(text, Does.Not.Contain("Anthropic").IgnoreCase);
+        Assert.That(text, Does.Not.Contain("Azure.AI").IgnoreCase);
     }
 
     private static string FindSolutionFile()
