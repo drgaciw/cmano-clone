@@ -1,0 +1,116 @@
+name: PR agent gate
+
+# Non-required pull_request check: DRG id, then duplicate Surface / hard-no paths.
+# Does not checkout the pull request tree. Downloads only .github/scripts/pr_agent_gate.py
+# from the workflow SHA. Uses the built-in read token on ubuntu-latest.
+# Adding this check to required status checks is a later owner step.
+
+on:
+  pull_request:
+    types: [opened, edited, synchronize, reopened, ready_for_review]
+
+permissions:
+  contents: read
+  pull-requests: read
+
+concurrency:
+  group: pr-agent-gate-${{ github.event.pull_request.number }}
+  cancel-in-progress: true
+
+jobs:
+  gate:
+    name: ${{ matrix.name }}
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - name: DRG-id
+            command: drg-id
+          - name: Duplicate Surface
+            command: surface
+    steps:
+      - name: ${{ matrix.name }}
+        env:
+          GITHUB_TOKEN: ${{ github.token }}
+          GATE_SCRIPT: .github/scripts/pr_agent_gate.py
+          GATE_COMMAND: ${{ matrix.command }}
+        run: |
+          set -euo pipefail
+          python3 - <<'PY'
+          import base64
+          import json
+          import os
+          import urllib.error
+          import urllib.request
+
+          repo = os.environ["GITHUB_REPOSITORY"]
+          token = os.environ["GITHUB_TOKEN"]
+          script_path = os.environ["GATE_SCRIPT"]
+          summary_path = os.environ.get("GITHUB_STEP_SUMMARY")
+          candidate_shas = [os.environ["GITHUB_SHA"]]
+          event_path = os.environ.get("GITHUB_EVENT_PATH")
+          if event_path:
+              with open(event_path, encoding="utf-8") as handle:
+                  event = json.load(handle)
+              pull = event.get("pull_request") if isinstance(event, dict) else None
+              head = pull.get("head") if isinstance(pull, dict) else None
+              head_sha = head.get("sha") if isinstance(head, dict) else None
+              if isinstance(head_sha, str) and head_sha and head_sha not in candidate_shas:
+                  candidate_shas.append(head_sha)
+
+          def warn_and_skip(message: str) -> None:
+              print(f"::warning title=PR agent gate::{message}")
+              if summary_path:
+                  with open(summary_path, "a", encoding="utf-8") as handle:
+                      handle.write(message + "\n")
+              skip = os.path.join(os.environ["RUNNER_TEMP"], "pr-agent-gate.skip")
+              with open(skip, "w", encoding="utf-8") as handle:
+                  handle.write(message)
+              raise SystemExit(0)
+
+          last_error = "contents API returned no body"
+          for sha in candidate_shas:
+              url = f"https://api.github.com/repos/{repo}/contents/{script_path}?ref={sha}"
+              request = urllib.request.Request(
+                  url,
+                  headers={
+                      "Authorization": f"Bearer {token}",
+                      "Accept": "application/vnd.github+json",
+                      "X-GitHub-Api-Version": "2022-11-28",
+                      "User-Agent": "pr-agent-gate",
+                  },
+              )
+              try:
+                  with urllib.request.urlopen(request, timeout=30) as response:
+                      payload = json.load(response)
+              except urllib.error.HTTPError as exc:
+                  body = exc.read().decode("utf-8", "replace")
+                  remaining = exc.headers.get("X-RateLimit-Remaining") if exc.headers else None
+                  lowered = body.lower()
+                  if exc.code == 429 or remaining == "0" or "rate limit" in lowered:
+                      warn_and_skip("GitHub API rate limit while loading the gate script; check skipped.")
+                  last_error = f"HTTP {exc.code} for {sha}"
+                  if exc.code == 404:
+                      continue
+                  print(f"::error::Unable to load {script_path}: {last_error}")
+                  raise SystemExit(1) from exc
+              content = payload.get("content") if isinstance(payload, dict) else None
+              if not content:
+                  last_error = f"no content for {sha}"
+                  continue
+              text = base64.b64decode(content).decode("utf-8")
+              destination = os.path.join(os.environ["RUNNER_TEMP"], "pr_agent_gate.py")
+              with open(destination, "w", encoding="utf-8") as handle:
+                  handle.write(text)
+              print(f"Loaded {script_path} from {sha}")
+              break
+          else:
+              print(f"::error::Unable to load {script_path}: {last_error}")
+              raise SystemExit(1)
+          PY
+          if [[ -f "${RUNNER_TEMP}/pr-agent-gate.skip" ]]; then
+            exit 0
+          fi
+          python3 "${RUNNER_TEMP}/pr_agent_gate.py" "${GATE_COMMAND}"
