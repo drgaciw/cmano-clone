@@ -1,12 +1,12 @@
+using NUnit.Framework;
 using ProjectAegis.Ai.Contracts;
 using ProjectAegis.Ai.Host.Evidence;
-using Xunit;
 
 namespace ProjectAegis.Ai.LiveEval;
 
 public sealed class FakeLiveEvalRunnerTests
 {
-    [Fact]
+    [Test]
     public async Task Fake_run_succeeds_with_zero_cost_and_resolved_citations()
     {
         var document = SampleDocument();
@@ -14,15 +14,15 @@ public sealed class FakeLiveEvalRunnerTests
         var runner = new FakeLiveEvalRunner();
         var result = await runner.RunCaseAsync("success-fake", document, quantitative);
 
-        Assert.Equal(GenerationStatus.Succeeded, result.Status);
-        Assert.True(result.CitationsResolved);
-        Assert.True(result.NumbersConsistent);
-        Assert.Equal(0m, result.EstimatedCostUsd);
-        Assert.Equal("fake", result.ProviderId);
-        Assert.Equal("aar-explain-1", result.PromptVersion);
+        Assert.That(result.Status, Is.EqualTo(GenerationStatus.Succeeded));
+        Assert.That(result.CitationsResolved, Is.True);
+        Assert.That(result.NumbersConsistent, Is.True);
+        Assert.That(result.EstimatedCostUsd, Is.EqualTo(0m));
+        Assert.That(result.ProviderId, Is.EqualTo("fake"));
+        Assert.That(result.PromptVersion, Is.EqualTo("aar-explain-1"));
     }
 
-    [Fact]
+    [Test]
     public async Task Track_A_tagged_metadata_is_refused()
     {
         var document = SampleDocument();
@@ -34,20 +34,20 @@ public sealed class FakeLiveEvalRunnerTests
         var result = await new FakeLiveEvalRunner()
             .RunCaseAsync("track-a", document, quantitative, meta);
 
-        Assert.Equal(GenerationStatus.ProviderUnavailable, result.Status);
-        Assert.False(result.CitationsResolved);
-        Assert.Contains("Track A", result.SkipReason, StringComparison.OrdinalIgnoreCase);
-        Assert.Equal(0m, result.EstimatedCostUsd);
+        Assert.That(result.Status, Is.EqualTo(GenerationStatus.ProviderUnavailable));
+        Assert.That(result.CitationsResolved, Is.False);
+        Assert.That(result.SkipReason, Does.Contain("Track A").IgnoreCase);
+        Assert.That(result.EstimatedCostUsd, Is.EqualTo(0m));
     }
 
-    [Fact]
+    [Test]
     public void Paid_mode_throws_without_owner_budget_path()
     {
-        var ex = Assert.Throws<InvalidOperationException>(() =>
-            PaidProviderGate.EnsureFakeOrThrow(LiveEvalMode.PaidProvider));
-        Assert.Contains("Paid LiveEval blocked", ex.Message, StringComparison.Ordinal);
-        Assert.False(PaidProviderGate.TryAuthorizePaidMode(out var reason));
-        Assert.Contains("AEGIS_LIVE_EVAL_ALLOW_PAID", reason, StringComparison.Ordinal);
+        Assert.That(
+            () => PaidProviderGate.EnsureFakeOrThrow(LiveEvalMode.PaidProvider),
+            Throws.InvalidOperationException.With.Message.Contains("Paid LiveEval blocked"));
+        Assert.That(PaidProviderGate.TryAuthorizePaidMode(out var reason), Is.False);
+        Assert.That(reason, Does.Contain("AEGIS_LIVE_EVAL_ALLOW_PAID"));
     }
 
     private static EvidenceDocument SampleDocument() =>
