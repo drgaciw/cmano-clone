@@ -2,13 +2,13 @@
 
 Project Aegis is a near-future military simulation in the style of Command: Modern Air/Naval Operations. The player commands theater-level forces and delegates tactical decisions to AI agents. The simulation is deterministic: the same scenario and seed reproduce the same order log.
 
-The recorded stage is **Release**. This repository contains a headless .NET simulation, a catalog, a mission-editor CLI, and a Unity presentation project, and the headless path is covered by tests. Owner Play Mode acceptance is still an open gate. See [Current status](#current-status).
+The recorded stage is **Release**. This repository contains a headless .NET simulation, a catalog, a mission-editor CLI, and a Unity presentation project, and the headless path is covered by tests. Owner Play Mode acceptance is [DRG-208](https://linear.app/drgamtd-workspace/issue/DRG-208). See [Current status](#current-status).
 
 ## Current status
 
 Recorded stage is **Release** (`production/stage.txt`). The current roadmap snapshot still defers Launch: [`docs/reports/future-sprint-roadpmap.md`](docs/reports/future-sprint-roadpmap.md) (dated file [`future-sprint-roadmap-09302026.md`](docs/reports/future-sprint-roadmap-09302026.md)).
 
-The numbered program in that snapshot is **S122–S127**. [`production/sprint-status-s122-s127.yaml`](production/sprint-status-s122-s127.yaml) (follow-up dated 2026-10-01) marks delivery as not closed and owner Play Mode acceptance ([DRG-208](https://linear.app/drgamtd-workspace/issue/DRG-208)) as pending. The index is [`production/sprints/sprint-122-127-index.md`](production/sprints/sprint-122-127-index.md). That YAML is a planning snapshot. Behavior on `main` is the code and the tests, which have kept moving after 2026-10-01.
+The numbered program in that snapshot is **S122–S127**. [`production/sprint-status-s122-s127.yaml`](production/sprint-status-s122-s127.yaml) (follow-up dated 2026-10-01) is a planning snapshot. Delivery status is on Linear. The index is [`production/sprints/sprint-122-127-index.md`](production/sprints/sprint-122-127-index.md). Owner Play Mode acceptance is [DRG-208](https://linear.app/drgamtd-workspace/issue/DRG-208). Behavior on `main` is the code and the tests, which have kept moving after 2026-10-01.
 
 ### In the tree and covered by headless tests
 
