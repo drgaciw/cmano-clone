@@ -65,8 +65,8 @@
       "matchManagers": [
         "nuget"
       ],
-      "matchPackagePatterns": [
-        "^Microsoft\\.Extensions\\.AI"
+      "matchPackageNames": [
+        "/^Microsoft\\.Extensions\\.AI/"
       ],
       "groupName": "microsoft-extensions-ai reviewed",
       "groupSlug": "microsoft-extensions-ai-reviewed",
