@@ -26,9 +26,9 @@ Makes the AAR read-only guarantee **structural rather than conventional**. Befor
 
 | Field | Value |
 |-------|-------|
-| Engine | Unity 6.3 LTS + .NET 8 headless |
+| Engine | Unity 6.3 LTS + .NET 11 headless (`net11.0`) |
 | Unity APIs | None — `ProjectAegis.Delegation`, plain C# |
-| Targets | Builds clean for both `net8.0` and `netstandard2.1` (Unity plugin target) |
+| Targets | Builds clean for both `net11.0` and `netstandard2.1` (Unity plugin target) |
 | Risk | **CRITICAL blast radius, LOW change risk** — additive interface split, see Consequences |
 
 ## ADR Dependencies

@@ -11,7 +11,7 @@ sensor lifecycle. Its load-bearing promise is that the F2T2 phase and the loss/d
 **only** from sim / order-log truth (contacts, fire-control facts, BDA rows), never from UI selection,
 hover, camera, or panel state (ADR-010).
 
-It lives in the engine-agnostic `ProjectAegis.Delegation` core (net8.0, no `UnityEngine`), so it runs
+It lives in the engine-agnostic `ProjectAegis.Delegation` core (net11.0, no `UnityEngine`), so it runs
 under plain `dotnet test`. Unlike its downstream siblings, it already has a headless **bridge**
 consumer — [`KillChainContactStateBridge`](../../src/ProjectAegis.Delegation.UnityAdapter/Bridge/KillChainContactStateBridge.cs)
 (the read-only C2 publish façade); the Unity **host renderer** is DRG-180 and not wired yet. Verified

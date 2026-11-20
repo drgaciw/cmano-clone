@@ -10,7 +10,7 @@ founds and the [sensor-to-shooter chain](sensor-to-shooter-chain.md) (DRG-207) c
 load-bearing promise is **fail-closed**: a row is `Permitted` only when provenance, the chain, and
 authority *all* clear; any gap yields `Withheld` with a single, never-empty named cause.
 
-It lives in the engine-agnostic `ProjectAegis.Delegation` core (net8.0, no `UnityEngine`), so it runs
+It lives in the engine-agnostic `ProjectAegis.Delegation` core (net11.0, no `UnityEngine`), so it runs
 under plain `dotnet test`. It is **headless only** — as of writing it has **no host or bridge consumer
 yet** and performs no Unity or tick-path mutation; it is exercised solely by its own test fixture as the
 Combat-UX Slice A composition harness. Verified against source and pinned by the tests at the end.

@@ -8,7 +8,7 @@ relays, and C2 nodes make up this package right now, and is each one available, 
 or unavailable?"*. It keeps the **organic-vs-package** distinction explicit so a task re-org never
 silently collapses a platform's organic sensor into the package track picture.
 
-It lives in the engine-agnostic `ProjectAegis.Delegation` core (net8.0, no `UnityEngine`), so it runs
+It lives in the engine-agnostic `ProjectAegis.Delegation` core (net11.0, no `UnityEngine`), so it runs
 under plain `dotnet test`. It already has a **live host consumer**: the Unity adapter's
 `CoordinationBridge` (command-review coordination surface) builds the snapshot and reads element roles
 and availability. It is still a **read model** — it performs no Unity or tick-path mutation, and it

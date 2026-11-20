@@ -10,7 +10,7 @@ inputs the [track-custody drop-reason ledger](track-custody-drop-reason-ledger.m
 load-bearing promise is **never-implicit quality**: catalog-miss, staleness, and silent-comms are each
 surfaced as a *named* flag, never left empty for an operator to infer.
 
-It lives in the engine-agnostic `ProjectAegis.Delegation` core (net8.0, no `UnityEngine`), so it runs
+It lives in the engine-agnostic `ProjectAegis.Delegation` core (net11.0, no `UnityEngine`), so it runs
 under plain `dotnet test`. It is **headless projection-only** — it performs no Unity or tick-path
 mutation and has no host or bridge consumer of its own yet; it is exercised by its own test fixture and
 composed by the two downstream read-models above. Verified against source and pinned by the tests at the
