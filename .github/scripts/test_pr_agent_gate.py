@@ -458,6 +458,41 @@ class GitHubApiTests(unittest.TestCase):
         self.assertIn(HOST_CS, result.message)
         self.assertNotIn("RATE_LIMIT_WARN", result.message)
 
+    def test_declared_surface_overlap_fails_when_file_fetch_is_rate_limited(self) -> None:
+        def list_files(number: int) -> list[str]:
+            raise gate.RateLimited(f"still limited for {number}")
+
+        result = gate.evaluate_surface(
+            number=50,
+            body="Closes DRG-50\nSurface: docs/shared.md\n",
+            author="someone",
+            files=["docs/ours-only.md"],
+            list_open_pulls=lambda: [
+                {"number": 60, "title": "unrelated", "body": "Surface: docs/unrelated.md\n"},
+                {"number": 51, "title": "other", "body": "Closes DRG-51\nSurface: docs/shared.md\n"},
+            ],
+            list_files=list_files,
+        )
+        self.assertFalse(result.ok)
+        self.assertIn("#51", result.message)
+        self.assertIn("docs/shared.md", result.message)
+        self.assertNotIn("RATE_LIMIT_WARN", result.message)
+
+    def test_file_fetch_rate_limit_warns_when_declared_surfaces_do_not_overlap(self) -> None:
+        result = gate.evaluate_surface(
+            number=52,
+            body="Closes DRG-52\nSurface: docs/a.md\n",
+            author="someone",
+            files=["docs/a.md"],
+            list_open_pulls=lambda: [
+                {"number": 53, "title": "other", "body": "Surface: docs/b.md\n"}
+            ],
+            list_files=lambda _number: (_ for _ in ()).throw(gate.RateLimited("still limited")),
+        )
+        self.assertTrue(result.ok)
+        self.assertTrue(result.warning)
+        self.assertIn("RATE_LIMIT_WARN", result.message)
+
     def test_client_lists_open_pulls_and_renames(self) -> None:
         pulls_url = gate.build_pulls_url("drgaciw/cmano-clone")
         files_url = gate.build_files_url("drgaciw/cmano-clone", 15)

@@ -366,21 +366,13 @@ def evaluate_surface(
         return _api_error_result(exc)
 
     overlaps: list[str] = []
+    # Surface lines are already in the open-PR list. Compare those before any
+    # per-PR file fetch so a rate limit cannot hide a collision we already have.
+    comparable: list[tuple[int, str]] = []
     for other in others:
         other_number = other.get("number")
         if not isinstance(other_number, int) or other_number == number:
             continue
-        try:
-            their_files = list(list_files(other_number))
-        except RateLimited as exc:
-            if hard_hits or overlaps:
-                return CheckResult(
-                    ok=False,
-                    message=_failure_message(hard_hits, overlaps, rate_note=str(exc)),
-                )
-            return _rate_limit_result(exc)
-        except ApiError as exc:
-            return _api_error_result(exc)
         their_body = other.get("body")
         their_surface = parse_surface(their_body if isinstance(their_body, str) else None) or []
         title = other.get("title")
@@ -392,6 +384,30 @@ def evaluate_surface(
                 their_number=other_number,
                 their_title=title_text,
                 their_surface=their_surface,
+                their_files=(),
+            )
+        )
+        comparable.append((other_number, title_text))
+
+    for other_number, title_text in comparable:
+        try:
+            their_files = list(list_files(other_number))
+        except RateLimited as exc:
+            if hard_hits or overlaps:
+                return CheckResult(
+                    ok=False,
+                    message=_failure_message(hard_hits, overlaps, rate_note=str(exc)),
+                )
+            return _rate_limit_result(exc)
+        except ApiError as exc:
+            return _api_error_result(exc)
+        overlaps.extend(
+            _pair_overlaps(
+                our_surface=declared,
+                our_files=files,
+                their_number=other_number,
+                their_title=title_text,
+                their_surface=(),
                 their_files=their_files,
             )
         )
