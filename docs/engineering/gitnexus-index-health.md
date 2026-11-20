@@ -123,7 +123,7 @@ propagated; it does not trigger an installation attempt through a different runn
 Fails if any of these do not hold:
 
 - Indexed commit (`.gitnexus/meta.json` `lastCommit`) `==` git `HEAD`.
-- `meta.json` node/edge stats `==` live graph `count(n)` / `count(r)` (via `gitnexus cypher --repo <checkout-path>`; every query targets this checkout even when multiple indexes are registered).
+- `meta.json` node/edge stats `==` live graph counts (via `gitnexus cypher --repo <checkout-path>`; every query targets this checkout even when multiple indexes are registered). Node count excludes `CodeEmbedding` (`label(n) <> 'CodeEmbedding'`), because `stats.nodes` sums code tables only.
 - Zero garbage IDs (id not prefixed with its label) **and** zero empty/null `name` values
   for `Class`, `Method`, `File`, and `Property` nodes.
 - Embedding count in `.gitnexus/meta.json` `stats.embeddings` is an integer **greater than 0**
