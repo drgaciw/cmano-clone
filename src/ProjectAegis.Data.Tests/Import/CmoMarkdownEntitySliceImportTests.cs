@@ -9,7 +9,7 @@ using NUnit.Framework;
 namespace ProjectAegis.Data.Tests.Import;
 
 /// <summary>S30-11 — curated aircraft/submarine/facility nightly slices + off-CI scale metadata.</summary>
-[ProjectAegis.Data.Tests.Runner.CatalogSqliteCollection]
+[Runner.CatalogSqliteCollection]
 public sealed class CmoMarkdownEntitySliceImportTests
 {
     [TestCase("aircraft")]

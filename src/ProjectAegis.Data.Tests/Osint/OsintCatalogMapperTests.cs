@@ -6,7 +6,7 @@ using NUnit.Framework;
 
 namespace ProjectAegis.Data.Tests.Osint;
 
-[ProjectAegis.Data.Tests.Runner.CatalogSqliteCollection]
+[Runner.CatalogSqliteCollection]
 public sealed class OsintCatalogMapperTests
 {
     [TestCase("09", 7, 7, "branch:doc-09", "osint:09")]

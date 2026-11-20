@@ -95,7 +95,7 @@ Assert.That(f.Message, Does.Contain("Save remains available"));
 Assert.That(f.Data!["backend"], Is.EqualTo(MissionRoleCapabilityManifest.DefaultBackendId));
 }
 
-        var tanker = ProjectAegis.Data.Tests.AssertEx.Single(findings, f => f.MissionId == "support-tanker");
+        var tanker = AssertEx.Single(findings, f => f.MissionId == "support-tanker");
         Assert.That(            tanker.Message, Is.EqualTo(            "Support mission 'support-tanker' role 'Tanker' is not executed by backend 'baltic-replay-harness'. "
             + "Export and Play are blocked; Save remains available. Remove the mission or change it to a supported role (Patrol, Strike)."));
         Assert.That(tanker.Data!["missionType"], Is.EqualTo("Support"));
@@ -132,7 +132,7 @@ Assert.That(f.Data!["backend"], Is.EqualTo(MissionRoleCapabilityManifest.Default
         var rows = MissionRoleCapabilityManifest.AssessDocument(doc);
 
         Assert.That(            rows.Select(r => r.MissionId).ToArray(), Is.EqualTo(            new[] { "escort-1", "ferry-1", "patrol-1", "support-aew", "support-ew", "support-tanker" }));
-        var patrol = ProjectAegis.Data.Tests.AssertEx.Single(rows, r => r.MissionId == "patrol-1");
+        var patrol = AssertEx.Single(rows, r => r.MissionId == "patrol-1");
         Assert.That(patrol.Execution, Is.EqualTo(MissionRoleExecution.Executed));
         Assert.That(patrol.FindingCode, Is.Null);
     }
@@ -180,7 +180,7 @@ Assert.That(f.Data!["backend"], Is.EqualTo(MissionRoleCapabilityManifest.Default
             editor.Save(path);
 
             var reloaded = ScenarioDocumentEditor.Load(path);
-            var mission = ProjectAegis.Data.Tests.AssertEx.Single(reloaded.Missions);
+            var mission = AssertEx.Single(reloaded.Missions);
             Assert.That(mission.SupportRole, Is.EqualTo("Tanker"));
             var live = reloaded.LiveValidate();
             Assert.That(live.Findings.Any(f => f.Code == MissionRoleCapabilityManifest.CodeRoleNotExecuted && f.MissionId == "support-1"), Is.True);

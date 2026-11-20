@@ -93,7 +93,7 @@ public sealed class ScenarioLatLonDiagnosticsTests
         var clone = Assert.Throws<ScenarioLatLonException>(() => editor.CloneOrbatUnit("u1", "u1b", -95, 20));
         Assert.That(clone!.Code, Is.EqualTo(ScenarioLatLonDiagnostics.LatOutOfRange));
 
-        var unit = ProjectAegis.Data.Tests.AssertEx.Single(editor.ToDto().Orbat!.Units);
+        var unit = AssertEx.Single(editor.ToDto().Orbat!.Units);
         Assert.That(unit.Lat, Is.EqualTo(57));
         Assert.That(unit.Lon, Is.EqualTo(20));
     }

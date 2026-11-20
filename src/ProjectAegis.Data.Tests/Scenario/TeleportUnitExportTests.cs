@@ -59,8 +59,8 @@ public sealed class TeleportUnitExportTests
         Assert.That(entry.ActionType, Is.EqualTo("TeleportUnit"));
         Assert.That(entry.Message, Does.Contain("Removed TeleportUnit"));
 
-        var exportedEvent = ProjectAegis.Data.Tests.AssertEx.Single(result.ExportedDocument.Events!);
-        var exportedAction = ProjectAegis.Data.Tests.AssertEx.Single(exportedEvent.Actions);
+        var exportedEvent = AssertEx.Single(result.ExportedDocument.Events!);
+        var exportedAction = AssertEx.Single(exportedEvent.Actions);
         Assert.That(exportedAction.Type, Is.EqualTo("ActivateMission"));
         Assert.That(            exportedEvent.Actions.Any(            a => string.Equals(a.Type, "TeleportUnit", StringComparison.OrdinalIgnoreCase)), Is.False);
     }
@@ -205,7 +205,7 @@ Assert.That(e.Actions.Any(a => string.Equals(a.Type, "TeleportUnit", StringCompa
 {
 Assert.That(e.ActionType, Is.EqualTo("TeleportUnit"));
 }
-        var kept = ProjectAegis.Data.Tests.AssertEx.Single(ProjectAegis.Data.Tests.AssertEx.Single(result.ExportedDocument.Events!).Actions);
+        var kept = AssertEx.Single(AssertEx.Single(result.ExportedDocument.Events!).Actions);
         Assert.That(kept.Type, Is.EqualTo("ActivateMission"));
     }
 }

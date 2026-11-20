@@ -49,7 +49,7 @@ public sealed class TlReleaseTrainValidationTests
 
         var catalog = new ReleaseTrainCatalogFixture(releaseTrainBranch: null);
         var report = Engine.Validate(scenario, catalog, Config);
-        var finding = ProjectAegis.Data.Tests.AssertEx.Single(report.Findings, f => f.Code == "TL_RELEASE_TRAIN_NOT_FOUND");
+        var finding = AssertEx.Single(report.Findings, f => f.Code == "TL_RELEASE_TRAIN_NOT_FOUND");
         Assert.That(finding.Data!["tlBranch"], Is.EqualTo(CatalogTlTier.Tl2));
         Assert.That(report.CanExport(Config), Is.False);
     }
@@ -73,7 +73,7 @@ public sealed class TlReleaseTrainValidationTests
             explicitDbRefSnapshotId: alternateSnapshot,
             explicitDbRefBranch: CatalogTlTier.Tl0);
         var report = Engine.Validate(scenario, catalog, Config);
-        var finding = ProjectAegis.Data.Tests.AssertEx.Single(report.Findings, f => f.Code == "TL_RELEASE_TRAIN_MISMATCH");
+        var finding = AssertEx.Single(report.Findings, f => f.Code == "TL_RELEASE_TRAIN_MISMATCH");
         Assert.That(finding.Data!["tlBranch"], Is.EqualTo(CatalogTlTier.Tl0));
         Assert.That(finding.Data!["explicitSnapshot"], Is.EqualTo(alternateSnapshot));
         Assert.That(finding.Data!["releaseTrainSnapshot"], Is.EqualTo(CatalogValidationDefaults.BalticSnapshotId));

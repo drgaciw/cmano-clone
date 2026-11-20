@@ -5,7 +5,7 @@ using NUnit.Framework;
 
 namespace ProjectAegis.Data.Tests.WriteGate;
 
-[ProjectAegis.Data.Tests.Runner.CatalogSqliteCollection]
+[Runner.CatalogSqliteCollection]
 public sealed class LinkCatalogStagingTests
 {
     [Test]
@@ -59,7 +59,7 @@ public sealed class LinkCatalogStagingTests
             }
 
             using var reader = new SqliteCatalogReader(dbPath, "link-approve-test");
-            var committed = ProjectAegis.Data.Tests.AssertEx.Single(reader.GetSortedLinks(), l => l.LinkId == "CUSTOM_LINK");
+            var committed = AssertEx.Single(reader.GetSortedLinks(), l => l.LinkId == "CUSTOM_LINK");
             Assert.That(committed.DisplayName, Is.EqualTo("Custom Datalink"));
             Assert.That(committed.LinkType, Is.EqualTo(CatalogLinkTypes.Tactical));
             Assert.That(committed.LatencyMsNominal, Is.EqualTo(120));

@@ -10,7 +10,7 @@ namespace ProjectAegis.Data.Tests.PlatformAssistant;
 /// <summary>
 /// DRG-73 / PDA-04: headless golden for Platform Design Assistant against Baltic SQLite fixture.
 /// </summary>
-[ProjectAegis.Data.Tests.Runner.CatalogSqliteCollection]
+[Runner.CatalogSqliteCollection]
 public sealed class PlatformDesignAssistantTests
 {
     private readonly PlatformDesignAssistant _assistant = new();

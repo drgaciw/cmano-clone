@@ -108,7 +108,7 @@ public sealed class ClosedXmlPlatformWorkbookIoTests
             var roundTripped = io.Read(path);
             var platforms = roundTripped.FindSheet("Platforms");
             Assert.That(platforms, Is.Not.Null);
-            var row = ProjectAegis.Data.Tests.AssertEx.Single(platforms!.Rows, r => r.Count > 0 && r[0] == "u1");
+            var row = AssertEx.Single(platforms!.Rows, r => r.Count > 0 && r[0] == "u1");
             Assert.That(row[1], Is.EqualTo("57"));
             Assert.That(row[2], Is.EqualTo("20"));
         }

@@ -24,7 +24,7 @@ public sealed class ScenarioSideEditorTests
             Postures = postures,
         });
 
-        var side = ProjectAegis.Data.Tests.AssertEx.Single(editor.ToDto().Sides);
+        var side = AssertEx.Single(editor.ToDto().Sides);
         Assert.That(side.Id, Is.EqualTo("blue"));
         Assert.That(side.Name, Is.EqualTo("Blue Force"));
         Assert.That(side.DefaultRoe, Is.EqualTo("WeaponsFree"));
@@ -57,7 +57,7 @@ public sealed class ScenarioSideEditorTests
             Postures = ["patrol"],
         });
 
-        var side = ProjectAegis.Data.Tests.AssertEx.Single(editor.ToDto().Sides);
+        var side = AssertEx.Single(editor.ToDto().Sides);
         Assert.That(side.Id, Is.EqualTo("blue"));
         Assert.That(side.Name, Is.EqualTo("NATO Blue"));
         Assert.That(side.DefaultRoe, Is.EqualTo("WeaponsFree"));
@@ -96,7 +96,7 @@ public sealed class ScenarioSideEditorTests
         Assert.That(sides[0].Id, Is.EqualTo("red"));
 
         // ORBAT unit retained with dangling sideId (no cascade).
-        var unit = ProjectAegis.Data.Tests.AssertEx.Single(editor.ToDto().Orbat!.Units);
+        var unit = AssertEx.Single(editor.ToDto().Orbat!.Units);
         Assert.That(unit.Id, Is.EqualTo("u1"));
         Assert.That(unit.SideId, Is.EqualTo("blue"));
     }
@@ -137,7 +137,7 @@ public sealed class ScenarioSideEditorTests
 
             Assert.That(loaded.PopUndo(path), Is.True);
             var restored = ScenarioDocumentJsonLoader.LoadFromFile(path);
-            var side = ProjectAegis.Data.Tests.AssertEx.Single(restored.Sides);
+            var side = AssertEx.Single(restored.Sides);
             Assert.That(side.Id, Is.EqualTo("blue"));
             Assert.That(side.Name, Is.EqualTo("Blue Force"));
             Assert.That(side.Postures, Is.EqualTo(new[] { "defensive" }));

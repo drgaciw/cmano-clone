@@ -8,7 +8,7 @@ using NUnit.Framework;
 
 namespace ProjectAegis.Data.Tests.Agents;
 
-[ProjectAegis.Data.Tests.Runner.CatalogSqliteCollection]
+[Runner.CatalogSqliteCollection]
 public sealed class OrchestratorKillChainGateTests
 {
     [Test]

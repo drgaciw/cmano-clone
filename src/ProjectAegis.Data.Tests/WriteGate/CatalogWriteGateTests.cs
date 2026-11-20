@@ -6,7 +6,7 @@ using NUnit.Framework;
 
 namespace ProjectAegis.Data.Tests.WriteGate;
 
-[ProjectAegis.Data.Tests.Runner.CatalogSqliteCollection]
+[Runner.CatalogSqliteCollection]
 public sealed class CatalogWriteGateTests
 {
     [Test]

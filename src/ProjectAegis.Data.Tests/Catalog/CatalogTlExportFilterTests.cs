@@ -7,7 +7,7 @@ using NUnit.Framework;
 
 namespace ProjectAegis.Data.Tests.Catalog;
 
-[ProjectAegis.Data.Tests.Runner.CatalogSqliteCollection]
+[Runner.CatalogSqliteCollection]
 public sealed class CatalogTlExportFilterTests
 {
     private static readonly CatalogSensorBinding Tl0Sensor = new(

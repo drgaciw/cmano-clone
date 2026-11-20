@@ -6,7 +6,7 @@ using NUnit.Framework;
 
 namespace ProjectAegis.Data.Tests.Import;
 
-[ProjectAegis.Data.Tests.Runner.CatalogSqliteCollection]
+[Runner.CatalogSqliteCollection]
 public sealed class CmoMarkdownImporterTests
 {
     [Test]
@@ -21,7 +21,7 @@ public sealed class CmoMarkdownImporterTests
         Assert.That(first.Select(p => p.PlatformId).ToArray(), Is.EqualTo(["hostile-1", "hostile-far", "u1"]));
         Assert.That(            first.Select(CatalogSortKeyComparer.FormatPlatformKey).ToArray(), Is.EqualTo(            CatalogSortKeyComparer.SortPlatforms(first).Select(CatalogSortKeyComparer.FormatPlatformKey).ToArray()));
 
-        var u1 = ProjectAegis.Data.Tests.AssertEx.Single(first, p => p.PlatformId == "u1");
+        var u1 = AssertEx.Single(first, p => p.PlatformId == "u1");
         Assert.That(u1.DisplayName, Is.EqualTo("Patrol Frigate U1 , Baltic Patrol"));
         Assert.That(u1.PlatformClass, Is.EqualTo("Frigate"));
         Assert.That(u1.Domain, Is.EqualTo("surface"));
@@ -41,7 +41,7 @@ public sealed class CmoMarkdownImporterTests
         Assert.That(first.Count, Is.EqualTo(3));
         Assert.That(second.Count, Is.EqualTo(first.Count));
 
-        var standard = ProjectAegis.Data.Tests.AssertEx.Single(first, w => w.WeaponId == "cmo-weapon-2001");
+        var standard = AssertEx.Single(first, w => w.WeaponId == "cmo-weapon-2001");
         Assert.That(standard.DisplayName, Is.EqualTo("RIM-66 Standard MR , USA"));
         Assert.That(standard.WeaponType, Is.EqualTo("Guided Weapon"));
         Assert.That(standard.MaxRangeMeters, Is.EqualTo(74_000).Within(0.5));
@@ -170,9 +170,22 @@ public sealed class CmoMarkdownImporterTests
         var dbPath = Path.Combine(Path.GetTempPath(), $"aegis-cmo-empty-{Guid.NewGuid():N}.db");
         try
         {
-            using var gate = new CatalogWriteGate(dbPath, new FixedCatalogClock(9104));
-            Assert.Throws<ArgumentException>(() =>
-                gate.ProposePlatformBatch([], "agent", "empty-test"));
+            var gate = new CatalogWriteGate(dbPath, new FixedCatalogClock(9104));
+            Exception? thrown = null;
+            try
+            {
+                gate.ProposePlatformBatch([], "agent", "empty-test");
+            }
+            catch (Exception ex)
+            {
+                thrown = ex;
+            }
+            finally
+            {
+                gate.Dispose();
+            }
+
+            Assert.That(thrown, Is.TypeOf<ArgumentException>());
         }
         finally
         {
@@ -237,7 +250,7 @@ public sealed class CmoMarkdownImporterTests
         var bindings = CmoMarkdownImporter.ReadSensorBindings(path);
 
         Assert.That(bindings.Count >= 10, Is.True);
-        var radar = ProjectAegis.Data.Tests.AssertEx.Single(bindings, b => b.SensorId == "cmo-sensor-1001");
+        var radar = AssertEx.Single(bindings, b => b.SensorId == "cmo-sensor-1001");
         Assert.That(radar.PlatformId, Is.EqualTo("test-radar-an-spy-1"));
         Assert.That(radar.BasePd, Is.EqualTo(0.75).Within(0.000005));
     }

@@ -6,7 +6,7 @@ using NUnit.Framework;
 namespace ProjectAegis.Data.Tests.Catalog;
 
 /// <summary>DRG-86 / SWARM-A1: catalog schema, generic preset load, spawn integrity, scenario ref.</summary>
-[ProjectAegis.Data.Tests.Runner.CatalogSqliteCollection]
+[Runner.CatalogSqliteCollection]
 public sealed class SwarmPlatformCatalogTests
 {
     [Test]
@@ -100,7 +100,7 @@ public sealed class SwarmPlatformCatalogTests
         });
         editor.CommitMutation();
 
-        var unit = ProjectAegis.Data.Tests.AssertEx.Single(editor.ToDto().Orbat!.Units);
+        var unit = AssertEx.Single(editor.ToDto().Orbat!.Units);
         Assert.That(unit.PlatformId, Is.EqualTo(CatalogSwarmPlatformDefaults.GenericSwarmPlatformId));
         Assert.That(unit.DroneCount, Is.EqualTo(25));
 

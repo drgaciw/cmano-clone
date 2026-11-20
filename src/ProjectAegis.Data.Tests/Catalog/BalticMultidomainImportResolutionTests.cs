@@ -10,7 +10,7 @@ namespace ProjectAegis.Data.Tests.Catalog;
 /// production catalog (after staged import) resolves new platforms, non-zero weapon envelopes,
 /// and magazine rows (showcase Visby).
 /// </summary>
-[ProjectAegis.Data.Tests.Runner.CatalogSqliteCollection]
+[Runner.CatalogSqliteCollection]
 public sealed class BalticMultidomainImportResolutionTests
 {
     [Test]
@@ -24,7 +24,7 @@ public sealed class BalticMultidomainImportResolutionTests
         var platforms = CmoMarkdownImporter.ReadPlatformBindings(path, mapBalticIds: false);
         Assert.That(platforms.Count >= 10, Is.True, $"Expected multi-domain slice, got {platforms.Count}");
 
-        var domains = platforms.Select(p => p.Domain).Distinct(StringComparer.Ordinal).OrderBy(d => d).ToArray();
+        var domains = platforms.Select(p => p.Domain).Distinct(StringComparer.Ordinal).OrderBy(d => d, StringComparer.Ordinal).ToArray();
         Assert.That(domains, Does.Contain("surface"));
         Assert.That(domains, Does.Contain("air"));
         Assert.That(domains, Does.Contain("subsurface"));

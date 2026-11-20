@@ -68,7 +68,7 @@ public sealed class PlatformWorkbookValidatorTests
             new CatalogMagazineEntry("u1", "asuw-default", "vls-fwd", "mvp-weapon", 99, 0, 99),
         });
 
-        var finding = ProjectAegis.Data.Tests.AssertEx.Single(PlatformWorkbookValidator.Validate(wb));
+        var finding = AssertEx.Single(PlatformWorkbookValidator.Validate(wb));
         Assert.That(finding.Code, Is.EqualTo(PlatformWorkbookValidator.MagazineOverCapacity));
         Assert.That(finding.Severity, Is.EqualTo(ValidationSeverity.Error));
     }

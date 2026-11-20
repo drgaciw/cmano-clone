@@ -38,7 +38,7 @@ public sealed class TlBranchValidationTests
         };
 
         var report = Engine.Validate(scenario, InMemoryCatalogReader.BalticPatrolFixture(), Config);
-        var finding = ProjectAegis.Data.Tests.AssertEx.Single(report.Findings, f => f.Code == "TL_BRANCH_MISSING");
+        var finding = AssertEx.Single(report.Findings, f => f.Code == "TL_BRANCH_MISSING");
         Assert.That(finding.Data, Is.Not.Null);
         Assert.That(finding.Data!["field"], Is.EqualTo("tlBranch"));
         Assert.That(report.CanExport(Config), Is.False);
@@ -57,7 +57,7 @@ public sealed class TlBranchValidationTests
         };
 
         var report = Engine.Validate(scenario, InMemoryCatalogReader.BalticPatrolFixture(), Config);
-        var finding = ProjectAegis.Data.Tests.AssertEx.Single(report.Findings, f => f.Code == "TL_BRANCH_INVALID");
+        var finding = AssertEx.Single(report.Findings, f => f.Code == "TL_BRANCH_INVALID");
         Assert.That(finding.Message, Does.Contain("TL-9"));
         Assert.That(report.CanExport(Config), Is.False);
     }
@@ -76,7 +76,7 @@ public sealed class TlBranchValidationTests
 
         var catalog = new BranchCatalogFixture(CatalogTlTier.Tl0);
         var report = Engine.Validate(scenario, catalog, Config);
-        var finding = ProjectAegis.Data.Tests.AssertEx.Single(report.Findings, f => f.Code == "TL_BRANCH_SNAPSHOT_MISMATCH");
+        var finding = AssertEx.Single(report.Findings, f => f.Code == "TL_BRANCH_SNAPSHOT_MISMATCH");
         Assert.That(finding.Data!["tlBranch"], Is.EqualTo("TL-2"));
         Assert.That(finding.Data!["snapshotBranch"], Is.EqualTo(CatalogTlTier.Tl0));
         Assert.That(report.CanExport(Config), Is.False);

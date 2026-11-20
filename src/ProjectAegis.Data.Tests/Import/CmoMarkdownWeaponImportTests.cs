@@ -6,7 +6,7 @@ using NUnit.Framework;
 
 namespace ProjectAegis.Data.Tests.Import;
 
-[ProjectAegis.Data.Tests.Runner.CatalogSqliteCollection]
+[Runner.CatalogSqliteCollection]
 public sealed class CmoMarkdownWeaponImportTests
 {
     [Test]

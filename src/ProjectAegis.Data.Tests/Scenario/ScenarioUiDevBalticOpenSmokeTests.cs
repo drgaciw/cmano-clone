@@ -25,7 +25,7 @@ public sealed class ScenarioUiDevBalticOpenSmokeTests
         Assert.That(session.EditVersion >= 1, Is.True, $"EditVersion should be >= 1, was {session.EditVersion}");
 
         Assert.That(dto.Orbat, Is.Not.Null);
-        var units = dto.Orbat!.Units ?? Array.Empty<ScenarioOrbatUnitDto>();
+        var units = dto.Orbat!.Units;
         Assert.That(units.Count >= 10, Is.True, $"Expected >= 10 ORBAT units, got {units.Count}");
 
         Assert.That(units.Any(u => string.Equals(u.SideId, "blue", StringComparison.OrdinalIgnoreCase)), Is.True);

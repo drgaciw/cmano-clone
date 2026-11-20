@@ -9,7 +9,7 @@ using NUnit.Framework;
 namespace ProjectAegis.Data.Tests.Telemetry;
 
 /// <summary>S29-10: balance drift advisory on catalog import/approve diff paths.</summary>
-[ProjectAegis.Data.Tests.Runner.CatalogSqliteCollection]
+[Runner.CatalogSqliteCollection]
 public sealed class CatalogBalanceDriftPipelineTests
 {
     private const string SnapshotId = CatalogValidationDefaults.BalticSnapshotId;
@@ -72,7 +72,7 @@ public sealed class CatalogBalanceDriftPipelineTests
                 "human",
                 "balance-pipeline");
 
-            var finding = ProjectAegis.Data.Tests.AssertEx.Single(result.BalanceDriftAdvisory.Findings);
+            var finding = AssertEx.Single(result.BalanceDriftAdvisory.Findings);
             Assert.That(finding.Code, Is.EqualTo("BALANCE_WIN_RATE_DRIFT"));
             Assert.That(finding.EntityId, Is.EqualTo("u1"));
             Assert.That(result.Import.Notes.Any(note => note.Contains("u1", StringComparison.Ordinal)), Is.True);
@@ -130,7 +130,7 @@ public sealed class CatalogBalanceDriftPipelineTests
                 new FixedCatalogClock(9831),
                 "human",
                 "balance-pipeline");
-            var batchId = ProjectAegis.Data.Tests.AssertEx.Single(propose.BatchIds);
+            var batchId = AssertEx.Single(propose.BatchIds);
 
             var approve = writeService.ApproveBatches(
                 dbPath,
@@ -140,7 +140,7 @@ public sealed class CatalogBalanceDriftPipelineTests
                 "qa-reviewer");
 
             Assert.That(approve.AllCommitted, Is.True);
-            var finding = ProjectAegis.Data.Tests.AssertEx.Single(approve.BalanceDriftAdvisory.Findings);
+            var finding = AssertEx.Single(approve.BalanceDriftAdvisory.Findings);
             Assert.That(finding.EntityId, Is.EqualTo("u1"));
             Assert.That(finding.Code, Is.EqualTo("BALANCE_WIN_RATE_DRIFT"));
         }
@@ -169,7 +169,7 @@ public sealed class CatalogBalanceDriftPipelineTests
                 new FixedCatalogClock(9841),
                 "human",
                 "balance-pipeline");
-            var batchId = ProjectAegis.Data.Tests.AssertEx.Single(propose.BatchIds);
+            var batchId = AssertEx.Single(propose.BatchIds);
 
             var approve = writeService.ApproveBatches(
                 dbPath,
@@ -212,7 +212,7 @@ public sealed class CatalogBalanceDriftPipelineTests
                 balanceDrift: EnabledSettings(sink));
 
             Assert.That(proposed.ParsedCount, Is.EqualTo(1));
-            var finding = ProjectAegis.Data.Tests.AssertEx.Single(proposed.BalanceDriftAdvisory.Findings);
+            var finding = AssertEx.Single(proposed.BalanceDriftAdvisory.Findings);
             Assert.That(finding.EntityId, Is.EqualTo(firstPlatformId));
             Assert.That(finding.Code, Is.EqualTo("BALANCE_WIN_RATE_DRIFT"));
         }
@@ -271,7 +271,7 @@ public sealed class CatalogBalanceDriftPipelineTests
         string keyColumn,
         string keyValue)
     {
-        var sheet = ProjectAegis.Data.Tests.AssertEx.Single(workbook.Sheets, s => string.Equals(s.Name, sheetName, StringComparison.Ordinal));
+        var sheet = AssertEx.Single(workbook.Sheets, s => string.Equals(s.Name, sheetName, StringComparison.Ordinal));
         var colIndex = Array.IndexOf(sheet.Header.ToArray(), keyColumn);
         Assert.That(colIndex >= 0, Is.True, $"Column '{keyColumn}' not found on sheet '{sheetName}'.");
         for (var i = 0; i < sheet.Rows.Count; i++)

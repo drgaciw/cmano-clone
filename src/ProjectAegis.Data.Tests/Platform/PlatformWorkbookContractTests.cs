@@ -83,7 +83,7 @@ public sealed class PlatformWorkbookContractTests
             {
                 var edited = WithCell(exported, contract.Name, 0, column, "77");
                 var plan = importer.Plan(edited);
-                var change = ProjectAegis.Data.Tests.AssertEx.Single(plan.Changes);
+                var change = AssertEx.Single(plan.Changes);
                 var supported = plan.SupportedChanges.Contains(change);
                 Assert.That(                    supported == contract.IsColumnStageable(column), Is.True,                     $"{contract.Name}.{column}: supported={supported}, contract stageable={contract.IsColumnStageable(column)}");
             }
@@ -123,7 +123,7 @@ public sealed class PlatformWorkbookContractTests
 
         var drift = PlatformWorkbookContract.CheckDrift(workbook);
 
-        var order = ProjectAegis.Data.Tests.AssertEx.Single(drift, d => d.Kind == PlatformWorkbookContractDriftKind.ColumnOrder && d.Sheet == "Signatures");
+        var order = AssertEx.Single(drift, d => d.Kind == PlatformWorkbookContractDriftKind.ColumnOrder && d.Sheet == "Signatures");
         Assert.That(order.Detail, Does.StartWith("expected [PlatformId,RcsBandDbsm,"));
     }
 

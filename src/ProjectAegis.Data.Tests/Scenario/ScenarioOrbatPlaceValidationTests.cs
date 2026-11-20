@@ -92,7 +92,7 @@ public sealed class ScenarioOrbatPlaceValidationTests
                 Lon = 10,
             }));
 
-        var u = ProjectAegis.Data.Tests.AssertEx.Single(editor.ToDto().Orbat!.Units);
+        var u = AssertEx.Single(editor.ToDto().Orbat!.Units);
         Assert.That(u.SideId, Is.EqualTo("blue"));
         Assert.That(u.PlatformId, Is.EqualTo("ffg"));
     }

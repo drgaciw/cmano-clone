@@ -61,7 +61,7 @@ public sealed class CatalogRadarEccmSqliteRoundTripTests
         {
             CatalogJsonImporter.WriteSqlite(db, [new CatalogSensorBinding("p1", "r1", 0.9)]);
             using var reader = new SqliteCatalogReader(db);
-            var row = ProjectAegis.Data.Tests.AssertEx.Single(reader.GetSortedSensorBindings());
+            var row = AssertEx.Single(reader.GetSortedSensorBindings());
             Assert.That(row.RadarScanType, Is.EqualTo(CatalogRadarScanTypes.Unspecified));
             Assert.That(row.FrequencyAgile, Is.False);
             Assert.That(row.RadarTechGeneration, Is.EqualTo(0));

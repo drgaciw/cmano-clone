@@ -5,20 +5,20 @@ namespace ProjectAegis.Data.Tests.Runner;
 
 /// <summary>
 /// xUnit <c>[Collection("CatalogSqlite", DisableParallelization = true)]</c>.
-/// Creates one <see cref="ProjectAegis.Data.Tests.Catalog.CatalogSqliteEnvFixture"/> for the fixture
+/// Creates one <see cref="Catalog.CatalogSqliteEnvFixture"/> for the fixture
 /// (clears <c>AEGIS_PUBLIC_CORPUS</c>) and disposes it after that fixture's tests.
 /// </summary>
 [AttributeUsage(AttributeTargets.Class, AllowMultiple = false, Inherited = false)]
 public sealed class CatalogSqliteCollectionAttribute : Attribute, ITestAction
 {
-    private ProjectAegis.Data.Tests.Catalog.CatalogSqliteEnvFixture? _fixture;
+    private Catalog.CatalogSqliteEnvFixture? _fixture;
 
     /// <inheritdoc />
     public void BeforeTest(ITest test)
     {
         if (test.IsSuite)
         {
-            _fixture = new ProjectAegis.Data.Tests.Catalog.CatalogSqliteEnvFixture();
+            _fixture = new Catalog.CatalogSqliteEnvFixture();
         }
     }
 

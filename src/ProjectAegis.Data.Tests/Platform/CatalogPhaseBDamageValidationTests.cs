@@ -47,7 +47,7 @@ public sealed class CatalogPhaseBDamageValidationTests
         var workbook = WithPlatformsHeader(Export(PhaseBData()), ["PlatformId", "BadColumn"]);
 
         var findings = PlatformWorkbookValidator.Validate(workbook);
-        var finding = ProjectAegis.Data.Tests.AssertEx.Single(findings, f => f.Code == PlatformWorkbookValidator.PlatformsHeaderMismatch);
+        var finding = AssertEx.Single(findings, f => f.Code == PlatformWorkbookValidator.PlatformsHeaderMismatch);
         Assert.That(finding.Severity, Is.EqualTo(ValidationSeverity.Error));
     }
 
@@ -61,7 +61,7 @@ public sealed class CatalogPhaseBDamageValidationTests
             "0");
 
         var findings = PlatformWorkbookValidator.Validate(workbook);
-        var finding = ProjectAegis.Data.Tests.AssertEx.Single(findings, f => f.Code == PlatformWorkbookValidator.DamageNonPositiveMaxHp);
+        var finding = AssertEx.Single(findings, f => f.Code == PlatformWorkbookValidator.DamageNonPositiveMaxHp);
         Assert.That(finding.UnitId, Is.EqualTo("u1"));
     }
 
@@ -84,7 +84,7 @@ public sealed class CatalogPhaseBDamageValidationTests
         var over = (PlatformWorkbookValidator.MaxHpCeiling + 1).ToString(System.Globalization.CultureInfo.InvariantCulture);
         var workbook = WithPlatformCell(Export(PhaseBData()), "u1", "MaxHp", over);
 
-        var finding = ProjectAegis.Data.Tests.AssertEx.Single(PlatformWorkbookValidator.Validate(workbook));
+        var finding = AssertEx.Single(PlatformWorkbookValidator.Validate(workbook));
         Assert.That(finding.Code, Is.EqualTo(PlatformWorkbookValidator.DamageMaxHpExceedsCeiling));
     }
 
@@ -93,7 +93,7 @@ public sealed class CatalogPhaseBDamageValidationTests
     {
         var workbook = WithPlatformCell(Export(PhaseBData()), "u1", "WithdrawThresholdPct", "-1");
 
-        var finding = ProjectAegis.Data.Tests.AssertEx.Single(PlatformWorkbookValidator.Validate(workbook));
+        var finding = AssertEx.Single(PlatformWorkbookValidator.Validate(workbook));
         Assert.That(finding.Code, Is.EqualTo(PlatformWorkbookValidator.DamageWithdrawThresholdInvalid));
     }
 
@@ -106,7 +106,7 @@ public sealed class CatalogPhaseBDamageValidationTests
             "WithdrawThresholdPct",
             "75");
 
-        var finding = ProjectAegis.Data.Tests.AssertEx.Single(PlatformWorkbookValidator.Validate(workbook));
+        var finding = AssertEx.Single(PlatformWorkbookValidator.Validate(workbook));
         Assert.That(finding.Code, Is.EqualTo(PlatformWorkbookValidator.DamageWithdrawThresholdInvalid));
     }
 
@@ -139,7 +139,7 @@ public sealed class CatalogPhaseBDamageValidationTests
     {
         var workbook = WithPlatformCell(Export(PhaseBData()), "u1", "CriticalFlags", "-1");
 
-        var finding = ProjectAegis.Data.Tests.AssertEx.Single(PlatformWorkbookValidator.Validate(workbook));
+        var finding = AssertEx.Single(PlatformWorkbookValidator.Validate(workbook));
         Assert.That(finding.Code, Is.EqualTo(PlatformWorkbookValidator.DamageCriticalFlagsInvalid));
     }
 

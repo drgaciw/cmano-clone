@@ -9,7 +9,7 @@ namespace ProjectAegis.Data.Tests.Catalog;
 /// <summary>
 /// S23-06 / DBI-7.3: golden-pinned sort-key ordering for Catalog* types across propose, export, and read paths.
 /// </summary>
-[ProjectAegis.Data.Tests.Runner.CatalogSqliteCollection]
+[Runner.CatalogSqliteCollection]
 public sealed class CatalogSortKeyDeterminismTests
 {
     private static CatalogSortKeyFixture PlatformEditorSample() => new(

@@ -6,7 +6,7 @@ using NUnit.Framework;
 namespace ProjectAegis.Data.Tests.Catalog;
 
 /// <summary>Req-16 read path: loadout/magazine rows via ICatalogReader (write-gate seeded).</summary>
-[ProjectAegis.Data.Tests.Runner.CatalogSqliteCollection]
+[Runner.CatalogSqliteCollection]
 public sealed class CatalogMagazineReaderTests
 {
     [Test]

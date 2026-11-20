@@ -11,7 +11,7 @@ namespace ProjectAegis.Data.Tests.Platform;
 /// Req-21 / ADR-011 S28-04 Phase D: export→edit→propose→approve round-trip on Baltic fixture via
 /// <see cref="PlatformWorkbookWriteService"/> and <see cref="CatalogWriteGate"/> (extend-only).
 /// </summary>
-[ProjectAegis.Data.Tests.Runner.CatalogSqliteCollection]
+[Runner.CatalogSqliteCollection]
 public sealed class PlatformWorkbookPhaseDWriteTests
 {
     private const string SnapshotId = CatalogValidationDefaults.BalticSnapshotId;
@@ -65,7 +65,7 @@ public sealed class PlatformWorkbookPhaseDWriteTests
                 "drgamtd",
                 "phase d sensor edit");
             Assert.That(propose.Proposed, Is.True);
-            var batchId = ProjectAegis.Data.Tests.AssertEx.Single(propose.BatchIds);
+            var batchId = AssertEx.Single(propose.BatchIds);
 
             var approve = _writeService.ApproveBatches(
                 dbPath,
@@ -74,7 +74,7 @@ public sealed class PlatformWorkbookPhaseDWriteTests
                 "human",
                 "qa-reviewer");
             Assert.That(approve.AllCommitted, Is.True);
-            Assert.That(ProjectAegis.Data.Tests.AssertEx.Single(approve.CommittedBatchIds), Is.EqualTo(batchId));
+            Assert.That(AssertEx.Single(approve.CommittedBatchIds), Is.EqualTo(batchId));
 
             using var reader = new SqliteCatalogReader(dbPath, "phase-d-sensor-readback");
             Assert.That(reader.TryGetBasePd("u1", "radar-1", out var basePd), Is.True);
@@ -107,7 +107,7 @@ public sealed class PlatformWorkbookPhaseDWriteTests
                 "human",
                 "drgamtd",
                 "phase d reject");
-            var batchId = ProjectAegis.Data.Tests.AssertEx.Single(propose.BatchIds);
+            var batchId = AssertEx.Single(propose.BatchIds);
 
             var reject = _writeService.RejectBatches(
                 dbPath,
@@ -118,7 +118,7 @@ public sealed class PlatformWorkbookPhaseDWriteTests
                 "reject phase d batch");
             Assert.That(reject.AllCommitted, Is.False);
             Assert.That(reject.CommittedBatchIds, Is.Empty);
-            Assert.That(ProjectAegis.Data.Tests.AssertEx.Single(reject.ProcessedBatchIds), Is.EqualTo(batchId));
+            Assert.That(AssertEx.Single(reject.ProcessedBatchIds), Is.EqualTo(batchId));
 
             using var readerAfter = new SqliteCatalogReader(dbPath, "phase-d-reject-after");
             Assert.That(readerAfter.TryGetBasePd("u1", "radar-1", out var unchangedBasePd), Is.True);
@@ -201,7 +201,7 @@ public sealed class PlatformWorkbookPhaseDWriteTests
                 "drgamtd",
                 "phase d release golden");
             Assert.That(propose.Proposed, Is.True);
-            var batchId = ProjectAegis.Data.Tests.AssertEx.Single(propose.BatchIds);
+            var batchId = AssertEx.Single(propose.BatchIds);
 
             var approve = _writeService.ApproveBatches(
                 dbPath,
@@ -251,7 +251,7 @@ public sealed class PlatformWorkbookPhaseDWriteTests
         string keyColumn,
         string keyValue)
     {
-        var sheet = ProjectAegis.Data.Tests.AssertEx.Single(workbook.Sheets, s => string.Equals(s.Name, sheetName, StringComparison.Ordinal));
+        var sheet = AssertEx.Single(workbook.Sheets, s => string.Equals(s.Name, sheetName, StringComparison.Ordinal));
         var colIndex = Array.IndexOf(sheet.Header.ToArray(), keyColumn);
         Assert.That(colIndex >= 0, Is.True, $"Column '{keyColumn}' not found on sheet '{sheetName}'.");
         for (var i = 0; i < sheet.Rows.Count; i++)

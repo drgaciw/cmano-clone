@@ -34,7 +34,7 @@ public sealed class GauntletPolicyStrictKeysTests
     {
         var report = GauntletPolicyStrictKeys.Check(Policy(ValidCore + """, "emcon": "phased" """));
         Assert.That(report.Warnings, Is.Empty);
-        var e = ProjectAegis.Data.Tests.AssertEx.Single(report.Errors);
+        var e = AssertEx.Single(report.Errors);
         Assert.That(e, Does.Contain("emcon"));
         Assert.That(e, Does.Contain("top-level"));
         Assert.That(e, Does.Contain("BUG-gauntlet-emcon-dimension-not-exercised"));
@@ -44,7 +44,7 @@ public sealed class GauntletPolicyStrictKeysTests
     public void Unknown_gauntlet_key_is_error_listing_allowed_keys()
     {
         var report = GauntletPolicyStrictKeys.Check(Policy(ValidCore + """, "emconPhases": [] """));
-        var e = ProjectAegis.Data.Tests.AssertEx.Single(report.Errors);
+        var e = AssertEx.Single(report.Errors);
         Assert.That(e, Does.Contain("emconPhases"));
         Assert.That(e, Does.Contain("expect"));
         Assert.That(e, Does.Contain("dimensionsClaimed"));
@@ -55,7 +55,7 @@ public sealed class GauntletPolicyStrictKeysTests
     {
         var body = ValidCore.Replace("\"minScore\": 50.0", "\"minScore\": 50.0, \"minimumScore\": 1");
         var report = GauntletPolicyStrictKeys.Check(Policy(body));
-        var e = ProjectAegis.Data.Tests.AssertEx.Single(report.Errors);
+        var e = AssertEx.Single(report.Errors);
         Assert.That(e, Does.Contain("gauntlet.expect.minimumScore"));
     }
 
@@ -64,7 +64,7 @@ public sealed class GauntletPolicyStrictKeysTests
     {
         var body = ValidCore.Replace("\"side\": \"blue\"", "\"side\": \"blue\", \"emcon\": \"Off\"");
         var report = GauntletPolicyStrictKeys.Check(Policy(body));
-        var e = ProjectAegis.Data.Tests.AssertEx.Single(report.Errors);
+        var e = AssertEx.Single(report.Errors);
         Assert.That(e, Does.Contain("gauntlet.units[0].emcon"));
     }
 
@@ -73,7 +73,7 @@ public sealed class GauntletPolicyStrictKeysTests
     {
         var report = GauntletPolicyStrictKeys.Check(
             Policy(ValidCore + """, "expectCi": { "side": "BLUE", "bogusKey": 1 } """));
-        var e = ProjectAegis.Data.Tests.AssertEx.Single(report.Errors);
+        var e = AssertEx.Single(report.Errors);
         Assert.That(e, Does.Contain("gauntlet.expectCi.bogusKey"));
     }
 

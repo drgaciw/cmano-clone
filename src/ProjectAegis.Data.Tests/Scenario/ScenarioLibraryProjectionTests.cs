@@ -100,11 +100,11 @@ public sealed class ScenarioLibraryProjectionTests
             var entries = ScenarioLibraryLister.ListFromDirectory(temp);
 
             Assert.That(entries.Count, Is.EqualTo(2));
-            var bad = ProjectAegis.Data.Tests.AssertEx.Single(entries, e => e.ScenarioId == "bad.scenario");
+            var bad = AssertEx.Single(entries, e => e.ScenarioId == "bad.scenario");
             Assert.That(bad.Available, Is.False);
             Assert.That(bad.UnavailableReason, Is.EqualTo(ScenarioLibraryReasons.SchemaError));
 
-            var good = ProjectAegis.Data.Tests.AssertEx.Single(entries, e => e.ScenarioId == "good.scenario");
+            var good = AssertEx.Single(entries, e => e.ScenarioId == "good.scenario");
             Assert.That(good.Available, Is.True);
             Assert.That(good.Title, Is.EqualTo("Good"));
         }

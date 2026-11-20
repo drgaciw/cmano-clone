@@ -7,7 +7,7 @@ using NUnit.Framework;
 namespace ProjectAegis.Data.Tests.Import;
 
 /// <summary>S26-04 — import E2E golden hygiene: snapshot stability and catalog state unchanged on re-import.</summary>
-[ProjectAegis.Data.Tests.Runner.CatalogSqliteCollection]
+[Runner.CatalogSqliteCollection]
 public sealed class CmoMarkdownImportGoldenTests
 {
     [Test]

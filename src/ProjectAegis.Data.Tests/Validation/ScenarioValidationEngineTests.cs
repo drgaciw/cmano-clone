@@ -52,7 +52,7 @@ public sealed class ScenarioValidationEngineTests
     {
         var scenario = StrikeScenario();
         var report = _engine.Validate(scenario, ValidationCatalogFixture.Unreachable(), _config);
-        var finding = ProjectAegis.Data.Tests.AssertEx.Single(report.Findings, f => f.Code == "STRIKE_UNREACHABLE");
+        var finding = AssertEx.Single(report.Findings, f => f.Code == "STRIKE_UNREACHABLE");
         Assert.That(finding.Data, Is.Not.Null);
         Assert.That(string.IsNullOrEmpty(finding.Data!["excess_nm"]), Is.False);
     }
@@ -69,7 +69,7 @@ public sealed class ScenarioValidationEngineTests
     {
         var scenario = StrikeScenario();
         var report = _engine.Validate(scenario, ValidationCatalogFixture.Unreachable(), _config);
-        var finding = ProjectAegis.Data.Tests.AssertEx.Single(report.Findings, f => f.Code == "STRIKE_UNREACHABLE");
+        var finding = AssertEx.Single(report.Findings, f => f.Code == "STRIKE_UNREACHABLE");
 
         Assert.That(            finding.Message, Is.EqualTo(            "Strike mission 'strike-1' target 'tgt-1' is out of combat radius by 400.5 nm."));
     }
@@ -79,7 +79,7 @@ public sealed class ScenarioValidationEngineTests
     {
         var scenario = StrikeScenario();
         var report = _engine.Validate(scenario, ValidationCatalogFixture.FuelDominated(), _config);
-        var finding = ProjectAegis.Data.Tests.AssertEx.Single(report.Findings, f => f.Code == "STRIKE_UNREACHABLE_FUEL");
+        var finding = AssertEx.Single(report.Findings, f => f.Code == "STRIKE_UNREACHABLE_FUEL");
         Assert.That(finding.Data, Is.Not.Null);
         Assert.That(string.IsNullOrEmpty(finding.Data!["excess_nm"]), Is.False);
     }

@@ -6,7 +6,7 @@ using NUnit.Framework;
 namespace ProjectAegis.Data.Tests.Catalog;
 
 /// <summary>S33-02 / DBI-1.5 dependency graph index and commit invalidation.</summary>
-[ProjectAegis.Data.Tests.Runner.CatalogSqliteCollection]
+[Runner.CatalogSqliteCollection]
 public sealed class DependencyGraphIndexTests
 {
     [Test]
@@ -49,7 +49,7 @@ public sealed class DependencyGraphIndexTests
             [],
             []);
 
-        var mountEdge = ProjectAegis.Data.Tests.AssertEx.Single(edges);
+        var mountEdge = AssertEx.Single(edges);
         Assert.That(mountEdge.Kind, Is.EqualTo(CatalogDependencyEdgeKind.PlatformToMount));
         Assert.That(mountEdge.PlatformId, Is.EqualTo("u1"));
         Assert.That(mountEdge.MountId, Is.EqualTo("vls-fwd"));
@@ -67,7 +67,7 @@ public sealed class DependencyGraphIndexTests
 
         Assert.That(edges.Count, Is.EqualTo(2));
         Assert.That(edges.Any(e => e.Kind == CatalogDependencyEdgeKind.PlatformToMount), Is.True);
-        var weaponEdge = ProjectAegis.Data.Tests.AssertEx.Single(edges, e => e.Kind == CatalogDependencyEdgeKind.PlatformToMountToWeapon);
+        var weaponEdge = AssertEx.Single(edges, e => e.Kind == CatalogDependencyEdgeKind.PlatformToMountToWeapon);
         Assert.That(weaponEdge.PlatformId, Is.EqualTo("u1"));
         Assert.That(weaponEdge.MountId, Is.EqualTo("vls-fwd"));
         Assert.That(weaponEdge.WeaponId, Is.EqualTo(CatalogWeaponIds.MvpDefault));
@@ -82,7 +82,7 @@ public sealed class DependencyGraphIndexTests
             [],
             [new CatalogSensorBinding("u1", "radar-1", 1.0, ReviewState: CatalogReviewStates.Approved)]);
 
-        var sensorEdge = ProjectAegis.Data.Tests.AssertEx.Single(edges);
+        var sensorEdge = AssertEx.Single(edges);
         Assert.That(sensorEdge.Kind, Is.EqualTo(CatalogDependencyEdgeKind.PlatformToSensor));
         Assert.That(sensorEdge.PlatformId, Is.EqualTo("u1"));
         Assert.That(sensorEdge.MountId, Is.EqualTo(""));

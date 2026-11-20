@@ -7,7 +7,7 @@ using NUnit.Framework;
 
 namespace ProjectAegis.Data.Tests.Osint;
 
-[ProjectAegis.Data.Tests.Runner.CatalogSqliteCollection]
+[Runner.CatalogSqliteCollection]
 public sealed class OsintDigestRunnerTests
 {
     [Test]

@@ -8,7 +8,7 @@ namespace ProjectAegis.Data.Tests.Catalog;
 /// BUG-catalog-emcon-tables-empty: gauntlet T2 Baltic Patrol platforms must have
 /// review_state-gated <c>platform_emcon</c> rows bound to existing catalog sensors.
 /// </summary>
-[ProjectAegis.Data.Tests.Runner.CatalogSqliteCollection]
+[Runner.CatalogSqliteCollection]
 public sealed class PlatformEmconSeedTests
 {
     /// <summary>

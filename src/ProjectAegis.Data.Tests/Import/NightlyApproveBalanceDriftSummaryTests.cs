@@ -9,7 +9,7 @@ using NUnit.Framework;
 namespace ProjectAegis.Data.Tests.Import;
 
 /// <summary>S31-09: balance drift advisory on nightly approve summary (default off).</summary>
-[ProjectAegis.Data.Tests.Runner.CatalogSqliteCollection]
+[Runner.CatalogSqliteCollection]
 public sealed class NightlyApproveBalanceDriftSummaryTests
 {
     private const string SnapshotId = CatalogValidationDefaults.BalticSnapshotId;
@@ -39,7 +39,7 @@ public sealed class NightlyApproveBalanceDriftSummaryTests
                 new FixedCatalogClock(31101),
                 "human",
                 "nightly-balance");
-            var batchId = ProjectAegis.Data.Tests.AssertEx.Single(propose.BatchIds);
+            var batchId = AssertEx.Single(propose.BatchIds);
 
             var advisory = NightlyApproveBalanceDriftSummary.EvaluateForBatch(
                 dbPath,
@@ -74,7 +74,7 @@ public sealed class NightlyApproveBalanceDriftSummaryTests
                 new FixedCatalogClock(31111),
                 "human",
                 "nightly-balance");
-            var batchId = ProjectAegis.Data.Tests.AssertEx.Single(propose.BatchIds);
+            var batchId = AssertEx.Single(propose.BatchIds);
 
             var advisory = NightlyApproveBalanceDriftSummary.EvaluateForBatch(
                 dbPath,
@@ -82,7 +82,7 @@ public sealed class NightlyApproveBalanceDriftSummaryTests
                 settings,
                 new FixedCatalogClock(31112));
             var dto = NightlyApproveBalanceDriftSummary.ToDto(advisory);
-            var finding = ProjectAegis.Data.Tests.AssertEx.Single(dto.Findings);
+            var finding = AssertEx.Single(dto.Findings);
             Assert.That(finding.Code, Is.EqualTo("BALANCE_WIN_RATE_DRIFT"));
             Assert.That(finding.EntityId, Is.EqualTo("u1"));
             Assert.That(dto.AdvisoryNotes.Any(note => note.Contains("u1", StringComparison.Ordinal)), Is.True);
@@ -122,7 +122,7 @@ public sealed class NightlyApproveBalanceDriftSummaryTests
                 new FixedCatalogClock(31121),
                 "human",
                 "nightly-balance");
-            var batchId = ProjectAegis.Data.Tests.AssertEx.Single(propose.BatchIds);
+            var batchId = AssertEx.Single(propose.BatchIds);
 
             var advisory = NightlyApproveBalanceDriftSummary.EvaluateForBatches(
                 dbPath,
@@ -132,7 +132,7 @@ public sealed class NightlyApproveBalanceDriftSummaryTests
             var dto = NightlyApproveBalanceDriftSummary.ToDto(advisory);
 
             Assert.That(dto.DriftDetectionEnabled, Is.True);
-            var finding = ProjectAegis.Data.Tests.AssertEx.Single(dto.Findings);
+            var finding = AssertEx.Single(dto.Findings);
             Assert.That(finding.EntityId, Is.EqualTo("u1"));
             Assert.That(finding.Code, Is.EqualTo("BALANCE_WIN_RATE_DRIFT"));
             Assert.That(dto.AdvisoryNotes, Is.Not.Empty);
@@ -233,7 +233,7 @@ public sealed class NightlyApproveBalanceDriftSummaryTests
         string keyColumn,
         string keyValue)
     {
-        var sheet = ProjectAegis.Data.Tests.AssertEx.Single(workbook.Sheets, s => string.Equals(s.Name, sheetName, StringComparison.Ordinal));
+        var sheet = AssertEx.Single(workbook.Sheets, s => string.Equals(s.Name, sheetName, StringComparison.Ordinal));
         var colIndex = Array.IndexOf(sheet.Header.ToArray(), keyColumn);
         Assert.That(colIndex >= 0, Is.True, $"Column '{keyColumn}' not found on sheet '{sheetName}'.");
         for (var i = 0; i < sheet.Rows.Count; i++)

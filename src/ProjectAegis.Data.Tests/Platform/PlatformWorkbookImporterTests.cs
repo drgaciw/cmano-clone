@@ -73,7 +73,7 @@ public sealed class PlatformWorkbookImporterTests
 
         Assert.That(result.Staged, Is.True);
         Assert.That(result.SensorBatchId, Is.Not.Null);
-        var proposed = ProjectAegis.Data.Tests.AssertEx.Single(gate.SensorProposals);
+        var proposed = AssertEx.Single(gate.SensorProposals);
         Assert.That(proposed[0].PlatformId, Is.EqualTo("u1"));
         Assert.That(proposed[0].SensorId, Is.EqualTo("cmo-sensor-1"));
         Assert.That(proposed[0].BasePd, Is.EqualTo(0.50).Within(0.000005));
@@ -128,7 +128,7 @@ public sealed class PlatformWorkbookImporterTests
 
         Assert.That(result.Staged, Is.True);
         Assert.That(result.MountBatchId, Is.Not.Null);
-        var proposed = ProjectAegis.Data.Tests.AssertEx.Single(gate.MountProposals);
+        var proposed = AssertEx.Single(gate.MountProposals);
         Assert.That(proposed[0].PlatformId, Is.EqualTo("u1"));
         Assert.That(proposed[0].MountId, Is.EqualTo("vls-fwd"));
         Assert.That(proposed[0].Capacity, Is.EqualTo(40));
@@ -146,7 +146,7 @@ public sealed class PlatformWorkbookImporterTests
 
         Assert.That(result.Staged, Is.True);
         Assert.That(result.LoadoutBatchId, Is.Not.Null);
-        var proposed = ProjectAegis.Data.Tests.AssertEx.Single(gate.LoadoutProposals);
+        var proposed = AssertEx.Single(gate.LoadoutProposals);
         Assert.That(proposed[0].PlatformId, Is.EqualTo("u1"));
         Assert.That(proposed[0].LoadoutId, Is.EqualTo("asuw-default"));
         Assert.That(proposed[0].LoadoutName, Is.EqualTo("ASuW Heavy"));
@@ -163,7 +163,7 @@ public sealed class PlatformWorkbookImporterTests
 
         Assert.That(result.Staged, Is.True);
         Assert.That(result.MagazineBatchId, Is.Not.Null);
-        var proposed = ProjectAegis.Data.Tests.AssertEx.Single(gate.MagazineProposals);
+        var proposed = AssertEx.Single(gate.MagazineProposals);
         Assert.That(proposed[0].PlatformId, Is.EqualTo("u1"));
         Assert.That(proposed[0].WeaponId, Is.EqualTo("mvp-weapon"));
         Assert.That(proposed[0].Quantity, Is.EqualTo(24));
@@ -188,7 +188,7 @@ public sealed class PlatformWorkbookImporterTests
 
         Assert.That(result.Staged, Is.True);
         Assert.That(result.LinkBatchId, Is.Not.Null);
-        var proposed = ProjectAegis.Data.Tests.AssertEx.Single(gate.LinkProposals);
+        var proposed = AssertEx.Single(gate.LinkProposals);
         Assert.That(proposed[0].LinkId, Is.EqualTo("NATO_TADIL_J"));
         Assert.That(proposed[0].LatencyMsNominal, Is.EqualTo(75));
     }
@@ -205,7 +205,7 @@ public sealed class PlatformWorkbookImporterTests
 
         Assert.That(result.Staged, Is.True);
         Assert.That(result.CommsBatchId, Is.Not.Null);
-        var proposed = ProjectAegis.Data.Tests.AssertEx.Single(gate.CommsProposals);
+        var proposed = AssertEx.Single(gate.CommsProposals);
         Assert.That(proposed[0].PlatformId, Is.EqualTo("u1"));
         Assert.That(proposed[0].LinkId, Is.EqualTo("NATO_TADIL_J"));
         Assert.That(proposed[0].Role, Is.EqualTo("tx"));
@@ -332,8 +332,8 @@ public sealed class PlatformWorkbookImporterTests
 
         Assert.That(result.Staged, Is.True);
         Assert.That(result.SensorBatchId, Is.Not.Null);
-        var proposed = ProjectAegis.Data.Tests.AssertEx.Single(gate.SensorProposals);
-        var only = ProjectAegis.Data.Tests.AssertEx.Single(proposed);
+        var proposed = AssertEx.Single(gate.SensorProposals);
+        var only = AssertEx.Single(proposed);
         Assert.That(only.SensorId, Is.EqualTo("sensor-approved-high"));
         Assert.That(only.BasePd, Is.EqualTo(0.50).Within(0.000005));
         Assert.That(only.ReviewState, Is.EqualTo(CatalogReviewStates.Approved));

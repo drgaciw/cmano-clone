@@ -11,7 +11,7 @@ namespace ProjectAegis.Data.Tests.Platform;
 /// Req-21 / ADR-011 S24-04 / S25-05: Phase B importer wiring — Mobility/Signatures/Emcon/Damage stage via write gate,
 /// empty-diff golden on unedited round-trip, FK guard on PlatformId, E2E read-back via SqliteCatalogReader.
 /// </summary>
-[ProjectAegis.Data.Tests.Runner.CatalogSqliteCollection]
+[Runner.CatalogSqliteCollection]
 public sealed class PlatformWorkbookPhaseBImportTests
 {
     private const string SnapshotId = CatalogValidationDefaults.BalticSnapshotId;
@@ -96,7 +96,7 @@ public sealed class PlatformWorkbookPhaseBImportTests
 
         Assert.That(result.Staged, Is.True);
         Assert.That(result.MobilityBatchId, Is.Not.Null);
-        var proposed = ProjectAegis.Data.Tests.AssertEx.Single(gate.MobilityProposals);
+        var proposed = AssertEx.Single(gate.MobilityProposals);
         Assert.That(proposed[0].PlatformId, Is.EqualTo("u1"));
         Assert.That(proposed[0].MaxSpeedKnots, Is.EqualTo(35).Within(0.000005));
     }
@@ -112,7 +112,7 @@ public sealed class PlatformWorkbookPhaseBImportTests
 
         Assert.That(result.Staged, Is.True);
         Assert.That(result.SignatureBatchId, Is.Not.Null);
-        var proposed = ProjectAegis.Data.Tests.AssertEx.Single(gate.SignatureProposals);
+        var proposed = AssertEx.Single(gate.SignatureProposals);
         Assert.That(proposed[0].PlatformId, Is.EqualTo("u1"));
         Assert.That(proposed[0].RcsBandDbsm, Is.EqualTo(-15).Within(0.000005));
     }
@@ -128,7 +128,7 @@ public sealed class PlatformWorkbookPhaseBImportTests
 
         Assert.That(result.Staged, Is.True);
         Assert.That(result.DamageBatchId, Is.Not.Null);
-        var proposed = ProjectAegis.Data.Tests.AssertEx.Single(gate.DamageProposals);
+        var proposed = AssertEx.Single(gate.DamageProposals);
         Assert.That(proposed[0].PlatformId, Is.EqualTo("u1"));
         Assert.That(proposed[0].MaxHp, Is.EqualTo(120).Within(0.000005));
     }
@@ -144,7 +144,7 @@ public sealed class PlatformWorkbookPhaseBImportTests
 
         Assert.That(result.Staged, Is.True);
         Assert.That(result.EmconBatchId, Is.Not.Null);
-        var proposed = ProjectAegis.Data.Tests.AssertEx.Single(gate.EmconProposals);
+        var proposed = AssertEx.Single(gate.EmconProposals);
         Assert.That(proposed[0].PlatformId, Is.EqualTo("u1"));
         Assert.That(proposed[0].Posture, Is.EqualTo("active"));
     }

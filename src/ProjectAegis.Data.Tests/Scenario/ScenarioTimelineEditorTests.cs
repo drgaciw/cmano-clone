@@ -76,7 +76,7 @@ public sealed class ScenarioTimelineEditorTests
 
         Assert.That(editor.TryRemoveTimelineEntry("M1"), Is.True);
         Assert.That(editor.TryRemoveTimelineEntry("missing"), Is.False);
-        var remaining = ProjectAegis.Data.Tests.AssertEx.Single(editor.ToDto().OperationsTimeline);
+        var remaining = AssertEx.Single(editor.ToDto().OperationsTimeline);
         Assert.That(remaining.MissionId, Is.EqualTo("m2"));
     }
 
@@ -103,7 +103,7 @@ public sealed class ScenarioTimelineEditorTests
 
             var dto = ScenarioDocumentJsonLoader.LoadFromFile(path);
             Assert.That(dto.Metadata.EditVersion, Is.EqualTo(2));
-            var entry = ProjectAegis.Data.Tests.AssertEx.Single(dto.OperationsTimeline);
+            var entry = AssertEx.Single(dto.OperationsTimeline);
             Assert.That(entry.MissionId, Is.EqualTo("strike-alpha"));
             Assert.That(entry.ActivateAtTick, Is.EqualTo(120));
         }

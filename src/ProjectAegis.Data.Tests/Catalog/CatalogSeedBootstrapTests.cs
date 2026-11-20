@@ -3,7 +3,7 @@ using NUnit.Framework;
 
 namespace ProjectAegis.Data.Tests.Catalog;
 
-[ProjectAegis.Data.Tests.Runner.CatalogSqliteCollection]
+[Runner.CatalogSqliteCollection]
 public sealed class CatalogSeedBootstrapTests
 {
     [Test]

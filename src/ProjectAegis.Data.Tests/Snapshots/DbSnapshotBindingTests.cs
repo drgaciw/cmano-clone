@@ -7,7 +7,7 @@ using NUnit.Framework;
 
 namespace ProjectAegis.Data.Tests.Snapshots;
 
-[ProjectAegis.Data.Tests.Runner.CatalogSqliteCollection]
+[Runner.CatalogSqliteCollection]
 public sealed class DbSnapshotBindingTests
 {
     [Test]

@@ -8,7 +8,7 @@ using NUnit.Framework;
 namespace ProjectAegis.Data.Tests.Catalog;
 
 /// <summary>S32-03 mount/loadout quarantine triage + bounded FK repair envelope.</summary>
-[ProjectAegis.Data.Tests.Runner.CatalogSqliteCollection]
+[Runner.CatalogSqliteCollection]
 public sealed class MountLoadoutQuarantineTriageTests
 {
     [Test]
@@ -21,7 +21,7 @@ public sealed class MountLoadoutQuarantineTriageTests
 
             var result = MountLoadoutQuarantineTriage.Run(dbPath, dryRun: true, entityHint: "platform");
 
-            var before = ProjectAegis.Data.Tests.AssertEx.Single(result.Before);
+            var before = AssertEx.Single(result.Before);
             Assert.That(before.Domain, Is.EqualTo(MountLoadoutQuarantineDomain.Platform));
             Assert.That(before.MountQuarantined, Is.EqualTo(1));
             Assert.That(before.LoadoutQuarantined, Is.EqualTo(1));
@@ -57,7 +57,7 @@ public sealed class MountLoadoutQuarantineTriageTests
             Assert.That(result.RepairedBatchIds, Does.Contain(batches.MountBatchId));
             Assert.That(result.RepairedBatchIds, Does.Contain(batches.LoadoutBatchId));
 
-            var after = ProjectAegis.Data.Tests.AssertEx.Single(result.After);
+            var after = AssertEx.Single(result.After);
             Assert.That(after.MountQuarantined, Is.EqualTo(0));
             Assert.That(after.LoadoutQuarantined, Is.EqualTo(0));
 
@@ -90,7 +90,7 @@ public sealed class MountLoadoutQuarantineTriageTests
             }
 
             var result = MountLoadoutQuarantineTriage.Run(dbPath, dryRun: true, entityHint: "platform");
-            var row = ProjectAegis.Data.Tests.AssertEx.Single(result.RemainingQuarantine);
+            var row = AssertEx.Single(result.RemainingQuarantine);
             Assert.That(row.ChildKind, Is.EqualTo("mount"));
             Assert.That(row.Reason, Is.EqualTo(MountLoadoutQuarantineRepairEnvelope.ReasonOrphanPlatform));
             Assert.That(row.RepairRule, Is.Null);
@@ -167,7 +167,7 @@ public sealed class MountLoadoutQuarantineTriageTests
             }
 
             var result = MountLoadoutQuarantineTriage.Run(dbPath, dryRun: true, entityHint: domain);
-            var counts = ProjectAegis.Data.Tests.AssertEx.Single(result.Before);
+            var counts = AssertEx.Single(result.Before);
             Assert.That(counts.Domain, Is.EqualTo(domain));
             Assert.That(counts.MountQuarantined, Is.EqualTo(0));
             Assert.That(counts.LoadoutQuarantined, Is.EqualTo(0));

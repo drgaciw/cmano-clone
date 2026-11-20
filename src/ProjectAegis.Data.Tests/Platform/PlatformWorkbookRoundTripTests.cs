@@ -136,7 +136,7 @@ public sealed class PlatformWorkbookRoundTripTests
         };
 
         var changes = PlatformWorkbookDiff.Compare(original, Export(edited));
-        var change = ProjectAegis.Data.Tests.AssertEx.Single(changes);
+        var change = AssertEx.Single(changes);
         Assert.That(change.Sheet, Is.EqualTo("Magazines"));
         Assert.That(change.Kind, Is.EqualTo(PlatformWorkbookChangeKind.CellChanged));
         Assert.That(change.Detail, Does.Contain("Quantity"));

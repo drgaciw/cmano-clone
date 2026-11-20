@@ -63,7 +63,7 @@ public sealed class EventStaticAnalyzerTests
 
         var findings = EventStaticAnalyzer.Analyze(doc);
 
-        var f = ProjectAegis.Data.Tests.AssertEx.Single(findings, x => x.Code == EventStaticAnalyzer.DeadTriggerCode);
+        var f = AssertEx.Single(findings, x => x.Code == EventStaticAnalyzer.DeadTriggerCode);
         Assert.That(f.Severity, Is.EqualTo(ValidationSeverity.Warning));
         Assert.That(f.Message, Does.Contain("evt-dead"));
         Assert.That(EventStaticAnalyzer.EventIdOf(f), Is.EqualTo("evt-dead"));
@@ -101,7 +101,7 @@ public sealed class EventStaticAnalyzerTests
 
         var findings = EventStaticAnalyzer.Analyze(doc);
 
-        var f = ProjectAegis.Data.Tests.AssertEx.Single(findings, x => x.Code == EventStaticAnalyzer.UnreachableActionCode);
+        var f = AssertEx.Single(findings, x => x.Code == EventStaticAnalyzer.UnreachableActionCode);
         Assert.That(f.Message, Does.Contain("missing mission id").IgnoreCase);
         Assert.That(EventStaticAnalyzer.EventIdOf(f), Is.EqualTo("evt-miss"));
     }
@@ -123,7 +123,7 @@ public sealed class EventStaticAnalyzerTests
 
         var findings = EventStaticAnalyzer.Analyze(doc);
 
-        var f = ProjectAegis.Data.Tests.AssertEx.Single(findings, x => x.Code == EventStaticAnalyzer.UnreachableActionCode);
+        var f = AssertEx.Single(findings, x => x.Code == EventStaticAnalyzer.UnreachableActionCode);
         Assert.That(f.MissionId, Is.EqualTo("no-such-mission"));
         Assert.That(f.Message, Does.Contain("no-such-mission"));
     }
@@ -166,7 +166,7 @@ public sealed class EventStaticAnalyzerTests
 
         var findings = EventStaticAnalyzer.Analyze(doc);
 
-        var f = ProjectAegis.Data.Tests.AssertEx.Single(findings, x => x.Code == EventStaticAnalyzer.ContradictoryCode);
+        var f = AssertEx.Single(findings, x => x.Code == EventStaticAnalyzer.ContradictoryCode);
         Assert.That(f.Message, Does.Contain("evt-contra"));
     }
 

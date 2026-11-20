@@ -91,10 +91,10 @@ public sealed class ScenarioNullCollectionContractTests
 
     private static void AssertEmptyConditionsAndPostures(ScenarioDocumentDto document)
     {
-        var side = ProjectAegis.Data.Tests.AssertEx.Single(document.Sides);
+        var side = AssertEx.Single(document.Sides);
         Assert.That(side.Postures, Is.Not.Null);
         Assert.That(side.Postures, Is.Empty);
-        var evt = ProjectAegis.Data.Tests.AssertEx.Single(document.Events!);
+        var evt = AssertEx.Single(document.Events!);
         Assert.That(evt.Conditions, Is.Not.Null);
         Assert.That(evt.Conditions, Is.Empty);
     }

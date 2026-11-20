@@ -31,12 +31,12 @@ public sealed class DoctrineInheritanceValidateTests
         var catalog = InMemoryCatalogReader.BalticPatrolFixture();
         var report = Engine.Validate(scenario, catalog, Config);
 
-        var strike = ProjectAegis.Data.Tests.AssertEx.Single(            report.Findings,             f => f.Code == "DOCTRINE_RESOLVED" && f.MissionId == "strike-1");
+        var strike = AssertEx.Single(            report.Findings,             f => f.Code == "DOCTRINE_RESOLVED" && f.MissionId == "strike-1");
         Assert.That(strike.Data, Is.Not.Null);
         Assert.That(strike.Data!["resolvedRoe"], Is.EqualTo("WeaponsTight"));
         Assert.That(strike.Data!["inheritanceSource"], Is.EqualTo("override"));
 
-        var patrol = ProjectAegis.Data.Tests.AssertEx.Single(            report.Findings,             f => f.Code == "DOCTRINE_RESOLVED" && f.MissionId == "patrol-1");
+        var patrol = AssertEx.Single(            report.Findings,             f => f.Code == "DOCTRINE_RESOLVED" && f.MissionId == "patrol-1");
         Assert.That(patrol.Data, Is.Not.Null);
         Assert.That(patrol.Data!["resolvedRoe"], Is.EqualTo("WeaponsFree"));
         Assert.That(patrol.Data!["inheritanceSource"], Is.EqualTo("side"));
@@ -91,7 +91,7 @@ public sealed class DoctrineInheritanceValidateTests
             ],
         };
 
-        var finding = ProjectAegis.Data.Tests.AssertEx.Single(            Engine.Validate(scenario, InMemoryCatalogReader.BalticPatrolFixture(), Config).Findings,             f => f.Code == "DOCTRINE_RESOLVED");
+        var finding = AssertEx.Single(            Engine.Validate(scenario, InMemoryCatalogReader.BalticPatrolFixture(), Config).Findings,             f => f.Code == "DOCTRINE_RESOLVED");
         Assert.That(finding.Data!["resolvedRoe"], Is.EqualTo("WeaponsFree"));
         Assert.That(finding.Data!["inheritanceSource"], Is.EqualTo("side"));
     }
@@ -136,11 +136,11 @@ public sealed class DoctrineInheritanceValidateTests
         var report = Engine.Validate(scenario, InMemoryCatalogReader.BalticPatrolFixture(), Config);
 
         // When/Then: override source for strike, side (parent) for patrol
-        var strike = ProjectAegis.Data.Tests.AssertEx.Single(report.Findings, f => f.Code == "DOCTRINE_RESOLVED" && f.MissionId == "strike-roe");
+        var strike = AssertEx.Single(report.Findings, f => f.Code == "DOCTRINE_RESOLVED" && f.MissionId == "strike-roe");
         Assert.That(strike.Data!["resolvedRoe"], Is.EqualTo("WeaponsFree"));
         Assert.That(strike.Data!["inheritanceSource"], Is.EqualTo("override"));
 
-        var patrol = ProjectAegis.Data.Tests.AssertEx.Single(report.Findings, f => f.Code == "DOCTRINE_RESOLVED" && f.MissionId == "patrol-inherit");
+        var patrol = AssertEx.Single(report.Findings, f => f.Code == "DOCTRINE_RESOLVED" && f.MissionId == "patrol-inherit");
         Assert.That(patrol.Data!["resolvedRoe"], Is.EqualTo("WeaponsTight"));
         Assert.That(patrol.Data!["inheritanceSource"], Is.EqualTo("side"));
     }

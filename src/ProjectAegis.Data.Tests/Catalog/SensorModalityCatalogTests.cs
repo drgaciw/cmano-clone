@@ -5,7 +5,7 @@ using NUnit.Framework;
 namespace ProjectAegis.Data.Tests.Catalog;
 
 /// <summary>S111-02 / DRG-10: catalog-extend sensor modality (Radar default + IR/Visual fixtures).</summary>
-[ProjectAegis.Data.Tests.Runner.CatalogSqliteCollection]
+[Runner.CatalogSqliteCollection]
 public sealed class SensorModalityCatalogTests
 {
     [Test]

@@ -37,7 +37,7 @@ public sealed class SaveVsExportGateTests
             Assert.That(actualJson, Is.EqualTo(expectedJson));
 
             var reloaded = ScenarioDocumentEditor.Load(path);
-            var mission = ProjectAegis.Data.Tests.AssertEx.Single(reloaded.Missions);
+            var mission = AssertEx.Single(reloaded.Missions);
             Assert.That(mission.Id, Is.EqualTo("strike-1"));
             Assert.That(mission.Type, Is.EqualTo("Strike"));
             Assert.That(mission.TargetIds, Is.Empty);

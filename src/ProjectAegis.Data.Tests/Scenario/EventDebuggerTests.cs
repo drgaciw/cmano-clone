@@ -59,14 +59,14 @@ public sealed class EventDebuggerTests
 
         var actionResults = root.GetProperty("action_results");
         Assert.That(actionResults.ValueKind, Is.EqualTo(JsonValueKind.Array));
-        var action = ProjectAegis.Data.Tests.AssertEx.Single(actionResults.EnumerateArray().ToArray());
+        var action = AssertEx.Single(actionResults.EnumerateArray().ToArray());
         Assert.That(action.GetProperty("type").GetString(), Is.EqualTo("Message"));
         Assert.That(action.GetProperty("applied").GetBoolean(), Is.False);
         Assert.That(action.GetProperty("note").GetString(), Is.EqualTo("not-fired"));
 
         var unmet = root.GetProperty("unmet_conditions");
         Assert.That(unmet.ValueKind, Is.EqualTo(JsonValueKind.Array));
-        var condition = ProjectAegis.Data.Tests.AssertEx.Single(unmet.EnumerateArray().ToArray());
+        var condition = AssertEx.Single(unmet.EnumerateArray().ToArray());
 
         Assert.That(condition.GetProperty("type").GetString(), Is.EqualTo("UnitEntersZone"));
         Assert.That(condition.GetProperty("result").GetBoolean(), Is.False);
@@ -163,7 +163,7 @@ public sealed class EventDebuggerTests
 
         var unmet = root.GetProperty("unmet_conditions");
         Assert.That(unmet.ValueKind, Is.EqualTo(JsonValueKind.Array));
-        var condition = ProjectAegis.Data.Tests.AssertEx.Single(unmet.EnumerateArray().ToArray());
+        var condition = AssertEx.Single(unmet.EnumerateArray().ToArray());
 
         Assert.That(condition.GetProperty("type").GetString(), Is.EqualTo("UnitEntersZone"));
         Assert.That(condition.GetProperty("result").GetBoolean(), Is.False);

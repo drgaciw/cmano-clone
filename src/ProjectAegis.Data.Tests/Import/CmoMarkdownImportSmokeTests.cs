@@ -6,7 +6,7 @@ using NUnit.Framework;
 
 namespace ProjectAegis.Data.Tests.Import;
 
-[ProjectAegis.Data.Tests.Runner.CatalogSqliteCollection]
+[Runner.CatalogSqliteCollection]
 public sealed class CmoMarkdownImportSmokeTests
 {
     [Test]
@@ -25,7 +25,7 @@ public sealed class CmoMarkdownImportSmokeTests
             Assert.That(second[i].BasePd, Is.EqualTo(first[i].BasePd));
         }
 
-        var radar = ProjectAegis.Data.Tests.AssertEx.Single(first, b => b.SensorId == "cmo-sensor-1001");
+        var radar = AssertEx.Single(first, b => b.SensorId == "cmo-sensor-1001");
         Assert.That(radar.SourceFactId, Is.EqualTo("cmano-db:sensor/1001"));
         Assert.That(radar.PlatformId, Is.EqualTo("test-radar-an-spy-1"));
     }

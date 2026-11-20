@@ -127,7 +127,7 @@ public sealed class ScenarioEventCrudEditorTests
 
             var dto = ScenarioDocumentJsonLoader.LoadFromFile(path);
             Assert.That(dto.Metadata.EditVersion, Is.EqualTo(2));
-            var evt = ProjectAegis.Data.Tests.AssertEx.Single(dto.Events!);
+            var evt = AssertEx.Single(dto.Events!);
             Assert.That(evt.Id, Is.EqualTo("red_launch"));
             Assert.That(evt.TriggerType, Is.EqualTo("Time"));
             Assert.That(evt.Conditions, Has.Exactly(1).Items);

@@ -12,7 +12,7 @@ namespace ProjectAegis.Data.Tests.Platform;
 /// TRL gate (PLE-4.4). Strengthens existing governance against silent gate leakage,
 /// sort drift, and release bookkeeping corruption.
 /// </summary>
-[ProjectAegis.Data.Tests.Runner.CatalogSqliteCollection]
+[Runner.CatalogSqliteCollection]
 public sealed class PlatformWorkbookGovernanceAdversarialTests
 {
     private const string SnapshotId = "baltic_patrol";
@@ -188,10 +188,10 @@ public sealed class PlatformWorkbookGovernanceAdversarialTests
         var result = ImporterFor(source).Stage(Export(edited), gate, "human", "adv-w2", "mixed");
 
         Assert.That(result.Staged, Is.True);
-        var proposed = ProjectAegis.Data.Tests.AssertEx.Single(ProjectAegis.Data.Tests.AssertEx.Single(gate.SensorProposals));
+        var proposed = AssertEx.Single(AssertEx.Single(gate.SensorProposals));
         Assert.That(proposed.SensorId, Is.EqualTo("sensor-hi"));
 
-        var q = ProjectAegis.Data.Tests.AssertEx.Single(result.QuarantineEntries, e => e.EntityId == "sensor-lo");
+        var q = AssertEx.Single(result.QuarantineEntries, e => e.EntityId == "sensor-lo");
         Assert.That(q.EntityKind, Is.EqualTo("sensor"));
         Assert.That(new[] { "trl_below_minimum", "review_state_provisional" }, Does.Contain(q.Reason));
         // CatalogImportGate reason must match PartitionForImport output for same binding.
@@ -213,7 +213,7 @@ public sealed class PlatformWorkbookGovernanceAdversarialTests
             basePdAfter: 0.60);
         Assert.That(atFloor.Result.Staged, Is.True);
         Assert.That(atFloor.Result.QuarantineEntries, Is.Empty);
-        Assert.That(ProjectAegis.Data.Tests.AssertEx.Single(ProjectAegis.Data.Tests.AssertEx.Single(atFloor.Gate.SensorProposals)).SensorId, Is.EqualTo("sensor-boundary"));
+        Assert.That(AssertEx.Single(AssertEx.Single(atFloor.Gate.SensorProposals)).SensorId, Is.EqualTo("sensor-boundary"));
 
         var below = StageSingleSensor(
             ReviewState: CatalogReviewStates.Approved,
@@ -222,7 +222,7 @@ public sealed class PlatformWorkbookGovernanceAdversarialTests
             basePdAfter: 0.60);
         Assert.That(below.Result.Staged, Is.False);
         Assert.That(below.Gate.SensorProposals, Is.Empty);
-        var q = ProjectAegis.Data.Tests.AssertEx.Single(below.Result.QuarantineEntries);
+        var q = AssertEx.Single(below.Result.QuarantineEntries);
         Assert.That(q.Reason, Is.EqualTo("trl_below_minimum"));
         Assert.That(q.EntityId, Is.EqualTo("sensor-boundary"));
     }
@@ -239,7 +239,7 @@ public sealed class PlatformWorkbookGovernanceAdversarialTests
 
         Assert.That(staged.Result.Staged, Is.False);
         AssertGateUntouched(staged.Gate);
-        var q = ProjectAegis.Data.Tests.AssertEx.Single(staged.Result.QuarantineEntries);
+        var q = AssertEx.Single(staged.Result.QuarantineEntries);
         Assert.That(q.Reason, Is.EqualTo("trl_below_minimum"));
         Assert.That(q.Detail, Does.Contain("TrlLevel=2"));
         Assert.That(q.Detail, Does.Contain("ReviewState=approved").IgnoreCase);
@@ -283,7 +283,7 @@ public sealed class PlatformWorkbookGovernanceAdversarialTests
 
         Assert.That(result.Staged, Is.True);
         Assert.That(result.QuarantineEntries, Is.Empty);
-        var proposed = ProjectAegis.Data.Tests.AssertEx.Single(ProjectAegis.Data.Tests.AssertEx.Single(gate.SensorProposals));
+        var proposed = AssertEx.Single(AssertEx.Single(gate.SensorProposals));
         Assert.That(proposed.SensorId, Is.EqualTo("sensor-case"));
         // Gate accepts Title Case the same as lowercase approved.
         Assert.That(            proposed.ReviewState, Is.EqualTo(            CatalogReviewStates.Approved).IgnoreCase);
@@ -313,7 +313,7 @@ public sealed class PlatformWorkbookGovernanceAdversarialTests
 
             var propose = writeService.Propose(
                 dbPath, edited, new FixedCatalogClock(9801), "human", "adv-w2", "no-release");
-            var batchId = ProjectAegis.Data.Tests.AssertEx.Single(propose.BatchIds);
+            var batchId = AssertEx.Single(propose.BatchIds);
 
             // Empty approve list: no commit → no release metadata.
             var emptyApprove = writeService.ApproveBatches(
@@ -356,7 +356,7 @@ public sealed class PlatformWorkbookGovernanceAdversarialTests
 
             var propose = writeService.Propose(
                 dbPath, edited, new FixedCatalogClock(9811), "human", "adv-w2", "double");
-            var batchId = ProjectAegis.Data.Tests.AssertEx.Single(propose.BatchIds);
+            var batchId = AssertEx.Single(propose.BatchIds);
 
             var first = writeService.ApproveBatches(
                 dbPath, [batchId], new FixedCatalogClock(9812), "human", "qa");

@@ -5,7 +5,7 @@ using NUnit.Framework;
 
 namespace ProjectAegis.Data.Tests.WriteGate;
 
-[ProjectAegis.Data.Tests.Runner.CatalogSqliteCollection]
+[Runner.CatalogSqliteCollection]
 public sealed class CatalogWriteGatePlatformApproveTests
 {
     [Test]
@@ -36,7 +36,7 @@ public sealed class CatalogWriteGatePlatformApproveTests
             using var connection = new SqliteConnection($"Data Source={dbPath};Pooling=false");
             connection.Open();
             var live = ReadLivePlatforms(connection);
-            var committed = ProjectAegis.Data.Tests.AssertEx.Single(live, p => p.PlatformId == "u-test-platform");
+            var committed = AssertEx.Single(live, p => p.PlatformId == "u-test-platform");
             Assert.That(committed.DisplayName, Is.EqualTo("Test Frigate"));
             Assert.That(committed.PlatformClass, Is.EqualTo("Frigate"));
             Assert.That(committed.Domain, Is.EqualTo("surface"));
@@ -193,7 +193,7 @@ public sealed class CatalogWriteGatePlatformApproveTests
             using var connection = new SqliteConnection($"Data Source={dbPath};Pooling=false");
             connection.Open();
             var live = ReadLiveWeapons(connection);
-            var committed = ProjectAegis.Data.Tests.AssertEx.Single(live, w => w.WeaponId == "test-weapon-1");
+            var committed = AssertEx.Single(live, w => w.WeaponId == "test-weapon-1");
             Assert.That(committed.DisplayName, Is.EqualTo("Test Missile"));
             Assert.That(committed.MaxRangeMeters, Is.EqualTo(80_000).Within(0.5));
             Assert.That(committed.WeaponType, Is.EqualTo("Guided Weapon"));
@@ -246,21 +246,21 @@ public sealed class CatalogWriteGatePlatformApproveTests
             connection.Open();
 
             var mounts = ReadLiveMounts(connection);
-            var committedMount = ProjectAegis.Data.Tests.AssertEx.Single(mounts, m => m.MountId == "vls-fore");
+            var committedMount = AssertEx.Single(mounts, m => m.MountId == "vls-fore");
             Assert.That(committedMount.MountType, Is.EqualTo("vls"));
             Assert.That(committedMount.Capacity, Is.EqualTo(8));
 
             var loadouts = ReadLiveLoadouts(connection);
-            var committedLoadout = ProjectAegis.Data.Tests.AssertEx.Single(loadouts, l => l.LoadoutId == "asuw-default");
+            var committedLoadout = AssertEx.Single(loadouts, l => l.LoadoutId == "asuw-default");
             Assert.That(committedLoadout.LoadoutName, Is.EqualTo("ASUW Default"));
             Assert.That(committedLoadout.IsDefault, Is.True);
 
             var magazines = ReadLiveMagazines(connection);
-            var committedMagazine = ProjectAegis.Data.Tests.AssertEx.Single(magazines, m => m.WeaponId == "rim-66");
+            var committedMagazine = AssertEx.Single(magazines, m => m.WeaponId == "rim-66");
             Assert.That(committedMagazine.Quantity, Is.EqualTo(16));
 
             var commsRows = ReadLiveComms(connection);
-            var committedComms = ProjectAegis.Data.Tests.AssertEx.Single(commsRows, c => c.LinkId == "link-1");
+            var committedComms = AssertEx.Single(commsRows, c => c.LinkId == "link-1");
             Assert.That(committedComms.Role, Is.EqualTo("txrx"));
             Assert.That(committedComms.SatcomCapable, Is.True);
         }

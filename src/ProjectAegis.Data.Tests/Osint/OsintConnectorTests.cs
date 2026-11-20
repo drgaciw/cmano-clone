@@ -119,7 +119,7 @@ Assert.That(string.IsNullOrEmpty(r.SourceUrl), Is.False);
 Assert.That(string.IsNullOrEmpty(r.CanonicalId), Is.False);
 }
         // Stable sort
-        var sorted = records.OrderBy(r => r.SourceUrl).ThenBy(r => r.CanonicalId).ToArray();
+        var sorted = records.OrderBy(r => r.SourceUrl, StringComparer.Ordinal).ThenBy(r => r.CanonicalId, StringComparer.Ordinal).ToArray();
         Assert.That(records.Select(r => r.CanonicalId), Is.EqualTo(sorted.Select(r => r.CanonicalId)));
 
         var runner = new OsintDigestRunner(0.65);

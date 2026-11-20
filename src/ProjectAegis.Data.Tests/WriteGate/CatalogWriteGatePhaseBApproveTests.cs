@@ -6,7 +6,7 @@ using NUnit.Framework;
 namespace ProjectAegis.Data.Tests.WriteGate;
 
 /// <summary>S24-03: Phase B write-gate staging commit (extend-only CatalogWriteGate).</summary>
-[ProjectAegis.Data.Tests.Runner.CatalogSqliteCollection]
+[Runner.CatalogSqliteCollection]
 public sealed class CatalogWriteGatePhaseBApproveTests
 {
     [Test]

@@ -78,7 +78,7 @@ public sealed class ScenarioGauntletJsonDtoTests
         Assert.That(g.Tier, Is.EqualTo(2));
         Assert.That(g.DimensionsClaimed, Is.EqualTo(["emcon", "roe"]));
 
-        var unit = ProjectAegis.Data.Tests.AssertEx.Single(g.Units!);
+        var unit = AssertEx.Single(g.Units!);
         Assert.That(unit.UnitId, Is.EqualTo("u1"));
         Assert.That(unit.PlatformId, Is.EqualTo("k-31-visby-2009"));
         Assert.That(unit.Domain, Is.EqualTo("surface"));

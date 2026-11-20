@@ -6,7 +6,7 @@ using NUnit.Framework;
 namespace ProjectAegis.Data.Tests.WriteGate;
 
 /// <summary>S25-04: Phase B damage write-gate staging commit (extend-only CatalogWriteGate).</summary>
-[ProjectAegis.Data.Tests.Runner.CatalogSqliteCollection]
+[Runner.CatalogSqliteCollection]
 public sealed class CatalogWriteGatePhaseBDamageTests
 {
     [Test]
@@ -105,10 +105,23 @@ public sealed class CatalogWriteGatePhaseBDamageTests
         var dbPath = Path.Combine(Path.GetTempPath(), $"aegis-damage-empty-{Guid.NewGuid():N}.db");
         try
         {
-            using var gate = new CatalogWriteGate(dbPath, new FixedCatalogClock(9604));
-            var ex = Assert.Throws<ArgumentException>(() =>
-                gate.ProposePlatformDamageBatch([], "agent", "empty-test"));
-            Assert.That(ex!.Message, Does.Contain("damage row").IgnoreCase);
+            var gate = new CatalogWriteGate(dbPath, new FixedCatalogClock(9604));
+            Exception? thrown = null;
+            try
+            {
+                gate.ProposePlatformDamageBatch([], "agent", "empty-test");
+            }
+            catch (Exception ex)
+            {
+                thrown = ex;
+            }
+            finally
+            {
+                gate.Dispose();
+            }
+
+            Assert.That(thrown, Is.TypeOf<ArgumentException>());
+            Assert.That(thrown!.Message, Does.Contain("damage row").IgnoreCase);
         }
         finally
         {

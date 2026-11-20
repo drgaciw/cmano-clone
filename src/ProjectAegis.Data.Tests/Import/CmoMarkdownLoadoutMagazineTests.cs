@@ -6,7 +6,7 @@ using NUnit.Framework;
 namespace ProjectAegis.Data.Tests.Import;
 
 /// <summary>S27-03 — CMO platform markdown loadout + magazine import via write gate.</summary>
-[ProjectAegis.Data.Tests.Runner.CatalogSqliteCollection]
+[Runner.CatalogSqliteCollection]
 public sealed class CmoMarkdownLoadoutMagazineTests
 {
     [Test]

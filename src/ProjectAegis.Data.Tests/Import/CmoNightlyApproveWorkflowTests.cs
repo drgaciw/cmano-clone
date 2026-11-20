@@ -8,7 +8,7 @@ using NUnit.Framework;
 namespace ProjectAegis.Data.Tests.Import;
 
 /// <summary>S29-03 / S30-04 curated nightly propose→approve→RecordRelease regression (off-CI path).</summary>
-[ProjectAegis.Data.Tests.Runner.CatalogSqliteCollection]
+[Runner.CatalogSqliteCollection]
 public sealed class CmoNightlyApproveWorkflowTests
 {
     [Test]
