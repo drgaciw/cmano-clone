@@ -2,7 +2,8 @@ using ProjectAegis.Data.Catalog;
 using ProjectAegis.Sim.Catalog;
 using ProjectAegis.Sim.Engage;
 using ProjectAegis.Sim.Scenario;
-using Xunit;
+using NUnit.Framework;
+using ProjectAegis.Sim.Tests;
 
 namespace ProjectAegis.Sim.Tests.Catalog;
 
@@ -18,19 +19,19 @@ public sealed class CatalogDamageHotTickApplierTests
         PlatformHpLedger.SeedFromWithdrawTargets(
             [new ScenarioCatalogWithdrawTarget("u1", hpPct)]);
 
-    [Fact]
+    [Test]
     public void HotTick_Disabled_when_combat_domains_flag_off()
     {
-        Assert.False(CatalogDamageHotTickApplier.IsEnabled(combatDomainsEnabled: false, catalogWithdrawTargetCount: 1));
+        Assert.That(CatalogDamageHotTickApplier.IsEnabled(combatDomainsEnabled: false, catalogWithdrawTargetCount: 1), Is.False);
     }
 
-    [Fact]
+    [Test]
     public void HotTick_Enabled_when_combat_domains_on_and_catalog_withdraw_present()
     {
-        Assert.True(CatalogDamageHotTickApplier.IsEnabled(combatDomainsEnabled: true, catalogWithdrawTargetCount: 1));
+        Assert.That(CatalogDamageHotTickApplier.IsEnabled(combatDomainsEnabled: true, catalogWithdrawTargetCount: 1), Is.True);
     }
 
-    [Fact]
+    [Test]
     public void HotTick_Ambient_drain_crosses_withdraw_threshold_deterministically()
     {
         var ledger = Ledger(hpPct: 26);
@@ -39,14 +40,16 @@ public sealed class CatalogDamageHotTickApplierTests
         var first = CatalogDamageHotTickApplier.ApplyAmbientTickDrain(ledger, catalog);
         var second = CatalogDamageHotTickApplier.ApplyAmbientTickDrain(ledger, catalog);
 
-        Assert.Single(first);
-        Assert.Single(second);
-        Assert.Equal(24.0, ledger.TryGetHpPct("u1", out var hp) ? hp : -1, precision: 6);
+        AssertEx.Single(first);
+        AssertEx.Single(second);
+        Assert.That(
+            Math.Round((double)(ledger.TryGetHpPct("u1", out var hp) ? hp : -1), 6, MidpointRounding.AwayFromZero),
+            Is.EqualTo(Math.Round((double)(24.0), 6, MidpointRounding.AwayFromZero)));
         var trials = CatalogDamageHotTickApplier.ResolveWithdrawTrials(ledger, catalog);
-        Assert.True(trials[0].WithdrawRecommended);
+        Assert.That(trials[0].WithdrawRecommended, Is.True);
     }
 
-    [Fact]
+    [Test]
     public void HotTick_Missing_damage_row_skips_apply_and_preserves_hp()
     {
         var ledger = Ledger(hpPct: 40);
@@ -54,11 +57,13 @@ public sealed class CatalogDamageHotTickApplierTests
 
         var changes = CatalogDamageHotTickApplier.ApplyAmbientTickDrain(ledger, catalog);
 
-        Assert.Empty(changes);
-        Assert.Equal(40.0, ledger.TryGetHpPct("u1", out var hp) ? hp : -1, precision: 6);
+        Assert.That(changes, Is.Empty);
+        Assert.That(
+            Math.Round((double)(ledger.TryGetHpPct("u1", out var hp) ? hp : -1), 6, MidpointRounding.AwayFromZero),
+            Is.EqualTo(Math.Round((double)(40.0), 6, MidpointRounding.AwayFromZero)));
     }
 
-    [Fact]
+    [Test]
     public void HotTick_Zero_max_hp_produces_zero_ambient_drain()
     {
         var ledger = Ledger(hpPct: 50);
@@ -66,11 +71,11 @@ public sealed class CatalogDamageHotTickApplierTests
             [new CatalogSensorBinding("u1", "radar-1", 1.0, "fixture-radar1")],
             damage: [new CatalogPlatformDamage("u1", MaxHp: 0, WithdrawThresholdPct: 0)]);
 
-        Assert.Equal(0.0, CatalogDamageHotTickApplier.AmbientTickDrainHpPct(catalog.GetSortedPlatformDamage()[0]));
-        Assert.Empty(CatalogDamageHotTickApplier.ApplyAmbientTickDrain(ledger, catalog));
+        Assert.That(CatalogDamageHotTickApplier.AmbientTickDrainHpPct(catalog.GetSortedPlatformDamage()[0]), Is.EqualTo(0.0));
+        Assert.That(CatalogDamageHotTickApplier.ApplyAmbientTickDrain(ledger, catalog), Is.Empty);
     }
 
-    [Fact]
+    [Test]
     public void HotTick_Hit_and_kill_outcomes_apply_in_sorted_order()
     {
         var ledger = Ledger(hpPct: 80);
@@ -84,13 +89,15 @@ public sealed class CatalogDamageHotTickApplierTests
 
         var changes = CatalogDamageHotTickApplier.ApplySortedOutcomes(ledger, catalog, outcomes);
 
-        Assert.Equal(2, changes.Count);
-        Assert.Equal(EngagementOutcomeCodes.Hit, changes[0].ReasonCode);
-        Assert.Equal(EngagementOutcomeCodes.Hit, changes[1].ReasonCode);
-        Assert.Equal(30.0, ledger.TryGetHpPct("u1", out var hp) ? hp : -1, precision: 6);
+        Assert.That(changes.Count, Is.EqualTo(2));
+        Assert.That(changes[0].ReasonCode, Is.EqualTo(EngagementOutcomeCodes.Hit));
+        Assert.That(changes[1].ReasonCode, Is.EqualTo(EngagementOutcomeCodes.Hit));
+        Assert.That(
+            Math.Round((double)(ledger.TryGetHpPct("u1", out var hp) ? hp : -1), 6, MidpointRounding.AwayFromZero),
+            Is.EqualTo(Math.Round((double)(30.0), 6, MidpointRounding.AwayFromZero)));
     }
 
-    [Fact]
+    [Test]
     public void HotTick_Repeat_apply_is_deterministic()
     {
         var ledgerA = Ledger(hpPct: 26);
@@ -102,18 +109,15 @@ public sealed class CatalogDamageHotTickApplierTests
         CatalogDamageHotTickApplier.ApplyAmbientTickDrain(ledgerB, catalog);
         CatalogDamageHotTickApplier.ApplyAmbientTickDrain(ledgerB, catalog);
 
-        Assert.Equal(
-            ledgerA.ComputeWorldHashMix(),
-            ledgerB.ComputeWorldHashMix());
-        Assert.Equal(
-            CatalogDamageHotTickApplier.ResolveWithdrawTrials(ledgerA, catalog)[0].WithdrawRecommended,
-            CatalogDamageHotTickApplier.ResolveWithdrawTrials(ledgerB, catalog)[0].WithdrawRecommended);
+        Assert.That(ledgerB.ComputeWorldHashMix(), Is.EqualTo(ledgerA.ComputeWorldHashMix()));
+        Assert.That(
+            CatalogDamageHotTickApplier.ResolveWithdrawTrials(ledgerB, catalog)[0].WithdrawRecommended,
+            Is.EqualTo(CatalogDamageHotTickApplier.ResolveWithdrawTrials(ledgerA, catalog)[0].WithdrawRecommended));
     }
 
-    [Theory]
-    [InlineData(25.01, false)]
-    [InlineData(25.0, true)]
-    [InlineData(24.99, true)]
+    [TestCase(25.01, false)]
+    [TestCase(25.0, true)]
+    [TestCase(24.99, true)]
     public void HotTick_Withdraw_boundary_tracks_live_hp(double hpPct, bool expectedWithdraw)
     {
         var ledger = Ledger(hpPct);
@@ -121,10 +125,10 @@ public sealed class CatalogDamageHotTickApplierTests
 
         var trial = CatalogDamageHotTickApplier.ResolveWithdrawTrials(ledger, catalog)[0];
 
-        Assert.Equal(expectedWithdraw, trial.WithdrawRecommended);
+        Assert.That(trial.WithdrawRecommended, Is.EqualTo(expectedWithdraw));
     }
 
-    [Fact]
+    [Test]
     public void HotTick_Hit_damage_level_bounded_0_to_3_from_severity_and_resilience()
     {
         var ledger = Ledger(hpPct: 100);
@@ -146,12 +150,14 @@ public sealed class CatalogDamageHotTickApplierTests
 
         var changes = CatalogDamageHotTickApplier.ApplySortedOutcomes(ledger, catalog, outcomes);
 
-        Assert.Single(changes);
-        Assert.Equal(2, changes[0].DamageLevel);
-        Assert.Equal(50.0, ledger.TryGetHpPct("u1", out var hp) ? hp : -1, precision: 6);
+        AssertEx.Single(changes);
+        Assert.That(changes[0].DamageLevel, Is.EqualTo(2));
+        Assert.That(
+            Math.Round((double)(ledger.TryGetHpPct("u1", out var hp) ? hp : -1), 6, MidpointRounding.AwayFromZero),
+            Is.EqualTo(Math.Round((double)(50.0), 6, MidpointRounding.AwayFromZero)));
     }
 
-    [Fact]
+    [Test]
     public void HotTick_Zero_resilience_hit_produces_no_hp_change()
     {
         var ledger = Ledger(hpPct: 80);
@@ -168,11 +174,13 @@ public sealed class CatalogDamageHotTickApplierTests
 
         var changes = CatalogDamageHotTickApplier.ApplySortedOutcomes(ledger, catalog, outcomes);
 
-        Assert.Empty(changes);
-        Assert.Equal(80.0, ledger.TryGetHpPct("u1", out var hp) ? hp : -1, precision: 6);
+        Assert.That(changes, Is.Empty);
+        Assert.That(
+            Math.Round((double)(ledger.TryGetHpPct("u1", out var hp) ? hp : -1), 6, MidpointRounding.AwayFromZero),
+            Is.EqualTo(Math.Round((double)(80.0), 6, MidpointRounding.AwayFromZero)));
     }
 
-    [Fact]
+    [Test]
     public void HotTick_Kill_outcome_zeroes_hp_after_prior_hit()
     {
         var ledger = Ledger(hpPct: 80);
@@ -185,13 +193,15 @@ public sealed class CatalogDamageHotTickApplierTests
 
         var changes = CatalogDamageHotTickApplier.ApplySortedOutcomes(ledger, catalog, outcomes);
 
-        Assert.Equal(2, changes.Count);
-        Assert.Equal(EngagementOutcomeCodes.Hit, changes[0].ReasonCode);
-        Assert.Equal(EngagementOutcomeCodes.Kill, changes[1].ReasonCode);
-        Assert.Equal(0.0, ledger.TryGetHpPct("u1", out var hp) ? hp : -1, precision: 6);
+        Assert.That(changes.Count, Is.EqualTo(2));
+        Assert.That(changes[0].ReasonCode, Is.EqualTo(EngagementOutcomeCodes.Hit));
+        Assert.That(changes[1].ReasonCode, Is.EqualTo(EngagementOutcomeCodes.Kill));
+        Assert.That(
+            Math.Round((double)(ledger.TryGetHpPct("u1", out var hp) ? hp : -1), 6, MidpointRounding.AwayFromZero),
+            Is.EqualTo(Math.Round((double)(0.0), 6, MidpointRounding.AwayFromZero)));
     }
 
-    [Fact]
+    [Test]
     public void HotTick_Missing_damage_row_skips_hit_apply()
     {
         var ledger = Ledger(hpPct: 80);
@@ -203,7 +213,9 @@ public sealed class CatalogDamageHotTickApplierTests
 
         var changes = CatalogDamageHotTickApplier.ApplySortedOutcomes(ledger, catalog, outcomes);
 
-        Assert.Empty(changes);
-        Assert.Equal(80.0, ledger.TryGetHpPct("u1", out var hp) ? hp : -1, precision: 6);
+        Assert.That(changes, Is.Empty);
+        Assert.That(
+            Math.Round((double)(ledger.TryGetHpPct("u1", out var hp) ? hp : -1), 6, MidpointRounding.AwayFromZero),
+            Is.EqualTo(Math.Round((double)(80.0), 6, MidpointRounding.AwayFromZero)));
     }
 }

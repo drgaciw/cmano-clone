@@ -1,13 +1,13 @@
 using ProjectAegis.Sim.Policy;
 using ProjectAegis.Data.Scenario.Policy;
 using ProjectAegis.Sim.Scenario;
-using Xunit;
+using NUnit.Framework;
 
 namespace ProjectAegis.Sim.Tests.Scenario;
 
 public sealed class ScenarioPolicyInheritanceTests
 {
-    [Fact]
+    [Test]
     public void Mission_roe_overrides_side_default_for_assigned_units()
     {
         var profile = new ScenarioPolicyProfile(
@@ -17,15 +17,15 @@ public sealed class ScenarioPolicyInheritanceTests
             missionUnitIds: ["u1"]);
 
         var resolved = profile.ResolveUnitPolicy("u1", isFriendly: true);
-        Assert.Equal(RoeLevel.WeaponsTight, resolved.Effective.Roe);
-        Assert.True(resolved.HasInheritedDoctrineFromMission);
+        Assert.That(resolved.Effective.Roe, Is.EqualTo(RoeLevel.WeaponsTight));
+        Assert.That(resolved.HasInheritedDoctrineFromMission, Is.True);
 
         var other = profile.ResolveUnitPolicy("u2", isFriendly: true);
-        Assert.Equal(RoeLevel.WeaponsFree, other.Effective.Roe);
-        Assert.False(other.HasInheritedDoctrineFromMission);
+        Assert.That(other.Effective.Roe, Is.EqualTo(RoeLevel.WeaponsFree));
+        Assert.That(other.HasInheritedDoctrineFromMission, Is.False);
     }
 
-    [Fact]
+    [Test]
     public void Unit_override_wins_over_mission_roe()
     {
         var profile = new ScenarioPolicyProfile(
@@ -38,11 +38,11 @@ public sealed class ScenarioPolicyInheritanceTests
             missionUnitIds: ["u1"]);
 
         var resolved = profile.ResolveUnitPolicy("u1", isFriendly: true);
-        Assert.Equal(RoeLevel.HoldFire, resolved.Effective.Roe);
-        Assert.False(resolved.HasInheritedDoctrineFromMission);
+        Assert.That(resolved.Effective.Roe, Is.EqualTo(RoeLevel.HoldFire));
+        Assert.That(resolved.HasInheritedDoctrineFromMission, Is.False);
     }
 
-    [Fact]
+    [Test]
     public void Json_loader_parses_mission_policy_and_max_salvo()
     {
         var dto = new ScenarioPolicyJsonDto
@@ -60,11 +60,11 @@ public sealed class ScenarioPolicyInheritanceTests
         };
 
         var profile = ScenarioPolicyJsonLoader.ToProfile(dto);
-        Assert.Equal(3, profile.FriendlyDefault.MaxSalvo);
+        Assert.That(profile.FriendlyDefault.MaxSalvo, Is.EqualTo(3));
 
         var missionUnit = profile.ResolveUnitPolicy("f1", isFriendly: true);
-        Assert.Equal(RoeLevel.WeaponsTight, missionUnit.Effective.Roe);
-        Assert.Equal(2, missionUnit.Effective.MaxSalvo);
-        Assert.True(missionUnit.HasInheritedDoctrineFromMission);
+        Assert.That(missionUnit.Effective.Roe, Is.EqualTo(RoeLevel.WeaponsTight));
+        Assert.That(missionUnit.Effective.MaxSalvo, Is.EqualTo(2));
+        Assert.That(missionUnit.HasInheritedDoctrineFromMission, Is.True);
     }
 }

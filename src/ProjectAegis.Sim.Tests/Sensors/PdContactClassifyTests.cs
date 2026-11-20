@@ -1,13 +1,13 @@
 using ProjectAegis.Sim.Core;
 using ProjectAegis.Sim.Scenario;
 using ProjectAegis.Sim.Sensors;
-using Xunit;
+using NUnit.Framework;
 
 namespace ProjectAegis.Sim.Tests.Sensors;
 
 public sealed class PdContactClassifyTests
 {
-    [Fact]
+    [Test]
     public void Contact_promotes_detected_classified_identified_on_sustained_detections()
     {
         var lifecycle = new ScenarioContactLifecycle(
@@ -20,19 +20,19 @@ public sealed class PdContactClassifyTests
             contactLifecycle: lifecycle);
 
         var t1 = sim.Tick(1, 1.0);
-        Assert.Contains(t1, t => t.NewState == ContactLifecycleState.Detected);
+        Assert.That(t1.Any(t => t.NewState == ContactLifecycleState.Detected), Is.True);
 
         var t2 = sim.Tick(2, 2.0);
-        Assert.Contains(t2, t => t is { PreviousState: ContactLifecycleState.Detected, NewState: ContactLifecycleState.Classified });
+        Assert.That(t2.Any(t => t is { PreviousState: ContactLifecycleState.Detected, NewState: ContactLifecycleState.Classified }), Is.True);
 
         var t3 = sim.Tick(3, 3.0);
-        Assert.Contains(t3, t => t is { PreviousState: ContactLifecycleState.Classified, NewState: ContactLifecycleState.Identified });
+        Assert.That(t3.Any(t => t is { PreviousState: ContactLifecycleState.Classified, NewState: ContactLifecycleState.Identified }), Is.True);
 
         var t4 = sim.Tick(4, 4.0);
-        Assert.DoesNotContain(t4, t => t.NewState is ContactLifecycleState.Classified or ContactLifecycleState.Identified);
+        Assert.That(t4.Any(t => t.NewState is ContactLifecycleState.Classified or ContactLifecycleState.Identified), Is.False);
     }
 
-    [Fact]
+    [Test]
     public void Default_lifecycle_does_not_emit_classify_or_identify_transitions()
     {
         var sim = new PdDetectionContactSimulator(
@@ -46,6 +46,6 @@ public sealed class PdContactClassifyTests
             all.AddRange(sim.Tick(tick, tick));
         }
 
-        Assert.DoesNotContain(all, t => t.NewState is ContactLifecycleState.Classified or ContactLifecycleState.Identified);
+        Assert.That(all.Any(t => t.NewState is ContactLifecycleState.Classified or ContactLifecycleState.Identified), Is.False);
     }
 }

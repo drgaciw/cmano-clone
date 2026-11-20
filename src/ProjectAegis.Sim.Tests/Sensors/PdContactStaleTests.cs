@@ -1,13 +1,13 @@
 using ProjectAegis.Sim.Core;
 using ProjectAegis.Sim.Scenario;
 using ProjectAegis.Sim.Sensors;
-using Xunit;
+using NUnit.Framework;
 
 namespace ProjectAegis.Sim.Tests.Sensors;
 
 public sealed class PdContactStaleTests
 {
-    [Fact]
+    [Test]
     public void Contact_goes_lost_after_stale_threshold_missed_ticks()
     {
         var sim = new PdDetectionContactSimulator(
@@ -15,14 +15,14 @@ public sealed class PdContactStaleTests
             [new ScenarioDetectionTrial("u1", "radar-1", "hostile-1", "c1", 1.0)],
             contactLifecycle: new ScenarioContactLifecycle(StaleThresholdTicks: 1));
         var t1 = sim.Tick(1, 1.0);
-        Assert.Contains(t1, t => t.NewState == ContactLifecycleState.Detected);
-        Assert.Equal(1, sim.ActiveCount);
+        Assert.That(t1.Any(t => t.NewState == ContactLifecycleState.Detected), Is.True);
+        Assert.That(sim.ActiveCount, Is.EqualTo(1));
         var t2 = sim.Tick(2, 2.0);
-        Assert.Contains(t2, t => t.NewState == ContactLifecycleState.Lost);
-        Assert.Equal(0, sim.ActiveCount);
+        Assert.That(t2.Any(t => t.NewState == ContactLifecycleState.Lost), Is.True);
+        Assert.That(sim.ActiveCount, Is.EqualTo(0));
     }
 
-    [Fact]
+    [Test]
     public void Lost_transition_uses_actual_previous_state_not_hardcoded_detected()
     {
         var lifecycle = new ScenarioContactLifecycle(
@@ -36,10 +36,10 @@ public sealed class PdContactStaleTests
 
         sim.Tick(1, 1.0);
         var t2 = sim.Tick(2, 2.0);
-        Assert.Contains(t2, t => t is { PreviousState: ContactLifecycleState.Classified, NewState: ContactLifecycleState.Lost });
+        Assert.That(t2.Any(t => t is { PreviousState: ContactLifecycleState.Classified, NewState: ContactLifecycleState.Lost }), Is.True);
     }
 
-    [Fact]
+    [Test]
     public void Stale_loss_with_multiple_simultaneous_contacts_emits_transitions_in_ordinal_contact_order()
     {
         // Two observers each hold an independent contact track. Trials are rolled in
@@ -72,6 +72,6 @@ public sealed class PdContactStaleTests
             .Select(t => t.ContactId)
             .ToArray();
 
-        Assert.Equal(new[] { "cA", "cB" }, lostOrder);
+        Assert.That(lostOrder, Is.EqualTo(new[] { "cA", "cB" }));
     }
 }

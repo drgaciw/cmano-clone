@@ -1,6 +1,6 @@
 using ProjectAegis.Data.Catalog;
 using ProjectAegis.Sim.Scenario;
-using Xunit;
+using NUnit.Framework;
 
 namespace ProjectAegis.Sim.Tests.Scenario;
 
@@ -14,41 +14,41 @@ public sealed class DatalinkShareLagResolverTests
             ["u2"] = "blue",
         });
 
-    [Fact]
+    [Test]
     public void Explicit_shareLagTicks_in_json_wins_over_catalog()
     {
         var repoRoot = FindRepoRoot();
-        Assert.NotNull(repoRoot);
-        var path = Path.Combine(repoRoot, "data", "scenarios", "baltic-patrol-datalink-lag.policy.json");
+        Assert.That(repoRoot, Is.Not.Null);
+        var path = Path.Combine(repoRoot!, "data", "scenarios", "baltic-patrol-datalink-lag.policy.json");
         var profile = ScenarioPolicyJsonLoader.LoadFromFile(path);
         var catalog = InMemoryCatalogReader.BalticPatrolFixture();
 
         var resolved = DatalinkShareLagResolver.Resolve(profile.DatalinkDoctrine, catalog);
 
-        Assert.True(profile.DatalinkDoctrine.ShareLagTicksSpecified);
-        Assert.Equal(2, resolved.ShareLagTicks);
-        Assert.Equal(profile.DatalinkDoctrine, resolved);
+        Assert.That(profile.DatalinkDoctrine.ShareLagTicksSpecified, Is.True);
+        Assert.That(resolved.ShareLagTicks, Is.EqualTo(2));
+        Assert.That(resolved, Is.EqualTo(profile.DatalinkDoctrine));
     }
 
-    [Fact]
+    [Test]
     public void Catalog_latency_applied_when_sharing_enabled_and_shareLagTicks_omitted()
     {
         var repoRoot = FindRepoRoot();
-        Assert.NotNull(repoRoot);
-        var path = Path.Combine(repoRoot, "data", "scenarios", "baltic-patrol-datalink.policy.json");
+        Assert.That(repoRoot, Is.Not.Null);
+        var path = Path.Combine(repoRoot!, "data", "scenarios", "baltic-patrol-datalink.policy.json");
         var profile = ScenarioPolicyJsonLoader.LoadFromFile(path);
         var catalog = InMemoryCatalogReader.BalticPatrolFixture();
 
-        Assert.False(profile.DatalinkDoctrine.ShareLagTicksSpecified);
-        Assert.Equal(0, profile.DatalinkDoctrine.ShareLagTicks);
-        Assert.True(profile.DatalinkDoctrine.IsSharingEnabled);
+        Assert.That(profile.DatalinkDoctrine.ShareLagTicksSpecified, Is.False);
+        Assert.That(profile.DatalinkDoctrine.ShareLagTicks, Is.EqualTo(0));
+        Assert.That(profile.DatalinkDoctrine.IsSharingEnabled, Is.True);
 
         var resolved = DatalinkShareLagResolver.Resolve(profile.DatalinkDoctrine, catalog);
 
-        Assert.Equal(3, resolved.ShareLagTicks);
+        Assert.That(resolved.ShareLagTicks, Is.EqualTo(3));
     }
 
-    [Fact]
+    [Test]
     public void Missing_link_keeps_default_zero_share_lag()
     {
         var catalog = new InMemoryCatalogReader(
@@ -56,30 +56,30 @@ public sealed class DatalinkShareLagResolverTests
 
         var resolved = DatalinkShareLagResolver.Resolve(SharingDoctrine, catalog);
 
-        Assert.Equal(0, resolved.ShareLagTicks);
-        Assert.Equal(SharingDoctrine, resolved);
+        Assert.That(resolved.ShareLagTicks, Is.EqualTo(0));
+        Assert.That(resolved, Is.EqualTo(SharingDoctrine));
     }
 
-    [Fact]
+    [Test]
     public void Production_baltic_patrol_without_datalink_section_unchanged()
     {
         var repoRoot = FindRepoRoot();
-        Assert.NotNull(repoRoot);
-        var path = Path.Combine(repoRoot, "data", "scenarios", "baltic-patrol.policy.json");
+        Assert.That(repoRoot, Is.Not.Null);
+        var path = Path.Combine(repoRoot!, "data", "scenarios", "baltic-patrol.policy.json");
         var profile = ScenarioPolicyJsonLoader.LoadFromFile(path);
         var catalog = InMemoryCatalogReader.BalticPatrolFixture();
 
-        Assert.False(profile.DatalinkDoctrine.IsSharingEnabled);
-        Assert.Equal(ScenarioDatalinkDoctrine.Default, profile.DatalinkDoctrine);
+        Assert.That(profile.DatalinkDoctrine.IsSharingEnabled, Is.False);
+        Assert.That(profile.DatalinkDoctrine, Is.EqualTo(ScenarioDatalinkDoctrine.Default));
 
         var resolved = DatalinkShareLagResolver.Resolve(profile.DatalinkDoctrine, catalog);
 
-        Assert.Equal(0, resolved.ShareLagTicks);
-        Assert.False(resolved.ShareLagTicksSpecified);
-        Assert.Equal(profile.DatalinkDoctrine, resolved);
+        Assert.That(resolved.ShareLagTicks, Is.EqualTo(0));
+        Assert.That(resolved.ShareLagTicksSpecified, Is.False);
+        Assert.That(resolved, Is.EqualTo(profile.DatalinkDoctrine));
     }
 
-    [Fact]
+    [Test]
     public void Primary_link_prefers_first_sorted_comms_binding_over_link_catalog()
     {
         var catalog = new InMemoryCatalogReader(
@@ -89,7 +89,7 @@ public sealed class DatalinkShareLagResolverTests
 
         var resolved = DatalinkShareLagResolver.Resolve(SharingDoctrine, catalog);
 
-        Assert.Equal(15, resolved.ShareLagTicks);
+        Assert.That(resolved.ShareLagTicks, Is.EqualTo(15));
     }
 
     private static string? FindRepoRoot()

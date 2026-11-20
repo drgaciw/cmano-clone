@@ -1,20 +1,21 @@
 using ProjectAegis.Sim.Scenario;
-using Xunit;
+using NUnit.Framework;
+using ProjectAegis.Sim.Tests;
 
 namespace ProjectAegis.Sim.Tests.Scenario;
 
 public sealed class ScenarioPolicySpoofReadinessJsonTests
 {
-    [Fact]
+    [Test]
     public void Load_spoof_and_readiness_policies_from_data_directory()
     {
         var dir = ResolveScenariosDir();
         var spoof = ScenarioPolicyJsonLoader.LoadFromFile(Path.Combine(dir, "baltic-patrol-spoof.policy.json"));
         var readiness = ScenarioPolicyJsonLoader.LoadFromFile(Path.Combine(dir, "baltic-patrol-readiness.policy.json"));
 
-        Assert.Single(spoof.SpoofTransitions);
-        Assert.Equal("hostile-1", spoof.SpoofTransitions[0].ContactId);
-        Assert.False(readiness.UnitReadiness["u1"]);
+        AssertEx.Single(spoof.SpoofTransitions);
+        Assert.That(spoof.SpoofTransitions[0].ContactId, Is.EqualTo("hostile-1"));
+        Assert.That(readiness.UnitReadiness["u1"], Is.False);
     }
 
     private static string ResolveScenariosDir()

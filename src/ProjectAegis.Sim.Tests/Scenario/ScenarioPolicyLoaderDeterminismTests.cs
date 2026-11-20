@@ -1,6 +1,6 @@
 using ProjectAegis.Data.Scenario.Policy;
 using ProjectAegis.Sim.Scenario;
-using Xunit;
+using NUnit.Framework;
 
 namespace ProjectAegis.Sim.Tests.Scenario;
 
@@ -14,52 +14,70 @@ public sealed class ScenarioPolicyLoaderDeterminismTests
     private const string PolicyTemplate =
         "{\"id\":\"{ID}\",\"description\":\"drg-54 fixture\",\"engage\":{\"maxSalvo\":2}}";
 
-    [Fact]
+    [Test]
     public void Loader_rejects_duplicate_policy_id_naming_both_files()
     {
-        using var dir = new TempPolicyDirectory();
-        dir.WritePolicy("alpha.policy.json", "dup-id");
-        dir.WritePolicy("beta.policy.json", "dup-id");
+        var dir = new TempPolicyDirectory();
+        try
+        {
+            dir.WritePolicy("alpha.policy.json", "dup-id");
+            dir.WritePolicy("beta.policy.json", "dup-id");
 
-        var ex = Assert.Throws<InvalidDataException>(
-            () => ScenarioPolicyJsonLoader.LoadDirectory(dir.Path));
+            var ex = Assert.Throws<InvalidDataException>(() => ScenarioPolicyJsonLoader.LoadDirectory(dir.Path));
 
-        // Both filenames must appear so the author can find the collision.
-        Assert.Contains("dup-id", ex.Message, StringComparison.Ordinal);
-        Assert.Contains("alpha.policy.json", ex.Message, StringComparison.Ordinal);
-        Assert.Contains("beta.policy.json", ex.Message, StringComparison.Ordinal);
+            // Both filenames must appear so the author can find the collision.
+            Assert.That(ex!.Message, Does.Contain("dup-id"));
+            Assert.That(ex.Message, Does.Contain("alpha.policy.json"));
+            Assert.That(ex.Message, Does.Contain("beta.policy.json"));
+        }
+        finally
+        {
+            dir.Dispose();
+        }
     }
 
-    [Fact]
+    [Test]
     public void Index_rejects_duplicate_policy_id_naming_both_files()
     {
-        using var dir = new TempPolicyDirectory();
-        dir.WritePolicy("alpha.policy.json", "dup-id");
-        dir.WritePolicy("beta.policy.json", "dup-id");
+        var dir = new TempPolicyDirectory();
+        try
+        {
+            dir.WritePolicy("alpha.policy.json", "dup-id");
+            dir.WritePolicy("beta.policy.json", "dup-id");
 
-        var ex = Assert.Throws<InvalidDataException>(
-            () => ScenarioPolicyJsonIndex.LoadFromDirectory(dir.Path));
+            var ex = Assert.Throws<InvalidDataException>(() => ScenarioPolicyJsonIndex.LoadFromDirectory(dir.Path));
 
-        Assert.Contains("dup-id", ex.Message, StringComparison.Ordinal);
-        Assert.Contains("alpha.policy.json", ex.Message, StringComparison.Ordinal);
-        Assert.Contains("beta.policy.json", ex.Message, StringComparison.Ordinal);
+            Assert.That(ex!.Message, Does.Contain("dup-id"));
+            Assert.That(ex.Message, Does.Contain("alpha.policy.json"));
+            Assert.That(ex.Message, Does.Contain("beta.policy.json"));
+        }
+        finally
+        {
+            dir.Dispose();
+        }
     }
 
-    [Fact]
+    [Test]
     public void Duplicate_detection_is_case_insensitive_matching_the_map_comparer()
     {
         // The profile map uses OrdinalIgnoreCase, so ids differing only by case
         // collide there. Detection must use the same comparer or the collision
         // slips through and one profile is silently dropped.
-        using var dir = new TempPolicyDirectory();
-        dir.WritePolicy("alpha.policy.json", "Case-Id");
-        dir.WritePolicy("beta.policy.json", "case-id");
+        var dir = new TempPolicyDirectory();
+        try
+        {
+            dir.WritePolicy("alpha.policy.json", "Case-Id");
+            dir.WritePolicy("beta.policy.json", "case-id");
 
-        Assert.Throws<InvalidDataException>(
-            () => ScenarioPolicyJsonLoader.LoadDirectory(dir.Path));
+            Assert.Throws<InvalidDataException>(() => ScenarioPolicyJsonLoader.LoadDirectory(dir.Path));
+        }
+        finally
+        {
+            dir.Dispose();
+        }
     }
 
-    [Fact]
+    [Test]
     public void Distinct_ids_load_regardless_of_filename_order()
     {
         // Filenames deliberately sort in the opposite order to their ids, so a
@@ -70,18 +88,20 @@ public sealed class ScenarioPolicyLoaderDeterminismTests
 
         var map = ScenarioPolicyJsonLoader.LoadDirectory(dir.Path);
 
-        Assert.Equal(2, map.Count);
-        Assert.True(map.ContainsKey("aaa-id"));
-        Assert.True(map.ContainsKey("zzz-id"));
+        Assert.That(map.Count, Is.EqualTo(2));
+        Assert.That(map.ContainsKey("aaa-id"), Is.True);
+        Assert.That(map.ContainsKey("zzz-id"), Is.True);
     }
 
-    [Fact]
+    [Test]
     public void Empty_or_missing_directory_is_not_an_error()
     {
         using var dir = new TempPolicyDirectory();
-        Assert.Empty(ScenarioPolicyJsonLoader.LoadDirectory(dir.Path));
-        Assert.Empty(ScenarioPolicyJsonLoader.LoadDirectory(
-            Path.Combine(dir.Path, "does-not-exist")));
+        Assert.That(ScenarioPolicyJsonLoader.LoadDirectory(dir.Path), Is.Empty);
+        Assert.That(
+            ScenarioPolicyJsonLoader.LoadDirectory(
+                    Path.Combine(dir.Path, "does-not-exist")),
+            Is.Empty);
     }
 
     private sealed class TempPolicyDirectory : IDisposable

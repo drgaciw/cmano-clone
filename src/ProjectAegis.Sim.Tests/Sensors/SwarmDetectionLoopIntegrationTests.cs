@@ -1,13 +1,14 @@
 using ProjectAegis.Sim.Core;
 using ProjectAegis.Sim.Scenario;
 using ProjectAegis.Sim.Sensors;
-using Xunit;
+using NUnit.Framework;
+using ProjectAegis.Sim.Tests;
 
 namespace ProjectAegis.Sim.Tests.Sensors;
 
 public sealed class SwarmDetectionLoopIntegrationTests
 {
-    [Fact]
+    [Test]
     public void RollTick_uses_swarm_integrity_scale_from_trial()
     {
         var seed = SimSeed.FromScenario(11);
@@ -28,27 +29,35 @@ public sealed class SwarmDetectionLoopIntegrationTests
         var full = DeterministicDetectionLoop.RollTick(seed, tick, [fullTrial], unitRadarEmcon: null);
         var half = DeterministicDetectionLoop.RollTick(seed, tick, [halfTrial], unitRadarEmcon: null);
 
-        Assert.Single(full);
-        Assert.Single(half);
-        Assert.Equal(0.8, full[0].Pd, 6);
-        Assert.Equal(0.4, half[0].Pd, 6);
-        Assert.True(half[0].Pd < full[0].Pd);
+        AssertEx.Single(full);
+        AssertEx.Single(half);
+        Assert.That(
+            Math.Round((double)(full[0].Pd), 6, MidpointRounding.AwayFromZero),
+            Is.EqualTo(Math.Round((double)(0.8), 6, MidpointRounding.AwayFromZero)));
+        Assert.That(
+            Math.Round((double)(half[0].Pd), 6, MidpointRounding.AwayFromZero),
+            Is.EqualTo(Math.Round((double)(0.4), 6, MidpointRounding.AwayFromZero)));
+        Assert.That(half[0].Pd < full[0].Pd, Is.True);
         // Same draw stream keying: observer/sensor/target identical ⇒ same draw
-        Assert.Equal(full[0].Draw, half[0].Draw);
+        Assert.That(half[0].Draw, Is.EqualTo(full[0].Draw));
         if (full[0].Draw is > 0.4 and < 0.8)
         {
-            Assert.True(full[0].Detected);
-            Assert.False(half[0].Detected);
+            Assert.That(full[0].Detected, Is.True);
+            Assert.That(half[0].Detected, Is.False);
         }
     }
 
-    [Fact]
+    [Test]
     public void ScaleFactor_accepts_scenario_power_override()
     {
         var linear = SwarmSensorScale.ScaleFactor(10, 40, integrityPower: 1.0);
         var squared = SwarmSensorScale.ScaleFactor(10, 40, integrityPower: 2.0);
-        Assert.Equal(0.25, linear, 6);
-        Assert.Equal(0.0625, squared, 6);
-        Assert.True(squared < linear);
+        Assert.That(
+            Math.Round((double)(linear), 6, MidpointRounding.AwayFromZero),
+            Is.EqualTo(Math.Round((double)(0.25), 6, MidpointRounding.AwayFromZero)));
+        Assert.That(
+            Math.Round((double)(squared), 6, MidpointRounding.AwayFromZero),
+            Is.EqualTo(Math.Round((double)(0.0625), 6, MidpointRounding.AwayFromZero)));
+        Assert.That(squared < linear, Is.True);
     }
 }

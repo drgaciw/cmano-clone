@@ -2,7 +2,8 @@ using ProjectAegis.Data.Catalog;
 using ProjectAegis.Sim.Core;
 using ProjectAegis.Sim.Policy;
 using ProjectAegis.Sim.Swarm;
-using Xunit;
+using NUnit.Framework;
+using ProjectAegis.Sim.Tests;
 
 namespace ProjectAegis.Sim.Tests.Swarm.Expend;
 
@@ -12,7 +13,7 @@ public sealed class SwarmExpendTests
     private static SwarmUnitIntegrity Sample(string id = "swarm-1", int drones = 40) =>
         new(id, CatalogSwarmPlatformDefaults.GenericSwarmPlatformId, drones, drones);
 
-    [Fact]
+    [Test]
     public void IssueExpend_authorized_reduces_integrity_and_logs()
     {
         var c = new SwarmController(SimSeed.FromScenario(19));
@@ -26,26 +27,26 @@ public sealed class SwarmExpendTests
             simTime: 1.0,
             targetUnitId: "hostile-1");
 
-        Assert.True(result.Applied);
-        Assert.Equal(5, result.DronesExpended);
-        Assert.Equal(20, result.PreviousDroneCount);
-        Assert.Equal(15, result.NewDroneCount);
-        Assert.Null(result.DenyReason);
-        Assert.Equal(1UL, result.OrderSequenceId);
+        Assert.That(result.Applied, Is.True);
+        Assert.That(result.DronesExpended, Is.EqualTo(5));
+        Assert.That(result.PreviousDroneCount, Is.EqualTo(20));
+        Assert.That(result.NewDroneCount, Is.EqualTo(15));
+        Assert.That(result.DenyReason, Is.Null);
+        Assert.That(result.OrderSequenceId, Is.EqualTo(1UL));
 
-        Assert.True(c.TryGetIntegrity("swarm-1", out var integrity));
-        Assert.Equal(15, integrity.DroneCount);
+        Assert.That(c.TryGetIntegrity("swarm-1", out var integrity), Is.True);
+        Assert.That(integrity.DroneCount, Is.EqualTo(15));
 
-        Assert.Single(c.ExpendOrderLog);
-        Assert.Equal(5, c.ExpendOrderLog[0].DronesExpended);
-        Assert.Equal("hostile-1", c.ExpendOrderLog[0].TargetUnitId);
+        AssertEx.Single(c.ExpendOrderLog);
+        Assert.That(c.ExpendOrderLog[0].DronesExpended, Is.EqualTo(5));
+        Assert.That(c.ExpendOrderLog[0].TargetUnitId, Is.EqualTo("hostile-1"));
 
-        Assert.Single(c.IntegrityTimeline);
-        Assert.Equal(SwarmController.ExpendReasonCode, c.IntegrityTimeline[0].ReasonCode);
-        Assert.Equal(5, c.IntegrityTimeline[0].DronesLost);
+        AssertEx.Single(c.IntegrityTimeline);
+        Assert.That(c.IntegrityTimeline[0].ReasonCode, Is.EqualTo(SwarmController.ExpendReasonCode));
+        Assert.That(c.IntegrityTimeline[0].DronesLost, Is.EqualTo(5));
     }
 
-    [Fact]
+    [Test]
     public void IssueExpend_denied_when_not_authorized()
     {
         var c = new SwarmController(SimSeed.FromScenario(20));
@@ -53,16 +54,16 @@ public sealed class SwarmExpendTests
 
         var result = c.IssueExpend("swarm-1", 5, expendAuthorized: false, simTick: 1, simTime: 1.0);
 
-        Assert.False(result.Applied);
-        Assert.Equal("expend-unauthorized", result.DenyReason);
-        Assert.Equal(0, result.DronesExpended);
-        Assert.Empty(c.ExpendOrderLog);
-        Assert.Empty(c.IntegrityTimeline);
-        Assert.True(c.TryGetIntegrity("swarm-1", out var integrity));
-        Assert.Equal(20, integrity.DroneCount);
+        Assert.That(result.Applied, Is.False);
+        Assert.That(result.DenyReason, Is.EqualTo("expend-unauthorized"));
+        Assert.That(result.DronesExpended, Is.EqualTo(0));
+        Assert.That(c.ExpendOrderLog, Is.Empty);
+        Assert.That(c.IntegrityTimeline, Is.Empty);
+        Assert.That(c.TryGetIntegrity("swarm-1", out var integrity), Is.True);
+        Assert.That(integrity.DroneCount, Is.EqualTo(20));
     }
 
-    [Fact]
+    [Test]
     public void IssueExpend_clamps_to_remaining_drones()
     {
         var c = new SwarmController(SimSeed.FromScenario(21));
@@ -70,12 +71,12 @@ public sealed class SwarmExpendTests
 
         var result = c.IssueExpend("swarm-1", dronesToExpend: 10, expendAuthorized: true, simTick: 1, simTime: 1.0);
 
-        Assert.True(result.Applied);
-        Assert.Equal(3, result.DronesExpended);
-        Assert.Equal(0, result.NewDroneCount);
+        Assert.That(result.Applied, Is.True);
+        Assert.That(result.DronesExpended, Is.EqualTo(3));
+        Assert.That(result.NewDroneCount, Is.EqualTo(0));
     }
 
-    [Fact]
+    [Test]
     public void IssueExpend_blocked_when_link_lost()
     {
         var c = new SwarmController(SimSeed.FromScenario(22));
@@ -86,18 +87,18 @@ public sealed class SwarmExpendTests
             c.IssueExpend("swarm-1", 2, expendAuthorized: true, simTick: 1, simTime: 1.0));
     }
 
-    [Fact]
+    [Test]
     public void IssueExpend_invalid_count_denied()
     {
         var c = new SwarmController(SimSeed.FromScenario(23));
         c.Register(Sample(), 57.0, 20.0);
 
         var result = c.IssueExpend("swarm-1", 0, expendAuthorized: true, simTick: 1, simTime: 1.0);
-        Assert.False(result.Applied);
-        Assert.Equal("expend-count-invalid", result.DenyReason);
+        Assert.That(result.Applied, Is.False);
+        Assert.That(result.DenyReason, Is.EqualTo("expend-count-invalid"));
     }
 
-    [Fact]
+    [Test]
     public void Doctrine_ExpendAuthorized_gates_call_site()
     {
         // Integration with B7: caller evaluates Policy, then passes flag.
@@ -106,24 +107,24 @@ public sealed class SwarmExpendTests
         var verdict = evaluator.Evaluate(
             new PolicyContext(1, 0, 0, policy),
             new ActionRequest(ActionKind.FireGuided, 1, 0, IsExpend: true));
-        Assert.True(verdict.Allowed);
+        Assert.That(verdict.Allowed, Is.True);
 
         var deniedPolicy = new EffectivePolicy(RoeLevel.WeaponsFree, ExpendAuthorized: false);
         var denied = new PolicyEvaluator(_ => deniedPolicy).Evaluate(
             new PolicyContext(1, 0, 0, deniedPolicy),
             new ActionRequest(ActionKind.FireGuided, 1, 0, IsExpend: true));
-        Assert.False(denied.Allowed);
-        Assert.Equal(FireAbortReason.ExpendUnauthorized, denied.Reason);
+        Assert.That(denied.Allowed, Is.False);
+        Assert.That(denied.Reason, Is.EqualTo(FireAbortReason.ExpendUnauthorized));
 
         var c = new SwarmController(SimSeed.FromScenario(24));
         c.Register(Sample(drones: 10), 57.0, 20.0);
         var applied = c.IssueExpend("swarm-1", 2, expendAuthorized: verdict.Allowed, simTick: 1, simTime: 1.0);
-        Assert.True(applied.Applied);
+        Assert.That(applied.Applied, Is.True);
         var blocked = c.IssueExpend("swarm-1", 2, expendAuthorized: denied.Allowed, simTick: 2, simTime: 2.0);
-        Assert.False(blocked.Applied);
+        Assert.That(blocked.Applied, Is.False);
     }
 
-    [Fact]
+    [Test]
     public void IssueExpend_is_irreversible_no_auto_regen()
     {
         var c = new SwarmController(SimSeed.FromScenario(25));
@@ -131,7 +132,7 @@ public sealed class SwarmExpendTests
         c.IssueExpend("swarm-1", 4, expendAuthorized: true, simTick: 1, simTime: 1.0);
         c.Tick(1.0);
         c.Tick(1.0);
-        Assert.True(c.TryGetIntegrity("swarm-1", out var integrity));
-        Assert.Equal(6, integrity.DroneCount);
+        Assert.That(c.TryGetIntegrity("swarm-1", out var integrity), Is.True);
+        Assert.That(integrity.DroneCount, Is.EqualTo(6));
     }
 }

@@ -2,77 +2,78 @@ using System.Diagnostics;
 using ProjectAegis.Data.Catalog;
 using ProjectAegis.Sim.Core;
 using ProjectAegis.Sim.Swarm;
-using Xunit;
+using NUnit.Framework;
 
 namespace ProjectAegis.Sim.Tests.Swarm;
 
 /// <summary>DRG-91 / SWARM-A6: replay integrity events, performance caps, stress evidence.</summary>
 public sealed class SwarmReplayAndCapsTests
 {
-    [Fact]
+    [Test]
     public void Replay_reconstructs_integrity_affecting_events()
     {
         var live = SwarmReplayHarness.RunGoldenScenario();
-        Assert.True(live.IntegrityTimeline.Count >= 3, "golden must include integrity deltas");
-        Assert.True(live.Orders.Count >= 3, "golden must include Hold/Move/Attack orders");
+        Assert.That(live.IntegrityTimeline.Count >= 3, Is.True, "golden must include integrity deltas");
+        Assert.That(live.Orders.Count >= 3, Is.True, "golden must include Hold/Move/Attack orders");
 
         var reconstructed = SwarmReplayHarness.Replay(
             live.Orders,
             live.IntegrityTimeline,
             seed: live.Seed);
 
-        Assert.Equal(live.OrderFingerprint, reconstructed.OrderFingerprint);
+        Assert.That(reconstructed.OrderFingerprint, Is.EqualTo(live.OrderFingerprint));
         // Integrity end-state + timeline deltas must match after authorized re-apply.
-        Assert.Equal(live.FinalDroneCounts[SwarmReplayHarness.GoldenUnitId],
-            reconstructed.FinalDroneCounts[SwarmReplayHarness.GoldenUnitId]);
-        Assert.Equal(live.IntegrityTimeline.Count, reconstructed.IntegrityTimeline.Count);
+        Assert.That(
+            reconstructed.FinalDroneCounts[SwarmReplayHarness.GoldenUnitId],
+            Is.EqualTo(live.FinalDroneCounts[SwarmReplayHarness.GoldenUnitId]));
+        Assert.That(reconstructed.IntegrityTimeline.Count, Is.EqualTo(live.IntegrityTimeline.Count));
         for (var i = 0; i < live.IntegrityTimeline.Count; i++)
         {
-            Assert.Equal(live.IntegrityTimeline[i].UnitId, reconstructed.IntegrityTimeline[i].UnitId);
-            Assert.Equal(live.IntegrityTimeline[i].DronesLost, reconstructed.IntegrityTimeline[i].DronesLost);
-            Assert.Equal(live.IntegrityTimeline[i].PreviousDroneCount, reconstructed.IntegrityTimeline[i].PreviousDroneCount);
-            Assert.Equal(live.IntegrityTimeline[i].NewDroneCount, reconstructed.IntegrityTimeline[i].NewDroneCount);
-            Assert.Equal(live.IntegrityTimeline[i].ReasonCode, reconstructed.IntegrityTimeline[i].ReasonCode);
+            Assert.That(reconstructed.IntegrityTimeline[i].UnitId, Is.EqualTo(live.IntegrityTimeline[i].UnitId));
+            Assert.That(reconstructed.IntegrityTimeline[i].DronesLost, Is.EqualTo(live.IntegrityTimeline[i].DronesLost));
+            Assert.That(reconstructed.IntegrityTimeline[i].PreviousDroneCount, Is.EqualTo(live.IntegrityTimeline[i].PreviousDroneCount));
+            Assert.That(reconstructed.IntegrityTimeline[i].NewDroneCount, Is.EqualTo(live.IntegrityTimeline[i].NewDroneCount));
+            Assert.That(reconstructed.IntegrityTimeline[i].ReasonCode, Is.EqualTo(live.IntegrityTimeline[i].ReasonCode));
         }
 
         // Same scenario+seed twice → identical canonical fingerprint (golden stability).
         var again = SwarmReplayHarness.RunGoldenScenario(live.Seed);
-        Assert.Equal(live.CanonicalFingerprint, again.CanonicalFingerprint);
-        Assert.Equal(live.IntegrityHash, again.IntegrityHash);
-        Assert.Equal(live.OrderFingerprint, again.OrderFingerprint);
+        Assert.That(again.CanonicalFingerprint, Is.EqualTo(live.CanonicalFingerprint));
+        Assert.That(again.IntegrityHash, Is.EqualTo(live.IntegrityHash));
+        Assert.That(again.OrderFingerprint, Is.EqualTo(live.OrderFingerprint));
     }
 
-    [Fact]
+    [Test]
     public void Golden_canonical_fingerprint_is_pinned()
     {
         var live = SwarmReplayHarness.RunGoldenScenario(SwarmReplayHarness.GoldenSeed);
         var goldenPath = ResolveGoldenPath();
-        Assert.True(File.Exists(goldenPath), $"Missing golden file: {goldenPath}");
+        Assert.That(File.Exists(goldenPath), Is.True, $"Missing golden file: {goldenPath}");
         var expected = File.ReadAllText(goldenPath).TrimEnd();
-        Assert.Equal(expected, live.CanonicalFingerprint);
+        Assert.That(live.CanonicalFingerprint, Is.EqualTo(expected));
     }
 
-    [Fact]
+    [Test]
     public void Performance_caps_document_logical_vs_render_split()
     {
-        Assert.Equal(40, SwarmPerformanceCaps.LogicalMaxDronesPerSwarm);
-        Assert.Equal(CatalogSwarmPlatformDefaults.GenericMaxDrones, SwarmPerformanceCaps.LogicalMaxDronesPerSwarm);
-        Assert.Equal(12, SwarmPerformanceCaps.RenderMaxMembersPerSwarm);
-        Assert.True(SwarmPerformanceCaps.RenderMaxMembersPerSwarm < SwarmPerformanceCaps.LogicalMaxDronesPerSwarm);
-        Assert.Equal(16, SwarmPerformanceCaps.DesignMaxConcurrentSwarms);
-        Assert.Equal(640, SwarmPerformanceCaps.DesignMaxLogicalDrones);
+        Assert.That(SwarmPerformanceCaps.LogicalMaxDronesPerSwarm, Is.EqualTo(40));
+        Assert.That(SwarmPerformanceCaps.LogicalMaxDronesPerSwarm, Is.EqualTo(CatalogSwarmPlatformDefaults.GenericMaxDrones));
+        Assert.That(SwarmPerformanceCaps.RenderMaxMembersPerSwarm, Is.EqualTo(12));
+        Assert.That(SwarmPerformanceCaps.RenderMaxMembersPerSwarm < SwarmPerformanceCaps.LogicalMaxDronesPerSwarm, Is.True);
+        Assert.That(SwarmPerformanceCaps.DesignMaxConcurrentSwarms, Is.EqualTo(16));
+        Assert.That(SwarmPerformanceCaps.DesignMaxLogicalDrones, Is.EqualTo(640));
 
-        Assert.Equal(12, SwarmPerformanceCaps.RenderMemberCount(40));
-        Assert.Equal(5, SwarmPerformanceCaps.RenderMemberCount(5));
-        Assert.Equal(0, SwarmPerformanceCaps.RenderMemberCount(0));
+        Assert.That(SwarmPerformanceCaps.RenderMemberCount(40), Is.EqualTo(12));
+        Assert.That(SwarmPerformanceCaps.RenderMemberCount(5), Is.EqualTo(5));
+        Assert.That(SwarmPerformanceCaps.RenderMemberCount(0), Is.EqualTo(0));
 
-        Assert.Equal(16, SwarmPerformanceCaps.EngagementWorkUnitsPerPulse(16));
-        Assert.NotEqual(
-            SwarmPerformanceCaps.DesignMaxLogicalDrones,
-            SwarmPerformanceCaps.EngagementWorkUnitsPerPulse(SwarmPerformanceCaps.DesignMaxConcurrentSwarms));
+        Assert.That(SwarmPerformanceCaps.EngagementWorkUnitsPerPulse(16), Is.EqualTo(16));
+        Assert.That(
+            SwarmPerformanceCaps.EngagementWorkUnitsPerPulse(SwarmPerformanceCaps.DesignMaxConcurrentSwarms),
+            Is.Not.EqualTo(SwarmPerformanceCaps.DesignMaxLogicalDrones));
     }
 
-    [Fact]
+    [Test]
     public void Register_clamps_logical_max_to_performance_cap()
     {
         var ctl = new SwarmController(SimSeed.FromScenario(1));
@@ -80,42 +81,42 @@ public sealed class SwarmReplayAndCapsTests
             new SwarmUnitIntegrity("over", CatalogSwarmPlatformDefaults.GenericSwarmPlatformId, 99, 99),
             0,
             0);
-        Assert.True(ctl.TryGetIntegrity("over", out var integrity));
-        Assert.Equal(SwarmPerformanceCaps.LogicalMaxDronesPerSwarm, integrity.MaxDrones);
-        Assert.Equal(SwarmPerformanceCaps.LogicalMaxDronesPerSwarm, integrity.DroneCount);
+        Assert.That(ctl.TryGetIntegrity("over", out var integrity), Is.True);
+        Assert.That(integrity.MaxDrones, Is.EqualTo(SwarmPerformanceCaps.LogicalMaxDronesPerSwarm));
+        Assert.That(integrity.DroneCount, Is.EqualTo(SwarmPerformanceCaps.LogicalMaxDronesPerSwarm));
     }
 
-    [Fact]
+    [Test]
     public void Design_max_stress_is_O_swarms_not_O_drones_and_meets_pulse_budget()
     {
         var sw = Stopwatch.StartNew();
         var result = SwarmReplayHarness.RunDesignMaxStress();
         sw.Stop();
 
-        Assert.Equal(SwarmPerformanceCaps.DesignMaxConcurrentSwarms, result.ConcurrentSwarms);
-        Assert.Equal(SwarmPerformanceCaps.StressScenarioTicks, result.Ticks);
-        Assert.Equal(SwarmPerformanceCaps.DesignMaxLogicalDrones, result.LogicalDronesAtStart);
+        Assert.That(result.ConcurrentSwarms, Is.EqualTo(SwarmPerformanceCaps.DesignMaxConcurrentSwarms));
+        Assert.That(result.Ticks, Is.EqualTo(SwarmPerformanceCaps.StressScenarioTicks));
+        Assert.That(result.LogicalDronesAtStart, Is.EqualTo(SwarmPerformanceCaps.DesignMaxLogicalDrones));
 
         // Hard gate: work units scale with concurrent swarms × ticks, NOT logical drones × ticks.
-        Assert.Equal(result.ExpectedWorkUnitsCeiling, result.EngagementWorkUnits);
-        Assert.True(
+        Assert.That(result.EngagementWorkUnits, Is.EqualTo(result.ExpectedWorkUnitsCeiling));
+        Assert.That(
             result.EngagementWorkUnits < result.LogicalDronesAtStart * result.Ticks,
+            Is.True,
             "Aggregate SoT must not expand engagement work to logical drone count.");
-        Assert.Equal(
-            result.ConcurrentSwarms * result.Ticks,
-            result.EngagementWorkUnits);
+        Assert.That(result.EngagementWorkUnits, Is.EqualTo(result.ConcurrentSwarms * result.Ticks));
 
         // Soft wall-clock budget (CI-friendly).
-        Assert.True(
+        Assert.That(
             sw.ElapsedMilliseconds < SwarmPerformanceCaps.StressPulseBudgetMs,
+            Is.True,
             $"Stress elapsed {sw.ElapsedMilliseconds}ms exceeds budget {SwarmPerformanceCaps.StressPulseBudgetMs}ms");
 
         // Deterministic integrity hash for stress seed.
         var again = SwarmReplayHarness.RunDesignMaxStress();
-        Assert.Equal(result.FinalIntegrityHash, again.FinalIntegrityHash);
+        Assert.That(again.FinalIntegrityHash, Is.EqualTo(result.FinalIntegrityHash));
     }
 
-    [Fact]
+    [Test]
     public void Integrity_replay_via_controller_api_matches_live_end_state()
     {
         var liveCtl = new SwarmController(SimSeed.FromScenario(11));
@@ -124,8 +125,8 @@ public sealed class SwarmReplayAndCapsTests
             1,
             2);
         liveCtl.IssueHold("s1", 1, 1.0);
-        Assert.True(liveCtl.TryApplyIntegrityDamage("s1", 3, 2, 2.0, "test-hit", out _));
-        Assert.True(liveCtl.TryApplyIntegrityDamage("s1", 5, 3, 3.0, "test-hit", out _));
+        Assert.That(liveCtl.TryApplyIntegrityDamage("s1", 3, 2, 2.0, "test-hit", out _), Is.True);
+        Assert.That(liveCtl.TryApplyIntegrityDamage("s1", 5, 3, 3.0, "test-hit", out _), Is.True);
 
         var replayCtl = new SwarmController(SimSeed.FromScenario(11));
         replayCtl.Register(
@@ -135,10 +136,10 @@ public sealed class SwarmReplayAndCapsTests
         SwarmController.ReplayOrders(replayCtl, liveCtl.OrderLog);
         SwarmController.ReplayIntegrityTimeline(replayCtl, liveCtl.IntegrityTimeline);
 
-        Assert.True(liveCtl.TryGetIntegrity("s1", out var live));
-        Assert.True(replayCtl.TryGetIntegrity("s1", out var replayed));
-        Assert.Equal(live.DroneCount, replayed.DroneCount);
-        Assert.Equal(32, replayed.DroneCount); // 40 - 3 - 5
+        Assert.That(liveCtl.TryGetIntegrity("s1", out var live), Is.True);
+        Assert.That(replayCtl.TryGetIntegrity("s1", out var replayed), Is.True);
+        Assert.That(replayed.DroneCount, Is.EqualTo(live.DroneCount));
+        Assert.That(replayed.DroneCount, Is.EqualTo(32)); // 40 - 3 - 5
     }
 
     private static string ResolveGoldenPath()

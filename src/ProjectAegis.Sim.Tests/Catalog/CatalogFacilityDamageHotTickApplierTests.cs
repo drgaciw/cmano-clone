@@ -2,7 +2,8 @@ using ProjectAegis.Data.Catalog;
 using ProjectAegis.Sim.Catalog;
 using ProjectAegis.Sim.Engage;
 using ProjectAegis.Sim.Scenario;
-using Xunit;
+using NUnit.Framework;
+using ProjectAegis.Sim.Tests;
 
 namespace ProjectAegis.Sim.Tests.Catalog;
 
@@ -18,7 +19,7 @@ public sealed class CatalogFacilityDamageHotTickApplierTests
         PlatformHpLedger.SeedFromWithdrawTargets(
             [new ScenarioCatalogWithdrawTarget("runway-1", hpPct)]);
 
-    [Fact]
+    [Test]
     public void Facility_Domain_HotTick_hit_applies_sorted_hp_delta_to_facility_ledger()
     {
         var ledger = FacilityLedger(hpPct: 100);
@@ -37,13 +38,15 @@ public sealed class CatalogFacilityDamageHotTickApplierTests
             outcomes,
             facilityTargets);
 
-        Assert.Equal(2, changes.Count);
-        Assert.Equal(EngagementOutcomeCodes.Hit, changes[0].ReasonCode);
-        Assert.Equal(EngagementOutcomeCodes.Hit, changes[1].ReasonCode);
-        Assert.Equal(50.0, ledger.TryGetHpPct("runway-1", out var hp) ? hp : -1, precision: 6);
+        Assert.That(changes.Count, Is.EqualTo(2));
+        Assert.That(changes[0].ReasonCode, Is.EqualTo(EngagementOutcomeCodes.Hit));
+        Assert.That(changes[1].ReasonCode, Is.EqualTo(EngagementOutcomeCodes.Hit));
+        Assert.That(
+            Math.Round((double)(ledger.TryGetHpPct("runway-1", out var hp) ? hp : -1), 6, MidpointRounding.AwayFromZero),
+            Is.EqualTo(Math.Round((double)(50.0), 6, MidpointRounding.AwayFromZero)));
     }
 
-    [Fact]
+    [Test]
     public void Facility_Domain_Damage_hot_tick_hit_damage_level_bounded_0_to_3()
     {
         var ledger = FacilityLedger(hpPct: 100);
@@ -65,12 +68,14 @@ public sealed class CatalogFacilityDamageHotTickApplierTests
             outcomes,
             facilityTargets);
 
-        Assert.Single(changes);
-        Assert.Equal(2, changes[0].DamageLevel);
-        Assert.Equal(50.0, ledger.TryGetHpPct("runway-1", out var hp) ? hp : -1, precision: 6);
+        AssertEx.Single(changes);
+        Assert.That(changes[0].DamageLevel, Is.EqualTo(2));
+        Assert.That(
+            Math.Round((double)(ledger.TryGetHpPct("runway-1", out var hp) ? hp : -1), 6, MidpointRounding.AwayFromZero),
+            Is.EqualTo(Math.Round((double)(50.0), 6, MidpointRounding.AwayFromZero)));
     }
 
-    [Fact]
+    [Test]
     public void Facility_Domain_Damage_zero_resilience_hit_produces_no_hp_change()
     {
         var ledger = FacilityLedger(hpPct: 80);
@@ -87,11 +92,13 @@ public sealed class CatalogFacilityDamageHotTickApplierTests
             outcomes,
             facilityTargets);
 
-        Assert.Empty(changes);
-        Assert.Equal(80.0, ledger.TryGetHpPct("runway-1", out var hp) ? hp : -1, precision: 6);
+        Assert.That(changes, Is.Empty);
+        Assert.That(
+            Math.Round((double)(ledger.TryGetHpPct("runway-1", out var hp) ? hp : -1), 6, MidpointRounding.AwayFromZero),
+            Is.EqualTo(Math.Round((double)(80.0), 6, MidpointRounding.AwayFromZero)));
     }
 
-    [Fact]
+    [Test]
     public void Facility_Domain_Damage_kill_outcome_zeroes_facility_hp_after_prior_hit()
     {
         var ledger = FacilityLedger(hpPct: 80);
@@ -109,12 +116,14 @@ public sealed class CatalogFacilityDamageHotTickApplierTests
             outcomes,
             facilityTargets);
 
-        Assert.Equal(2, changes.Count);
-        Assert.Equal(EngagementOutcomeCodes.Kill, changes[1].ReasonCode);
-        Assert.Equal(0.0, ledger.TryGetHpPct("runway-1", out var hp) ? hp : -1, precision: 6);
+        Assert.That(changes.Count, Is.EqualTo(2));
+        Assert.That(changes[1].ReasonCode, Is.EqualTo(EngagementOutcomeCodes.Kill));
+        Assert.That(
+            Math.Round((double)(ledger.TryGetHpPct("runway-1", out var hp) ? hp : -1), 6, MidpointRounding.AwayFromZero),
+            Is.EqualTo(Math.Round((double)(0.0), 6, MidpointRounding.AwayFromZero)));
     }
 
-    [Fact]
+    [Test]
     public void Facility_Domain_Damage_missing_damage_row_skips_facility_hit_apply()
     {
         var ledger = FacilityLedger(hpPct: 80);
@@ -131,15 +140,17 @@ public sealed class CatalogFacilityDamageHotTickApplierTests
             outcomes,
             facilityTargets);
 
-        Assert.Empty(changes);
-        Assert.Equal(80.0, ledger.TryGetHpPct("runway-1", out var hp) ? hp : -1, precision: 6);
+        Assert.That(changes, Is.Empty);
+        Assert.That(
+            Math.Round((double)(ledger.TryGetHpPct("runway-1", out var hp) ? hp : -1), 6, MidpointRounding.AwayFromZero),
+            Is.EqualTo(Math.Round((double)(80.0), 6, MidpointRounding.AwayFromZero)));
     }
 
-    [Fact]
+    [Test]
     public void Facility_Domain_Damage_hp_capacity_maps_operational_damaged_destroyed()
     {
-        Assert.Equal(FacilityHpCapacity.Operational, FacilityHpCapacity.MapHpPctToCapacityState(100));
-        Assert.Equal(FacilityHpCapacity.Damaged, FacilityHpCapacity.MapHpPctToCapacityState(75));
-        Assert.Equal(FacilityHpCapacity.Destroyed, FacilityHpCapacity.MapHpPctToCapacityState(0));
+        Assert.That(FacilityHpCapacity.MapHpPctToCapacityState(100), Is.EqualTo(FacilityHpCapacity.Operational));
+        Assert.That(FacilityHpCapacity.MapHpPctToCapacityState(75), Is.EqualTo(FacilityHpCapacity.Damaged));
+        Assert.That(FacilityHpCapacity.MapHpPctToCapacityState(0), Is.EqualTo(FacilityHpCapacity.Destroyed));
     }
 }

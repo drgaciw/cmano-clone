@@ -1,7 +1,8 @@
 using ProjectAegis.Sim.Core;
 using ProjectAegis.Sim.Engage;
 using ProjectAegis.Sim.Time;
-using Xunit;
+using NUnit.Framework;
+using ProjectAegis.Sim.Tests;
 
 namespace ProjectAegis.Sim.Tests.Time;
 
@@ -9,7 +10,7 @@ namespace ProjectAegis.Sim.Tests.Time;
 public sealed class SimClockTickRunnerTests
 {
     // TC-CLK-1
-    [Fact]
+    [Test]
     public void TC_CLK_1_Pause_then_TickOnce_RealTime_leaves_tick_and_hash_unchanged()
     {
         var runner = new SimTickRunner(SimSeed.FromScenario(42));
@@ -20,28 +21,28 @@ public sealed class SimClockTickRunnerTests
         runner.Clock.Pause();
         runner.TickOnce(TimeCompressionMode.RealTime);
 
-        Assert.Equal(tick, runner.Clock.SimTick);
-        Assert.Equal(hash, runner.LastWorldHash);
+        Assert.That(runner.Clock.SimTick, Is.EqualTo(tick));
+        Assert.That(runner.LastWorldHash, Is.EqualTo(hash));
     }
 
     // TC-CLK-2
-    [Fact]
+    [Test]
     public void TC_CLK_2_Resume_then_TickOnce_advances()
     {
         var runner = new SimTickRunner(SimSeed.FromScenario(42));
         runner.Clock.Pause();
         runner.TickOnce(TimeCompressionMode.RealTime);
-        Assert.Equal(0UL, runner.Clock.SimTick);
+        Assert.That(runner.Clock.SimTick, Is.EqualTo(0UL));
 
         runner.Clock.Resume();
         runner.TickOnce(TimeCompressionMode.RealTime);
 
-        Assert.Equal(1UL, runner.Clock.SimTick);
-        Assert.NotEqual(0UL, runner.LastWorldHash);
+        Assert.That(runner.Clock.SimTick, Is.EqualTo(1UL));
+        Assert.That(runner.LastWorldHash, Is.Not.EqualTo(0UL));
     }
 
     // TC-CLK-3
-    [Fact]
+    [Test]
     public void TC_CLK_3_Accelerated_factor_4_once_matches_RealTime_four_times()
     {
         const ulong seed = 9034412;
@@ -55,13 +56,13 @@ public sealed class SimClockTickRunnerTests
             realtime.TickOnce(TimeCompressionMode.RealTime);
         }
 
-        Assert.Equal(realtime.Clock.SimTick, accelerated.Clock.SimTick);
-        Assert.Equal(realtime.LastWorldHash, accelerated.LastWorldHash);
-        Assert.Equal(4UL, accelerated.Clock.SimTick);
+        Assert.That(accelerated.Clock.SimTick, Is.EqualTo(realtime.Clock.SimTick));
+        Assert.That(accelerated.LastWorldHash, Is.EqualTo(realtime.LastWorldHash));
+        Assert.That(accelerated.Clock.SimTick, Is.EqualTo(4UL));
     }
 
     // TC-CLK-4
-    [Fact]
+    [Test]
     public void TC_CLK_4_Paused_blocks_Accelerated_too()
     {
         var runner = new SimTickRunner(SimSeed.FromScenario(7));
@@ -69,23 +70,23 @@ public sealed class SimClockTickRunnerTests
         runner.Clock.Pause();
         runner.TickOnce(TimeCompressionMode.Accelerated);
 
-        Assert.Equal(0UL, runner.Clock.SimTick);
-        Assert.Equal(0UL, runner.LastWorldHash);
+        Assert.That(runner.Clock.SimTick, Is.EqualTo(0UL));
+        Assert.That(runner.LastWorldHash, Is.EqualTo(0UL));
     }
 
     // TC-CLK-5 — HeadlessBatch overrides pause for CI/batch
-    [Fact]
+    [Test]
     public void TC_CLK_5_HeadlessBatch_overrides_pause_and_advances()
     {
         var runner = new SimTickRunner(SimSeed.FromScenario(99));
         runner.Clock.Pause();
         runner.TickOnce(TimeCompressionMode.HeadlessBatch);
 
-        Assert.Equal(1UL, runner.Clock.SimTick);
-        Assert.NotEqual(0UL, runner.LastWorldHash);
+        Assert.That(runner.Clock.SimTick, Is.EqualTo(1UL));
+        Assert.That(runner.LastWorldHash, Is.Not.EqualTo(0UL));
     }
 
-    [Fact]
+    [Test]
     public void Pause_mid_run_freezes_resume_continues_deterministically()
     {
         const ulong seed = 111;
@@ -105,11 +106,11 @@ public sealed class SimClockTickRunnerTests
             b.TickOnce(TimeCompressionMode.RealTime);
         }
 
-        Assert.Equal(b.Clock.SimTick, a.Clock.SimTick);
-        Assert.Equal(b.LastWorldHash, a.LastWorldHash);
+        Assert.That(a.Clock.SimTick, Is.EqualTo(b.Clock.SimTick));
+        Assert.That(a.LastWorldHash, Is.EqualTo(b.LastWorldHash));
     }
 
-    [Fact]
+    [Test]
     public void Pipeline_Accelerated_runs_engagement_per_step()
     {
         var resolver = new RecordingEngagementResolver();
@@ -121,11 +122,11 @@ public sealed class SimClockTickRunnerTests
         // Pending drains on first sub-step; later accelerated steps see empty pending.
         pipeline.TickOnce(TimeCompressionMode.Accelerated);
 
-        Assert.Equal(3UL, pipeline.Clock.SimTick);
-        Assert.Equal(2, resolver.Requests.Count);
+        Assert.That(pipeline.Clock.SimTick, Is.EqualTo(3UL));
+        Assert.That(resolver.Requests.Count, Is.EqualTo(2));
     }
 
-    [Fact]
+    [Test]
     public void Pipeline_paused_RealTime_is_noop()
     {
         var resolver = new RecordingEngagementResolver();
@@ -134,12 +135,12 @@ public sealed class SimClockTickRunnerTests
         pipeline.Clock.Pause();
         pipeline.TickOnce(TimeCompressionMode.RealTime);
 
-        Assert.Equal(0UL, pipeline.Clock.SimTick);
-        Assert.Empty(resolver.Requests);
-        Assert.Single(pipeline.PendingEngagements);
+        Assert.That(pipeline.Clock.SimTick, Is.EqualTo(0UL));
+        Assert.That(resolver.Requests, Is.Empty);
+        AssertEx.Single(pipeline.PendingEngagements);
     }
 
-    [Fact]
+    [Test]
     public void Pipeline_HeadlessBatch_overrides_pause()
     {
         var resolver = new RecordingEngagementResolver();
@@ -148,11 +149,11 @@ public sealed class SimClockTickRunnerTests
         pipeline.Clock.Pause();
         pipeline.TickOnce(TimeCompressionMode.HeadlessBatch);
 
-        Assert.Equal(1UL, pipeline.Clock.SimTick);
-        Assert.Single(resolver.Requests);
+        Assert.That(pipeline.Clock.SimTick, Is.EqualTo(1UL));
+        AssertEx.Single(resolver.Requests);
     }
 
-    [Fact]
+    [Test]
     public void Pipeline_Accelerated_matches_RealTime_hash_without_engagements()
     {
         const ulong seed = 55;
@@ -166,7 +167,7 @@ public sealed class SimClockTickRunnerTests
             rt.TickOnce(TimeCompressionMode.RealTime);
         }
 
-        Assert.Equal(rt.Clock.SimTick, accel.Clock.SimTick);
-        Assert.Equal(rt.LastWorldHash, accel.LastWorldHash);
+        Assert.That(accel.Clock.SimTick, Is.EqualTo(rt.Clock.SimTick));
+        Assert.That(accel.LastWorldHash, Is.EqualTo(rt.LastWorldHash));
     }
 }

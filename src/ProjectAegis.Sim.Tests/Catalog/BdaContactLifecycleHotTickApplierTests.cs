@@ -3,7 +3,8 @@ using ProjectAegis.Sim.Core;
 using ProjectAegis.Sim.Engage;
 using ProjectAegis.Sim.Scenario;
 using ProjectAegis.Sim.Sensors;
-using Xunit;
+using NUnit.Framework;
+using ProjectAegis.Sim.Tests;
 
 namespace ProjectAegis.Sim.Tests.Catalog;
 
@@ -18,24 +19,23 @@ public sealed class BdaContactLifecycleHotTickApplierTests
         return sim;
     }
 
-    [Fact]
+    [Test]
     public void Bda_lifecycle_disabled_when_combat_domains_flag_off()
     {
-        Assert.False(BdaContactLifecycleHotTickApplier.IsEnabled(combatDomainsEnabled: false));
+        Assert.That(BdaContactLifecycleHotTickApplier.IsEnabled(combatDomainsEnabled: false), Is.False);
     }
 
-    [Fact]
+    [Test]
     public void Bda_lifecycle_enabled_when_combat_domains_flag_on()
     {
-        Assert.True(BdaContactLifecycleHotTickApplier.IsEnabled(combatDomainsEnabled: true));
+        Assert.That(BdaContactLifecycleHotTickApplier.IsEnabled(combatDomainsEnabled: true), Is.True);
     }
 
-    [Theory]
-    [InlineData(2, 50.0, PlatformDamageChangeReasonCodes.Hit, false)]
-    [InlineData(3, 25.0, PlatformDamageChangeReasonCodes.Hit, true)]
-    [InlineData(2, 0.0, PlatformDamageChangeReasonCodes.Hit, true)]
-    [InlineData(0, 0.0, PlatformDamageChangeReasonCodes.Kill, true)]
-    [InlineData(0, 99.0, PlatformDamageChangeReasonCodes.AmbientTick, false)]
+    [TestCase(2, 50.0, PlatformDamageChangeReasonCodes.Hit, false)]
+    [TestCase(3, 25.0, PlatformDamageChangeReasonCodes.Hit, true)]
+    [TestCase(2, 0.0, PlatformDamageChangeReasonCodes.Hit, true)]
+    [TestCase(0, 0.0, PlatformDamageChangeReasonCodes.Kill, true)]
+    [TestCase(0, 99.0, PlatformDamageChangeReasonCodes.AmbientTick, false)]
     public void ShouldPromoteToLost_matches_bda_projection_rules(
         int damageLevel,
         double newHpPct,
@@ -48,10 +48,10 @@ public sealed class BdaContactLifecycleHotTickApplierTests
             newHpPct,
             reasonCode);
 
-        Assert.Equal(expected, BdaContactLifecycleHotTickApplier.ShouldPromoteToLost(apply));
+        Assert.That(BdaContactLifecycleHotTickApplier.ShouldPromoteToLost(apply), Is.EqualTo(expected));
     }
 
-    [Fact]
+    [Test]
     public void ResolveSortedLostTargets_orders_platform_ids_deterministically()
     {
         var changes = new[]
@@ -75,14 +75,14 @@ public sealed class BdaContactLifecycleHotTickApplierTests
 
         var lost = BdaContactLifecycleHotTickApplier.ResolveSortedLostTargets(changes);
 
-        Assert.Equal(["hostile-1", "hostile-2"], lost);
+        Assert.That(lost, Is.EqualTo(new[] { "hostile-1", "hostile-2" }));
     }
 
-    [Fact]
+    [Test]
     public void ApplySortedTargets_promotes_contact_fsm_to_lost_at_damage_level_boundary()
     {
         var sim = DetectedHostileSimulator();
-        Assert.Equal(1, sim.ActiveCount);
+        Assert.That(sim.ActiveCount, Is.EqualTo(1));
 
         var transitions = BdaContactLifecycleHotTickApplier.ApplySortedTargets(
             sim,
@@ -90,14 +90,14 @@ public sealed class BdaContactLifecycleHotTickApplierTests
             2.0,
             ["hostile-1"]);
 
-        Assert.Single(transitions);
-        Assert.Equal(ContactLifecycleState.Lost, transitions[0].NewState);
-        Assert.Equal("c1", transitions[0].ContactId);
-        Assert.Equal(0, sim.ActiveCount);
-        Assert.False(sim.IsTargetDestroyed("hostile-1"));
+        AssertEx.Single(transitions);
+        Assert.That(transitions[0].NewState, Is.EqualTo(ContactLifecycleState.Lost));
+        Assert.That(transitions[0].ContactId, Is.EqualTo("c1"));
+        Assert.That(sim.ActiveCount, Is.EqualTo(0));
+        Assert.That(sim.IsTargetDestroyed("hostile-1"), Is.False);
     }
 
-    [Fact]
+    [Test]
     public void ApplySortedTargets_skips_damage_level_two_without_lost_transition()
     {
         var sim = DetectedHostileSimulator();
@@ -115,11 +115,11 @@ public sealed class BdaContactLifecycleHotTickApplierTests
                     PlatformDamageChangeReasonCodes.Hit),
             ]));
 
-        Assert.Empty(transitions);
-        Assert.Equal(1, sim.ActiveCount);
+        Assert.That(transitions, Is.Empty);
+        Assert.That(sim.ActiveCount, Is.EqualTo(1));
     }
 
-    [Fact]
+    [Test]
     public void ApplyFromRegistry_drains_pending_targets_once_per_promotion()
     {
         var sim = DetectedHostileSimulator();
@@ -130,8 +130,8 @@ public sealed class BdaContactLifecycleHotTickApplierTests
         var first = BdaContactLifecycleHotTickApplier.ApplyFromRegistry(sim, 2, 2.0, registry);
         var second = BdaContactLifecycleHotTickApplier.ApplyFromRegistry(sim, 3, 3.0, registry);
 
-        Assert.Single(first);
-        Assert.Empty(second);
-        Assert.Equal(1, registry.PromotedCount);
+        AssertEx.Single(first);
+        Assert.That(second, Is.Empty);
+        Assert.That(registry.PromotedCount, Is.EqualTo(1));
     }
 }

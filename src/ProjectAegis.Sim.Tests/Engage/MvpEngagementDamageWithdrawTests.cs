@@ -1,12 +1,12 @@
 using ProjectAegis.Sim.Engage;
 using ProjectAegis.Sim.Glossary;
-using Xunit;
+using NUnit.Framework;
 
 namespace ProjectAegis.Sim.Tests.Engage;
 
 public sealed class MvpEngagementDamageWithdrawTests
 {
-    [Fact]
+    [Test]
     public void Resolve_aborts_with_DAMAGE_WITHDRAW_RECOMMENDED_when_catalog_trial_blocks()
     {
         var world = new DictionaryEngageWorldQuery();
@@ -24,14 +24,12 @@ public sealed class MvpEngagementDamageWithdrawTests
         var resolver = new MvpEngagementResolver(world, magazines);
         var result = resolver.Resolve(request);
 
-        Assert.False(result.Launched);
-        Assert.Equal(EngagementAbortReason.DamageWithdrawRecommended, result.AbortReason);
-        Assert.Equal(
-            AbortReasonCatalog.Engage.DAMAGE_WITHDRAW_RECOMMENDED,
-            EngagementAbortReasonCodes.ToLogCode(result.AbortReason));
+        Assert.That(result.Launched, Is.False);
+        Assert.That(result.AbortReason, Is.EqualTo(EngagementAbortReason.DamageWithdrawRecommended));
+        Assert.That(EngagementAbortReasonCodes.ToLogCode(result.AbortReason), Is.EqualTo(AbortReasonCatalog.Engage.DAMAGE_WITHDRAW_RECOMMENDED));
     }
 
-    [Fact]
+    [Test]
     public void Resolve_does_not_abort_for_damage_withdraw_when_context_flag_clear()
     {
         var world = new DictionaryEngageWorldQuery();
@@ -50,6 +48,6 @@ public sealed class MvpEngagementDamageWithdrawTests
         var resolver = new MvpEngagementResolver(world, magazines);
         var result = resolver.Resolve(request);
 
-        Assert.NotEqual(EngagementAbortReason.DamageWithdrawRecommended, result.AbortReason);
+        Assert.That(result.AbortReason, Is.Not.EqualTo(EngagementAbortReason.DamageWithdrawRecommended));
     }
 }

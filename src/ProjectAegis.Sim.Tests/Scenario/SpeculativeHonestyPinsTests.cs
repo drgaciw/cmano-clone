@@ -1,5 +1,5 @@
 using System.Reflection;
-using Xunit;
+using NUnit.Framework;
 
 namespace ProjectAegis.Sim.Tests.Scenario;
 
@@ -24,7 +24,7 @@ public sealed class SpeculativeHonestyPinsTests
     /// Pins Wave 3 hard demotion of tracker 10b: no full DEW/Kessler/escalation runtime types
     /// in ProjectAegis.Sim (or any other loaded ProjectAegis.* assembly from this test host).
     /// </summary>
-    [Fact]
+    [Test]
     public void src_assemblies_have_no_OrbitalDewPlatform_KesslerRiskMeter_or_EscalationTier_types()
     {
         // Always include Sim via SpeculativeEngageGate; Data is not referenced from Sim.Tests.
@@ -39,7 +39,7 @@ public sealed class SpeculativeHonestyPinsTests
             })
             .ToArray();
 
-        Assert.Contains(assemblies, a => a == typeof(SpeculativeEngageGate).Assembly);
+        Assert.That(assemblies.Any(a => a == typeof(SpeculativeEngageGate).Assembly), Is.True);
 
         var hits = new List<string>();
         foreach (var assembly in assemblies)
@@ -66,34 +66,35 @@ public sealed class SpeculativeHonestyPinsTests
             }
         }
 
-        Assert.True(
+        Assert.That(
             hits.Count == 0,
+            Is.True,
             "Forbidden demoted types present: " + string.Join(", ", hits));
     }
 
     /// <summary>
     /// Metadata rows for gate tests only — not full DEW runtime types (see demotion pin above).
     /// </summary>
-    [Fact]
+    [Test]
     public void speculative_platform_catalog_includes_orbital_dew_demo_as_metadata_only()
     {
         var path = ResolveCatalogPath();
         var catalog = SpeculativePlatformCatalog.LoadFromFile(path);
 
-        Assert.True(catalog.TryGet("orbital-dew-demo", out var dew));
-        Assert.Equal(4, dew.GameTechnologyLevel);
-        Assert.False(dew.RequiresBlackProject);
+        Assert.That(catalog.TryGet("orbital-dew-demo", out var dew), Is.True);
+        Assert.That(dew.GameTechnologyLevel, Is.EqualTo(4));
+        Assert.That(dew.RequiresBlackProject, Is.False);
 
-        Assert.True(catalog.TryGet("npx-laser-orbital", out var npx));
-        Assert.Equal(5, npx.GameTechnologyLevel);
-        Assert.True(npx.RequiresBlackProject);
+        Assert.That(catalog.TryGet("npx-laser-orbital", out var npx), Is.True);
+        Assert.That(npx.GameTechnologyLevel, Is.EqualTo(5));
+        Assert.That(npx.RequiresBlackProject, Is.True);
     }
 
     /// <summary>
     /// Existing ScenarioSpeculativeGateTests cover TechnologyLevelExceeded (TL first).
     /// This fills the BlackProjectRequired gap: TL allows, black mode off.
     /// </summary>
-    [Fact]
+    [Test]
     public void speculative_gate_returns_BlackProjectRequired_when_tl_ok_but_black_mode_off()
     {
         var settings = new ScenarioSpeculativeSettings(
@@ -108,12 +109,10 @@ public sealed class SpeculativeHonestyPinsTests
             WeaponTechnologyLevel: 5,
             WeaponRequiresBlackProject: true);
 
-        Assert.Equal(
-            EngagementAbortReason.BlackProjectRequired,
-            SpeculativeEngageGate.Evaluate(settings, in ctx));
+        Assert.That(SpeculativeEngageGate.Evaluate(settings, in ctx), Is.EqualTo(EngagementAbortReason.BlackProjectRequired));
     }
 
-    [Fact]
+    [Test]
     public void mvp_resolver_aborts_black_project_required_with_log_code()
     {
         var world = new DictionaryEngageWorldQuery();
@@ -136,10 +135,8 @@ public sealed class SpeculativeHonestyPinsTests
                 maxTechnologyLevel: 5));
 
         var result = resolver.Resolve(request);
-        Assert.Equal(EngagementAbortReason.BlackProjectRequired, result.AbortReason);
-        Assert.Equal(
-            AbortReasonCatalog.Engage.BLACK_PROJECT_REQUIRED,
-            EngagementAbortReasonCodes.ToLogCode(result.AbortReason));
+        Assert.That(result.AbortReason, Is.EqualTo(EngagementAbortReason.BlackProjectRequired));
+        Assert.That(EngagementAbortReasonCodes.ToLogCode(result.AbortReason), Is.EqualTo(AbortReasonCatalog.Engage.BLACK_PROJECT_REQUIRED));
     }
 
     private static string ResolveCatalogPath()

@@ -2,7 +2,8 @@ using ProjectAegis.Data.Catalog;
 using ProjectAegis.Sim.Core;
 using ProjectAegis.Sim.Engage;
 using ProjectAegis.Sim.Swarm;
-using Xunit;
+using NUnit.Framework;
+using ProjectAegis.Sim.Tests;
 
 namespace ProjectAegis.Sim.Tests.Engage;
 
@@ -28,7 +29,7 @@ public sealed class SwarmEngageHotpathTests
             TargetDroneCount: targetCount,
             TargetAaProfile: aa);
 
-    [Fact]
+    [Test]
     public void Mvp_resolver_scales_pk_by_shooter_swarm_integrity()
     {
         // Fixed seed: find a draw that is a Hit at full Pk but Miss at half Pk.
@@ -56,34 +57,39 @@ public sealed class SwarmEngageHotpathTests
         // Same combat draw; half integrity must not produce a stronger outcome than full.
         if (full.OutcomeCode == EngagementOutcomeCodes.Miss)
         {
-            Assert.Equal(EngagementOutcomeCodes.Miss, half.OutcomeCode);
+            Assert.That(half.OutcomeCode, Is.EqualTo(EngagementOutcomeCodes.Miss));
         }
         else
         {
             // Full hit/kill: half may miss or hit — never better than full.
-            Assert.True(
+            Assert.That(
                 half.OutcomeCode is EngagementOutcomeCodes.Miss
-                    or EngagementOutcomeCodes.Hit
-                    or EngagementOutcomeCodes.Kill
-                    or EngagementOutcomeCodes.Intercept);
+                                or EngagementOutcomeCodes.Hit
+                                or EngagementOutcomeCodes.Kill
+                                or EngagementOutcomeCodes.Intercept,
+                Is.True);
         }
 
         // Explicit scale proof independent of RNG: Scale is used when max>0.
-        Assert.Equal(0.9, SwarmOffensiveEffect.Scale(0.9, 40, 40), 6);
-        Assert.Equal(0.45, SwarmOffensiveEffect.Scale(0.9, 20, 40), 6);
-        Assert.True(full.Launched);
-        Assert.True(half.Launched);
+        Assert.That(
+            Math.Round((double)(SwarmOffensiveEffect.Scale(0.9, 40, 40)), 6, MidpointRounding.AwayFromZero),
+            Is.EqualTo(Math.Round((double)(0.9), 6, MidpointRounding.AwayFromZero)));
+        Assert.That(
+            Math.Round((double)(SwarmOffensiveEffect.Scale(0.9, 20, 40)), 6, MidpointRounding.AwayFromZero),
+            Is.EqualTo(Math.Round((double)(0.45), 6, MidpointRounding.AwayFromZero)));
+        Assert.That(full.Launched, Is.True);
+        Assert.That(half.Launched, Is.True);
         // Half integrity Pk is lower ⇒ draw is more likely to miss; pin that half PkDraw equals full
         // (same seed/domain/entity/tick) while outcome may differ.
-        Assert.Equal(full.PkDraw, half.PkDraw);
+        Assert.That(half.PkDraw, Is.EqualTo(full.PkDraw));
         if (full.PkDraw is > 0.45 and < 0.9)
         {
-            Assert.NotEqual(EngagementOutcomeCodes.Miss, full.OutcomeCode);
-            Assert.Equal(EngagementOutcomeCodes.Miss, half.OutcomeCode);
+            Assert.That(full.OutcomeCode, Is.Not.EqualTo(EngagementOutcomeCodes.Miss));
+            Assert.That(half.OutcomeCode, Is.EqualTo(EngagementOutcomeCodes.Miss));
         }
     }
 
-    [Fact]
+    [Test]
     public void Mvp_resolver_applies_area_aa_integrity_via_authorized_sink()
     {
         var seed = SimSeed.FromScenario(7);
@@ -115,25 +121,25 @@ public sealed class SwarmEngageHotpathTests
             resolveTargetUnitId: id => id.ToString(System.Globalization.CultureInfo.InvariantCulture));
 
         var result = resolver.Resolve(req);
-        Assert.True(result.Launched);
-        Assert.Equal(EngagementOutcomeCodes.Hit, result.OutcomeCode);
-        Assert.True(swarm.TryGetIntegrity("40", out var after));
-        Assert.Equal(40 - SwarmHardCounterAa.AreaAaDronesLostPerHit, after.DroneCount);
-        Assert.Single(swarm.IntegrityTimeline);
-        Assert.Equal(SwarmEngagementIntegrityApplier.ReasonAreaAa, swarm.IntegrityTimeline[0].ReasonCode);
+        Assert.That(result.Launched, Is.True);
+        Assert.That(result.OutcomeCode, Is.EqualTo(EngagementOutcomeCodes.Hit));
+        Assert.That(swarm.TryGetIntegrity("40", out var after), Is.True);
+        Assert.That(after.DroneCount, Is.EqualTo(40 - SwarmHardCounterAa.AreaAaDronesLostPerHit));
+        AssertEx.Single(swarm.IntegrityTimeline);
+        Assert.That(swarm.IntegrityTimeline[0].ReasonCode, Is.EqualTo(SwarmEngagementIntegrityApplier.ReasonAreaAa));
     }
 
-    [Fact]
+    [Test]
     public void Scenario_overrides_change_drones_lost_per_hit()
     {
-        Assert.Equal(1, SwarmHardCounterAa.DronesLostPerHit(SwarmAaProfileKind.PointFire));
-        Assert.Equal(3, SwarmHardCounterAa.DronesLostPerHit(SwarmAaProfileKind.PointFire, pointFireOverride: 3));
-        Assert.Equal(12, SwarmHardCounterAa.DronesLostPerHit(SwarmAaProfileKind.AreaAa, areaAaOverride: 12));
+        Assert.That(SwarmHardCounterAa.DronesLostPerHit(SwarmAaProfileKind.PointFire), Is.EqualTo(1));
+        Assert.That(SwarmHardCounterAa.DronesLostPerHit(SwarmAaProfileKind.PointFire, pointFireOverride: 3), Is.EqualTo(3));
+        Assert.That(SwarmHardCounterAa.DronesLostPerHit(SwarmAaProfileKind.AreaAa, areaAaOverride: 12), Is.EqualTo(12));
 
         var ctx = BaseCtx(targetMax: 40, targetCount: 40, aa: SwarmAaProfileKind.AreaAa) with
         {
             AreaAaDronesLostPerHit = 5,
         };
-        Assert.Equal(5, SwarmHardCounterAa.ResolveFromContext(in ctx));
+        Assert.That(SwarmHardCounterAa.ResolveFromContext(in ctx), Is.EqualTo(5));
     }
 }

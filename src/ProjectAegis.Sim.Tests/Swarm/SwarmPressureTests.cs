@@ -4,7 +4,8 @@ using ProjectAegis.Sim.Swarm;
 using ProjectAegis.Sim.Swarm.Assault;
 using ProjectAegis.Sim.Swarm.Formation;
 using ProjectAegis.Sim.Swarm.SoftKill;
-using Xunit;
+using NUnit.Framework;
+using ProjectAegis.Sim.Tests;
 
 namespace ProjectAegis.Sim.Tests.Swarm;
 
@@ -21,102 +22,103 @@ public sealed class SwarmPressureTests
         int max = 40) =>
         new(unitId, CatalogSwarmPlatformDefaults.GenericSwarmPlatformId, drones, max);
 
-    [Theory]
-    [InlineData(42UL)]
-    [InlineData(7UL)]
-    [InlineData(123UL)]
-    [InlineData(999UL)]
+    [TestCase(42UL)]
+    [TestCase(7UL)]
+    [TestCase(123UL)]
+    [TestCase(999UL)]
     public void Multi_seed_attrition_mode_link_matrix_is_deterministic(ulong seed)
     {
         var a = RunPressureScenario(seed);
         var b = RunPressureScenario(seed);
 
-        Assert.Equal(a.IntegrityHash, b.IntegrityHash);
-        Assert.Equal(a.OrderFingerprint, b.OrderFingerprint);
-        Assert.Equal(a.FinalAlpha, b.FinalAlpha);
-        Assert.Equal(a.FinalBravo, b.FinalBravo);
-        Assert.True(a.FinalAlpha > 0 && a.FinalAlpha < 40);
-        Assert.True(a.FinalBravo > 0 && a.FinalBravo < 40);
+        Assert.That(b.IntegrityHash, Is.EqualTo(a.IntegrityHash));
+        Assert.That(b.OrderFingerprint, Is.EqualTo(a.OrderFingerprint));
+        Assert.That(b.FinalAlpha, Is.EqualTo(a.FinalAlpha));
+        Assert.That(b.FinalBravo, Is.EqualTo(a.FinalBravo));
+        Assert.That(a.FinalAlpha > 0 && a.FinalAlpha < 40, Is.True);
+        Assert.That(a.FinalBravo > 0 && a.FinalBravo < 40, Is.True);
     }
 
-    [Fact]
+    [Test]
     public void Extreme_attrition_to_zero_stops_motion_and_further_damage()
     {
         var ctl = new SwarmController(SimSeed.FromScenario(11), speedDegPerSecond: 0.5);
         ctl.Register(Sample(drones: 10, max: 10), latDeg: 10.0, lonDeg: 20.0);
         ctl.IssueMove("swarm-1", 11.0, 21.0, simTick: 1, simTime: 1.0);
 
-        Assert.True(ctl.TryApplyIntegrityDamage("swarm-1", 100, 2, 2.0, "hard-aa", out var wipe));
-        Assert.Equal(0, wipe.NewDroneCount);
-        Assert.Equal(10, wipe.DronesLost);
-        Assert.True(ctl.TryGetIntegrity("swarm-1", out var zero));
-        Assert.Equal(0, zero.DroneCount);
+        Assert.That(ctl.TryApplyIntegrityDamage("swarm-1", 100, 2, 2.0, "hard-aa", out var wipe), Is.True);
+        Assert.That(wipe.NewDroneCount, Is.EqualTo(0));
+        Assert.That(wipe.DronesLost, Is.EqualTo(10));
+        Assert.That(ctl.TryGetIntegrity("swarm-1", out var zero), Is.True);
+        Assert.That(zero.DroneCount, Is.EqualTo(0));
 
         ctl.Tick(deltaSeconds: 5.0);
-        Assert.True(ctl.TryGetCentroid("swarm-1", out var lat, out var lon));
-        Assert.Equal(10.0, lat);
-        Assert.Equal(20.0, lon);
+        Assert.That(ctl.TryGetCentroid("swarm-1", out var lat, out var lon), Is.True);
+        Assert.That(lat, Is.EqualTo(10.0));
+        Assert.That(lon, Is.EqualTo(20.0));
 
-        Assert.False(ctl.TryApplyIntegrityDamage("swarm-1", 1, 3, 3.0, "extra", out _));
+        Assert.That(ctl.TryApplyIntegrityDamage("swarm-1", 1, 3, 3.0, "extra", out _), Is.False);
     }
 
-    [Fact]
+    [Test]
     public void Emp_freezes_mode_switches_for_duration()
     {
         var ctl = new SwarmController(SimSeed.FromScenario(3));
         ctl.Register(Sample(), 0, 0);
         var soft = new SwarmSoftKillApplicator(ctl);
 
-        Assert.True(soft.ApplyEmp("swarm-1", simTick: 1, simTime: 10.0, freezeDurationSeconds: 30.0));
-        Assert.True(soft.IsModeFrozen("swarm-1", simTime: 20.0));
-        Assert.False(soft.IsModeFrozen("swarm-1", simTime: 50.0));
-        Assert.Contains(soft.EventLog, e => e.Kind == SwarmSoftKillKind.Emp);
+        Assert.That(soft.ApplyEmp("swarm-1", simTick: 1, simTime: 10.0, freezeDurationSeconds: 30.0), Is.True);
+        Assert.That(soft.IsModeFrozen("swarm-1", simTime: 20.0), Is.True);
+        Assert.That(soft.IsModeFrozen("swarm-1", simTime: 50.0), Is.False);
+        Assert.That(soft.EventLog.Any(e => e.Kind == SwarmSoftKillKind.Emp), Is.True);
     }
 
-    [Fact]
+    [Test]
     public void Design_max_concurrent_swarms_under_mixed_attrition_stays_aggregate()
     {
         var result = SwarmReplayHarness.RunDesignMaxStress(seed: 7);
-        Assert.Equal(SwarmPerformanceCaps.DesignMaxConcurrentSwarms, result.ConcurrentSwarms);
-        Assert.Equal(result.ConcurrentSwarms * result.Ticks, result.EngagementWorkUnits);
-        Assert.True(result.EngagementWorkUnits < result.LogicalDronesAtStart * result.Ticks);
+        Assert.That(result.ConcurrentSwarms, Is.EqualTo(SwarmPerformanceCaps.DesignMaxConcurrentSwarms));
+        Assert.That(result.EngagementWorkUnits, Is.EqualTo(result.ConcurrentSwarms * result.Ticks));
+        Assert.That(result.EngagementWorkUnits < result.LogicalDronesAtStart * result.Ticks, Is.True);
         var again = SwarmReplayHarness.RunDesignMaxStress(seed: 7);
-        Assert.Equal(result.FinalIntegrityHash, again.FinalIntegrityHash);
+        Assert.That(again.FinalIntegrityHash, Is.EqualTo(result.FinalIntegrityHash));
     }
 
-    [Fact]
+    [Test]
     public void Logical_caps_clamp_on_register_and_regen()
     {
         var ctl = new SwarmController(SimSeed.FromScenario(5));
         ctl.Register(Sample(drones: 50, max: 50), 0, 0);
-        Assert.True(ctl.TryGetIntegrity("swarm-1", out var afterReg));
-        Assert.Equal(SwarmPerformanceCaps.LogicalMaxDronesPerSwarm, afterReg.MaxDrones);
-        Assert.Equal(afterReg.MaxDrones, afterReg.DroneCount);
+        Assert.That(ctl.TryGetIntegrity("swarm-1", out var afterReg), Is.True);
+        Assert.That(afterReg.MaxDrones, Is.EqualTo(SwarmPerformanceCaps.LogicalMaxDronesPerSwarm));
+        Assert.That(afterReg.DroneCount, Is.EqualTo(afterReg.MaxDrones));
 
-        Assert.True(ctl.TryApplyIntegrityDamage("swarm-1", 2, 1, 1.0, "aa", out _));
-        Assert.True(ctl.TryApplyIntegrityRegen(
-            "swarm-1",
-            dronesGained: 10,
-            simTick: 2,
-            simTime: 2.0,
-            reasonCode: SwarmController.RegenReasonCode,
-            out var regen));
-        Assert.Equal(afterReg.MaxDrones - 2, regen.PreviousDroneCount);
-        Assert.Equal(afterReg.MaxDrones, regen.NewDroneCount);
+        Assert.That(ctl.TryApplyIntegrityDamage("swarm-1", 2, 1, 1.0, "aa", out _), Is.True);
+        Assert.That(
+            ctl.TryApplyIntegrityRegen(
+                    "swarm-1",
+                    dronesGained: 10,
+                    simTick: 2,
+                    simTime: 2.0,
+                    reasonCode: SwarmController.RegenReasonCode,
+                    out var regen),
+            Is.True);
+        Assert.That(regen.PreviousDroneCount, Is.EqualTo(afterReg.MaxDrones - 2));
+        Assert.That(regen.NewDroneCount, Is.EqualTo(afterReg.MaxDrones));
     }
 
-    [Fact]
+    [Test]
     public void Link_lost_does_not_mutate_integrity_hash()
     {
         var ctl = new SwarmController(SimSeed.FromScenario(8));
         ctl.Register(Sample(), 0, 0);
         var hashBefore = ctl.ComputeIntegrityTimelineHash();
         ctl.SetLinkState("swarm-1", SwarmLinkState.Lost);
-        Assert.Equal(SwarmLinkState.Lost, ctl.GetLinkState("swarm-1"));
-        Assert.Equal(hashBefore, ctl.ComputeIntegrityTimelineHash());
+        Assert.That(ctl.GetLinkState("swarm-1"), Is.EqualTo(SwarmLinkState.Lost));
+        Assert.That(ctl.ComputeIntegrityTimelineHash(), Is.EqualTo(hashBefore));
     }
 
-    [Fact]
+    [Test]
     public void Assault_split_under_attrition_shares_sum_to_living_count()
     {
         var plan = SwarmAssaultAxisSplitter.Plan(
@@ -125,31 +127,31 @@ public sealed class SwarmPressureTests
             mode: SwarmOperationalMode.Assault,
             seed: 42,
             doctrineAllowSplit: true);
-        Assert.True(plan.SplitApplied);
-        Assert.Equal(17, plan.TotalDroneShare);
-        Assert.Equal(plan.EffectiveAxisCount, plan.Axes.Count);
-        Assert.All(plan.Axes, a => Assert.True(a.DroneShare >= 1));
+        Assert.That(plan.SplitApplied, Is.True);
+        Assert.That(plan.TotalDroneShare, Is.EqualTo(17));
+        Assert.That(plan.Axes.Count, Is.EqualTo(plan.EffectiveAxisCount));
+        AssertEx.All(plan.Axes, a => Assert.That(a.DroneShare >= 1, Is.True));
     }
 
-    [Fact]
+    [Test]
     public void Caps_clamp_identity_is_false_for_oversize()
     {
-        Assert.True(SwarmPerformanceCaps.ExceedsLogicalCap(41));
-        Assert.Equal(40, SwarmPerformanceCaps.ClampLogicalMaxDrones(99));
-        Assert.Equal(0, SwarmPerformanceCaps.ClampLogicalMaxDrones(-1));
+        Assert.That(SwarmPerformanceCaps.ExceedsLogicalCap(41), Is.True);
+        Assert.That(SwarmPerformanceCaps.ClampLogicalMaxDrones(99), Is.EqualTo(40));
+        Assert.That(SwarmPerformanceCaps.ClampLogicalMaxDrones(-1), Is.EqualTo(0));
     }
 
-    [Fact]
+    [Test]
     public void Softkill_emp_and_attrition_compose_without_integrity_side_channel()
     {
         var ctl = new SwarmController(SimSeed.FromScenario(19));
         ctl.Register(Sample(drones: 20, max: 20), 1.0, 2.0);
         var soft = new SwarmSoftKillApplicator(ctl);
         soft.ApplyEmp("swarm-1", 1, 1.0, freezeDurationSeconds: 10.0);
-        Assert.True(ctl.TryApplyIntegrityDamage("swarm-1", 4, 2, 2.0, "aa", out var change));
-        Assert.Equal(16, change.NewDroneCount);
-        Assert.True(soft.IsModeFrozen("swarm-1", 5.0));
-        Assert.Single(ctl.IntegrityTimeline);
+        Assert.That(ctl.TryApplyIntegrityDamage("swarm-1", 4, 2, 2.0, "aa", out var change), Is.True);
+        Assert.That(change.NewDroneCount, Is.EqualTo(16));
+        Assert.That(soft.IsModeFrozen("swarm-1", 5.0), Is.True);
+        AssertEx.Single(ctl.IntegrityTimeline);
     }
 
     private static (
@@ -173,15 +175,15 @@ public sealed class SwarmPressureTests
         var soft = new SwarmSoftKillApplicator(ctl);
         soft.ApplyEmp("alpha", 5, 5.0, freezeDurationSeconds: 15.0);
 
-        Assert.True(ctl.TryApplyIntegrityDamage("alpha", 8, 6, 6.0, "aa-point", out _));
-        Assert.True(ctl.TryApplyIntegrityDamage("bravo", 5, 7, 7.0, "aa-area", out _));
+        Assert.That(ctl.TryApplyIntegrityDamage("alpha", 8, 6, 6.0, "aa-point", out _), Is.True);
+        Assert.That(ctl.TryApplyIntegrityDamage("bravo", 5, 7, 7.0, "aa-area", out _), Is.True);
         ctl.Tick(1.0);
         ctl.SetLinkState("bravo", SwarmLinkState.Degraded);
         ctl.TryRegenNearHost("alpha", hostHasStores: true, simTick: 8, simTime: 8.0, out _);
         ctl.Tick(1.0);
 
-        Assert.True(ctl.TryGetIntegrity("alpha", out var a));
-        Assert.True(ctl.TryGetIntegrity("bravo", out var b));
+        Assert.That(ctl.TryGetIntegrity("alpha", out var a), Is.True);
+        Assert.That(ctl.TryGetIntegrity("bravo", out var b), Is.True);
         return (ctl.ComputeIntegrityTimelineHash(), ctl.ComputeOrderLogFingerprint(),
             a.DroneCount, b.DroneCount);
     }

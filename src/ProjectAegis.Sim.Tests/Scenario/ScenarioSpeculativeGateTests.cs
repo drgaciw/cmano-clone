@@ -1,4 +1,4 @@
-using Xunit;
+using NUnit.Framework;
 
 namespace ProjectAegis.Sim.Tests.Scenario;
 
@@ -8,28 +8,28 @@ using ProjectAegis.Sim.Scenario;
 
 public sealed class ScenarioSpeculativeGateTests
 {
-    [Fact]
+    [Test]
     public void Black_project_policy_json_enables_tl5_weapon_engage()
     {
         var path = ResolvePolicyPath("baltic-patrol-black-project.policy.json");
         var profile = ScenarioPolicyJsonLoader.LoadFromFile(path);
-        Assert.True(profile.Speculative.BlackProjectMode);
-        Assert.Equal(5, profile.Speculative.MaxTechnologyLevel);
+        Assert.That(profile.Speculative.BlackProjectMode, Is.True);
+        Assert.That(profile.Speculative.MaxTechnologyLevel, Is.EqualTo(5));
 
         var ctx = profile.ResolveEngageContext();
-        Assert.Null(SpeculativeEngageGate.Evaluate(profile.Speculative, in ctx));
+        Assert.That(SpeculativeEngageGate.Evaluate(profile.Speculative, in ctx), Is.Null);
     }
 
-    [Fact]
+    [Test]
     public void Campaign_default_policy_denies_tl5_black_project_weapon()
     {
         var path = ResolvePolicyPath("baltic-patrol-speculative-gated.policy.json");
         var profile = ScenarioPolicyJsonLoader.LoadFromFile(path);
         var ctx = profile.ResolveEngageContext();
-        Assert.Equal(EngagementAbortReason.TechnologyLevelExceeded, SpeculativeEngageGate.Evaluate(profile.Speculative, in ctx));
+        Assert.That(SpeculativeEngageGate.Evaluate(profile.Speculative, in ctx), Is.EqualTo(EngagementAbortReason.TechnologyLevelExceeded));
     }
 
-    [Fact]
+    [Test]
     public void Mvp_resolver_denies_speculative_weapon_without_black_project_mode()
     {
         var world = new DictionaryEngageWorldQuery();
@@ -50,13 +50,11 @@ public sealed class ScenarioSpeculativeGateTests
             speculative: ScenarioSpeculativeSettings.CampaignDefault);
 
         var result = resolver.Resolve(request);
-        Assert.Equal(EngagementAbortReason.TechnologyLevelExceeded, result.AbortReason);
-        Assert.Equal(
-            AbortReasonCatalog.Engage.TECHNOLOGY_LEVEL_EXCEEDED,
-            EngagementAbortReasonCodes.ToLogCode(result.AbortReason));
+        Assert.That(result.AbortReason, Is.EqualTo(EngagementAbortReason.TechnologyLevelExceeded));
+        Assert.That(EngagementAbortReasonCodes.ToLogCode(result.AbortReason), Is.EqualTo(AbortReasonCatalog.Engage.TECHNOLOGY_LEVEL_EXCEEDED));
     }
 
-    [Fact]
+    [Test]
     public void Mvp_resolver_allows_speculative_weapon_when_black_project_mode_on()
     {
         var world = new DictionaryEngageWorldQuery();
@@ -77,17 +75,17 @@ public sealed class ScenarioSpeculativeGateTests
             speculative: new ScenarioSpeculativeSettings(blackProjectMode: true, maxTechnologyLevel: 5));
 
         var result = resolver.Resolve(request);
-        Assert.True(result.Launched);
+        Assert.That(result.Launched, Is.True);
     }
 
-    [Fact]
+    [Test]
     public void Speculative_platform_catalog_loads_npx_entry()
     {
         var path = ResolveCatalogPath();
         var catalog = SpeculativePlatformCatalog.LoadFromFile(path);
-        Assert.True(catalog.TryGet("npx-laser-orbital", out var entry));
-        Assert.Equal(5, entry.GameTechnologyLevel);
-        Assert.True(entry.RequiresBlackProject);
+        Assert.That(catalog.TryGet("npx-laser-orbital", out var entry), Is.True);
+        Assert.That(entry.GameTechnologyLevel, Is.EqualTo(5));
+        Assert.That(entry.RequiresBlackProject, Is.True);
     }
 
     private static string ResolvePolicyPath(string fileName)
