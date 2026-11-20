@@ -2,7 +2,7 @@ using System.Text.Json;
 using ProjectAegis.Data.Scenario.Policy;
 using ProjectAegis.Sim.Scenario;
 using ProjectAegis.Sim.Sensors;
-using Xunit;
+using NUnit.Framework;
 
 namespace ProjectAegis.Sim.Tests.Scenario;
 
@@ -14,7 +14,7 @@ public sealed class ScenarioEnvironmentJsonLoaderTests
             json,
             new JsonSerializerOptions { PropertyNameCaseInsensitive = true })!);
 
-    [Fact]
+    [Test]
     public void Parses_line_of_sight_eccm_jammer_generation_and_comms_grid()
     {
         var p = Load("""
@@ -30,50 +30,47 @@ public sealed class ScenarioEnvironmentJsonLoaderTests
         }
         """);
 
-        Assert.Equal(3, p.Jammers[0].TechGeneration);
-        var los = Assert.Single(p.LineOfSight);
-        Assert.Equal(new[] { 3000.0, 9000.0 }, los.Terrain!.Select(t => t.DistanceMeters));
-        Assert.Equal(new RadarEccmProfile(RadarScanType.Aesa, false, 5), p.RadarEccm["radar-1"]);
-        Assert.Equal(new ScenarioCommsGridTransition(4, "sub-1", "OffGrid", "deep"), Assert.Single(p.CommsGridTransitions));
+        Assert.That(p.Jammers[0].TechGeneration, Is.EqualTo(3));
+        var los = AssertEx.Single(p.LineOfSight);
+        Assert.That(los.Terrain!.Select(t => t.DistanceMeters), Is.EqualTo(new[] { 3000.0, 9000.0 }));
+        Assert.That(p.RadarEccm["radar-1"], Is.EqualTo(new RadarEccmProfile(RadarScanType.Aesa, false, 5)));
+        Assert.That(AssertEx.Single(p.CommsGridTransitions), Is.EqualTo(new ScenarioCommsGridTransition(4, "sub-1", "OffGrid", "deep")));
     }
 
-    [Theory]
-    [InlineData("Phased")]
-    [InlineData("AESA ")]
-    [InlineData("2")]
-    [InlineData("Mechanical,Aesa")]
+    [TestCase("Phased")]
+    [TestCase("AESA ")]
+    [TestCase("2")]
+    [TestCase("Mechanical,Aesa")]
     public void Rejects_invalid_radar_eccm_scan_type(string scanType)
     {
         var ex = Assert.Throws<InvalidDataException>(() => Load($$"""
         { "id": "bad", "radarEccm": [ { "sensorId": "radar-1", "scanType": "{{scanType}}" } ] }
         """));
-        Assert.Contains(scanType, ex.Message, StringComparison.Ordinal);
+        Assert.That(ex!.Message, Does.Contain(scanType));
     }
 
-    [Theory]
-    [InlineData(-1)]
-    [InlineData(7)]
-    [InlineData(9)]
+    [TestCase(-1)]
+    [TestCase(7)]
+    [TestCase(9)]
     public void Rejects_radar_eccm_tech_generation_outside_documented_range(int generation)
     {
         var ex = Assert.Throws<InvalidDataException>(() => Load($$"""
         { "id": "bad", "radarEccm": [ { "sensorId": "radar-1", "scanType": "Aesa", "techGeneration": {{generation}} } ] }
         """));
-        Assert.Contains("techGeneration", ex.Message, StringComparison.Ordinal);
+        Assert.That(ex!.Message, Does.Contain("techGeneration"));
     }
 
-    [Theory]
-    [InlineData("2")]
-    [InlineData("OnGrid,OffGrid")]
+    [TestCase("2")]
+    [TestCase("OnGrid,OffGrid")]
     public void Rejects_numeric_and_combined_comms_membership_at_load(string membership)
     {
         var ex = Assert.Throws<InvalidDataException>(() => Load($$"""
         { "id": "bad", "commsGrid": [ { "atTick": 1, "unitId": "u1", "membership": "{{membership}}" } ] }
         """));
-        Assert.Contains(membership, ex.Message, StringComparison.Ordinal);
+        Assert.That(ex!.Message, Does.Contain(membership));
     }
 
-    [Fact]
+    [Test]
     public void Rejects_invalid_comms_grid_membership_at_load()
     {
         Assert.Throws<InvalidDataException>(() => Load("""
@@ -81,7 +78,7 @@ public sealed class ScenarioEnvironmentJsonLoaderTests
         """));
     }
 
-    [Fact]
+    [Test]
     public void Rejects_negative_los_range()
     {
         Assert.Throws<InvalidDataException>(() => Load("""
@@ -89,7 +86,7 @@ public sealed class ScenarioEnvironmentJsonLoaderTests
         """));
     }
 
-    [Fact]
+    [Test]
     public void ToProfile_maps_dto_built_in_code()
     {
         var dto = new ScenarioPolicyJsonDto
@@ -114,19 +111,19 @@ public sealed class ScenarioEnvironmentJsonLoaderTests
 
         var p = ScenarioPolicyJsonLoader.ToProfile(dto);
 
-        Assert.Equal(2, p.Jammers[0].TechGeneration);
-        Assert.Equal("u1", p.Jammers[0].ObserverId);
-        Assert.Equal(new TerrainProfileSample(5_000, 3), p.LineOfSight[0].Terrain![0]);
-        Assert.Equal(new RadarEccmProfile(RadarScanType.Pesa, true, 4), p.RadarEccm["r1"]);
-        Assert.Equal("init", p.CommsGridTransitions[0].Reason);
+        Assert.That(p.Jammers[0].TechGeneration, Is.EqualTo(2));
+        Assert.That(p.Jammers[0].ObserverId, Is.EqualTo("u1"));
+        Assert.That(p.LineOfSight[0].Terrain![0], Is.EqualTo(new TerrainProfileSample(5_000, 3)));
+        Assert.That(p.RadarEccm["r1"], Is.EqualTo(new RadarEccmProfile(RadarScanType.Pesa, true, 4)));
+        Assert.That(p.CommsGridTransitions[0].Reason, Is.EqualTo("init"));
     }
 
-    [Fact]
+    [Test]
     public void Absent_sections_default_to_empty()
     {
         var p = Load("""{ "id": "plain" }""");
-        Assert.Empty(p.LineOfSight);
-        Assert.Empty(p.RadarEccm);
-        Assert.Empty(p.CommsGridTransitions);
+        Assert.That(p.LineOfSight, Is.Empty);
+        Assert.That(p.RadarEccm, Is.Empty);
+        Assert.That(p.CommsGridTransitions, Is.Empty);
     }
 }

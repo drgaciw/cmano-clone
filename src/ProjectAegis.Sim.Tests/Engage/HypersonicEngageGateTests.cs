@@ -1,11 +1,11 @@
 using ProjectAegis.Sim.Engage;
-using Xunit;
+using NUnit.Framework;
 
 namespace ProjectAegis.Sim.Tests.Engage;
 
 public sealed class HypersonicEngageGateTests
 {
-    [Fact]
+    [Test]
     public void Evaluate_blocks_without_defense_layer()
     {
         var ctx = new EngageContext(
@@ -16,10 +16,10 @@ public sealed class HypersonicEngageGateTests
             IsHypersonicTarget: true,
             HasHypersonicDefenseLayer: false);
 
-        Assert.Equal(EngagementAbortReason.DomainNoSolution, HypersonicEngageGate.Evaluate(in ctx));
+        Assert.That(HypersonicEngageGate.Evaluate(in ctx), Is.EqualTo(EngagementAbortReason.DomainNoSolution));
     }
 
-    [Fact]
+    [Test]
     public void Evaluate_allows_with_defense_layer()
     {
         var ctx = new EngageContext(
@@ -30,6 +30,6 @@ public sealed class HypersonicEngageGateTests
             IsHypersonicTarget: true,
             HasHypersonicDefenseLayer: true);
 
-        Assert.Null(HypersonicEngageGate.Evaluate(in ctx));
+        Assert.That(HypersonicEngageGate.Evaluate(in ctx), Is.Null);
     }
 }

@@ -1,26 +1,26 @@
 using ProjectAegis.Sim.Policy;
 using ProjectAegis.Sim.Scenario;
-using Xunit;
+using NUnit.Framework;
 
 namespace ProjectAegis.Sim.Tests.Scenario;
 
 public sealed class ScenarioPolicyRepositoryTests
 {
-    [Fact]
+    [Test]
     public void Json_restricted_engagement_overrides_built_in_f1_roe()
     {
         ScenarioPolicyRepository.EnsureDefaultJsonLoaded();
         var profile = ScenarioPolicyRepository.TryGet("restricted-engagement");
-        Assert.NotNull(profile);
-        Assert.Equal(RoeLevel.WeaponsFree, profile.ResolveForUnit("f1", isFriendly: true).Roe);
+        Assert.That(profile, Is.Not.Null);
+        Assert.That(profile!.ResolveForUnit("f1", isFriendly: true).Roe, Is.EqualTo(RoeLevel.WeaponsFree));
     }
 
-    [Fact]
+    [Test]
     public void Built_in_still_available_when_no_json_file()
     {
         ScenarioPolicyRepository.EnsureDefaultJsonLoaded();
         var profile = ScenarioPolicyRepository.TryGet("baltic-patrol");
-        Assert.NotNull(profile);
-        Assert.Equal(RoeLevel.WeaponsFree, profile.ResolveForUnit("any", isFriendly: true).Roe);
+        Assert.That(profile, Is.Not.Null);
+        Assert.That(profile!.ResolveForUnit("any", isFriendly: true).Roe, Is.EqualTo(RoeLevel.WeaponsFree));
     }
 }

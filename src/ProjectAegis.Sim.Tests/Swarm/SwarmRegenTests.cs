@@ -1,7 +1,7 @@
 using ProjectAegis.Data.Catalog;
 using ProjectAegis.Sim.Core;
 using ProjectAegis.Sim.Swarm;
-using Xunit;
+using NUnit.Framework;
 
 namespace ProjectAegis.Sim.Tests.Swarm;
 
@@ -31,44 +31,48 @@ public sealed class SwarmRegenTests
         return c;
     }
 
-    [Fact]
+    [Test]
     public void Regen_increases_count_near_host_with_stores()
     {
         var c = NearHostController(drones: 20, max: 40);
 
-        Assert.True(c.TryRegenNearHost(
-            "swarm-1",
-            hostHasStores: true,
-            simTick: 1,
-            simTime: 1.0,
-            out var change));
+        Assert.That(
+            c.TryRegenNearHost(
+                    "swarm-1",
+                    hostHasStores: true,
+                    simTick: 1,
+                    simTime: 1.0,
+                    out var change),
+            Is.True);
 
-        Assert.Equal(20, change.PreviousDroneCount);
-        Assert.Equal(21, change.NewDroneCount);
-        Assert.Equal(0, change.DronesLost);
-        Assert.Equal(SwarmController.RegenReasonCode, change.ReasonCode);
-        Assert.True(c.TryGetIntegrity("swarm-1", out var integrity));
-        Assert.Equal(21, integrity.DroneCount);
+        Assert.That(change.PreviousDroneCount, Is.EqualTo(20));
+        Assert.That(change.NewDroneCount, Is.EqualTo(21));
+        Assert.That(change.DronesLost, Is.EqualTo(0));
+        Assert.That(change.ReasonCode, Is.EqualTo(SwarmController.RegenReasonCode));
+        Assert.That(c.TryGetIntegrity("swarm-1", out var integrity), Is.True);
+        Assert.That(integrity.DroneCount, Is.EqualTo(21));
     }
 
-    [Fact]
+    [Test]
     public void No_regen_without_stores()
     {
         var c = NearHostController(drones: 20, max: 40);
 
-        Assert.False(c.TryRegenNearHost(
-            "swarm-1",
-            hostHasStores: false,
-            simTick: 1,
-            simTime: 1.0,
-            out _));
+        Assert.That(
+            c.TryRegenNearHost(
+                    "swarm-1",
+                    hostHasStores: false,
+                    simTick: 1,
+                    simTime: 1.0,
+                    out _),
+            Is.False);
 
-        Assert.True(c.TryGetIntegrity("swarm-1", out var integrity));
-        Assert.Equal(20, integrity.DroneCount);
-        Assert.Empty(c.IntegrityTimeline);
+        Assert.That(c.TryGetIntegrity("swarm-1", out var integrity), Is.True);
+        Assert.That(integrity.DroneCount, Is.EqualTo(20));
+        Assert.That(c.IntegrityTimeline, Is.Empty);
     }
 
-    [Fact]
+    [Test]
     public void No_regen_when_far_from_host()
     {
         // Default max range 0.5 deg; place host 1.0 deg away.
@@ -80,73 +84,81 @@ public sealed class SwarmRegenTests
             hostLat: 57.0,
             hostLon: 21.0);
 
-        Assert.False(c.TryRegenNearHost(
-            "swarm-1",
-            hostHasStores: true,
-            simTick: 1,
-            simTime: 1.0,
-            out _));
+        Assert.That(
+            c.TryRegenNearHost(
+                    "swarm-1",
+                    hostHasStores: true,
+                    simTick: 1,
+                    simTime: 1.0,
+                    out _),
+            Is.False);
 
-        Assert.True(c.TryGetIntegrity("swarm-1", out var integrity));
-        Assert.Equal(20, integrity.DroneCount);
+        Assert.That(c.TryGetIntegrity("swarm-1", out var integrity), Is.True);
+        Assert.That(integrity.DroneCount, Is.EqualTo(20));
     }
 
-    [Fact]
+    [Test]
     public void No_regen_above_maxDrones()
     {
         var c = NearHostController(drones: 40, max: 40);
 
-        Assert.False(c.TryRegenNearHost(
-            "swarm-1",
-            hostHasStores: true,
-            simTick: 1,
-            simTime: 1.0,
-            out _));
+        Assert.That(
+            c.TryRegenNearHost(
+                    "swarm-1",
+                    hostHasStores: true,
+                    simTick: 1,
+                    simTime: 1.0,
+                    out _),
+            Is.False);
 
-        Assert.True(c.TryGetIntegrity("swarm-1", out var integrity));
-        Assert.Equal(40, integrity.DroneCount);
-        Assert.Empty(c.IntegrityTimeline);
+        Assert.That(c.TryGetIntegrity("swarm-1", out var integrity), Is.True);
+        Assert.That(integrity.DroneCount, Is.EqualTo(40));
+        Assert.That(c.IntegrityTimeline, Is.Empty);
     }
 
-    [Fact]
+    [Test]
     public void No_regen_when_host_dead()
     {
         var c = NearHostController(drones: 20, max: 40, hostAlive: false);
 
-        Assert.False(c.TryRegenNearHost(
-            "swarm-1",
-            hostHasStores: true,
-            simTick: 1,
-            simTime: 1.0,
-            out _));
+        Assert.That(
+            c.TryRegenNearHost(
+                    "swarm-1",
+                    hostHasStores: true,
+                    simTick: 1,
+                    simTime: 1.0,
+                    out _),
+            Is.False);
 
-        Assert.True(c.TryGetIntegrity("swarm-1", out var integrity));
-        Assert.Equal(20, integrity.DroneCount);
+        Assert.That(c.TryGetIntegrity("swarm-1", out var integrity), Is.True);
+        Assert.That(integrity.DroneCount, Is.EqualTo(20));
     }
 
-    [Fact]
+    [Test]
     public void Regen_appears_on_IntegrityTimeline_with_reason_regen_host()
     {
         var c = NearHostController(drones: 10, max: 40);
 
-        Assert.True(c.TryRegenNearHost(
-            "swarm-1",
-            hostHasStores: true,
-            simTick: 5,
-            simTime: 5.5,
-            out _));
+        Assert.That(
+            c.TryRegenNearHost(
+                    "swarm-1",
+                    hostHasStores: true,
+                    simTick: 5,
+                    simTime: 5.5,
+                    out _),
+            Is.True);
 
-        Assert.Single(c.IntegrityTimeline);
+        AssertEx.Single(c.IntegrityTimeline);
         var entry = c.IntegrityTimeline[0];
-        Assert.Equal(SwarmController.RegenReasonCode, entry.ReasonCode);
-        Assert.Equal(10, entry.PreviousDroneCount);
-        Assert.Equal(11, entry.NewDroneCount);
-        Assert.Equal(0, entry.DronesLost);
-        Assert.Equal(5UL, entry.SimTick);
-        Assert.Equal(5.5, entry.SimTime);
+        Assert.That(entry.ReasonCode, Is.EqualTo(SwarmController.RegenReasonCode));
+        Assert.That(entry.PreviousDroneCount, Is.EqualTo(10));
+        Assert.That(entry.NewDroneCount, Is.EqualTo(11));
+        Assert.That(entry.DronesLost, Is.EqualTo(0));
+        Assert.That(entry.SimTick, Is.EqualTo(5UL));
+        Assert.That(entry.SimTime, Is.EqualTo(5.5));
     }
 
-    [Fact]
+    [Test]
     public void Same_seed_path_is_deterministic()
     {
         const ulong seed = 97001UL;
@@ -168,7 +180,7 @@ public sealed class SwarmRegenTests
                     out _);
             }
 
-            Assert.True(c.TryGetIntegrity("s1", out var integrity));
+            Assert.That(c.TryGetIntegrity("s1", out var integrity), Is.True);
             var reason = c.IntegrityTimeline.Count > 0
                 ? c.IntegrityTimeline[0].ReasonCode
                 : string.Empty;
@@ -177,75 +189,89 @@ public sealed class SwarmRegenTests
 
         var a = Run();
         var b = Run();
-        Assert.Equal(a.Hash, b.Hash);
-        Assert.Equal(a.Count, b.Count);
-        Assert.Equal(20, a.Count); // 15 + 5 pulses
-        Assert.Equal(SwarmController.RegenReasonCode, a.Reason);
-        Assert.NotEqual(0UL, a.Hash);
+        Assert.That(b.Hash, Is.EqualTo(a.Hash));
+        Assert.That(b.Count, Is.EqualTo(a.Count));
+        Assert.That(a.Count, Is.EqualTo(20)); // 15 + 5 pulses
+        Assert.That(a.Reason, Is.EqualTo(SwarmController.RegenReasonCode));
+        Assert.That(a.Hash, Is.Not.EqualTo(0UL));
     }
 
-    [Fact]
+    [Test]
     public void CanRegen_evaluator_gates_are_pure()
     {
-        Assert.True(SwarmRegenEvaluator.CanRegen(
-            rangeDeg: 0.1,
-            hostAlive: true,
-            hostHasStores: true,
-            droneCount: 10,
-            maxDrones: 40));
+        Assert.That(
+            SwarmRegenEvaluator.CanRegen(
+                    rangeDeg: 0.1,
+                    hostAlive: true,
+                    hostHasStores: true,
+                    droneCount: 10,
+                    maxDrones: 40),
+            Is.True);
 
-        Assert.False(SwarmRegenEvaluator.CanRegen(
-            rangeDeg: 0.1,
-            hostAlive: true,
-            hostHasStores: false,
-            droneCount: 10,
-            maxDrones: 40));
+        Assert.That(
+            SwarmRegenEvaluator.CanRegen(
+                    rangeDeg: 0.1,
+                    hostAlive: true,
+                    hostHasStores: false,
+                    droneCount: 10,
+                    maxDrones: 40),
+            Is.False);
 
-        Assert.False(SwarmRegenEvaluator.CanRegen(
-            rangeDeg: 0.9,
-            hostAlive: true,
-            hostHasStores: true,
-            droneCount: 10,
-            maxDrones: 40));
+        Assert.That(
+            SwarmRegenEvaluator.CanRegen(
+                    rangeDeg: 0.9,
+                    hostAlive: true,
+                    hostHasStores: true,
+                    droneCount: 10,
+                    maxDrones: 40),
+            Is.False);
 
-        Assert.False(SwarmRegenEvaluator.CanRegen(
-            rangeDeg: 0.1,
-            hostAlive: false,
-            hostHasStores: true,
-            droneCount: 10,
-            maxDrones: 40));
+        Assert.That(
+            SwarmRegenEvaluator.CanRegen(
+                    rangeDeg: 0.1,
+                    hostAlive: false,
+                    hostHasStores: true,
+                    droneCount: 10,
+                    maxDrones: 40),
+            Is.False);
 
-        Assert.False(SwarmRegenEvaluator.CanRegen(
-            rangeDeg: 0.1,
-            hostAlive: true,
-            hostHasStores: true,
-            droneCount: 40,
-            maxDrones: 40));
+        Assert.That(
+            SwarmRegenEvaluator.CanRegen(
+                    rangeDeg: 0.1,
+                    hostAlive: true,
+                    hostHasStores: true,
+                    droneCount: 40,
+                    maxDrones: 40),
+            Is.False);
 
-        Assert.False(SwarmRegenEvaluator.CanRegen(
-            rangeDeg: null,
-            hostAlive: true,
-            hostHasStores: true,
-            droneCount: 10,
-            maxDrones: 40));
+        Assert.That(
+            SwarmRegenEvaluator.CanRegen(
+                    rangeDeg: null,
+                    hostAlive: true,
+                    hostHasStores: true,
+                    droneCount: 10,
+                    maxDrones: 40),
+            Is.False);
     }
 
-    [Fact]
+    [Test]
     public void TryApplyIntegrityRegen_clamps_to_max()
     {
         var c = new SwarmController(SimSeed.FromScenario(1));
         c.Register(Sample(drones: 38, max: 40), 0, 0);
 
-        Assert.True(c.TryApplyIntegrityRegen(
-            "swarm-1",
-            dronesGained: 10,
-            simTick: 1,
-            simTime: 1.0,
-            reasonCode: SwarmController.RegenReasonCode,
-            out var change));
+        Assert.That(
+            c.TryApplyIntegrityRegen(
+                    "swarm-1",
+                    dronesGained: 10,
+                    simTick: 1,
+                    simTime: 1.0,
+                    reasonCode: SwarmController.RegenReasonCode,
+                    out var change),
+            Is.True);
 
-        Assert.Equal(38, change.PreviousDroneCount);
-        Assert.Equal(40, change.NewDroneCount);
-        Assert.Equal(0, change.DronesLost);
+        Assert.That(change.PreviousDroneCount, Is.EqualTo(38));
+        Assert.That(change.NewDroneCount, Is.EqualTo(40));
+        Assert.That(change.DronesLost, Is.EqualTo(0));
     }
 }

@@ -1,7 +1,7 @@
 using ProjectAegis.Data.Catalog;
 using ProjectAegis.Sim.Core;
 using ProjectAegis.Sim.Swarm;
-using Xunit;
+using NUnit.Framework;
 
 namespace ProjectAegis.Sim.Tests.Swarm;
 
@@ -11,7 +11,7 @@ public sealed class SwarmModeHostLinkTests
     private static SwarmUnitIntegrity Sample(string id = "swarm-1") =>
         new(id, CatalogSwarmPlatformDefaults.GenericSwarmPlatformId, 40, 40);
 
-    [Fact]
+    [Test]
     public void IssueMode_logs_mode_change_and_is_readable()
     {
         var c = new SwarmController(SimSeed.FromScenario(1));
@@ -19,13 +19,13 @@ public sealed class SwarmModeHostLinkTests
 
         var seq = c.IssueMode("swarm-1", SwarmOperationalMode.Assault, simTick: 1, simTime: 1.0);
 
-        Assert.Equal(1UL, seq);
-        Assert.Equal(SwarmOperationalMode.Assault, c.GetMode("swarm-1"));
-        Assert.Single(c.ModeOrderLog);
-        Assert.Equal(SwarmOperationalMode.Assault, c.ModeOrderLog[0].Mode);
+        Assert.That(seq, Is.EqualTo(1UL));
+        Assert.That(c.GetMode("swarm-1"), Is.EqualTo(SwarmOperationalMode.Assault));
+        AssertEx.Single(c.ModeOrderLog);
+        Assert.That(c.ModeOrderLog[0].Mode, Is.EqualTo(SwarmOperationalMode.Assault));
     }
 
-    [Fact]
+    [Test]
     public void Screen_mode_gravitates_toward_host()
     {
         var c = new SwarmController(SimSeed.FromScenario(2), speedDegPerSecond: 0.5);
@@ -39,23 +39,27 @@ public sealed class SwarmModeHostLinkTests
             c.Tick(1.0);
         }
 
-        Assert.True(c.TryGetCentroid("swarm-1", out var lat, out var lon));
-        Assert.Equal(57.0, lat, 5);
-        Assert.Equal(20.5, lon, 5);
-        Assert.Equal("host-cvn", c.GetHostId("swarm-1"));
+        Assert.That(c.TryGetCentroid("swarm-1", out var lat, out var lon), Is.True);
+        Assert.That(
+            Math.Round(lat, 5, MidpointRounding.AwayFromZero),
+            Is.EqualTo(Math.Round(57.0, 5, MidpointRounding.AwayFromZero)));
+        Assert.That(
+            Math.Round(lon, 5, MidpointRounding.AwayFromZero),
+            Is.EqualTo(Math.Round(20.5, 5, MidpointRounding.AwayFromZero)));
+        Assert.That(c.GetHostId("swarm-1"), Is.EqualTo("host-cvn"));
     }
 
-    [Fact]
+    [Test]
     public void Link_evaluator_is_deterministic_for_range_and_jam()
     {
-        Assert.Equal(SwarmLinkState.Connected, SwarmLinkEvaluator.Evaluate(0.1, hostAlive: true, jammed: false));
-        Assert.Equal(SwarmLinkState.Degraded, SwarmLinkEvaluator.Evaluate(1.2, hostAlive: true, jammed: false));
-        Assert.Equal(SwarmLinkState.Lost, SwarmLinkEvaluator.Evaluate(3.0, hostAlive: true, jammed: false));
-        Assert.Equal(SwarmLinkState.Lost, SwarmLinkEvaluator.Evaluate(0.0, hostAlive: true, jammed: true));
-        Assert.Equal(SwarmLinkState.Lost, SwarmLinkEvaluator.Evaluate(0.0, hostAlive: false, jammed: false));
+        Assert.That(SwarmLinkEvaluator.Evaluate(0.1, hostAlive: true, jammed: false), Is.EqualTo(SwarmLinkState.Connected));
+        Assert.That(SwarmLinkEvaluator.Evaluate(1.2, hostAlive: true, jammed: false), Is.EqualTo(SwarmLinkState.Degraded));
+        Assert.That(SwarmLinkEvaluator.Evaluate(3.0, hostAlive: true, jammed: false), Is.EqualTo(SwarmLinkState.Lost));
+        Assert.That(SwarmLinkEvaluator.Evaluate(0.0, hostAlive: true, jammed: true), Is.EqualTo(SwarmLinkState.Lost));
+        Assert.That(SwarmLinkEvaluator.Evaluate(0.0, hostAlive: false, jammed: false), Is.EqualTo(SwarmLinkState.Lost));
     }
 
-    [Fact]
+    [Test]
     public void Lost_link_blocks_new_orders()
     {
         var c = new SwarmController(SimSeed.FromScenario(3));
@@ -68,7 +72,7 @@ public sealed class SwarmModeHostLinkTests
             c.IssueMode("swarm-1", SwarmOperationalMode.Scatter, simTick: 2, simTime: 2.0));
     }
 
-    [Fact]
+    [Test]
     public void RefreshLinkState_uses_host_geometry()
     {
         var c = new SwarmController(SimSeed.FromScenario(4));
@@ -76,13 +80,13 @@ public sealed class SwarmModeHostLinkTests
         c.BindHost("swarm-1", "host-1");
         c.PublishHostState("host-1", latDeg: 57.0, lonDeg: 20.3, alive: true);
 
-        Assert.Equal(SwarmLinkState.Connected, c.RefreshLinkState("swarm-1", jammed: false));
+        Assert.That(c.RefreshLinkState("swarm-1", jammed: false), Is.EqualTo(SwarmLinkState.Connected));
 
         c.PublishHostState("host-1", latDeg: 57.0, lonDeg: 22.5, alive: true);
-        Assert.Equal(SwarmLinkState.Lost, c.RefreshLinkState("swarm-1", jammed: false));
+        Assert.That(c.RefreshLinkState("swarm-1", jammed: false), Is.EqualTo(SwarmLinkState.Lost));
     }
 
-    [Fact]
+    [Test]
     public void Host_loss_stub_forces_hold_and_lost_link()
     {
         var c = new SwarmController(SimSeed.FromScenario(5));
@@ -93,12 +97,12 @@ public sealed class SwarmModeHostLinkTests
 
         c.NotifyHostLost("swarm-1");
 
-        Assert.Equal(SwarmLinkState.Lost, c.GetLinkState("swarm-1"));
-        Assert.Equal(SwarmOperationalMode.Hold, c.GetMode("swarm-1"));
-        Assert.Equal(SwarmIntentKind.Hold, c.GetIntent("swarm-1"));
+        Assert.That(c.GetLinkState("swarm-1"), Is.EqualTo(SwarmLinkState.Lost));
+        Assert.That(c.GetMode("swarm-1"), Is.EqualTo(SwarmOperationalMode.Hold));
+        Assert.That(c.GetIntent("swarm-1"), Is.EqualTo(SwarmIntentKind.Hold));
     }
 
-    [Fact]
+    [Test]
     public void Modes_differ_in_engagement_aggressiveness_proxy()
     {
         // Assault keeps Attack intent; Hold mode with Hold intent is less aggressive.
@@ -110,9 +114,9 @@ public sealed class SwarmModeHostLinkTests
         c.IssueMode("b", SwarmOperationalMode.Hold, 1, 0);
         c.IssueHold("b", 2, 1);
 
-        Assert.Equal(SwarmIntentKind.Attack, c.GetIntent("a"));
-        Assert.Equal(SwarmOperationalMode.Assault, c.GetMode("a"));
-        Assert.Equal(SwarmIntentKind.Hold, c.GetIntent("b"));
-        Assert.Equal(SwarmOperationalMode.Hold, c.GetMode("b"));
+        Assert.That(c.GetIntent("a"), Is.EqualTo(SwarmIntentKind.Attack));
+        Assert.That(c.GetMode("a"), Is.EqualTo(SwarmOperationalMode.Assault));
+        Assert.That(c.GetIntent("b"), Is.EqualTo(SwarmIntentKind.Hold));
+        Assert.That(c.GetMode("b"), Is.EqualTo(SwarmOperationalMode.Hold));
     }
 }

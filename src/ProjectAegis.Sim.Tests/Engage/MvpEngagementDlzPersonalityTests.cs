@@ -1,11 +1,11 @@
 using ProjectAegis.Sim.Engage;
-using Xunit;
+using NUnit.Framework;
 
 namespace ProjectAegis.Sim.Tests.Engage;
 
 public sealed class MvpEngagementDlzPersonalityTests
 {
-    [Fact]
+    [Test]
     public void Early_personality_launches_in_approaching_band()
     {
         var world = new DictionaryEngageWorldQuery();
@@ -21,6 +21,6 @@ public sealed class MvpEngagementDlzPersonalityTests
             DlzPersonality: DlzPersonality.Early));
 
         var result = resolver.Resolve(request);
-        Assert.True(result.Launched);
+        Assert.That(result.Launched, Is.True);
     }
 }

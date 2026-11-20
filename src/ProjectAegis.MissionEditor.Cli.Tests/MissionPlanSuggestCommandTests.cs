@@ -83,8 +83,8 @@ public sealed class ScenarioPublishAndAiScaffoldTests
     {
         var res = Data.Scenario.Authoring.AiAuthoringServices.NlScaffold("Create a baltic patrol and strike scenario for blue side");
         Assert.That(res.Sides, Does.Contain("Blue"));
-        Assert.That(string.Join(" ", res.Missions).ToLower(), Does.Contain("patrol"));
-        Assert.That(string.Join(" ", res.Missions).ToLower(), Does.Contain("strike"));
+        Assert.That(string.Join(" ", res.Missions).ToLowerInvariant(), Does.Contain("patrol"));
+        Assert.That(string.Join(" ", res.Missions).ToLowerInvariant(), Does.Contain("strike"));
         Assert.That(res.Objectives, Is.Not.Empty);
         Assert.That(res.ProvenanceTags, Is.Not.Empty);
         Assert.That(res.ProvenanceTags[0].Tag, Does.Contain("nl-scaffold"));

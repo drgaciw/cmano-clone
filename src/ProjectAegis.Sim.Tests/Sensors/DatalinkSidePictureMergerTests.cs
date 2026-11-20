@@ -1,7 +1,7 @@
 using ProjectAegis.Sim.Core;
 using ProjectAegis.Sim.Scenario;
 using ProjectAegis.Sim.Sensors;
-using Xunit;
+using NUnit.Framework;
 
 namespace ProjectAegis.Sim.Tests.Sensors;
 
@@ -21,7 +21,7 @@ public sealed class DatalinkSidePictureMergerTests
             ["u2"] = "blue",
         });
 
-    [Fact]
+    [Test]
     public void Peer_on_same_side_receives_shared_detected_transition()
     {
         var merger = new DatalinkSidePictureMerger(SharingDoctrine, TwoObserverTrials);
@@ -32,13 +32,13 @@ public sealed class DatalinkSidePictureMergerTests
 
         var shared = merger.Merge(organic, 1, 1.0);
 
-        Assert.Single(shared);
-        Assert.Equal("u2", shared[0].ObserverId);
-        Assert.Equal("dl-hostile-1", shared[0].ContactId);
-        Assert.Equal(ContactLifecycleState.Detected, shared[0].NewState);
+        AssertEx.Single(shared);
+        Assert.That(shared[0].ObserverId, Is.EqualTo("u2"));
+        Assert.That(shared[0].ContactId, Is.EqualTo("dl-hostile-1"));
+        Assert.That(shared[0].NewState, Is.EqualTo(ContactLifecycleState.Detected));
     }
 
-    [Fact]
+    [Test]
     public void Organic_only_flag_suppresses_sharing()
     {
         var doctrine = SharingDoctrine with { OrganicOnly = true };
@@ -48,10 +48,10 @@ public sealed class DatalinkSidePictureMergerTests
             new ContactTransition(1, 1.0, "u1", "c1", "hostile-1", ContactLifecycleState.Unknown, ContactLifecycleState.Detected),
         };
 
-        Assert.Empty(merger.Merge(organic, 1, 1.0));
+        Assert.That(merger.Merge(organic, 1, 1.0), Is.Empty);
     }
 
-    [Fact]
+    [Test]
     public void Observers_on_different_sides_do_not_share()
     {
         var doctrine = new ScenarioDatalinkDoctrine(
@@ -67,22 +67,22 @@ public sealed class DatalinkSidePictureMergerTests
             new ContactTransition(1, 1.0, "u1", "c1", "hostile-1", ContactLifecycleState.Unknown, ContactLifecycleState.Detected),
         };
 
-        Assert.Empty(merger.Merge(organic, 1, 1.0));
+        Assert.That(merger.Merge(organic, 1, 1.0), Is.Empty);
     }
 
-    [Fact]
+    [Test]
     public void Identical_merge_inputs_yield_identical_shared_sequence()
     {
         var a = RunSharedSequence();
         var b = RunSharedSequence();
-        Assert.Equal(a.Count, b.Count);
+        Assert.That(b.Count, Is.EqualTo(a.Count));
         for (var i = 0; i < a.Count; i++)
         {
-            Assert.Equal(a[i], b[i]);
+            Assert.That(b[i], Is.EqualTo(a[i]));
         }
     }
 
-    [Fact]
+    [Test]
     public void Classify_promotion_is_shared_to_peer()
     {
         var lifecycle = new ScenarioContactLifecycle(
@@ -102,18 +102,18 @@ public sealed class DatalinkSidePictureMergerTests
             allShared.AddRange(merger.Merge(organic, tick, tick));
         }
 
-        Assert.Contains(
-            allShared,
-            t => t is
+        Assert.That(
+            allShared.Any(t => t is
             {
                 ObserverId: "u2",
                 TargetId: "hostile-1",
                 PreviousState: ContactLifecycleState.Detected,
                 NewState: ContactLifecycleState.Classified,
-            });
+            }),
+            Is.True);
     }
 
-    [Fact]
+    [Test]
     public void Duplicate_share_is_suppressed_on_subsequent_ticks()
     {
         var merger = new DatalinkSidePictureMerger(SharingDoctrine, TwoObserverTrials);
@@ -122,11 +122,11 @@ public sealed class DatalinkSidePictureMergerTests
             new ContactTransition(1, 1.0, "u1", "c1", "hostile-1", ContactLifecycleState.Unknown, ContactLifecycleState.Detected),
         };
 
-        Assert.Single(merger.Merge(organic, 1, 1.0));
-        Assert.Empty(merger.Merge(Array.Empty<ContactTransition>(), 2, 2.0));
+        AssertEx.Single(merger.Merge(organic, 1, 1.0));
+        Assert.That(merger.Merge(Array.Empty<ContactTransition>(), 2, 2.0), Is.Empty);
     }
 
-    [Fact]
+    [Test]
     public void Shared_transitions_sort_by_observer_sensor_target()
     {
         var trials = new[]
@@ -145,12 +145,12 @@ public sealed class DatalinkSidePictureMergerTests
 
         var shared = merger.Merge(organic, 1, 1.0);
 
-        Assert.Equal(2, shared.Count);
-        Assert.Equal("hostile-a", shared[0].TargetId);
-        Assert.Equal("hostile-b", shared[1].TargetId);
+        Assert.That(shared.Count, Is.EqualTo(2));
+        Assert.That(shared[0].TargetId, Is.EqualTo("hostile-a"));
+        Assert.That(shared[1].TargetId, Is.EqualTo("hostile-b"));
     }
 
-    [Fact]
+    [Test]
     public void Share_lag_zero_matches_immediate_peer_merge()
     {
         var doctrine = SharingDoctrine with { ShareLagTicks = 0 };
@@ -162,13 +162,13 @@ public sealed class DatalinkSidePictureMergerTests
 
         var shared = merger.Merge(organic, 1, 1.0);
 
-        Assert.Single(shared);
-        Assert.Equal("u2", shared[0].ObserverId);
-        Assert.Equal((ulong)1, shared[0].SimTick);
-        Assert.Equal(ContactLifecycleState.Detected, shared[0].NewState);
+        AssertEx.Single(shared);
+        Assert.That(shared[0].ObserverId, Is.EqualTo("u2"));
+        Assert.That(shared[0].SimTick, Is.EqualTo((ulong)1));
+        Assert.That(shared[0].NewState, Is.EqualTo(ContactLifecycleState.Detected));
     }
 
-    [Fact]
+    [Test]
     public void Share_lag_defers_peer_merge_until_apply_tick()
     {
         var doctrine = SharingDoctrine with { ShareLagTicks = 2 };
@@ -178,18 +178,18 @@ public sealed class DatalinkSidePictureMergerTests
             new ContactTransition(1, 1.0, "u1", "c1", "hostile-1", ContactLifecycleState.Unknown, ContactLifecycleState.Detected),
         };
 
-        Assert.Empty(merger.Merge(organic, 1, 1.0));
-        Assert.Empty(merger.Merge(Array.Empty<ContactTransition>(), 2, 2.0));
+        Assert.That(merger.Merge(organic, 1, 1.0), Is.Empty);
+        Assert.That(merger.Merge(Array.Empty<ContactTransition>(), 2, 2.0), Is.Empty);
 
         var shared = merger.Merge(Array.Empty<ContactTransition>(), 3, 3.0);
 
-        Assert.Single(shared);
-        Assert.Equal("u2", shared[0].ObserverId);
-        Assert.Equal((ulong)3, shared[0].SimTick);
-        Assert.Equal(ContactLifecycleState.Detected, shared[0].NewState);
+        AssertEx.Single(shared);
+        Assert.That(shared[0].ObserverId, Is.EqualTo("u2"));
+        Assert.That(shared[0].SimTick, Is.EqualTo((ulong)3));
+        Assert.That(shared[0].NewState, Is.EqualTo(ContactLifecycleState.Detected));
     }
 
-    [Fact]
+    [Test]
     public void Share_lag_cancels_pending_share_when_contact_lost_before_apply_tick()
     {
         var doctrine = SharingDoctrine with { ShareLagTicks = 2 };
@@ -208,10 +208,10 @@ public sealed class DatalinkSidePictureMergerTests
         2,
         2.0);
 
-        Assert.Empty(merger.Merge(Array.Empty<ContactTransition>(), 3, 3.0));
+        Assert.That(merger.Merge(Array.Empty<ContactTransition>(), 3, 3.0), Is.Empty);
     }
 
-    [Fact]
+    [Test]
     public void Share_lag_deterministic_merge_order_preserved_after_deferral()
     {
         var trials = new[]
@@ -226,18 +226,18 @@ public sealed class DatalinkSidePictureMergerTests
         var a = RunLagSharedSequence(doctrine, trials);
         var b = RunLagSharedSequence(doctrine, trials);
 
-        Assert.Equal(a.Count, b.Count);
+        Assert.That(b.Count, Is.EqualTo(a.Count));
         for (var i = 0; i < a.Count; i++)
         {
-            Assert.Equal(a[i], b[i]);
+            Assert.That(b[i], Is.EqualTo(a[i]));
         }
 
-        Assert.Equal(2, a.Count);
-        Assert.Equal("hostile-a", a[0].TargetId);
-        Assert.Equal("hostile-b", a[1].TargetId);
+        Assert.That(a.Count, Is.EqualTo(2));
+        Assert.That(a[0].TargetId, Is.EqualTo("hostile-a"));
+        Assert.That(a[1].TargetId, Is.EqualTo("hostile-b"));
     }
 
-    [Fact]
+    [Test]
     public void Nominal_preserves_existing_peer_share()
     {
         var merger = new DatalinkSidePictureMerger(SharingDoctrine, TwoObserverTrials);
@@ -248,12 +248,12 @@ public sealed class DatalinkSidePictureMergerTests
 
         var shared = merger.Merge(organic, 1, 1.0, DatalinkCommsShareState.Nominal);
 
-        Assert.Single(shared);
-        Assert.Equal("u2", shared[0].ObserverId);
-        Assert.Equal(ContactLifecycleState.Detected, shared[0].NewState);
+        AssertEx.Single(shared);
+        Assert.That(shared[0].ObserverId, Is.EqualTo("u2"));
+        Assert.That(shared[0].NewState, Is.EqualTo(ContactLifecycleState.Detected));
     }
 
-    [Fact]
+    [Test]
     public void Degraded_suppresses_new_peer_share()
     {
         var merger = new DatalinkSidePictureMerger(SharingDoctrine, TwoObserverTrials);
@@ -262,10 +262,10 @@ public sealed class DatalinkSidePictureMergerTests
             new ContactTransition(1, 1.0, "u1", "c1", "hostile-1", ContactLifecycleState.Unknown, ContactLifecycleState.Detected),
         };
 
-        Assert.Empty(merger.Merge(organic, 1, 1.0, DatalinkCommsShareState.Degraded));
+        Assert.That(merger.Merge(organic, 1, 1.0, DatalinkCommsShareState.Degraded), Is.Empty);
     }
 
-    [Fact]
+    [Test]
     public void Degraded_allows_lost_propagation()
     {
         var merger = new DatalinkSidePictureMerger(SharingDoctrine, TwoObserverTrials);
@@ -285,11 +285,11 @@ public sealed class DatalinkSidePictureMergerTests
         2.0,
         DatalinkCommsShareState.Degraded);
 
-        var peerLost = Assert.Single(shared, t => t.ObserverId == "u2");
-        Assert.Equal(ContactLifecycleState.Lost, peerLost.NewState);
+        var peerLost = AssertEx.Single(shared, t => t.ObserverId == "u2");
+        Assert.That(peerLost.NewState, Is.EqualTo(ContactLifecycleState.Lost));
     }
 
-    [Fact]
+    [Test]
     public void Degraded_allows_existing_shared_state_updates()
     {
         var merger = new DatalinkSidePictureMerger(SharingDoctrine, TwoObserverTrials);
@@ -309,12 +309,12 @@ public sealed class DatalinkSidePictureMergerTests
         2.0,
         DatalinkCommsShareState.Degraded);
 
-        Assert.Single(shared);
-        Assert.Equal("u2", shared[0].ObserverId);
-        Assert.Equal(ContactLifecycleState.Classified, shared[0].NewState);
+        AssertEx.Single(shared);
+        Assert.That(shared[0].ObserverId, Is.EqualTo("u2"));
+        Assert.That(shared[0].NewState, Is.EqualTo(ContactLifecycleState.Classified));
     }
 
-    [Fact]
+    [Test]
     public void Denied_suppresses_all_shares()
     {
         var merger = new DatalinkSidePictureMerger(SharingDoctrine, TwoObserverTrials);
@@ -323,19 +323,21 @@ public sealed class DatalinkSidePictureMergerTests
             new ContactTransition(1, 1.0, "u1", "c1", "hostile-1", ContactLifecycleState.Unknown, ContactLifecycleState.Detected),
         };
 
-        Assert.Empty(merger.Merge(organic, 1, 1.0, DatalinkCommsShareState.Denied));
+        Assert.That(merger.Merge(organic, 1, 1.0, DatalinkCommsShareState.Denied), Is.Empty);
 
-        merger.Merge(organic, 1, 1.0, DatalinkCommsShareState.Nominal);
-        Assert.Empty(merger.Merge(
-            [
-                new ContactTransition(2, 2.0, "u1", "c1", "hostile-1", ContactLifecycleState.Detected, ContactLifecycleState.Classified),
-            ],
-            2,
-            2.0,
-            DatalinkCommsShareState.Denied));
+        merger.Merge(organic, 1, 1.0);
+        Assert.That(
+            merger.Merge(
+                    [
+                        new ContactTransition(2, 2.0, "u1", "c1", "hostile-1", ContactLifecycleState.Detected, ContactLifecycleState.Classified),
+                    ],
+                    2,
+                    2.0,
+                    DatalinkCommsShareState.Denied),
+            Is.Empty);
     }
 
-    [Fact]
+    [Test]
     public void Default_merge_param_is_nominal()
     {
         var merger = new DatalinkSidePictureMerger(SharingDoctrine, TwoObserverTrials);
@@ -346,12 +348,12 @@ public sealed class DatalinkSidePictureMergerTests
 
         var shared = merger.Merge(organic, 1, 1.0);
 
-        Assert.Single(shared);
-        Assert.Equal("u2", shared[0].ObserverId);
-        Assert.Equal(ContactLifecycleState.Detected, shared[0].NewState);
+        AssertEx.Single(shared);
+        Assert.That(shared[0].ObserverId, Is.EqualTo("u2"));
+        Assert.That(shared[0].NewState, Is.EqualTo(ContactLifecycleState.Detected));
     }
 
-    [Fact]
+    [Test]
     public void Share_lag_exceeding_scenario_length_never_shares()
     {
         var doctrine = SharingDoctrine with { ShareLagTicks = 5 };
@@ -364,7 +366,7 @@ public sealed class DatalinkSidePictureMergerTests
         for (ulong tick = 1; tick <= 3; tick++)
         {
             var batch = tick == 1 ? organic : Array.Empty<ContactTransition>();
-            Assert.Empty(merger.Merge(batch, tick, tick));
+            Assert.That(merger.Merge(batch, tick, tick), Is.Empty);
         }
     }
 

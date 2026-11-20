@@ -1,12 +1,12 @@
 using ProjectAegis.Data.Scenario.Policy;
 using ProjectAegis.Sim.Scenario;
-using Xunit;
+using NUnit.Framework;
 
 namespace ProjectAegis.Sim.Tests.Telemetry;
 
 public sealed class ScenarioPolicyBalanceTelemetryJsonTests
 {
-    [Fact]
+    [Test]
     public void Balance_telemetry_defaults_to_disabled_when_omitted()
     {
         var profile = ScenarioPolicyJsonLoader.ToProfile(new ScenarioPolicyJsonDto
@@ -16,23 +16,23 @@ public sealed class ScenarioPolicyBalanceTelemetryJsonTests
             OpposingRoe = "WeaponsFree",
         });
 
-        Assert.False(profile.BalanceTelemetry.EnableBalanceDrift);
+        Assert.That(profile.BalanceTelemetry.EnableBalanceDrift, Is.False);
     }
 
-    [Fact]
+    [Test]
     public void Balance_telemetry_fixture_enables_drift_with_fast_thresholds()
     {
         var repoRoot = FindRepoRoot();
-        Assert.NotNull(repoRoot);
-        var path = Path.Combine(repoRoot, "data", "scenarios", "baltic-patrol-balance-drift.policy.json");
+        Assert.That(repoRoot, Is.Not.Null);
+        var path = Path.Combine(repoRoot!, "data", "scenarios", "baltic-patrol-balance-drift.policy.json");
         var profile = ScenarioPolicyJsonLoader.LoadFromFile(path);
 
-        Assert.Equal("baltic-patrol-balance-drift", profile.Id);
-        Assert.True(profile.BalanceTelemetry.EnableBalanceDrift);
-        Assert.Equal(100, profile.BalanceTelemetry.Options!.MinimumSampleRuns);
-        Assert.Equal(0.08, profile.BalanceTelemetry.Options.WinRateDriftThreshold);
-        Assert.Single(profile.BalanceTelemetry.BalanceTrials);
-        Assert.Equal("u1", profile.BalanceTelemetry.BalanceTrials[0].EntityId);
+        Assert.That(profile.Id, Is.EqualTo("baltic-patrol-balance-drift"));
+        Assert.That(profile.BalanceTelemetry.EnableBalanceDrift, Is.True);
+        Assert.That(profile.BalanceTelemetry.Options!.MinimumSampleRuns, Is.EqualTo(100));
+        Assert.That(profile.BalanceTelemetry.Options.WinRateDriftThreshold, Is.EqualTo(0.08));
+        AssertEx.Single(profile.BalanceTelemetry.BalanceTrials);
+        Assert.That(profile.BalanceTelemetry.BalanceTrials[0].EntityId, Is.EqualTo("u1"));
     }
 
     private static string? FindRepoRoot()

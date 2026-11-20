@@ -2,13 +2,13 @@ using ProjectAegis.Sim.Engage;
 using ProjectAegis.Sim.Glossary;
 using ProjectAegis.Sim.Policy;
 using ProjectAegis.Sim.Scenario;
-using Xunit;
+using NUnit.Framework;
 
 namespace ProjectAegis.Sim.Tests.Engage;
 
 public sealed class DomainValidatorRegistryTests
 {
-    [Fact]
+    [Test]
     public void MvpStubs_allow_air_surface_and_subsurface_engagements()
     {
         var registry = DomainValidatorRegistry.MvpStubs;
@@ -19,37 +19,35 @@ public sealed class DomainValidatorRegistryTests
             true,
             CombatDomain: CombatDomain.Air);
 
-        Assert.True(registry.Validate(CombatDomain.Air, in ctx).Allowed);
+        Assert.That(registry.Validate(CombatDomain.Air, in ctx).Allowed, Is.True);
         var surfaceCtx = ctx with { CombatDomain = CombatDomain.Surface };
-        Assert.True(registry.Validate(CombatDomain.Surface, in surfaceCtx).Allowed);
+        Assert.That(registry.Validate(CombatDomain.Surface, in surfaceCtx).Allowed, Is.True);
         var subsurfaceCtx = ctx with { CombatDomain = CombatDomain.Subsurface };
-        Assert.True(registry.Validate(CombatDomain.Subsurface, in subsurfaceCtx).Allowed);
+        Assert.That(registry.Validate(CombatDomain.Subsurface, in subsurfaceCtx).Allowed, Is.True);
         var landCtx = ctx with { CombatDomain = CombatDomain.Land };
-        Assert.True(registry.Validate(CombatDomain.Land, in landCtx).Allowed);
+        Assert.That(registry.Validate(CombatDomain.Land, in landCtx).Allowed, Is.True);
         var mineCtx = ctx with { CombatDomain = CombatDomain.Mine };
-        Assert.True(registry.Validate(CombatDomain.Mine, in mineCtx).Allowed);
+        Assert.That(registry.Validate(CombatDomain.Mine, in mineCtx).Allowed, Is.True);
         var facilityCtx = ctx with { CombatDomain = CombatDomain.Facility };
-        Assert.True(registry.Validate(CombatDomain.Facility, in facilityCtx).Allowed);
+        Assert.That(registry.Validate(CombatDomain.Facility, in facilityCtx).Allowed, Is.True);
     }
 
-    [Fact]
+    [Test]
     public void Registry_iterates_validators_in_stable_domain_order()
     {
         var registry = DomainValidatorRegistry.MvpStubs;
         var domains = registry.Validators.Select(v => v.Domain).ToArray();
-        Assert.Equal(
-            [
-                CombatDomain.Air,
-                CombatDomain.Surface,
-                CombatDomain.Subsurface,
-                CombatDomain.Land,
-                CombatDomain.Mine,
-                CombatDomain.Facility,
-            ],
-            domains);
+        Assert.That(
+            domains,
+            Is.EqualTo(new[] { CombatDomain.Air,
+                        CombatDomain.Surface,
+                        CombatDomain.Subsurface,
+                        CombatDomain.Land,
+                        CombatDomain.Mine,
+                        CombatDomain.Facility, }));
     }
 
-    [Fact]
+    [Test]
     public void CombatDomainsEnabled_false_skips_registry_in_resolver()
     {
         var world = new DictionaryEngageWorldQuery();
@@ -71,10 +69,10 @@ public sealed class DomainValidatorRegistryTests
             domainValidators: denyRegistry);
 
         var result = resolver.Resolve(request);
-        Assert.True(result.Launched);
+        Assert.That(result.Launched, Is.True);
     }
 
-    [Fact]
+    [Test]
     public void CombatDomainsEnabled_true_invokes_registry_and_noop_allows()
     {
         var world = new DictionaryEngageWorldQuery();
@@ -91,16 +89,16 @@ public sealed class DomainValidatorRegistryTests
             domainValidators: DomainValidatorRegistry.MvpStubs);
 
         var result = resolver.Resolve(request);
-        Assert.True(result.Launched);
+        Assert.That(result.Launched, Is.True);
     }
 
-    [Fact]
+    [Test]
     public void MvpFallback_combatDomainsEnabled_defaults_false()
     {
-        Assert.False(ScenarioEngageDefaults.MvpFallback.CombatDomainsEnabled);
+        Assert.That(ScenarioEngageDefaults.MvpFallback.CombatDomainsEnabled, Is.False);
     }
 
-    [Fact]
+    [Test]
     public void CombatDomainsEnabled_true_aspect_blocked_aborts_with_AirAspectBlock()
     {
         var world = new DictionaryEngageWorldQuery();
@@ -122,11 +120,11 @@ public sealed class DomainValidatorRegistryTests
             domainValidators: DomainValidatorRegistry.MvpStubs);
 
         var result = resolver.Resolve(request);
-        Assert.False(result.Launched);
-        Assert.Equal(EngagementAbortReason.AirAspectBlock, result.AbortReason);
+        Assert.That(result.Launched, Is.False);
+        Assert.That(result.AbortReason, Is.EqualTo(EngagementAbortReason.AirAspectBlock));
     }
 
-    [Fact]
+    [Test]
     public void Validator_deny_maps_to_AIR_ASPECT_BLOCK_order_log_code()
     {
         var registry = DomainValidatorRegistry.MvpStubs;
@@ -138,14 +136,14 @@ public sealed class DomainValidatorRegistryTests
             AirAspectInEnvelope: false);
 
         var result = registry.Validate(CombatDomain.Air, in ctx);
-        Assert.False(result.Allowed);
-        Assert.Equal(FireAbortReason.AirAspectBlock, result.AbortReason);
+        Assert.That(result.Allowed, Is.False);
+        Assert.That(result.AbortReason, Is.EqualTo(FireAbortReason.AirAspectBlock));
 
         var mapped = MapDomainDenialForTest(result.AbortReason!.Value);
-        Assert.Equal(AbortReasonCatalog.Engage.AIR_ASPECT_BLOCK, EngagementAbortReasonCodes.ToLogCode(mapped));
+        Assert.That(EngagementAbortReasonCodes.ToLogCode(mapped), Is.EqualTo(AbortReasonCatalog.Engage.AIR_ASPECT_BLOCK));
     }
 
-    [Fact]
+    [Test]
     public void CombatDomainsEnabled_true_surface_aspect_blocked_aborts_with_SurfaceAspectBlock()
     {
         var world = new DictionaryEngageWorldQuery();
@@ -168,11 +166,11 @@ public sealed class DomainValidatorRegistryTests
             domainValidators: DomainValidatorRegistry.MvpStubs);
 
         var result = resolver.Resolve(request);
-        Assert.False(result.Launched);
-        Assert.Equal(EngagementAbortReason.SurfaceAspectBlock, result.AbortReason);
+        Assert.That(result.Launched, Is.False);
+        Assert.That(result.AbortReason, Is.EqualTo(EngagementAbortReason.SurfaceAspectBlock));
     }
 
-    [Fact]
+    [Test]
     public void CombatDomainsEnabled_true_subsurface_aspect_blocked_aborts_with_SubsurfaceAspectBlock()
     {
         var world = new DictionaryEngageWorldQuery();
@@ -195,11 +193,11 @@ public sealed class DomainValidatorRegistryTests
             domainValidators: DomainValidatorRegistry.MvpStubs);
 
         var result = resolver.Resolve(request);
-        Assert.False(result.Launched);
-        Assert.Equal(EngagementAbortReason.SubsurfaceAspectBlock, result.AbortReason);
+        Assert.That(result.Launched, Is.False);
+        Assert.That(result.AbortReason, Is.EqualTo(EngagementAbortReason.SubsurfaceAspectBlock));
     }
 
-    [Fact]
+    [Test]
     public void Validator_deny_maps_to_SURFACE_ASPECT_BLOCK_order_log_code()
     {
         var registry = DomainValidatorRegistry.MvpStubs;
@@ -212,14 +210,14 @@ public sealed class DomainValidatorRegistryTests
             SurfaceAspectInEnvelope: false);
 
         var result = registry.Validate(CombatDomain.Surface, in ctx);
-        Assert.False(result.Allowed);
-        Assert.Equal(FireAbortReason.SurfaceAspectBlock, result.AbortReason);
+        Assert.That(result.Allowed, Is.False);
+        Assert.That(result.AbortReason, Is.EqualTo(FireAbortReason.SurfaceAspectBlock));
 
         var mapped = MapDomainDenialForTest(result.AbortReason!.Value);
-        Assert.Equal(AbortReasonCatalog.Engage.SURFACE_ASPECT_BLOCK, EngagementAbortReasonCodes.ToLogCode(mapped));
+        Assert.That(EngagementAbortReasonCodes.ToLogCode(mapped), Is.EqualTo(AbortReasonCatalog.Engage.SURFACE_ASPECT_BLOCK));
     }
 
-    [Fact]
+    [Test]
     public void Validator_deny_maps_to_SUBSURFACE_ASPECT_BLOCK_order_log_code()
     {
         var registry = DomainValidatorRegistry.MvpStubs;
@@ -232,14 +230,14 @@ public sealed class DomainValidatorRegistryTests
             SubsurfaceAspectInEnvelope: false);
 
         var result = registry.Validate(CombatDomain.Subsurface, in ctx);
-        Assert.False(result.Allowed);
-        Assert.Equal(FireAbortReason.SubsurfaceAspectBlock, result.AbortReason);
+        Assert.That(result.Allowed, Is.False);
+        Assert.That(result.AbortReason, Is.EqualTo(FireAbortReason.SubsurfaceAspectBlock));
 
         var mapped = MapDomainDenialForTest(result.AbortReason!.Value);
-        Assert.Equal(AbortReasonCatalog.Engage.SUBSURFACE_ASPECT_BLOCK, EngagementAbortReasonCodes.ToLogCode(mapped));
+        Assert.That(EngagementAbortReasonCodes.ToLogCode(mapped), Is.EqualTo(AbortReasonCatalog.Engage.SUBSURFACE_ASPECT_BLOCK));
     }
 
-    [Fact]
+    [Test]
     public void CombatDomainsEnabled_true_land_aspect_blocked_aborts_with_LandAspectBlock()
     {
         var world = new DictionaryEngageWorldQuery();
@@ -262,11 +260,11 @@ public sealed class DomainValidatorRegistryTests
             domainValidators: DomainValidatorRegistry.MvpStubs);
 
         var result = resolver.Resolve(request);
-        Assert.False(result.Launched);
-        Assert.Equal(EngagementAbortReason.LandAspectBlock, result.AbortReason);
+        Assert.That(result.Launched, Is.False);
+        Assert.That(result.AbortReason, Is.EqualTo(EngagementAbortReason.LandAspectBlock));
     }
 
-    [Fact]
+    [Test]
     public void Validator_deny_maps_to_LAND_ASPECT_BLOCK_order_log_code()
     {
         var registry = DomainValidatorRegistry.MvpStubs;
@@ -279,14 +277,14 @@ public sealed class DomainValidatorRegistryTests
             LandAspectInEnvelope: false);
 
         var result = registry.Validate(CombatDomain.Land, in ctx);
-        Assert.False(result.Allowed);
-        Assert.Equal(FireAbortReason.LandAspectBlock, result.AbortReason);
+        Assert.That(result.Allowed, Is.False);
+        Assert.That(result.AbortReason, Is.EqualTo(FireAbortReason.LandAspectBlock));
 
         var mapped = MapDomainDenialForTest(result.AbortReason!.Value);
-        Assert.Equal(AbortReasonCatalog.Engage.LAND_ASPECT_BLOCK, EngagementAbortReasonCodes.ToLogCode(mapped));
+        Assert.That(EngagementAbortReasonCodes.ToLogCode(mapped), Is.EqualTo(AbortReasonCatalog.Engage.LAND_ASPECT_BLOCK));
     }
 
-    [Fact]
+    [Test]
     public void CombatDomainsEnabled_true_mine_aspect_blocked_aborts_with_MineAspectBlock()
     {
         var world = new DictionaryEngageWorldQuery();
@@ -309,11 +307,11 @@ public sealed class DomainValidatorRegistryTests
             domainValidators: DomainValidatorRegistry.MvpStubs);
 
         var result = resolver.Resolve(request);
-        Assert.False(result.Launched);
-        Assert.Equal(EngagementAbortReason.MineAspectBlock, result.AbortReason);
+        Assert.That(result.Launched, Is.False);
+        Assert.That(result.AbortReason, Is.EqualTo(EngagementAbortReason.MineAspectBlock));
     }
 
-    [Fact]
+    [Test]
     public void CombatDomainsEnabled_true_mine_aspect_allowed_launches_successfully()
     {
         // ADR-009's MineAspectDomainValidator is a real (non-stub) geometry/aspect gate, exactly
@@ -348,11 +346,11 @@ public sealed class DomainValidatorRegistryTests
 
         var result = resolver.Resolve(request);
 
-        Assert.True(result.Launched);
-        Assert.Equal(1, magazines.GetRounds(1, 0));
+        Assert.That(result.Launched, Is.True);
+        Assert.That(magazines.GetRounds(1, 0), Is.EqualTo(1));
     }
 
-    [Fact]
+    [Test]
     public void Validator_deny_maps_to_MINE_ASPECT_BLOCK_order_log_code()
     {
         var registry = DomainValidatorRegistry.MvpStubs;
@@ -365,14 +363,14 @@ public sealed class DomainValidatorRegistryTests
             MineAspectInEnvelope: false);
 
         var result = registry.Validate(CombatDomain.Mine, in ctx);
-        Assert.False(result.Allowed);
-        Assert.Equal(FireAbortReason.MineAspectBlock, result.AbortReason);
+        Assert.That(result.Allowed, Is.False);
+        Assert.That(result.AbortReason, Is.EqualTo(FireAbortReason.MineAspectBlock));
 
         var mapped = MapDomainDenialForTest(result.AbortReason!.Value);
-        Assert.Equal(AbortReasonCatalog.Engage.MINE_ASPECT_BLOCK, EngagementAbortReasonCodes.ToLogCode(mapped));
+        Assert.That(EngagementAbortReasonCodes.ToLogCode(mapped), Is.EqualTo(AbortReasonCatalog.Engage.MINE_ASPECT_BLOCK));
     }
 
-    [Fact]
+    [Test]
     public void CombatDomainsEnabled_true_facility_aspect_blocked_aborts_with_FacilityAspectBlock()
     {
         var world = new DictionaryEngageWorldQuery();
@@ -395,11 +393,11 @@ public sealed class DomainValidatorRegistryTests
             domainValidators: DomainValidatorRegistry.MvpStubs);
 
         var result = resolver.Resolve(request);
-        Assert.False(result.Launched);
-        Assert.Equal(EngagementAbortReason.FacilityAspectBlock, result.AbortReason);
+        Assert.That(result.Launched, Is.False);
+        Assert.That(result.AbortReason, Is.EqualTo(EngagementAbortReason.FacilityAspectBlock));
     }
 
-    [Fact]
+    [Test]
     public void Validator_deny_maps_to_FACILITY_ASPECT_BLOCK_order_log_code()
     {
         var registry = DomainValidatorRegistry.MvpStubs;
@@ -412,14 +410,14 @@ public sealed class DomainValidatorRegistryTests
             FacilityAspectInEnvelope: false);
 
         var result = registry.Validate(CombatDomain.Facility, in ctx);
-        Assert.False(result.Allowed);
-        Assert.Equal(FireAbortReason.FacilityAspectBlock, result.AbortReason);
+        Assert.That(result.Allowed, Is.False);
+        Assert.That(result.AbortReason, Is.EqualTo(FireAbortReason.FacilityAspectBlock));
 
         var mapped = MapDomainDenialForTest(result.AbortReason!.Value);
-        Assert.Equal(AbortReasonCatalog.Engage.FACILITY_ASPECT_BLOCK, EngagementAbortReasonCodes.ToLogCode(mapped));
+        Assert.That(EngagementAbortReasonCodes.ToLogCode(mapped), Is.EqualTo(AbortReasonCatalog.Engage.FACILITY_ASPECT_BLOCK));
     }
 
-    [Fact]
+    [Test]
     public void Baltic_flag_off_zero_abort_delta_despite_deny_registry()
     {
         var world = new DictionaryEngageWorldQuery();
@@ -458,13 +456,13 @@ public sealed class DomainValidatorRegistryTests
             domainValidators: DomainValidatorRegistry.MvpStubs);
         var flagOffDefaultResult = flagOffDefaultResolver.Resolve(request);
 
-        Assert.True(flagOffResult.Launched);
-        Assert.True(flagOffDefaultResult.Launched);
-        Assert.Equal(flagOffDefaultResult.Launched, flagOffResult.Launched);
-        Assert.Equal(flagOffDefaultResult.AbortReason, flagOffResult.AbortReason);
+        Assert.That(flagOffResult.Launched, Is.True);
+        Assert.That(flagOffDefaultResult.Launched, Is.True);
+        Assert.That(flagOffResult.Launched, Is.EqualTo(flagOffDefaultResult.Launched));
+        Assert.That(flagOffResult.AbortReason, Is.EqualTo(flagOffDefaultResult.AbortReason));
     }
 
-    [Fact]
+    [Test]
     public void Baltic_flag_off_facility_domain_zero_delta_despite_facility_validator_in_registry()
     {
         var world = new DictionaryEngageWorldQuery();
@@ -503,11 +501,11 @@ public sealed class DomainValidatorRegistryTests
         var withoutFacilityResult = flagOffWithoutFacility.Resolve(request);
         var withFacilityResult = flagOffWithFacility.Resolve(request);
 
-        Assert.Equal(withoutFacilityResult.Launched, withFacilityResult.Launched);
-        Assert.Equal(withoutFacilityResult.AbortReason, withFacilityResult.AbortReason);
+        Assert.That(withFacilityResult.Launched, Is.EqualTo(withoutFacilityResult.Launched));
+        Assert.That(withFacilityResult.AbortReason, Is.EqualTo(withoutFacilityResult.AbortReason));
     }
 
-    [Fact]
+    [Test]
     public void Baltic_flag_off_mine_domain_zero_delta_despite_mine_validator_in_registry()
     {
         var world = new DictionaryEngageWorldQuery();
@@ -545,15 +543,14 @@ public sealed class DomainValidatorRegistryTests
         var withoutMineResult = flagOffWithoutMine.Resolve(request);
         var withMineResult = flagOffWithMine.Resolve(request);
 
-        Assert.Equal(withoutMineResult.Launched, withMineResult.Launched);
-        Assert.Equal(withoutMineResult.AbortReason, withMineResult.AbortReason);
+        Assert.That(withMineResult.Launched, Is.EqualTo(withoutMineResult.Launched));
+        Assert.That(withMineResult.AbortReason, Is.EqualTo(withoutMineResult.AbortReason));
     }
 
-    [Theory]
-    [InlineData(CombatDomain.Surface, false, true, true, true, true)]
-    [InlineData(CombatDomain.Subsurface, true, false, true, true, true)]
-    [InlineData(CombatDomain.Land, true, true, false, true, true)]
-    [InlineData(CombatDomain.Facility, true, true, true, true, false)]
+    [TestCase(CombatDomain.Surface, false, true, true, true, true)]
+    [TestCase(CombatDomain.Subsurface, true, false, true, true, true)]
+    [TestCase(CombatDomain.Land, true, true, false, true, true)]
+    [TestCase(CombatDomain.Facility, true, true, true, true, false)]
     public void Baltic_flag_off_zero_abort_delta_for_domain_aspect_blocks(
         CombatDomain domain,
         bool surfaceAspectInEnvelope,
@@ -593,8 +590,8 @@ public sealed class DomainValidatorRegistryTests
         var flagOffResult = flagOffResolver.Resolve(request);
         var flagOnResult = flagOnResolver.Resolve(request);
 
-        Assert.True(flagOffResult.Launched);
-        Assert.False(flagOnResult.Launched);
+        Assert.That(flagOffResult.Launched, Is.True);
+        Assert.That(flagOnResult.Launched, Is.False);
     }
 
     private static EngagementAbortReason MapDomainDenialForTest(FireAbortReason reason) =>

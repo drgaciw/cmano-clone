@@ -1,13 +1,13 @@
 using ProjectAegis.Sim.Core;
 using ProjectAegis.Sim.Scenario;
 using ProjectAegis.Sim.Sensors;
-using Xunit;
+using NUnit.Framework;
 
 namespace ProjectAegis.Sim.Tests.Sensors;
 
 public sealed class PdContactBdaLifecycleTests
 {
-    [Fact]
+    [Test]
     public void Bda_lost_target_does_not_reappear_on_later_ticks()
     {
         var sim = new PdDetectionContactSimulator(
@@ -16,18 +16,18 @@ public sealed class PdContactBdaLifecycleTests
 
         sim.Tick(1, 1.0);
         sim.ApplyTargetBdaLost(1, 1.0, "hostile-1");
-        Assert.Equal(0, sim.ActiveCount);
-        Assert.False(sim.IsTargetDestroyed("hostile-1"));
+        Assert.That(sim.ActiveCount, Is.EqualTo(0));
+        Assert.That(sim.IsTargetDestroyed("hostile-1"), Is.False);
 
         for (var t = 2; t <= 4; t++)
         {
             var transitions = sim.Tick((ulong)t, t);
-            Assert.DoesNotContain(transitions, tr => tr.NewState == ContactLifecycleState.Detected);
-            Assert.Equal(0, sim.ActiveCount);
+            Assert.That(transitions.Any(tr => tr.NewState == ContactLifecycleState.Detected), Is.False);
+            Assert.That(sim.ActiveCount, Is.EqualTo(0));
         }
     }
 
-    [Fact]
+    [Test]
     public void Bda_lost_does_not_emit_transition_when_contact_already_lost()
     {
         var sim = new PdDetectionContactSimulator(
@@ -39,6 +39,6 @@ public sealed class PdContactBdaLifecycleTests
 
         var repeat = sim.ApplyTargetBdaLost(2, 2.0, "hostile-1");
 
-        Assert.Empty(repeat);
+        Assert.That(repeat, Is.Empty);
     }
 }

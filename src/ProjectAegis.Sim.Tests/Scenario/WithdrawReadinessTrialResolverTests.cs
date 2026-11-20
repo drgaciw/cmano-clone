@@ -2,13 +2,13 @@ using ProjectAegis.Data.Catalog;
 using ProjectAegis.Sim.Catalog;
 using ProjectAegis.Sim.Policy;
 using ProjectAegis.Sim.Scenario;
-using Xunit;
+using NUnit.Framework;
 
 namespace ProjectAegis.Sim.Tests.Scenario;
 
 public sealed class WithdrawReadinessTrialResolverTests
 {
-    [Fact]
+    [Test]
     public void Catalog_withdraw_builds_trials_with_neutral_readiness_when_damage_absent()
     {
         var profile = new ScenarioPolicyProfile(
@@ -21,13 +21,13 @@ public sealed class WithdrawReadinessTrialResolverTests
 
         var trials = WithdrawReadinessTrialResolver.Resolve(profile, catalog);
 
-        Assert.Single(trials);
-        Assert.Equal("u1", trials[0].PlatformId);
-        Assert.False(trials[0].CatalogResolved);
-        Assert.False(trials[0].WithdrawRecommended);
+        AssertEx.Single(trials);
+        Assert.That(trials[0].PlatformId, Is.EqualTo("u1"));
+        Assert.That(trials[0].CatalogResolved, Is.False);
+        Assert.That(trials[0].WithdrawRecommended, Is.False);
     }
 
-    [Fact]
+    [Test]
     public void Explicit_withdraw_trials_take_precedence_over_catalog()
     {
         var profile = new ScenarioPolicyProfile(
@@ -44,12 +44,12 @@ public sealed class WithdrawReadinessTrialResolverTests
 
         var trials = WithdrawReadinessTrialResolver.Resolve(profile, catalog);
 
-        Assert.Single(trials);
-        Assert.Equal(0.25, trials[0].ReadinessScore);
-        Assert.True(trials[0].WithdrawRecommended);
+        AssertEx.Single(trials);
+        Assert.That(trials[0].ReadinessScore, Is.EqualTo(0.25));
+        Assert.That(trials[0].WithdrawRecommended, Is.True);
     }
 
-    [Fact]
+    [Test]
     public void Catalog_withdraw_without_damage_rows_emits_neutral_unresolved_trial()
     {
         var profile = new ScenarioPolicyProfile(
@@ -62,13 +62,13 @@ public sealed class WithdrawReadinessTrialResolverTests
 
         var trials = WithdrawReadinessTrialResolver.Resolve(profile, catalog);
 
-        Assert.Single(trials);
-        Assert.False(trials[0].CatalogResolved);
-        Assert.False(trials[0].WithdrawRecommended);
-        Assert.Equal(PhaseBCatalogDamageReadinessStub.NeutralReadinessScore, trials[0].ReadinessScore);
+        AssertEx.Single(trials);
+        Assert.That(trials[0].CatalogResolved, Is.False);
+        Assert.That(trials[0].WithdrawRecommended, Is.False);
+        Assert.That(trials[0].ReadinessScore, Is.EqualTo(PhaseBCatalogDamageReadinessStub.NeutralReadinessScore));
     }
 
-    [Fact]
+    [Test]
     public void Readiness_policy_evaluator_merges_scenario_launch_readiness_with_catalog_trial()
     {
         var profile = new ScenarioPolicyProfile(
@@ -84,9 +84,9 @@ public sealed class WithdrawReadinessTrialResolverTests
 
         var effective = ReadinessPolicyEvaluator.EvaluateUnit("u1", profile, catalog);
 
-        Assert.False(effective.ReadyForLaunch);
-        Assert.True(effective.CatalogResolved);
-        Assert.True(effective.WithdrawRecommended);
-        Assert.NotEqual(1.0, effective.ReadinessScore);
+        Assert.That(effective.ReadyForLaunch, Is.False);
+        Assert.That(effective.CatalogResolved, Is.True);
+        Assert.That(effective.WithdrawRecommended, Is.True);
+        Assert.That(effective.ReadinessScore, Is.Not.EqualTo(1.0));
     }
 }

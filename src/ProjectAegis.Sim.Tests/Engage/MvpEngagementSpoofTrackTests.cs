@@ -1,13 +1,13 @@
 using ProjectAegis.Sim.Core;
 using ProjectAegis.Sim.Engage;
 using ProjectAegis.Sim.Glossary;
-using Xunit;
+using NUnit.Framework;
 
 namespace ProjectAegis.Sim.Tests.Engage;
 
 public sealed class MvpEngagementSpoofTrackTests
 {
-    [Fact]
+    [Test]
     public void Resolve_aborts_with_CYBER_SPOOF_TRACK_when_track_spoofed()
     {
         var world = new DictionaryEngageWorldQuery();
@@ -25,10 +25,8 @@ public sealed class MvpEngagementSpoofTrackTests
 
         var result = resolver.Resolve(in request);
 
-        Assert.False(result.Launched);
-        Assert.Equal(EngagementAbortReason.TrackSpoofed, result.AbortReason);
-        Assert.Equal(
-            AbortReasonCatalog.Cyber.CYBER_SPOOF_TRACK,
-            EngagementAbortReasonCodes.ToLogCode(result.AbortReason));
+        Assert.That(result.Launched, Is.False);
+        Assert.That(result.AbortReason, Is.EqualTo(EngagementAbortReason.TrackSpoofed));
+        Assert.That(EngagementAbortReasonCodes.ToLogCode(result.AbortReason), Is.EqualTo(AbortReasonCatalog.Cyber.CYBER_SPOOF_TRACK));
     }
 }

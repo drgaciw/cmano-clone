@@ -1,13 +1,13 @@
 using ProjectAegis.Sim.Core;
 using ProjectAegis.Sim.Scenario;
 using ProjectAegis.Sim.Sensors;
-using Xunit;
+using NUnit.Framework;
 
 namespace ProjectAegis.Sim.Tests.Sensors;
 
 public sealed class PdContactKillTests
 {
-    [Fact]
+    [Test]
     public void Destroyed_target_does_not_reappear_on_later_ticks()
     {
         var sim = new PdDetectionContactSimulator(
@@ -20,14 +20,14 @@ public sealed class PdContactKillTests
         for (var t = 2; t <= 4; t++)
         {
             var transitions = sim.Tick((ulong)t, t);
-            Assert.DoesNotContain(transitions, tr => tr.NewState == ContactLifecycleState.Detected);
-            Assert.Equal(0, sim.ActiveCount);
+            Assert.That(transitions.Any(tr => tr.NewState == ContactLifecycleState.Detected), Is.False);
+            Assert.That(sim.ActiveCount, Is.EqualTo(0));
         }
 
-        Assert.True(sim.IsTargetDestroyed("hostile-1"));
+        Assert.That(sim.IsTargetDestroyed("hostile-1"), Is.True);
     }
 
-    [Fact]
+    [Test]
     public void Kill_with_multiple_contacts_on_same_target_emits_transitions_in_ordinal_contact_order()
     {
         // Two observers track the same target under different contact ids. Trials are
@@ -48,8 +48,6 @@ public sealed class PdContactKillTests
         sim.Tick(1, 1.0);
         var transitions = sim.ApplyTargetKill(2, 2.0, "hostile-1");
 
-        Assert.Equal(
-            new[] { "cA", "cB" },
-            transitions.Select(t => t.ContactId).ToArray());
+        Assert.That(transitions.Select(t => t.ContactId).ToArray(), Is.EqualTo(new[] { "cA", "cB" }));
     }
 }

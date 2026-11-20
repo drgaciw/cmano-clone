@@ -1,12 +1,12 @@
 using ProjectAegis.Data.Catalog;
 using ProjectAegis.Sim.Engage;
-using Xunit;
+using NUnit.Framework;
 
 namespace ProjectAegis.Sim.Tests.Engage;
 
 public sealed class CatalogMagazineLedgerSeederTests
 {
-    [Fact]
+    [Test]
     public void TrySeedInitialRounds_prefers_catalog_over_fallback()
     {
         var ledger = new MagazineLedger();
@@ -21,12 +21,12 @@ public sealed class CatalogMagazineLedgerSeederTests
             fallbackRounds: 99,
             out var seeded);
 
-        Assert.True(usedCatalog);
-        Assert.Equal(2, seeded);
-        Assert.Equal(2, ledger.GetRounds(42, 0));
+        Assert.That(usedCatalog, Is.True);
+        Assert.That(seeded, Is.EqualTo(2));
+        Assert.That(ledger.GetRounds(42, 0), Is.EqualTo(2));
     }
 
-    [Fact]
+    [Test]
     public void TrySeedInitialRounds_falls_back_when_catalog_missing_rows()
     {
         var ledger = new MagazineLedger();
@@ -41,13 +41,13 @@ public sealed class CatalogMagazineLedgerSeederTests
             fallbackRounds: 4,
             out var seeded);
 
-        Assert.False(usedCatalog);
-        Assert.Equal(4, seeded);
-        Assert.Equal(4, ledger.GetRounds(7, 0));
+        Assert.That(usedCatalog, Is.False);
+        Assert.That(seeded, Is.EqualTo(4));
+        Assert.That(ledger.GetRounds(7, 0), Is.EqualTo(4));
     }
 
     /// <summary>Wave 2 adversarial: catalog-resolved zero must not silently apply fallback (LOG-02).</summary>
-    [Fact]
+    [Test]
     public void TrySeedInitialRounds_catalog_resolved_zero_does_not_apply_fallback_and_leaves_ledger_empty()
     {
         var ledger = new MagazineLedger();
@@ -62,12 +62,12 @@ public sealed class CatalogMagazineLedgerSeederTests
             fallbackRounds: 99,
             out var seeded);
 
-        Assert.True(usedCatalog);
-        Assert.Equal(0, seeded);
-        Assert.Equal(0, ledger.GetRounds(1, 0));
+        Assert.That(usedCatalog, Is.True);
+        Assert.That(seeded, Is.EqualTo(0));
+        Assert.That(ledger.GetRounds(1, 0), Is.EqualTo(0));
     }
 
-    [Fact]
+    [Test]
     public void Resolver_aborts_second_salvo_when_catalog_seeded_magazine_depleted()
     {
         var world = new DictionaryEngageWorldQuery();
@@ -91,9 +91,9 @@ public sealed class CatalogMagazineLedgerSeederTests
         var request = new EngageRequest(1, 2, MountId: 0, SimTick: 0);
         world.Set(request, ctx);
 
-        Assert.True(resolver.Resolve(request).Launched);
-        Assert.Equal(0, ledger.GetRounds(1, 0));
-        Assert.False(resolver.Resolve(request).Launched);
-        Assert.Equal(EngagementAbortReason.WinchesterOrdnance, resolver.Resolve(request).AbortReason);
+        Assert.That(resolver.Resolve(request).Launched, Is.True);
+        Assert.That(ledger.GetRounds(1, 0), Is.EqualTo(0));
+        Assert.That(resolver.Resolve(request).Launched, Is.False);
+        Assert.That(resolver.Resolve(request).AbortReason, Is.EqualTo(EngagementAbortReason.WinchesterOrdnance));
     }
 }

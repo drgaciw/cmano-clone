@@ -1,6 +1,6 @@
 using ProjectAegis.Data.Catalog;
 using ProjectAegis.Sim.Cec;
-using Xunit;
+using NUnit.Framework;
 
 namespace ProjectAegis.Sim.Tests.Cec;
 
@@ -37,7 +37,7 @@ public sealed class CecMeshControllerTests
             IsAlive: true,
             IsSwarm: true);
 
-    [Fact]
+    [Test]
     public void Non_CEC_cannot_join_mesh()
     {
         var c = new CecMeshController();
@@ -47,14 +47,14 @@ public sealed class CecMeshControllerTests
 
         c.Refresh();
 
-        Assert.Equal(CecMeshState.OutOfMesh, c.GetMeshState("generic-1"));
-        Assert.Equal(CecMeshState.OutOfMesh, c.GetMeshState("generic-2"));
+        Assert.That(c.GetMeshState("generic-1"), Is.EqualTo(CecMeshState.OutOfMesh));
+        Assert.That(c.GetMeshState("generic-2"), Is.EqualTo(CecMeshState.OutOfMesh));
         // Lone CEC node with only non-CEC neighbors has no CEC peer.
-        Assert.Equal(CecMeshState.OutOfMesh, c.GetMeshState("usn-1"));
-        Assert.False(c.ContributeOrganic(Blue, "generic-1", Target, 0.9));
+        Assert.That(c.GetMeshState("usn-1"), Is.EqualTo(CecMeshState.OutOfMesh));
+        Assert.That(c.ContributeOrganic(Blue, "generic-1", Target, 0.9), Is.False);
     }
 
-    [Fact]
+    [Test]
     public void Two_USN_CEC_nodes_in_range_are_both_InMesh()
     {
         var c = new CecMeshController();
@@ -65,52 +65,52 @@ public sealed class CecMeshControllerTests
 
         c.Refresh();
 
-        Assert.Equal(CecMeshState.InMesh, c.GetMeshState("usn-a"));
-        Assert.Equal(CecMeshState.InMesh, c.GetMeshState("usn-b"));
-        Assert.Contains(c.MeshEventLog, e => e.UnitId == "usn-a" && e.Kind == CecMeshEventKind.Join);
-        Assert.Contains(c.MeshEventLog, e => e.UnitId == "usn-b" && e.Kind == CecMeshEventKind.Join);
+        Assert.That(c.GetMeshState("usn-a"), Is.EqualTo(CecMeshState.InMesh));
+        Assert.That(c.GetMeshState("usn-b"), Is.EqualTo(CecMeshState.InMesh));
+        Assert.That(c.MeshEventLog.Any(e => e.UnitId == "usn-a" && e.Kind == CecMeshEventKind.Join), Is.True);
+        Assert.That(c.MeshEventLog.Any(e => e.UnitId == "usn-b" && e.Kind == CecMeshEventKind.Join), Is.True);
     }
 
-    [Fact]
+    [Test]
     public void Jam_forces_OutOfMesh_without_any_Swarm_types()
     {
         var c = new CecMeshController();
         c.Register(UsnCecNode("usn-a", 57.0, 20.0));
         c.Register(UsnCecNode("usn-b", 57.0, 20.5));
         c.Refresh(jammed: false);
-        Assert.Equal(CecMeshState.InMesh, c.GetMeshState("usn-a"));
+        Assert.That(c.GetMeshState("usn-a"), Is.EqualTo(CecMeshState.InMesh));
 
         c.Refresh(jammed: true);
 
-        Assert.Equal(CecMeshState.OutOfMesh, c.GetMeshState("usn-a"));
-        Assert.Equal(CecMeshState.OutOfMesh, c.GetMeshState("usn-b"));
+        Assert.That(c.GetMeshState("usn-a"), Is.EqualTo(CecMeshState.OutOfMesh));
+        Assert.That(c.GetMeshState("usn-b"), Is.EqualTo(CecMeshState.OutOfMesh));
         // Independence: this test file must not import ProjectAegis.Sim.Swarm.
-        Assert.Contains(c.MeshEventLog, e => e.Kind == CecMeshEventKind.Leave);
+        Assert.That(c.MeshEventLog.Any(e => e.Kind == CecMeshEventKind.Leave), Is.True);
     }
 
-    [Fact]
+    [Test]
     public void Range_stretch_moves_InMesh_to_Degraded_then_OutOfMesh()
     {
         var c = new CecMeshController();
         c.Register(UsnCecNode("usn-a", 57.0, 20.0));
         c.Register(UsnCecNode("usn-b", 57.0, 20.5));
         c.Refresh();
-        Assert.Equal(CecMeshState.InMesh, c.GetMeshState("usn-a"));
+        Assert.That(c.GetMeshState("usn-a"), Is.EqualTo(CecMeshState.InMesh));
 
         // Stretch into degraded band only (connected 2.0 < range <= 4.0).
         c.UpdateNode("usn-b", latDeg: 57.0, lonDeg: 23.0); // range 3.0
         c.Refresh();
-        Assert.Equal(CecMeshState.Degraded, c.GetMeshState("usn-a"));
-        Assert.Equal(CecMeshState.Degraded, c.GetMeshState("usn-b"));
+        Assert.That(c.GetMeshState("usn-a"), Is.EqualTo(CecMeshState.Degraded));
+        Assert.That(c.GetMeshState("usn-b"), Is.EqualTo(CecMeshState.Degraded));
 
         // Stretch beyond degraded band.
         c.UpdateNode("usn-b", latDeg: 57.0, lonDeg: 25.0); // range 5.0
         c.Refresh();
-        Assert.Equal(CecMeshState.OutOfMesh, c.GetMeshState("usn-a"));
-        Assert.Equal(CecMeshState.OutOfMesh, c.GetMeshState("usn-b"));
+        Assert.That(c.GetMeshState("usn-a"), Is.EqualTo(CecMeshState.OutOfMesh));
+        Assert.That(c.GetMeshState("usn-b"), Is.EqualTo(CecMeshState.OutOfMesh));
     }
 
-    [Fact]
+    [Test]
     public void Composite_track_forms_when_two_nodes_contribute_same_target()
     {
         var c = new CecMeshController();
@@ -118,51 +118,53 @@ public sealed class CecMeshControllerTests
         c.Register(UsnCecNode("usn-b", 57.0, 20.5));
         c.Refresh();
 
-        Assert.True(c.ContributeOrganic(Blue, "usn-a", Target, 0.8));
-        Assert.True(c.ContributeOrganic(Blue, "usn-b", Target, 0.7));
+        Assert.That(c.ContributeOrganic(Blue, "usn-a", Target, 0.8), Is.True);
+        Assert.That(c.ContributeOrganic(Blue, "usn-b", Target, 0.7), Is.True);
 
         var tracks = c.TryGetCompositeTracks(Blue);
-        Assert.Single(tracks);
+        AssertEx.Single(tracks);
         var track = tracks[0];
-        Assert.Equal(Target, track.TargetId);
-        Assert.Equal(Blue, track.SideId);
-        Assert.Equal(2, track.ContributorCount);
-        Assert.Equal("cec-blue-hostile-1", track.TrackId);
-        Assert.Equal("usn-a", track.PrimaryContributorUnitId); // higher quality
-        Assert.True(track.FireControlQuality);
-        Assert.Equal(0.75, track.Quality, 6);
+        Assert.That(track.TargetId, Is.EqualTo(Target));
+        Assert.That(track.SideId, Is.EqualTo(Blue));
+        Assert.That(track.ContributorCount, Is.EqualTo(2));
+        Assert.That(track.TrackId, Is.EqualTo("cec-blue-hostile-1"));
+        Assert.That(track.PrimaryContributorUnitId, Is.EqualTo("usn-a")); // higher quality
+        Assert.That(track.FireControlQuality, Is.True);
+        Assert.That(
+            Math.Round(track.Quality, 6, MidpointRounding.AwayFromZero),
+            Is.EqualTo(Math.Round(0.75, 6, MidpointRounding.AwayFromZero)));
     }
 
-    [Fact]
+    [Test]
     public void Fire_control_quality_false_when_only_degraded_mesh()
     {
         var c = new CecMeshController();
         c.Register(UsnCecNode("usn-a", 57.0, 20.0));
         c.Register(UsnCecNode("usn-b", 57.0, 20.5));
         c.Refresh();
-        Assert.True(c.ContributeOrganic(Blue, "usn-a", Target, 0.9));
-        Assert.True(c.ContributeOrganic(Blue, "usn-b", Target, 0.85));
+        Assert.That(c.ContributeOrganic(Blue, "usn-a", Target, 0.9), Is.True);
+        Assert.That(c.ContributeOrganic(Blue, "usn-b", Target, 0.85), Is.True);
 
         var live = c.TryGetCompositeTracks(Blue);
-        Assert.Single(live);
-        Assert.True(live[0].FireControlQuality);
+        AssertEx.Single(live);
+        Assert.That(live[0].FireControlQuality, Is.True);
 
         // Stretch to degraded-only mesh; organics remain but FC quality drops.
         c.UpdateNode("usn-b", latDeg: 57.0, lonDeg: 23.0);
         c.Refresh();
-        Assert.Equal(CecMeshState.Degraded, c.GetMeshState("usn-a"));
-        Assert.Equal(CecMeshState.Degraded, c.GetMeshState("usn-b"));
+        Assert.That(c.GetMeshState("usn-a"), Is.EqualTo(CecMeshState.Degraded));
+        Assert.That(c.GetMeshState("usn-b"), Is.EqualTo(CecMeshState.Degraded));
 
         // New organics rejected while degraded.
-        Assert.False(c.ContributeOrganic(Blue, "usn-a", "hostile-2", 0.9));
+        Assert.That(c.ContributeOrganic(Blue, "usn-a", "hostile-2", 0.9), Is.False);
 
         var degraded = c.TryGetCompositeTracks(Blue);
-        Assert.Single(degraded);
-        Assert.False(degraded[0].FireControlQuality);
-        Assert.Equal(2, degraded[0].ContributorCount);
+        AssertEx.Single(degraded);
+        Assert.That(degraded[0].FireControlQuality, Is.False);
+        Assert.That(degraded[0].ContributorCount, Is.EqualTo(2));
     }
 
-    [Fact]
+    [Test]
     public void Deterministic_refresh_order_produces_stable_event_log()
     {
         CecMeshController BuildAndRefresh()
@@ -179,19 +181,19 @@ public sealed class CecMeshControllerTests
         var a = BuildAndRefresh();
         var b = BuildAndRefresh();
 
-        Assert.Equal(a.ComputeEventLogFingerprint(), b.ComputeEventLogFingerprint());
-        Assert.Equal(3, a.MeshEventLog.Count);
+        Assert.That(b.ComputeEventLogFingerprint(), Is.EqualTo(a.ComputeEventLogFingerprint()));
+        Assert.That(a.MeshEventLog.Count, Is.EqualTo(3));
         // Events follow unit-id ordinal order of evaluation.
-        Assert.Equal("usn-a", a.MeshEventLog[0].UnitId);
-        Assert.Equal("usn-m", a.MeshEventLog[1].UnitId);
-        Assert.Equal("usn-z", a.MeshEventLog[2].UnitId);
-        Assert.All(a.MeshEventLog, e => Assert.Equal(CecMeshEventKind.Join, e.Kind));
-        Assert.Equal(1UL, a.MeshEventLog[0].SequenceId);
-        Assert.Equal(2UL, a.MeshEventLog[1].SequenceId);
-        Assert.Equal(3UL, a.MeshEventLog[2].SequenceId);
+        Assert.That(a.MeshEventLog[0].UnitId, Is.EqualTo("usn-a"));
+        Assert.That(a.MeshEventLog[1].UnitId, Is.EqualTo("usn-m"));
+        Assert.That(a.MeshEventLog[2].UnitId, Is.EqualTo("usn-z"));
+        AssertEx.All(a.MeshEventLog, e => Assert.That(e.Kind, Is.EqualTo(CecMeshEventKind.Join)));
+        Assert.That(a.MeshEventLog[0].SequenceId, Is.EqualTo(1UL));
+        Assert.That(a.MeshEventLog[1].SequenceId, Is.EqualTo(2UL));
+        Assert.That(a.MeshEventLog[2].SequenceId, Is.EqualTo(3UL));
     }
 
-    [Fact]
+    [Test]
     public void Dead_node_is_OutOfMesh_and_cannot_contribute()
     {
         var c = new CecMeshController();
@@ -199,41 +201,41 @@ public sealed class CecMeshControllerTests
         c.Register(UsnCecNode("usn-b", 57.0, 20.5, alive: false));
         c.Refresh();
 
-        Assert.Equal(CecMeshState.OutOfMesh, c.GetMeshState("usn-a"));
-        Assert.Equal(CecMeshState.OutOfMesh, c.GetMeshState("usn-b"));
-        Assert.False(c.ContributeOrganic(Blue, "usn-b", Target, 0.9));
+        Assert.That(c.GetMeshState("usn-a"), Is.EqualTo(CecMeshState.OutOfMesh));
+        Assert.That(c.GetMeshState("usn-b"), Is.EqualTo(CecMeshState.OutOfMesh));
+        Assert.That(c.ContributeOrganic(Blue, "usn-b", Target, 0.9), Is.False);
     }
 
-    [Fact]
+    [Test]
     public void Evaluator_pure_rules_match_bands()
     {
-        Assert.Equal(
-            CecMeshState.OutOfMesh,
+        Assert.That(
             CecMeshEvaluator.EvaluateMeshState(
-                cecCapable: false, hasPeerInRange: true, bestPeerRangeDeg: 0.1, jammed: false, alive: true));
-        Assert.Equal(
-            CecMeshState.OutOfMesh,
+                        cecCapable: false, hasPeerInRange: true, bestPeerRangeDeg: 0.1, jammed: false, alive: true),
+            Is.EqualTo(CecMeshState.OutOfMesh));
+        Assert.That(
             CecMeshEvaluator.EvaluateMeshState(
-                cecCapable: true, hasPeerInRange: true, bestPeerRangeDeg: 0.1, jammed: true, alive: true));
-        Assert.Equal(
-            CecMeshState.OutOfMesh,
+                        cecCapable: true, hasPeerInRange: true, bestPeerRangeDeg: 0.1, jammed: true, alive: true),
+            Is.EqualTo(CecMeshState.OutOfMesh));
+        Assert.That(
             CecMeshEvaluator.EvaluateMeshState(
-                cecCapable: true, hasPeerInRange: true, bestPeerRangeDeg: 0.1, jammed: false, alive: false));
-        Assert.Equal(
-            CecMeshState.OutOfMesh,
+                        cecCapable: true, hasPeerInRange: true, bestPeerRangeDeg: 0.1, jammed: false, alive: false),
+            Is.EqualTo(CecMeshState.OutOfMesh));
+        Assert.That(
             CecMeshEvaluator.EvaluateMeshState(
-                cecCapable: true, hasPeerInRange: false, bestPeerRangeDeg: null, jammed: false, alive: true));
-        Assert.Equal(
-            CecMeshState.InMesh,
+                        cecCapable: true, hasPeerInRange: false, bestPeerRangeDeg: null, jammed: false, alive: true),
+            Is.EqualTo(CecMeshState.OutOfMesh));
+        Assert.That(
             CecMeshEvaluator.EvaluateMeshState(
-                cecCapable: true, hasPeerInRange: true, bestPeerRangeDeg: 1.5, jammed: false, alive: true));
-        Assert.Equal(
-            CecMeshState.Degraded,
+                        cecCapable: true, hasPeerInRange: true, bestPeerRangeDeg: 1.5, jammed: false, alive: true),
+            Is.EqualTo(CecMeshState.InMesh));
+        Assert.That(
             CecMeshEvaluator.EvaluateMeshState(
-                cecCapable: true, hasPeerInRange: true, bestPeerRangeDeg: 3.0, jammed: false, alive: true));
-        Assert.Equal(
-            CecMeshState.OutOfMesh,
+                        cecCapable: true, hasPeerInRange: true, bestPeerRangeDeg: 3.0, jammed: false, alive: true),
+            Is.EqualTo(CecMeshState.Degraded));
+        Assert.That(
             CecMeshEvaluator.EvaluateMeshState(
-                cecCapable: true, hasPeerInRange: true, bestPeerRangeDeg: 5.0, jammed: false, alive: true));
+                        cecCapable: true, hasPeerInRange: true, bestPeerRangeDeg: 5.0, jammed: false, alive: true),
+            Is.EqualTo(CecMeshState.OutOfMesh));
     }
 }

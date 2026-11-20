@@ -1,26 +1,24 @@
 namespace ProjectAegis.Sim.Tests.Engage;
 
 using ProjectAegis.Sim.Engage;
-using Xunit;
+using NUnit.Framework;
 
 public sealed class LogisticsWinchesterEngageGateTests
 {
-    [Fact]
+    [Test]
     public void Evaluate_blocks_when_rounds_zero()
     {
-        Assert.Equal(
-            EngagementAbortReason.WinchesterOrdnance,
-            LogisticsWinchesterEngageGate.Evaluate(roundsRemaining: 0));
+        Assert.That(LogisticsWinchesterEngageGate.Evaluate(roundsRemaining: 0), Is.EqualTo(EngagementAbortReason.WinchesterOrdnance));
     }
 
-    [Fact]
+    [Test]
     public void Evaluate_allows_when_rounds_positive()
     {
-        Assert.Null(LogisticsWinchesterEngageGate.Evaluate(roundsRemaining: 1));
-        Assert.Null(LogisticsWinchesterEngageGate.Evaluate(roundsRemaining: 4));
+        Assert.That(LogisticsWinchesterEngageGate.Evaluate(roundsRemaining: 1), Is.Null);
+        Assert.That(LogisticsWinchesterEngageGate.Evaluate(roundsRemaining: 4), Is.Null);
     }
 
-    [Fact]
+    [Test]
     public void Resolver_aborts_with_WinchesterOrdnance_when_empty()
     {
         var world = new DictionaryEngageWorldQuery();
@@ -36,9 +34,9 @@ public sealed class LogisticsWinchesterEngageGateTests
                 HasFireControlTrack: true));
         var resolver = new MvpEngagementResolver(world, magazines);
         var result = resolver.Resolve(in request);
-        Assert.False(result.Launched);
-        Assert.Equal(EngagementAbortReason.WinchesterOrdnance, result.AbortReason);
-        Assert.Equal("WINCHESTER_ORDNANCE", EngagementAbortReasonCodes.ToLogCode(result.AbortReason));
-        Assert.Equal(0, magazines.GetRounds(1, 0)); // not consumed
+        Assert.That(result.Launched, Is.False);
+        Assert.That(result.AbortReason, Is.EqualTo(EngagementAbortReason.WinchesterOrdnance));
+        Assert.That(EngagementAbortReasonCodes.ToLogCode(result.AbortReason), Is.EqualTo("WINCHESTER_ORDNANCE"));
+        Assert.That(magazines.GetRounds(1, 0), Is.EqualTo(0)); // not consumed
     }
 }

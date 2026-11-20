@@ -1,12 +1,12 @@
 using ProjectAegis.Sim.Engage;
 using ProjectAegis.Sim.Scenario;
-using Xunit;
+using NUnit.Framework;
 
 namespace ProjectAegis.Sim.Tests.Engage;
 
 public sealed class CatalogDamageWithdrawEngageGateTests
 {
-    [Fact]
+    [Test]
     public void Blocks_engage_when_catalog_resolved_trial_recommends_withdraw()
     {
         var trials = new[]
@@ -14,10 +14,10 @@ public sealed class CatalogDamageWithdrawEngageGateTests
             new ScenarioWithdrawReadinessTrial("u1", 0.15, WithdrawRecommended: true, CatalogResolved: true),
         };
 
-        Assert.True(CatalogDamageWithdrawEngageGate.BlocksEngage("u1", trials));
+        Assert.That(CatalogDamageWithdrawEngageGate.BlocksEngage("u1", trials), Is.True);
     }
 
-    [Fact]
+    [Test]
     public void Does_not_block_when_trial_unresolved_or_withdraw_not_recommended()
     {
         var unresolved = new[]
@@ -29,12 +29,12 @@ public sealed class CatalogDamageWithdrawEngageGateTests
             new ScenarioWithdrawReadinessTrial("u1", 0.8, WithdrawRecommended: false, CatalogResolved: true),
         };
 
-        Assert.False(CatalogDamageWithdrawEngageGate.BlocksEngage("u1", unresolved));
-        Assert.False(CatalogDamageWithdrawEngageGate.BlocksEngage("u1", belowThreshold));
-        Assert.False(CatalogDamageWithdrawEngageGate.BlocksEngage("u2", belowThreshold));
+        Assert.That(CatalogDamageWithdrawEngageGate.BlocksEngage("u1", unresolved), Is.False);
+        Assert.That(CatalogDamageWithdrawEngageGate.BlocksEngage("u1", belowThreshold), Is.False);
+        Assert.That(CatalogDamageWithdrawEngageGate.BlocksEngage("u2", belowThreshold), Is.False);
     }
 
-    [Fact]
+    [Test]
     public void Evaluate_returns_abort_reason_only_when_context_flag_set()
     {
         var blocked = new EngageContext(
@@ -45,7 +45,7 @@ public sealed class CatalogDamageWithdrawEngageGateTests
             CatalogDamageWithdrawBlocked: true);
         var clear = blocked with { CatalogDamageWithdrawBlocked = false };
 
-        Assert.Equal(EngagementAbortReason.DamageWithdrawRecommended, CatalogDamageWithdrawEngageGate.Evaluate(in blocked));
-        Assert.Null(CatalogDamageWithdrawEngageGate.Evaluate(in clear));
+        Assert.That(CatalogDamageWithdrawEngageGate.Evaluate(in blocked), Is.EqualTo(EngagementAbortReason.DamageWithdrawRecommended));
+        Assert.That(CatalogDamageWithdrawEngageGate.Evaluate(in clear), Is.Null);
     }
 }

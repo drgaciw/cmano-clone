@@ -1,12 +1,12 @@
 using ProjectAegis.Sim.Scenario;
 using ProjectAegis.Sim.Sensors;
-using Xunit;
+using NUnit.Framework;
 
 namespace ProjectAegis.Sim.Tests.Sensors;
 
 public sealed class ScenarioContactSimulatorTests
 {
-    [Fact]
+    [Test]
     public void Same_seed_schedule_yields_identical_transition_list()
     {
         var seeds = new[]
@@ -17,13 +17,13 @@ public sealed class ScenarioContactSimulatorTests
 
         var a = RunTransitions(seeds);
         var b = RunTransitions(seeds);
-        Assert.Equal(a, b);
-        Assert.Equal(2, a.Count);
-        Assert.Equal("hostile-1", a[0].TargetId);
-        Assert.Equal("hostile-2", a[1].TargetId);
+        Assert.That(b, Is.EqualTo(a));
+        Assert.That(a.Count, Is.EqualTo(2));
+        Assert.That(a[0].TargetId, Is.EqualTo("hostile-1"));
+        Assert.That(a[1].TargetId, Is.EqualTo("hostile-2"));
     }
 
-    [Fact]
+    [Test]
     public void Primary_target_is_lexicographically_smallest_active()
     {
         var sim = new ScenarioContactSimulator(
@@ -32,8 +32,8 @@ public sealed class ScenarioContactSimulatorTests
             new ScenarioContactSeed("u1", "hostile-1", "c1", 1),
         ]);
         sim.Tick(1, 1.0);
-        Assert.Equal("hostile-1", sim.PrimaryTargetId);
-        Assert.Equal(2, sim.ActiveCount);
+        Assert.That(sim.PrimaryTargetId, Is.EqualTo("hostile-1"));
+        Assert.That(sim.ActiveCount, Is.EqualTo(2));
     }
 
     private static List<ContactTransition> RunTransitions(IReadOnlyList<ScenarioContactSeed> seeds)

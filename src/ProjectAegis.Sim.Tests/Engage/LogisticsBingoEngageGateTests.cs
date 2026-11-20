@@ -1,11 +1,11 @@
 namespace ProjectAegis.Sim.Tests.Engage;
 
 using ProjectAegis.Sim.Engage;
-using Xunit;
+using NUnit.Framework;
 
 public sealed class LogisticsBingoEngageGateTests
 {
-    [Fact]
+    [Test]
     public void Evaluate_blocks_when_LogisticsBingoBlocked()
     {
         var ctx = new EngageContext(
@@ -14,10 +14,10 @@ public sealed class LogisticsBingoEngageGateTests
             RoundsRemaining: 2,
             HasFireControlTrack: true,
             LogisticsBingoBlocked: true);
-        Assert.Equal(EngagementAbortReason.BingoFuel, LogisticsBingoEngageGate.Evaluate(in ctx));
+        Assert.That(LogisticsBingoEngageGate.Evaluate(in ctx), Is.EqualTo(EngagementAbortReason.BingoFuel));
     }
 
-    [Fact]
+    [Test]
     public void Evaluate_allows_when_not_bingo()
     {
         var ctx = new EngageContext(
@@ -25,10 +25,10 @@ public sealed class LogisticsBingoEngageGateTests
             new WeaponEnvelope(1_000, 100_000),
             RoundsRemaining: 2,
             HasFireControlTrack: true);
-        Assert.Null(LogisticsBingoEngageGate.Evaluate(in ctx));
+        Assert.That(LogisticsBingoEngageGate.Evaluate(in ctx), Is.Null);
     }
 
-    [Fact]
+    [Test]
     public void Resolver_aborts_with_BingoFuel_when_context_blocked()
     {
         var world = new DictionaryEngageWorldQuery();
@@ -45,8 +45,8 @@ public sealed class LogisticsBingoEngageGateTests
                 LogisticsBingoBlocked: true));
         var resolver = new MvpEngagementResolver(world, magazines);
         var result = resolver.Resolve(in request);
-        Assert.False(result.Launched);
-        Assert.Equal(EngagementAbortReason.BingoFuel, result.AbortReason);
-        Assert.Equal("BINGO_FUEL", EngagementAbortReasonCodes.ToLogCode(result.AbortReason));
+        Assert.That(result.Launched, Is.False);
+        Assert.That(result.AbortReason, Is.EqualTo(EngagementAbortReason.BingoFuel));
+        Assert.That(EngagementAbortReasonCodes.ToLogCode(result.AbortReason), Is.EqualTo("BINGO_FUEL"));
     }
 }

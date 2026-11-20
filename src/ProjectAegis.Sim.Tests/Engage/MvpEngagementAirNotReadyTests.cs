@@ -1,12 +1,12 @@
 using ProjectAegis.Sim.Engage;
 using ProjectAegis.Sim.Glossary;
-using Xunit;
+using NUnit.Framework;
 
 namespace ProjectAegis.Sim.Tests.Engage;
 
 public sealed class MvpEngagementAirNotReadyTests
 {
-    [Fact]
+    [Test]
     public void Resolve_aborts_with_AIR_NOT_READY_when_air_ops_not_ready()
     {
         var world = new DictionaryEngageWorldQuery();
@@ -24,13 +24,13 @@ public sealed class MvpEngagementAirNotReadyTests
         var resolver = new MvpEngagementResolver(world, magazines);
         var result = resolver.Resolve(request);
 
-        Assert.False(result.Launched);
-        Assert.Equal(EngagementAbortReason.AirNotReady, result.AbortReason);
-        Assert.Equal(AbortReasonCatalog.Engage.AIR_NOT_READY, EngagementAbortReasonCodes.ToLogCode(result.AbortReason));
+        Assert.That(result.Launched, Is.False);
+        Assert.That(result.AbortReason, Is.EqualTo(EngagementAbortReason.AirNotReady));
+        Assert.That(EngagementAbortReasonCodes.ToLogCode(result.AbortReason), Is.EqualTo(AbortReasonCatalog.Engage.AIR_NOT_READY));
     }
 
     /// <summary>Wave 2 adversarial: AIR_NOT_READY must not burn magazines (doc 16 LOG-04).</summary>
-    [Fact]
+    [Test]
     public void Resolve_AIR_NOT_READY_does_not_mutate_magazine_ledger()
     {
         var world = new DictionaryEngageWorldQuery();
@@ -49,8 +49,8 @@ public sealed class MvpEngagementAirNotReadyTests
         var resolver = new MvpEngagementResolver(world, magazines);
         var result = resolver.Resolve(request);
 
-        Assert.False(result.Launched);
-        Assert.Equal(EngagementAbortReason.AirNotReady, result.AbortReason);
-        Assert.Equal(4, magazines.GetRounds(1, 0));
+        Assert.That(result.Launched, Is.False);
+        Assert.That(result.AbortReason, Is.EqualTo(EngagementAbortReason.AirNotReady));
+        Assert.That(magazines.GetRounds(1, 0), Is.EqualTo(4));
     }
 }

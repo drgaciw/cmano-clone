@@ -4,7 +4,7 @@ using ProjectAegis.Sim.Core;
 using ProjectAegis.Sim.Policy;
 using ProjectAegis.Sim.Scenario;
 using ProjectAegis.Sim.Sensors;
-using Xunit;
+using NUnit.Framework;
 
 namespace ProjectAegis.Sim.Tests.Catalog;
 
@@ -18,7 +18,7 @@ public sealed class PhaseBCatalogConsumerTests
                 new ScenarioCatalogDetectionTarget("u1", "radar-1", "hostile-1", "c1"),
             ]);
 
-    [Fact]
+    [Test]
     public void PhaseB_Legacy_catalog_without_signature_preserves_trial_basePd_and_envMask()
     {
         var profile = CatalogProfile();
@@ -26,12 +26,12 @@ public sealed class PhaseBCatalogConsumerTests
 
         var trials = DetectionTrialResolver.Resolve(profile, catalog);
 
-        Assert.Single(trials);
-        Assert.Equal(1.0, trials[0].BasePd);
-        Assert.Equal(1.0, trials[0].EnvMask);
+        AssertEx.Single(trials);
+        Assert.That(trials[0].BasePd, Is.EqualTo(1.0));
+        Assert.That(trials[0].EnvMask, Is.EqualTo(1.0));
     }
 
-    [Fact]
+    [Test]
     public void PhaseB_Committed_observer_signature_changes_effective_envMask_and_detection_pd()
     {
         var profile = CatalogProfile();
@@ -46,29 +46,32 @@ public sealed class PhaseBCatalogConsumerTests
         var baseline = DetectionTrialResolver.Resolve(profile, legacy);
         var modified = DetectionTrialResolver.Resolve(profile, withSignature);
 
-        Assert.Equal(1.0, baseline[0].EnvMask);
-        Assert.Equal(0.9, modified[0].EnvMask, precision: 6);
-        Assert.Equal(1.0, modified[0].BasePd);
+        Assert.That(baseline[0].EnvMask, Is.EqualTo(1.0));
+        Assert.That(
+            Math.Round(modified[0].EnvMask, 6, MidpointRounding.AwayFromZero),
+            Is.EqualTo(Math.Round(0.9, 6, MidpointRounding.AwayFromZero)));
+        Assert.That(modified[0].BasePd, Is.EqualTo(1.0));
 
         var seed = SimSeed.FromScenario(42);
         var baselineRoll = DeterministicDetectionLoop.RollTick(seed, 0, baseline, unitRadarEmcon: null);
         var modifiedRoll = DeterministicDetectionLoop.RollTick(seed, 0, modified, unitRadarEmcon: null);
 
-        Assert.NotEqual(baselineRoll[0].Pd, modifiedRoll[0].Pd);
+        Assert.That(modifiedRoll[0].Pd, Is.Not.EqualTo(baselineRoll[0].Pd));
     }
 
-    [Theory]
-    [InlineData(-40, 0.7)]
-    [InlineData(-10, 1.0)]
-    [InlineData(20, 1.0)]
+    [TestCase(-40, 0.7)]
+    [TestCase(-10, 1.0)]
+    [TestCase(20, 1.0)]
     public void PhaseB_Rcs_boundary_values_apply_predictable_envMask(double rcsDbsm, double expectedEnvMask)
     {
         var signature = new CatalogSignature("u1", RcsBandDbsm: rcsDbsm);
         var envMask = PhaseBCatalogDetectionModifier.ApplyEnvMask(1.0, signature);
-        Assert.Equal(expectedEnvMask, envMask, precision: 6);
+        Assert.That(
+            Math.Round(envMask, 6, MidpointRounding.AwayFromZero),
+            Is.EqualTo(Math.Round(expectedEnvMask, 6, MidpointRounding.AwayFromZero)));
     }
 
-    [Fact]
+    [Test]
     public void PhaseB_Unreferenced_signature_platform_leaves_trial_unchanged()
     {
         var profile = CatalogProfile();
@@ -80,24 +83,24 @@ public sealed class PhaseBCatalogConsumerTests
 
         var trials = DetectionTrialResolver.Resolve(profile, catalog);
 
-        Assert.Single(trials);
-        Assert.Equal(1.0, trials[0].EnvMask);
-        Assert.Equal(1.0, trials[0].BasePd);
+        AssertEx.Single(trials);
+        Assert.That(trials[0].EnvMask, Is.EqualTo(1.0));
+        Assert.That(trials[0].BasePd, Is.EqualTo(1.0));
     }
 
-    [Fact]
+    [Test]
     public void PhaseB_Legacy_catalog_without_mobility_preserves_launch_readiness()
     {
         var catalog = InMemoryCatalogReader.BalticPatrolFixture();
 
         var readiness = PhaseBCatalogMobilityReadinessStub.EvaluateLaunchReadiness("u1", catalog);
 
-        Assert.False(readiness.CatalogResolved);
-        Assert.True(readiness.ReadyForLaunch);
-        Assert.Equal(PhaseBCatalogMobilityReadinessStub.NeutralMobilityScore, readiness.MobilityScore);
+        Assert.That(readiness.CatalogResolved, Is.False);
+        Assert.That(readiness.ReadyForLaunch, Is.True);
+        Assert.That(readiness.MobilityScore, Is.EqualTo(PhaseBCatalogMobilityReadinessStub.NeutralMobilityScore));
     }
 
-    [Fact]
+    [Test]
     public void PhaseB_Committed_zero_range_mobility_blocks_launch_readiness()
     {
         var catalog = new InMemoryCatalogReader(
@@ -106,12 +109,12 @@ public sealed class PhaseBCatalogConsumerTests
 
         var readiness = PhaseBCatalogMobilityReadinessStub.EvaluateLaunchReadiness("u1", catalog);
 
-        Assert.True(readiness.CatalogResolved);
-        Assert.False(readiness.ReadyForLaunch);
-        Assert.Equal(0.0, readiness.MobilityScore);
+        Assert.That(readiness.CatalogResolved, Is.True);
+        Assert.That(readiness.ReadyForLaunch, Is.False);
+        Assert.That(readiness.MobilityScore, Is.EqualTo(0.0));
     }
 
-    [Fact]
+    [Test]
     public void PhaseB_Baltic_fixture_mobility_changes_readiness_policy_outcome()
     {
         var profile = new ScenarioPolicyProfile(EffectivePolicy.DefaultFree);
@@ -121,13 +124,13 @@ public sealed class PhaseBCatalogConsumerTests
         var baseline = ReadinessPolicyEvaluator.EvaluateUnit("u1", profile, legacy);
         var modified = ReadinessPolicyEvaluator.EvaluateUnit("u1", profile, withMobility);
 
-        Assert.False(baseline.CatalogResolved);
-        Assert.True(modified.CatalogResolved);
-        Assert.True(modified.ReadyForLaunch);
-        Assert.True(modified.ReadinessScore > 0.5);
+        Assert.That(baseline.CatalogResolved, Is.False);
+        Assert.That(modified.CatalogResolved, Is.True);
+        Assert.That(modified.ReadyForLaunch, Is.True);
+        Assert.That(modified.ReadinessScore > 0.5, Is.True);
     }
 
-    [Fact]
+    [Test]
     public void PhaseB_Catalog_emcon_off_blocks_active_radar_detection_roll()
     {
         var seed = SimSeed.FromScenario(42);
@@ -142,11 +145,11 @@ public sealed class PhaseBCatalogConsumerTests
         var activeRolls = DeterministicDetectionLoop.RollTick(seed, 0, trials, unitRadarEmcon: null);
         var catalogRolls = DeterministicDetectionLoop.RollTick(seed, 0, trials, unitRadarEmcon: null, catalog: catalog);
 
-        Assert.Single(activeRolls);
-        Assert.Empty(catalogRolls);
+        AssertEx.Single(activeRolls);
+        Assert.That(catalogRolls, Is.Empty);
     }
 
-    [Fact]
+    [Test]
     public void PhaseB_Scenario_emcon_overrides_catalog_emcon_for_detection()
     {
         var seed = SimSeed.FromScenario(42);
@@ -161,16 +164,15 @@ public sealed class PhaseBCatalogConsumerTests
 
         var rolls = DeterministicDetectionLoop.RollTick(seed, 0, trials, scenarioEmcon, catalog: catalog);
 
-        Assert.Single(rolls);
+        AssertEx.Single(rolls);
     }
 
-    [Theory]
-    [InlineData("off", EmconState.Off)]
-    [InlineData("standby", EmconState.Passive)]
-    [InlineData("active", EmconState.Active)]
+    [TestCase("off", EmconState.Off)]
+    [TestCase("standby", EmconState.Passive)]
+    [TestCase("active", EmconState.Active)]
     public void PhaseB_Catalog_posture_maps_to_emcon_state(string posture, EmconState expected)
     {
-        Assert.Equal(expected, CatalogRadarEmconResolver.MapPosture(posture));
+        Assert.That(CatalogRadarEmconResolver.MapPosture(posture), Is.EqualTo(expected));
     }
 
     // PlatformWorkbookValidator.AllowedEmconPostures validates "Posture" against off/standby/active
@@ -180,14 +182,14 @@ public sealed class PhaseBCatalogConsumerTests
     // posture silently falls into the `_ => EmconState.Active` default instead of the doctrine-intended
     // state — e.g. a unit authored as radar "Off" (EMCON silent) is misreported as radiating (Active),
     // defeating EMCON discipline for detection rolls and the MvpEngagementResolver RadarEmconActive gate.
-    [Theory]
-    [InlineData("Off", EmconState.Off)]
-    [InlineData("OFF", EmconState.Off)]
-    [InlineData("Standby", EmconState.Passive)]
-    [InlineData("STANDBY", EmconState.Passive)]
-    [InlineData("Active", EmconState.Active)]
+
+    [TestCase("Off", EmconState.Off)]
+    [TestCase("OFF", EmconState.Off)]
+    [TestCase("Standby", EmconState.Passive)]
+    [TestCase("STANDBY", EmconState.Passive)]
+    [TestCase("Active", EmconState.Active)]
     public void PhaseB_Catalog_posture_mapping_is_case_insensitive(string posture, EmconState expected)
     {
-        Assert.Equal(expected, CatalogRadarEmconResolver.MapPosture(posture));
+        Assert.That(CatalogRadarEmconResolver.MapPosture(posture), Is.EqualTo(expected));
     }
 }

@@ -3,7 +3,7 @@ using ProjectAegis.Sim.Catalog;
 using ProjectAegis.Sim.Engage;
 using ProjectAegis.Sim.Policy;
 using ProjectAegis.Sim.Scenario;
-using Xunit;
+using NUnit.Framework;
 
 namespace ProjectAegis.Sim.Tests.Catalog;
 
@@ -53,20 +53,20 @@ public sealed class PhaseBDamageCatalogConsumerTests
             ]);
     }
 
-    [Fact]
+    [Test]
     public void PhaseB_Legacy_catalog_without_damage_preserves_baseline_readiness()
     {
         var catalog = InMemoryCatalogReader.BalticPatrolFixture();
 
         var trial = PhaseBCatalogDamageReadinessStub.EvaluateWithdrawReadiness("u1", 15, catalog);
 
-        Assert.False(trial.CatalogResolved);
-        Assert.Equal(PhaseBCatalogDamageReadinessStub.NeutralReadinessScore, trial.ReadinessScore);
-        Assert.False(trial.WithdrawRecommended);
-        Assert.Empty(catalog.GetSortedPlatformDamage());
+        Assert.That(trial.CatalogResolved, Is.False);
+        Assert.That(trial.ReadinessScore, Is.EqualTo(PhaseBCatalogDamageReadinessStub.NeutralReadinessScore));
+        Assert.That(trial.WithdrawRecommended, Is.False);
+        Assert.That(catalog.GetSortedPlatformDamage(), Is.Empty);
     }
 
-    [Fact]
+    [Test]
     public void PhaseB_Legacy_catalog_preserves_baseline_through_readiness_policy_resolver()
     {
         var profile = CatalogProfile(15);
@@ -74,13 +74,13 @@ public sealed class PhaseBDamageCatalogConsumerTests
 
         var trials = WithdrawReadinessTrialResolver.Resolve(profile, catalog);
 
-        Assert.Single(trials);
-        Assert.False(trials[0].CatalogResolved);
-        Assert.Equal(PhaseBCatalogDamageReadinessStub.NeutralReadinessScore, trials[0].ReadinessScore);
-        Assert.False(trials[0].WithdrawRecommended);
+        AssertEx.Single(trials);
+        Assert.That(trials[0].CatalogResolved, Is.False);
+        Assert.That(trials[0].ReadinessScore, Is.EqualTo(PhaseBCatalogDamageReadinessStub.NeutralReadinessScore));
+        Assert.That(trials[0].WithdrawRecommended, Is.False);
     }
 
-    [Fact]
+    [Test]
     public void PhaseB_Committed_platform_damage_changes_withdraw_trial_outcome()
     {
         var legacy = InMemoryCatalogReader.BalticPatrolFixture();
@@ -89,14 +89,14 @@ public sealed class PhaseBDamageCatalogConsumerTests
         var baseline = PhaseBCatalogDamageReadinessStub.EvaluateWithdrawReadiness("u1", 20, legacy);
         var modified = PhaseBCatalogDamageReadinessStub.EvaluateWithdrawReadiness("u1", 20, withDamage);
 
-        Assert.False(baseline.CatalogResolved);
-        Assert.False(baseline.WithdrawRecommended);
-        Assert.True(modified.CatalogResolved);
-        Assert.True(modified.WithdrawRecommended);
-        Assert.NotEqual(baseline.ReadinessScore, modified.ReadinessScore);
+        Assert.That(baseline.CatalogResolved, Is.False);
+        Assert.That(baseline.WithdrawRecommended, Is.False);
+        Assert.That(modified.CatalogResolved, Is.True);
+        Assert.That(modified.WithdrawRecommended, Is.True);
+        Assert.That(modified.ReadinessScore, Is.Not.EqualTo(baseline.ReadinessScore));
     }
 
-    [Fact]
+    [Test]
     public void PhaseB_Committed_platform_damage_changes_readiness_policy_resolver_outcome()
     {
         var profile = CatalogProfile(20);
@@ -106,42 +106,42 @@ public sealed class PhaseBDamageCatalogConsumerTests
         var baseline = WithdrawReadinessTrialResolver.Resolve(profile, legacy);
         var modified = WithdrawReadinessTrialResolver.Resolve(profile, withDamage);
 
-        Assert.False(baseline[0].CatalogResolved);
-        Assert.False(baseline[0].WithdrawRecommended);
-        Assert.True(modified[0].CatalogResolved);
-        Assert.True(modified[0].WithdrawRecommended);
-        Assert.NotEqual(baseline[0].ReadinessScore, modified[0].ReadinessScore);
+        Assert.That(baseline[0].CatalogResolved, Is.False);
+        Assert.That(baseline[0].WithdrawRecommended, Is.False);
+        Assert.That(modified[0].CatalogResolved, Is.True);
+        Assert.That(modified[0].WithdrawRecommended, Is.True);
+        Assert.That(modified[0].ReadinessScore, Is.Not.EqualTo(baseline[0].ReadinessScore));
     }
 
-    [Theory]
-    [InlineData(25, true)]
-    [InlineData(24.99, true)]
-    [InlineData(25.01, false)]
+    [TestCase(25, true)]
+    [TestCase(24.99, true)]
+    [TestCase(25.01, false)]
     public void PhaseB_Withdraw_threshold_boundary_applies_predictably(double currentHpPct, bool expectedWithdraw)
     {
         var catalog = DamageFixture(withdrawThresholdPct: 25);
 
         var trial = PhaseBCatalogDamageReadinessStub.EvaluateWithdrawReadiness("u1", currentHpPct, catalog);
 
-        Assert.Equal(expectedWithdraw, trial.WithdrawRecommended);
+        Assert.That(trial.WithdrawRecommended, Is.EqualTo(expectedWithdraw));
     }
 
-    [Theory]
-    [InlineData(0, 0.0)]
-    [InlineData(50, 0.5)]
-    [InlineData(100, 1.0)]
+    [TestCase(0, 0.0)]
+    [TestCase(50, 0.5)]
+    [TestCase(100, 1.0)]
     public void PhaseB_Readiness_score_tracks_hp_pct_when_catalog_resolves(double currentHpPct, double expectedScore)
     {
         var catalog = DamageFixture(withdrawThresholdPct: 0);
 
         var trial = PhaseBCatalogDamageReadinessStub.EvaluateWithdrawReadiness("u1", currentHpPct, catalog);
 
-        Assert.True(trial.CatalogResolved);
-        Assert.Equal(expectedScore, trial.ReadinessScore, precision: 6);
-        Assert.False(trial.WithdrawRecommended);
+        Assert.That(trial.CatalogResolved, Is.True);
+        Assert.That(
+            Math.Round(trial.ReadinessScore, 6, MidpointRounding.AwayFromZero),
+            Is.EqualTo(Math.Round(expectedScore, 6, MidpointRounding.AwayFromZero)));
+        Assert.That(trial.WithdrawRecommended, Is.False);
     }
 
-    [Fact]
+    [Test]
     public void PhaseB_Unreferenced_damage_platform_leaves_trial_unchanged()
     {
         var catalog = new InMemoryCatalogReader(
@@ -152,12 +152,12 @@ public sealed class PhaseBDamageCatalogConsumerTests
 
         var trial = PhaseBCatalogDamageReadinessStub.EvaluateWithdrawReadiness("u1", 5, catalog);
 
-        Assert.False(trial.CatalogResolved);
-        Assert.Equal(PhaseBCatalogDamageReadinessStub.NeutralReadinessScore, trial.ReadinessScore);
-        Assert.False(trial.WithdrawRecommended);
+        Assert.That(trial.CatalogResolved, Is.False);
+        Assert.That(trial.ReadinessScore, Is.EqualTo(PhaseBCatalogDamageReadinessStub.NeutralReadinessScore));
+        Assert.That(trial.WithdrawRecommended, Is.False);
     }
 
-    [Fact]
+    [Test]
     public void PhaseB_Critical_flags_reduce_readiness_score_deterministically()
     {
         var damage = new CatalogPlatformDamage("u1", MaxHp: 100, WithdrawThresholdPct: 0, CriticalFlags: 2);
@@ -166,11 +166,15 @@ public sealed class PhaseBDamageCatalogConsumerTests
             80,
             damage with { CriticalFlags = 0 });
 
-        Assert.Equal(0.8, unflagged, precision: 6);
-        Assert.Equal(0.6, baseline, precision: 6);
+        Assert.That(
+            Math.Round(unflagged, 6, MidpointRounding.AwayFromZero),
+            Is.EqualTo(Math.Round(0.8, 6, MidpointRounding.AwayFromZero)));
+        Assert.That(
+            Math.Round(baseline, 6, MidpointRounding.AwayFromZero),
+            Is.EqualTo(Math.Round(0.6, 6, MidpointRounding.AwayFromZero)));
     }
 
-    [Fact]
+    [Test]
     public void PhaseB_Damage_rows_sort_by_platform_id()
     {
         var catalog = new InMemoryCatalogReader(
@@ -181,21 +185,21 @@ public sealed class PhaseBDamageCatalogConsumerTests
                 new CatalogPlatformDamage("u1", MaxHp: 100),
             ]);
 
-        Assert.Equal(["u1", "u2"], catalog.GetSortedPlatformDamage().Select(d => d.PlatformId).ToArray());
+        Assert.That(catalog.GetSortedPlatformDamage().Select(d => d.PlatformId).ToArray(), Is.EqualTo(new[] { "u1", "u2" }));
     }
 
-    [Fact]
+    [Test]
     public void PhaseB_Zero_withdraw_threshold_never_recommends_withdraw()
     {
         var catalog = DamageFixture(withdrawThresholdPct: 0);
 
         var trial = PhaseBCatalogDamageReadinessStub.EvaluateWithdrawReadiness("u1", 0, catalog);
 
-        Assert.True(trial.CatalogResolved);
-        Assert.False(trial.WithdrawRecommended);
+        Assert.That(trial.CatalogResolved, Is.True);
+        Assert.That(trial.WithdrawRecommended, Is.False);
     }
 
-    [Fact]
+    [Test]
     public void PhaseB_Baltic_seeded_damage_fixture_changes_readiness_policy_outcome()
     {
         var profile = CatalogProfile(20);
@@ -205,34 +209,34 @@ public sealed class PhaseBDamageCatalogConsumerTests
         var baseline = ReadinessPolicyEvaluator.EvaluateUnit("u1", profile, legacy);
         var modified = ReadinessPolicyEvaluator.EvaluateUnit("u1", profile, withDamage);
 
-        Assert.False(baseline.CatalogResolved);
-        Assert.False(baseline.WithdrawRecommended);
-        Assert.True(modified.CatalogResolved);
-        Assert.True(modified.WithdrawRecommended);
-        Assert.NotEqual(baseline.ReadinessScore, modified.ReadinessScore);
+        Assert.That(baseline.CatalogResolved, Is.False);
+        Assert.That(baseline.WithdrawRecommended, Is.False);
+        Assert.That(modified.CatalogResolved, Is.True);
+        Assert.That(modified.WithdrawRecommended, Is.True);
+        Assert.That(modified.ReadinessScore, Is.Not.EqualTo(baseline.ReadinessScore));
     }
 
-    [Fact]
+    [Test]
     public void PhaseB_Baltic_seeded_damage_fixture_blocks_engage_gate_when_withdraw_recommended()
     {
         var profile = CatalogProfile(20);
         var catalog = BalticPatrolWithSeededDamage();
         var trials = ReadinessPolicyEvaluator.ResolveCatalogTrials(profile, catalog);
 
-        Assert.True(CatalogDamageWithdrawEngageGate.BlocksEngage("u1", trials));
+        Assert.That(CatalogDamageWithdrawEngageGate.BlocksEngage("u1", trials), Is.True);
     }
 
-    [Fact]
+    [Test]
     public void PhaseB_Try_resolve_scenario_trial_returns_null_when_damage_absent()
     {
         var catalog = InMemoryCatalogReader.BalticPatrolFixture();
 
         var trial = PhaseBCatalogDamageReadinessStub.TryResolveScenarioTrial("u1", 10, catalog);
 
-        Assert.Null(trial);
+        Assert.That(trial, Is.Null);
     }
 
-    [Fact]
+    [Test]
     public void PhaseB_Hot_tick_ledger_refresh_changes_withdraw_trial_after_ambient_drain()
     {
         var catalog = DamageFixture();
@@ -242,8 +246,8 @@ public sealed class PhaseBDamageCatalogConsumerTests
         CatalogDamageHotTickApplier.ApplyAmbientTickDrain(ledger, catalog);
         var trials = CatalogDamageHotTickApplier.ResolveWithdrawTrials(ledger, catalog);
 
-        Assert.True(trials[0].CatalogResolved);
-        Assert.True(trials[0].WithdrawRecommended);
-        Assert.True(CatalogDamageWithdrawEngageGate.BlocksEngage("u1", trials));
+        Assert.That(trials[0].CatalogResolved, Is.True);
+        Assert.That(trials[0].WithdrawRecommended, Is.True);
+        Assert.That(CatalogDamageWithdrawEngageGate.BlocksEngage("u1", trials), Is.True);
     }
 }

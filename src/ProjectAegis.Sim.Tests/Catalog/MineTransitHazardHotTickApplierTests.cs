@@ -3,7 +3,7 @@ using ProjectAegis.Data.Scenario.Policy;
 using ProjectAegis.Sim.Catalog;
 using ProjectAegis.Sim.Core;
 using ProjectAegis.Sim.Scenario;
-using Xunit;
+using NUnit.Framework;
 
 namespace ProjectAegis.Sim.Tests.Catalog;
 
@@ -33,15 +33,17 @@ public sealed class MineTransitHazardHotTickApplierTests
                     [40_000, 52_000, 61_000, 75_000]),
             ]);
 
-    [Fact]
+    [Test]
     public void Mine_transit_hazard_disabled_when_combat_domains_flag_off()
     {
-        Assert.False(MineTransitHazardHotTickApplier.IsEnabled(
-            combatDomainsEnabled: false,
-            SampleHazard()));
+        Assert.That(
+            MineTransitHazardHotTickApplier.IsEnabled(
+                    combatDomainsEnabled: false,
+                    SampleHazard()),
+            Is.False);
     }
 
-    [Fact]
+    [Test]
     public void Mine_transit_hazard_policy_json_round_trips_zone_mines_and_transit()
     {
         var profile = ScenarioPolicyJsonLoader.ToProfile(new ScenarioPolicyJsonDto
@@ -70,16 +72,16 @@ public sealed class MineTransitHazardHotTickApplierTests
             },
         });
 
-        Assert.NotNull(profile.MineHazard);
-        Assert.Equal(45_000, profile.MineHazard!.ZoneMinRangeMeters);
-        Assert.Single(profile.MineHazard.Mines);
-        Assert.Equal("mine-a", profile.MineHazard.Mines[0].MineId);
-        Assert.Single(profile.MineHazard.Transit);
-        Assert.Equal("u1", profile.MineHazard.Transit[0].PlatformId);
-        Assert.Equal(2, profile.MineHazard.Transit[0].RangesMeters.Count);
+        Assert.That(profile.MineHazard, Is.Not.Null);
+        Assert.That(profile.MineHazard!.ZoneMinRangeMeters, Is.EqualTo(45_000));
+        AssertEx.Single(profile.MineHazard.Mines);
+        Assert.That(profile.MineHazard.Mines[0].MineId, Is.EqualTo("mine-a"));
+        AssertEx.Single(profile.MineHazard.Transit);
+        Assert.That(profile.MineHazard.Transit[0].PlatformId, Is.EqualTo("u1"));
+        Assert.That(profile.MineHazard.Transit[0].RangesMeters.Count, Is.EqualTo(2));
     }
 
-    [Fact]
+    [Test]
     public void Mine_transit_hazard_skirts_zone_boundary_without_hp_change()
     {
         var ledger = PlatformHpLedger.SeedFromWithdrawTargets(
@@ -95,11 +97,11 @@ public sealed class MineTransitHazardHotTickApplierTests
             catalog,
             hazard);
 
-        Assert.Empty(outsideZone);
-        Assert.Equal(100, ledger.TryGetHpPct("u1", out var hp) ? hp : -1);
+        Assert.That(outsideZone, Is.Empty);
+        Assert.That(ledger.TryGetHpPct("u1", out var hp) ? hp : -1, Is.EqualTo(100));
     }
 
-    [Fact]
+    [Test]
     public void Mine_transit_hazard_applies_deterministic_hp_delta_inside_zone()
     {
         var ledger = PlatformHpLedger.SeedFromWithdrawTargets(
@@ -115,13 +117,13 @@ public sealed class MineTransitHazardHotTickApplierTests
             catalog,
             hazard);
 
-        Assert.NotEmpty(tickTwo);
-        Assert.All(tickTwo, c => Assert.Equal(PlatformDamageChangeReasonCodes.MineTransitHazard, c.ReasonCode));
-        Assert.True(ledger.TryGetHpPct("u1", out var hp));
-        Assert.True(hp < 100);
+        Assert.That(tickTwo, Is.Not.Empty);
+        AssertEx.All(tickTwo, c => Assert.That(c.ReasonCode, Is.EqualTo(PlatformDamageChangeReasonCodes.MineTransitHazard)));
+        Assert.That(ledger.TryGetHpPct("u1", out var hp), Is.True);
+        Assert.That(hp < 100, Is.True);
     }
 
-    [Fact]
+    [Test]
     public void Mine_transit_hazard_same_seed_produces_identical_outcome_set()
     {
         var catalog = TransitFixture();
@@ -136,18 +138,18 @@ public sealed class MineTransitHazardHotTickApplierTests
         var changesA = MineTransitHazardHotTickApplier.ApplyTransitHazardTick(seed, 2, ledgerA, catalog, hazard);
         var changesB = MineTransitHazardHotTickApplier.ApplyTransitHazardTick(seed, 2, ledgerB, catalog, hazard);
 
-        Assert.Equal(changesA.Count, changesB.Count);
+        Assert.That(changesB.Count, Is.EqualTo(changesA.Count));
         for (var i = 0; i < changesA.Count; i++)
         {
-            Assert.Equal(changesA[i].PlatformId, changesB[i].PlatformId);
-            Assert.Equal(changesA[i].PreviousHpPct, changesB[i].PreviousHpPct);
-            Assert.Equal(changesA[i].NewHpPct, changesB[i].NewHpPct);
-            Assert.Equal(changesA[i].ReasonCode, changesB[i].ReasonCode);
-            Assert.Equal(changesA[i].DamageLevel, changesB[i].DamageLevel);
+            Assert.That(changesB[i].PlatformId, Is.EqualTo(changesA[i].PlatformId));
+            Assert.That(changesB[i].PreviousHpPct, Is.EqualTo(changesA[i].PreviousHpPct));
+            Assert.That(changesB[i].NewHpPct, Is.EqualTo(changesA[i].NewHpPct));
+            Assert.That(changesB[i].ReasonCode, Is.EqualTo(changesA[i].ReasonCode));
+            Assert.That(changesB[i].DamageLevel, Is.EqualTo(changesA[i].DamageLevel));
         }
     }
 
-    [Fact]
+    [Test]
     public void Mine_transit_hazard_empty_zone_produces_no_changes()
     {
         var ledger = PlatformHpLedger.SeedFromWithdrawTargets(
@@ -164,11 +166,11 @@ public sealed class MineTransitHazardHotTickApplierTests
 
         var changes = MineTransitHazardHotTickApplier.ApplyTransitHazardTick(seed, 2, ledger, catalog, hazard);
 
-        Assert.Empty(changes);
-        Assert.Equal(100, ledger.TryGetHpPct("u1", out var hp) ? hp : -1);
+        Assert.That(changes, Is.Empty);
+        Assert.That(ledger.TryGetHpPct("u1", out var hp) ? hp : -1, Is.EqualTo(100));
     }
 
-    [Fact]
+    [Test]
     public void Mine_transit_hazard_multiple_platforms_evaluated_in_stable_platform_order()
     {
         var ledger = PlatformHpLedger.SeedFromWithdrawTargets(
@@ -199,8 +201,8 @@ public sealed class MineTransitHazardHotTickApplierTests
 
         var changes = MineTransitHazardHotTickApplier.ApplyTransitHazardTick(seed, 1, ledger, catalog, hazard);
 
-        Assert.Equal(2, changes.Count);
-        Assert.Equal("u1", changes[0].PlatformId);
-        Assert.Equal("u2", changes[1].PlatformId);
+        Assert.That(changes.Count, Is.EqualTo(2));
+        Assert.That(changes[0].PlatformId, Is.EqualTo("u1"));
+        Assert.That(changes[1].PlatformId, Is.EqualTo("u2"));
     }
 }

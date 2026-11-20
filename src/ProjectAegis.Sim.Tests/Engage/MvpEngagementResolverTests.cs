@@ -1,12 +1,12 @@
 using ProjectAegis.Sim.Engage;
 using ProjectAegis.Sim.Policy;
-using Xunit;
+using NUnit.Framework;
 
 namespace ProjectAegis.Sim.Tests.Engage;
 
 public sealed class MvpEngagementResolverTests
 {
-    [Fact]
+    [Test]
     public void In_zone_with_ammo_launches_and_decrements_magazine()
     {
         var world = new DictionaryEngageWorldQuery();
@@ -17,11 +17,11 @@ public sealed class MvpEngagementResolverTests
         world.Set(request, new EngageContext(50_000, new WeaponEnvelope(1_000, 100_000), 2, true));
 
         var result = resolver.Resolve(request);
-        Assert.True(result.Launched);
-        Assert.Equal(1, magazines.GetRounds(1, 0));
+        Assert.That(result.Launched, Is.True);
+        Assert.That(magazines.GetRounds(1, 0), Is.EqualTo(1));
     }
 
-    [Fact]
+    [Test]
     public void Out_of_envelope_aborts()
     {
         var world = new DictionaryEngageWorldQuery();
@@ -30,11 +30,11 @@ public sealed class MvpEngagementResolverTests
         world.Set(request, new EngageContext(200_000, new WeaponEnvelope(1_000, 100_000), 5, true));
 
         var result = resolver.Resolve(request);
-        Assert.False(result.Launched);
-        Assert.Equal(EngagementAbortReason.OutOfEnvelope, result.AbortReason);
+        Assert.That(result.Launched, Is.False);
+        Assert.That(result.AbortReason, Is.EqualTo(EngagementAbortReason.OutOfEnvelope));
     }
 
-    [Fact]
+    [Test]
     public void Radar_emcon_off_aborts_before_track_check()
     {
         var world = new DictionaryEngageWorldQuery();
@@ -43,10 +43,10 @@ public sealed class MvpEngagementResolverTests
         world.Set(request, new EngageContext(50_000, new WeaponEnvelope(1_000, 100_000), 2, true, RadarEmconActive: false));
 
         var result = resolver.Resolve(request);
-        Assert.Equal(EngagementAbortReason.EmconOff, result.AbortReason);
+        Assert.That(result.AbortReason, Is.EqualTo(EngagementAbortReason.EmconOff));
     }
 
-    [Fact]
+    [Test]
     public void Wra_salvo_cap_denies_when_salvo_exceeds_max()
     {
         var world = new DictionaryEngageWorldQuery();
@@ -60,10 +60,10 @@ public sealed class MvpEngagementResolverTests
         world.Set(request, new EngageContext(50_000, new WeaponEnvelope(1_000, 100_000), 2, true, SalvoSize: 2));
 
         var result = resolver.Resolve(request);
-        Assert.Equal(EngagementAbortReason.WraSalvo, result.AbortReason);
+        Assert.That(result.AbortReason, Is.EqualTo(EngagementAbortReason.WraSalvo));
     }
 
-    [Fact]
+    [Test]
     public void Hold_fire_policy_denies_before_envelope_check()
     {
         var world = new DictionaryEngageWorldQuery();
@@ -77,11 +77,11 @@ public sealed class MvpEngagementResolverTests
         world.Set(request, new EngageContext(50_000, new WeaponEnvelope(1_000, 100_000), 2, true));
 
         var result = resolver.Resolve(request);
-        Assert.Equal(EngagementAbortReason.RoeHoldFire, result.AbortReason);
+        Assert.That(result.AbortReason, Is.EqualTo(EngagementAbortReason.RoeHoldFire));
     }
 
     /// <summary>Wave 2 adversarial: WeaponsTight reason identity through full resolver (doc 14 ENG-07).</summary>
-    [Fact]
+    [Test]
     public void WeaponsTight_denies_with_WeaponsTight_not_RoeHoldFire()
     {
         var world = new DictionaryEngageWorldQuery();
@@ -97,14 +97,14 @@ public sealed class MvpEngagementResolverTests
         world.Set(request, new EngageContext(50_000, new WeaponEnvelope(1_000, 100_000), 2, true));
 
         var result = resolver.Resolve(request);
-        Assert.False(result.Launched);
-        Assert.Equal(EngagementAbortReason.WeaponsTight, result.AbortReason);
-        Assert.NotEqual(EngagementAbortReason.RoeHoldFire, result.AbortReason);
-        Assert.Equal(2, magazines.GetRounds(1, 0));
+        Assert.That(result.Launched, Is.False);
+        Assert.That(result.AbortReason, Is.EqualTo(EngagementAbortReason.WeaponsTight));
+        Assert.That(result.AbortReason, Is.Not.EqualTo(EngagementAbortReason.RoeHoldFire));
+        Assert.That(magazines.GetRounds(1, 0), Is.EqualTo(2));
     }
 
     /// <summary>Wave 2 adversarial: WRA exact max allows launch on resolver path.</summary>
-    [Fact]
+    [Test]
     public void Wra_salvo_exact_max_allows_launch()
     {
         var world = new DictionaryEngageWorldQuery();
@@ -119,11 +119,11 @@ public sealed class MvpEngagementResolverTests
         world.Set(request, new EngageContext(50_000, new WeaponEnvelope(1_000, 100_000), 4, true, SalvoSize: 2));
 
         var result = resolver.Resolve(request);
-        Assert.True(result.Launched);
+        Assert.That(result.Launched, Is.True);
     }
 
     /// <summary>Wave 2 adversarial: MountOffline via full resolver + no magazine consume (doc 18 AC-2).</summary>
-    [Fact]
+    [Test]
     public void Resolve_MountOnline_false_aborts_MountOffline_does_not_consume_magazine()
     {
         var world = new DictionaryEngageWorldQuery();
@@ -140,13 +140,13 @@ public sealed class MvpEngagementResolverTests
         var resolver = new MvpEngagementResolver(world, magazines);
         var result = resolver.Resolve(request);
 
-        Assert.False(result.Launched);
-        Assert.Equal(EngagementAbortReason.MountOffline, result.AbortReason);
-        Assert.Equal(4, magazines.GetRounds(1, 0));
+        Assert.That(result.Launched, Is.False);
+        Assert.That(result.AbortReason, Is.EqualTo(EngagementAbortReason.MountOffline));
+        Assert.That(magazines.GetRounds(1, 0), Is.EqualTo(4));
     }
 
     /// <summary>Wave 2 adversarial: ASW unidentified contact aborts DomainNoSolution (doc 18 AC-3).</summary>
-    [Fact]
+    [Test]
     public void Resolve_subsurface_ContactIdentified_false_aborts_DomainNoSolution()
     {
         var world = new DictionaryEngageWorldQuery();
@@ -165,12 +165,12 @@ public sealed class MvpEngagementResolverTests
         var resolver = new MvpEngagementResolver(world, magazines, combatDomainsEnabled: true);
         var result = resolver.Resolve(request);
 
-        Assert.False(result.Launched);
-        Assert.Equal(EngagementAbortReason.DomainNoSolution, result.AbortReason);
-        Assert.Equal(2, magazines.GetRounds(1, 0));
+        Assert.That(result.Launched, Is.False);
+        Assert.That(result.AbortReason, Is.EqualTo(EngagementAbortReason.DomainNoSolution));
+        Assert.That(magazines.GetRounds(1, 0), Is.EqualTo(2));
     }
 
-    [Fact]
+    [Test]
     public void Resolver_resolve_policy_denies_hold_fire_even_when_evaluator_default_allows()
     {
         var world = new DictionaryEngageWorldQuery();
@@ -191,11 +191,11 @@ public sealed class MvpEngagementResolverTests
 
         var result = resolver.Resolve(request);
 
-        Assert.False(result.Launched);
-        Assert.Equal(EngagementAbortReason.RoeHoldFire, result.AbortReason);
+        Assert.That(result.Launched, Is.False);
+        Assert.That(result.AbortReason, Is.EqualTo(EngagementAbortReason.RoeHoldFire));
     }
 
-    [Fact]
+    [Test]
     public void Dlz_out_aborts_when_approaching_edge()
     {
         var world = new DictionaryEngageWorldQuery();
@@ -204,10 +204,10 @@ public sealed class MvpEngagementResolverTests
         world.Set(request, new EngageContext(90_000, new WeaponEnvelope(1_000, 100_000), 5, true));
 
         var result = resolver.Resolve(request);
-        Assert.Equal(EngagementAbortReason.DlzOut, result.AbortReason);
+        Assert.That(result.AbortReason, Is.EqualTo(EngagementAbortReason.DlzOut));
     }
 
-    [Fact]
+    [Test]
     public void Killed_target_aborts_before_launch()
     {
         var world = new DictionaryEngageWorldQuery();
@@ -218,7 +218,7 @@ public sealed class MvpEngagementResolverTests
         world.Set(request, new EngageContext(50_000, new WeaponEnvelope(1_000, 100_000), 2, true));
 
         var result = resolver.Resolve(request);
-        Assert.Equal(EngagementAbortReason.TargetDestroyed, result.AbortReason);
+        Assert.That(result.AbortReason, Is.EqualTo(EngagementAbortReason.TargetDestroyed));
     }
 
     /// <summary>
@@ -235,7 +235,7 @@ public sealed class MvpEngagementResolverTests
     /// launches, because the only IsKilled check in Resolve is keyed off TargetId, not
     /// ShooterUnitId.
     /// </summary>
-    [Fact]
+    [Test]
     public void Killed_shooter_aborts_before_launch()
     {
         var world = new DictionaryEngageWorldQuery();
@@ -249,8 +249,8 @@ public sealed class MvpEngagementResolverTests
 
         var result = resolver.Resolve(request);
 
-        Assert.False(result.Launched, "a shooter already marked killed must not be allowed to launch a new engagement");
-        Assert.Equal(EngagementAbortReason.ShooterDestroyed, result.AbortReason);
-        Assert.Equal(2, magazines.GetRounds(1, 0)); // dead shooter must not burn rounds
+        Assert.That(result.Launched, Is.False, "a shooter already marked killed must not be allowed to launch a new engagement");
+        Assert.That(result.AbortReason, Is.EqualTo(EngagementAbortReason.ShooterDestroyed));
+        Assert.That(magazines.GetRounds(1, 0), Is.EqualTo(2)); // dead shooter must not burn rounds
     }
 }

@@ -1,13 +1,13 @@
 using ProjectAegis.Sim.Core;
 using ProjectAegis.Sim.Scenario;
 using ProjectAegis.Sim.Sensors;
-using Xunit;
+using NUnit.Framework;
 
 namespace ProjectAegis.Sim.Tests.Sensors;
 
 public sealed class PdDetectionContactSimulatorTests
 {
-    [Fact]
+    [Test]
     public void Constructor_preserves_roll_order_with_pre_sorted_trials()
     {
         var trials = new[]
@@ -24,15 +24,15 @@ public sealed class PdDetectionContactSimulatorTests
         sim.Tick(3, 3.0);
         sim.Tick(3, 3.0);
 
-        Assert.Equal(a.Count, b.Count);
+        Assert.That(b.Count, Is.EqualTo(a.Count));
         for (var i = 0; i < a.Count; i++)
         {
-            Assert.Equal(a[i].Trial.TargetId, b[i].Trial.TargetId);
-            Assert.Equal(a[i].Draw, b[i].Draw);
+            Assert.That(b[i].Trial.TargetId, Is.EqualTo(a[i].Trial.TargetId));
+            Assert.That(b[i].Draw, Is.EqualTo(a[i].Draw));
         }
     }
 
-    [Fact]
+    [Test]
     public void Two_runs_emit_identical_contact_transition_ordering()
     {
         var trials = new[]
@@ -45,17 +45,17 @@ public sealed class PdDetectionContactSimulatorTests
         var first = RunTransitions(seed, trials, ticks: 4);
         var second = RunTransitions(seed, trials, ticks: 4);
 
-        Assert.Equal(first.Count, second.Count);
+        Assert.That(second.Count, Is.EqualTo(first.Count));
         for (var i = 0; i < first.Count; i++)
         {
-            Assert.Equal(first[i].ContactId, second[i].ContactId);
-            Assert.Equal(first[i].PreviousState, second[i].PreviousState);
-            Assert.Equal(first[i].NewState, second[i].NewState);
-            Assert.Equal(first[i].SimTick, second[i].SimTick);
+            Assert.That(second[i].ContactId, Is.EqualTo(first[i].ContactId));
+            Assert.That(second[i].PreviousState, Is.EqualTo(first[i].PreviousState));
+            Assert.That(second[i].NewState, Is.EqualTo(first[i].NewState));
+            Assert.That(second[i].SimTick, Is.EqualTo(first[i].SimTick));
         }
     }
 
-    [Fact]
+    [Test]
     public void Primary_target_tracks_blue_force_for_red_side_engage()
     {
         var trials = new[]
@@ -65,11 +65,11 @@ public sealed class PdDetectionContactSimulatorTests
         };
         var sim = new PdDetectionContactSimulator(SimSeed.FromScenario(42), trials);
         sim.Tick(1, 1.0);
-        Assert.Equal("u1", sim.PrimaryBlueForceTargetId);
-        Assert.Equal("hostile-1", sim.PrimaryTargetId);
+        Assert.That(sim.PrimaryBlueForceTargetId, Is.EqualTo("u1"));
+        Assert.That(sim.PrimaryTargetId, Is.EqualTo("hostile-1"));
     }
 
-    [Fact]
+    [Test]
     public void Primary_target_ignores_non_hostile_detections()
     {
         var trials = new[]
@@ -79,10 +79,10 @@ public sealed class PdDetectionContactSimulatorTests
         };
         var sim = new PdDetectionContactSimulator(SimSeed.FromScenario(42), trials);
         sim.Tick(1, 1.0);
-        Assert.Equal("hostile-1", sim.PrimaryTargetId);
+        Assert.That(sim.PrimaryTargetId, Is.EqualTo("hostile-1"));
         sim.ApplyTargetKill(2, 2.0, "hostile-1");
 
-        Assert.Null(sim.PrimaryTargetId);
+        Assert.That(sim.PrimaryTargetId, Is.Null);
     }
 
     private static List<ContactTransition> RunTransitions(

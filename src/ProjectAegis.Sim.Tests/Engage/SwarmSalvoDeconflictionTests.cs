@@ -1,11 +1,11 @@
 using ProjectAegis.Sim.Engage;
-using Xunit;
+using NUnit.Framework;
 
 namespace ProjectAegis.Sim.Tests.Engage;
 
 public sealed class SwarmSalvoDeconflictionTests
 {
-    [Fact]
+    [Test]
     public void Allocate_keeps_one_shooter_per_target_deterministically()
     {
         var requests = new[]
@@ -17,13 +17,13 @@ public sealed class SwarmSalvoDeconflictionTests
 
         var allocated = SwarmSalvoDeconfliction.Allocate(requests);
 
-        Assert.Equal(2, allocated.Count);
-        Assert.Equal((1ul, 100ul), (allocated[0].ShooterUnitId, allocated[0].TargetId));
-        Assert.Equal((3ul, 200ul), (allocated[1].ShooterUnitId, allocated[1].TargetId));
+        Assert.That(allocated.Count, Is.EqualTo(2));
+        Assert.That((allocated[0].ShooterUnitId, allocated[0].TargetId), Is.EqualTo((1ul, 100ul)));
+        Assert.That((allocated[1].ShooterUnitId, allocated[1].TargetId), Is.EqualTo((3ul, 200ul)));
     }
 
     /// <summary>Wave 2 adversarial: multi-way contention + reverse-input determinism (doc 14 ENG-06).</summary>
-    [Fact]
+    [Test]
     public void Allocate_three_way_same_target_is_deterministic_under_reverse_input()
     {
         var requests = new[]
@@ -39,15 +39,15 @@ public sealed class SwarmSalvoDeconflictionTests
         var a = SwarmSalvoDeconfliction.Allocate(requests);
         var b = SwarmSalvoDeconfliction.Allocate(requests.Reverse().ToArray());
 
-        Assert.Equal(3, a.Count);
-        Assert.Contains(a, s => s is { ShooterUnitId: 10, TargetId: 500 });
-        Assert.DoesNotContain(a, s => s.TargetId == 500 && s.ShooterUnitId is 20 or 30);
-        Assert.Contains(a, s => s is { ShooterUnitId: 5, TargetId: 700, WeaponId: 3 });
-        Assert.DoesNotContain(a, s => s is { TargetId: 700, WeaponId: 8 });
-        Assert.Contains(a, s => s is { ShooterUnitId: 99, TargetId: 800 });
+        Assert.That(a.Count, Is.EqualTo(3));
+        Assert.That(a.Any(s => s is { ShooterUnitId: 10, TargetId: 500 }), Is.True);
+        Assert.That(a.Any(s => s.TargetId == 500 && s.ShooterUnitId is 20 or 30), Is.False);
+        Assert.That(a.Any(s => s is { ShooterUnitId: 5, TargetId: 700, WeaponId: 3 }), Is.True);
+        Assert.That(a.Any(s => s is { TargetId: 700, WeaponId: 8 }), Is.False);
+        Assert.That(a.Any(s => s is { ShooterUnitId: 99, TargetId: 800 }), Is.True);
 
-        Assert.Equal(
-            a.Select(s => (s.ShooterUnitId, s.TargetId, s.WeaponId)).ToArray(),
-            b.Select(s => (s.ShooterUnitId, s.TargetId, s.WeaponId)).ToArray());
+        Assert.That(
+            b.Select(s => (s.ShooterUnitId, s.TargetId, s.WeaponId)).ToArray(),
+            Is.EqualTo(a.Select(s => (s.ShooterUnitId, s.TargetId, s.WeaponId)).ToArray()));
     }
 }
