@@ -221,6 +221,7 @@ Index refreshed **2026-11-16** (DRG-771 Lane A / CMA-28 docs-sync). Status value
 | [ADR-028](adr-028-content-pipeline-addressables.md) | H5 content pipeline — Addressables (local) | **Accepted** |
 | [ADR-029](adr-029-h6-save-resume.md) | H6 save/resume vs DelegationBridge / SimulationSession | **Accepted** |
 | [ADR-030](adr-030-ai-host-boundary.md) | AI host boundary — assemblies, egress, envelope | **Accepted** |
+| [ADR-031](adr-031-one-ci-system-github-actions-hosted.md) | One CI system: GitHub Actions hosted; Buildkite retired after parity | **Proposed** |
 | [SimulationSession frozen hub](adr-simulation-session-frozen-hub-spirit1-2026-06-20.md) | SimulationSession frozen-hub addendum (Spirit 1) | Addendum |
 
 ## Engine Note
