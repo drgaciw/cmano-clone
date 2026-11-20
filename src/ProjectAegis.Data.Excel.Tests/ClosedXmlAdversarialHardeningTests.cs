@@ -2,7 +2,7 @@ using ClosedXML.Excel;
 using ProjectAegis.Data.Catalog;
 using ProjectAegis.Data.Platform;
 using ProjectAegis.Data.WriteGate;
-using Xunit;
+using NUnit.Framework;
 
 namespace ProjectAegis.Data.Excel.Tests;
 
@@ -73,7 +73,7 @@ public sealed class ClosedXmlAdversarialHardeningTests
     // 1. Catalog completeness vs exporter headers
     // -------------------------------------------------------------------------
 
-    [Fact]
+    [Test]
     public void Catalog_covers_all_claimed_exporter_enum_headers_including_emcon()
     {
         var keys = PlatformWorkbookEnumCatalog.Columns
@@ -81,27 +81,35 @@ public sealed class ClosedXmlAdversarialHardeningTests
             .ToHashSet();
 
         var missing = ClaimedEnumHeaders.Where(h => !keys.Contains(h)).ToArray();
-        Assert.True(
-            missing.Length == 0,
+        Assert.That(
+            missing,
+            Is.Empty,
             "Catalog dropped claimed enum headers: "
             + string.Join(", ", missing.Select(m => $"{m.Sheet}.{m.Column}")));
 
         // Explicit Emcon guard — Condition/Posture must never silently disappear
-        Assert.Contains(
+        Assert.That(
             PlatformWorkbookEnumCatalog.Columns,
-            c => c.SheetName == PlatformEmconEnums.EmconSheetName
-                 && c.ColumnName == PlatformEmconEnums.ConditionColumn);
-        Assert.Contains(
+            Has.Some.Matches<PlatformWorkbookEnumCatalog.EnumColumn>(
+                c => c is not null
+                     && c.SheetName == PlatformEmconEnums.EmconSheetName
+                     && c.ColumnName == PlatformEmconEnums.ConditionColumn));
+        Assert.That(
             PlatformWorkbookEnumCatalog.Columns,
-            c => c.SheetName == PlatformEmconEnums.EmconSheetName
-                 && c.ColumnName == PlatformEmconEnums.PostureColumn);
+            Has.Some.Matches<PlatformWorkbookEnumCatalog.EnumColumn>(
+                c => c is not null
+                     && c.SheetName == PlatformEmconEnums.EmconSheetName
+                     && c.ColumnName == PlatformEmconEnums.PostureColumn));
 
         // Whitelist entries must not accidentally be cataloged as enums
         foreach (var excluded in IntentionallyExcludedEnumishHeaders)
         {
-            Assert.DoesNotContain(
+            Assert.That(
                 PlatformWorkbookEnumCatalog.Columns,
-                c => c.SheetName == excluded.Sheet && c.ColumnName == excluded.Column);
+                Has.None.Matches<PlatformWorkbookEnumCatalog.EnumColumn>(
+                    c => c is not null
+                         && c.SheetName == excluded.Sheet
+                         && c.ColumnName == excluded.Column));
         }
     }
 
@@ -109,7 +117,7 @@ public sealed class ClosedXmlAdversarialHardeningTests
     // 2. Duplicate EnumColumn keys + deterministic ordering
     // -------------------------------------------------------------------------
 
-    [Fact]
+    [Test]
     public void Catalog_has_no_duplicate_sheet_column_keys_and_stable_ordering()
     {
         var keys = PlatformWorkbookEnumCatalog.Columns
@@ -117,7 +125,7 @@ public sealed class ClosedXmlAdversarialHardeningTests
             .ToArray();
 
         var distinct = keys.Distinct().ToArray();
-        Assert.Equal(keys.Length, distinct.Length);
+        Assert.That(distinct.Length, Is.EqualTo(keys.Length));
 
         // Deterministic: sorted by SheetName then ColumnName (ordinal) — either already sorted
         // or equal to a stable sort of itself (catalog may use intentional sheet grouping order).
@@ -138,11 +146,11 @@ public sealed class ClosedXmlAdversarialHardeningTests
                 .Where(c => string.Equals(c.SheetName, sheet, StringComparison.Ordinal))
                 .Select(c => c.ColumnName)
                 .ToArray();
-            Assert.Equal(fromColumns, fromForSheet);
+            Assert.That(fromForSheet, Is.EqualTo(fromColumns));
         }
 
         // Hard invariant used by export: sorted uniqueness of (Sheet, Column)
-        Assert.Equal(sorted.Length, sorted.Distinct().Count());
+        Assert.That(sorted.Distinct().Count(), Is.EqualTo(sorted.Length));
         _ = sorted; // silence if unused under analyzers
     }
 
@@ -150,43 +158,46 @@ public sealed class ClosedXmlAdversarialHardeningTests
     // 3. ToExcelList edge cases — commas / quotes break Excel list formula
     // -------------------------------------------------------------------------
 
-    [Fact]
+    [Test]
     public void Catalog_allowed_values_are_clean_excel_list_tokens()
     {
         foreach (var col in PlatformWorkbookEnumCatalog.Columns)
         {
-            Assert.NotEmpty(col.AllowedValues);
+            Assert.That(col.AllowedValues, Is.Not.Empty);
             foreach (var value in col.AllowedValues)
             {
-                Assert.False(string.IsNullOrWhiteSpace(value), $"{col.SheetName}.{col.ColumnName}: empty token");
-                Assert.DoesNotContain(',', value);
-                Assert.DoesNotContain('"', value);
-                Assert.DoesNotContain('\n', value);
-                Assert.DoesNotContain('\r', value);
+                Assert.That(
+                    string.IsNullOrWhiteSpace(value),
+                    Is.False,
+                    $"{col.SheetName}.{col.ColumnName}: empty token");
+                Assert.That(value, Does.Not.Contain(","));
+                Assert.That(value, Does.Not.Contain("\""));
+                Assert.That(value, Does.Not.Contain("\n"));
+                Assert.That(value, Does.Not.Contain("\r"));
             }
         }
     }
 
-    [Fact]
+    [Test]
     public void ToExcelList_rejects_values_containing_commas()
     {
         var ex = Assert.Throws<ArgumentException>(() =>
             PlatformWorkbookEnumCatalog.ToExcelList(["silent", "a,b", "free"]));
-        Assert.Contains("comma", ex.Message, StringComparison.OrdinalIgnoreCase);
+        Assert.That(ex!.Message.Contains("comma", StringComparison.OrdinalIgnoreCase), Is.True);
     }
 
-    [Fact]
+    [Test]
     public void ToExcelList_formats_clean_tokens_as_quoted_csv_list()
     {
         var formula = PlatformWorkbookEnumCatalog.ToExcelList(["silent", "restricted", "free"]);
-        Assert.Equal("\"silent,restricted,free\"", formula);
+        Assert.That(formula, Is.EqualTo("\"silent,restricted,free\""));
     }
 
     // -------------------------------------------------------------------------
     // 4. Missing column on sheet — no throw; empty sheets export
     // -------------------------------------------------------------------------
 
-    [Fact]
+    [Test]
     public void Missing_enum_column_on_sheet_is_noop_and_empty_sheets_export()
     {
         // Sensors registered for ReviewState but sheet only has PlatformId → no-op validation
@@ -202,21 +213,22 @@ public sealed class ClosedXmlAdversarialHardeningTests
         try
         {
             var io = new ClosedXmlPlatformWorkbookIo();
-            var ex = Record.Exception(() => io.Write(partial, path));
-            Assert.Null(ex);
+            Assert.That(() => io.Write(partial, path), Throws.Nothing);
 
             using var wb = new XLWorkbook(path);
             var sensors = wb.Worksheet("Sensors");
             // PlatformId column has no list validation from enum catalog
             var dv = sensors.Cell(2, 1).GetDataValidation();
-            Assert.True(
+            Assert.That(
                 dv is null || dv.AllowedValues != XLAllowedValues.List,
+                Is.True,
                 "missing enum headers must not invent list validation on other columns");
 
             var emcon = wb.Worksheet("Emcon");
-            Assert.True(
+            Assert.That(
                 emcon.Cell(2, 1).GetDataValidation() is null
-                || emcon.Cell(2, 1).GetDataValidation()!.AllowedValues != XLAllowedValues.List);
+                || emcon.Cell(2, 1).GetDataValidation()!.AllowedValues != XLAllowedValues.List,
+                Is.True);
         }
         finally
         {
@@ -228,7 +240,7 @@ public sealed class ClosedXmlAdversarialHardeningTests
     // 5. Protection residual honesty + re-read after Write
     // -------------------------------------------------------------------------
 
-    [Fact]
+    [Test]
     public void Protection_residual_honesty_pk_locked_non_pk_unlocked_meta_and_reread()
     {
         var workbook = ExportPhaseB();
@@ -241,31 +253,31 @@ public sealed class ClosedXmlAdversarialHardeningTests
             using (var wb = new XLWorkbook(path))
             {
                 var meta = wb.Worksheet(PlatformWorkbookHash.MetaSheetName);
-                Assert.True(meta.IsProtected);
-                Assert.True(meta.Cell(1, 1).Style.Protection.Locked);
-                Assert.True(meta.Cell(2, 2).Style.Protection.Locked);
+                Assert.That(meta.IsProtected, Is.True);
+                Assert.That(meta.Cell(1, 1).Style.Protection.Locked, Is.True);
+                Assert.That(meta.Cell(2, 2).Style.Protection.Locked, Is.True);
 
                 var mounts = wb.Worksheet("Mounts");
-                Assert.True(mounts.IsProtected);
+                Assert.That(mounts.IsProtected, Is.True);
                 var platformIdCol = ColumnIndex(mounts, "PlatformId");
                 var mountTypeCol = ColumnIndex(mounts, "MountType");
-                Assert.True(mounts.Cell(2, platformIdCol).Style.Protection.Locked);
-                Assert.False(
+                Assert.That(mounts.Cell(2, platformIdCol).Style.Protection.Locked, Is.True);
+                Assert.That(
                     mounts.Cell(2, mountTypeCol).Style.Protection.Locked,
+                    Is.False,
                     "OQ5 residual: non-PK cells remain unlocked under soft protect");
 
                 // Sheet without enum-only headers still protects PK (Mobility.PlatformId)
                 var mobility = wb.Worksheet("Mobility");
-                Assert.True(mobility.IsProtected);
-                Assert.True(mobility.Cell(2, ColumnIndex(mobility, "PlatformId")).Style.Protection.Locked);
-                Assert.False(mobility.Cell(2, ColumnIndex(mobility, "MaxSpeedKnots")).Style.Protection.Locked);
+                Assert.That(mobility.IsProtected, Is.True);
+                Assert.That(mobility.Cell(2, ColumnIndex(mobility, "PlatformId")).Style.Protection.Locked, Is.True);
+                Assert.That(mobility.Cell(2, ColumnIndex(mobility, "MaxSpeedKnots")).Style.Protection.Locked, Is.False);
             }
 
             // Re-read via product Read() must not throw (ClosedXML ignores protection by design)
-            var rereadEx = Record.Exception(() => io.Read(path));
-            Assert.Null(rereadEx);
+            Assert.That(() => io.Read(path), Throws.Nothing);
             var round = io.Read(path);
-            Assert.NotEmpty(round.Sheets);
+            Assert.That(round.Sheets, Is.Not.Empty);
         }
         finally
         {
@@ -277,7 +289,7 @@ public sealed class ClosedXmlAdversarialHardeningTests
     // 6. Round-trip integrity under protection
     // -------------------------------------------------------------------------
 
-    [Fact]
+    [Test]
     public void Round_trip_preserves_sheet_names_and_row_counts_under_protection()
     {
         var original = ExportPhaseB();
@@ -288,19 +300,23 @@ public sealed class ClosedXmlAdversarialHardeningTests
             io.Write(original, path);
             var round = io.Read(path);
 
-            Assert.Equal(
-                original.Sheets.Select(s => s.Name).OrderBy(n => n, StringComparer.Ordinal),
-                round.Sheets.Select(s => s.Name).OrderBy(n => n, StringComparer.Ordinal));
+            Assert.That(
+                round.Sheets.Select(s => s.Name).OrderBy(n => n, StringComparer.Ordinal).ToArray(),
+                Is.EqualTo(original.Sheets.Select(s => s.Name).OrderBy(n => n, StringComparer.Ordinal).ToArray()));
 
             foreach (var src in original.Sheets)
             {
-                var dst = Assert.Single(round.Sheets, s => string.Equals(s.Name, src.Name, StringComparison.Ordinal));
-                Assert.Equal(src.Header.Count, dst.Header.Count);
-                Assert.Equal(src.Rows.Count, dst.Rows.Count);
+                var matches = round.Sheets
+                    .Where(s => string.Equals(s.Name, src.Name, StringComparison.Ordinal))
+                    .ToArray();
+                Assert.That(matches, Has.Length.EqualTo(1));
+                var dst = matches[0];
+                Assert.That(dst.Header.Count, Is.EqualTo(src.Header.Count));
+                Assert.That(dst.Rows.Count, Is.EqualTo(src.Rows.Count));
             }
 
             // Logical empty-diff still holds (protection must not corrupt cell text)
-            Assert.True(PlatformWorkbookDiff.IsEmpty(original, round));
+            Assert.That(PlatformWorkbookDiff.IsEmpty(original, round), Is.True);
         }
         finally
         {
@@ -312,7 +328,7 @@ public sealed class ClosedXmlAdversarialHardeningTests
     // 7. Enum list actually contains fixture values
     // -------------------------------------------------------------------------
 
-    [Fact]
+    [Test]
     public void Exported_fixture_enum_cell_values_are_subset_of_catalog_allowed_lists()
     {
         var workbook = ExportPhaseB();
@@ -351,8 +367,9 @@ public sealed class ClosedXmlAdversarialHardeningTests
                         continue; // blanks allowed (IgnoreBlanks)
                     }
 
-                    Assert.True(
+                    Assert.That(
                         allowed.Contains(cell),
+                        Is.True,
                         $"{entry.SheetName}.{entry.ColumnName} fixture value '{cell}' not in catalog "
                         + $"[{string.Join(",", entry.AllowedValues)}]");
                 }
@@ -368,7 +385,7 @@ public sealed class ClosedXmlAdversarialHardeningTests
     // 8. IgnoreBlanks / error style
     // -------------------------------------------------------------------------
 
-    [Fact]
+    [Test]
     public void List_validation_IgnoreBlanks_true_and_error_style_configured()
     {
         var workbook = ExportPhaseB();
@@ -381,14 +398,15 @@ public sealed class ClosedXmlAdversarialHardeningTests
             var emcon = wb.Worksheet(PlatformEmconEnums.EmconSheetName);
             var conditionCol = ColumnIndex(emcon, PlatformEmconEnums.ConditionColumn);
             var validation = emcon.Cell(2, conditionCol).GetDataValidation();
-            Assert.NotNull(validation);
-            Assert.Equal(XLAllowedValues.List, validation.AllowedValues);
-            Assert.True(validation.IgnoreBlanks, "blank enum cells must not be blocked (IgnoreBlanks=true)");
-            Assert.True(validation.InCellDropdown);
-            Assert.True(
+            Assert.That(validation, Is.Not.Null);
+            Assert.That(validation.AllowedValues, Is.EqualTo(XLAllowedValues.List));
+            Assert.That(validation.IgnoreBlanks, Is.True, "blank enum cells must not be blocked (IgnoreBlanks=true)");
+            Assert.That(validation.InCellDropdown, Is.True);
+            Assert.That(
                 validation.ShowErrorMessage,
+                Is.True,
                 "list validation should surface an error style so invalid picks are visible UX");
-            Assert.Equal(XLErrorStyle.Warning, validation.ErrorStyle);
+            Assert.That(validation.ErrorStyle, Is.EqualTo(XLErrorStyle.Warning));
         }
         finally
         {
@@ -400,19 +418,19 @@ public sealed class ClosedXmlAdversarialHardeningTests
     // 9. Unknown sheets + IsMetaSheet ordinal case-sensitivity
     // -------------------------------------------------------------------------
 
-    [Fact]
+    [Test]
     public void ForSheet_unknown_empty_and_IsMetaSheet_is_ordinal_case_sensitive()
     {
-        Assert.Empty(PlatformWorkbookEnumCatalog.ForSheet("nope"));
-        Assert.Empty(PlatformWorkbookEnumCatalog.ForSheet("EMCON")); // ordinal: not Emcon
-        Assert.Empty(PlatformWorkbookEnumCatalog.ForSheet("emcon"));
+        Assert.That(PlatformWorkbookEnumCatalog.ForSheet("nope"), Is.Empty);
+        Assert.That(PlatformWorkbookEnumCatalog.ForSheet("EMCON"), Is.Empty); // ordinal: not Emcon
+        Assert.That(PlatformWorkbookEnumCatalog.ForSheet("emcon"), Is.Empty);
 
-        Assert.True(PlatformWorkbookEnumCatalog.IsMetaSheet("_Meta"));
+        Assert.That(PlatformWorkbookEnumCatalog.IsMetaSheet("_Meta"), Is.True);
         // Product decision: ordinal equality — lowercase / wrong case is NOT meta
-        Assert.False(PlatformWorkbookEnumCatalog.IsMetaSheet("_meta"));
-        Assert.False(PlatformWorkbookEnumCatalog.IsMetaSheet("_META"));
-        Assert.False(PlatformWorkbookEnumCatalog.IsMetaSheet("Meta"));
-        Assert.False(PlatformWorkbookEnumCatalog.IsMetaSheet(string.Empty));
+        Assert.That(PlatformWorkbookEnumCatalog.IsMetaSheet("_meta"), Is.False);
+        Assert.That(PlatformWorkbookEnumCatalog.IsMetaSheet("_META"), Is.False);
+        Assert.That(PlatformWorkbookEnumCatalog.IsMetaSheet("Meta"), Is.False);
+        Assert.That(PlatformWorkbookEnumCatalog.IsMetaSheet(string.Empty), Is.False);
     }
 
     // -------------------------------------------------------------------------

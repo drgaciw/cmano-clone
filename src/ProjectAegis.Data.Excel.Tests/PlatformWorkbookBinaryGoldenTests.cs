@@ -1,7 +1,7 @@
 using ProjectAegis.Data.Catalog;
 using ProjectAegis.Data.Platform;
 using ProjectAegis.Data.WriteGate;
-using Xunit;
+using NUnit.Framework;
 
 namespace ProjectAegis.Data.Excel.Tests;
 
@@ -18,22 +18,22 @@ public sealed class PlatformWorkbookBinaryGoldenTests
     private const string PhaseBWorkbookHashGolden =
         "85686083ed678653094f7d112ef968330ecd69380a7002775671ad0dda3e7754";
 
-    [Fact]
+    [Test]
     public void Phase_B_binary_round_trip_preserves_workbook_hash_golden()
     {
         var workbook = ExportPhaseB();
-        Assert.Equal(PhaseBWorkbookHashGolden, PlatformWorkbookHash.Compute(workbook));
+        Assert.That(PlatformWorkbookHash.Compute(workbook), Is.EqualTo(PhaseBWorkbookHashGolden));
 
         var path = Path.Combine(Path.GetTempPath(), $"ple-phase-b-golden-{Guid.NewGuid():N}.xlsx");
         try
         {
             var io = new ClosedXmlPlatformWorkbookIo();
             io.Write(workbook, path);
-            Assert.True(IsZipArchive(path), "export must emit a binary .xlsx (ZIP) workbook");
+            Assert.That(IsZipArchive(path), Is.True, "export must emit a binary .xlsx (ZIP) workbook");
 
             var roundTripped = io.Read(path);
-            Assert.Equal(PhaseBWorkbookHashGolden, PlatformWorkbookHash.Compute(roundTripped));
-            Assert.True(PlatformWorkbookDiff.IsEmpty(workbook, roundTripped));
+            Assert.That(PlatformWorkbookHash.Compute(roundTripped), Is.EqualTo(PhaseBWorkbookHashGolden));
+            Assert.That(PlatformWorkbookDiff.IsEmpty(workbook, roundTripped), Is.True);
         }
         finally
         {
@@ -44,7 +44,7 @@ public sealed class PlatformWorkbookBinaryGoldenTests
         }
     }
 
-    [Fact]
+    [Test]
     public void Phase_B_edited_emcon_posture_round_trips_with_deterministic_diff()
     {
         var source = ExportPhaseBData();
@@ -58,18 +58,19 @@ public sealed class PlatformWorkbookBinaryGoldenTests
             io.Write(edited, path);
             var roundTripped = io.Read(path);
 
-            Assert.False(PlatformWorkbookDiff.IsEmpty(original, roundTripped));
+            Assert.That(PlatformWorkbookDiff.IsEmpty(original, roundTripped), Is.False);
 
             var plan = new PlatformWorkbookImporter(
                 id => string.Equals(id, SnapshotId, StringComparison.Ordinal) ? source : null,
                 new FixedCatalogClock(17_003)).Plan(roundTripped);
 
-            Assert.True(plan.SnapshotResolved);
-            Assert.True(plan.HasChanges);
-            var change = Assert.Single(plan.SupportedChanges);
-            Assert.Equal("Emcon", change.Sheet);
-            Assert.Equal(PlatformWorkbookChangeKind.CellChanged, change.Kind);
-            Assert.Contains("standby", change.Detail, StringComparison.OrdinalIgnoreCase);
+            Assert.That(plan.SnapshotResolved, Is.True);
+            Assert.That(plan.HasChanges, Is.True);
+            Assert.That(plan.SupportedChanges, Has.Count.EqualTo(1));
+            var change = plan.SupportedChanges[0];
+            Assert.That(change.Sheet, Is.EqualTo("Emcon"));
+            Assert.That(change.Kind, Is.EqualTo(PlatformWorkbookChangeKind.CellChanged));
+            Assert.That(change.Detail.Contains("standby", StringComparison.OrdinalIgnoreCase), Is.True);
         }
         finally
         {
@@ -80,7 +81,7 @@ public sealed class PlatformWorkbookBinaryGoldenTests
         }
     }
 
-    [Fact]
+    [Test]
     public void Phase_B_unedited_binary_round_trip_yields_empty_diff()
     {
         var original = ExportPhaseB();
@@ -90,7 +91,7 @@ public sealed class PlatformWorkbookBinaryGoldenTests
             var io = new ClosedXmlPlatformWorkbookIo();
             io.Write(original, path);
             var roundTripped = io.Read(path);
-            Assert.True(PlatformWorkbookDiff.IsEmpty(original, roundTripped));
+            Assert.That(PlatformWorkbookDiff.IsEmpty(original, roundTripped), Is.True);
         }
         finally
         {
@@ -130,7 +131,7 @@ public sealed class PlatformWorkbookBinaryGoldenTests
             }
 
             var postureCol = Array.IndexOf(sheet.Header.ToArray(), PlatformEmconEnums.PostureColumn);
-            Assert.True(postureCol >= 0);
+            Assert.That(postureCol, Is.GreaterThanOrEqualTo(0));
 
             var rows = sheet.Rows.Select((row, i) =>
             {
