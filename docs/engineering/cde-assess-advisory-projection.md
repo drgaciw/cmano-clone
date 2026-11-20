@@ -7,7 +7,7 @@ ordered *advisory* collateral-risk picture. It answers *"how much collateral ris
 shooter/target/weapon leg carry, and what assumptions is that estimate standing on?"* — and it is
 **never** an authorization verdict.
 
-It lives in the engine-agnostic `ProjectAegis.Delegation` core (net8.0, no `UnityEngine`), so it runs
+It lives in the engine-agnostic `ProjectAegis.Delegation` core (net11.0, no `UnityEngine`), so it runs
 under plain `dotnet test`. It is a projection-layer building block: as of writing it has **no host or
 bridge consumer yet** — it is exercised only by its own test fixture, awaiting a presentation surface
 (the natural consumer is the [Slice A contact-detail path](c2-presentation-bridges.md), which already

@@ -182,8 +182,8 @@ authoritative pin. There is no bash port of the folder-scaffold or
 
 ### Common pitfalls
 
-- **`netstandard2.1`, never `net8.0`.** Unity 6.3 loads only netstandard2.1 plugins (Player Settings
-  `apiCompatibilityLevel: 6`). Copying `net8.0/bin` output into `Assets/Plugins` will fail to load —
+- **`netstandard2.1`, never the headless `net11.0` output.** Unity 6.3 loads only netstandard2.1 plugins (Player Settings
+  `apiCompatibilityLevel: 6`). Copying `net11.0/bin` output into `Assets/Plugins` will fail to load —
   always let the copy script publish the correct TFM.
 - **Plugins are gitignored → re-copy after every clone and after any .NET change.** A stale or empty
   `Assets/Plugins/ProjectAegis/` is the usual cause of missing-type / compile errors in the Editor;

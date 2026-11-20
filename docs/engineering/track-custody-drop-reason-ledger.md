@@ -7,7 +7,7 @@ if it died, **why**?"*. Its load-bearing promise is that a dropped or broken tra
 silent/empty cause: an operator always sees a named reason (lost sensor / stale / comms denied /
 explicit drop / unknown).
 
-It lives in the engine-agnostic `ProjectAegis.Delegation` core (net8.0, no `UnityEngine`), so it runs
+It lives in the engine-agnostic `ProjectAegis.Delegation` core (net11.0, no `UnityEngine`), so it runs
 under plain `dotnet test`. It is a projection-layer building block: as of writing it has **no host or
 bridge consumer yet** — it is exercised only by its own test fixture, awaiting a presentation surface
 (the natural consumer is a C2 contact-detail panel behind the read-only presentation seam in
