@@ -1,11 +1,12 @@
 using ProjectAegis.Ai.Contracts;
-using Xunit;
+using NUnit.Framework;
 
 namespace ProjectAegis.Ai.Host.Tests;
 
+[TestFixture]
 public sealed class AtomicArtifactStoreTests
 {
-    [Fact]
+    [Test]
     public async Task Publish_writes_envelope_atomically()
     {
         var root = CreateTempRoot();
@@ -16,14 +17,11 @@ public sealed class AtomicArtifactStoreTests
 
             await store.PublishAsync("artifact.json", envelope);
 
-            Assert.True(store.Exists("artifact.json"));
-            Assert.Empty(Directory.GetFiles(root, "*.tmp"));
+            Assert.That(store.Exists("artifact.json"), Is.True);
+            Assert.That(Directory.GetFiles(root, "*.tmp"), Is.Empty);
             var text = await File.ReadAllTextAsync(Path.Combine(root, "artifact.json"));
-            Assert.Contains(
-                "\"schemaVersion\":" + AiContractSchema.Version.ToString(System.Globalization.CultureInfo.InvariantCulture),
-                text,
-                StringComparison.Ordinal);
-            Assert.Contains("\"providerId\":\"fake\"", text, StringComparison.Ordinal);
+            Assert.That(text, Does.Contain("\"schemaVersion\":" + AiContractSchema.Version.ToString(System.Globalization.CultureInfo.InvariantCulture)));
+            Assert.That(text, Does.Contain("\"providerId\":\"fake\""));
         }
         finally
         {
@@ -31,7 +29,7 @@ public sealed class AtomicArtifactStoreTests
         }
     }
 
-    [Fact]
+    [Test]
     public async Task Cancellation_mid_write_leaves_no_published_artifact_and_rerun_succeeds()
     {
         var root = CreateTempRoot();
@@ -42,15 +40,15 @@ public sealed class AtomicArtifactStoreTests
             using var cts = new CancellationTokenSource();
             cts.Cancel();
 
-            await Assert.ThrowsAnyAsync<OperationCanceledException>(() =>
+            await Assert.CatchAsync<OperationCanceledException>(() =>
                 store.PublishAsync("artifact.json", envelope, cts.Token));
 
-            Assert.False(store.Exists("artifact.json"));
-            Assert.Empty(Directory.GetFiles(root, "*.tmp", SearchOption.AllDirectories));
+            Assert.That(store.Exists("artifact.json"), Is.False);
+            Assert.That(Directory.GetFiles(root, "*.tmp", SearchOption.AllDirectories), Is.Empty);
 
             var retry = SampleEnvelope(GenerationStatus.Succeeded);
             await store.PublishAsync("artifact.json", retry);
-            Assert.True(store.Exists("artifact.json"));
+            Assert.That(store.Exists("artifact.json"), Is.True);
         }
         finally
         {
@@ -58,7 +56,7 @@ public sealed class AtomicArtifactStoreTests
         }
     }
 
-    [Fact]
+    [Test]
     public async Task Oversized_payload_does_not_publish()
     {
         var root = CreateTempRoot();
@@ -70,7 +68,7 @@ public sealed class AtomicArtifactStoreTests
             await Assert.ThrowsAsync<InvalidOperationException>(() =>
                 store.PublishAsync("artifact.json", envelope));
 
-            Assert.False(store.Exists("artifact.json"));
+            Assert.That(store.Exists("artifact.json"), Is.False);
         }
         finally
         {

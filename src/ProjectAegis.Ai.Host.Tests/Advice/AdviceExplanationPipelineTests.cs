@@ -1,13 +1,14 @@
 using Microsoft.Extensions.AI;
 using ProjectAegis.Ai.Contracts;
 using ProjectAegis.Ai.Host.Advice;
-using Xunit;
+using NUnit.Framework;
 
 namespace ProjectAegis.Ai.Host.Tests.Advice;
 
+[TestFixture]
 public sealed class AdviceExplanationPipelineTests
 {
-    [Fact]
+    [Test]
     public async Task Late_response_is_discarded_when_invocation_key_changes()
     {
         var facts = SampleFacts();
@@ -33,20 +34,20 @@ public sealed class AdviceExplanationPipelineTests
 
         var result = await pipeline.RunAsync(request);
 
-        Assert.True(result.DiscardedAsStale);
-        Assert.Equal(GenerationStatus.Cancelled, result.Status);
-        Assert.Equal("stale-discarded", result.SkipReason);
-        Assert.Null(result.Content);
-        Assert.Null(result.Envelope);
+        Assert.That(result.DiscardedAsStale, Is.True);
+        Assert.That(result.Status, Is.EqualTo(GenerationStatus.Cancelled));
+        Assert.That(result.SkipReason, Is.EqualTo("stale-discarded"));
+        Assert.That(result.Content, Is.Null);
+        Assert.That(result.Envelope, Is.Null);
         // Always read Transport/PromptVersion/ProviderId/ModelId so NotAccessedPositionalProperty stays clear.
-        Assert.Null(result.Transport);
-        Assert.False(string.IsNullOrWhiteSpace(result.PromptVersion));
-        Assert.False(string.IsNullOrWhiteSpace(result.ProviderId));
-        Assert.False(string.IsNullOrWhiteSpace(result.ModelId));
+        Assert.That(result.Transport, Is.Null);
+        Assert.That(string.IsNullOrWhiteSpace(result.PromptVersion), Is.False);
+        Assert.That(string.IsNullOrWhiteSpace(result.ProviderId), Is.False);
+        Assert.That(string.IsNullOrWhiteSpace(result.ModelId), Is.False);
         scripted.Dispose();
     }
 
-    [Fact]
+    [Test]
     public async Task Late_response_is_discarded_when_evidence_fingerprint_changes()
     {
         var facts = SampleFacts();
@@ -65,12 +66,12 @@ public sealed class AdviceExplanationPipelineTests
                 InvocationKey: "c2.advice.resource.recommend:2:3:hostile-1",
                 EvidenceFingerprint: "sha256:changed")));
 
-        Assert.True(result.DiscardedAsStale);
-        Assert.Equal("stale-discarded", result.SkipReason);
+        Assert.That(result.DiscardedAsStale, Is.True);
+        Assert.That(result.SkipReason, Is.EqualTo("stale-discarded"));
         scripted.Dispose();
     }
 
-    [Fact]
+    [Test]
     public async Task Hidden_side_facts_never_enter_prompt_or_published_explanation()
     {
         var facts = SampleFacts(sideTagged:
@@ -102,20 +103,20 @@ public sealed class AdviceExplanationPipelineTests
                 Facts: facts,
                 BuildIdentity: "test-build"));
 
-            Assert.Equal(GenerationStatus.Succeeded, result.Status);
-            Assert.NotNull(result.Content);
-            Assert.Contains("blue-visible-track", string.Join('\n', captured), StringComparison.Ordinal);
-            Assert.DoesNotContain("RED-SECRET-INTENT-TOKEN", string.Join('\n', captured), StringComparison.Ordinal);
-            Assert.DoesNotContain("RED-SECRET-INTENT-TOKEN", result.Content!.Explanation, StringComparison.Ordinal);
-            Assert.Contains("blue-track", result.Content.CitedFactKeys);
-            Assert.DoesNotContain("red-intent", result.Content.CitedFactKeys);
-            Assert.Contains(facts.SideTaggedFacts, f => f.OwningSide == ViewingSide.Red && f.Key == "red-intent");
-            Assert.Contains(facts.SideTaggedFacts, f => f.OwningSide == ViewingSide.Blue && f.Key == "blue-track");
-            Assert.NotNull(result.Transport);
-            Assert.Equal(result.Envelope, result.Transport!.Envelope);
-            Assert.Equal(AdvicePromptVersion.Current, result.PromptVersion);
-            Assert.Equal("fake", result.ProviderId);
-            Assert.False(string.IsNullOrWhiteSpace(result.ModelId));
+            Assert.That(result.Status, Is.EqualTo(GenerationStatus.Succeeded));
+            Assert.That(result.Content, Is.Not.Null);
+            Assert.That(string.Join('\n', captured), Does.Contain("blue-visible-track"));
+            Assert.That(string.Join('\n', captured), Does.Not.Contain("RED-SECRET-INTENT-TOKEN"));
+            Assert.That(result.Content!.Explanation, Does.Not.Contain("RED-SECRET-INTENT-TOKEN"));
+            Assert.That(result.Content.CitedFactKeys, Does.Contain("blue-track"));
+            Assert.That(result.Content.CitedFactKeys, Does.Not.Contain("red-intent"));
+            Assert.That(facts.SideTaggedFacts.Any(f => f.OwningSide == ViewingSide.Red && f.Key == "red-intent"), Is.True);
+            Assert.That(facts.SideTaggedFacts.Any(f => f.OwningSide == ViewingSide.Blue && f.Key == "blue-track"), Is.True);
+            Assert.That(result.Transport, Is.Not.Null);
+            Assert.That(result.Transport!.Envelope, Is.EqualTo(result.Envelope));
+            Assert.That(result.PromptVersion, Is.EqualTo(AdvicePromptVersion.Current));
+            Assert.That(result.ProviderId, Is.EqualTo("fake"));
+            Assert.That(string.IsNullOrWhiteSpace(result.ModelId), Is.False);
         }
         finally
         {
@@ -124,7 +125,7 @@ public sealed class AdviceExplanationPipelineTests
         }
     }
 
-    [Fact]
+    [Test]
     public async Task Hidden_side_leak_in_model_prose_is_rejected()
     {
         var facts = SampleFacts(sideTagged:
@@ -145,13 +146,13 @@ public sealed class AdviceExplanationPipelineTests
             Facts: facts,
             BuildIdentity: "test-build"));
 
-        Assert.Equal(GenerationStatus.RejectedCitation, result.Status);
-        Assert.Equal("hidden-side-leak", result.SkipReason);
-        Assert.Null(result.Content);
+        Assert.That(result.Status, Is.EqualTo(GenerationStatus.RejectedCitation));
+        Assert.That(result.SkipReason, Is.EqualTo("hidden-side-leak"));
+        Assert.That(result.Content, Is.Null);
         scripted.Dispose();
     }
 
-    [Fact]
+    [Test]
     public async Task Authoritative_fingerprint_matches_with_explanations_on_and_off()
     {
         var facts = SampleFacts();
@@ -171,15 +172,15 @@ public sealed class AdviceExplanationPipelineTests
                 Facts: facts,
                 BuildIdentity: "test-build"));
 
-            Assert.Equal(GenerationStatus.Succeeded, onResult.Status);
-            Assert.NotNull(onResult.Envelope);
-            Assert.True(store.Exists("advice-explain.envelope.json"));
+            Assert.That(onResult.Status, Is.EqualTo(GenerationStatus.Succeeded));
+            Assert.That(onResult.Envelope, Is.Not.Null);
+            Assert.That(store.Exists("advice-explain.envelope.json"), Is.True);
 
             var onFingerprint = AdviceExplanationPipeline.FingerprintAuthoritativeFacts(facts);
-            Assert.Equal(offFingerprint, onFingerprint);
-            Assert.Equal(offFingerprint, onResult.Content!.EvidenceFingerprint);
+            Assert.That(onFingerprint, Is.EqualTo(offFingerprint));
+            Assert.That(onResult.Content!.EvidenceFingerprint, Is.EqualTo(offFingerprint));
             // Order-log / authority fingerprint on the envelope is the scenario order log, not advice prose.
-            Assert.Equal("n/a", onResult.Envelope!.OrderLogFingerprint);
+            Assert.That(onResult.Envelope!.OrderLogFingerprint, Is.EqualTo("n/a"));
         }
         finally
         {
@@ -188,7 +189,7 @@ public sealed class AdviceExplanationPipelineTests
         }
     }
 
-    [Fact]
+    [Test]
     public async Task Disabled_path_preserves_authoritative_fingerprint_without_publish()
     {
         var facts = SampleFacts();
@@ -203,9 +204,9 @@ public sealed class AdviceExplanationPipelineTests
             BuildIdentity: "test-build",
             Enabled: false));
 
-        Assert.Equal(GenerationStatus.ProviderUnavailable, result.Status);
-        Assert.Equal("disabled", result.SkipReason);
-        Assert.Equal(fingerprint, AdviceExplanationPipeline.FingerprintAuthoritativeFacts(facts));
+        Assert.That(result.Status, Is.EqualTo(GenerationStatus.ProviderUnavailable));
+        Assert.That(result.SkipReason, Is.EqualTo("disabled"));
+        Assert.That(AdviceExplanationPipeline.FingerprintAuthoritativeFacts(facts), Is.EqualTo(fingerprint));
         scripted.Dispose();
     }
 

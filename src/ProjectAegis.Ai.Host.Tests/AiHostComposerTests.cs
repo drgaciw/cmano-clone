@@ -2,13 +2,14 @@ using Microsoft.Extensions.AI;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Options;
 using ProjectAegis.Ai.Contracts;
-using Xunit;
+using NUnit.Framework;
 
 namespace ProjectAegis.Ai.Host.Tests;
 
+[TestFixture]
 public sealed class AiHostComposerTests
 {
-    [Fact]
+    [Test]
     public void Composition_root_registers_fake_client_without_network()
     {
         var root = Directory.CreateDirectory(
@@ -29,16 +30,16 @@ public sealed class AiHostComposerTests
             var telemetry = provider.GetRequiredService<AiHostTelemetry>();
             var options = provider.GetRequiredService<IOptions<AiHostOptions>>().Value;
 
-            Assert.Same(fake, chat);
-            Assert.Equal(root, store.RootDirectory);
-            Assert.Empty(telemetry.Events);
-            Assert.Equal(2, options.MaxRequestConcurrency);
-            Assert.Equal(128, options.MaxOutputTokens);
+            Assert.That(chat, Is.SameAs(fake));
+            Assert.That(store.RootDirectory, Is.EqualTo(root));
+            Assert.That(telemetry.Events, Is.Empty);
+            Assert.That(options.MaxRequestConcurrency, Is.EqualTo(2));
+            Assert.That(options.MaxOutputTokens, Is.EqualTo(128));
 
             fake.Enqueue(FakeChatScript.Success);
             telemetry.RecordGeneration("fake", "fake-model", GenerationStatus.Succeeded);
-            Assert.DoesNotContain("prompt", string.Join('|', telemetry.Events), StringComparison.OrdinalIgnoreCase);
-            Assert.DoesNotContain("secret", string.Join('|', telemetry.Events), StringComparison.OrdinalIgnoreCase);
+            Assert.That(string.Join('|', telemetry.Events), Does.Not.Contain("prompt").IgnoreCase);
+            Assert.That(string.Join('|', telemetry.Events), Does.Not.Contain("secret").IgnoreCase);
         }
         finally
         {
@@ -46,9 +47,8 @@ public sealed class AiHostComposerTests
         }
     }
 
-    [Theory]
-    [InlineData(0)]
-    [InlineData(-3)]
+    [TestCase(0)]
+    [TestCase(-3)]
     public void Composition_clamps_invalid_MaxRequestConcurrency_to_one_and_preserves_tokens(int invalidConcurrency)
     {
         var root = CreateTempRoot();
@@ -64,8 +64,8 @@ public sealed class AiHostComposerTests
             using var provider = services.BuildServiceProvider();
             var options = provider.GetRequiredService<IOptions<AiHostOptions>>().Value;
 
-            Assert.Equal(1, options.MaxRequestConcurrency);
-            Assert.Equal(64, options.MaxOutputTokens);
+            Assert.That(options.MaxRequestConcurrency, Is.EqualTo(1));
+            Assert.That(options.MaxOutputTokens, Is.EqualTo(64));
         }
         finally
         {
@@ -73,9 +73,8 @@ public sealed class AiHostComposerTests
         }
     }
 
-    [Theory]
-    [InlineData(0)]
-    [InlineData(-7)]
+    [TestCase(0)]
+    [TestCase(-7)]
     public void Composition_clamps_invalid_MaxOutputTokens_to_one_and_preserves_concurrency(int invalidTokens)
     {
         var root = CreateTempRoot();
@@ -91,8 +90,8 @@ public sealed class AiHostComposerTests
             using var provider = services.BuildServiceProvider();
             var options = provider.GetRequiredService<IOptions<AiHostOptions>>().Value;
 
-            Assert.Equal(4, options.MaxRequestConcurrency);
-            Assert.Equal(1, options.MaxOutputTokens);
+            Assert.That(options.MaxRequestConcurrency, Is.EqualTo(4));
+            Assert.That(options.MaxOutputTokens, Is.EqualTo(1));
         }
         finally
         {

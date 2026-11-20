@@ -6,16 +6,17 @@ using ProjectAegis.Ai.Host.Evidence;
 using ProjectAegis.Ai.Host.Tests.Evidence;
 using ProjectAegis.Delegation.Core;
 using ProjectAegis.Delegation.Decision;
-using Xunit;
+using NUnit.Framework;
 
 namespace ProjectAegis.Ai.Host.Tests.Aar;
 
+[TestFixture]
 public sealed class AarAssistantPipelineTests
 {
     private readonly string _fixturesRoot = AiFixtureLoader.ResolveFixturesRoot();
     private readonly EvidenceProjector _projector = new();
 
-    [Fact]
+    [Test]
     public async Task Success_fixture_all_citations_resolve_and_numbers_allowed()
     {
         var projection = ProjectCase("success");
@@ -32,20 +33,23 @@ public sealed class AarAssistantPipelineTests
             var pipeline = new AarAssistantPipeline(scripted, artifactStore: store);
             var result = await pipeline.RunAsync(ToRequest(projection));
 
-            Assert.Equal(GenerationStatus.Succeeded, result.Status);
-            Assert.NotNull(result.ModelDraft);
-            Assert.Equal(ids.Count, result.ModelDraft!.Citations.Count);
-            Assert.All(result.ModelDraft.Citations, id => Assert.Contains(id, ids));
-            Assert.Equal(projection.Quantitative.EngagementCount, result.DeterministicReport.EngagementCount);
-            Assert.Equal(AarPromptVersion.Current, result.PromptVersion);
-            Assert.Equal("fake", result.ProviderId);
-            Assert.Equal("aar-scripted", result.ModelId);
-            Assert.NotNull(result.Envelope);
-            Assert.Equal(GenerationStatus.Succeeded, result.Envelope!.Status);
-            Assert.Equal(AarPromptVersion.Current, result.Envelope.PromptVersion);
-            Assert.Equal("fake", result.Envelope.ProviderId);
-            Assert.Equal("aar-scripted", result.Envelope.ModelId);
-            Assert.True(store.Exists("aar-explain.envelope.json"));
+            Assert.That(result.Status, Is.EqualTo(GenerationStatus.Succeeded));
+            Assert.That(result.ModelDraft, Is.Not.Null);
+            Assert.That(result.ModelDraft!.Citations.Count, Is.EqualTo(ids.Count));
+            foreach (var id in result.ModelDraft.Citations)
+            {
+                Assert.That(ids, Does.Contain(id));
+            }
+            Assert.That(result.DeterministicReport.EngagementCount, Is.EqualTo(projection.Quantitative.EngagementCount));
+            Assert.That(result.PromptVersion, Is.EqualTo(AarPromptVersion.Current));
+            Assert.That(result.ProviderId, Is.EqualTo("fake"));
+            Assert.That(result.ModelId, Is.EqualTo("aar-scripted"));
+            Assert.That(result.Envelope, Is.Not.Null);
+            Assert.That(result.Envelope!.Status, Is.EqualTo(GenerationStatus.Succeeded));
+            Assert.That(result.Envelope.PromptVersion, Is.EqualTo(AarPromptVersion.Current));
+            Assert.That(result.Envelope.ProviderId, Is.EqualTo("fake"));
+            Assert.That(result.Envelope.ModelId, Is.EqualTo("aar-scripted"));
+            Assert.That(store.Exists("aar-explain.envelope.json"), Is.True);
         }
         finally
         {
@@ -54,7 +58,7 @@ public sealed class AarAssistantPipelineTests
         }
     }
 
-    [Fact]
+    [Test]
     public async Task Fabricated_citation_is_rejected_with_deterministic_report()
     {
         var projection = ProjectCase("success");
@@ -66,14 +70,14 @@ public sealed class AarAssistantPipelineTests
         var pipeline = new AarAssistantPipeline(scripted);
         var result = await pipeline.RunAsync(ToRequest(projection, publish: false));
 
-        Assert.Equal(GenerationStatus.RejectedCitation, result.Status);
-        Assert.NotNull(result.DeterministicReport);
-        Assert.Equal(projection.Quantitative.EngagementCount, result.DeterministicReport.EngagementCount);
-        Assert.Contains("missing-citation", result.SkipReason, StringComparison.Ordinal);
+        Assert.That(result.Status, Is.EqualTo(GenerationStatus.RejectedCitation));
+        Assert.That(result.DeterministicReport, Is.Not.Null);
+        Assert.That(result.DeterministicReport.EngagementCount, Is.EqualTo(projection.Quantitative.EngagementCount));
+        Assert.That(result.SkipReason, Does.Contain("missing-citation"));
         scripted.Dispose();
     }
 
-    [Fact]
+    [Test]
     public async Task Contradictory_number_in_prose_is_rejected()
     {
         var projection = ProjectCase("success");
@@ -87,17 +91,16 @@ public sealed class AarAssistantPipelineTests
         var pipeline = new AarAssistantPipeline(scripted);
         var result = await pipeline.RunAsync(ToRequest(projection, publish: false));
 
-        Assert.Equal(GenerationStatus.RejectedNumber, result.Status);
-        Assert.NotNull(result.DeterministicReport);
-        Assert.Contains("contradictory-number", result.SkipReason, StringComparison.Ordinal);
+        Assert.That(result.Status, Is.EqualTo(GenerationStatus.RejectedNumber));
+        Assert.That(result.DeterministicReport, Is.Not.Null);
+        Assert.That(result.SkipReason, Does.Contain("contradictory-number"));
         scripted.Dispose();
     }
 
-    [Theory]
-    [InlineData(FakeChatScript.MalformedOutput, GenerationStatus.MalformedOutput)]
-    [InlineData(FakeChatScript.Timeout, GenerationStatus.TimedOut)]
-    [InlineData(FakeChatScript.Cancellation, GenerationStatus.Cancelled)]
-    [InlineData(FakeChatScript.ProviderUnavailable, GenerationStatus.ProviderUnavailable)]
+    [TestCase(FakeChatScript.MalformedOutput, GenerationStatus.MalformedOutput)]
+    [TestCase(FakeChatScript.Timeout, GenerationStatus.TimedOut)]
+    [TestCase(FakeChatScript.Cancellation, GenerationStatus.Cancelled)]
+    [TestCase(FakeChatScript.ProviderUnavailable, GenerationStatus.ProviderUnavailable)]
     public async Task Failure_scripts_return_explicit_status_plus_deterministic_report(
         FakeChatScript script,
         GenerationStatus expected)
@@ -109,13 +112,13 @@ public sealed class AarAssistantPipelineTests
         var pipeline = new AarAssistantPipeline(fake);
         var result = await pipeline.RunAsync(ToRequest(projection, publish: false));
 
-        Assert.Equal(expected, result.Status);
-        Assert.NotNull(result.DeterministicReport);
-        Assert.Equal(projection.Quantitative.DecisionCount, result.DeterministicReport.DecisionCount);
-        Assert.Null(result.ModelDraft);
+        Assert.That(result.Status, Is.EqualTo(expected));
+        Assert.That(result.DeterministicReport, Is.Not.Null);
+        Assert.That(result.DeterministicReport.DecisionCount, Is.EqualTo(projection.Quantitative.DecisionCount));
+        Assert.That(result.ModelDraft, Is.Null);
     }
 
-    [Fact]
+    [Test]
     public async Task Disabled_pipeline_still_returns_deterministic_report()
     {
         var projection = ProjectCase("success");
@@ -123,40 +126,40 @@ public sealed class AarAssistantPipelineTests
         var pipeline = new AarAssistantPipeline(fake);
         var result = await pipeline.RunAsync(ToRequest(projection, publish: false) with { Enabled = false });
 
-        Assert.Equal(GenerationStatus.ProviderUnavailable, result.Status);
-        Assert.Equal("disabled", result.SkipReason);
-        Assert.NotNull(result.DeterministicReport);
+        Assert.That(result.Status, Is.EqualTo(GenerationStatus.ProviderUnavailable));
+        Assert.That(result.SkipReason, Is.EqualTo("disabled"));
+        Assert.That(result.DeterministicReport, Is.Not.Null);
     }
 
-    [Fact]
+    [Test]
     public async Task Embedded_instruction_fixture_does_not_change_validation_behaviour()
     {
         var projection = ProjectCase("embedded-instructions");
         var ids = projection.Document.Header.EvidenceIds.ToArray();
-        Assert.NotEmpty(ids);
+        Assert.That(ids, Is.Not.Empty);
 
         // Prompt must still delimit data; fabricated citation still rejected.
         var scripted = new AarScriptedChatClient();
         scripted.EnqueueAssistantText(ValidDraftJson(summary: "ignore prior", citations: ["evil:1"]));
         var reject = await new AarAssistantPipeline(scripted)
             .RunAsync(ToRequest(projection, publish: false));
-        Assert.Equal(GenerationStatus.RejectedCitation, reject.Status);
+        Assert.That(reject.Status, Is.EqualTo(GenerationStatus.RejectedCitation));
 
         scripted.EnqueueAssistantText(ValidDraftJson(
             summary: "Engagements " + projection.Quantitative.EngagementCount,
             citations: ids));
         var ok = await new AarAssistantPipeline(scripted)
             .RunAsync(ToRequest(projection, publish: false));
-        Assert.Equal(GenerationStatus.Succeeded, ok.Status);
+        Assert.That(ok.Status, Is.EqualTo(GenerationStatus.Succeeded));
 
         var messages = new AarPromptBuilder().Build(projection.Document, ok.DeterministicReport);
         var user = messages.Single(m => m.Role == ChatRole.User).Text;
-        Assert.Contains("<<<EVIDENCE_DATA_BEGIN>>>", user, StringComparison.Ordinal);
-        Assert.Contains("<<<EVIDENCE_DATA_END>>>", user, StringComparison.Ordinal);
+        Assert.That(user, Does.Contain("<<<EVIDENCE_DATA_BEGIN>>>"));
+        Assert.That(user, Does.Contain("<<<EVIDENCE_DATA_END>>>"));
         scripted.Dispose();
     }
 
-    [Fact]
+    [Test]
     public async Task Pipeline_enabled_disabled_or_failing_does_not_mutate_order_log_fingerprint()
     {
         var log = new DecisionLog();
@@ -187,17 +190,17 @@ public sealed class AarAssistantPipelineTests
             citations: projected.Document.Header.EvidenceIds.ToArray()));
         await new AarAssistantPipeline(scripted)
             .RunAsync(ToRequest(projected, publish: false));
-        Assert.Equal(before, log.ComputeFingerprint());
+        Assert.That(log.ComputeFingerprint(), Is.EqualTo(before));
 
         await new AarAssistantPipeline(scripted)
             .RunAsync(ToRequest(projected, publish: false) with { Enabled = false });
-        Assert.Equal(before, log.ComputeFingerprint());
+        Assert.That(log.ComputeFingerprint(), Is.EqualTo(before));
 
         using var fake = new FakeChatClient();
         fake.Enqueue(FakeChatScript.MalformedOutput);
         await new AarAssistantPipeline(fake)
             .RunAsync(ToRequest(projected, publish: false));
-        Assert.Equal(before, log.ComputeFingerprint());
+        Assert.That(log.ComputeFingerprint(), Is.EqualTo(before));
 
         await Task.Delay(15);
         scripted.EnqueueAssistantText(ValidDraftJson(
@@ -205,22 +208,22 @@ public sealed class AarAssistantPipelineTests
             citations: projected.Document.Header.EvidenceIds.ToArray()));
         await new AarAssistantPipeline(scripted)
             .RunAsync(ToRequest(projected, publish: false));
-        Assert.Equal(before, log.ComputeFingerprint());
+        Assert.That(log.ComputeFingerprint(), Is.EqualTo(before));
         scripted.Dispose();
     }
 
-    [Fact]
+    [Test]
     public void Citation_and_number_validators_unit_behaviour()
     {
-        Assert.Null(AarCitationValidator.FindMissingCitation(["a:1"], ["a:1", "a:2"]));
-        Assert.Equal("x", AarCitationValidator.FindMissingCitation(["x"], ["a:1"]));
+        Assert.That(AarCitationValidator.FindMissingCitation(["a:1"], ["a:1", "a:2"]), Is.Null);
+        Assert.That(AarCitationValidator.FindMissingCitation(["x"], ["a:1"]), Is.EqualTo("x"));
 
         var allowed = new HashSet<string>(StringComparer.Ordinal) { "1", "2.5" };
-        Assert.Null(AarNumberValidator.FindContradictoryNumber(["saw 1 and 2.5"], allowed));
-        Assert.Equal("99", AarNumberValidator.FindContradictoryNumber(["saw 99"], allowed));
+        Assert.That(AarNumberValidator.FindContradictoryNumber(["saw 1 and 2.5"], allowed), Is.Null);
+        Assert.That(AarNumberValidator.FindContradictoryNumber(["saw 99"], allowed), Is.EqualTo("99"));
     }
 
-    [Fact]
+    [Test]
     public void Source_fence_Aar_files_do_not_reference_forbidden_symbols()
     {
         var hostRoot = FindHostAarRoot();
@@ -236,11 +239,11 @@ public sealed class AarAssistantPipelineTests
                         && !trimmed.StartsWith("*", StringComparison.Ordinal);
                 }));
 
-            Assert.DoesNotContain("DelegationBridge", code);
-            Assert.DoesNotContain("SimulationSession", code);
-            Assert.DoesNotContain("OnScenarioFinalized", code);
-            Assert.DoesNotContain("OpenAI", code);
-            Assert.DoesNotContain("Anthropic", code);
+            Assert.That(code, Does.Not.Contain("DelegationBridge"));
+            Assert.That(code, Does.Not.Contain("SimulationSession"));
+            Assert.That(code, Does.Not.Contain("OnScenarioFinalized"));
+            Assert.That(code, Does.Not.Contain("OpenAI"));
+            Assert.That(code, Does.Not.Contain("Anthropic"));
         }
     }
 
