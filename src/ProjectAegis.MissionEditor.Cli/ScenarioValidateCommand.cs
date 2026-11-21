@@ -32,7 +32,7 @@ public static class ScenarioValidateCommand
 
     private static ICatalogReader ResolveCatalog(ScenarioDocumentDto scenario)
     {
-        var sqlite = CatalogReaderFactory.TryCreateBalticPatrolReader();
+        var sqlite = OpenBoundCatalog(scenario.Metadata);
         if (sqlite == null)
         {
             return InMemoryCatalogReader.BalticPatrolFixture();
@@ -57,5 +57,22 @@ public static class ScenarioValidateCommand
         }
 
         return InMemoryCatalogReader.BalticPatrolFixture();
+    }
+
+    /// <summary>
+    /// Opens <c>aegis_public_corpus.db</c> when the explicit binding is a public-corpus
+    /// <c>dbRef</c> (same rule as <see cref="CatalogReaderFactory.ResolveDatabasePathForDbRef"/>).
+    /// Every other scenario keeps the Baltic patrol catalog.
+    /// </summary>
+    private static ICatalogReader? OpenBoundCatalog(ScenarioMetadataDto metadata)
+    {
+        var dbRef = metadata.DbRef ?? metadata.DbSnapshotId;
+        if (!string.IsNullOrWhiteSpace(dbRef) &&
+            CatalogValidationDefaults.TryResolvePublicCorpusDbRef(dbRef.Trim(), out _))
+        {
+            return CatalogReaderFactory.TryCreatePublicCorpusReader();
+        }
+
+        return CatalogReaderFactory.TryCreateBalticPatrolReader();
     }
 }
