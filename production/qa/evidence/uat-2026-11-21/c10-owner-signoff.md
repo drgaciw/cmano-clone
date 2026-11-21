@@ -12,6 +12,10 @@
 | 4 | [`r4-d30b-contact-lines.png`](r4-d30b-contact-lines.png) | D30, D30b | Contact Detail panel | Opaque background, no Unit Detail text bleeding through; ends above the Message Log; "Engagement: UNKNOWN" / "Posture: UNKNOWN" legible | ☐ |
 | 5 | [`r4-d31b-drawer.png`](r4-d31b-drawer.png) | D31, D31b | Left drawer, CONTACTS tab | SORT shows "Contact ID", FILTER shows "All", FIND is a dark input; contact row `c1 Classified → hostile-1` visible | ☐ |
 | 6 | [`r5-d15-toolbar-visible.png`](r5-d15-toolbar-visible.png) | D15 subset, D25 | Bottom of the screen between the map controls and the Message Log | ORDERS toolbar visible, clear of the Tactical…Latest events row and the Message Log; `ISSUED: hold → u1` | ☐ |
+| 7 | [`r6-d37-d38-comms-doctrine-after.png`](r6-d37-d38-comms-doctrine-after.png) | D37, D38 | Doctrine panel bottom-left; Message Log (bottom right), scenario `-comms` at 5 s | Doctrine panel inside the left drawer column, clear of map and Unit Detail; top bar `COMMS: DENIED`; two purple `[COMMS]` rows in the log. (The panel's ROE override dropdown is clipped here — that is D39, fixed in #8) | ☐ |
+| 8 | [`r7-d39-doctrine-override-final.png`](r7-d39-doctrine-override-final.png) | D39 | Bottom of the Doctrine panel | `ROE Override` label readable above a full-width dropdown showing `WeaponsFree` in full; `Apply` on its own line | ☐ |
+
+`r7-d39-doctrine-override-fixed.png` is an **intermediate** D39 state (dropdown value still truncated to "Weapor"); it is kept for the record and is not for sign-off.
 
 Not covered by screenshots (non-visual or verified by measurement): D27 `TIME: PAUSED (2x)` label (text-verified), toolbar clearance (measured: toolbar x 1138–1616 vs control row x 274–952 and Message Log x ≥ 1628, panel units), D36 map-marker selection (behaviour-verified).
 

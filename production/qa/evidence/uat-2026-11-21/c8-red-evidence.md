@@ -90,3 +90,39 @@ that is not compiled headlessly and is not asserted by this test.
   with all three attack options (including Fire) enabled.
 - GREEN on `uat/round5-jev-decisions`: `Passed: 1, Failed: 0, Total: 1`; full UnityAdapter test project
   results are recorded in the commit report.
+
+## D25 — PlayMode red on real pre-fix toolbar code (round 6d, 2026-11-21 15:24)
+
+- Test: `UnitOrderToolbarIssuedStatusPlayModeTests` (`unity/ProjectAegis/Assets/Tests/`, commit `ffeeac44`), 2 tests, run in the Unity Editor (6000.3.27f2) Test Runner through Unity-MCP `tests-run`, PlayMode.
+- GREEN on `uat/round5-jev-decisions`: `Passed 2 / Failed 0`.
+- Old behaviour restored: a patch reverting only the `OnOrderClicked` success branch of
+  `Assets/Scripts/Runtime/UnitOrderToolbarHost.cs` to the pre-fix `SetStatus(null); Refresh();`
+  (no issued-status message) — real pre-fix code, **no stub**. Editor recompiled (0 compile errors).
+- RED: `Passed 1 / Failed 1`
+
+      Hold_click_with_selected_unit_shows_issued_status
+      Expected: String containing "ISSUED: hold → u1"
+      But was:  <string.Empty>
+
+- Patch reverted (`git diff` on the file empty), recompiled, GREEN again: `Passed 2 / Failed 0`.
+
+With this, D20, D24 and D25 all have red evidence on real pre-fix code.
+
+## Scene-config fixes — scene guard tests red on the real parent scenes (round 7, commit `5672ea45`)
+
+Two UAT fixes changed only `Assets/Scenes/DelegationSmoke.unity` and had no test until round 7:
+- `f787b3a2`: unit-order toolbar added to the scene with UIDocument sorting order 12 (D15 subset).
+- `716b3dfd`: Doctrine Inheritance panel `showPanel: 1` (D37).
+
+`DelegationSmokeSceneGuardTests` (`src/ProjectAegis.Delegation.UnityAdapter.Tests/Presentation/`):
+- The test resolves each MonoBehaviour by the script GUID it reads from the `.cs.meta` file.
+- It was run in detached worktrees at each fix's parent. Only the test file was copied in; the scene content is the real pre-fix scene, and no stub was used.
+
+| Parent | Result | Failure |
+|--------|--------|---------|
+| `f787b3a2^` | Failed 2 / Passed 0 | toolbar test: `Expected: property Count equal to 1, But was: 0` (no `UnitOrderToolbarHost` in the scene). The doctrine test also fails, because `716b3dfd` comes later. |
+| `716b3dfd^` | Failed 1 / Passed 1 | doctrine test: `Expected: "1", But was: "0"` (`showPanel`). |
+
+Both worktrees were removed afterwards. GREEN on the branch: 2/2, and the full UnityAdapter project passes 1291/1291.
+
+With this, no fix in rounds 3–7 is without a test that failed first on real pre-fix content.

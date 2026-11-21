@@ -1,0 +1,22 @@
+{
+  "state": "Project Aegis Play Mode UAT, round 6 follow-up (6d), 2026-11-21. Context: in round 6c Jev scored C5 0.82 but the controller held it uncounted until D37 (Doctrine Inheritance panel overlapping) and D38 (COMMS rows evicted from the 12-row Message Log) were re-checked in Play Mode; C8 scored 0.54 because D25 (unit-order toolbar ISSUED status) had stub-level red evidence only. NEW EVIDENCE (Unity Editor 6000.3.27f2, Play Mode, committed DelegationSmoke scene): D38 — scenario baltic-patrol-comms run 6 s: top bar COMMS: DENIED, network PARTITIONED; Message Log has 12 rows and both COMMS transition rows are present and pinned at the top ('Nominal -> Degraded (jamming)', 'Degraded -> Denied (link-down)') alongside 9 AGENT_DECISION rows; 0 console errors; screenshot r6-d37-d38-comms-doctrine-after.png. D37 — Doctrine Inheritance panel measured at x 8-252, y 603-995 (panel units), inside the 260-wide left drawer column and clear of the map; it is drawn over the empty lower part of the OOB list (2 rows); screenshot taken. D25 — the PlayMode test UnitOrderToolbarIssuedStatusPlayModeTests (2 tests) passed; then the real pre-fix toolbar code was restored by patch and the test FAILED ('Expected: String containing ISSUED: hold -> u1, But was: <string.Empty>'); patch reverted and the test passed again. So D20, D24 and D25 now all have red evidence on real pre-fix code; earlier rounds' fixes each had a test that failed before the fix. NEW DEFECT D39 found in the same screenshot: the Doctrine panel's ROE override row (dropdown plus 'Weapons' button) is clipped at the panel's right edge, because the D37 fix fixed the panel width at 244 px with overflow hidden; the Apply button and the rest of the panel are visible; severity S3 cosmetic, a USS-only fix (wrap the override row or shrink its controls). C10 is unchanged: the screenshot package is with the owner and the owner's tick boxes are still empty. All other criteria unchanged from 6c (C1 0.83, C2 0.92, C3 0.95, C4 0.91, C6 0.91, C7 0.84, C9 0.97, C11 0.86, C12 0.91).",
+  "questions": {
+    "c5": { "type": "noul", "instructions": "Does the evidence show scenario behaviour matches the spec (comms transitions shown in the top bar and the Message Log, doctrine/EMCON, hostile symbols), now that the D37/D38 Play Mode re-check has run?" },
+    "c8": { "type": "noul", "instructions": "Does the evidence show every fix had a test that failed before the fix?" },
+    "c10": { "type": "noul", "instructions": "Has pixel-level visual evidence been handed to the owner for sign-off?" },
+    "d39": {
+      "type": "choice",
+      "instructions": "How should D39 (Doctrine panel override row clipped after the D37 width fix) be handled?",
+      "criteria": {
+        "fix_now": "Fix now with a test-first USS change and re-check in Play Mode before closing the UAT",
+        "backlog": "Record it in the backlog and leave the UAT as it is"
+      }
+    },
+    "more_rounds": {
+      "type": "score",
+      "instructions": "How many more full UAT rounds should run after this follow-up?",
+      "criteria": ["0 rounds", "1 round", "2 rounds"]
+    },
+    "close_uat": { "type": "noul", "instructions": "Should the UAT be closed once D39 is handled as decided, handing the C10 owner sign-off and the backlog to their owners?" }
+  }
+}

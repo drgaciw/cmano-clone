@@ -77,3 +77,85 @@ The first round-6 request described the fix screenshots only under C10 and preda
 | C12 | 0.86 | 0.91 | ✅ |
 
 `close_uat` 0.48; `next_step` owner_review_first 0.70.
+
+## Round 6d — after the D37/D38 Play Mode re-check
+
+Request: [`uat-jev-round6d-request.json`](uat-jev-round6d-request.json). Response: [`evidence/uat-2026-11-21/jev-round6d-response.json`](evidence/uat-2026-11-21/jev-round6d-response.json) (`gen-dec-1795296557-l8zdfHnFebZ1nW0EFNLF`).
+
+New evidence: the Unity Editor exited at 15:20:09 and was relaunched. The D25 PlayMode test went RED on the real pre-fix toolbar code (`Expected: String containing "ISSUED: hold → u1"`, `But was: <string.Empty>`) and GREEN again after the revert. D37 and D38 were verified in Play Mode. The same screenshot exposed D39: the Doctrine override dropdown was clipped.
+
+| Item | Jev |
+|------|-----|
+| C5 | 0.67 (down from 0.82) |
+| C8 | 0.54 |
+| C10 | 0.52 |
+| D39 | **fix_now** (0.89; backlog 0.11) |
+| more_rounds | **1.09 → 1 more round** (0: 0.14, 1: 0.63, 2: 0.23) |
+| close_uat | 0.23 |
+
+## Round 7 — the extra round
+
+Request: [`uat-jev-round7-request.json`](uat-jev-round7-request.json). Response: [`evidence/uat-2026-11-21/jev-round7-response.json`](evidence/uat-2026-11-21/jev-round7-response.json) (`gen-dec-1795297395-a0t8X7ZzMNze7VhFmWiW`).
+
+| Criterion | Jev | Met (mechanical ✅ and ≥ 0.80) |
+|-----------|-----|------|
+| C1 | 0.98 | ✅ |
+| C2 | 0.96 | ✅ |
+| C3 | 0.97 | ✅ |
+| C4 | 0.97 | ✅ |
+| C5 | 0.48 | ❌ |
+| C6 | 0.91 | ✅ |
+| C7 | 0.96 | ✅ |
+| C8 | 0.74 | ❌ |
+| C9 | 0.96 | ✅ |
+| C10 | 0.76 | ❌ owner sign-off |
+| C11 | 0.70 | ❌ |
+| C12 | 0.90 | ✅ |
+
+Decisions:
+- **more_rounds: 0** (score 0.21; p0 0.82).
+- **next_step: owner_review_first** (0.92).
+- close_uat 0.64.
+
+Controller corrections found after this call:
+- The request left out the hostile-symbol and overlay facts that C5 asks about (`ENVELOPES 2`, `DATALINKS 1`, hostile ■ and contact ◆ on the map).
+- It left out the per-panel classification of the 95 skipped sweep controls behind C11.
+- It **overstated C8**. Two scene-config fixes had no red test: `f787b3a2` (toolbar added to the scene) and `716b3dfd` (Doctrine `showPanel: 1`). Scene guard tests are being added red-first against each commit's parent.
+- New D40 (pre-existing): the Play Mode smoke feed logs a synthetic `emcon Active → Passive` row that changes no unit.
+
+## Round 7b — single corrected re-ask (final)
+
+Request: [`uat-jev-round7b-request.json`](uat-jev-round7b-request.json). Response: [`evidence/uat-2026-11-21/jev-round7b-response.json`](evidence/uat-2026-11-21/jev-round7b-response.json) (`gen-dec-1795297659-qowa6KQo7ETSQgSgOask`).
+
+The round 7 request is kept unchanged. This re-ask added only true facts that the round 7 request had left out or stated wrongly:
+- C5: hostile symbols and the `ENVELOPES 2` / `DATALINKS 1` overlay counts.
+- C11: the per-panel classification of the skipped controls.
+- C8: an honest account. The two scene-config fixes had no test until scene guard tests `5672ea45` were added and shown red on the real parent scenes.
+- D40 was added as a decision.
+
+This is the last call; the result is accepted as returned.
+
+| Criterion | 7 | 7b | Met |
+|-----------|---|----|-----|
+| C1 | 0.98 | 0.97 | ✅ |
+| C2 | 0.96 | 0.95 | ✅ |
+| C3 | 0.97 | 0.95 | ✅ |
+| C4 | 0.97 | 0.86 | ✅ |
+| C5 | 0.48 | 0.91 | ✅ |
+| C6 | 0.91 | 0.89 | ✅ |
+| C7 | 0.96 | 0.95 | ✅ |
+| C8 | 0.74 | 0.72 | ❌ |
+| C9 | 0.96 | 0.95 | ✅ |
+| C10 | 0.76 | 0.72 | ❌ owner sign-off |
+| C11 | 0.70 | 0.77 | ❌ |
+| C12 | 0.90 | 0.91 | ✅ |
+
+Decisions:
+- **more_rounds 0** (score 0.45; p0 0.59, p1 0.37).
+- **next_step owner_review_first** (0.76; submit_pr 0.20).
+- **D40 backlog** (0.63).
+- close_uat 0.47.
+
+**Outcome:** the UAT stops here by Jev's decision. Three criteria are still below the bar:
+- **C10:** needs the owner's tick boxes in [`c10-owner-signoff.md`](evidence/uat-2026-11-21/c10-owner-signoff.md).
+- **C8 and C11:** stay below 0.80 on the full evidence. They are handed to owner review together with the backlog.
