@@ -118,9 +118,16 @@ Full per-control results: [`uat-ui-function-matrix.md`](uat-ui-function-matrix.m
 | D26 | In-game Scenario Editor shell actions unwired (Load/Save/Undo/Redo/Play/Sample) | Product owner (feature scope) |
 | D24b | Exclusive selection vs. "select a friendly unit for range assessment"; Unit vs Contact readiness wording disagree | Game design |
 | D16 | Repeated policy denials lower the score | Game design |
-| D12, D28, D29, D30, D31 | Layout/visual and builder-noise defects | UI engineering (round 4) |
+| D28 | Play Baltic Escort rewrites the committed scene (builder noise); D12/D29/D30/D31 fixed in round 4 | Tools engineering |
 | D32 | Unity test broken by an uncommitted local edit | You (local change) |
 | D33 | SliceA contact-panel test expectation — likely pre-existing on main | Engineering (run on main to confirm) |
 | CLI-2…CLI-13 (minus fixed) | CLI validation/exit-code defects | Tools engineering |
 | C10 | Pixel-level visual sign-off; screenshots in `evidence/uat-2026-11-21/` | Product owner |
 | Jev | No Jev scores in any round (credentials never provided) | You |
+
+## Round 4 (2026-11-21, after the Editor was unblocked)
+
+- C1 met: the failing guard was my uncommitted round 2 edit reading the Editor-rewritten working copy; now committed reading HEAD with the isolation hardening (`868d7e9b`). Full suite passes in the live working copy and on a clean checkout.
+- C6 met: D29, D30, D30b, D31, D31b, D12 fixed with failing-first tests and verified by Play Mode screenshots.
+- Builder menu items exercised (D35 found: Addressables settings not committed).
+- Still open for the owner: D15/D18, D24b, D26, D35, D16, D33, D28, C10 sign-off, CLI-2…CLI-13, Jev scoring (no credentials).
