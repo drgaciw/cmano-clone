@@ -1,0 +1,9 @@
+<ui:UXML xmlns:ui="UnityEngine.UIElements" editor-extension-mode="False">
+    <ui:VisualElement name="axis-control-root" class="c2-axis-control">
+        <ui:Label name="axis-control-badge" text="AXIS —" class="c2-axis-control-badge" />
+        <ui:Label name="axis-control-altitude" text="" class="c2-axis-control-axis" />
+        <ui:Label name="axis-control-throttle" text="" class="c2-axis-control-axis" />
+        <ui:Label name="axis-control-emcon" text="" class="c2-axis-control-axis" />
+        <ui:Label name="axis-control-sensors" text="" class="c2-axis-control-axis" />
+    </ui:VisualElement>
+</ui:UXML>

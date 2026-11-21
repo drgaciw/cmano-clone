@@ -1,0 +1,6 @@
+<ui:UXML xmlns:ui="UnityEngine.UIElements" editor-extension-mode="False">
+    <ui:VisualElement name="map-scale-hud-root" class="c2-map-scale-hud">
+        <ui:Label name="map-scale-bar" text="SCALE —" class="c2-map-scale-hud-bar" />
+        <ui:Label name="map-scale-altitude" text="" class="c2-map-scale-hud-altitude" />
+    </ui:VisualElement>
+</ui:UXML>

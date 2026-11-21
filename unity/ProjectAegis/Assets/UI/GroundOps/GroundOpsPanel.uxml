@@ -1,0 +1,7 @@
+<ui:UXML xmlns:ui="UnityEngine.UIElements" editor-extension-mode="False">
+    <ui:VisualElement name="ground-ops-root" class="c2-ground-ops">
+        <ui:Label name="ground-ops-header" text="GROUND OPS" class="c2-ground-ops-header" />
+        <ui:Label name="ground-ops-empty" text="" class="c2-ground-ops-empty" />
+        <ui:ListView name="ground-ops-list" class="c2-ground-ops-list" />
+    </ui:VisualElement>
+</ui:UXML>
