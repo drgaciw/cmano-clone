@@ -21,7 +21,7 @@
   `ScenarioDataPaths.TryResolveScenariosDirectory()` walked up only from `AppContext.BaseDirectory`, which is the Editor install in Unity. Every `ScenarioPolicyRepository.TryGet` returned null, so every scenario silently fell back to the default briefing and no comms/doctrine timelines were built.
   - Test: `ScenarioDataPathsTests.TryResolveScenariosDirectory_falls_back_to_working_directory_when_base_is_outside_repo` (was compile-red).
   - Fix: `src/ProjectAegis.Data/Scenario/ScenarioDataPaths.cs` adds a working-directory fallback and a two-argument test seam.
-  - Verified in the running Editor: `dir=/home/username01/cmano-clone/data/scenarios`, `baltic-patrol-comms` profile resolves.
+  - Verified in the running Editor: `dir=<repo>/data/scenarios`, `baltic-patrol-comms` profile resolves.
 - **D5 — Four UI `.meta` files with 31-character GUIDs** (`EngageExplain/*`, `PendingApproval/*`). Unity ignored the assets and logged errors on every refresh.
   - Test: `UnityMetaGuidValidityTests.Every_unity_meta_file_has_a_valid_32_hex_guid` (red listed exactly these four; now green across 268 meta files).
   - Fix: padded each GUID to 32 hex (no references existed to the old values).
