@@ -400,7 +400,7 @@ public static class CmoMarkdownImportProposer
         }
 
         var name = Path.GetFileNameWithoutExtension(markdownPath);
-        var hash = Math.Abs(StringComparer.Ordinal.GetHashCode(name));
+        var hash = (uint)StableHash.Fnv1A32(name);
         var baseTick = (hash % 1_000_000L) * 10_000L;
         return new IncrementingCatalogClock(baseTick);
     }

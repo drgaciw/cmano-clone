@@ -141,7 +141,7 @@ public sealed class AttentionToastHostContractTests
         Assert.That(bridge.Session.IsSimPaused, Is.True);
         Assert.That(toast.HasActiveCard, Is.True);
         Assert.That(toast.Active!.IsPauseClass, Is.True);
-        Assert.That(C2ClockCommand.FormatCompressionLabel(true, 1), Is.EqualTo("TIME: PAUSED"));
+        Assert.That(C2ClockCommand.FormatCompressionLabel(true, 1), Is.EqualTo("TIME: PAUSED (1x)"));
     }
 
     private static string? FindRepoRoot()

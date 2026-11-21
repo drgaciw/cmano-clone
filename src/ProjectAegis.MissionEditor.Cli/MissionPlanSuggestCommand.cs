@@ -289,6 +289,10 @@ public static class MissionPlanSuggestCommand
         return result.OutcomeClass == AuthoringOutcomeClass.ValidDraft ? 0 : 1;
     }
 
+    /// <summary>Default idempotency key for <c>--script</c> mode when none is supplied.</summary>
+    public static string DefaultScriptIdempotencyKey(string intent) =>
+        "cli-script-" + Data.StableHash.Fnv1A32(intent).ToString("x8");
+
     private static (AuthoringProposeRequest Request, AuthoringModelDraft Draft, string ScriptSource)
         LoadDraftAndRequest(
             string intent,
@@ -359,7 +363,7 @@ public static class MissionPlanSuggestCommand
         var scriptDraft = AuthoringModelDraftParser.Parse(File.ReadAllText(scriptPath));
         var pinRequest = new AuthoringProposeRequest(
             Brief: intent,
-            IdempotencyKey: idempotencyKey ?? ("cli-script-" + intent.GetHashCode(StringComparison.Ordinal).ToString("x8")),
+            IdempotencyKey: idempotencyKey ?? DefaultScriptIdempotencyKey(intent),
             ExpectedEditVersion: expectedEditVersion.Value,
             CurrentEditVersion: currentEditVersion.Value,
             AllowedUnitIds: allowedUnitIds ?? Array.Empty<string>(),

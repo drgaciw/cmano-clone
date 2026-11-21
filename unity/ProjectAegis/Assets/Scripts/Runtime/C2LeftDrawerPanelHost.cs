@@ -334,7 +334,15 @@ namespace ProjectAegis.Unity.Runtime
                 return;
             }
 
-            listView.makeItem = () => new Label();
+            listView.makeItem = () =>
+            {
+                var created = new Label { focusable = true };
+                created.RegisterCallback<KeyDownEvent>(OnContactRowKeyDown);
+                return created;
+            };
+            listView.selectionType = SelectionType.Single;
+            listView.selectionChanged -= OnContactSelectionChanged;
+            listView.selectionChanged += OnContactSelectionChanged;
             listView.bindItem = (element, index) =>
             {
                 if (element is Label label && index >= 0 && index < _filteredContactRows.Count)
@@ -445,6 +453,35 @@ namespace ProjectAegis.Unity.Runtime
                 "Hostile" => ContactListLifecycleFilter.Hostile,
                 _ => ContactListLifecycleFilter.All,
             };
+
+        // UAT D23: keyboard/gamepad parity with the OOB list (selectionChanged + Return/Space).
+        private void OnContactSelectionChanged(IEnumerable<object> _)
+        {
+            if (_contactList == null || bridgeHost == null)
+            {
+                return;
+            }
+
+            if (ContactRowSelection.TryResolveContactId(_filteredContactRows, _contactList.selectedIndex, out var contactId)
+                && contactId != null)
+            {
+                bridgeHost.SelectContact(contactId);
+            }
+        }
+
+        private void OnContactRowKeyDown(KeyDownEvent evt)
+        {
+            if (evt.keyCode is not (KeyCode.Return or KeyCode.KeypadEnter or KeyCode.Space))
+            {
+                return;
+            }
+
+            if (evt.currentTarget is Label { userData: string contactId } && bridgeHost != null)
+            {
+                bridgeHost.SelectContact(contactId);
+                evt.StopPropagation();
+            }
+        }
 
         private void OnContactRowClicked(ClickEvent evt)
         {

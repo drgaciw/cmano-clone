@@ -23,6 +23,7 @@ public static class SimulationModeConfigurator
             orchestrator.ScenarioPolicy = ResolveScenarioPolicy(scenarioPolicyId);
         }
 
+        IEnumerable<ICommandableTarget> playerTargets = friendly;
         switch (mode.Kind)
         {
             case SimulationModeKind.Human:
@@ -33,6 +34,7 @@ public static class SimulationModeConfigurator
             case SimulationModeKind.Mixed when orchestrator.ScenarioPolicy?.AllowDualSideControl == true:
                 AssignHuman(friendly);
                 AssignHuman(opposing);
+                playerTargets = friendly.Concat(opposing);
                 break;
 
             case SimulationModeKind.Mixed when mode.PlayerControlsFriendlySide:
@@ -43,6 +45,7 @@ public static class SimulationModeConfigurator
             case SimulationModeKind.Mixed:
                 AssignAgents(orchestrator, friendly, defaultTraits, agentAutonomy, "friendly", isFriendly: true);
                 AssignHuman(opposing);
+                playerTargets = opposing;
                 break;
 
             case SimulationModeKind.AgentVsAgent:
@@ -54,6 +57,7 @@ public static class SimulationModeConfigurator
                 throw new ArgumentOutOfRangeException(nameof(mode), mode.Kind, "Unknown simulation mode.");
         }
 
+        orchestrator.SetPlayerCommandTargets(playerTargets);
         if (mode.Kind == SimulationModeKind.AgentVsAgent)
         {
             orchestrator.BeginExecution();

@@ -14,7 +14,11 @@ public static class ScenarioValidateCommand
             return 2;
         }
 
-        var scenario = ScenarioDocumentJsonLoader.LoadFromFile(scenarioPath);
+        if (!ScenarioLoadGuard.TryLoad(scenarioPath, output, out var scenario, out var loadExit))
+        {
+            return loadExit;
+        }
+
         var catalog = ResolveCatalogPublic(scenario);
         var config = new ValidationConfig();
         var (allowed, report) = ScenarioValidationExportGate.EvaluateExport(scenario, catalog, config);

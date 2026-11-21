@@ -28,7 +28,11 @@ public static class ScenarioSimulateSampleCommand
             return 2;
         }
 
-        var scenario = ScenarioDocumentJsonLoader.LoadFromFile(scenarioPath);
+        if (!ScenarioLoadGuard.TryLoad(scenarioPath, output, out var scenario, out var loadExit))
+        {
+            return loadExit;
+        }
+
         var catalog = CatalogReaderFactory.IsBalticV3Scenario(scenario.Metadata.PolicyId ?? "")
             ? InMemoryCatalogReader.BalticV3Fixture()
             : ScenarioValidateCommand.ResolveCatalogPublic(scenario);

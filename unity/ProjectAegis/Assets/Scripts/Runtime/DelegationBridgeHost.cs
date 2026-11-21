@@ -582,8 +582,15 @@ namespace ProjectAegis.Unity.Runtime
                 return false;
             }
 
+            // UAT D22: refuse before EnsureHumanControl so a hostile AI unit is never taken over.
+            if (PlayerSideGuard.IsOpposingAiUnit(Bridge, entityKey))
+            {
+                failureReason = ProjectAegis.Delegation.UnityAdapter.Bridge.C2PlayerCommandBridge.ReasonNotPlayerControlled;
+                return false;
+            }
+
             EnsureHumanControl(entityKey);
-            return Bridge.TryEnqueueAttackOption(entityKey, optionId, _lastSnapshot, out failureReason);
+            return PlayerSideGuard.TryEnqueueAttackOption(Bridge, entityKey, optionId, _lastSnapshot, out failureReason);
         }
 
         /// <summary>
@@ -645,6 +652,12 @@ namespace ProjectAegis.Unity.Runtime
             if (!TryResolveEntityKey(craftId, out var entityKey))
             {
                 reason = ProjectAegis.Delegation.UnityAdapter.Bridge.C2PlayerCommandBridge.ReasonUnknownUnit;
+                return false;
+            }
+
+            if (PlayerSideGuard.IsOpposingAiUnit(Bridge, entityKey))
+            {
+                reason = ProjectAegis.Delegation.UnityAdapter.Bridge.C2PlayerCommandBridge.ReasonNotPlayerControlled;
                 return false;
             }
 
@@ -1119,19 +1132,8 @@ namespace ProjectAegis.Unity.Runtime
                 && (slot = binding.Target.Slot) is not null;
         }
 
-        private bool IsPlayerControlledUnit(EntityKey entityKey)
-        {
-            if (!Bridge.Registry.TryGetBinding(entityKey, out var binding))
-            {
-                return false;
-            }
-
-            var slot = binding.Target.Slot;
-            return slot.Active is HumanController
-                || slot.SuspendedAgent is not null
-                || slot.Active is AgentController { Id.Value: var id }
-                    && id.StartsWith("friendly-", StringComparison.Ordinal);
-        }
+        private bool IsPlayerControlledUnit(EntityKey entityKey) =>
+            PlayerSideGuard.IsPlayerControlledUnit(Bridge, entityKey);
 
         private static (string controllerKind, string? agentId, string autonomy) DescribeSlot(ControllerSlot slot)
         {

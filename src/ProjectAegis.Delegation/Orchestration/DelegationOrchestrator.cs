@@ -25,6 +25,7 @@ public sealed class DelegationOrchestrator
     private readonly DetachRejoinService _detachRejoinService;
     private readonly List<TrustSignal> _trustSignals = new();
     private readonly PendingApprovalQueue _pendingApprovalQueue = new();
+    private HashSet<TargetId>? _playerCommandTargets;
     private long _orderIdSequence = 1;
 
     public DelegationOrchestrator(int globalSeed, IPolicyEvaluator? policyEvaluator = null)
@@ -59,6 +60,12 @@ public sealed class DelegationOrchestrator
     public EffectivePolicy ResolveEffectivePolicyForUnit(ulong unitId) => ResolvePolicyForUnit(unitId);
 
     public PolicySnapshotRegistry PolicySnapshots => _policySnapshots;
+
+    /// <summary>Returns configured player command ownership, or null before mode configuration.</summary>
+    public bool? IsPlayerCommandTarget(TargetId targetId) => _playerCommandTargets?.Contains(targetId);
+
+    internal void SetPlayerCommandTargets(IEnumerable<ICommandableTarget> targets) =>
+        _playerCommandTargets = new HashSet<TargetId>(targets.Select(target => target.Id));
 
     private ScenarioPolicyProfile? _scenarioPolicy;
 

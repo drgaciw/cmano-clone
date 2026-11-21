@@ -30,6 +30,9 @@ public static class OobTreeBridge
             throw new ArgumentNullException(nameof(registry));
         }
 
-        return OobTreeProjection.Project(registry.CollectMemberIds(), snapshot.IsMemberAlive);
+        return OobTreeProjection.Project(
+            registry.CollectMemberIds(),
+            snapshot.IsMemberAlive,
+            registry.IsPlayerCommandTarget);
     }
 }

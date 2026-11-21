@@ -2,7 +2,6 @@ namespace ProjectAegis.MissionEditor.Cli;
 
 using System.Text.Json;
 using Data.Catalog;
-using Data.Scenario.Authoring;
 
 /// <summary>Lists gated near-future spawn plan from scenario metadata (req 09).</summary>
 public static class ScenarioNearFutureSpawnCommand
@@ -21,7 +20,11 @@ public static class ScenarioNearFutureSpawnCommand
             return 2;
         }
 
-        var scenario = ScenarioDocumentJsonLoader.LoadFromFile(scenarioPath);
+        if (!ScenarioLoadGuard.TryLoad(scenarioPath, output, out var scenario, out var loadExit))
+        {
+            return loadExit;
+        }
+
         var units = scenario.Metadata.NearFutureUnits ?? [];
         var requests = units
             .Select(u => new ScenarioNearFutureUnitRequest(u.ArchetypeId, u.UnitId))

@@ -3,13 +3,20 @@ namespace ProjectAegis.Delegation.Projection;
 /// <summary>Resolves default and valid C2 selection ids (presentation layer).</summary>
 public static class C2SelectionResolver
 {
-    public static string? ResolveDefaultFriendlyUnit(IReadOnlyList<OobTreeEntry> oob) =>
-        oob
-            .Where(u => u.IsAlive)
+    /// <summary>
+    /// Default startup selection: first alive player-side unit by ordinal id.
+    /// Legacy rows fall back to Baltic side affiliation.
+    /// </summary>
+    public static string? ResolveDefaultFriendlyUnit(IReadOnlyList<OobTreeEntry> oob)
+    {
+        var candidates = oob
+            .Where(u => u.IsPlayerCommandTarget
+                ?? !ProjectAegis.Sim.Scenario.BalticV3SideRegistry.IsRedForceUnit(u.UnitId))
             .OrderBy(u => u.UnitId, StringComparer.Ordinal)
-            .Select(u => u.UnitId)
-            .FirstOrDefault()
-        ?? oob.OrderBy(u => u.UnitId, StringComparer.Ordinal).Select(u => u.UnitId).FirstOrDefault();
+            .ToList();
+        return candidates.Where(u => u.IsAlive).Select(u => u.UnitId).FirstOrDefault()
+            ?? candidates.Select(u => u.UnitId).FirstOrDefault();
+    }
 
     public static bool TryResolveFriendlyUnitFromSymbol(
         string symbolId,

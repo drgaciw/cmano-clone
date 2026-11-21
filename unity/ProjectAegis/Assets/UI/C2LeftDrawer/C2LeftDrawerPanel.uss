@@ -43,6 +43,8 @@
     height: 20px;
     min-height: 20px;
     max-height: 20px;
+    /* UAT D12: the wrapping top bar overlaps the drawer's first pixels; keep the toggle fully visible. */
+    margin-top: 12px;
     margin-bottom: 6px;
     padding-left: 6px;
     padding-right: 6px;
@@ -106,6 +108,40 @@
     margin-bottom: 2px;
     font-size: 10px;
     color: rgb(170, 180, 190);
+}
+
+/* UAT D31: default field theme leaves value text the same colour as the input background. */
+.c2-drawer-contact-chrome .unity-base-field__label {
+    color: var(--text-body);
+    /* UAT D31b: Unity's default 150px label left the value text 0px wide. */
+    min-width: 48px;
+    width: 48px;
+}
+
+.c2-drawer-contact-chrome .unity-base-popup-field__text {
+    color: var(--text-data);
+    flex-grow: 1;
+}
+
+.c2-drawer-contact-chrome .unity-base-popup-field__input,
+.c2-drawer-contact-chrome .unity-base-text-field__input {
+    color: var(--text-data);
+    flex-grow: 1;
+    background-color: rgba(30, 40, 54, 0.95);
+    border-width: 1px;
+    border-color: var(--border-panel);
+}
+
+/* UAT D31: contact ListView collapsed to zero height; give it a floor and visible rows. */
+#contact-list {
+    flex-grow: 1;
+    flex-shrink: 1;
+    min-height: 120px;
+}
+
+#contact-list .unity-list-view__item {
+    min-height: 18px;
+    color: var(--text-data);
 }
 
 .oob-row {

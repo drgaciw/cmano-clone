@@ -21,7 +21,7 @@
   `ScenarioDataPaths.TryResolveScenariosDirectory()` walked up only from `AppContext.BaseDirectory`, which is the Editor install in Unity. Every `ScenarioPolicyRepository.TryGet` returned null, so every scenario silently fell back to the default briefing and no comms/doctrine timelines were built.
   - Test: `ScenarioDataPathsTests.TryResolveScenariosDirectory_falls_back_to_working_directory_when_base_is_outside_repo` (was compile-red).
   - Fix: `src/ProjectAegis.Data/Scenario/ScenarioDataPaths.cs` adds a working-directory fallback and a two-argument test seam.
-  - Verified in the running Editor: `dir=/home/username01/cmano-clone/data/scenarios`, `baltic-patrol-comms` profile resolves.
+  - Verified in the running Editor: `dir=<repo>/data/scenarios`, `baltic-patrol-comms` profile resolves.
 - **D5 — Four UI `.meta` files with 31-character GUIDs** (`EngageExplain/*`, `PendingApproval/*`). Unity ignored the assets and logged errors on every refresh.
   - Test: `UnityMetaGuidValidityTests.Every_unity_meta_file_has_a_valid_32_hex_guid` (red listed exactly these four; now green across 268 meta files).
   - Fix: padded each GUID to 32 hex (no references existed to the old values).
@@ -99,3 +99,35 @@ The existing `jev-worker` ignores request bodies. A forwarding version is in `to
 - D16: de-duplicate repeated policy denials in the score (game-design decision).
 - D12: drawer clipping unconfirmed. D14: stale `.meta` cache clears on an Editor restart.
 - C9/C10: interactive behaviour and pixel-level DRG-162 sign-off (owner).
+
+## Round 3 (2026-11-21) — every UI function, editors, CLI
+
+Full per-control results: [`uat-ui-function-matrix.md`](uat-ui-function-matrix.md). CLI results: [`evidence/uat-2026-11-21/mission-editor-cli-results.md`](evidence/uat-2026-11-21/mission-editor-cli-results.md).
+
+**Method change:** interactive checks (C9) are now agent-driven — MCP `script-execute` sends `NavigationSubmitEvent` to UI Toolkit controls (a code-sent `ClickEvent` does not reach buttons). Harness: `unity/ProjectAegis/.ai-game-dev/snippets/UatHarness.cs`.
+
+**Fixed this round (each its own commit):** D17, D19 (+#899 completion), D20, D21, D22 (re-fix pending, see D22b), D23, D24, D25, D27, CLI-1, CLI-1b, CLI-5, CLI-5b. D14 cleared by the Editor restart.
+
+**Unresolved after round 3 — owners**
+
+| ID | Summary | Owner |
+|----|---------|-------|
+| C1 | **Met** — committed defines and `activeInputHandler: 0` are correct; full suite 4,598/0 on a clean checkout. The local failure is D34 (resolver rewrites the file while the Editor runs) | Engineering (D34) |
+| D22b | D22 fix regression — **fixed** (`3d18f60d`); default selection now skips red units (behaviour change to confirm) | Game design (confirm default-selection change) |
+| D15 / D18 | 17 builder hosts missing from the committed scene; 10 hosts (incl. both in-game editor shells) in no scene at all | Product owner (scene composition decision) |
+| D26 | In-game Scenario Editor shell actions unwired (Load/Save/Undo/Redo/Play/Sample) | Product owner (feature scope) |
+| D24b | Exclusive selection vs. "select a friendly unit for range assessment"; Unit vs Contact readiness wording disagree | Game design |
+| D16 | Repeated policy denials lower the score | Game design |
+| D28 | Play Baltic Escort rewrites the committed scene (builder noise); D12/D29/D30/D31 fixed in round 4 | Tools engineering |
+| D32 | Unity test broken by an uncommitted local edit | You (local change) |
+| D33 | SliceA contact-panel test expectation — likely pre-existing on main | Engineering (run on main to confirm) |
+| CLI-2…CLI-13 (minus fixed) | CLI validation/exit-code defects | Tools engineering |
+| C10 | Pixel-level visual sign-off; screenshots in `evidence/uat-2026-11-21/` | Product owner |
+| Jev | No Jev scores in any round (credentials never provided) | You |
+
+## Round 4 (2026-11-21, after the Editor was unblocked)
+
+- C1 met: the failing guard was my uncommitted round 2 edit reading the Editor-rewritten working copy; now committed reading HEAD with the isolation hardening (`868d7e9b`). Full suite passes in the live working copy and on a clean checkout.
+- C6 met: D29, D30, D30b, D31, D31b, D12 fixed with failing-first tests and verified by Play Mode screenshots.
+- Builder menu items exercised (D35 found: Addressables settings not committed).
+- Still open for the owner: D15/D18, D24b, D26, D35, D16, D33, D28, C10 sign-off, CLI-2…CLI-13, Jev scoring (no credentials).

@@ -261,7 +261,20 @@ public sealed class ScenarioMapAuthoringPanelUiTests
             "ProjectSettings.asset");
         Assert.That(File.Exists(settingsPath), Is.True);
 
-        var settings = File.ReadAllText(settingsPath);
+        // Read what is committed, not the working copy: while the Editor runs, Unity-MCP's NuGet
+        // resolver rewrites every target's defines on disk (UAT D34), and that local write never ships.
+        var settings = ReadCommittedOrDisk(repoRoot!, "unity/ProjectAegis/ProjectSettings/ProjectSettings.asset", settingsPath);
+        // Headless and dedicated-server targets ship no player MCP. Their committed define lines
+        // must never carry UNITY_MCP_READY, because the Standalone isolation path does not cover them.
+        foreach (var target in new[] { "Server", "LinuxHeadlessSimulation" })
+        {
+            var line = settings.Split('\n').FirstOrDefault(l => l.TrimStart().StartsWith(target + ":", StringComparison.Ordinal));
+            Assert.That(line, Is.Not.Null, $"ProjectSettings must list scripting defines for {target}.");
+            Assert.That(
+                line,
+                Does.Not.Contain("UNITY_MCP_READY"),
+                $"{target} must not enable UNITY_MCP_READY (headless/server builds carry no MCP).");
+        }
         Assert.That(settings, Does.Contain("APP_UI_EDITOR_ONLY"));
         Assert.That(settings, Does.Contain("SENTIS_ANALYTICS_ENABLED"));
 
@@ -281,6 +294,14 @@ public sealed class ScenarioMapAuthoringPanelUiTests
             isolation,
             Does.Contain("RemoveAll"),
             "Player builds must strip UNITY_MCP_READY from the define list before compile.");
+        Assert.That(
+            isolation,
+            Does.Contain("NamedBuildTarget.Server").And.Contain("ResolveNamedTargets"),
+            "Isolation must cover the dedicated-server subtarget, not only the platform group.");
+        Assert.That(
+            isolation,
+            Does.Contain("ivanmurzak"),
+            "Post-build gate must check for MCP assemblies in player output.");
     }
 
     [Test]
@@ -328,6 +349,40 @@ public sealed class ScenarioMapAuthoringPanelUiTests
         Assert.That(servers.TryGetProperty("ai-game-developer", out var entry), Is.True);
         Assert.That(entry.GetProperty("type").GetString(), Is.EqualTo("http"));
         Assert.That(entry.GetProperty("url").GetString(), Is.EqualTo("http://localhost:8081"));
+    }
+
+    /// <summary>
+    /// Returns the file as committed at HEAD (<c>git show HEAD:path</c>), or the on-disk file when git
+    /// is unavailable or the path is not tracked (for example a source tarball).
+    /// </summary>
+    private static string ReadCommittedOrDisk(string repoRoot, string repoRelativePath, string diskPath)
+    {
+        try
+        {
+            var psi = new System.Diagnostics.ProcessStartInfo("git", $"show HEAD:{repoRelativePath}")
+            {
+                WorkingDirectory = repoRoot,
+                RedirectStandardOutput = true,
+                RedirectStandardError = true,
+                UseShellExecute = false,
+            };
+            using var git = System.Diagnostics.Process.Start(psi);
+            if (git != null)
+            {
+                var committed = git.StandardOutput.ReadToEnd();
+                git.WaitForExit(10_000);
+                if (git.HasExited && git.ExitCode == 0 && committed.Length > 0)
+                {
+                    return committed;
+                }
+            }
+        }
+        catch (System.ComponentModel.Win32Exception)
+        {
+            // git not on PATH: fall back to the working copy.
+        }
+
+        return File.ReadAllText(diskPath);
     }
 
     private static string? FindRepoRoot()

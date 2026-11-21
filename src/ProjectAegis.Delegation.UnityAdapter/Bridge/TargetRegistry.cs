@@ -96,6 +96,9 @@ public sealed class TargetRegistry
     /// <summary>Clears friendly-mesh marks before <see cref="DelegationBridge.ConfigureSimulationMode"/> rebinds sides.</summary>
     public void ClearFriendlyMeshMembers() => _friendlyMeshMemberIds.Clear();
 
+    internal bool? IsPlayerCommandTarget(TargetId targetId) =>
+        _orchestrator.IsPlayerCommandTarget(targetId);
+
     /// <summary>Friendly-side mesh members explicitly marked or inferred for network-health projection.</summary>
     public IReadOnlyList<TargetId> CollectFriendlyMeshMemberIds()
     {

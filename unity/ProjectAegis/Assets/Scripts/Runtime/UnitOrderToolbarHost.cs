@@ -145,8 +145,11 @@ namespace ProjectAegis.Unity.Runtime
 
             if (bridgeHost.TryIssueSelectedCommand(commandId, out var reason))
             {
-                SetStatus(null);
+                var issuedStatus = ProjectAegis.Delegation.UnityAdapter.Presentation.OrderIssuedStatus
+                    .FormatIssued(commandId, bridgeHost.SelectedUnitId);
                 Refresh();
+                // Set after Refresh so the confirmation is not cleared by selection-state upkeep.
+                SetStatus(issuedStatus);
                 return;
             }
 

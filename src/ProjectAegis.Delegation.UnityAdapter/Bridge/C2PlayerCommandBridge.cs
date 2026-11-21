@@ -11,6 +11,8 @@ public static class C2PlayerCommandBridge
 {
     public const string ReasonReplayAttached = "REPLAY_ATTACHED";
     public const string ReasonNotHumanControl = "NOT_HUMAN_CONTROL";
+    /// <summary>UAT D22: unit is not under player control (hostile / AI-only).</summary>
+    public const string ReasonNotPlayerControlled = "NOT_PLAYER_CONTROLLED";
     public const string ReasonUnknownUnit = "UNKNOWN_UNIT";
     public const string ReasonEnqueueFailed = "ENQUEUE_FAILED";
 
