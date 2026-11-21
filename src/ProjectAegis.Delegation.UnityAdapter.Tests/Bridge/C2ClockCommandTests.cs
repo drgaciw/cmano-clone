@@ -11,8 +11,17 @@ public sealed class C2ClockCommandTests
     [Test]
     public void FormatCompressionLabel_paused_wins_over_factor()
     {
-        Assert.That(C2ClockCommand.FormatCompressionLabel(true, 8), Is.EqualTo("TIME: PAUSED"));
+        Assert.That(C2ClockCommand.FormatCompressionLabel(true, 8), Is.EqualTo("TIME: PAUSED (8x)"));
         Assert.That(C2ClockCommand.FormatCompressionLabel(false, 4), Is.EqualTo("TIME: 4x"));
+    }
+
+    [Test]
+    public void FormatCompressionLabel_paused_shows_selected_rate_for_feedback()
+    {
+        // UAT D27: -/+ while paused must be visible.
+        Assert.That(C2ClockCommand.FormatCompressionLabel(true, 2), Is.EqualTo("TIME: PAUSED (2x)"));
+        Assert.That(C2ClockCommand.FormatCompressionLabel(true, 1), Is.EqualTo("TIME: PAUSED (1x)"));
+        Assert.That(C2ClockCommand.FormatCompressionLabel(true, 0), Is.EqualTo("TIME: PAUSED (1x)"));
     }
 
     [Test]

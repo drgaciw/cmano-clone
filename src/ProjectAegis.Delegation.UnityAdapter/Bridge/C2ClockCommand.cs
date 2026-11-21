@@ -16,12 +16,13 @@ public static class C2ClockCommand
     /// <summary>Presentation label bound by the top bar — never a second clock authority.</summary>
     public static string FormatCompressionLabel(bool isPaused, int factor)
     {
+        var clamped = factor < 1 ? 1 : factor;
         if (isPaused)
         {
-            return "TIME: PAUSED";
+            // UAT D27: surface the selected rate so -/+ while paused is visible.
+            return "TIME: PAUSED (" + clamped + "x)";
         }
 
-        var clamped = factor < 1 ? 1 : factor;
         return "TIME: " + clamped + "x";
     }
 
