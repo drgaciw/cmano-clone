@@ -53,7 +53,7 @@ One `noul` question per criterion, named `c1` … `c8`, plus one `choice` for tr
 | Round | Date | Met | Not met | Jev scores | Notes |
 |-------|------|-----|---------|------------|-------|
 | 1 | 2026-11-21 | C2, C3, C4*, C7, C8 | C1 (1 failing guard: committed `Server` define), C5 (D4b open; `baltic-patrol` not re-run), C6 (D4b), C9/C10 owner | **Pending**: jev-worker not yet redeployed, so no Jev scores. Mechanical results only. | *C4: 0 new console errors in 3 scenario runs; 4 stale `.meta` errors remain in the Editor log until a restart clears `Library/`. |
-| 2 | | | | | |
+| 2 | 2026-11-21 | C2, C3, C4*, C5**, C6, C7, C8 | C1 (1 failing guard: committed `Server` define), C9/C10 owner | **Pending**: no Jev scores (worker not deployed). | *0 new console errors in all 5 scenario runs. **All 5 scenarios run post-fix; MISSIONS tab contents and clicks are owner-only. |
 | 3 | | | | | |
 
 ## Rules

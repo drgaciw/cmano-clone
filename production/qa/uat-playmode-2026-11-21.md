@@ -84,3 +84,18 @@ Fixes were built by parallel agents in isolated worktrees (red test first) and c
 ### Jev status
 
 The existing `jev-worker` ignores request bodies. A forwarding version is in `tools/jev-worker/` (type-checked, not deployed). Rubric scoring waits on that deploy. The Cloudflare API token pasted earlier into this session should be revoked.
+
+## Round 2 — D4b resolved, full matrix re-run (2026-11-21)
+
+- **D4b fixed — `2ec0ab29`.** Root cause: `App6FrameAtlas.png` imported as Multiple (`spriteMode: 2`), so the USS `url()` resolved to the first sub-sprite (blue friendly frame) for every affiliation. Set to Single via the TextureImporter API. Guard `App6FrameAtlasImportTests` was red on the committed meta, green with the fix. Verified: `hostile-1` and `c1` render hostile-red, `u1` friendly-blue. The marker is a filled square because that is the atlas art; a diamond is an art-asset change. A projection-level regression test from the D4b agent (`81a369ad`) is also in.
+- **Matrix:** `baltic-patrol`, `-classify`, `-comms`, `-mission-roe`, `-mission` all run post-fix, 0 new console errors. `baltic-patrol`: `ENVELOPES 2`, `DATALINKS 1`, green datalink, both rings. `-comms`: `COMMS DENIED` and `PARTITIONED`. `-mission-roe`: `WeaponsTight (mission)`, `EMCON ACTIVE`.
+- **Headless suite:** 4,495 tests, 1 failure (`Player_builds_strip_unity_mcp_ready_define`, committed `Server` define; needs the Editor closed).
+- **Method note:** the toast host pauses the sim at start, and no click tool exists, so UAT runs deactivated that host in the open scene and the scene was restored to the committed state (verified clean vs HEAD) after each session.
+
+### Still open
+- C1: committed `Server`/`LinuxHeadlessSimulation` defines and `activeInputHandler` (Editor must be closed).
+- Jev scoring: deploy `tools/jev-worker`, export `JEV_WORKER_URL` / `JEV_WORKER_TOKEN`.
+- D15: regenerate all 17 remaining UI hosts, or keep the minimal scene (owner).
+- D16: de-duplicate repeated policy denials in the score (game-design decision).
+- D12: drawer clipping unconfirmed. D14: stale `.meta` cache clears on an Editor restart.
+- C9/C10: interactive behaviour and pixel-level DRG-162 sign-off (owner).
