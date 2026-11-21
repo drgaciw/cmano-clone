@@ -3,9 +3,21 @@ namespace ProjectAegis.Data.Scenario;
 /// <summary>Resolves repo-relative scenario, campaign, and catalog paths (DATA-3 path seam; profiles remain in Sim until full move).</summary>
 public static class ScenarioDataPaths
 {
-    public static string? TryResolveScenariosDirectory()
+    /// <summary>
+    /// Resolve <c>data/scenarios</c>. Walks up from <see cref="AppContext.BaseDirectory"/>, then from the
+    /// process working directory. The Unity Editor's base directory is the Editor install (outside the repo),
+    /// so the working-directory fallback (<c>unity/ProjectAegis</c>) is what finds the repo data there.
+    /// </summary>
+    public static string? TryResolveScenariosDirectory() =>
+        TryResolveScenariosDirectory(AppContext.BaseDirectory, Directory.GetCurrentDirectory());
+
+    /// <summary>Test seam: resolve <c>data/scenarios</c> from an explicit base directory, then working directory.</summary>
+    public static string? TryResolveScenariosDirectory(string baseDirectory, string workingDirectory) =>
+        FindDataDirectory(baseDirectory, "scenarios") ?? FindDataDirectory(workingDirectory, "scenarios");
+
+    private static string? FindDataDirectory(string startDirectory, string leaf)
     {
-        var dir = new DirectoryInfo(AppContext.BaseDirectory);
+        var dir = new DirectoryInfo(startDirectory);
         for (var i = 0; i < 10; i++)
         {
             if (dir == null)
@@ -13,7 +25,7 @@ public static class ScenarioDataPaths
                 break;
             }
 
-            var candidate = Path.Combine(dir.FullName, "data", "scenarios");
+            var candidate = Path.Combine(dir.FullName, "data", leaf);
             if (Directory.Exists(candidate))
             {
                 return candidate;

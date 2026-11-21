@@ -1,6 +1,6 @@
 ---
 name: team-unity
-description: "Use when the task touches Unity Editor assets, scenes, prefabs, UI Toolkit, Unity-MCP, Play Mode visuals, Console, screenshots, package/project settings, or when an agent is about to hand-edit .unity/.prefab/.meta YAML. Use when localhost:8080 / ai-game-developer is down or unproven."
+description: "Use when the task touches Unity Editor assets, scenes, prefabs, UI Toolkit, Unity-MCP, Play Mode visuals, Console, screenshots, package/project settings, or when an agent is about to hand-edit .unity/.prefab/.meta YAML. Use when localhost:8081 / ai-game-developer is down or unproven."
 argument-hint: "[scene|prefab|ui-toolkit|dots|addressables|shaders|mcp|build-profile|performance|full-feature] [scope] [--review full|lean|solo]"
 user-invocable: true
 allowed-tools: Read, Glob, Grep, Write, Edit, Bash, Task, AskUserQuestion
@@ -21,13 +21,13 @@ Run this **before** scene/prefab/UXML/Play Mode/screenshot work. Skip only for
 pure headless sim/delegation (`dotnet test`, no Unity assets).
 
 ```bash
-curl -sS -o /dev/null -w "%{http_code}\n" --max-time 3 http://localhost:8080
+curl -sS -o /dev/null -w "%{http_code}\n" --max-time 3 http://localhost:8081
 ```
 
 If this clone has not pinned yet: `./tools/pin-unity-mcp-8080.sh` then open
 Editor **6000.3.22f1** on `unity/ProjectAegis`. Clients: `.mcp.json`,
 `.cursor/mcp.json`, `.grok/config.toml` → `ai-game-developer` at
-`http://localhost:8080`.
+`http://localhost:8081`.
 
 **HTTP 2xx — Editor MCP live**
 
@@ -40,7 +40,7 @@ Editor **6000.3.22f1** on `unity/ProjectAegis`. Clients: `.mcp.json`,
 
 **Connection failed — stay headless**
 
-- Say `:8080` is down. Do not invent Editor tools.
+- Say `:8081` is down. Do not invent Editor tools.
 - Use `dotnet test` / PlayModeSmokeHarness / file edits under `src/`.
 - Do **not** hand-edit `.unity`, `.prefab`, or `.meta` YAML to change
   hierarchy, GUIDs, or component refs.
@@ -52,8 +52,8 @@ or reflection.
 | Excuse | Reality |
 |--------|---------|
 | "Editor is closed, I'll patch the YAML" | Stay headless or ask to open Editor. Wrong GUIDs break the asset. |
-| "It's just one component field" | Use `gameobject-component-modify` when `:8080` is up. |
-| "MCP isn't in this session so tools don't exist" | Probe `:8080`. If down, headless. If up, `search_tool` / `unity-tool-list`. |
+| "It's just one component field" | Use `gameobject-component-modify` when `:8081` is up. |
+| "MCP isn't in this session so tools don't exist" | Probe `:8081`. If down, headless. If up, `search_tool` / `unity-tool-list`. |
 
 ## Phase 0: Resolve Mode and Review Level
 
@@ -162,12 +162,12 @@ Produce a concise report:
 - Files/assets likely affected.
 - Architecture, performance, and asset risks.
 - Validation plan and next approved action.
-- MCP probe result (`:8080` live vs down) and whether the visual loop ran.
+- MCP probe result (`:8081` live vs down) and whether the visual loop ran.
 
 ## Red flags — stop
 
 - About to `Write`/`Edit` a `.unity`, `.prefab`, or `.meta` to "fix" hierarchy or GUIDs
-- Calling Unity-MCP tools without a successful `:8080` probe this session
+- Calling Unity-MCP tools without a successful `:8081` probe this session
 - Claiming Play Mode / screenshot evidence from headless-only work
 - Editing `DelegationBridge` through Unity-MCP script/reflection tools
 - Adding URP, HDRP, or the new Input System without explicit human approval
