@@ -28,7 +28,16 @@ public static class ScenarioSimulateSampleCommand
             return 2;
         }
 
-        var scenario = ScenarioDocumentJsonLoader.LoadFromFile(scenarioPath);
+        ScenarioDocumentDto scenario;
+        try
+        {
+            scenario = ScenarioDocumentJsonLoader.LoadFromFile(scenarioPath);
+        }
+        catch (Exception ex) when (ex is InvalidDataException or IOException or System.Text.Json.JsonException)
+        {
+            return McpToolResult.WriteError(output, "LOAD_FAILED", ex.Message);
+        }
+
         var catalog = CatalogReaderFactory.IsBalticV3Scenario(scenario.Metadata.PolicyId ?? "")
             ? InMemoryCatalogReader.BalticV3Fixture()
             : ScenarioValidateCommand.ResolveCatalogPublic(scenario);

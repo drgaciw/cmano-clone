@@ -14,7 +14,16 @@ public static class ScenarioValidateCommand
             return 2;
         }
 
-        var scenario = ScenarioDocumentJsonLoader.LoadFromFile(scenarioPath);
+        ScenarioDocumentDto scenario;
+        try
+        {
+            scenario = ScenarioDocumentJsonLoader.LoadFromFile(scenarioPath);
+        }
+        catch (Exception ex) when (ex is InvalidDataException or IOException or System.Text.Json.JsonException)
+        {
+            return McpToolResult.WriteError(output, "LOAD_FAILED", ex.Message);
+        }
+
         var catalog = ResolveCatalogPublic(scenario);
         var config = new ValidationConfig();
         var (allowed, report) = ScenarioValidationExportGate.EvaluateExport(scenario, catalog, config);
