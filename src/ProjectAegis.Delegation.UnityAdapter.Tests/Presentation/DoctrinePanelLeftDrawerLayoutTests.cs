@@ -81,10 +81,17 @@ public sealed class DoctrinePanelLeftDrawerLayoutTests
         var dd = RuleBody(uss, ".doctrine-dropdown");
         var ddMin = OptPx(dd, "min-width") ?? 0;
         Assert.That(ddMin, Is.LessThanOrEqualTo(innerWidth), "dropdown min-width must fit the panel inner width");
-        Assert.That(dd, Does.Match(@"(?<![\w-])flex-grow:\s*1\b"));
-        Assert.That(dd, Does.Match(@"(?<![\w-])flex-shrink:\s*1\b"));
-        Assert.That(dd, Does.Match(@"(?<![\w-])(width|flex-basis):\s*100%"), "dropdown must take the full row");
+        Assert.That(OptPx(dd, "margin-left") ?? 0, Is.EqualTo(0), "default left margin pushes the dropdown past the row edge");
         Assert.That(OptPx(dd, "margin-right") ?? 0, Is.EqualTo(0), "margin-right must not push the input past the edge");
+
+        var row = RuleBody(uss, ".doctrine-override-row");
+        Assert.That(row, Does.Match(@"(?<![\w-])flex-direction:\s*column"), "row must stack dropdown above Apply");
+        Assert.That(row, Does.Not.Contain("flex-wrap"), "row must not rely on flex-wrap");
+        Assert.That(row, Does.Match(@"(?<![\w-])align-items:\s*stretch"));
+
+        var inputMatch = Regex.Match(uss, @"\.doctrine-dropdown\s*>\s*\.unity-base-field__input\s*\{([^}]*)\}");
+        Assert.That(inputMatch.Success, Is.True, ".doctrine-dropdown > .unity-base-field__input rule missing");
+        Assert.That(inputMatch.Groups[1].Value, Does.Match(@"(?<![\w-])flex-grow:\s*1\b"));
 
         Assert.That(labelWidth.Value + MinInputWidth, Is.LessThanOrEqualTo(innerWidth),
             "label + minimum input width must fit the inner width");

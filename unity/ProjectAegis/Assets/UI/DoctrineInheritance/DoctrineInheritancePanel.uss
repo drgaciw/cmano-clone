@@ -54,9 +54,8 @@
 }
 
 .doctrine-override-row {
-    flex-direction: row;
-    flex-wrap: wrap;
-    align-items: center;
+    flex-direction: column;
+    align-items: stretch;
     margin-top: 4px;
     margin-bottom: 4px;
 }
@@ -65,9 +64,7 @@
    label plus the old 160px min-width pushed the input past the clipped edge. */
 .doctrine-dropdown {
     min-width: 0px;
-    width: 100%;
-    flex-grow: 1;
-    flex-shrink: 1;
+    margin-left: 0px;
     margin-right: 0px;
     margin-bottom: 4px;
 }
@@ -75,6 +72,11 @@
 .doctrine-dropdown > .unity-base-field__label {
     min-width: 88px;
     width: 88px;
+}
+
+.doctrine-dropdown > .unity-base-field__input {
+    flex-grow: 1;
+    min-width: 0px;
 }
 
 .doctrine-apply-button {
