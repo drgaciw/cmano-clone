@@ -61,6 +61,33 @@ public static class CatalogReaderFactory
     public static bool IsBalticV3Scenario(string scenarioPolicyId) =>
         scenarioPolicyId.StartsWith("baltic-v3-", StringComparison.OrdinalIgnoreCase);
 
+    /// <summary>
+    /// Same shipped-path rule as <see cref="SqliteCatalogReader"/>: full path, file name
+    /// <c>baltic_patrol.db</c> or <see cref="CatalogValidationDefaults.PublicCorpusDatabaseFileName"/>,
+    /// and a normalized path containing <c>/assets/data/catalog/</c>.
+    /// </summary>
+    private static bool IsShippedCatalogDatabase(string databasePath)
+    {
+        string full;
+        try
+        {
+            full = Path.GetFullPath(databasePath);
+        }
+        catch (Exception ex) when (ex is ArgumentException or NotSupportedException or PathTooLongException)
+        {
+            return false;
+        }
+
+        var name = Path.GetFileName(full);
+        if (!name.Equals("baltic_patrol.db", StringComparison.OrdinalIgnoreCase) &&
+            !name.Equals(CatalogValidationDefaults.PublicCorpusDatabaseFileName, StringComparison.OrdinalIgnoreCase))
+        {
+            return false;
+        }
+
+        return full.Replace('\\', '/').Contains("/assets/data/catalog/", StringComparison.OrdinalIgnoreCase);
+    }
+
     private static ICatalogReader? TryCreateCatalogReaderAtPath(string dbPath, Action<string, bool> seed)
     {
         if (!Path.IsPathRooted(dbPath) && !File.Exists(dbPath))
@@ -82,10 +109,11 @@ public static class CatalogReaderFactory
             {
                 seed(dbPath, true);
             }
-            else
+            else if (!IsShippedCatalogDatabase(dbPath))
             {
-                // SWARM-A1: existing committed DBs may predate platform_swarm —
+                // SWARM-A1: existing non-shipped DBs may predate platform_swarm —
                 // insert missing preset rows only (never rewrite curated data).
+                // Shipped assets/data/catalog files are opened as-is.
                 CatalogSeedBootstrap.EnsureGenericSwarmPlatform(dbPath);
             }
 
