@@ -1,25 +1,27 @@
 {
   "dependencies": {
     "com.ivanmurzak.unity.mcp": "1.13.0",
-    "com.unity.addressables": "2.9.1",
-    "com.unity.ai.assistant": "2.13.0-pre.2",
-    "com.unity.ai.inference": "2.6.1",
-    "com.unity.burst": "1.8.30",
-    "com.unity.sdk.linux-x86_64": "1.1.1",
-    "com.unity.toolchain.linux-x86_64-linux": "1.1.1",
-    "com.unity.ui": "2.0.0",
-    "com.unity.modules.accessibility": "1.0.0",
-    "com.unity.modules.ai": "1.0.0",
     "com.ivanmurzak.unity.mcp.animation": "2.1.1",
     "com.ivanmurzak.unity.mcp.cinemachine": "2.1.1",
-    "com.ivanmurzak.unity.mcp.inputsystem": "2.1.1",
     "com.ivanmurzak.unity.mcp.navigation": "2.1.1",
     "com.ivanmurzak.unity.mcp.particlesystem": "2.1.1",
     "com.ivanmurzak.unity.mcp.probuilder": "2.1.1",
     "com.ivanmurzak.unity.mcp.splines": "2.1.1",
     "com.ivanmurzak.unity.mcp.terrain": "2.1.1",
     "com.ivanmurzak.unity.mcp.tilemap": "2.1.1",
-    "com.ivanmurzak.unity.mcp.timeline": "2.1.1"
+    "com.ivanmurzak.unity.mcp.timeline": "2.1.1",
+    "com.unity.addressables": "2.9.1",
+    "com.unity.ai.assistant": "2.13.0-pre.2",
+    "com.unity.ai.inference": "2.6.1",
+    "com.unity.burst": "1.8.30",
+    "com.unity.memoryprofiler": "1.1.12",
+    "com.unity.performance.profile-analyzer": "1.4.2",
+    "com.unity.sdk.linux-x86_64": "1.1.1",
+    "com.unity.testtools.codecoverage": "1.3.0",
+    "com.unity.toolchain.linux-x86_64-linux": "1.1.1",
+    "com.unity.ui": "2.0.0",
+    "com.unity.modules.accessibility": "1.0.0",
+    "com.unity.modules.ai": "1.0.0"
   },
   "scopedRegistries": [
     {
@@ -35,7 +37,7 @@
       ]
     }
   ],
-  "_comment": "REFERENCE MIRROR of Packages/manifest.json — regenerated 2026-08-17, com.ivanmurzak.unity.mcp re-synced to 0.90.0 on 2026-09-27. Previously drifted (declared 3 of 10 deps) while claiming alignment; a stale mirror is worse than no mirror. Regenerate whenever manifest.json changes; UnityPackageManifestMirrorTests fails on drift.",
+  "_comment": "REFERENCE MIRROR of Packages/manifest.json — regenerated 2026-11-21 (added code coverage, profile analyzer, memory profiler; removed com.ivanmurzak.unity.mcp.inputsystem). Regenerate whenever manifest.json changes; UnityPackageManifestMirrorTests fails on drift.",
   "_guardrails": [
     "Do NOT re-add com.unity.entities without human package approval (dropped 2026-07-07). com.unity.burst stays regardless — it is required by com.unity.ai.inference (Sentis).",
     "com.unity.ai.assistant is pinned to a PRERELEASE (2.13.0-pre.2). Prereleases can be unpublished and break semver; move to a stable release before this project goes wide. See UPGRADE-RUNBOOK.md.",
