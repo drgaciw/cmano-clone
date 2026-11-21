@@ -25,6 +25,15 @@ How controls are driven: MCP `script-execute` with `unity/ProjectAegis/.ai-game-
 | CLI-1b | CLI | Same unguarded `LoadFromFile` in `SideCommands.cs:20`, `ScenarioPublishCommand.cs:19`, `TimelineCommands.cs:21`, `MissionListCommand.cs:31`, `ScenarioNearFutureSpawnCommand.cs:24`, `EventCommands.cs:197` | S2 | Open (round 3: shared `TryLoad` helper) |
 | CLI-5 | CLI | `scenario_migrate_preview` successor IDs differ per process (`string.GetHashCode`) — determinism invariant | S2 | **Fixed** — FNV-1a matching `DeterministicHash.OrdinalHash`; pinned-literal test (RED→GREEN) |
 | CLI-5b | Data/CLI | Same bug class: `CmoMarkdownImportProposer.cs:403` (`StringComparer.Ordinal.GetHashCode`) and `MissionPlanSuggestCommand.cs:362` (default idempotency key from `intent.GetHashCode`) | S2 | Open (round 3) |
+| D20 | Repo | Folder `.meta` files missing from git (`Assets/UI/AxisControl`, `GroundOps`, `MapScaleHud`, `AuthorityRoe`, `BattleGraphic`, `EngageExplain`, `MissionPackage`), so each clone generates new folder GUIDs | S4 | Open (commit the Unity-generated metas) |
+| D21 | Game UI | `EngageExplainPanelHost.TryWireElements` calls `panel.Insert(1, …)` on an empty root and throws `ArgumentOutOfRangeException` **every frame** until a visual tree exists (`LateUpdate` retries) — 1,700+ console exceptions when the host starts without its UXML | S4 | Open |
+| D22 | Game UI / C2 | Player could command the enemy: selecting `hostile-1` in the OOB enabled Fire / Salvo / Hold; `TrySelectAttackOption` called `EnsureHumanControl` on the red AI unit and queued its attack (`[PLAYER_ORDER] Player ordered Engage for hostile-1`). `TryIssueBoatCommand` had the same gap | S2 | **Fixed** — `DelegationBridge.IsOpposingAiUnit`; attack enqueue and menu refuse `NOT_PLAYER_CONTROLLED`; host refuses before `EnsureHumanControl`. 2 tests RED→GREEN. **Verified in Play Mode**: hostile-1 buttons disabled with tooltip `NOT_PLAYER_CONTROLLED`, u1 enabled |
+| D23 | Game UI / a11y | Contact rows in the left drawer only react to a mouse `ClickEvent`; no Return/Space or list-selection path (OOB rows have one), so keyboard users cannot select a contact | S3 | Open |
+| D24 | Game UI | Selection is exclusive by design (qa-loop-08), but when it moves to a contact, Unit Detail keeps showing the old unit with Fire enabled; pressing Fire returns `DENIED: No unit selected (NO_SELECTION)` | S3 | Open |
+| D24b | Design | Contact Detail asks "select a friendly unit for range assessment", which exclusive selection makes impossible; Unit Detail shows `ENGAGE … READY` while Contact Detail shows `Technical targetability: NO` / not cleared to engage | — | **Owner** (design question) |
+| D25 | Game UI | Unit-order toolbar: a successful order clears the status line (`SetStatus(null)`), so Hold / RTB / EMCON / Sensors / Engage / Plot Course give no visible confirmation (orders are accepted: `TryIssueSelectedCommand` returns true) | S4 | Open |
+| D26 | Editors | In-game Scenario Editor shell: `LoadRequested` / `SaveRequested` / `UndoRequested` / `PlayRequested` / `SampleRequested` have no subscribers, so Load does nothing and Save / Undo / Redo / Play / Sample stay disabled; shell text says "bind … in a later wave" | — | **Owner** (feature incomplete; with D18) |
+| D27 | Game UI | Speed `−` / `+` while paused change nothing visible (top bar shows only `TIME: PAUSED`) | S4 | Open |
 | CLI-2…CLI-13 | CLI | See `evidence/uat-2026-11-21/mission-editor-cli-results.md` | S3–S4 | Triage |
 
 ## Game panels — committed scene (first inventory, Play Mode, before Begin Execution)
@@ -42,4 +51,43 @@ How controls are driven: MCP `script-execute` with `unity/ProjectAegis/.ai-game-
 | PlatformCatalog | 8 buttons, 2 text fields | — |
 | PlatformImport | 8 buttons, 1 toggle, 1 text field | Reject, Approve |
 
-Per-control rows are added from `UatHarness.Inventory()` output when Play Mode is available.
+## Round 3 results — Play Mode (2026-11-21, after Editor restart)
+
+Full inventory: 210 controls in 34 `UIDocument`s (10 in the committed scene + 24 hosts spawned for test), plus 300 generated list rows (combat event history, command review) sampled 2 per list. Raw TSV: `UatHarness.Inventory()` / `Sweep()` output.
+
+### Interactive flow (C9)
+
+| Function | Observable | Result |
+|----------|-----------|--------|
+| Attention toast ACK | Toast clears; RESUME becomes enabled | Pass |
+| RESUME / PAUSE | Sim clock advances / freezes (00:00:35 → 00:00:38, then frozen 1.5 s); button text flips | Pass |
+| Speed `+` (running) | `TIME: 1x` → `TIME: 2x`; 3 s sim per 1.5 s real | Pass |
+| Speed `−` (running) | `TIME: 2x` → `TIME: 1x` | Pass |
+| Speed `−` / `+` (paused) | No visible change | Defect D27 |
+| OOB row select | Unit Detail shows the unit | Pass |
+| Contact row select (mouse) | Contact Detail renders full evidence chain | Pass |
+| Contact row select (keyboard) | — | Defect D23 |
+| Fire 1 round / salvo / hold (own unit) | `QUEUED: …` in Unit Detail | Pass |
+| Fire for hostile unit | Must be refused | Defect D22 → **Fixed, verified** |
+| Fire after selecting a contact | Must not offer a stale unit | Defect D24 |
+| Unit-order toolbar (6 orders, u1) | Orders accepted; no visible confirmation | Pass (function) / Defect D25 (feedback) |
+
+### Panel sweep (press every enabled, visible control; record label/state diff and errors)
+
+| Panel | Exercised | Changed something | Notes |
+|-------|-----------|-------------------|-------|
+| C2LeftDrawer | 8 | 8 | Tabs, sort, filter, text find, collapse all respond |
+| MapPlaceholder | 14 + 2 sampled rows | 7 | Tactical/Operational/Theater, foldouts, command-review decisions respond; Follow selection / Earlier / Latest events no visible change at t=0 (no selection, no events) — re-test with history |
+| MessageLog | 1 | 1 | Collapse / expand |
+| RightUnitDetail | 3 | 3 | See C9 |
+| ContactDetail | 6 | 5 | Foldouts, explanation link; engagement link disabled (no engagement) |
+| DoctrineInheritance | 0 | — | Hidden in this scenario (ROE dropdown has no choices) — re-test on `-mission-roe` |
+| BattleGraphic (spawned) | 3 | 0 text | Zoom buttons change no labels — visual only, screenshot check (C10) |
+| PlatformEditorShell (spawned) | 2 | 1 | Catalog / Import tabs switch; the in-scene PlatformCatalog / PlatformImport documents have every control hidden — reachable only through the shell, which no scene contains (D18) |
+| ScenarioEditorShell (spawned) | 6 | 1 | Tabs and filters respond; Load does nothing (D26) |
+| LiveEdit (spawned) | 1 | 0 | Commit: no visible change |
+| AgentRoster, AirOps, BoatOps, PendingApproval, MissionList/Package, ScenarioLibrary, SensorC2, OobTree, GroundOps, DeckHangar (spawned) | 0 | — | Every action button disabled with an empty list in `baltic-patrol-classify` (no aircraft, boats, packages or pending approvals). Re-test in a scenario that populates them (BalticEscort for EscortMission/AirOps) |
+
+### Shipped data (C12)
+
+Catalog DB hashes identical before and after this Play Mode session (`82d26212…`, `75ea357a…`) and after the full headless suite.

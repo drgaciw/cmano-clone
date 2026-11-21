@@ -60,9 +60,8 @@ public static class UatHarness
         if (f != null && (value == null || f.FieldType.IsInstanceOfType(value))) f.SetValue(o, value);
     }
 
-#if UNITY_EDITOR
+    // script-execute snippets are not compiled with UNITY_EDITOR defined, but always run in the Editor.
     static T? Load<T>(string path) where T : UnityEngine.Object => UnityEditor.AssetDatabase.LoadAssetAtPath<T>(path);
-#endif
 
     /// <summary>Spawns every host in <see cref="Uxml"/> not already present. Returns a per-host status report.</summary>
     public static string SpawnMissing()
@@ -84,14 +83,14 @@ public static class UatHarness
             var host = go.AddComponent(t);
             if (bridge != null) Set(host, "bridgeHost", bridge);
             var note = "";
-#if UNITY_EDITOR
             var vta = Load<UIE.VisualTreeAsset>($"Assets/UI/{kv.Value}.uxml");
             var uss = Load<UIE.StyleSheet>($"Assets/UI/{kv.Value}.uss");
             if (vta == null) note += " [uxml MISSING]";
             if (uss == null) note += " [uss missing]";
             Set(host, "panelAsset", vta);
             Set(host, "panelStyles", uss);
-#endif
+            var check = Field(t, "panelAsset")?.GetValue(host) as UnityEngine.Object;
+            if (vta != null && check == null) note += " [panelAsset NOT SET]";
             try { go.SetActive(true); sb.AppendLine($"{kv.Key}: spawned{note}"); }
             catch (Exception e) { sb.AppendLine($"{kv.Key}: EXCEPTION on enable {e.GetType().Name}: {e.Message}{note}"); }
         }
@@ -163,6 +162,24 @@ public static class UatHarness
         return $"pressed {doc}/{name}";
     }
 
+    /// <summary>Selects row <paramref name="index"/> of a ListView (how the UI selects units, contacts, scenarios...).</summary>
+    public static string SelectRow(string doc, string listName, int index)
+    {
+        if (!(Find(doc, listName) is UIE.BaseVerticalCollectionView lv)) return $"NOT FOUND {doc}/{listName}";
+        var n = lv.itemsSource?.Count ?? 0;
+        if (index >= n) return $"{listName}: only {n} rows";
+        lv.SetSelection(index);
+        return $"{listName}: selected {index} of {n} ({lv.selectedItem})";
+    }
+
+    public static string Rows(string doc, string listName, int max = 10)
+    {
+        if (!(Find(doc, listName) is UIE.BaseVerticalCollectionView lv)) return $"NOT FOUND {doc}/{listName}";
+        var src = lv.itemsSource;
+        if (src == null) return $"{listName}: itemsSource null";
+        return $"{listName}: {src.Count} rows: " + string.Join(" ; ", src.Cast<object>().Take(max).Select(o => Trunc(o?.ToString() ?? "null", 70)));
+    }
+
     public static string SetValue(string doc, string name, string value)
     {
         var e = Find(doc, name);
@@ -176,6 +193,152 @@ public static class UatHarness
             case UIE.SliderInt si: si.value = int.Parse(value); return $"{name}={si.value}";
             default: return $"UNSUPPORTED {e.GetType().Name}";
         }
+    }
+
+    static readonly List<string> Errors = new List<string>();
+    static bool _hooked;
+
+    static void Hook()
+    {
+        if (_hooked) return;
+        _hooked = true;
+        Application.logMessageReceived += (msg, stack, type) =>
+        {
+            if (type == LogType.Error || type == LogType.Exception || type == LogType.Assert)
+                lock (Errors) Errors.Add(type + ": " + msg.Split('\n')[0] + " @ " + (stack ?? "").Split('\n').FirstOrDefault(l => l.Contains("ProjectAegis"))?.Trim());
+        };
+    }
+
+    static Dictionary<string, string> SnapAll() => Docs().ToDictionary(d => d.name + "#" + d.GetInstanceID(), d => Text(d.name, 400) + " ¦ " + ControlState(d));
+
+    static string ControlState(UIE.UIDocument d)
+    {
+        var r = d.rootVisualElement;
+        if (r == null) return "";
+        return string.Join(",", UIE.UQueryExtensions.Query<UIE.VisualElement>(r).ToList()
+            .Where(e => ControlTypes.Any(t => t.IsInstanceOfType(e)))
+            .Select(e => (e.enabledInHierarchy ? "E" : "d") + (Shown(e) ? "S" : "h") + Label(e)));
+    }
+
+    static string FirstDiff(string a, string b)
+    {
+        var x = a.Split(new[] { " | ", " ¦ ", "," }, StringSplitOptions.None);
+        var y = b.Split(new[] { " | ", " ¦ ", "," }, StringSplitOptions.None);
+        for (var i = 0; i < Math.Max(x.Length, y.Length); i++)
+        {
+            var p = i < x.Length ? x[i] : "∅";
+            var q = i < y.Length ? y[i] : "∅";
+            if (p != q) return Trunc(p, 50) + " → " + Trunc(q, 50);
+        }
+        return "";
+    }
+
+    static string Trunc(string s, int n) => s.Length <= n ? s : s.Substring(0, n) + "…";
+
+    /// <summary>
+    /// Presses every enabled + shown control (optionally only in docs whose name contains <paramref name="docFilter"/>,
+    /// skipping names in <paramref name="skip"/>), waiting <paramref name="settleMs"/> after each, and records the effect.
+    /// Returns TSV: doc, control, type, action, ownDocDiff, otherDocsChanged, newErrors.
+    /// </summary>
+    static string Sig(UIE.VisualElement e) => e.GetType().Name + "|" + e.name + "|" + (e.parent?.name ?? "") + "|" + Trunc(Label(e), 30);
+
+    static List<UIE.VisualElement> Controls(UIE.VisualElement root) =>
+        UIE.UQueryExtensions.Query<UIE.VisualElement>(root).ToList()
+            .Where(e => ControlTypes.Any(t => t.IsInstanceOfType(e)))
+            .Where(e => !(e is UIE.Toggle && e.parent?.parent is UIE.Foldout))
+            .Where(e => !(e is UIE.ListView) && !(e is UIE.TreeView)).ToList();
+
+    static bool IsCollapse(UIE.VisualElement e) => e.name.Contains("collapse") || Label(e).StartsWith("Collapse") || Label(e).StartsWith("Expand");
+
+    /// <summary>
+    /// Presses every enabled + shown control in docs whose name contains <paramref name="docFilter"/> (skipping names in
+    /// <paramref name="skip"/>), waiting <paramref name="settleMs"/> after each. Long sibling lists (more than 3 controls of the
+    /// same type under one named parent) are sampled: first 2 only. Collapse toggles run last. <paramref name="done"/> carries
+    /// signatures between passes. Returns TSV: doc, control, type, action, ownDocDiff, otherDocsChanged, newErrors.
+    /// </summary>
+    public static async System.Threading.Tasks.Task<string> Sweep(string? docFilter = null, string skip = "", int settleMs = 250, HashSet<string>? done = null)
+    {
+        Hook();
+        var skipSet = new HashSet<string>(skip.Split(new[] { ',' }, StringSplitOptions.RemoveEmptyEntries).Select(x => x.Trim()));
+        done ??= new HashSet<string>(); // pass the same set to a second sweep to cover controls revealed by the first
+        var sb = new StringBuilder();
+        var targets = new List<(string doc, string sig, string type, string label)>();
+        foreach (var d in Docs())
+        {
+            if (docFilter != null && !d.name.Contains(docFilter)) continue;
+            var r = d.rootVisualElement;
+            if (r == null) continue;
+            var list = Controls(r);
+            var groups = list.Where(e => !string.IsNullOrEmpty(e.parent?.name) && string.IsNullOrEmpty(e.name))
+                .GroupBy(e => e.GetType().Name + "|" + e.parent!.name).Where(g => g.Count() > 3)
+                .ToDictionary(g => g.Key, g => g.Count());
+            var seenInGroup = new Dictionary<string, int>();
+            foreach (var c in list.OrderBy(e => IsCollapse(e) ? 1 : 0))
+            {
+                if (skipSet.Contains(c.name)) continue;
+                var gk = c.GetType().Name + "|" + (c.parent?.name ?? "");
+                var label = Label(c);
+                if (string.IsNullOrEmpty(c.name) && groups.TryGetValue(gk, out var gcount))
+                {
+                    seenInGroup.TryGetValue(gk, out var n);
+                    seenInGroup[gk] = n + 1;
+                    if (n >= 2) { if (n == 2) sb.AppendLine($"{d.name}	[{c.parent!.name} rows]	{c.GetType().Name}	SAMPLED 2 of {gcount}			"); continue; }
+                    label = c.parent!.name + "[" + n + "]";
+                }
+                var sig = d.name + "::" + Sig(c);
+                if (done.Contains(sig)) continue;
+                done.Add(sig);
+                targets.Add((d.name, Sig(c), c.GetType().Name, string.IsNullOrEmpty(c.name) ? Trunc(label, 40) : c.name));
+            }
+        }
+
+        foreach (var (doc, sig, type, label) in targets)
+        {
+            var root = Root(doc);
+            var el = root == null ? null : Controls(root).FirstOrDefault(e => Sig(e) == sig);
+            if (el == null) { sb.AppendLine($"{doc}	{label}	{type}	SKIP(gone)			"); continue; }
+            if (!el.enabledInHierarchy || !Shown(el)) { sb.AppendLine($"{doc}	{label}	{type}	SKIP(disabled={!el.enabledInHierarchy},hidden={!Shown(el)})			"); continue; }
+
+            var before = SnapAll();
+            int errBefore; lock (Errors) errBefore = Errors.Count;
+            string action;
+            try
+            {
+                switch (el)
+                {
+                    case UIE.DropdownField dd:
+                        var choices = dd.choices ?? new List<string>();
+                        var next = choices.Count > 1 ? choices[(Math.Max(0, choices.IndexOf(dd.value)) + 1) % choices.Count] : dd.value;
+                        dd.value = next; action = "select " + Trunc(next ?? "", 30);
+                        break;
+                    case UIE.TextField tf:
+                        tf.value = "UAT"; action = "type UAT";
+                        break;
+                    case UIE.Toggle tg:
+                        tg.value = !tg.value; action = "toggle→" + tg.value;
+                        break;
+                    case UIE.Foldout fo:
+                        fo.value = !fo.value; action = "fold→" + fo.value;
+                        break;
+                    case UIE.Slider sl:
+                        sl.value = sl.lowValue + (sl.highValue - sl.lowValue) * 0.75f; action = "slide→" + sl.value.ToString("0.##");
+                        break;
+                    default:
+                        using (var ev = UIE.NavigationSubmitEvent.GetPooled()) { ev.target = el; el.SendEvent(ev); }
+                        action = "press";
+                        break;
+                }
+            }
+            catch (Exception e) { action = "THREW " + e.GetType().Name + ": " + Trunc(e.Message, 80); }
+
+            await System.Threading.Tasks.Task.Delay(settleMs);
+            var after = SnapAll();
+            var own = before.Keys.Where(k => k.StartsWith(doc + "#")).Select(k => after.TryGetValue(k, out var v) ? FirstDiff(before[k], v) : "doc gone").FirstOrDefault(x => x != "") ?? "";
+            var others = string.Join(",", before.Keys.Where(k => !k.StartsWith(doc + "#") && after.TryGetValue(k, out var v) && v != before[k]).Select(k => k.Split('#')[0]));
+            string errs; lock (Errors) errs = string.Join(" || ", Errors.Skip(errBefore).Distinct().Take(3));
+            sb.AppendLine($"{doc}	{label}	{type}	{action}	{own.Replace('\t', ' ')}	{others}	{errs.Replace('\t', ' ')}");
+        }
+        return sb.ToString();
     }
 
     /// <summary>Visible label text in a document (for before/after diffs).</summary>
