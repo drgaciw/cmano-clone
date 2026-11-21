@@ -51,7 +51,7 @@ public static class ScenarioDbMigrationPreview
             if (inCurrent && !inTarget)
             {
                 obsolete++;
-                mappingSamples.Add($"{uid}->successor-{StableHash.Fnv1a32(uid):x8}");
+                mappingSamples.Add($"{uid}->successor-{StableHash.Fnv1A32(uid):x8}");
             }
 
             int curM = currentMounts.Count(mm => string.Equals(mm.PlatformId, uid, StringComparison.Ordinal));

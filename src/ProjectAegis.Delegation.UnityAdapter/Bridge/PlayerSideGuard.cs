@@ -4,19 +4,13 @@ using Controllers;
 using Core;
 using Projection;
 using ProjectAegis.Sim.Scenario;
-using Targets;
 
 /// <summary>
-/// UAT D22 side guard: decides whether a unit belongs to the opposing force (never player-commandable)
-/// using the side source of truth, NOT agent naming. Lives outside <see cref="DelegationBridge"/> (zero-touch
-/// invariant) and uses only its public API.
+/// UAT D22 side guard for player commands to AI-controlled units.
 /// </summary>
 /// <remarks>
-/// Side source: <see cref="BalticV3SideRegistry.IsRedForceUnit"/> (the same registry
-/// <c>MapPictureProjection</c> uses for hostile affiliation; covers legacy <c>hostile-1</c>/<c>ucav-red</c>
-/// and scenario-registered red catalog units). A unit explicitly marked in the friendly mesh by
-/// <see cref="DelegationBridge.ConfigureSimulationMode"/> is always treated as the player's side.
-/// Delegation is irrelevant: a player-side unit under any agent id stays commandable.
+/// Simulation mode records its friendly roster in <see cref="TargetRegistry"/>.
+/// Before sides are bound, <see cref="BalticV3SideRegistry.IsRedForceUnit"/> supplies legacy affiliation.
 /// </remarks>
 public static class PlayerSideGuard
 {
@@ -37,12 +31,10 @@ public static class PlayerSideGuard
             return false;
         }
 
-        if (IsMarkedFriendly(bridge, binding.TargetId))
-        {
-            return false;
-        }
-
-        return BalticV3SideRegistry.IsRedForceUnit(binding.TargetId.Value);
+        var isFriendly = bridge.Registry.IsOnConfiguredFriendlySide(binding.TargetId);
+        return isFriendly.HasValue
+            ? !isFriendly.Value
+            : BalticV3SideRegistry.IsRedForceUnit(binding.TargetId.Value);
     }
 
     /// <summary>
@@ -107,19 +99,6 @@ public static class PlayerSideGuard
         }
 
         return bridge.TryEnqueueAttackOption(entity, optionId, snapshot, out failureReason);
-    }
-
-    private static bool IsMarkedFriendly(DelegationBridge bridge, TargetId id)
-    {
-        foreach (var marked in bridge.Registry.CollectFriendlyMeshMemberIds())
-        {
-            if (marked.Equals(id))
-            {
-                return true;
-            }
-        }
-
-        return false;
     }
 
     private static bool TryFindEntity(DelegationBridge bridge, string unitId, out EntityKey entity)

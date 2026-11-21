@@ -1,6 +1,6 @@
 namespace ProjectAegis.Delegation.UnityAdapter.Tests.Presentation;
 
-using ProjectAegis.Delegation.Projection;
+using Projection;
 using ProjectAegis.Delegation.UnityAdapter.Presentation;
 using NUnit.Framework;
 

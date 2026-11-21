@@ -65,6 +65,28 @@ public sealed class PlayerSideGuardTests
     }
 
     [Test]
+    public void Configured_side_membership_controls_access_for_custom_ai_units()
+    {
+        var bridge = new DelegationBridge(42, mvpEngagement: true, scenarioPolicyId: "baltic-patrol");
+        var friendly = bridge.Registry.RegisterUnit(new EntityKey(1), "custom-patrol");
+        var opposing = bridge.Registry.RegisterUnit(new EntityKey(2), "custom-interceptor");
+        bridge.ConfigureSimulationMode(
+            new SimulationModeProfile(SimulationModeKind.AgentVsAgent, PlayerControlsFriendlySide: true),
+            friendly: [friendly.Target],
+            opposing: [opposing.Target],
+            defaultTraits: PersonalityCatalog.All[0].Traits);
+
+        Assert.That(PlayerSideGuard.IsPlayerControlledUnit(bridge, friendly.Entity), Is.True);
+        Assert.That(PlayerSideGuard.IsOpposingAiUnit(bridge, opposing.Entity), Is.True);
+        Assert.That(PlayerSideGuard.IsPlayerControlledUnit(bridge, opposing.Entity), Is.False);
+        Assert.That(
+            PlayerSideGuard.TryEnqueueAttackOption(
+                bridge, opposing.Entity, "fire-single", new Snap("custom-interceptor"), out var reason),
+            Is.False);
+        Assert.That(reason, Is.EqualTo(C2PlayerCommandBridge.ReasonNotPlayerControlled));
+    }
+
+    [Test]
     public void Default_selection_never_picks_a_red_unit()
     {
         var oob = new[] { new OobTreeEntry("hostile-1", true), new OobTreeEntry("u1", true) };

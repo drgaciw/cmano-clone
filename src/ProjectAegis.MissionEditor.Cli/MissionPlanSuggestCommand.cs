@@ -291,7 +291,7 @@ public static class MissionPlanSuggestCommand
 
     /// <summary>Default idempotency key for <c>--script</c> mode when none is supplied.</summary>
     public static string DefaultScriptIdempotencyKey(string intent) =>
-        "cli-script-" + Data.StableHash.Fnv1a32(intent).ToString("x8");
+        "cli-script-" + Data.StableHash.Fnv1A32(intent).ToString("x8");
 
     private static (AuthoringProposeRequest Request, AuthoringModelDraft Draft, string ScriptSource)
         LoadDraftAndRequest(

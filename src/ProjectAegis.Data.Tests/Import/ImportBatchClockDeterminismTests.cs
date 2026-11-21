@@ -22,6 +22,6 @@ public sealed class ImportBatchClockDeterminismTests
     [TestCase("", unchecked((int)2166136261u))]
     public void StableHash_Fnv1a32_matches_pinned_literals(string input, int expected)
     {
-        Assert.That(StableHash.Fnv1a32(input), Is.EqualTo(expected));
+        Assert.That(StableHash.Fnv1A32(input), Is.EqualTo(expected));
     }
 }

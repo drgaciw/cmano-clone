@@ -11,7 +11,7 @@ public static class StableHash
     /// Identical to <c>ProjectAegis.Delegation.Core.DeterministicHash.OrdinalHash</c>, which this
     /// lower-layer assembly cannot reference. Never throws for any input.
     /// </summary>
-    public static int Fnv1a32(string value)
+    public static int Fnv1A32(string value)
     {
         unchecked
         {

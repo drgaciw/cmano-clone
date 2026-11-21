@@ -1,6 +1,6 @@
 namespace ProjectAegis.Delegation.UnityAdapter.Tests.Presentation;
 
-using ProjectAegis.Delegation.Projection;
+using Projection;
 using ProjectAegis.Delegation.UnityAdapter.Presentation;
 using NUnit.Framework;
 
@@ -19,11 +19,11 @@ public sealed class UnitDetailSelectionGateTests
     [Test]
     public void Apply_with_no_selection_disables_every_attack_option_with_NO_SELECTION()
     {
-        var gated = UnitDetailSelectionGate.Apply(Entry(), null);
-        Assert.That(gated!.AttackMenu, Has.Count.EqualTo(2));
-        Assert.That(gated.AttackMenu, Has.All.Matches<EngageAttackOptions.AttackOption>(
+        var menu = UnitDetailSelectionGate.Apply(Entry(), null)!.AttackMenu;
+        Assert.That(menu, Has.Count.EqualTo(2));
+        Assert.That(menu, Has.All.Matches<EngageAttackOptions.AttackOption>(
             o => !o.Enabled && o.DisabledReason == UnitDetailSelectionGate.NoSelectionReason));
-        var preview = AttackOptionsPreviewBinder.Bind(gated.AttackMenu);
+        var preview = AttackOptionsPreviewBinder.Bind(menu);
         Assert.That(preview.Rows, Has.All.Matches<AttackOptionMenuRow>(
             r => !r.Enabled && r.AbortReason == "NO_SELECTION"));
     }
