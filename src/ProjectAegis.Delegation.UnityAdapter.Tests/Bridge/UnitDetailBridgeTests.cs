@@ -96,4 +96,42 @@ public sealed class UnitDetailBridgeTests
         Assert.Throws<ArgumentNullException>(() =>
             UnitDetailBridge.BuildSelected(new TargetId("u1"), null!, log, null));
     }
+
+    private static DelegationBridge SeedMissionRoeBridge()
+    {
+        var bridge = new DelegationBridge(42, mvpEngagement: false, scenarioPolicyId: "baltic-patrol-mission-roe");
+        bridge.Registry.RegisterUnit(new EntityKey(1), PlayModeSmokeOrbatSeeder.FriendlyUnitId);
+        bridge.Registry.RegisterUnit(new EntityKey(2), PlayModeSmokeOrbatSeeder.HostileUnitId);
+        bridge.BeginExecution();
+        return bridge;
+    }
+
+    [Test]
+    public void BuildSelected_mission_roe_scenario_shows_mission_roe_and_populated_emcon()
+    {
+        var bridge = SeedMissionRoeBridge();
+        var snapshot = new SimWorldSnapshotStub(contactCount: 1, hasFireControlTrackOnPrimaryContact: true);
+
+        var detail = UnitDetailBridge.BuildSelected(new TargetId("u1"), snapshot, bridge);
+
+        Assert.That(detail, Is.Not.Null);
+        Assert.That(detail!.DoctrineLabel, Does.Contain("WeaponsTight"));
+        Assert.That(detail.DoctrineLabel, Does.Contain("(mission)"));
+        Assert.That(detail.EmconLabel, Does.StartWith("EMCON:"));
+        Assert.That(detail.EmconLabel, Is.Not.EqualTo("EMCON: \u2014"));
+    }
+
+    [Test]
+    public void BuildPrimary_mission_roe_scenario_prefers_observer_over_ordinal_first_member()
+    {
+        // Smoke orbat registers hostile-1 and u1; ordinal-first member is hostile-1 (no mission ROE).
+        var bridge = SeedMissionRoeBridge();
+        var snapshot = new SimWorldSnapshotStub(contactCount: 1, hasFireControlTrackOnPrimaryContact: true);
+
+        var detail = UnitDetailBridge.BuildPrimary(snapshot, bridge);
+
+        Assert.That(detail, Is.Not.Null);
+        Assert.That(detail!.UnitId, Is.EqualTo("u1"));
+        Assert.That(detail.DoctrineLabel, Does.Contain("WeaponsTight"));
+    }
 }

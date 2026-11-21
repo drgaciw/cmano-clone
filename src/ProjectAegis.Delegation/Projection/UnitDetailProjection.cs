@@ -79,14 +79,21 @@ public static class UnitDetailProjection
         ScenarioPolicyProfile? policy,
         string? observerUnitId)
     {
-        if (policy?.UnitRadarEmcon == null ||
-            !policy.UnitRadarEmcon.TryGetValue(unitId, out var state))
+        if (policy == null)
         {
             return "EMCON: —";
         }
 
         _ = observerUnitId;
-        return state == EmconState.Active ? "EMCON: ACTIVE" : "EMCON: OFF";
+        // Same resolver as DoctrineInheritanceProjection so a scenario with no per-unit EMCON
+        // entry shows the resolved default instead of a blank line.
+        var state = ScenarioEmconResolver.ResolveRadar(unitId, policy.UnitRadarEmcon);
+        return state switch
+        {
+            EmconState.Active => "EMCON: ACTIVE",
+            EmconState.Passive => "EMCON: PASSIVE",
+            _ => "EMCON: OFF",
+        };
     }
 
     private static string ResolveDoctrineLabel(string unitId, ScenarioPolicyProfile? policy)
