@@ -187,4 +187,25 @@ public sealed class MapPictureProjectionTests
         Assert.That(blue.Affiliation, Is.EqualTo("Friendly"));
         Assert.That(blue.ShapeGlyph, Is.EqualTo(App6Sidc.FriendlySurfaceUnitGlyph));
     }
+
+    /// <summary>
+    /// D4b: the panel row (what MapSymbolPool renders) for a red-side OOB member must carry the hostile
+    /// APP-6 frame / hostile glyph, not the friendly one (PLAYMODE-SMOKE.md: friendly ■, hostile ◆).
+    /// </summary>
+    [Test]
+    public void Bind_red_side_oob_member_row_uses_hostile_frame_and_glyph()
+    {
+        var symbols = MapPictureProjection.Project(
+            [new OobTreeEntry("hostile-1", true), new OobTreeEntry("u1", true)],
+            [],
+            42);
+
+        var atlasRows = MapPanelBinder.Bind(symbols, "t", App6AtlasCatalog.Default).Symbols;
+        Assert.That(atlasRows.Single(r => r.SymbolId == "hostile-1").AtlasFrameClass, Is.EqualTo(App6Sidc.HostileContactFrame));
+        Assert.That(atlasRows.Single(r => r.SymbolId == "u1").AtlasFrameClass, Is.EqualTo(App6Sidc.FriendlySurfaceUnitFrame));
+
+        var glyphRows = MapPanelBinder.Bind(symbols, "t", App6AtlasCatalog.Unavailable).Symbols;
+        Assert.That(glyphRows.Single(r => r.SymbolId == "hostile-1").Glyph, Is.EqualTo(App6Sidc.HostileContactGlyph));
+        Assert.That(glyphRows.Single(r => r.SymbolId == "u1").Glyph, Is.EqualTo(App6Sidc.FriendlySurfaceUnitGlyph));
+    }
 }
