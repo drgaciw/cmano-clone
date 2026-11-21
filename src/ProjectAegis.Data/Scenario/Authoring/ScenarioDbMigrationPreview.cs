@@ -51,7 +51,7 @@ public static class ScenarioDbMigrationPreview
             if (inCurrent && !inTarget)
             {
                 obsolete++;
-                mappingSamples.Add($"{uid}->successor-{uid.GetHashCode():x8}");
+                mappingSamples.Add($"{uid}->successor-{StableHash(uid):x8}");
             }
 
             int curM = currentMounts.Count(mm => string.Equals(mm.PlatformId, uid, StringComparison.Ordinal));
@@ -76,5 +76,28 @@ public static class ScenarioDbMigrationPreview
         string map = mappingSamples.Count > 0 ? string.Join(";", mappingSamples.Take(2)) : "no-obsolete"; // editor change for proof
         string report = $"DB diff preview: target='[target]'; obsolete={obsolete}; broken_mounts={brokenMounts}; broken_sensors={brokenSensors}; broken_loadouts={brokenLoadouts}; broken_doctrine={brokenDoctrine}; idmap={map}";
         return new MigrationPreviewResult(obsolete, brokenMounts, brokenSensors, brokenLoadouts, brokenDoctrine, mappingSamples, report);
+    }
+
+    /// <summary>
+    /// Process-stable 32-bit FNV-1a over the UTF-16 LE bytes of <paramref name="value"/>.
+    /// Identical to <c>ProjectAegis.Delegation.Core.DeterministicHash.OrdinalHash</c>, which this
+    /// lower-layer assembly cannot reference. <see cref="string.GetHashCode()"/> is randomized per
+    /// process and must not feed output ids (UAT CLI-5).
+    /// </summary>
+    private static int StableHash(string value)
+    {
+        unchecked
+        {
+            var hash = 2166136261u;
+            foreach (var c in value)
+            {
+                hash ^= (byte)(c & 0xFF);
+                hash *= 16777619u;
+                hash ^= (byte)((c >> 8) & 0xFF);
+                hash *= 16777619u;
+            }
+
+            return (int)hash;
+        }
     }
 }

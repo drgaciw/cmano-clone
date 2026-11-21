@@ -232,6 +232,23 @@ public sealed class ScenarioValidationEngineTests
         Assert.That(report, Does.Contain("broken_mounts=1"));
     }
 
+    /// <summary>
+    /// UAT CLI-5: the successor id must be stable across processes. string.GetHashCode() is
+    /// randomized per process, so pin the exact FNV-1a (UTF-16 LE) value for a known input.
+    /// </summary>
+    [Test]
+    public void Migration_preview_successor_id_is_process_stable_fnv1a()
+    {
+        var editor = ScenarioDocumentEditor.CreateNew(dbRef: "baltic_patrol");
+        editor.AddStrikeMission("__stable-hash", new[] { "legacy-patrol-ship" }, new string[0]);
+        var res = ScenarioDbMigrationPreview.Compute(
+            editor.ToDto(),
+            InMemoryCatalogReader.BalticPatrolFixture(),
+            InMemoryCatalogReader.BalticV3Fixture());
+        Assert.That(res.IdMappings, Does.Contain("legacy-patrol-ship->successor-1747d5ae"));
+        Assert.That(res.Report, Does.Contain("idmap=legacy-patrol-ship->successor-1747d5ae"));
+    }
+
     [Test]
     public void Editor_live_validation_and_migration_from_clean_state_emits_findings_and_preview_counts()
     {
