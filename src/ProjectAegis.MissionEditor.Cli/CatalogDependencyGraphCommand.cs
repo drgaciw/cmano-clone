@@ -14,6 +14,11 @@ public static class CatalogDependencyGraphCommand
 
     public static int Run(string? databasePath, TextWriter output)
     {
+        if (CatalogDbGuard.IsMissing(databasePath, output, out var missingDbExit))
+        {
+            return missingDbExit;
+        }
+
         using var reader = OpenReader(databasePath, out var resolvedDatabasePath);
         // S37-03: full chains via GetSortedDependencyEdges (platform→link + weapon→mount→sensor)
         var edges = reader.GetSortedDependencyEdges();

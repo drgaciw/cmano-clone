@@ -9,6 +9,11 @@ public static class CatalogPlatformBrowseCommand
 {
     public static int Run(string? dbPath, TextWriter writer, int? maxRecords = null)
     {
+        if (CatalogDbGuard.IsMissing(dbPath, writer, out var missingDbExit))
+        {
+            return missingDbExit;
+        }
+
         if (!PlatformCatalogExportResolver.TryResolve(dbPath, snapshotId: null, out var data))
         {
             data = PlatformCatalogExportData.Empty;

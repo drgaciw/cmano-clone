@@ -15,6 +15,11 @@ public static class CatalogIntelligenceRunCommand
 
     public static int Run(string? databasePath, TextWriter output)
     {
+        if (CatalogDbGuard.IsMissing(databasePath, output, out var missingDbExit))
+        {
+            return missingDbExit;
+        }
+
         ICatalogReader catalog;
         IDisposable? disposable;
         if (!string.IsNullOrWhiteSpace(databasePath) && File.Exists(databasePath))

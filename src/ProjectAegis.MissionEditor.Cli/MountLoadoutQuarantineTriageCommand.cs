@@ -19,6 +19,11 @@ public static class MountLoadoutQuarantineTriageCommand
         string? proposeJsonPath,
         TextWriter output)
     {
+        if (CatalogDbGuard.IsMissing(databasePath, output, out var missingDbExit))
+        {
+            return missingDbExit;
+        }
+
         try
         {
             var result = MountLoadoutQuarantineTriage.Run(
