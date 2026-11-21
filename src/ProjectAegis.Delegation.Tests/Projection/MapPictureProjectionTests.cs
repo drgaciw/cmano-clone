@@ -166,4 +166,25 @@ public sealed class MapPictureProjectionTests
 
         Assert.That(overlays, Is.Empty);
     }
+
+    /// <summary>
+    /// D4: PLAYMODE-SMOKE.md specifies friendly = ■ and hostile = ◆ on the map. A red-side OOB member
+    /// (Baltic ORBAT seeds u1 + hostile-1) must not be projected as a Friendly ■.
+    /// </summary>
+    [Test]
+    public void Project_red_side_oob_member_is_hostile_diamond_not_friendly_square()
+    {
+        var symbols = MapPictureProjection.Project(
+            [new OobTreeEntry("hostile-1", true), new OobTreeEntry("u1", true)],
+            [],
+            42);
+
+        var red = symbols.Single(s => s.SymbolId == "hostile-1");
+        var blue = symbols.Single(s => s.SymbolId == "u1");
+        Assert.That(red.Affiliation, Is.EqualTo("Hostile"));
+        Assert.That(red.ShapeGlyph, Is.EqualTo(App6Sidc.HostileContactGlyph));
+        Assert.That(red.App6UssFrameId, Is.EqualTo(App6Sidc.HostileContactFrame));
+        Assert.That(blue.Affiliation, Is.EqualTo("Friendly"));
+        Assert.That(blue.ShapeGlyph, Is.EqualTo(App6Sidc.FriendlySurfaceUnitGlyph));
+    }
 }
