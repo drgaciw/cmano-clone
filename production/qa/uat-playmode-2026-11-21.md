@@ -57,3 +57,30 @@
 ## Not committed
 
 All changes are uncommitted, per repo rules. Touched files: `.mcp.json`, `.cursor/mcp.json`, `.grok/config.toml`, `tools/pin-unity-mcp-8080.*`, `unity/ProjectAegis/Assets/Editor/McpLocalHostPin.cs`, `.claude/skills/team-unity/SKILL.md`, `.cursor/rules/sprint-coordination.mdc`, `unity/ProjectAegis/Packages/manifest.template.json`, `unity/ProjectAegis/Assets/UI/{EngageExplain,PendingApproval}/*.meta`, `src/ProjectAegis.Data/Scenario/ScenarioDataPaths.cs`, `src/ProjectAegis.Data.Tests/Scenario/ScenarioDataPathsTests.cs`, `src/ProjectAegis.Delegation.UnityAdapter.Tests/Authoring/ScenarioMapAuthoringPanelUiTests.cs`, `src/ProjectAegis.Delegation.UnityAdapter.Tests/Packaging/UnityMetaGuidValidityTests.cs` (new), `unity/ProjectAegis/Assets/Plugins/ProjectAegis/*.dll` (refreshed), and this report.
+
+## Round 1 — post-fix verification (2026-11-21)
+
+Fixes were built by parallel agents in isolated worktrees (red test first) and cherry-picked as one commit per defect.
+
+| Defect | Status | Commit | Play Mode evidence |
+|--------|--------|--------|--------------------|
+| D13 auto-pause | **Fixed** (scene lacked `AttentionToastPanelHost`) | `d47f7ebb` | `TIME: PAUSED` + `RESUME` at `SIM 00:00:00`, console clean |
+| D2b doctrine/EMCON | **Fixed** (panel described the wrong unit; EMCON resolver) | `59a59488` | `DOCTRINE: WeaponsTight (mission)`, `EMCON: ACTIVE` on `u1` |
+| D3 abort spam | **Fixed** (collapse with repeat count) | `28e90f2c` | Log shows distinct decisions and `POLICY_DENIAL` lines at SIM 29 s |
+| D4 hostile symbol | **Partial** | `b6b66077` | Label now hostile-red, but marker still a blue ■ (D4b) |
+| D11 Unit Detail wrap | **Fixed** (`white-space: normal`) | `9a2093f3` | `ENGAGE:` line wraps onto a second line |
+| D10 negative score | **Intended** per `design/gdd/scoring-losses.md` (`−5` per denial) | none | `-75` at 9 s, `-150` at 29 s |
+| D12 drawer clipping | **Unconfirmed** (no USS cause found) | none | not reproduced |
+
+### New or changed findings
+
+- **D15 — Scene drift beyond the toast.** The builder ensures 17 more hosts the committed scene lacks. Adding all of them stacks overlapping full-screen panels over the map (verified, then reverted), so only the toast was added. Owner decision: regenerate the whole stack or keep the minimal scene.
+- **D4b — hostile marker still blue ■.** Delegated to a follow-up agent; result pending.
+- **D16 — Score keeps falling while a denial persists.** The GDD does not say repeated identical denials should be de-duplicated. A game-design decision, not a code defect.
+- **D7 hardening (uncommitted).** `McpPlayerBuildIsolation` now strips the define for both `Standalone` and `Server` targets and adds a post-build leak check. The first draft used a `BuildSummary.subtarget` member that does not exist and broke the Editor compile; it was caught from the console and fixed. The guard test is red only on the committed `Server` line, which needs the Editor closed (see D8).
+- **Test environment note.** Two failures reported by agents in fresh worktrees (missing plugin DLL; catalog read-open check) do not occur in the main tree.
+- **C7 verified from the diff:** 33 files changed since the base, none on `DelegationBridge`, `CatalogWriteGate`, replay goldens or the Baltic hash.
+
+### Jev status
+
+The existing `jev-worker` ignores request bodies. A forwarding version is in `tools/jev-worker/` (type-checked, not deployed). Rubric scoring waits on that deploy. The Cloudflare API token pasted earlier into this session should be revoked.
