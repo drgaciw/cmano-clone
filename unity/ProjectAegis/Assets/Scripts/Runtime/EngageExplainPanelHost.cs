@@ -110,7 +110,7 @@ namespace ProjectAegis.Unity.Runtime
                 _dlzLine = new Label { name = "dlz-line" };
                 _dlzLine.AddToClassList("engage-explain-dlz");
                 _dlzLine.AddToClassList(DlzCueClasses.Unknown);
-                panel.Insert(1, _dlzLine);
+                panel.Insert(PanelInsertGuard.ClampIndex(1, panel.childCount), _dlzLine);
             }
 
             _domainAbortLabel = panel.Q<Label>(DomainAbortName);

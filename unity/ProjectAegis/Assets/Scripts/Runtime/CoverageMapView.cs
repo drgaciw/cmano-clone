@@ -160,7 +160,7 @@ namespace ProjectAegis.Unity.Runtime
             line.style.position = Position.Absolute;
             line.style.height = 2;
             line.style.transformOrigin = new TransformOrigin(Length.Percent(0), Length.Percent(50), 0);
-            _layer.Insert(_layer.childCount - 1, line);
+            _layer.Insert(ProjectAegis.Delegation.UnityAdapter.Presentation.PanelInsertGuard.ClampIndex(_layer.childCount - 1, _layer.childCount), line);
             _segments.Add(line);
             return line;
         }
