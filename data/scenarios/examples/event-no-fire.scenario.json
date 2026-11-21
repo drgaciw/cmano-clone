@@ -5,7 +5,7 @@
     "editVersion": 1,
     "seed": 42,
     "policyId": "baltic-patrol-mission",
-    "tlBranch": "TL-2",
+    "tlBranch": "TL-0",
     "unitReadiness": null,
     "maxTechnologyLevel": 2,
     "nearFutureUnits": null,

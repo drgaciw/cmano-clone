@@ -5,7 +5,7 @@
     "editVersion": 1,
     "seed": 42,
     "policyId": "baltic-patrol-catalog",
-    "tlBranch": "TL-2",
+    "tlBranch": "TL-0",
     "unitReadiness": {
       "u1": {
         "readyForLaunch": true
