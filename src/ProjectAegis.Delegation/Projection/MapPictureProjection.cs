@@ -26,10 +26,14 @@ public static class MapPictureProjection
             var (x, y, lat, lon, authoritative, course, speed) =
                 ResolvePlacement(unit.UnitId, layoutSeed, poses);
             var isDestroyed = !unit.IsAlive;
-            var resolution = App6Sidc.ResolveMapGlyph("Friendly", isDestroyed);
+            // Red-side OOB members (e.g. Baltic hostile-1) are hostile, not friendly (PLAYMODE-SMOKE: friendly ■, hostile ◆).
+            var affiliation = ProjectAegis.Sim.Scenario.BalticV3SideRegistry.IsRedForceUnit(unit.UnitId)
+                ? "Hostile"
+                : "Friendly";
+            var resolution = App6Sidc.ResolveMapGlyph(affiliation, isDestroyed);
             symbols.Add(new MapSymbolEntry(
                 unit.UnitId,
-                "Friendly",
+                affiliation,
                 resolution.UnicodeGlyph,
                 unit.UnitId,
                 x,

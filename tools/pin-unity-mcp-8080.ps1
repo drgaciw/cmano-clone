@@ -1,4 +1,4 @@
-# Pin Unity-MCP (com.ivanmurzak.unity.mcp ≥0.86) to local Custom mode on :8080.
+# Pin Unity-MCP (com.ivanmurzak.unity.mcp ≥0.86) to local Custom mode on :8081.
 # Idempotent. Does not mint tokens. Matches Project Aegis client mcp.json convention.
 [CmdletBinding()]
 param(
@@ -13,7 +13,7 @@ if ([string]::IsNullOrWhiteSpace($UnityProject)) {
 
 $UserSettings = Join-Path $UnityProject "UserSettings"
 $Config = Join-Path $UserSettings "AI-Game-Developer-Config.json"
-$HostUrl = "http://localhost:8080"
+$HostUrl = "http://localhost:8081"
 
 New-Item -ItemType Directory -Force -Path $UserSettings | Out-Null
 

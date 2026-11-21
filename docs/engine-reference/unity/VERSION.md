@@ -3,7 +3,7 @@
 | Field | Value |
 |-------|-------|
 | **Engine** | Unity 6 |
-| **Editor Version** | **6000.3.22f1** (Unity 6.3 LTS, revision `1c726e1fb402`) |
+| **Editor Version** | **6000.3.27f2** (Unity 6.3 LTS). Updated 2026-11-21 from 6000.3.22f1 to match the running Editor. |
 | **Project Pinned** | 2026-08-17 |
 | **LTS Support Until** | December 2027 (Unity 6.3 LTS) |
 | **LLM Knowledge Cutoff** | May 2025 |
@@ -30,7 +30,7 @@ Pinned in `unity/ProjectAegis/Packages/manifest.json` (cite [`Tech-Stack.md`](..
 | `com.unity.burst` | 1.8.30 | Direct manifest dependency; no direct hot-path use |
 | `com.unity.ai.assistant` | 2.13.0-pre.2 | Unity AI Assistant — **present, not agent-owned** |
 | `com.unity.ai.inference` | 2.6.1 | Unity Inference — **present, not agent-owned** |
-| `com.ivanmurzak.unity.mcp` | 0.90.0 | Unity-MCP editor bridge (pin Custom + `:8080`) |
+| `com.ivanmurzak.unity.mcp` | 1.13.0 | Unity-MCP editor bridge (pin Custom + `:8081`; 2026-11-21) |
 
 > **DOTS/ECS removed (2026-07-07):** `com.unity.entities` and `com.unity.entities.graphics` were
 > dropped — never used, and world state is a managed headless-first sim (ADR-005 reversed). The
@@ -53,4 +53,4 @@ Pinned in `unity/ProjectAegis/Packages/manifest.json` (cite [`Tech-Stack.md`](..
 - [Unity Integration Review (2026-07-07)](../../reports/unity-integration-review-2026-07-07.md) — DOTS reversal rationale
 - Project invariants: [`unity/ProjectAegis/.claude/README.md`](../../unity/ProjectAegis/.claude/README.md)
 
-**Last verified:** 2026-08-17 (Editor 6000.3.22f1 batchmode open clean; package table matches the current manifest)
+**Last verified:** 2026-11-21 (Editor 6000.3.27f2 open with MCP 1.13.0 on :8081; package table matches the current manifest)

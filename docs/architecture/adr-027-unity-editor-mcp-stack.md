@@ -16,11 +16,11 @@ The repo has run Ivan Murzak's Unity-MCP (`com.ivanmurzak.unity.mcp`, OpenUPM) s
 
 Current integration surface on the Ivan Murzak stack:
 
-- `unity/ProjectAegis/Packages/manifest.json` pins `com.ivanmurzak.unity.mcp` `0.90.0` (mirrored in `manifest.template.json`).
+- `unity/ProjectAegis/Packages/manifest.json` pins `com.ivanmurzak.unity.mcp` `1.13.0` plus its `unity.mcp.*` add-ons at `2.1.1` (mirrored in `manifest.template.json`). Updated 2026-11-21 to match the running Editor stack; previously `0.90.0`.
 - 77 generated Editor skills under `unity/ProjectAegis/.claude/skills/` call `unity-mcp-cli run-tool …`.
-- `Assets/Editor/McpLocalHostPin.cs` and `tools/pin-unity-mcp-8080.{sh,ps1}` write the package's `UserSettings/AI-Game-Developer-Config.json` to pin Custom mode on `http://localhost:8080`.
-- Client configs (`.mcp.json`, `.cursor/mcp.json`, `.grok/config.toml`) register `ai-game-developer` at `http://localhost:8080`.
-- `AGENTS.md` session-start protocol probes `:8080` and routes to headless when it is down.
+- `Assets/Editor/McpLocalHostPin.cs` and `tools/pin-unity-mcp-8080.{sh,ps1}` (filenames kept) write the package's `UserSettings/AI-Game-Developer-Config.json` to pin Custom mode on `http://localhost:8081`. Port 8080 is held by an unrelated Java gateway that returns 403.
+- Client configs (`.mcp.json`, `.cursor/mcp.json`, `.grok/config.toml`) register `ai-game-developer` at `http://localhost:8081`.
+- `AGENTS.md` session-start protocol probes `:8081` and routes to headless when it is down.
 
 Observed differences in the Coplay stack (server `mcpforunityserver` 10.2.0, checked 2026-09-27):
 

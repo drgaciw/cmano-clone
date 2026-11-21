@@ -23,6 +23,8 @@
 .unit-detail-line {
     color: rgb(180, 190, 200);
     margin-bottom: 2px;
+    /* UAT D11: Label defaults to nowrap; long lines (ENGAGE/DLZ) clipped at the panel edge. */
+    white-space: normal;
 }
 
 .unit-detail-attack-menu {

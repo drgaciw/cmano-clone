@@ -66,6 +66,7 @@ public static class MessageLogProjection
         var outcomeCorrelation = IndexOutcomeCorrelations(entries);
 
         var lines = new List<MessageLogLine>();
+        var abortRuns = new Dictionary<(string Shooter, string Victim), AbortRun>();
         foreach (var entry in entries)
         {
             switch (entry.Kind)
@@ -73,6 +74,7 @@ public static class MessageLogProjection
                 case OrderLogEntryKind.Engagement when entry.Payload is EngagementRecord engagement:
                     if (engagement.Launched && launches.Contains(entry.SequenceId))
                     {
+                        abortRuns.Remove(AbortKey(engagement));
                         lines.Add(new MessageLogLine(
                             entry.SequenceId,
                             entry.SimTime,
@@ -82,12 +84,7 @@ public static class MessageLogProjection
                     }
                     else if (!engagement.Launched && aborts.Contains(entry.SequenceId))
                     {
-                        lines.Add(new MessageLogLine(
-                            entry.SequenceId,
-                            entry.SimTime,
-                            "ENGAGE_ABORT",
-                            $"Engagement aborted: {engagement.AbortReasonCode}",
-                            engagement.ShooterTargetId.Value));
+                        AddOrCollapseAbort(lines, abortRuns, entry, engagement);
                     }
 
                     break;
@@ -109,6 +106,102 @@ public static class MessageLogProjection
 
         return lines;
     }
+
+    /// <summary>
+    /// UAT D3: an abort repeating the same reason for the same shooter/victim every tick would
+    /// flood the log. Presentation-only: repeats collapse to one line with a " (xN)" count.
+    /// The collapsed row moves to the end and takes the latest sequence id and sim time so
+    /// it stays in the last-12 HUD window. A different reason or a successful launch
+    /// for the same pair restarts the run.
+    /// </summary>
+    private static void AddOrCollapseAbort(
+        List<MessageLogLine> lines,
+        Dictionary<(string Shooter, string Victim), AbortRun> abortRuns,
+        OrderLogEntry entry,
+        EngagementRecord engagement)
+    {
+        var shooter = engagement.ShooterTargetId.Value;
+        var baseText = $"Engagement aborted: {engagement.AbortReasonCode}";
+        var key = AbortKey(engagement);
+        if (abortRuns.TryGetValue(key, out var run)
+            && string.Equals(run.Reason, engagement.AbortReasonCode, StringComparison.Ordinal))
+        {
+            var count = run.Count + 1;
+            var previous = lines[run.LineIndex];
+            RelocateLineToEnd(
+                lines,
+                run.LineIndex,
+                previous with
+                {
+                    SequenceId = entry.SequenceId,
+                    SimTime = entry.SimTime,
+                    Text = $"{baseText} (x{count})",
+                });
+            ShiftAbortRunIndexes(abortRuns, run.LineIndex);
+            abortRuns[key] = run with { Count = count, LineIndex = lines.Count - 1 };
+            return;
+        }
+
+        abortRuns[key] = new AbortRun(engagement.AbortReasonCode, lines.Count, 1);
+        lines.Add(new MessageLogLine(entry.SequenceId, entry.SimTime, "ENGAGE_ABORT", baseText, shooter));
+    }
+
+    private static (string Shooter, string Victim) AbortKey(EngagementRecord engagement) =>
+        (engagement.ShooterTargetId.Value, engagement.VictimTargetId?.Value ?? string.Empty);
+
+    private static void RelocateLineToEnd(
+        List<MessageLogLine> lines,
+        int index,
+        MessageLogLine replacement)
+    {
+        var relocated = new List<MessageLogLine>(lines.Count);
+        for (var i = 0; i < lines.Count; i++)
+        {
+            if (i == index)
+            {
+                continue;
+            }
+
+            relocated.Add(lines[i]);
+        }
+
+        relocated.Add(replacement);
+        lines.Clear();
+        for (var i = 0; i < relocated.Count; i++)
+        {
+            lines.Add(relocated[i]);
+        }
+    }
+
+    private static void ShiftAbortRunIndexes(
+        Dictionary<(string Shooter, string Victim), AbortRun> abortRuns,
+        int removedIndex)
+    {
+        List<(string Shooter, string Victim)>? shifted = null;
+        foreach (var pair in abortRuns)
+        {
+            if (pair.Value.LineIndex <= removedIndex)
+            {
+                continue;
+            }
+
+            shifted ??= new List<(string Shooter, string Victim)>();
+            shifted.Add(pair.Key);
+        }
+
+        if (shifted is null)
+        {
+            return;
+        }
+
+        foreach (var key in shifted)
+        {
+            var existing = abortRuns[key];
+            abortRuns[key] = existing with { LineIndex = existing.LineIndex - 1 };
+        }
+    }
+
+    private readonly record struct AbortRun(string? Reason, int LineIndex, int Count);
 
     /// <summary>
     /// Maps each outcome sequence to the launch sequence (<see cref="CombatEvent.CorrelationId"/>)

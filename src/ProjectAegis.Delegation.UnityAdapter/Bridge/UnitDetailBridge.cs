@@ -40,8 +40,29 @@ public static class UnitDetailBridge
             throw new ArgumentNullException(nameof(log));
         }
 
+        var members = registry.CollectMemberIds();
+
+        // Prefer the observer unit: ordinal-first member may be a hostile (e.g. "hostile-1" < "u1"),
+        // which would hide the mission ROE / EMCON assigned to the observer.
+        if (!string.IsNullOrEmpty(observerUnitId))
+        {
+            for (var i = 0; i < members.Count; i++)
+            {
+                if (string.Equals(members[i].Value, observerUnitId, StringComparison.Ordinal))
+                {
+                    return UnitDetailProjection.ProjectSelected(
+                        members[i],
+                        snapshot.IsMemberAlive,
+                        log,
+                        policy,
+                        snapshot.SimTime,
+                        observerUnitId);
+                }
+            }
+        }
+
         return UnitDetailProjection.ProjectPrimary(
-            registry.CollectMemberIds(),
+            members,
             snapshot.IsMemberAlive,
             log,
             policy,
