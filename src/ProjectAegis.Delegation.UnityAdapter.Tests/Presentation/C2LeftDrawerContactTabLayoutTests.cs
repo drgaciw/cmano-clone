@@ -27,6 +27,21 @@ public sealed class C2LeftDrawerContactTabLayoutTests
         Assert.That(input, Does.Contain("background-color"));
     }
 
+    /// <summary>
+    /// UAT D31b: Unity's default field label is 150px wide, which leaves the 63px popup input no room;
+    /// the value text ("Contact ID", "All") collapsed to 0 width in Play Mode even with a visible colour.
+    /// </summary>
+    [Test]
+    public void Contact_chrome_label_is_narrow_so_the_value_text_has_width()
+    {
+        var uss = Uss();
+        var label = Rule(uss, ".c2-drawer-contact-chrome .unity-base-field__label");
+        var minWidth = Regex.Match(label, @"min-width:\s*(\d+)px");
+        Assert.That(minWidth.Success, Is.True, "Label must override Unity's 150px default min-width.");
+        Assert.That(int.Parse(minWidth.Groups[1].Value), Is.LessThanOrEqualTo(64));
+        Assert.That(Rule(uss, ".c2-drawer-contact-chrome .unity-base-popup-field__text"), Does.Contain("flex-grow: 1"));
+    }
+
     [Test]
     public void Contact_list_has_height_and_visible_rows()
     {
