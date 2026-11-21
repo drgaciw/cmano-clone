@@ -16,10 +16,14 @@
 | C6 | Presentation defects closed | Message-log abort lines collapsed, Unit Detail line wraps, no clipped chrome, score behaviour matches spec — each with a screenshot | no |
 | C7 | Forbidden surfaces untouched | `git diff` shows no change to `DelegationBridge.Tick`, `CatalogWriteGate`, replay goldens | no |
 | C8 | Every fix has a prior red test | Each defect commit adds a test that fails on the parent commit | no |
-| C9 | Interactive behaviour (pause/resume, speed, ACK, click-select) | Needs a click tool this MCP does not expose | **yes** |
+| C9 | Interactive behaviour (pause/resume, speed, ACK, click-select) | Driven through MCP `script-execute`: `NavigationSubmitEvent` on the control (a code-sent `ClickEvent` does not reach UI Toolkit buttons), then a state, label or log change is observed | no (round 3+) |
 | C10 | Pixel-level visual acceptance (DRG-162) | Agent supplies screenshots; owner signs off | **yes** |
+| C11 | Every UI function exercised | 100% of rows in `production/qa/uat-ui-function-matrix.md` (game panels, runtime editor panels, Editor windows, Mission Editor CLI verbs) are marked **Pass**, **Defect** (with ID) or **Owner** (with reason); "no exception" alone is not a pass | no |
+| C12 | Shipped data stays unchanged | `sha256sum assets/data/catalog/*.db` is identical before and after a Play Mode run and the full headless suite | no |
 
-C9 and C10 are reported as **BLOCKED (owner)**, not failed. DoD is **met** when C1–C8 are met and C9/C10 are handed to the owner with evidence.
+C10 is reported as **BLOCKED (owner)**, not failed. DoD is **met** when C1–C9, C11 and C12 are met and C10 is handed to the owner with evidence.
+
+Harness for C9/C11: `unity/ProjectAegis/.ai-game-dev/snippets/UatHarness.cs` (passed to `script-execute` via `include`). Play Mode only; it adds missing panel hosts at runtime and never saves the scene.
 
 ## Jev request shape (one batched call per round)
 
