@@ -62,6 +62,10 @@ HARD_NO_PATHS = (
     "tests/regression/replay-golden-*",
 )
 
+# A hard-no hit is waived only while this label, applied by an owner login, is on the PR.
+SIGNOFF_LABEL = "owner-signoff"
+OWNER_LOGINS = frozenset({"drgaciw"})
+
 Fetch = Callable[[str], tuple[int, Mapping[str, str], str]]
 PullList = Callable[[], Sequence[Mapping[str, object]]]
 FileList = Callable[[int], Sequence[str]]
@@ -248,6 +252,30 @@ def build_files_url(repo: str, number: int, api_base: str = "https://api.github.
     return f"{api_base.rstrip('/')}/repos/{repo}/pulls/{number}/files?per_page=100"
 
 
+def build_events_url(repo: str, number: int, api_base: str = "https://api.github.com") -> str:
+    """Return the first page of issue events for one pull request."""
+    return f"{api_base.rstrip('/')}/repos/{repo}/issues/{number}/events?per_page=100"
+
+
+def owner_signoff_from_events(events: Sequence[object]) -> bool:
+    """Return whether the latest label change for ``SIGNOFF_LABEL`` is an owner's ``labeled``."""
+    active = False
+    for event in events:
+        if not isinstance(event, dict):
+            continue
+        label = event.get("label")
+        if not isinstance(label, dict) or label.get("name") != SIGNOFF_LABEL:
+            continue
+        kind = event.get("event")
+        actor = event.get("actor")
+        login = actor.get("login") if isinstance(actor, dict) else None
+        if kind == "labeled":
+            active = isinstance(login, str) and login.lower() in OWNER_LOGINS
+        elif kind == "unlabeled":
+            active = False
+    return active
+
+
 def build_request(url: str, token: str) -> urllib.request.Request:
     """Build a read-only GitHub API request. The token is a header, not a log line."""
     return urllib.request.Request(
@@ -303,6 +331,12 @@ class GitHubApi:
                     names.append(value)
         return names
 
+    def owner_signoff(self, number: int) -> bool:
+        """Return whether an owner applied ``SIGNOFF_LABEL`` and it is still set."""
+        return owner_signoff_from_events(
+            request_json_pages(self._fetch, build_events_url(self.repo, number, self.api_base))
+        )
+
     def _urlopen_fetch(self, url: str) -> tuple[int, Mapping[str, str], str]:
         request = build_request(url, self.token)
         try:
@@ -343,8 +377,12 @@ def evaluate_surface(
     files: Sequence[str],
     list_open_pulls: PullList,
     list_files: FileList,
+    owner_signoff: Callable[[], bool] | None = None,
 ) -> CheckResult:
-    """Check (b): Surface overlap, changed-file overlap, and hard-no paths."""
+    """Check (b): Surface overlap, changed-file overlap, and hard-no paths.
+
+    ``owner_signoff`` waives hard-no hits only; overlaps with other pull requests still fail.
+    """
     if is_skipped_author(author):
         return CheckResult(
             ok=True,
@@ -356,6 +394,12 @@ def evaluate_surface(
         return CheckResult(ok=False, message=_missing_surface_message())
 
     hard_hits = _hard_no_hits([*declared, *files])
+    if hard_hits and owner_signoff is not None:
+        try:
+            if owner_signoff():
+                hard_hits = []
+        except (RateLimited, ApiError):
+            pass
     try:
         others = list(list_open_pulls())
     except RateLimited as exc:
@@ -495,6 +539,7 @@ def main(argv: Sequence[str] | None = None) -> int:
             files=files,
             list_open_pulls=api.list_open_pulls,
             list_files=api.list_files,
+            owner_signoff=lambda: api.owner_signoff(number),
         )
     except RateLimited as exc:
         result = _rate_limit_result(exc)

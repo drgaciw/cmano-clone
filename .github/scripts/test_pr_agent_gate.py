@@ -119,6 +119,51 @@ class SurfaceParseTests(unittest.TestCase):
         self.assertIn("Surface:", result.message)
 
 
+class OwnerSignoffTests(unittest.TestCase):
+    BODY = "Closes DRG-1\nSurface: " + HOST_CS + "\n"
+
+    @staticmethod
+    def _event(kind: str, login: str) -> dict[str, object]:
+        return {"event": kind, "actor": {"login": login}, "label": {"name": "owner-signoff"}}
+
+    def _run(self, signoff: object) -> gate.CheckResult:
+        return gate.evaluate_surface(
+            number=1,
+            body=self.BODY,
+            author="someone",
+            files=[HOST_CS],
+            list_open_pulls=lambda: [],
+            list_files=lambda _number: [],
+            owner_signoff=signoff,  # type: ignore[arg-type]
+        )
+
+    def test_hard_no_fails_without_signoff_and_passes_with_it(self) -> None:
+        self.assertFalse(self._run(None).ok)
+        self.assertFalse(self._run(lambda: False).ok)
+        self.assertTrue(self._run(lambda: True).ok)
+
+    def test_signoff_does_not_waive_overlap_with_another_pull_request(self) -> None:
+        result = gate.evaluate_surface(
+            number=1,
+            body=self.BODY,
+            author="someone",
+            files=[HOST_CS],
+            list_open_pulls=lambda: [{"number": 2, "title": "other", "body": "Surface: " + HOST_CS}],
+            list_files=lambda _number: [],
+            owner_signoff=lambda: True,
+        )
+        self.assertFalse(result.ok)
+
+    def test_only_an_owner_label_counts_and_unlabel_revokes_it(self) -> None:
+        self.assertTrue(gate.owner_signoff_from_events([self._event("labeled", "drgaciw")]))
+        self.assertFalse(gate.owner_signoff_from_events([self._event("labeled", "intruder")]))
+        self.assertFalse(
+            gate.owner_signoff_from_events(
+                [self._event("labeled", "drgaciw"), self._event("unlabeled", "drgaciw")]
+            )
+        )
+
+
 class GlobOverlapTests(unittest.TestCase):
     def test_literal_paths_overlap_only_when_equal(self) -> None:
         self.assertTrue(gate.paths_overlap("src/Foo.cs", "src/Foo.cs"))
