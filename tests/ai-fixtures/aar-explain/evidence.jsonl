@@ -1,0 +1,3 @@
+{"SchemaVersion":2,"BuildIdentity":"build-cli","ScenarioId":"scenario-cli","CatalogRevision":"cat-1","OrderLogFingerprint":"digestfp","ViewingSide":1,"DebriefMode":false,"EvidenceIds":["fp:1","fp:2"]}
+{"EvidenceId":"fp:1","SequenceId":1,"Kind":3,"SimTime":1,"ViewingSide":1,"UnitId":"u1","Summary":"engaged","Attributes":{"reason":"roe"}}
+{"EvidenceId":"fp:2","SequenceId":2,"Kind":1,"SimTime":2,"ViewingSide":1,"UnitId":"u1","Summary":"decided","Attributes":null}
