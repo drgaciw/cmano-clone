@@ -166,4 +166,13 @@ public sealed class ScenarioPublishAndAiScaffoldTests
         // "NL brief to draft scenario scaffold" phrase appears in AiAuthoringServices + Program usage + test name
         Assert.That(json.ToLowerInvariant(), Does.Contain("brief"));
     }
+
+    /// <summary>UAT CLI-5: default script idempotency key must not depend on per-process string hashing.</summary>
+    [Test]
+    public void Default_script_idempotency_key_is_process_stable_fnv1a()
+    {
+        Assert.That(
+            MissionPlanSuggestCommand.DefaultScriptIdempotencyKey("baltic patrol with comms degraded"),
+            Is.EqualTo("cli-script-7e8c9675"));
+    }
 }
