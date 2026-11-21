@@ -113,14 +113,14 @@ Full per-control results: [`uat-ui-function-matrix.md`](uat-ui-function-matrix.m
 | ID | Summary | Owner |
 |----|---------|-------|
 | C1 | Committed `Server` / `LinuxHeadlessSimulation` defines contain `UNITY_MCP_READY`; `activeInputHandler` revert | Engineering, needs the Unity Editor closed |
-| D22b | D22 fix regression (blocks delegated own units; touched zero-touch `DelegationBridge.cs`) | Engineering — re-fix in progress |
+| D22b | D22 fix regression — **fixed** (`3d18f60d`); default selection now skips red units (behaviour change to confirm) | Game design (confirm default-selection change) |
 | D15 / D18 | 17 builder hosts missing from the committed scene; 10 hosts (incl. both in-game editor shells) in no scene at all | Product owner (scene composition decision) |
 | D26 | In-game Scenario Editor shell actions unwired (Load/Save/Undo/Redo/Play/Sample) | Product owner (feature scope) |
 | D24b | Exclusive selection vs. "select a friendly unit for range assessment"; Unit vs Contact readiness wording disagree | Game design |
 | D16 | Repeated policy denials lower the score | Game design |
 | D12, D28, D29, D30, D31 | Layout/visual and builder-noise defects | UI engineering (round 4) |
 | D32 | Unity test broken by an uncommitted local edit | You (local change) |
-| D33 | SliceA contact-panel test expectation | Engineering — triage in progress |
+| D33 | SliceA contact-panel test expectation — likely pre-existing on main | Engineering (run on main to confirm) |
 | CLI-2…CLI-13 (minus fixed) | CLI validation/exit-code defects | Tools engineering |
 | C10 | Pixel-level visual sign-off; screenshots in `evidence/uat-2026-11-21/` | Product owner |
 | Jev | No Jev scores in any round (credentials never provided) | You |
