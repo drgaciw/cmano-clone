@@ -21,9 +21,14 @@ public static class ScenarioEventTraceCommand
     public static int Run(string[] args, TextWriter output, TextWriter error)
     {
         var path = CliArgParser.GetFlag(args, "--path");
-        var eventId = CliArgParser.GetFlag(args, "--event")
-            ?? CliArgParser.GetFlag(args, "--id")
-            ?? "evt-no-fire";
+        var requestedEventId = CliArgParser.GetFlag(args, "--event")
+            ?? CliArgParser.GetFlag(args, "--id");
+        var eventId = requestedEventId ?? "evt-no-fire";
+
+        if (!string.IsNullOrWhiteSpace(path) && string.IsNullOrWhiteSpace(requestedEventId))
+        {
+            return McpToolResult.WriteError(output, "INVALID_ARGUMENT", "--event is required when --path is given.");
+        }
 
         if (!string.IsNullOrWhiteSpace(path) && !File.Exists(path))
         {
@@ -44,7 +49,7 @@ public static class ScenarioEventTraceCommand
 
         if (loadedFromFile)
         {
-            if (!editor.Events.Any(e => string.Equals(e.Id, eventId, StringComparison.OrdinalIgnoreCase)))
+            if (!editor.Events.Any(e => string.Equals(e.Id, eventId, StringComparison.Ordinal)))
             {
                 return McpToolResult.WriteError(output, "NOT_FOUND", $"Event '{eventId}' was not found in {path}.");
             }
