@@ -68,3 +68,25 @@ Fidelity caveat: the old code had no formatter; it cleared the status in
 `UnitOrderToolbarHost.OnOrderClicked`. The empty-string stub is a model of that, not a literal
 pre-fix run. The host wiring (including set-after-Refresh ordering) lives in a Unity MonoBehaviour
 that is not compiled headlessly and is not asserted by this test.
+
+## D24 — controller-level red on real pre-fix code (round 6)
+
+- Fix commit: `1a289e233b6b6eeada03cf6a9de1eccb21ebc6d5`
+- Parent (tested): `abfbcd363403b0ed78bd0c0318b37d9568892556` (`1a289e23^`, detached worktree, removed afterwards)
+- Test: `C2PresentationControllerUnitDetailSelectionTests.ResolveUnitDetail_after_hostile_contact_selected_disables_all_attack_options_with_NO_SELECTION`
+  (`src/ProjectAegis.Delegation.UnityAdapter.Tests/Presentation/`)
+- Method: only the new test file was copied into the parent worktree; production code is unmodified
+  pre-fix code. **No stub was used.** The test drives a real `C2PresentationController`
+  (`SelectFriendlyUnit("u1")` then `SelectHostileContact`) and a real `DelegationBridge`, then calls
+  `ResolveUnitDetail`, the call site `DelegationBridgeHost` uses to feed the right unit panel. It only
+  uses APIs that exist at the parent.
+- RED at parent: `Failed: 1, Passed: 0, Total: 1`
+
+      Assert.That(afterContact.AttackMenu.Select(o => o.Enabled), Has.All.False)
+      Expected: all items False
+      But was:  < True, True, True >
+
+  i.e. after selecting a hostile contact, the old controller still returned the primary-unit fallback
+  with all three attack options (including Fire) enabled.
+- GREEN on `uat/round5-jev-decisions`: `Passed: 1, Failed: 0, Total: 1`; full UnityAdapter test project
+  results are recorded in the commit report.
