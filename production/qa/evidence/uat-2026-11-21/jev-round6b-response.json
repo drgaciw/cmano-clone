@@ -1,0 +1,29 @@
+{
+  "id": "gen-dec-1795294634-k3iiCvWC3HjGoWd710n9",
+  "provider": "TypeSafe",
+  "answers": {
+    "d37": {
+      "type": "choice",
+      "choice": "show_and_reposition",
+      "probabilities": {
+        "show_and_reposition": 0.99,
+        "show_as_is": 0.01,
+        "keep_hidden_update_spec": 0
+      },
+      "confidence": 0.98
+    },
+    "d38": {
+      "type": "choice",
+      "choice": "fix_now",
+      "probabilities": {
+        "fix_now": 0.99,
+        "defer": 0.01
+      },
+      "confidence": 0.98
+    },
+    "within_final_round": {
+      "type": "noul",
+      "noul": 0.66
+    }
+  }
+}

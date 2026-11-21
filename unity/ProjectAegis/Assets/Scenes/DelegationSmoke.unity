@@ -586,7 +586,7 @@ MonoBehaviour:
   bridgeHost: {fileID: 2085677380}
   panelAsset: {fileID: 9197481963319205126, guid: b7e4a1c92f3d8e5062f0a4d9c3b5e7a2, type: 3}
   panelStyles: {fileID: 7433441132597879392, guid: c8f5b2d03a4e9f6173a1b5e0d4c6f8b3, type: 3}
-  showPanel: 0
+  showPanel: 1
 --- !u!114 &726747700
 MonoBehaviour:
   m_ObjectHideFlags: 0
