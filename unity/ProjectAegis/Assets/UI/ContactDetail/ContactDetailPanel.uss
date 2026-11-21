@@ -32,6 +32,16 @@
     flex-shrink: 0;
 }
 
+/* UAT D30b: ContactDetailPanelHost creates these in code without .contact-detail-line,
+   so they rendered near-black on the opaque panel. */
+#contact-engagement-line,
+#contact-posture-line {
+    color: var(--text-body);
+    margin-bottom: 2px;
+    white-space: normal;
+    flex-shrink: 0;
+}
+
 .contact-detail-scroll { flex-grow: 1; min-height: 0; }
 .contact-detail-heading { -unity-font-style: bold; margin-top: 6px; }
 .contact-detail-section { margin-top: 8px; color: rgb(220, 210, 215); }

@@ -20,6 +20,12 @@ public sealed class ContactDetailPanelStackingLayoutTests
         Assert.That(body, Does.Contain("background-color: var(--surface-panel-opaque)"));
         Assert.That(body, Does.Not.Contain("rgba("));
         Assert.That(body, Does.Contain("bottom: var(--c2-message-log-clearance)"));
+        // UAT D30b: the Engagement / Posture lines had no colour rule and rendered near-black
+        // (rgb 27,27,27) on the opaque dark panel.
+        foreach (var id in new[] { "#contact-engagement-line", "#contact-posture-line" })
+        {
+            Assert.That(uss, Does.Match(Regex.Escape(id) + @"[^{]*\{[^}]*color:\s*var\(--text-"), $"{id} needs a text colour token.");
+        }
         Assert.That(tokens, Does.Match(@"--surface-panel-opaque:\s*(#[0-9A-Fa-f]{6}|rgb\()"));
         Assert.That(tokens, Does.Match(@"--c2-message-log-clearance:\s*\d+px"));
     }
