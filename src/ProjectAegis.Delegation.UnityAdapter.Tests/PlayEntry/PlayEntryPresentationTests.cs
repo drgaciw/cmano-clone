@@ -37,7 +37,7 @@ public sealed class PlayEntryPresentationTests
         Assert.That(briefing.StatusLabel, Is.EqualTo(BriefingContentPresentation.MissingContentLabel));
         Assert.That(briefing.Narrative, Is.Null);
         Assert.That(briefing.Title, Is.EqualTo(session.State.ScenarioId));
-        Assert.That(briefing.PolicyLabel, Is.EqualTo("POLICY: baltic-patrol-catalog · TL-2 · SEED 42"));
+        Assert.That(briefing.PolicyLabel, Is.EqualTo("POLICY: baltic-patrol-catalog · TL-0 · SEED 42"));
         Assert.That(briefing.MissionLines, Is.EqualTo(new[] { "patrol-1 · Patrol · units: u1" }));
     }
 
