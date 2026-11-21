@@ -3,6 +3,9 @@ namespace ProjectAegis.Delegation.Projection;
 /// <summary>Resolved enabled flag and tooltip for one Scenario Editor action button.</summary>
 public readonly struct ScenarioEditorActionAvailabilityResult
 {
+    /// <summary>Creates a resolved availability result.</summary>
+    /// <param name="enabled">Whether the button should be enabled.</param>
+    /// <param name="tooltip">Tooltip text; empty when there is nothing to explain.</param>
     public ScenarioEditorActionAvailabilityResult(bool enabled, string tooltip)
     {
         Enabled = enabled;
