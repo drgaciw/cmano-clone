@@ -49,8 +49,8 @@ public static class SideListCommand
 public static class SideUpsertCommand
 {
     // ROE names come from the sim enum (single source of truth); numeric strings are not accepted.
-    private static bool IsKnownRoe(string value) =>
-        Enum.GetNames<RoeLevel>().Contains(value.Trim(), StringComparer.OrdinalIgnoreCase);
+    private static string? CanonicalRoe(string value) =>
+        Enum.GetNames<RoeLevel>().FirstOrDefault(n => string.Equals(n, value.Trim(), StringComparison.OrdinalIgnoreCase));
 
     /// <summary>
     /// Loads the scenario, upserts the side, and persists with edit-version + undo semantics.
@@ -80,12 +80,18 @@ public static class SideUpsertCommand
             return McpToolResult.WriteError(output, "INVALID_SIDE", "A --name is required.");
         }
 
-        if (!string.IsNullOrWhiteSpace(defaultRoe) && !IsKnownRoe(defaultRoe))
+        if (!string.IsNullOrWhiteSpace(defaultRoe))
         {
-            return McpToolResult.WriteError(
-                output,
-                "INVALID_ROE",
-                $"Default ROE must be one of: {string.Join(", ", Enum.GetNames<RoeLevel>())}.");
+            var canonicalRoe = CanonicalRoe(defaultRoe);
+            if (canonicalRoe == null)
+            {
+                return McpToolResult.WriteError(
+                    output,
+                    "INVALID_ROE",
+                    $"Default ROE must be one of: {string.Join(", ", Enum.GetNames<RoeLevel>())}.");
+            }
+
+            defaultRoe = canonicalRoe;
         }
 
         try

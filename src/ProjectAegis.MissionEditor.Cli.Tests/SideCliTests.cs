@@ -56,6 +56,31 @@ public sealed class SideCliTests
     }
 
     [Test]
+    public void Side_upsert_persists_canonical_roe_name()
+    {
+        var path = Path.Combine(Path.GetTempPath(), $"aegis-side-roe-{Guid.NewGuid():N}.json");
+        try
+        {
+            ScenarioDocumentEditor.CreateNew().Save(path);
+            using var writer = new StringWriter();
+            var code = SideUpsertCommand.Run(
+                path, editVersion: 1, sideId: "blue", name: "Blue", defaultRoe: " weaponsfree ",
+                defaultEmcon: null, postures: null, writer);
+
+            Assert.That(code, Is.EqualTo(0), writer.ToString());
+            var side = ScenarioDocumentJsonLoader.LoadFromFile(path).Sides.Single();
+            Assert.That(side.DefaultRoe, Is.EqualTo("WeaponsFree"));
+        }
+        finally
+        {
+            if (File.Exists(path))
+            {
+                File.Delete(path);
+            }
+        }
+    }
+
+    [Test]
     public void Side_upsert_ok_bumps_edit_version_and_persists()
     {
         var path = Path.Combine(Path.GetTempPath(), $"aegis-side-cli-{Guid.NewGuid():N}.json");
