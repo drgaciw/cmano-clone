@@ -1,0 +1,13 @@
+{
+  "state": "Smoke test for the UAT scoring pipeline. Evidence: the full headless test suite ran with 0 failures out of 3,400 tests.",
+  "questions": {
+    "suite_green": {
+      "type": "noul",
+      "instructions": "Does the evidence show the full test suite passed with zero failures?",
+      "criteria": {
+        "true": "The evidence states zero failures across the full suite",
+        "false": "The evidence shows failures or does not cover the full suite"
+      }
+    }
+  }
+}

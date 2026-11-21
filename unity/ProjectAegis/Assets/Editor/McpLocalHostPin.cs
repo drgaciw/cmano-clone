@@ -9,19 +9,19 @@ namespace ProjectAegis.Unity.Editor
 {
     /// <summary>
     /// Explicit (menu-only) pin of Unity-MCP to local Custom mode on
-    /// <c>http://localhost:8080</c>. Does <b>not</b> run on Editor load —
+    /// <c>http://localhost:8081</c>. Does <b>not</b> run on Editor load —
     /// prior auto-mutation of MCP UserSettings was rejected as adversarial.
     /// </summary>
     /// <remarks>
     /// Unity-MCP ≥0.86 defaults to Cloud mode and a path-hashed port in
     /// 20000–29999. Project Aegis client configs (<c>.cursor/mcp.json</c>,
-    /// <c>.mcp.json</c>) stay on <c>:8080</c>; run this menu (or
+    /// <c>.mcp.json</c>) stay on <c>:8081</c>; run this menu (or
     /// <c>tools/pin-unity-mcp-8080</c>) once per clone so the plugin matches.
     /// </remarks>
     internal static class McpLocalHostPin
     {
         public const string ConfigFileName = "AI-Game-Developer-Config.json";
-        public const string PinnedHost = "http://localhost:8080";
+        public const string PinnedHost = "http://localhost:8081";
         public const string ConnectionModeCustom = "Custom";
 
         private static readonly Regex ConnectionModeRegex = new(
@@ -89,7 +89,7 @@ namespace ProjectAegis.Unity.Editor
             return path;
         }
 
-        [MenuItem("Project Aegis/MCP/Pin Local Host :8080")]
+        [MenuItem("Project Aegis/MCP/Pin Local Host :8081")]
         private static void PinFromMenu()
         {
             try
@@ -97,7 +97,7 @@ namespace ProjectAegis.Unity.Editor
                 var path = ApplyPin(Directory.GetParent(Application.dataPath)!.FullName);
                 Debug.Log(
                     $"[McpLocalHostPin] Pinned Unity-MCP to Custom + {PinnedHost} at {path}. " +
-                    "Restart Cursor/Claude MCP if already connected, then verify with curl :8080 / ping.");
+                    "Restart Cursor/Claude MCP if already connected, then verify with curl :8081 / ping.");
                 EditorUtility.DisplayDialog(
                     "Unity-MCP pin",
                     $"Pinned to Custom mode at {PinnedHost}.\n\nWrote:\n{path}",

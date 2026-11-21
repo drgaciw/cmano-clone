@@ -1,12 +1,12 @@
 #!/usr/bin/env bash
-# Pin Unity-MCP (com.ivanmurzak.unity.mcp ≥0.86) to local Custom mode on :8080.
+# Pin Unity-MCP (com.ivanmurzak.unity.mcp ≥0.86) to local Custom mode on :8081.
 # Idempotent. Does not mint tokens. Matches Project Aegis client mcp.json convention.
 set -euo pipefail
 ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
 UNITY_PROJECT="${1:-$ROOT/unity/ProjectAegis}"
 USER_SETTINGS="$UNITY_PROJECT/UserSettings"
 CONFIG="$USER_SETTINGS/AI-Game-Developer-Config.json"
-HOST="http://localhost:8080"
+HOST="http://localhost:8081"
 
 mkdir -p "$USER_SETTINGS"
 

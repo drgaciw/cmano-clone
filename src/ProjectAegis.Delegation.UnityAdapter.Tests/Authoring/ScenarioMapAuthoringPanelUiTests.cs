@@ -245,8 +245,11 @@ public sealed class ScenarioMapAuthoringPanelUiTests
     }
 
     [Test]
-    public void Player_scripting_defines_do_not_enable_unity_mcp_ready()
+    public void Player_builds_strip_unity_mcp_ready_define()
     {
+        // The MCP package re-adds UNITY_MCP_READY to committed ProjectSettings in the Editor, which
+        // the Editor-side MCP needs. Player-build isolation is enforced at build time instead, so
+        // the guard checks that the preprocess step removes the define rather than its absence.
         var repoRoot = FindRepoRoot();
         Assert.That(repoRoot, Is.Not.Null);
 
@@ -259,10 +262,6 @@ public sealed class ScenarioMapAuthoringPanelUiTests
         Assert.That(File.Exists(settingsPath), Is.True);
 
         var settings = File.ReadAllText(settingsPath);
-        Assert.That(
-            settings,
-            Does.Not.Contain("UNITY_MCP_READY"),
-            "Player scripting defines must not enable UNITY_MCP_READY (Editor-only MCP isolation).");
         Assert.That(settings, Does.Contain("APP_UI_EDITOR_ONLY"));
         Assert.That(settings, Does.Contain("SENTIS_ANALYTICS_ENABLED"));
 
@@ -278,16 +277,20 @@ public sealed class ScenarioMapAuthoringPanelUiTests
         Assert.That(isolation, Does.Contain("IPreprocessBuildWithReport"));
         Assert.That(isolation, Does.Contain("UNITY_MCP_READY"));
         Assert.That(isolation, Does.Contain("OnPreprocessBuild"));
+        Assert.That(
+            isolation,
+            Does.Contain("RemoveAll"),
+            "Player builds must strip UNITY_MCP_READY from the define list before compile.");
     }
 
     [Test]
-    public void Cursor_and_claude_mcp_json_pin_ai_game_developer_http_8080()
+    public void Cursor_and_claude_mcp_json_pin_ai_game_developer_http_8081()
     {
         var repoRoot = FindRepoRoot();
         Assert.That(repoRoot, Is.Not.Null);
 
-        AssertHttp8080AiGameDeveloper(Path.Combine(repoRoot!, ".cursor", "mcp.json"));
-        AssertHttp8080AiGameDeveloper(Path.Combine(repoRoot!, ".mcp.json"));
+        AssertHttp8081AiGameDeveloper(Path.Combine(repoRoot!, ".cursor", "mcp.json"));
+        AssertHttp8081AiGameDeveloper(Path.Combine(repoRoot!, ".mcp.json"));
 
         Assert.That(
             File.Exists(Path.Combine(repoRoot!, "tools", "pin-unity-mcp-8080.sh")),
@@ -307,24 +310,24 @@ public sealed class ScenarioMapAuthoringPanelUiTests
             "McpLocalHostPin.cs");
         Assert.That(File.Exists(pinPath), Is.True, "Missing McpLocalHostPin.cs");
         var pin = File.ReadAllText(pinPath);
-        Assert.That(pin, Does.Contain("http://localhost:8080"));
+        Assert.That(pin, Does.Contain("http://localhost:8081"));
         Assert.That(pin, Does.Contain("connectionMode"));
         Assert.That(pin, Does.Contain("Custom"));
-        Assert.That(pin, Does.Contain("Pin Local Host :8080"));
+        Assert.That(pin, Does.Contain("Pin Local Host :8081"));
         Assert.That(
             pin,
             Does.Not.Contain("[InitializeOnLoad]"),
             "MCP UserSettings pin must stay menu-only (no Editor-load auto-mutation).");
     }
 
-    private static void AssertHttp8080AiGameDeveloper(string mcpJsonPath)
+    private static void AssertHttp8081AiGameDeveloper(string mcpJsonPath)
     {
         Assert.That(File.Exists(mcpJsonPath), Is.True, $"Missing {mcpJsonPath}");
         using var doc = System.Text.Json.JsonDocument.Parse(File.ReadAllText(mcpJsonPath));
         Assert.That(doc.RootElement.TryGetProperty("mcpServers", out var servers), Is.True);
         Assert.That(servers.TryGetProperty("ai-game-developer", out var entry), Is.True);
         Assert.That(entry.GetProperty("type").GetString(), Is.EqualTo("http"));
-        Assert.That(entry.GetProperty("url").GetString(), Is.EqualTo("http://localhost:8080"));
+        Assert.That(entry.GetProperty("url").GetString(), Is.EqualTo("http://localhost:8081"));
     }
 
     private static string? FindRepoRoot()

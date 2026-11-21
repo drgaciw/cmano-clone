@@ -66,6 +66,7 @@ public static class MessageLogProjection
         var outcomeCorrelation = IndexOutcomeCorrelations(entries);
 
         var lines = new List<MessageLogLine>();
+        var abortRuns = new Dictionary<(string Shooter, string Victim), AbortRun>();
         foreach (var entry in entries)
         {
             switch (entry.Kind)
@@ -82,12 +83,7 @@ public static class MessageLogProjection
                     }
                     else if (!engagement.Launched && aborts.Contains(entry.SequenceId))
                     {
-                        lines.Add(new MessageLogLine(
-                            entry.SequenceId,
-                            entry.SimTime,
-                            "ENGAGE_ABORT",
-                            $"Engagement aborted: {engagement.AbortReasonCode}",
-                            engagement.ShooterTargetId.Value));
+                        AddOrCollapseAbort(lines, abortRuns, entry, engagement);
                     }
 
                     break;
@@ -109,6 +105,35 @@ public static class MessageLogProjection
 
         return lines;
     }
+
+    /// <summary>
+    /// UAT D3: an abort repeating the same reason for the same shooter/victim every tick would
+    /// flood the log. Presentation-only: the first line is kept (stable sequence id and sim time)
+    /// and its text gains a " (xN)" repeat count. A different reason restarts the run.
+    /// </summary>
+    private static void AddOrCollapseAbort(
+        List<MessageLogLine> lines,
+        Dictionary<(string Shooter, string Victim), AbortRun> abortRuns,
+        OrderLogEntry entry,
+        EngagementRecord engagement)
+    {
+        var shooter = engagement.ShooterTargetId.Value;
+        var baseText = $"Engagement aborted: {engagement.AbortReasonCode}";
+        var key = (shooter, engagement.VictimTargetId?.Value ?? string.Empty);
+        if (abortRuns.TryGetValue(key, out var run)
+            && string.Equals(run.Reason, engagement.AbortReasonCode, StringComparison.Ordinal))
+        {
+            var count = run.Count + 1;
+            abortRuns[key] = run with { Count = count };
+            lines[run.LineIndex] = lines[run.LineIndex] with { Text = $"{baseText} (x{count})" };
+            return;
+        }
+
+        abortRuns[key] = new AbortRun(engagement.AbortReasonCode, lines.Count, 1);
+        lines.Add(new MessageLogLine(entry.SequenceId, entry.SimTime, "ENGAGE_ABORT", baseText, shooter));
+    }
+
+    private readonly record struct AbortRun(string? Reason, int LineIndex, int Count);
 
     /// <summary>
     /// Maps each outcome sequence to the launch sequence (<see cref="CombatEvent.CorrelationId"/>)

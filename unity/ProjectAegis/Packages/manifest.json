@@ -1,15 +1,25 @@
 {
   "dependencies": {
-    "com.ivanmurzak.unity.mcp": "0.90.0",
+    "com.ivanmurzak.unity.mcp": "1.13.0",
     "com.unity.addressables": "2.9.1",
     "com.unity.ai.assistant": "2.13.0-pre.2",
     "com.unity.ai.inference": "2.6.1",
     "com.unity.burst": "1.8.30",
-    "com.unity.sdk.linux-x86_64": "1.1.0",
-    "com.unity.toolchain.linux-x86_64-linux": "1.1.0",
+    "com.unity.sdk.linux-x86_64": "1.1.1",
+    "com.unity.toolchain.linux-x86_64-linux": "1.1.1",
     "com.unity.ui": "2.0.0",
     "com.unity.modules.accessibility": "1.0.0",
-    "com.unity.modules.ai": "1.0.0"
+    "com.unity.modules.ai": "1.0.0",
+    "com.ivanmurzak.unity.mcp.animation": "2.1.1",
+    "com.ivanmurzak.unity.mcp.cinemachine": "2.1.1",
+    "com.ivanmurzak.unity.mcp.inputsystem": "2.1.1",
+    "com.ivanmurzak.unity.mcp.navigation": "2.1.1",
+    "com.ivanmurzak.unity.mcp.particlesystem": "2.1.1",
+    "com.ivanmurzak.unity.mcp.probuilder": "2.1.1",
+    "com.ivanmurzak.unity.mcp.splines": "2.1.1",
+    "com.ivanmurzak.unity.mcp.terrain": "2.1.1",
+    "com.ivanmurzak.unity.mcp.tilemap": "2.1.1",
+    "com.ivanmurzak.unity.mcp.timeline": "2.1.1"
   },
   "scopedRegistries": [
     {
