@@ -194,7 +194,11 @@ public static class EventValidateCommand
             return McpToolResult.WriteError(output, "NOT_FOUND", $"Scenario not found: {scenarioPath}");
         }
 
-        var document = ScenarioDocumentJsonLoader.LoadFromFile(scenarioPath);
+        if (!ScenarioLoadGuard.TryLoad(scenarioPath, output, out var document, out var loadExit))
+        {
+            return loadExit;
+        }
+
         var evt = document.Events?.FirstOrDefault(e =>
             string.Equals(e.Id, eventId, StringComparison.OrdinalIgnoreCase));
         if (evt == null)

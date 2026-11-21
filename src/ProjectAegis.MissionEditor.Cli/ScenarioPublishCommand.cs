@@ -16,7 +16,11 @@ public static class ScenarioPublishCommand
             return McpToolResult.WriteError(output, "FILE_NOT_FOUND", scenarioPath);
         }
 
-        var document = ScenarioDocumentJsonLoader.LoadFromFile(scenarioPath);
+        if (!ScenarioLoadGuard.TryLoad(scenarioPath, output, out var document, out var loadExit))
+        {
+            return loadExit;
+        }
+
         var catalog = ScenarioValidateCommand.ResolveCatalogPublic(document); // reuse resolve, low risk
         var config = new ValidationConfig();
         var exportPackage = ScenarioExportCommand.Prepare(document, catalog, config);

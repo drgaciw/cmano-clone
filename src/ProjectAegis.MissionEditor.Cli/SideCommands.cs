@@ -17,7 +17,11 @@ public static class SideListCommand
             return McpToolResult.WriteError(output, "NOT_FOUND", $"Scenario not found: {scenarioPath}");
         }
 
-        var document = ScenarioDocumentJsonLoader.LoadFromFile(scenarioPath);
+        if (!ScenarioLoadGuard.TryLoad(scenarioPath, output, out var document, out var loadExit))
+        {
+            return loadExit;
+        }
+
         var sides = document.Sides
             .OrderBy(s => s.Id, StringComparer.Ordinal)
             .Select(s => new

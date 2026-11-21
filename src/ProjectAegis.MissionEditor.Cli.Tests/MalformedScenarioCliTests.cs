@@ -45,6 +45,24 @@ public sealed class MalformedScenarioCliTests
         AssertEnvelope(writer.ToString());
     }
 
+    private static IEnumerable<TestCaseData> ReadVerbs()
+    {
+        yield return new TestCaseData((Func<string, TextWriter, int>)((p, w) => SideListCommand.Run(p, w))).SetName("side_list");
+        yield return new TestCaseData((Func<string, TextWriter, int>)((p, w) => ScenarioPublishCommand.Run(p, w))).SetName("scenario_publish");
+        yield return new TestCaseData((Func<string, TextWriter, int>)((p, w) => TimelineListCommand.Run(p, w))).SetName("timeline_list");
+        yield return new TestCaseData((Func<string, TextWriter, int>)((p, w) => MissionListCommand.Run(p, null, null, null, w))).SetName("mission_list");
+        yield return new TestCaseData((Func<string, TextWriter, int>)((p, w) => ScenarioNearFutureSpawnCommand.Run(p, w))).SetName("scenario_near_future_spawn");
+        yield return new TestCaseData((Func<string, TextWriter, int>)((p, w) => EventValidateCommand.Run(p, "evt-1", w))).SetName("event_validate");
+    }
+
+    [TestCaseSource(nameof(ReadVerbs))]
+    public void Verb_malformed_json_returns_exit_1_error_envelope(Func<string, TextWriter, int> run)
+    {
+        using var writer = new StringWriter();
+        Assert.That(run(_path, writer), Is.EqualTo(1));
+        AssertEnvelope(writer.ToString());
+    }
+
     private static void AssertEnvelope(string text)
     {
         using var doc = JsonDocument.Parse(text);

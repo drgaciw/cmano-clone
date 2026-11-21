@@ -18,7 +18,11 @@ public static class TimelineListCommand
             return McpToolResult.WriteError(output, "NOT_FOUND", $"Scenario not found: {scenarioPath}");
         }
 
-        var document = ScenarioDocumentJsonLoader.LoadFromFile(scenarioPath);
+        if (!ScenarioLoadGuard.TryLoad(scenarioPath, output, out var document, out var loadExit))
+        {
+            return loadExit;
+        }
+
         var entries = document.OperationsTimeline
             .OrderBy(e => e.ActivateAtTick)
             .ThenBy(e => e.MissionId, StringComparer.Ordinal)
