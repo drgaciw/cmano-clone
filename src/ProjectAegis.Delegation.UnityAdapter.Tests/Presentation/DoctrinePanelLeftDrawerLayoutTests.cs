@@ -60,9 +60,9 @@ public sealed class DoctrinePanelLeftDrawerLayoutTests
     /// it pushed the ROE dropdown input past the right edge (clipped by overflow: hidden).
     /// </summary>
     [Test]
-    public void Override_dropdown_fits_panel_inner_width()
+    public void Override_dropdown_stacks_label_above_full_width_input()
     {
-        const double MinInputWidth = 120;
+        const double MinInnerWidth = 150; // longest ROE value + dropdown arrow
         var uss = UiIaSourceReader.ReadUnder("unity", "ProjectAegis", "Assets", "UI", "DoctrineInheritance", "DoctrineInheritancePanel.uss");
 
         var panel = RuleBody(uss, ".doctrine-panel");
@@ -71,16 +71,17 @@ public sealed class DoctrinePanelLeftDrawerLayoutTests
         var labelMatch = Regex.Match(uss, @"\.doctrine-dropdown\s*(?:>\s*)?\.unity-base-field__label\s*\{([^}]*)\}");
         Assert.That(labelMatch.Success, Is.True, ".doctrine-dropdown .unity-base-field__label rule missing (Unity default label is 150px)");
         var label = labelMatch.Groups[1].Value;
-        var labelMin = OptPx(label, "min-width");
-        var labelWidth = OptPx(label, "width");
-        Assert.That(labelMin, Is.Not.Null, "label min-width missing");
-        Assert.That(labelWidth, Is.Not.Null, "label width missing");
-        Assert.That(labelMin!.Value, Is.LessThanOrEqualTo(96));
-        Assert.That(labelWidth!.Value, Is.LessThanOrEqualTo(96));
+        Assert.That(OptPx(label, "min-width"), Is.EqualTo(0), "label min-width must be 0px (no 150px default, no fixed side label)");
+        Assert.That(label, Does.Not.Match(@"(?<![\w-])width:\s*\d"), "label must not have a fixed px width (use auto)");
+        var color = Regex.Match(label, @"(?<![\w-])color:\s*rgb\(\s*(\d+)\s*,\s*(\d+)\s*,\s*(\d+)\s*\)");
+        Assert.That(color.Success, Is.True, "label colour must be set (default is near-invisible on the dark panel)");
+        for (var i = 1; i <= 3; i++)
+            Assert.That(int.Parse(color.Groups[i].Value), Is.GreaterThanOrEqualTo(150), "label colour must be light");
 
         var dd = RuleBody(uss, ".doctrine-dropdown");
         var ddMin = OptPx(dd, "min-width") ?? 0;
         Assert.That(ddMin, Is.LessThanOrEqualTo(innerWidth), "dropdown min-width must fit the panel inner width");
+        Assert.That(dd, Does.Match(@"(?<![\w-])flex-direction:\s*column"), "label must stack above the input");
         Assert.That(OptPx(dd, "margin-left") ?? 0, Is.EqualTo(0), "default left margin pushes the dropdown past the row edge");
         Assert.That(OptPx(dd, "margin-right") ?? 0, Is.EqualTo(0), "margin-right must not push the input past the edge");
 
@@ -93,7 +94,6 @@ public sealed class DoctrinePanelLeftDrawerLayoutTests
         Assert.That(inputMatch.Success, Is.True, ".doctrine-dropdown > .unity-base-field__input rule missing");
         Assert.That(inputMatch.Groups[1].Value, Does.Match(@"(?<![\w-])flex-grow:\s*1\b"));
 
-        Assert.That(labelWidth.Value + MinInputWidth, Is.LessThanOrEqualTo(innerWidth),
-            "label + minimum input width must fit the inner width");
+        Assert.That(innerWidth, Is.GreaterThanOrEqualTo(MinInnerWidth), "inner width must fit the longest ROE value plus arrow");
     }
 }
