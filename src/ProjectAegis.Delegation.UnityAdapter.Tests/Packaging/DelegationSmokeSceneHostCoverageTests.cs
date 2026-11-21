@@ -20,11 +20,13 @@ public sealed class DelegationSmokeSceneHostCoverageTests
 
     /// <summary>
     /// Hosts the committed scene must carry. <c>AttentionToastPanelHost</c> runs the demo-watch seed
-    /// that auto-pauses the sim (checklist DRG-162). The builder ensures 17 further hosts that the
-    /// committed scene also lacks; adding them all stacks overlapping full-screen panels over the map,
-    /// so that wider drift is an owner decision (see production/qa/uat-playmode-2026-11-21.md, D15).
+    /// that auto-pauses the sim (checklist DRG-162). <c>UnitOrderToolbarHost</c> is the layout-safe subset
+    /// of D15 (orders are core C9 functions; the toolbar was repositioned bottom-right clear of the map
+    /// control row and Message Log). The builder ensures 16 further hosts that the committed scene
+    /// also lacks; adding them all stacks overlapping panels over the map, so that wider drift stays
+    /// backlog (see production/qa/uat-playmode-2026-11-21.md, D15).
     /// </summary>
-    private static readonly string[] RequiredHosts = { "AttentionToastPanelHost" };
+    private static readonly string[] RequiredHosts = { "AttentionToastPanelHost", "UnitOrderToolbarHost" };
 
     [Test]
     public void Committed_scene_hosts_attention_toast_for_demo_watch_auto_pause()

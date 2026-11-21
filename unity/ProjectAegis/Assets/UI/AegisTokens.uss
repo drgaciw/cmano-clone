@@ -14,6 +14,8 @@
     --surface-panel-opaque: rgb(12, 18, 28);
     /* Bottom inset that clears the Message Log: its bottom 8px + max-height 220px + 8px gap (UAT D30). */
     --c2-message-log-clearance: 236px;
+    /* Right inset that clears the Message Log horizontally: its right 8px + width 420px + 12px gap (UAT D15). */
+    --c2-message-log-clearance-x: 440px;
 
     /* Borders */
     --border-subtle: #324150;
