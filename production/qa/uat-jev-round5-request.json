@@ -1,0 +1,93 @@
+{
+  "state": "Project Aegis Play Mode UAT, 2026-11-21, after rounds 1-4. Game: Unity 6.3 C2 (command and control) naval sim over a deterministic headless C# sim. Evidence: headless suite 4,620 passed / 0 failed; Phase 0 CI smoke PASS; Unity PlayMode tests 18/20 (1 failure from an uncommitted local test edit, 1 SliceA contact-panel test whose expectation predates this branch); 0 console errors in all 5 baltic-patrol scenarios; shipped catalog DB hashes unchanged after Play Mode and the full suite; zero-touch DelegationBridge.cs unchanged; replay goldens unchanged. Every reachable UI control was exercised by code (210 controls, 34 panels): fixed defects D12, D17, D19-D25, D27, D29-D31, CLI-1, CLI-5 each with a test; layout fixes verified by screenshot. Red-first evidence is partial for D20 (no test possible), D21/D23/D25 (compile-only red), D24 (red not observed). OPEN DECISIONS: D15/D18: about 27 UI panel hosts exist in code but in no scene; the scene builder can add 17 of them, but adding all at once stacks full-screen panels over the map; 10 hosts (including both in-game editor shells: Scenario Editor and Platform Editor) are in no scene, prefab or builder. D26: the in-game Scenario Editor shell's Load/Save/Undo/Redo/Play/Sample buttons raise events nothing subscribes to; the shell text says it will be bound in a later wave; a separate Editor-window Scenario Map Authoring tool works fully. D24b: unit and contact selection are exclusive by design (an earlier QA fix), yet the contact panel says 'select a friendly unit for range assessment', which can never happen; Unit Detail shows 'ENGAGE READY' while Contact Detail says 'technical targetability NO'. D35: no Addressables settings are committed although the APP-6 symbol atlas is documented as Addressables-loaded; a menu item regenerates settings per machine; the game currently loads the atlas via a direct USS url. D22 behaviour change: default unit selection now skips red (enemy) units, so the player starts with their own unit selected instead of the alphabetically-first enemy. D28: the 'Play Baltic Escort' menu item rebuilds and saves the committed scene each run with new file IDs (git noise, same content). D16: repeated policy denials lower the player score (game-design question). CLI-2..CLI-13: 11 Mission Editor CLI input-validation/exit-code defects (S3-S4), e.g. invalid enum values accepted, missing files exit 2 instead of 1, read-only verbs create a DB file for a missing path. D33: SliceA test expects 'UNKNOWN' source but gets the real source; likely pre-existing on main. Local catalog DB modifications backed up outside the repo were shown to be test pollution (defect D19). Owner C10 pixel sign-off pending. Rubric rule: a failed mechanical check is never rescued by a high score.",
+  "questions": {
+    "d15_d18": {
+      "type": "choice",
+      "instructions": "What should be done about UI panel hosts that exist in code but in no scene?",
+      "criteria": {
+        "add_layout_safe_subset": "Add only hosts that do not overlap the map (toolbars, small HUDs) to the scene now; defer the rest",
+        "add_all_builder_hosts": "Regenerate the scene with all builder hosts now and fix overlaps afterwards",
+        "keep_minimal_document": "Keep the minimal scene; document the unreachable hosts as backlog"
+      }
+    },
+    "d26": {
+      "type": "choice",
+      "instructions": "What should happen to the in-game Scenario Editor shell whose action buttons are unwired?",
+      "criteria": {
+        "disable_with_reason": "Keep it out of scenes and make the unwired buttons show a clear 'not yet available' reason",
+        "wire_load_save_now": "Wire Load and Save to the existing authoring session now",
+        "leave_unchanged": "Leave as is until the later wave"
+      }
+    },
+    "d24b": {
+      "type": "choice",
+      "instructions": "How should the contradiction between exclusive selection and the contact panel's range-assessment hint be resolved?",
+      "criteria": {
+        "use_last_friendly_for_assessment": "Keep exclusive selection but compute range assessment from the last selected friendly unit, and fix the hint text",
+        "change_hint_text_only": "Keep behaviour; change the hint to say range assessment is shown on the unit panel",
+        "allow_dual_selection": "Allow a friendly shooter and a contact to be selected at the same time"
+      }
+    },
+    "d35": {
+      "type": "choice",
+      "instructions": "What should be done about the missing committed Addressables settings?",
+      "criteria": {
+        "commit_generated_settings": "Commit the generated Addressables settings so every machine matches",
+        "document_direct_load": "Document that the atlas loads via USS url and mark the Addressables menu item as optional",
+        "defer": "Defer to a later sprint"
+      }
+    },
+    "d22_default_skips_red": {
+      "type": "noul",
+      "instructions": "Should the default unit selection skip enemy (red) units so the player starts with their own unit selected?"
+    },
+    "d28": {
+      "type": "choice",
+      "instructions": "How should the 'Play Baltic Escort' scene-rewrite noise be handled?",
+      "criteria": {
+        "play_without_rebuild": "Make Play open and play the committed scene, and rebuild only from the explicit Build menu item",
+        "deterministic_builder": "Make the builder produce byte-identical output",
+        "accept": "Accept the noise"
+      }
+    },
+    "cli_defects": {
+      "type": "choice",
+      "instructions": "What should happen to the 11 open Mission Editor CLI validation/exit-code defects?",
+      "criteria": {
+        "fix_now": "Fix them now with tests first",
+        "fix_high_value_subset": "Fix the subset that can corrupt data or mislead automation (accepting invalid values, creating files on read), defer cosmetic exit-code ones",
+        "defer": "Defer all to the tools backlog"
+      }
+    },
+    "d16": {
+      "type": "choice",
+      "instructions": "Repeated policy denials lowering the score is a game-design question. What should the UAT do?",
+      "criteria": {
+        "defer_to_design": "Leave scoring unchanged and hand to game design",
+        "fix_now": "Change scoring now"
+      }
+    },
+    "catalog_backups": {
+      "type": "choice",
+      "instructions": "The user's locally modified catalog DB files were shown to be test pollution and are backed up outside the repo. What should happen to the backups?",
+      "criteria": {
+        "discard": "Discard them; the committed DBs are correct",
+        "restore": "Restore them into the working tree"
+      }
+    },
+    "more_rounds": {
+      "type": "score",
+      "instructions": "Given the evidence and the open items you chose to fix now, how many more UAT iterations (test, fix, re-verify) should run before closing the UAT?",
+      "criteria": ["0 more rounds: close the UAT now", "1 more round", "2 more rounds", "3 more rounds"]
+    },
+    "c1": { "type": "noul", "instructions": "Does the evidence show the full headless suite passes with zero failures?" },
+    "c2": { "type": "noul", "instructions": "Does the evidence show determinism is preserved (replay goldens unchanged and passing)?" },
+    "c4": { "type": "noul", "instructions": "Does the evidence show a clean console across all five scenarios?" },
+    "c6": { "type": "noul", "instructions": "Does the evidence show the presentation defects found were fixed and verified by screenshot?" },
+    "c7": { "type": "noul", "instructions": "Does the evidence show forbidden surfaces (DelegationBridge.cs, CatalogWriteGate, replay goldens) are untouched?" },
+    "c8": { "type": "noul", "instructions": "Does the evidence show every fix had a test that failed before the fix?" },
+    "c9": { "type": "noul", "instructions": "Does the evidence show interactive behaviour (pause/resume, speed, acknowledge, select, orders) was exercised and passes?" },
+    "c11": { "type": "noul", "instructions": "Does the evidence show every UI function was exercised or explicitly classified with a reason?" },
+    "c12": { "type": "noul", "instructions": "Does the evidence show shipped data stays byte-identical after Play Mode and the test suite?" }
+  }
+}

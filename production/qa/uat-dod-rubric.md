@@ -1,7 +1,7 @@
 # UAT Definition of Done — Play Mode (Project Aegis)
 
 **Scope:** Play Mode UAT of `DelegationSmoke` across five scenarios: `baltic-patrol`, `-classify`, `-comms`, `-mission-roe`, `-mission`.
-**Rounds:** at most **3**. Stop earlier when every non-owner criterion is met.
+**Rounds:** originally at most **3**; extended to **6** by Jev's round-5 decision (`more_rounds` score 1.95 → 2 more rounds — see [`uat-jev-round5-decisions.md`](uat-jev-round5-decisions.md)). Stop earlier when every criterion is met.
 **Scoring:** each criterion has a mechanical check. Jev (`jev-worker`, typed `noul`) then judges whether the written evidence supports the criterion. **Script-first:** Jev can confirm a passing mechanical check; it never overrides a failed one. A criterion is **met** only when the mechanical check passes **and** Jev's `noul` is ≥ **0.80**.
 
 ## Criteria
@@ -60,6 +60,8 @@ One `noul` question per criterion, named `c1` … `c8`, plus one `choice` for tr
 | 2 | 2026-11-21 | C2, C3, C4*, C5**, C6, C7, C8 | C1 (1 failing guard: committed `Server` define), C9/C10 owner | **Pending**: no Jev scores (worker not deployed). | *0 new console errors in all 5 scenario runs. **All 5 scenarios run post-fix; MISSIONS tab contents and clicks are owner-only. |
 | 3 | 2026-11-21 | C1†, C2, C3, C4*, C5, C7, C9, C12 | C6 (D29–D31, D12 open), C8 (D21/D23/D25 RED compile-only, D24 RED not observed, D20 no test), C11 (Owner rows listed with reasons in the matrix; builder menu items + Linux build not run) | **None**: `~/.config/aegis/jev.env` never provided, so Jev made no decisions in any round. Mechanical results only. | *0 console errors in all 5 scenarios after the fixes; D14 cleared by the Editor restart. Unity PlayMode tests 18/20 (D32 local edit, D33 likely pre-existing). †C1: on a clean checkout of HEAD (`152a0e31`) plus `tools/copy-delegation-assemblies.sh`, the full suite is 4,598 passed / 0 failed. The failing assertion was an uncommitted round 2 guard edit reading the Editor-rewritten working copy (D34); now committed reading HEAD, and the live working copy passes 1258/1258. C7 re-verified: `DelegationBridge.cs`, `CatalogWriteGate`, replay goldens identical to main; Phase 0 smoke PASS |
 | 4 | 2026-11-21 | C1, C2, C3, C4, C5, C6, C7, C9, C12 | C8 (partial red-first evidence for D20/D21/D23/D24/D25, as recorded in round 3), C11 (Owner rows with reasons: D15/D18/D26 panels, Doctrine Inheritance, LiveEdit, map-marker select, Browse dialog, Linux build) | **None** — `~/.config/aegis/jev.env` still absent | Round added at the user's request after the Editor was unblocked. Full suite passes in the live working copy (9/9 projects, UnityAdapter 1264) and on a clean checkout; Phase 0 smoke PASS; catalog hashes unchanged; 0 console errors. C6: D29, D30(+b), D31(+b), D12 fixed and verified by screenshot. C10 evidence handed to owner (`evidence/uat-2026-11-21/*.png`) |
+| 5 | 2026-11-21 | C1, C2, C4, C6, C7, C12 (mechanical ✅ and Jev ≥ 0.80) | C8 (Jev 0.05), C9 (0.49), C11 (0.50); C3/C5/C10 not scored | **C1 0.96, C2 0.93, C4 0.97, C6 0.83, C7 0.85, C8 0.05, C9 0.49, C11 0.50, C12 0.93** | First round with Jev scores and decisions (via OpenRouter). Jev decided the 9 open items and 2 more rounds; work tracked in `docs/superpowers/plans/2026-11-21-uat-round5-jev-decisions.md` |
+| 6 | | | | | Final round per Jev: re-verify and re-score every criterion (C1–C12) |
 
 ## Rules
 
