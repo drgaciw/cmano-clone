@@ -218,6 +218,9 @@ unity/ProjectAegis/ProjectSettings/ProjectVersion.txt text eol=lf
 *.props       text eol=lf
 *.targets     text eol=lf
 *.json        text eol=lf
+# *.json does not match *.jsonl. The aar_explain fixture is compared
+# byte-for-byte with JsonlEvidenceWriter, which emits LF only.
+*.jsonl       text eol=lf
 *.yml         text eol=lf
 *.yaml        text eol=lf
 *.md          text eol=lf
