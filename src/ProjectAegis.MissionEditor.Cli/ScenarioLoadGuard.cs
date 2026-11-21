@@ -21,7 +21,7 @@ internal static class ScenarioLoadGuard
             exitCode = 0;
             return true;
         }
-        catch (Exception ex) when (ex is InvalidDataException or IOException or JsonException)
+        catch (Exception ex) when (ex is InvalidDataException or IOException or JsonException or UnauthorizedAccessException)
         {
             scenario = null!;
             exitCode = McpToolResult.WriteError(output, "LOAD_FAILED", ex.Message);

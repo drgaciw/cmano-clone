@@ -9,7 +9,7 @@ using ProjectAegis.Sim.Scenario;
 /// UAT D22 side guard for player commands to AI-controlled units.
 /// </summary>
 /// <remarks>
-/// Simulation mode records its friendly roster in <see cref="TargetRegistry"/>.
+/// Simulation mode records the roster commanded by the selected player side.
 /// Before sides are bound, <see cref="BalticV3SideRegistry.IsRedForceUnit"/> supplies legacy affiliation.
 /// </remarks>
 public static class PlayerSideGuard
@@ -31,10 +31,7 @@ public static class PlayerSideGuard
             return false;
         }
 
-        var isFriendly = bridge.Registry.IsOnConfiguredFriendlySide(binding.TargetId);
-        return isFriendly.HasValue
-            ? !isFriendly.Value
-            : BalticV3SideRegistry.IsRedForceUnit(binding.TargetId.Value);
+        return !IsPlayerSide(bridge.Registry, binding.TargetId);
     }
 
     /// <summary>
@@ -54,9 +51,12 @@ public static class PlayerSideGuard
         }
 
         var slot = binding.Target.Slot;
-        return slot.Active is HumanController
-            || slot.SuspendedAgent is not null
-            || (slot.Active is AgentController && !IsOpposingAiUnit(bridge, entity));
+        if (slot.Active is HumanController || slot.SuspendedAgent is not null)
+        {
+            return bridge.Registry.IsPlayerCommandTarget(binding.TargetId) != false;
+        }
+
+        return slot.Active is AgentController && IsPlayerSide(bridge.Registry, binding.TargetId);
     }
 
     /// <summary>Attack menu for <paramref name="unitId"/>; every row disabled with NOT_PLAYER_CONTROLLED for opposing AI units.</summary>
@@ -66,7 +66,8 @@ public static class PlayerSideGuard
         ISimWorldSnapshot snapshot)
     {
         var options = bridge.GetAttackMenuOptions(unitId, snapshot);
-        if (!TryFindEntity(bridge, unitId, out var entity) || !IsOpposingAiUnit(bridge, entity))
+        if (!bridge.Registry.TryGetBinding(new TargetId(unitId), out var binding)
+            || !IsOpposingAiUnit(bridge, binding.Entity))
         {
             return options;
         }
@@ -101,18 +102,6 @@ public static class PlayerSideGuard
         return bridge.TryEnqueueAttackOption(entity, optionId, snapshot, out failureReason);
     }
 
-    private static bool TryFindEntity(DelegationBridge bridge, string unitId, out EntityKey entity)
-    {
-        foreach (var binding in bridge.Registry.Bindings)
-        {
-            if (string.Equals(binding.TargetId.Value, unitId, StringComparison.Ordinal))
-            {
-                entity = binding.Entity;
-                return true;
-            }
-        }
-
-        entity = default;
-        return false;
-    }
+    private static bool IsPlayerSide(TargetRegistry registry, TargetId targetId) =>
+        registry.IsPlayerCommandTarget(targetId) ?? !BalticV3SideRegistry.IsRedForceUnit(targetId.Value);
 }

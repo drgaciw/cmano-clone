@@ -11,7 +11,6 @@ public sealed class TargetRegistry
     private readonly Dictionary<TargetId, SimEntityBinding> _byTarget = new();
     private readonly List<TargetId> _memberIds = new();
     private readonly HashSet<TargetId> _friendlyMeshMemberIds = new();
-    private bool _hasConfiguredFriendlyMesh;
 
     public TargetRegistry(DelegationOrchestrator orchestrator) =>
         _orchestrator = orchestrator;
@@ -95,15 +94,10 @@ public sealed class TargetRegistry
     public void MarkFriendlyMeshMember(TargetId targetId) => _friendlyMeshMemberIds.Add(targetId);
 
     /// <summary>Clears friendly-mesh marks before <see cref="DelegationBridge.ConfigureSimulationMode"/> rebinds sides.</summary>
-    public void ClearFriendlyMeshMembers()
-    {
-        _friendlyMeshMemberIds.Clear();
-        _hasConfiguredFriendlyMesh = true;
-    }
+    public void ClearFriendlyMeshMembers() => _friendlyMeshMemberIds.Clear();
 
-    /// <summary>Returns friendly roster membership, or null before simulation mode binds sides.</summary>
-    internal bool? IsOnConfiguredFriendlySide(TargetId targetId) =>
-        _hasConfiguredFriendlyMesh ? _friendlyMeshMemberIds.Contains(targetId) : null;
+    internal bool? IsPlayerCommandTarget(TargetId targetId) =>
+        _orchestrator.IsPlayerCommandTarget(targetId);
 
     /// <summary>Friendly-side mesh members explicitly marked or inferred for network-health projection.</summary>
     public IReadOnlyList<TargetId> CollectFriendlyMeshMemberIds()

@@ -287,7 +287,6 @@ public static class UatHarness
                 }
                 var sig = d.name + "::" + Sig(c);
                 if (done.Contains(sig)) continue;
-                done.Add(sig);
                 targets.Add((d.name, Sig(c), c.GetType().Name, string.IsNullOrEmpty(c.name) ? Trunc(label, 40) : c.name));
             }
         }
@@ -298,6 +297,8 @@ public static class UatHarness
             var el = root == null ? null : Controls(root).FirstOrDefault(e => Sig(e) == sig);
             if (el == null) { sb.AppendLine($"{doc}	{label}	{type}	SKIP(gone)			"); continue; }
             if (!el.enabledInHierarchy || !Shown(el)) { sb.AppendLine($"{doc}	{label}	{type}	SKIP(disabled={!el.enabledInHierarchy},hidden={!Shown(el)})			"); continue; }
+
+            if (!done.Add(doc + "::" + sig)) continue;
 
             var before = SnapAll();
             int errBefore; lock (Errors) errBefore = Errors.Count;

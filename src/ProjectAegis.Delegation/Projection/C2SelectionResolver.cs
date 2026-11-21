@@ -4,13 +4,14 @@ namespace ProjectAegis.Delegation.Projection;
 public static class C2SelectionResolver
 {
     /// <summary>
-    /// Default startup selection: first alive non-red unit by ordinal id (UAT D22 follow-up: the
-    /// alphabetically first OOB member is often hostile, e.g. "hostile-1" is before "u1").
+    /// Default startup selection: first alive player-side unit by ordinal id.
+    /// Legacy rows fall back to Baltic side affiliation.
     /// </summary>
     public static string? ResolveDefaultFriendlyUnit(IReadOnlyList<OobTreeEntry> oob)
     {
         var candidates = oob
-            .Where(u => !ProjectAegis.Sim.Scenario.BalticV3SideRegistry.IsRedForceUnit(u.UnitId))
+            .Where(u => u.IsPlayerCommandTarget
+                ?? !ProjectAegis.Sim.Scenario.BalticV3SideRegistry.IsRedForceUnit(u.UnitId))
             .OrderBy(u => u.UnitId, StringComparer.Ordinal)
             .ToList();
         return candidates.Where(u => u.IsAlive).Select(u => u.UnitId).FirstOrDefault()

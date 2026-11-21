@@ -38,6 +38,47 @@ public sealed class MalformedScenarioCliTests
     }
 
     [Test]
+    public void scenario_validate_unreadable_file_returns_exit_1_error_envelope()
+    {
+        if (OperatingSystem.IsWindows())
+        {
+            Assert.Ignore("This test uses Unix file modes.");
+            return;
+        }
+
+        var mode = File.GetUnixFileMode(_path);
+        try
+        {
+            File.SetUnixFileMode(_path, UnixFileMode.None);
+            if (!CannotReadScenarioFile())
+            {
+                Assert.Ignore("The test process can read files without permission bits.");
+            }
+
+            using var writer = new StringWriter();
+            Assert.That(ScenarioValidateCommand.Run(_path, quiet: false, writer), Is.EqualTo(1));
+            AssertEnvelope(writer.ToString());
+        }
+        finally
+        {
+            File.SetUnixFileMode(_path, mode);
+        }
+    }
+
+    private bool CannotReadScenarioFile()
+    {
+        try
+        {
+            using var file = File.OpenRead(_path);
+            return false;
+        }
+        catch (UnauthorizedAccessException)
+        {
+            return true;
+        }
+    }
+
+    [Test]
     public void scenario_simulate_sample_malformed_json_returns_exit_1_error_envelope()
     {
         using var writer = new StringWriter();

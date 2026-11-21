@@ -87,6 +87,31 @@ public sealed class PlayerSideGuardTests
     }
 
     [Test]
+    public void Opposing_player_cannot_command_blue_ai_and_defaults_to_their_own_unit()
+    {
+        var bridge = new DelegationBridge(42, mvpEngagement: true, scenarioPolicyId: "baltic-patrol");
+        var friendly = bridge.Registry.RegisterUnit(new EntityKey(1), "blue-patrol");
+        var opposing = bridge.Registry.RegisterUnit(new EntityKey(2), "hostile-1");
+        bridge.ConfigureSimulationMode(
+            new SimulationModeProfile(SimulationModeKind.Mixed, PlayerControlsFriendlySide: false),
+            friendly: [friendly.Target],
+            opposing: [opposing.Target],
+            defaultTraits: PersonalityCatalog.All[0].Traits);
+        bridge.BeginExecution();
+        var snapshot = new Snap(friendly.TargetId.Value, opposing.TargetId.Value);
+
+        Assert.That(PlayerSideGuard.IsOpposingAiUnit(bridge, friendly.Entity), Is.True);
+        Assert.That(PlayerSideGuard.IsPlayerControlledUnit(bridge, friendly.Entity), Is.False);
+        Assert.That(PlayerSideGuard.IsPlayerControlledUnit(bridge, opposing.Entity), Is.True);
+        var menu = PlayerSideGuard.GetAttackMenuOptions(bridge, friendly.TargetId.Value, snapshot);
+        Assert.That(menu, Is.Not.Empty);
+        Assert.That(menu.All(option => !option.Enabled
+            && option.DisabledReason == C2PlayerCommandBridge.ReasonNotPlayerControlled), Is.True);
+        var oob = OobTreeBridge.Build(snapshot, bridge.Registry);
+        Assert.That(C2SelectionResolver.ResolveDefaultFriendlyUnit(oob), Is.EqualTo(opposing.TargetId.Value));
+    }
+
+    [Test]
     public void Default_selection_never_picks_a_red_unit()
     {
         var oob = new[] { new OobTreeEntry("hostile-1", true), new OobTreeEntry("u1", true) };

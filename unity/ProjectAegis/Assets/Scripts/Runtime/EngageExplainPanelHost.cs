@@ -94,13 +94,12 @@ namespace ProjectAegis.Unity.Runtime
 
         private void TryWireElements()
         {
-            var root = _document.rootVisualElement;
-            if (root == null)
+            var panel = _document.rootVisualElement?.Q<VisualElement>(RootName);
+            if (panel == null)
             {
                 return;
             }
 
-            var panel = root.Q<VisualElement>(RootName) ?? root;
             _statusLabel = panel.Q<Label>(StatusName);
             _reasonLabel = panel.Q<Label>(ReasonName);
             _authorityLabel = panel.Q<Label>(AuthorityName);
@@ -127,8 +126,7 @@ namespace ProjectAegis.Unity.Runtime
                 panel.styleSheets.Add(panelStyles);
             }
 
-            _wired = _statusLabel != null || _reasonLabel != null || _authorityLabel != null
-                || _domainAbortLabel != null;
+            _wired = true;
             _lastFrame = null; // A rebuilt UIDocument needs binding even while simulation is paused.
             _lastDomainAbortFingerprint = null;
         }
