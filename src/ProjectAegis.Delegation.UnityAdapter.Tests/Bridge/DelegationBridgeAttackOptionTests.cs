@@ -1,5 +1,8 @@
 using ProjectAegis.Delegation.Controllers;
 using ProjectAegis.Delegation.Core;
+using ProjectAegis.Delegation.Decision;
+using ProjectAegis.Delegation.Policy;
+using ProjectAegis.Delegation.Traits;
 using ProjectAegis.Delegation.Projection;
 using ProjectAegis.Delegation.UnityAdapter.Bridge;
 using NUnit.Framework;
@@ -51,6 +54,54 @@ public sealed class DelegationBridgeAttackOptionTests
             Is.True);
         Assert.That(bridge.Orchestrator.DecisionLog.PlayerOrders, Has.Count.EqualTo(1));
         Assert.That(bridge.Orchestrator.DecisionLog.PlayerOrders[0].Kind, Is.EqualTo(OrderKind.Engage));
+    }
+
+    [Test]
+    public void TryEnqueueAttackOption_refuses_non_player_unit_without_taking_control()
+    {
+        var bridge = new DelegationBridge(42, mvpEngagement: true, scenarioPolicyId: "baltic-patrol");
+        bridge.Registry.RegisterUnit(new EntityKey(1), "u1").Target.Slot.SetActive(new HumanController());
+        var hostile = bridge.Registry.RegisterUnit(new EntityKey(2), "hostile-1");
+        var agent = new AgentController(
+            new AgentId("opp-0"),
+            PersonalityCatalog.All[0].Traits,
+            AutonomyLevel.FullAutonomous,
+            new SeededRng(1, 0),
+            new PatrolCandidateEngagePolicy(EngagePrimaryMode.BlueForce),
+            attentionBudget: 1);
+        hostile.Target.Slot.SetActive(agent);
+        bridge.BeginExecution();
+        var snapshot = new StubSnapshot(1, 2, 0, new Dictionary<TargetId, bool> { [hostile.TargetId] = true });
+
+        var ok = bridge.TryEnqueueAttackOption(new EntityKey(2), "fire-single", snapshot, out var reason);
+
+        Assert.That(ok, Is.False);
+        Assert.That(reason, Is.EqualTo("NOT_PLAYER_CONTROLLED"));
+        Assert.That(hostile.Target.Slot.Active, Is.SameAs(agent));
+        Assert.That(bridge.Orchestrator.DecisionLog.PlayerOrders, Is.Empty);
+        Assert.That(bridge.IsOpposingAiUnit(new EntityKey(2)), Is.True);
+        Assert.That(bridge.IsOpposingAiUnit(new EntityKey(1)), Is.False);
+    }
+
+    [Test]
+    public void GetAttackMenuOptions_disables_all_options_for_non_player_unit()
+    {
+        var bridge = new DelegationBridge(42, mvpEngagement: true, scenarioPolicyId: "baltic-patrol");
+        var hostile = bridge.Registry.RegisterUnit(new EntityKey(2), "hostile-1");
+        hostile.Target.Slot.SetActive(new AgentController(
+            new AgentId("opp-0"),
+            PersonalityCatalog.All[0].Traits,
+            AutonomyLevel.FullAutonomous,
+            new SeededRng(1, 0),
+            new PatrolCandidateEngagePolicy(EngagePrimaryMode.BlueForce),
+            attentionBudget: 1));
+        bridge.BeginExecution();
+        var snapshot = new StubSnapshot(1, 2, 0, new Dictionary<TargetId, bool> { [hostile.TargetId] = true });
+
+        var menu = bridge.GetAttackMenuOptions("hostile-1", snapshot);
+
+        Assert.That(menu, Is.Not.Empty);
+        Assert.That(menu.All(o => !o.Enabled && o.DisabledReason == "NOT_PLAYER_CONTROLLED"), Is.True);
     }
 
     [Test]

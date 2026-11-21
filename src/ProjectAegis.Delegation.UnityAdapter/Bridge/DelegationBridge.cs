@@ -242,8 +242,53 @@ public sealed class DelegationBridge
             ?? ScenarioEngageDefaults.MvpFallback;
         var ctx = BuildLiveEngageContext(snapshot, unitId, engageDefaults);
         var preview = EngagePreviewProjection.Project(in ctx, engageDefaults.DlzPersonality);
-        return EngageAttackOptions.Build(in ctx, preview);
+        var options = EngageAttackOptions.Build(in ctx, preview);
+        if (!IsOpposingAiUnit(entity))
+        {
+            return options;
+        }
+
+        // UAT D22: the player cannot command units it does not control; surface the reason on every row.
+        var denied = new List<EngageAttackOptions.AttackOption>(options.Count);
+        foreach (var option in options)
+        {
+            denied.Add(option with
+            {
+                Enabled = false,
+                DisabledReason = C2PlayerCommandBridge.ReasonNotPlayerControlled,
+            });
+        }
+
+        return denied;
     }
+
+    /// <summary>
+    /// True when the player may command <paramref name="entity"/>: human-controlled, a suspended agent
+    /// (direct control taken), or a friendly mesh agent. Hostile/AI-only units return false.
+    /// Single source of truth for the host and the attack-option guard (UAT D22).
+    /// </summary>
+    public bool IsPlayerControlledUnit(EntityKey entity)
+    {
+        if (!Registry.TryGetBinding(entity, out var binding))
+        {
+            return false;
+        }
+
+        var slot = binding.Target.Slot;
+        return slot.Active is HumanController
+            || slot.SuspendedAgent is not null
+            || slot.Active is AgentController { Id.Value: var id }
+                && id.StartsWith("friendly-", StringComparison.Ordinal);
+    }
+
+    /// <summary>
+    /// True when <paramref name="entity"/> is driven by a non-friendly AI agent (hostile side) and is not
+    /// under direct human control. The player must never command such a unit (UAT D22).
+    /// </summary>
+    public bool IsOpposingAiUnit(EntityKey entity) =>
+        Registry.TryGetBinding(entity, out var binding)
+        && binding.Target.Slot.Active is AgentController { Id.Value: var id }
+        && !id.StartsWith("friendly-", StringComparison.Ordinal);
 
     /// <summary>Interactive attack menu → player order (req 14 / doc 20).</summary>
     public bool TryEnqueueAttackOption(
@@ -259,6 +304,12 @@ public sealed class DelegationBridge
         if (shooterId == null)
         {
             failureReason = "UNKNOWN_UNIT";
+            return false;
+        }
+
+        if (IsOpposingAiUnit(entity))
+        {
+            failureReason = C2PlayerCommandBridge.ReasonNotPlayerControlled;
             return false;
         }
 
