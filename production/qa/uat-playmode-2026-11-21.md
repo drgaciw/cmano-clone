@@ -112,7 +112,7 @@ Full per-control results: [`uat-ui-function-matrix.md`](uat-ui-function-matrix.m
 
 | ID | Summary | Owner |
 |----|---------|-------|
-| C1 | Committed `Server` / `LinuxHeadlessSimulation` defines contain `UNITY_MCP_READY`; `activeInputHandler` revert | Engineering, needs the Unity Editor closed |
+| C1 | **Met** — committed defines and `activeInputHandler: 0` are correct; full suite 4,598/0 on a clean checkout. The local failure is D34 (resolver rewrites the file while the Editor runs) | Engineering (D34) |
 | D22b | D22 fix regression — **fixed** (`3d18f60d`); default selection now skips red units (behaviour change to confirm) | Game design (confirm default-selection change) |
 | D15 / D18 | 17 builder hosts missing from the committed scene; 10 hosts (incl. both in-game editor shells) in no scene at all | Product owner (scene composition decision) |
 | D26 | In-game Scenario Editor shell actions unwired (Load/Save/Undo/Redo/Play/Sample) | Product owner (feature scope) |
