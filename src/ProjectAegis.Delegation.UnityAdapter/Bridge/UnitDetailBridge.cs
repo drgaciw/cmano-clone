@@ -174,7 +174,7 @@ public static class UnitDetailBridge
         }
 
         var unitId = unitIdOverride ?? entry.UnitId;
-        var liveMenu = bridge.GetAttackMenuOptions(unitId, snapshot);
+        var liveMenu = PlayerSideGuard.GetAttackMenuOptions(bridge, unitId, snapshot);
         return entry with { AttackMenu = liveMenu };
     }
 }

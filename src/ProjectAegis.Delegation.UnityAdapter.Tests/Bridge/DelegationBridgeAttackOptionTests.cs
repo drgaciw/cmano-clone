@@ -73,14 +73,14 @@ public sealed class DelegationBridgeAttackOptionTests
         bridge.BeginExecution();
         var snapshot = new StubSnapshot(1, 2, 0, new Dictionary<TargetId, bool> { [hostile.TargetId] = true });
 
-        var ok = bridge.TryEnqueueAttackOption(new EntityKey(2), "fire-single", snapshot, out var reason);
+        var ok = PlayerSideGuard.TryEnqueueAttackOption(bridge, new EntityKey(2), "fire-single", snapshot, out var reason);
 
         Assert.That(ok, Is.False);
         Assert.That(reason, Is.EqualTo("NOT_PLAYER_CONTROLLED"));
         Assert.That(hostile.Target.Slot.Active, Is.SameAs(agent));
         Assert.That(bridge.Orchestrator.DecisionLog.PlayerOrders, Is.Empty);
-        Assert.That(bridge.IsOpposingAiUnit(new EntityKey(2)), Is.True);
-        Assert.That(bridge.IsOpposingAiUnit(new EntityKey(1)), Is.False);
+        Assert.That(PlayerSideGuard.IsOpposingAiUnit(bridge, new EntityKey(2)), Is.True);
+        Assert.That(PlayerSideGuard.IsOpposingAiUnit(bridge, new EntityKey(1)), Is.False);
     }
 
     [Test]
@@ -98,7 +98,7 @@ public sealed class DelegationBridgeAttackOptionTests
         bridge.BeginExecution();
         var snapshot = new StubSnapshot(1, 2, 0, new Dictionary<TargetId, bool> { [hostile.TargetId] = true });
 
-        var menu = bridge.GetAttackMenuOptions("hostile-1", snapshot);
+        var menu = PlayerSideGuard.GetAttackMenuOptions(bridge, "hostile-1", snapshot);
 
         Assert.That(menu, Is.Not.Empty);
         Assert.That(menu.All(o => !o.Enabled && o.DisabledReason == "NOT_PLAYER_CONTROLLED"), Is.True);

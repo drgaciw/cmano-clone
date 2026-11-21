@@ -583,14 +583,14 @@ namespace ProjectAegis.Unity.Runtime
             }
 
             // UAT D22: refuse before EnsureHumanControl so a hostile AI unit is never taken over.
-            if (Bridge.IsOpposingAiUnit(entityKey))
+            if (PlayerSideGuard.IsOpposingAiUnit(Bridge, entityKey))
             {
                 failureReason = ProjectAegis.Delegation.UnityAdapter.Bridge.C2PlayerCommandBridge.ReasonNotPlayerControlled;
                 return false;
             }
 
             EnsureHumanControl(entityKey);
-            return Bridge.TryEnqueueAttackOption(entityKey, optionId, _lastSnapshot, out failureReason);
+            return PlayerSideGuard.TryEnqueueAttackOption(Bridge, entityKey, optionId, _lastSnapshot, out failureReason);
         }
 
         /// <summary>
@@ -655,7 +655,7 @@ namespace ProjectAegis.Unity.Runtime
                 return false;
             }
 
-            if (Bridge.IsOpposingAiUnit(entityKey))
+            if (PlayerSideGuard.IsOpposingAiUnit(Bridge, entityKey))
             {
                 reason = ProjectAegis.Delegation.UnityAdapter.Bridge.C2PlayerCommandBridge.ReasonNotPlayerControlled;
                 return false;
@@ -1133,7 +1133,7 @@ namespace ProjectAegis.Unity.Runtime
         }
 
         private bool IsPlayerControlledUnit(EntityKey entityKey) =>
-            Bridge.IsPlayerControlledUnit(entityKey);
+            PlayerSideGuard.IsPlayerControlledUnit(Bridge, entityKey);
 
         private static (string controllerKind, string? agentId, string autonomy) DescribeSlot(ControllerSlot slot)
         {
