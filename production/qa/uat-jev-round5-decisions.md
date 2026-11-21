@@ -56,3 +56,24 @@ Request: [`uat-jev-round6-request.json`](uat-jev-round6-request.json). Response:
 | C12 | 0.86 | ✅ |
 
 Decisions: `close_uat` 0.72 (lean close, below the bar); `next_step` = **owner_review_first** (0.61; submit_pr 0.37; another_round 0.02). The UAT ran the 2 extra rounds Jev chose and now goes to owner review before the round-5 branch is submitted.
+
+## Round 6 — corrected re-ask (6c)
+
+The first round-6 request described the fix screenshots only under C10 and predated D20b/D37/D38 and the C10 sign-off package. The corrected request ([`uat-jev-round6c-request.json`](uat-jev-round6c-request.json)) states those facts and says plainly that D37/D38 are verified headlessly only. Response: [`evidence/uat-2026-11-21/jev-round6c-response.json`](evidence/uat-2026-11-21/jev-round6c-response.json) (`gen-dec-1795295161-evsiogNKUWVkoo73KVJh`). Both responses are kept.
+
+| Criterion | 6 (first) | 6c (corrected) | Met |
+|-----------|-----------|----------------|-----|
+| C1 | 0.83 | 0.83 | ✅ |
+| C2 | 0.93 | 0.92 | ✅ |
+| C3 | 0.95 | 0.95 | ✅ |
+| C4 | 0.92 | 0.91 | ✅ |
+| C5 | 0.70 | 0.82 | Jev ✅ — counted only after the D37/D38 Play Mode re-check (pending: Unity plugin disconnected) |
+| C6 | 0.23 | 0.91 | ✅ |
+| C7 | 0.85 | 0.84 | ✅ |
+| C8 | 0.51 | 0.54 | ❌ — D24/D25 stub-level red; controller-level D24 red in progress |
+| C9 | 0.97 | 0.97 | ✅ |
+| C10 | 0.17 | 0.95 | ✅ evidence handed to owner ([`c10-owner-signoff.md`](evidence/uat-2026-11-21/c10-owner-signoff.md)); owner tick boxes pending |
+| C11 | 0.85 | 0.86 | ✅ |
+| C12 | 0.86 | 0.91 | ✅ |
+
+`close_uat` 0.48; `next_step` owner_review_first 0.70.
