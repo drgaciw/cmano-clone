@@ -574,6 +574,33 @@ public static class CatalogSeedBootstrap
         cmd.ExecuteNonQuery();
     }
 
+    /// <summary>
+    /// Same shipped-path rule as <see cref="SqliteCatalogReader"/>: full path, file name
+    /// <c>baltic_patrol.db</c> or <see cref="CatalogValidationDefaults.PublicCorpusDatabaseFileName"/>,
+    /// and a normalized path containing <c>/assets/data/catalog/</c>.
+    /// </summary>
+    private static bool IsShippedCatalogDatabase(string databasePath)
+    {
+        string full;
+        try
+        {
+            full = Path.GetFullPath(databasePath);
+        }
+        catch (Exception ex) when (ex is ArgumentException or NotSupportedException or PathTooLongException)
+        {
+            return false;
+        }
+
+        var name = Path.GetFileName(full);
+        if (!name.Equals("baltic_patrol.db", StringComparison.OrdinalIgnoreCase) &&
+            !name.Equals(CatalogValidationDefaults.PublicCorpusDatabaseFileName, StringComparison.OrdinalIgnoreCase))
+        {
+            return false;
+        }
+
+        return full.Replace('\\', '/').Contains("/assets/data/catalog/", StringComparison.OrdinalIgnoreCase);
+    }
+
     private static bool ColumnExists(SqliteConnection connection, string table, string column)
     {
         using var cmd = connection.CreateCommand();
@@ -583,11 +610,17 @@ public static class CatalogSeedBootstrap
     }
 
     /// <summary>
-    /// Ensures migrations + missing generic swarm preset rows exist without rewriting the catalog.
-    /// Safe to call on every harness open (insert-if-absent only; curated rows are preserved).
+    /// Ensures migrations + missing generic swarm preset rows exist without rewriting curated rows.
+    /// Existing shipped <c>assets/data/catalog</c> databases are left byte-for-byte (read/validate opens).
+    /// Missing files and non-shipped databases still receive the preset.
     /// </summary>
     public static void EnsureGenericSwarmPlatform(string databasePath)
     {
+        if (File.Exists(databasePath) && IsShippedCatalogDatabase(databasePath))
+        {
+            return;
+        }
+
         using (var _ = new SqliteCatalogReader(databasePath, "swarm-a1-ensure"))
         {
         }
