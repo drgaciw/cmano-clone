@@ -43,6 +43,8 @@
     height: 20px;
     min-height: 20px;
     max-height: 20px;
+    /* UAT D12: the wrapping top bar overlaps the drawer's first pixels; keep the toggle fully visible. */
+    margin-top: 12px;
     margin-bottom: 6px;
     padding-left: 6px;
     padding-right: 6px;
