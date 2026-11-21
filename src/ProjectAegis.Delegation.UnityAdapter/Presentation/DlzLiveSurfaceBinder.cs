@@ -121,7 +121,7 @@ public static class DlzLiveSurfaceBinder
         }
 
         return new DlzLiveSurfaceState(
-            "DLZ: UNKNOWN — select a friendly unit for range assessment",
+            "DLZ: UNKNOWN — range assessment is shown on the selected unit's panel",
             "UNKNOWN",
             DlzDeclutterTokens.Unknown,
             DlzCueClasses.Unknown,

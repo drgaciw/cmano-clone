@@ -106,6 +106,16 @@ public sealed class DlzLiveSurfaceBinderTests
     }
 
     [Test]
+    public void Contact_hover_unknown_hint_matches_exclusive_selection()
+    {
+        var result = DlzLiveSurfaceBinder.BindContact("c1", null, null);
+
+        Assert.That(
+            result.StateLine,
+            Is.EqualTo("DLZ: UNKNOWN — range assessment is shown on the selected unit's panel"));
+    }
+
+    [Test]
     public void Panel_binder_maps_dlz_line_and_cue_class()
     {
         var state = DlzLiveSurfaceBinder.BindFromEngagePreview(
