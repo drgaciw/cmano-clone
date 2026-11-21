@@ -1,16 +1,20 @@
 /* Contact detail chrome — belief/inference panel, distinct from own-unit detail (CMD-29). */
 
+@import url("../AegisTokens.uss");
+
 .contact-detail-panel {
     position: absolute;
     right: 0;
     top: 56px;
-    bottom: 0;
+    /* UAT D30: end above the bottom-right Message Log so its deep links stay reachable. */
+    bottom: var(--c2-message-log-clearance);
     width: 340px;
     max-width: 45%;
     min-width: 280px;
     flex-direction: column;
     padding: 8px;
-    background-color: rgba(18, 14, 22, 0.94);
+    /* UAT D30: opaque so Unit Detail text beneath does not show through. */
+    background-color: var(--surface-panel-opaque);
     border-left-width: 1px;
     border-left-color: rgb(90, 55, 70);
 }

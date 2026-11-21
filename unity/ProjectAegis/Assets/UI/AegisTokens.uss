@@ -10,6 +10,10 @@
     --surface-map: #101824;
     --surface-panel: rgba(12, 18, 28, 0.92);
     --surface-topbar: rgba(10, 16, 26, 0.95);
+    /* Fully opaque variant of --surface-panel for panels that stack over other panels (UAT D30). */
+    --surface-panel-opaque: rgb(12, 18, 28);
+    /* Bottom inset that clears the Message Log: its bottom 8px + max-height 220px + 8px gap (UAT D30). */
+    --c2-message-log-clearance: 236px;
 
     /* Borders */
     --border-subtle: #324150;
