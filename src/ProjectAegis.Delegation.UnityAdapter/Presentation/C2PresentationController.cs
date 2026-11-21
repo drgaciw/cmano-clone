@@ -80,7 +80,8 @@ public sealed class C2PresentationController
     {
         if (string.IsNullOrEmpty(SelectedUnitId))
         {
-            return UnitDetailBridge.BuildPrimary(snapshot, bridge);
+            // UAT D24: no selected unit (e.g. hostile contact selected) => attack options disabled.
+            return UnitDetailSelectionGate.Apply(UnitDetailBridge.BuildPrimary(snapshot, bridge), SelectedUnitId);
         }
 
         return UnitDetailBridge.BuildSelected(
