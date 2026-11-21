@@ -35,3 +35,24 @@ Jev (`typesafe/jev-1.14`, called through OpenRouter's decisions API with the `OP
 | C12 shipped data unchanged | 0.93 | hashes identical | ✅ |
 
 C3, C5 and C10 were not asked in this call; round 6 asks every criterion.
+
+## Round 6 (final) — Jev re-score
+
+Request: [`uat-jev-round6-request.json`](uat-jev-round6-request.json). Response: [`evidence/uat-2026-11-21/jev-round6-response.json`](evidence/uat-2026-11-21/jev-round6-response.json) (generation `gen-dec-1795294353-tM4exAf9M8S65Ma5Psj1`).
+
+| Criterion | Jev | Met (mechanical ✅ and ≥ 0.80) |
+|-----------|-----|------|
+| C1 | 0.83 | ✅ |
+| C2 | 0.93 | ✅ |
+| C3 | 0.95 | ✅ |
+| C4 | 0.92 | ✅ |
+| C5 | 0.70 | ❌ |
+| C6 | 0.23 | ❌ (request described screenshots only under C10 — likely cause; not re-asked) |
+| C7 | 0.85 | ✅ |
+| C8 | 0.51 | ❌ (stub-level red evidence for D24/D25, config-only D20) |
+| C9 | 0.97 | ✅ |
+| C10 | 0.17 | ❌ owner pixel sign-off pending |
+| C11 | 0.85 | ✅ |
+| C12 | 0.86 | ✅ |
+
+Decisions: `close_uat` 0.72 (lean close, below the bar); `next_step` = **owner_review_first** (0.61; submit_pr 0.37; another_round 0.02). The UAT ran the 2 extra rounds Jev chose and now goes to owner review before the round-5 branch is submitted.

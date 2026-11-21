@@ -1,0 +1,27 @@
+{
+  "state": "Project Aegis Play Mode UAT, round 6 of 6 (final round chosen by Jev in round 5), 2026-11-21. Round 5 implemented Jev's decisions as 8 TDD tasks, each reviewed by a separate reviewer: D26 in-game Scenario Editor unwired actions disabled with a NOT_AVAILABLE reason; D24b contact hint text; D28 Play Baltic Escort no longer rewrites the committed scene; D35 Addressables settings committed with a guard test; CLI-7 (reference-point geometry/type and ROE validation; event trigger/condition and EMCON deferred by ruling because no authoritative value set exists), CLI-12 (explicit missing --db returns NOT_FOUND, no file created), CLI-4 (unknown event or missing path returns NOT_FOUND); D36 clicking a hostile unit's own map marker now opens the contact tracking it; D15 layout-safe subset: unit-order toolbar repositioned and added to the committed scene, measured in Play Mode clear of the map, its control buttons and the message log. A final whole-branch review (most capable model) found no critical issues; one fix wave addressed its 2 important and 3 minor findings. ROUND 6 EVIDENCE: headless suite 4,660 passed / 0 failed across 9 projects (clean checkout and live working copy); Phase 0 CI smoke PASS (zero-touch DelegationBridge.cs byte-identical to main; replay goldens 6/6; PlayMode smoke harness >= 18); shipped catalog DB hashes unchanged after Play Mode and the suite; all 5 baltic-patrol scenarios run in Play Mode with 0 console errors, comms transitions, mission doctrine 'WeaponsTight (mission)' and EMCON shown, hostile symbols and contact classification shown; Unity PlayMode test assembly 18/20 (2 failures: one from the user's own uncommitted test edit, one SliceA contact-panel expectation that predates this work and is untouched by it). Interactive behaviour exercised by code in Play Mode and passing: pause/resume, time compression including paused-rate display, attention-toast acknowledge, OOB row select, contact row select by mouse and keyboard, map-marker select for friendly unit, contact and hostile unit, fire/salvo/hold for own unit, enemy attack refused with NOT_PLAYER_CONTROLLED, six unit orders confirmed with ISSUED status; Escort Command Post 21/21; Scenario Map Authoring editor window 14/14 functions; Editor menu items exercised. C8: every round 3-5 fix has a test that failed before its fix; D24 and D25 have runtime red evidence via stubs modelling the old behaviour (helper-contract level, wiring not asserted); D20 (folder .meta files) has no test because Unity regenerates them on disk. C11: every UI control is exercised or classified: remaining owner rows are 22 panel hosts not in any scene (measured as overlapping the map or top chrome; backlog by Jev's round-5 decision), Doctrine Inheritance panel hidden in all five scenarios, LiveEdit with no target, BattleGraphic zoom visual-only, and the native Browse file dialog. C10: screenshots of every presentation fix are in the evidence folder awaiting owner pixel sign-off. Open backlog with owners: CLI-7b, CLI-2/3/5..13 cosmetic, D16 (game design), D33, D32 (user's local edit), owner confirmation of D22 default selection.",
+  "questions": {
+    "c1": { "type": "noul", "instructions": "Does the evidence show the full headless suite passes with zero failures?" },
+    "c2": { "type": "noul", "instructions": "Does the evidence show determinism is preserved (replay goldens passing and unchanged)?" },
+    "c3": { "type": "noul", "instructions": "Does the evidence show the Play Mode smoke harness passes at or above its floor?" },
+    "c4": { "type": "noul", "instructions": "Does the evidence show a clean console across all five scenarios?" },
+    "c5": { "type": "noul", "instructions": "Does the evidence show scenario behaviour matches the spec (comms transitions, doctrine/EMCON, hostile symbols, overlay counts)?" },
+    "c6": { "type": "noul", "instructions": "Does the evidence show the presentation defects found were fixed and verified by screenshot?" },
+    "c7": { "type": "noul", "instructions": "Does the evidence show forbidden surfaces (DelegationBridge.cs, CatalogWriteGate, replay goldens) are untouched?" },
+    "c8": { "type": "noul", "instructions": "Does the evidence show every fix had a test that failed before the fix, allowing documented stub-level red evidence and one config-only exception?" },
+    "c9": { "type": "noul", "instructions": "Does the evidence show interactive behaviour (pause/resume, speed, acknowledge, select by list and map marker, orders) was exercised and passes?" },
+    "c10": { "type": "noul", "instructions": "Has pixel-level visual evidence been handed to the owner for sign-off?" },
+    "c11": { "type": "noul", "instructions": "Does the evidence show every UI function was exercised or explicitly classified with a reason?" },
+    "c12": { "type": "noul", "instructions": "Does the evidence show shipped data stays byte-identical after Play Mode and the test suite?" },
+    "close_uat": { "type": "noul", "instructions": "Should the UAT be closed now, handing the remaining backlog and owner items to their owners?" },
+    "next_step": {
+      "type": "choice",
+      "instructions": "What is the best next step for this branch?",
+      "criteria": {
+        "submit_pr": "Submit the round 5 branch as a pull request stacked on the round 3-4 PR",
+        "another_round": "Run another UAT round before submitting",
+        "owner_review_first": "Hold for owner review of the backlog decisions before submitting"
+      }
+    }
+  }
+}

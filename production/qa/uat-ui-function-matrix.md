@@ -43,6 +43,7 @@ How controls are driven: MCP `script-execute` with `unity/ProjectAegis/.ai-game-
 | D22b | C2 / invariant | **Regression from the D22 fix:** (1) the opposing-unit rule (`AgentController` id not starting `friendly-`) also blocks the player's own units delegated to agents — 2 Unity PlayMode `RightUnitPanelCommandFeedbackTests` fail; (2) it edited `DelegationBridge.cs`, which the Phase 0 smoke holds byte-identical to main (ZERO-touch invariant) → `Phase0_smoke_script_exists_and_passes_quick_mode` fails | S2 | **Fixed, verified** (`3d18f60d`) — `PlayerSideGuard` uses `BalticV3SideRegistry` + friendly mesh, not agent names; `DelegationBridge.cs` back to identical with main (Phase 0 smoke PASS, bridge diff 0). Root cause of the 2 Unity test failures: default selection picked `hostile-1` (alphabetical) — `C2SelectionResolver` now skips red units (**behaviour change**: default selection is now `u1`). Unity PlayMode RightUnit tests pass; Play Mode: default u1, hostile-1 refused, u1 fires. Limitation: a red unit with an unregistered non-legacy id is not detected |
 | D34 | Tests | `Player_builds_strip_unity_mcp_ready_define` reads `ProjectSettings.asset` from disk, and the Unity-MCP NuGet resolver writes `UNITY_MCP_READY` into every target's defines whenever the Editor runs — so the guard always fails in a live working copy even though the committed file is correct. Correction: that Server/LinuxHeadless assertion was an uncommitted round 2 edit of mine, not committed code | S4 | **Fixed** — guard reads `git show HEAD:` (disk fallback); committed with the isolation hardening; 1258/1258 with the dirty working copy |
 | D35 | Repo / Addressables | No `AddressableAssetsData` is committed, although the APP-6 atlas is documented as Addressables-loaded; the menu item generates the settings from scratch on each machine (moved out of the project to the scratchpad after the test) | S3 | **Owner** (commit generated settings or drop the Addressables path) |
+| D36 | Game UI | Clicking the red unit's own map marker (`hostile-1`, FULL PICTURE fog) selects contact id `hostile-1`, which is not a contact → Contact Detail shows `CONTACT: —` | S3 | Plan Task 7 |
 | D28 | Editor menu | `Project Aegis/Play Baltic Escort` rebuilds and saves `BalticEscort.unity` before playing; the rebuilt file gets new fileIDs and object order, so every Play leaves the committed scene modified in git (122-line diff, same content) | S4 | Open |
 | CLI-2…CLI-13 | CLI | See `evidence/uat-2026-11-21/mission-editor-cli-results.md` | S3–S4 | Triage |
 
@@ -133,7 +134,7 @@ Full inventory: 210 controls in 34 `UIDocument`s (10 in the committed scene + 24
 | Map: Follow selection / Earlier events / Latest events | **Pass (no-op by state)** at t=0 with no selection and an empty event page; not re-run with history — residual risk noted |
 | LiveEdit commit | **Owner** — no visible effect and no live-edit target in this scenario |
 | BattleGraphic zoom ×3 | **Owner (C10)** — visual only, no label change |
-| Map-marker click-select | **Owner (C9 gap)** — selection tested via OOB/contact list rows, not map markers |
+| Map-marker click-select | Round 5: `u1` marker → Unit Detail u1 **Pass**; `c1` marker → Contact Detail c1 **Pass**; `hostile-1` unit marker → empty Contact Detail **Defect D36** |
 
 ### Shipped data (C12)
 
