@@ -90,6 +90,7 @@ public sealed class AarExplainCommittedFixtureTests
         var committed = await File.ReadAllBytesAsync(evidence);
         Assert.That(committed, Does.Not.Contain((byte)'\r'));
         Assert.That(committed, Does.Contain((byte)'\n'));
+        AssertJsonlPinnedToLf(Path.GetDirectoryName(evidence)!);
 
         var tempRoot = Path.Combine(Path.GetTempPath(), "aegis-aar-shape-" + Guid.NewGuid().ToString("N"));
         try
@@ -115,6 +116,13 @@ public sealed class AarExplainCommittedFixtureTests
         Assert.That(again.Entries[1].EvidenceId, Is.EqualTo("fp:2"));
         Assert.That(again.Entries[1].Kind, Is.EqualTo(EvidenceEntryKind.AgentDecision));
         Assert.That(File.Exists(evidence), Is.True);
+    }
+
+    private static void AssertJsonlPinnedToLf(string fixtureDirectory)
+    {
+        var attributes = File.ReadAllText(Path.Combine(RequireRepoRoot(), ".gitattributes"));
+        Assert.That(attributes, Does.Match(@"\*\.jsonl\s+text\s+eol=lf"));
+        Assert.That(fixtureDirectory, Does.EndWith(Path.Combine("aar-explain")));
     }
 
     private static string RequireCommittedEvidencePath()
