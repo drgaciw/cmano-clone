@@ -3,7 +3,6 @@ namespace ProjectAegis.MissionEditor.Cli.Tests;
 using System.Reflection;
 using Cli;
 using Data.Catalog;
-using Data.Import;
 using Data.Scenario.Authoring;
 using NUnit.Framework;
 
