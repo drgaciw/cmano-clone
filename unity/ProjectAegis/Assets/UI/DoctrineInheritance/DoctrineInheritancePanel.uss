@@ -61,10 +61,20 @@
     margin-bottom: 4px;
 }
 
+/* UAT D39: panel inner width is 226px (244 - 2*8 padding - 2*1 border). Unity's default 150px field
+   label plus the old 160px min-width pushed the input past the clipped edge. */
 .doctrine-dropdown {
-    min-width: 160px;
-    margin-right: 8px;
+    min-width: 0px;
+    width: 100%;
+    flex-grow: 1;
+    flex-shrink: 1;
+    margin-right: 0px;
     margin-bottom: 4px;
+}
+
+.doctrine-dropdown > .unity-base-field__label {
+    min-width: 88px;
+    width: 88px;
 }
 
 .doctrine-apply-button {
