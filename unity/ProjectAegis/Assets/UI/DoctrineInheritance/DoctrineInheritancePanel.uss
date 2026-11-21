@@ -1,14 +1,15 @@
-/* Doctrine panel — docks under the right unit column when enabled. */
+/* Doctrine panel — docks bottom-left in the empty lower area of the left drawer (UAT D37),
+   clear of the right Unit Detail attack buttons. Width 244px = drawer 260px minus 8px margins. */
 
 @import url("../AegisTokens.uss");
 
 .doctrine-panel {
     position: absolute;
-    right: 8px;
-    bottom: 236px;
-    width: 284px;
-    min-width: 260px;
-    max-height: 40%;
+    left: 8px;
+    bottom: 8px;
+    width: 244px;
+    max-height: 470px;
+    overflow: hidden;
     flex-direction: column;
     padding: 8px;
     background-color: rgba(12, 18, 28, 0.94);
@@ -31,6 +32,7 @@
 }
 
 .doctrine-line {
+    white-space: normal;
     color: rgb(180, 190, 200);
     margin-bottom: 2px;
 }
