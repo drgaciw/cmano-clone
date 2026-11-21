@@ -4,13 +4,36 @@ using Microsoft.Data.Sqlite;
 using Platform;
 using Snapshots;
 
-/// <summary>SQLite-backed catalog reader; applies migrations on open.</summary>
+/// <summary>
+/// SQLite-backed catalog reader. Writable and newly created catalogs apply migrations on open.
+/// Shipped <c>assets/data/catalog</c> files stay byte-for-byte on read opens; import, seed, and
+/// write-gate bootstraps still migrate in place.
+/// </summary>
 public sealed class SqliteCatalogReader : ICatalogReader, IDisposable
 {
     private static readonly HashSet<string> PragmaTableWhitelist = new(StringComparer.Ordinal)
     {
         "sensor",
         "sensor_quarantine",
+    };
+
+    /// <summary>
+    /// Layer versions whose only job is to migrate the file they open (import, seed, write gate).
+    /// Read layers such as <c>harness-catalog</c>, <c>swarm-a1-ensure</c>, and
+    /// <c>snapshot-store-bootstrap</c> are absent on purpose: those opens are how
+    /// <c>scenario_validate</c> and Demo touch the shipped catalogs, and migration 018
+    /// rewrites the file when <c>sensor.radar_scan_type</c> is missing.
+    /// </summary>
+    private static readonly HashSet<string> InPlaceSchemaBootstrapLayers = new(StringComparer.Ordinal)
+    {
+        "p0-sqlite",
+        "p0-seed",
+        "p0-json-write",
+        "p0-seed-emcon",
+        "p0-seed-enrich",
+        "enterprise-corpus-schema",
+        "write-gate-bootstrap",
+        "snapshot-bind",
     };
     private readonly string _databasePath;
     private readonly SqliteConnection _connection;
@@ -35,10 +58,62 @@ public sealed class SqliteCatalogReader : ICatalogReader, IDisposable
     {
         _databasePath = databasePath;
         LayerVersion = layerVersion;
-        _connection = new SqliteConnection($"Data Source={databasePath};Pooling=false");
+        var preserveShippedBytes = ShouldPreserveShippedCatalogBytes(databasePath, layerVersion);
+        _connection = new SqliteConnection(
+            preserveShippedBytes
+                ? new SqliteConnectionStringBuilder
+                {
+                    DataSource = databasePath,
+                    Mode = SqliteOpenMode.ReadOnly,
+                    Pooling = false,
+                }.ConnectionString
+                : $"Data Source={databasePath};Pooling=false");
         _connection.Open();
-        ApplyMigrations();
+        if (!preserveShippedBytes)
+        {
+            ApplyMigrations();
+        }
+
         CatalogDependencyGraphCacheInvalidator.Register(this, _databasePath);
+    }
+
+    /// <summary>
+    /// Existing shipped catalogs are opened read-only unless this layer is an in-place schema bootstrap.
+    /// Missing files still migrate, so a first-time seed can create the schema.
+    /// </summary>
+    private static bool ShouldPreserveShippedCatalogBytes(string databasePath, string layerVersion)
+    {
+        if (string.IsNullOrWhiteSpace(layerVersion) ||
+            InPlaceSchemaBootstrapLayers.Contains(layerVersion) ||
+            !File.Exists(databasePath) ||
+            !IsShippedCatalogDatabase(databasePath))
+        {
+            return false;
+        }
+
+        return true;
+    }
+
+    private static bool IsShippedCatalogDatabase(string databasePath)
+    {
+        string full;
+        try
+        {
+            full = Path.GetFullPath(databasePath);
+        }
+        catch (Exception ex) when (ex is ArgumentException or NotSupportedException or PathTooLongException)
+        {
+            return false;
+        }
+
+        var name = Path.GetFileName(full);
+        if (!name.Equals("baltic_patrol.db", StringComparison.OrdinalIgnoreCase) &&
+            !name.Equals(CatalogValidationDefaults.PublicCorpusDatabaseFileName, StringComparison.OrdinalIgnoreCase))
+        {
+            return false;
+        }
+
+        return full.Replace('\\', '/').Contains("/assets/data/catalog/", StringComparison.OrdinalIgnoreCase);
     }
 
     public string LayerVersion { get; }
