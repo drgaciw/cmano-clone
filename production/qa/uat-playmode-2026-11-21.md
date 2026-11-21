@@ -99,3 +99,28 @@ The existing `jev-worker` ignores request bodies. A forwarding version is in `to
 - D16: de-duplicate repeated policy denials in the score (game-design decision).
 - D12: drawer clipping unconfirmed. D14: stale `.meta` cache clears on an Editor restart.
 - C9/C10: interactive behaviour and pixel-level DRG-162 sign-off (owner).
+
+## Round 3 (2026-11-21) — every UI function, editors, CLI
+
+Full per-control results: [`uat-ui-function-matrix.md`](uat-ui-function-matrix.md). CLI results: [`evidence/uat-2026-11-21/mission-editor-cli-results.md`](evidence/uat-2026-11-21/mission-editor-cli-results.md).
+
+**Method change:** interactive checks (C9) are now agent-driven — MCP `script-execute` sends `NavigationSubmitEvent` to UI Toolkit controls (a code-sent `ClickEvent` does not reach buttons). Harness: `unity/ProjectAegis/.ai-game-dev/snippets/UatHarness.cs`.
+
+**Fixed this round (each its own commit):** D17, D19 (+#899 completion), D20, D21, D22 (re-fix pending, see D22b), D23, D24, D25, D27, CLI-1, CLI-1b, CLI-5, CLI-5b. D14 cleared by the Editor restart.
+
+**Unresolved after round 3 — owners**
+
+| ID | Summary | Owner |
+|----|---------|-------|
+| C1 | Committed `Server` / `LinuxHeadlessSimulation` defines contain `UNITY_MCP_READY`; `activeInputHandler` revert | Engineering, needs the Unity Editor closed |
+| D22b | D22 fix regression (blocks delegated own units; touched zero-touch `DelegationBridge.cs`) | Engineering — re-fix in progress |
+| D15 / D18 | 17 builder hosts missing from the committed scene; 10 hosts (incl. both in-game editor shells) in no scene at all | Product owner (scene composition decision) |
+| D26 | In-game Scenario Editor shell actions unwired (Load/Save/Undo/Redo/Play/Sample) | Product owner (feature scope) |
+| D24b | Exclusive selection vs. "select a friendly unit for range assessment"; Unit vs Contact readiness wording disagree | Game design |
+| D16 | Repeated policy denials lower the score | Game design |
+| D12, D28, D29, D30, D31 | Layout/visual and builder-noise defects | UI engineering (round 4) |
+| D32 | Unity test broken by an uncommitted local edit | You (local change) |
+| D33 | SliceA contact-panel test expectation | Engineering — triage in progress |
+| CLI-2…CLI-13 (minus fixed) | CLI validation/exit-code defects | Tools engineering |
+| C10 | Pixel-level visual sign-off; screenshots in `evidence/uat-2026-11-21/` | Product owner |
+| Jev | No Jev scores in any round (credentials never provided) | You |

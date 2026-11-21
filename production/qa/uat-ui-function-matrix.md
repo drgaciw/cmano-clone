@@ -34,6 +34,13 @@ How controls are driven: MCP `script-execute` with `unity/ProjectAegis/.ai-game-
 | D25 | Game UI | Unit-order toolbar: a successful order clears the status line (`SetStatus(null)`), so Hold / RTB / EMCON / Sensors / Engage / Plot Course give no visible confirmation (orders are accepted: `TryIssueSelectedCommand` returns true) | S4 | **Fixed, verified** — `ISSUED: hold → u1` (`ee56a6ca`) |
 | D26 | Editors | In-game Scenario Editor shell: `LoadRequested` / `SaveRequested` / `UndoRequested` / `PlayRequested` / `SampleRequested` have no subscribers, so Load does nothing and Save / Undo / Redo / Play / Sample stay disabled; shell text says "bind … in a later wave" | — | **Owner** (feature incomplete; with D18) |
 | D27 | Game UI | Speed `−` / `+` while paused change nothing visible (top bar shows only `TIME: PAUSED`) | S4 | **Fixed, verified** — `TIME: PAUSED (2x)` (`28035771`) |
+| D29 | Game UI | With the D22/D24 reason appended, disabled attack button labels are clipped (`e 1 round (NOT_PLAYER_CONTROLLE`) — needs wrapping like D11. Screenshot `evidence/uat-2026-11-21/r3-d22-hostile-attack-disabled.png` | S4 | Open |
+| D30 | Game UI | Contact Detail opens over Unit Detail with a translucent background, so Unit Detail text shows through; Message Log covers the bottom of Contact Detail ("Open contact explanation"). Screenshot `r3-d23-d24-d25-contact-selected.png` | S3 | Open |
+| D31 | Game UI | Left drawer Contacts tab: Sort / Filter dropdowns render as blank grey boxes and the contact list area is visibly empty while it holds `c1` (selection works by keyboard/code). Same screenshot | S3 | Open |
+| D12 | Game UI | **Confirmed** (was unconfirmed): "Collapse Left Drawer" button clipped at the top edge of the drawer (both screenshots) | S4 | Open |
+| D32 | Tests | Unity PlayMode `CoverageMapViewTests.Source_declares_…` fails: path `…/cmano-clone/ProjectAegis/Assets/…` (missing `unity/`). Caused by the uncommitted local edit to `Assets/Tests/CoverageMapViewTests.cs` that predates this UAT | — | **Owner** (your uncommitted change) |
+| D33 | Tests | Unity PlayMode `SliceAContactPanelSmokeTests.Contact_panel_binds_once_per_frame_and_clears_on_unit_selection`: expects contact `SourceLine` "UNKNOWN", gets "SRC: u1 …" | — | Triage in progress (branch vs main) |
+| D22b | C2 / invariant | **Regression from the D22 fix:** (1) the opposing-unit rule (`AgentController` id not starting `friendly-`) also blocks the player's own units delegated to agents — 2 Unity PlayMode `RightUnitPanelCommandFeedbackTests` fail; (2) it edited `DelegationBridge.cs`, which the Phase 0 smoke holds byte-identical to main (ZERO-touch invariant) → `Phase0_smoke_script_exists_and_passes_quick_mode` fails | S2 | Re-fix in progress |
 | D28 | Editor menu | `Project Aegis/Play Baltic Escort` rebuilds and saves `BalticEscort.unity` before playing; the rebuilt file gets new fileIDs and object order, so every Play leaves the committed scene modified in git (122-line diff, same content) | S4 | Open |
 | CLI-2…CLI-13 | CLI | See `evidence/uat-2026-11-21/mission-editor-cli-results.md` | S3–S4 | Triage |
 
@@ -100,6 +107,31 @@ Full inventory: 210 controls in 34 `UIDocument`s (10 in the committed scene + 24
 | Build DelegationSmoke (comms / classify QA), Build Baltic Escort Scene, Build CesiumSpike, Addressables group setup | **Not run** — rewrite committed scenes/assets; same builder code paths as the items above. Round 4 / owner |
 | Build ▸ Build Linux64 Player (Mono) | **Not run** — blocked on C1 (player defines) and needs the Editor for minutes; owner after C1 |
 | MCP ▸ Pin Local Host :8081 | **Not run** — rewrites MCP config already verified by tests |
+
+### Five-scenario re-run after the round 3 fixes (C4, C5)
+
+| Scenario | Console errors | Spec check |
+|----------|----------------|-----------|
+| `baltic-patrol` | 0 | Top bar, OOB, Unit Detail render; `TIME: PAUSED (1x)` |
+| `baltic-patrol-classify` | 0 | Map shows `c1 Classified`; hostile-1 attack disabled (`NOT_PLAYER_CONTROLLED`) |
+| `baltic-patrol-comms` | 0 | `COMMS: DENIED`; u1 `STATUS: UNKNOWN (Out of comms)` |
+| `baltic-patrol-mission-roe` | 0 | u1 `DOCTRINE: WeaponsTight (mission)`, `EMCON: ACTIVE` (D2b holds after D24) |
+| `baltic-patrol-mission` | 0 | Unit Detail renders; Doctrine Inheritance panel hidden (no ROE choices) |
+
+### Unity test assemblies
+
+`ProjectAegis.Unity.Tests` (PlayMode, 20 tests): **16 pass, 4 fail** — D22b ×2, D32, D33. No EditMode project tests exist (the only EditMode test is Addressables sample code).
+
+### C11 classification of rows without a visible effect
+
+| Row | Classification |
+|-----|----------------|
+| AgentRoster, AirOps, BoatOps, PendingApproval, MissionList/Package, ScenarioLibrary, SensorC2, OobTree, GroundOps, DeckHangar actions | **Owner** — reachable only through hosts the committed scene lacks (D15/D18), and no `baltic-patrol-*` scenario populates them (no aircraft, boats, packages, approvals); disabled-state verified, actions not exercisable |
+| Doctrine Inheritance (ROE dropdown, Apply) | **Owner** — hidden in all five scenarios (empty ROE choices); needs a scenario with inheritable doctrine or a design answer |
+| Map: Follow selection / Earlier events / Latest events | **Pass (no-op by state)** at t=0 with no selection and an empty event page; not re-run with history — residual risk noted |
+| LiveEdit commit | **Owner** — no visible effect and no live-edit target in this scenario |
+| BattleGraphic zoom ×3 | **Owner (C10)** — visual only, no label change |
+| Map-marker click-select | **Owner (C9 gap)** — selection tested via OOB/contact list rows, not map markers |
 
 ### Shipped data (C12)
 
