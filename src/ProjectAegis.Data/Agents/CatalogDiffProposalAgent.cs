@@ -19,8 +19,10 @@ public sealed class CatalogDiffProposalAgent : IDatabaseIntelligenceAgent
             ]);
         }
 
-        using var gate = new WriteGate.CatalogWriteGate(context.DatabasePath);
-        var pending = gate.ListPendingBatches();
+        // UAT D19: CatalogWriteGate migrates on open, so shipped catalogs are inspected read-only.
+        var pending = Catalog.SqliteCatalogReader.IsShippedCatalogDatabase(context.DatabasePath)
+            ? ListPendingBatchesReadOnly(context.DatabasePath)
+            : ListPendingBatchesViaGate(context.DatabasePath);
         var findings = pending
             .Select(b => new DatabaseAgentFinding(
                 "STAGED_BATCH_PENDING",
@@ -34,5 +36,52 @@ public sealed class CatalogDiffProposalAgent : IDatabaseIntelligenceAgent
         }
 
         return new DatabaseAgentReport(AgentId, true, findings);
+    }
+
+    private static IReadOnlyList<WriteGate.CatalogStagingBatchSummary> ListPendingBatchesViaGate(string databasePath)
+    {
+        using var gate = new WriteGate.CatalogWriteGate(databasePath);
+        return gate.ListPendingBatches();
+    }
+
+    private static IReadOnlyList<WriteGate.CatalogStagingBatchSummary> ListPendingBatchesReadOnly(string databasePath)
+    {
+        var list = new List<WriteGate.CatalogStagingBatchSummary>();
+        using var connection = new Microsoft.Data.Sqlite.SqliteConnection(
+            new Microsoft.Data.Sqlite.SqliteConnectionStringBuilder
+            {
+                DataSource = databasePath,
+                Mode = Microsoft.Data.Sqlite.SqliteOpenMode.ReadOnly,
+                Pooling = false,
+            }.ConnectionString);
+        connection.Open();
+        using var exists = connection.CreateCommand();
+        exists.CommandText = "SELECT COUNT(*) FROM sqlite_master WHERE type = 'table' AND name = 'catalog_staging_batch'";
+        if (Convert.ToInt32(exists.ExecuteScalar(), System.Globalization.CultureInfo.InvariantCulture) == 0)
+        {
+            return list;
+        }
+
+        using var cmd = connection.CreateCommand();
+        cmd.CommandText =
+            """
+            SELECT batch_id, actor_type, actor_id, record_count, approval_state, proposed_utc_ticks
+            FROM catalog_staging_batch
+            WHERE approval_state = 'proposed'
+            ORDER BY proposed_utc_ticks ASC, batch_id ASC
+            """;
+        using var reader = cmd.ExecuteReader();
+        while (reader.Read())
+        {
+            list.Add(new WriteGate.CatalogStagingBatchSummary(
+                reader.GetString(0),
+                reader.GetString(1),
+                reader.GetString(2),
+                reader.GetInt32(3),
+                reader.GetString(4),
+                reader.GetInt64(5)));
+        }
+
+        return list;
     }
 }

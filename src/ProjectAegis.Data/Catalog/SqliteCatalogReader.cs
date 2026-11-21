@@ -94,7 +94,7 @@ public sealed class SqliteCatalogReader : ICatalogReader, IDisposable
         return true;
     }
 
-    private static bool IsShippedCatalogDatabase(string databasePath)
+    internal static bool IsShippedCatalogDatabase(string databasePath)
     {
         string full;
         try
