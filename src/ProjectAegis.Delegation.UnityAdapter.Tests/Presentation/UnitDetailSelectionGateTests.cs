@@ -22,10 +22,10 @@ public sealed class UnitDetailSelectionGateTests
         var menu = UnitDetailSelectionGate.Apply(Entry(), null)!.AttackMenu;
         Assert.That(menu, Has.Count.EqualTo(2));
         Assert.That(menu, Has.All.Matches<EngageAttackOptions.AttackOption>(
-            o => !o.Enabled && o.DisabledReason == UnitDetailSelectionGate.NoSelectionReason));
+            o => o is { Enabled: false, DisabledReason: UnitDetailSelectionGate.NoSelectionReason }));
         var preview = AttackOptionsPreviewBinder.Bind(menu);
         Assert.That(preview.Rows, Has.All.Matches<AttackOptionMenuRow>(
-            r => !r.Enabled && r.AbortReason == "NO_SELECTION"));
+            r => r is { Enabled: false, AbortReason: "NO_SELECTION" }));
     }
 
     [Test]
