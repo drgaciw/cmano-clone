@@ -25,15 +25,16 @@ How controls are driven: MCP `script-execute` with `unity/ProjectAegis/.ai-game-
 | CLI-1b | CLI | Same unguarded `LoadFromFile` in `SideCommands.cs:20`, `ScenarioPublishCommand.cs:19`, `TimelineCommands.cs:21`, `MissionListCommand.cs:31`, `ScenarioNearFutureSpawnCommand.cs:24`, `EventCommands.cs:197` | S2 | Open (round 3: shared `TryLoad` helper) |
 | CLI-5 | CLI | `scenario_migrate_preview` successor IDs differ per process (`string.GetHashCode`) — determinism invariant | S2 | **Fixed** — FNV-1a matching `DeterministicHash.OrdinalHash`; pinned-literal test (RED→GREEN) |
 | CLI-5b | Data/CLI | Same bug class: `CmoMarkdownImportProposer.cs:403` (`StringComparer.Ordinal.GetHashCode`) and `MissionPlanSuggestCommand.cs:362` (default idempotency key from `intent.GetHashCode`) | S2 | Open (round 3) |
-| D20 | Repo | Folder `.meta` files missing from git (`Assets/UI/AxisControl`, `GroundOps`, `MapScaleHud`, `AuthorityRoe`, `BattleGraphic`, `EngageExplain`, `MissionPackage`), so each clone generates new folder GUIDs | S4 | Open (commit the Unity-generated metas) |
-| D21 | Game UI | `EngageExplainPanelHost.TryWireElements` calls `panel.Insert(1, …)` on an empty root and throws `ArgumentOutOfRangeException` **every frame** until a visual tree exists (`LateUpdate` retries) — 1,700+ console exceptions when the host starts without its UXML | S4 | Open |
+| D20 | Repo | Folder `.meta` files missing from git (`Assets/UI/AxisControl`, `GroundOps`, `MapScaleHud`, `AuthorityRoe`, `BattleGraphic`, `EngageExplain`, `MissionPackage`), so each clone generates new folder GUIDs | S4 | **Fixed** — metas committed (`f91bd975`; no prior-red test possible, C8 exception) |
+| D21 | Game UI | `EngageExplainPanelHost.TryWireElements` calls `panel.Insert(1, …)` on an empty root and throws `ArgumentOutOfRangeException` **every frame** until a visual tree exists (`LateUpdate` retries) — 1,700+ console exceptions when the host starts without its UXML | S4 | **Fixed, verified** — `PanelInsertGuard.ClampIndex`; also guarded `CoverageMapView`. 0 exceptions with 24 hosts spawned (`a60982ec`) |
 | D22 | Game UI / C2 | Player could command the enemy: selecting `hostile-1` in the OOB enabled Fire / Salvo / Hold; `TrySelectAttackOption` called `EnsureHumanControl` on the red AI unit and queued its attack (`[PLAYER_ORDER] Player ordered Engage for hostile-1`). `TryIssueBoatCommand` had the same gap | S2 | **Fixed** — `DelegationBridge.IsOpposingAiUnit`; attack enqueue and menu refuse `NOT_PLAYER_CONTROLLED`; host refuses before `EnsureHumanControl`. 2 tests RED→GREEN. **Verified in Play Mode**: hostile-1 buttons disabled with tooltip `NOT_PLAYER_CONTROLLED`, u1 enabled |
-| D23 | Game UI / a11y | Contact rows in the left drawer only react to a mouse `ClickEvent`; no Return/Space or list-selection path (OOB rows have one), so keyboard users cannot select a contact | S3 | Open |
-| D24 | Game UI | Selection is exclusive by design (qa-loop-08), but when it moves to a contact, Unit Detail keeps showing the old unit with Fire enabled; pressing Fire returns `DENIED: No unit selected (NO_SELECTION)` | S3 | Open |
+| D23 | Game UI / a11y | Contact rows in the left drawer only react to a mouse `ClickEvent`; no Return/Space or list-selection path (OOB rows have one), so keyboard users cannot select a contact | S3 | **Fixed, verified** — rows focusable, Return/Space and `selectionChanged`; Return on a row opens Contact Detail (`c65d9a0b`) |
+| D24 | Game UI | Selection is exclusive by design (qa-loop-08), but when it moves to a contact, Unit Detail keeps showing the old unit with Fire enabled; pressing Fire returns `DENIED: No unit selected (NO_SELECTION)` | S3 | **Fixed, verified** — `UnitDetailSelectionGate`; Fire/Salvo/Hold disabled with `NO_SELECTION` after a contact is selected (`8c90cbf6`) |
 | D24b | Design | Contact Detail asks "select a friendly unit for range assessment", which exclusive selection makes impossible; Unit Detail shows `ENGAGE … READY` while Contact Detail shows `Technical targetability: NO` / not cleared to engage | — | **Owner** (design question) |
-| D25 | Game UI | Unit-order toolbar: a successful order clears the status line (`SetStatus(null)`), so Hold / RTB / EMCON / Sensors / Engage / Plot Course give no visible confirmation (orders are accepted: `TryIssueSelectedCommand` returns true) | S4 | Open |
+| D25 | Game UI | Unit-order toolbar: a successful order clears the status line (`SetStatus(null)`), so Hold / RTB / EMCON / Sensors / Engage / Plot Course give no visible confirmation (orders are accepted: `TryIssueSelectedCommand` returns true) | S4 | **Fixed, verified** — `ISSUED: hold → u1` (`ee56a6ca`) |
 | D26 | Editors | In-game Scenario Editor shell: `LoadRequested` / `SaveRequested` / `UndoRequested` / `PlayRequested` / `SampleRequested` have no subscribers, so Load does nothing and Save / Undo / Redo / Play / Sample stay disabled; shell text says "bind … in a later wave" | — | **Owner** (feature incomplete; with D18) |
-| D27 | Game UI | Speed `−` / `+` while paused change nothing visible (top bar shows only `TIME: PAUSED`) | S4 | Open |
+| D27 | Game UI | Speed `−` / `+` while paused change nothing visible (top bar shows only `TIME: PAUSED`) | S4 | **Fixed, verified** — `TIME: PAUSED (2x)` (`28035771`) |
+| D28 | Editor menu | `Project Aegis/Play Baltic Escort` rebuilds and saves `BalticEscort.unity` before playing; the rebuilt file gets new fileIDs and object order, so every Play leaves the committed scene modified in git (122-line diff, same content) | S4 | Open |
 | CLI-2…CLI-13 | CLI | See `evidence/uat-2026-11-21/mission-editor-cli-results.md` | S3–S4 | Triage |
 
 ## Game panels — committed scene (first inventory, Play Mode, before Begin Execution)
@@ -87,6 +88,18 @@ Full inventory: 210 controls in 34 `UIDocument`s (10 in the committed scene + 24
 | ScenarioEditorShell (spawned) | 6 | 1 | Tabs and filters respond; Load does nothing (D26) |
 | LiveEdit (spawned) | 1 | 0 | Commit: no visible change |
 | AgentRoster, AirOps, BoatOps, PendingApproval, MissionList/Package, ScenarioLibrary, SensorC2, OobTree, GroundOps, DeckHangar (spawned) | 0 | — | Every action button disabled with an empty list in `baltic-patrol-classify` (no aircraft, boats, packages or pending approvals). Re-test in a scenario that populates them (BalticEscort for EscortMission/AirOps) |
+
+### Editor windows and menu items
+
+| Item | Result |
+|------|--------|
+| Scenario Map Authoring window (opened from menu; 38 controls) | Pass — Open, 4 domain filters, platform pick, Place + Commit, Begin Place, Cancel Gesture, RP polygon, Refresh Findings (7 codes), Rebuild (28 units, 6 RPs), Save — all against a scratch copy; repo scenario untouched. Note: each commit writes the file immediately, so `Dirty: no` is accurate. Browse opens a native modal file dialog → **Owner** |
+| Scenario Editor ▸ Add Aircraft / Ships / Subs / Ground Units, Open Baltic UI Dev Scenario | Pass (5/5, 0 errors) |
+| Play Baltic Escort → Escort Command Post (21 controls) | Pass (21/21, 0 errors): begin, resume, speed, 4 postures, radar active/passive, investigate, engage (correctly refused without fire-control track), hold/proceed convoy, 3 alert modes, focus, acknowledge, pause, restart. Side effect D28 |
+| Fix UIDocument PanelSettings / Strip AudioListeners / Ensure UI Maturity Hosts | Pass (scene reverted after each). Ensure Hosts adds the 17 hosts of D15 |
+| Build DelegationSmoke (comms / classify QA), Build Baltic Escort Scene, Build CesiumSpike, Addressables group setup | **Not run** — rewrite committed scenes/assets; same builder code paths as the items above. Round 4 / owner |
+| Build ▸ Build Linux64 Player (Mono) | **Not run** — blocked on C1 (player defines) and needs the Editor for minutes; owner after C1 |
+| MCP ▸ Pin Local Host :8081 | **Not run** — rewrites MCP config already verified by tests |
 
 ### Shipped data (C12)
 
