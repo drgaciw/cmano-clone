@@ -309,11 +309,8 @@ namespace ProjectAegis.Unity.Runtime
                 return;
             }
 
-            var lines = bridgeHost.LastMessageLog;
-            if (maxRows > 0 && lines.Count > maxRows)
-            {
-                lines = lines.Skip(lines.Count - maxRows).ToArray();
-            }
+            // UAT D38: row cap pins COMMS transitions so chatty agent rows cannot evict them.
+            var lines = MessageLogRowWindow.Select(bridgeHost.LastMessageLog, maxRows);
 
             _panelState = MessageLogPanelBinder.Bind(lines);
             // Skip list rebuild when collapsed (body hidden) to avoid work.
