@@ -21,6 +21,9 @@
             </ui:VisualElement>
             <ui:Button name="attack-hold-fire" text="Hold fire" class="unit-detail-attack-btn" />
         </ui:VisualElement>
+        <ui:Label name="commit-strip-constraints" text="COMMIT: —" class="unit-detail-line commit-strip-cue--empty" />
+        <ui:Label name="commit-strip-cost" text="COST: —" class="unit-detail-line commit-strip-cue--empty" />
+        <ui:Label name="commit-bark-line" text="" class="unit-detail-line commit-bark-line" />
         <ui:Label name="contact-line" text="CONTACT: —" class="unit-detail-line unit-detail-line--contact" />
     </ui:VisualElement>
 </ui:UXML>

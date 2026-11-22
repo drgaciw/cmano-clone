@@ -1,4 +1,5 @@
 using NUnit.Framework;
+using ProjectAegis.Delegation.UnityAdapter.Bridge;
 using ProjectAegis.Delegation.UnityAdapter.Presentation;
 using ProjectAegis.Sim.Policy;
 using ProjectAegis.Sim.Scenario;
@@ -44,5 +45,33 @@ public sealed class LoopPolicyChromeBinderTests
         var p = LoopPolicyChromeBinder.Bind(new ScenarioPolicyProfile(EffectivePolicy.DefaultFree));
         Assert.That(p.Fog.Label, Is.EqualTo("FOG: FULL PICTURE"));
         Assert.That(p.EditPolicy.Label, Is.EqualTo("EDITS: ANYTIME"));
+    }
+
+    [Test]
+    public void Project_from_bridge_reads_scenario_policy_and_updates_on_rebind()
+    {
+        var bridge = new DelegationBridge(42, mvpEngagement: false);
+        var initial = LoopPolicyChromeBinder.Project(bridge);
+        Assert.That(initial.Fog.Label, Is.EqualTo("FOG: FULL PICTURE"));
+        Assert.That(initial.EditPolicy.Label, Is.EqualTo("EDITS: ANYTIME"));
+
+        bridge.Orchestrator.ScenarioPolicy = new ScenarioPolicyProfile(
+            EffectivePolicy.DefaultFree,
+            playerInfoModel: PlayerInfoModel.TieredByAutonomy,
+            personalityEditPolicy: PersonalityEditPolicy.TieredRebrief);
+
+        var rebound = LoopPolicyChromeBinder.Project(bridge);
+        Assert.That(rebound.Fog.Label, Is.EqualTo("FOG: TIERED"));
+        Assert.That(rebound.Fog.CssClass, Is.EqualTo("c2-topbar-item--fog-tiered"));
+        Assert.That(rebound.EditPolicy.Label, Is.EqualTo("EDITS: TIERED REBRIEF"));
+        Assert.That(rebound.EditPolicy.CssClass, Is.EqualTo("c2-topbar-item--edit-tiered"));
+    }
+
+    [Test]
+    public void Project_from_null_bridge_falls_back_to_default_policy_labels()
+    {
+        var projected = LoopPolicyChromeBinder.Project(null);
+        Assert.That(projected.Fog.Label, Is.EqualTo("FOG: FULL PICTURE"));
+        Assert.That(projected.EditPolicy.Label, Is.EqualTo("EDITS: ANYTIME"));
     }
 }

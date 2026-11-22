@@ -15,6 +15,7 @@
             </ui:VisualElement>
             <ui:Label name="mode-label" text="MODE: —" class="c2-topbar-item" />
             <ui:Label name="fog-mode-label" text="FOG: —" class="c2-topbar-item c2-topbar-item--fog" />
+            <ui:Label name="edit-policy-label" text="EDITS: —" class="c2-topbar-item c2-topbar-item--edit" />
             <ui:Label name="comms-label" text="COMMS: NOMINAL" class="c2-topbar-item c2-topbar-item--comms" />
             <ui:Label name="score-label" text="SCORE: 0" class="c2-topbar-item c2-topbar-item--score" />
         </ui:VisualElement>

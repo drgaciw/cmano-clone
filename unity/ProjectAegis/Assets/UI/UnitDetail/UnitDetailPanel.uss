@@ -132,3 +132,58 @@
     opacity: 0.45;
     -unity-font-style: italic;
 }
+
+/* DRG-370: S124 pre-commit constraint + magazine cost strip and refusal/drop bark. */
+.commit-strip-cue--empty {
+    border-left-width: 3px;
+    border-left-color: rgb(130, 130, 140);
+    padding-left: 6px;
+    -unity-font-style: italic;
+}
+
+.commit-strip-cue--ready {
+    border-left-width: 3px;
+    border-left-color: rgb(110, 150, 120);
+    padding-left: 6px;
+}
+
+.commit-strip-cue--blocked {
+    border-left-width: 3px;
+    border-left-color: rgb(170, 100, 100);
+    padding-left: 6px;
+    -unity-font-style: bold;
+}
+
+.commit-bark-line {
+    margin-top: 2px;
+    margin-bottom: 4px;
+    font-size: 11px;
+}
+
+.commit-bark-cue--refused {
+    border-left-width: 3px;
+    border-left-color: rgb(220, 110, 90);
+    padding-left: 6px;
+    color: rgb(245, 190, 175);
+    -unity-font-style: bold;
+}
+
+.commit-bark-cue--dropped {
+    border-left-width: 3px;
+    border-left-color: rgb(235, 175, 80);
+    padding-left: 6px;
+    color: rgb(245, 220, 165);
+    -unity-font-style: bold;
+}
+
+/* DRG-351: Play Mode in-panel UITK tooltip presenter popup. */
+.unit-detail-runtime-tooltip {
+    margin-top: 6px;
+    padding: 4px 6px;
+    background-color: rgba(20, 30, 44, 0.98);
+    border-width: 1px;
+    border-color: rgb(120, 150, 180);
+    color: rgb(225, 235, 245);
+    font-size: 11px;
+    white-space: normal;
+}
