@@ -126,3 +126,21 @@ Two UAT fixes changed only `Assets/Scenes/DelegationSmoke.unity` and had no test
 Both worktrees were removed afterwards. GREEN on the branch: 2/2, and the full UnityAdapter project passes 1291/1291.
 
 With this, no fix in rounds 3–7 is without a test that failed first on real pre-fix content.
+
+
+## Round 8 — RED evidence on real pre-fix code (2026-11-22)
+
+- **D40** (`PlayModeSmokeOrbatSeeder.AdvanceDecisionLog` synthetic `emcon: Active -> Passive` row):
+  - Test: `PlayModeSmokeHarnessTests.AdvanceDecisionLog_does_not_emit_synthetic_emcon_policy_update`
+  - RED on unmodified `PlayModeSmokeOrbatSeeder.cs`:
+    `D40: synthetic emcon policy update contradicts active unit EMCON posture. Expected: False, But was: True`
+  - GREEN after removing the canned `simTime >= 5.0` EMCON row: `PlayModeSmokeHarnessTests` 27/27 passed; verified live in all 5 Play Mode scenarios (`r8-d40-comms-clean.png`).
+- **D32** (`CoverageMapViewTests.Source_declares_gap_dashes_covered_solids_geometry_scaling_and_segment_cap`):
+  - RED in Unity PlayMode Test Runner (`tests-run`): `System.IO.DirectoryNotFoundException : Could not find a part of the path "/home/username01/cmano-clone/ProjectAegis/Assets/Scripts/Runtime/CoverageMapView.cs"`.
+  - GREEN after resolving via `UnityEngine.Application.dataPath`: 22/22 passed.
+- **D33** (`SliceAContactPanelSmokeTests.Contact_panel_binds_once_per_frame_and_clears_on_unit_selection`):
+  - RED in Unity PlayMode Test Runner (`tests-run`): `Expected: String containing "UNKNOWN", But was: "SRC: u1 | ref observer:u1|target:hostile-1"` and `But was: "COMMS: no degradation reported"`.
+  - GREEN after updating assertions to match real observer provenance & nominal comms formatting: 22/22 passed.
+- **Manifest mirror drift** (`UnityPackageManifestMirrorTests.Template_dependencies_match_live_manifest`):
+  - RED on Editor-updated `manifest.json` (`1.14.0`/`2.1.4`) vs `manifest.template.json` (`1.13.0`/`2.1.1`).
+  - GREEN after syncing `manifest.template.json` per ADR-027 §3 (`UnityAdapter.Tests` 1,292/1,292).

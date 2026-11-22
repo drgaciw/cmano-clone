@@ -14,6 +14,7 @@
 | 6 | [`r5-d15-toolbar-visible.png`](r5-d15-toolbar-visible.png) | D15 subset, D25 | Bottom of the screen between the map controls and the Message Log | ORDERS toolbar visible, clear of the Tactical…Latest events row and the Message Log; `ISSUED: hold → u1` | ☐ |
 | 7 | [`r6-d37-d38-comms-doctrine-after.png`](r6-d37-d38-comms-doctrine-after.png) | D37, D38 | Doctrine panel bottom-left; Message Log (bottom right), scenario `-comms` at 5 s | Doctrine panel inside the left drawer column, clear of map and Unit Detail; top bar `COMMS: DENIED`; two purple `[COMMS]` rows in the log. (The panel's ROE override dropdown is clipped here — that is D39, fixed in #8) | ☐ |
 | 8 | [`r7-d39-doctrine-override-final.png`](r7-d39-doctrine-override-final.png) | D39 | Bottom of the Doctrine panel | `ROE Override` label readable above a full-width dropdown showing `WeaponsFree` in full; `Apply` on its own line | ☐ |
+| 9 | [`r8-d40-comms-clean.png`](r8-d40-comms-clean.png) | D40 | Message Log (bottom right) & Unit Detail / Doctrine panel in `baltic-patrol-comms` at T+5 s | Both `[COMMS]` transition rows pinned, `COMMS: DENIED`, `EMCON: ACTIVE`, and **no** synthetic `[POLICY_UPDATE] Policy emcon: Active → Passive` row | ☐ |
 
 `r7-d39-doctrine-override-fixed.png` is an **intermediate** D39 state (dropdown value still truncated to "Weapor"); it is kept for the record and is not for sign-off.
 

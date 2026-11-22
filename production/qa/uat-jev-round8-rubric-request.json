@@ -1,0 +1,49 @@
+{
+  "state": "Project Aegis Play Mode UAT Round 8 kickoff (2026-11-22), branch uat/round5-jev-decisions. Prior rounds 1-7b met 9/12 criteria (C1 0.97, C2 0.95, C3 0.95, C4 0.86, C5 0.91, C6 0.89, C7 0.95, C9 0.95, C12 0.91). Three criteria remain below 0.80: C8 (0.72, prior-red test evidence), C10 (0.72, owner-only pixel sign-off), and C11 (0.77, every UI function exercised). Baseline PlayMode Unity Test Runner (ProjectAegis.Unity.Tests) via Unity MCP currently reports 20/22 passed, 2 failed: (1) D32 CoverageMapViewTests.Source_declares_gap_dashes_covered_solids_geometry_scaling_and_segment_cap fails with DirectoryNotFoundException because its relative path omits 'unity/' instead of using Application.dataPath; (2) D33 SliceAContactPanelSmokeTests.Contact_panel_binds_once_per_frame_and_clears_on_unit_selection expects SourceLine containing 'UNKNOWN', but receives 'SRC: u1 | ref observer:u1|target:hostile-1' because the test itself appends ContactChangeRecord with observer 'u1' and SliceAContactLiveSurfaceBinder now formats observer provenance. Additional open items from the matrix: D40 (PlayModeSmokeOrbatSeeder.AdvanceDecisionLog logs synthetic '[POLICY_UPDATE] Policy emcon: Active -> Passive' that changes no unit), CLI-1b (6 MissionEditor.Cli commands have unguarded LoadFromFile that can throw unhandled exceptions on malformed JSON), CLI-5b (two non-deterministic GetHashCode calls in CmoMarkdownImportProposer.cs and MissionPlanSuggestCommand.cs). Unity MCP on localhost:8081 is live. Shipped catalog DB hashes are intact and DelegationBridge.cs has 0 diff vs main.",
+  "questions": {
+    "add_c13_unity_tests": {
+      "type": "noul",
+      "instructions": "Should the UAT DoD rubric add criterion C13 requiring ProjectAegis.Unity.Tests PlayMode Test Runner to pass 100% (0 failures)?"
+    },
+    "d32_action": {
+      "type": "choice",
+      "instructions": "How should D32 (CoverageMapViewTests path omits 'unity/' and fails in Unity PlayMode Test Runner) be handled?",
+      "criteria": {
+        "fix_now": "Fix the test path resolution to use Application.dataPath (or valid unity/ProjectAegis path) so it passes in Unity PlayMode",
+        "defer_owner": "Leave failing for the owner"
+      }
+    },
+    "d33_action": {
+      "type": "choice",
+      "instructions": "How should D33 (SliceAContactPanelSmokeTests expects UNKNOWN source when test seeds observer u1) be handled?",
+      "criteria": {
+        "fix_now": "Update the test to assert the real observer provenance 'SRC: u1' (and add/keep a no-observer case for UNKNOWN) so PlayMode suite is 100% green",
+        "defer_owner": "Leave failing as pre-existing"
+      }
+    },
+    "d40_action": {
+      "type": "choice",
+      "instructions": "How should D40 (PlayModeSmokeOrbatSeeder logs synthetic EMCON Active -> Passive row that changes no unit) be handled in Round 8?",
+      "criteria": {
+        "fix_now": "Fix test-first so the smoke feed does not emit a contradictory EMCON change",
+        "backlog": "Keep in backlog with owner"
+      }
+    },
+    "cli_1b_5b_action": {
+      "type": "choice",
+      "instructions": "How should CLI-1b (unguarded malformed JSON loads) and CLI-5b (non-deterministic GetHashCode) in MissionEditor.Cli/Data be handled in Round 8?",
+      "criteria": {
+        "fix_now": "Fix both test-first (RED -> GREEN) in Round 8",
+        "backlog": "Leave in tools backlog"
+      }
+    },
+    "c11_rubric_clarification": {
+      "type": "choice",
+      "instructions": "How should the updated C11 rubric rule classify UI controls that are intentionally disabled/hidden due to empty state or NOT_AVAILABLE wiring?",
+      "criteria": {
+        "verified_state_counts_as_covered": "Controls verified in their expected disabled/hidden state with explicit reason (after exercising all 5 scenarios, BalticEscort, all Editor windows, and CLI) count as covered for C11",
+        "require_populated_fixtures_for_all": "Require creating new populated runtime fixtures for every single backlog panel host before C11 can pass"
+      }
+    }
+  }
+}
