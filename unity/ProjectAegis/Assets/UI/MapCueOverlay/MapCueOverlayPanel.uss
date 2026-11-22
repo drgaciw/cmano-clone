@@ -1,0 +1,92 @@
+/* DRG-712 companion map cue overlay — aligns with MapPlaceholderPanel without touching it. */
+
+.map-cue-overlay {
+    position: absolute;
+    left: 260px;
+    right: 300px;
+    top: 56px;
+    bottom: 0;
+    flex-direction: column;
+}
+
+.map-cue-selected-strip {
+    flex-direction: row;
+    flex-wrap: wrap;
+    align-items: center;
+    min-height: 36px;
+    padding: 4px 8px;
+}
+
+.map-cue-selected-badge {
+    display: none;
+    margin-right: 8px;
+    padding: 1px 6px;
+    font-size: 10px;
+    -unity-font-style: bold;
+    border-width: 1px;
+}
+
+.map-cue-selected-fixture {
+    display: none;
+    margin-right: 8px;
+    padding: 1px 6px;
+    font-size: 10px;
+    -unity-font-style: italic;
+    border-width: 1px;
+}
+
+.map-cue-canvas {
+    flex-grow: 1;
+    margin: 4px 8px 8px 8px;
+    min-height: 200px;
+    position: relative;
+}
+
+.map-cue-symbol {
+    position: absolute;
+    flex-direction: row;
+    align-items: center;
+    margin-top: -16px;
+    margin-left: 10px;
+}
+
+.map-cue-chip {
+    padding: 0 4px;
+    margin-right: 3px;
+    font-size: 9px;
+    -unity-font-style: bold;
+    border-width: 1px;
+}
+
+/* Non-color-only channels: distinct text tokens + border/shape styling. */
+.map-cue-icon--stale {
+    color: rgb(255, 220, 140);
+    background-color: rgba(64, 48, 16, 0.92);
+    border-color: rgb(235, 175, 65);
+    border-radius: 0;
+    border-left-width: 3px;
+}
+
+.map-cue-icon--datalink {
+    color: rgb(180, 235, 255);
+    background-color: rgba(16, 48, 72, 0.92);
+    border-color: rgb(80, 195, 245);
+    border-radius: 3px;
+    border-right-width: 3px;
+}
+
+.map-cue-badge--queued {
+    color: rgb(225, 255, 210);
+    background-color: rgba(24, 66, 36, 0.92);
+    border-color: rgb(95, 210, 125);
+    border-radius: 2px;
+    border-top-width: 2px;
+    border-bottom-width: 2px;
+}
+
+.map-cue-fixture-tag {
+    color: rgb(215, 220, 230);
+    background-color: rgba(28, 36, 48, 0.88);
+    border-color: rgb(135, 150, 170);
+    border-radius: 0;
+}

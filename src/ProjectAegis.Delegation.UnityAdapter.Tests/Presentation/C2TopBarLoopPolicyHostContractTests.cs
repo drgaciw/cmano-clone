@@ -1,3 +1,4 @@
+using System.Xml.Linq;
 using NUnit.Framework;
 
 namespace ProjectAegis.Delegation.UnityAdapter.Tests.Presentation;
@@ -53,5 +54,28 @@ public sealed class C2TopBarLoopPolicyHostContractTests
         Assert.That(uss, Does.Contain(".c2-topbar-item--edit-planning"));
         Assert.That(uss, Does.Contain(".c2-topbar-item--edit-tiered"));
         Assert.That(uss, Does.Contain(".c2-topbar-item--edit-unknown"));
+    }
+
+    [Test]
+    public void Top_bar_host_binds_test_sandbox_banner_via_loop_policy_projection()
+    {
+        var source = UiIaSourceReader.ReadRuntime("C2TopBarPanelHost.cs");
+
+        Assert.That(source, Does.Contain("ShowDualSideTestSandboxBanner"));
+        Assert.That(source, Does.Contain("TestSandboxBannerLabel"));
+        Assert.That(source, Does.Contain("TestSandboxBannerElementName"));
+    }
+
+    [Test]
+    public void Top_bar_uxml_and_uss_declare_test_sandbox_banner_and_class()
+    {
+        var xml = XDocument.Parse(UiIaSourceReader.ReadUnder(
+            "unity", "ProjectAegis", "Assets", "UI", "TopBar", "C2TopBarPanel.uxml"));
+        var uss = UiIaSourceReader.ReadUnder(
+            "unity", "ProjectAegis", "Assets", "UI", "TopBar", "C2TopBarPanel.uss");
+
+        Assert.That(xml.Descendants().Count(e => (string?)e.Attribute("name") == "test-sandbox-banner"), Is.EqualTo(1));
+        Assert.That(uss, Does.Contain(".c2-topbar-sandbox-banner"));
+        Assert.That(uss, Does.Contain(".c2-topbar-sandbox-banner--visible"));
     }
 }

@@ -214,4 +214,29 @@ public sealed class SimulationModeConfiguratorTests
         Assert.That(friendly.Slot.Active, Is.InstanceOf<HumanController>());
         Assert.That(opposing.Slot.Active, Is.InstanceOf<HumanController>());
     }
+
+    [TestCase(SimulationModeKind.Human, true)]
+    [TestCase(SimulationModeKind.Mixed, true)]
+    [TestCase(SimulationModeKind.AgentVsAgent, false)]
+    public void Apply_records_configured_simulation_mode_on_orchestrator(
+        SimulationModeKind kind,
+        bool playerControlsFriendlySide)
+    {
+        var orchestrator = new DelegationOrchestrator(1);
+        Assert.That(orchestrator.SimulationMode, Is.Null);
+
+        var friendly = new UnitTarget(new TargetId("f1"));
+        var opposing = new UnitTarget(new TargetId("o1"));
+        var profile = new SimulationModeProfile(kind, playerControlsFriendlySide);
+
+        SimulationModeConfigurator.Apply(
+            orchestrator,
+            profile,
+            [friendly],
+            [opposing],
+            PersonalityCatalog.All[0].Traits);
+
+        Assert.That(orchestrator.SimulationMode, Is.EqualTo(profile));
+        Assert.That(orchestrator.SimulationMode?.Kind, Is.EqualTo(kind));
+    }
 }
