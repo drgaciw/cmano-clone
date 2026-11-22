@@ -1,24 +1,11 @@
-// Sprint 20: Full OsintStagingPanelHost (from S19 stub).
-// Binds proposals (sample or via CLI proxy / direct gate in Editor).
-// Approve button invokes OsintStagingReviewCommand.Run (headless proxy) or logs for PlayMode.
-// Full visual + scene hookup verified in local Editor PlayMode (see sprint-18-c2-signoff-runbook pattern + S20 evidence).
-// Full interactive commit (real proxy/gate list + live bind from fixture/pending + propose-if-needed + approve + refresh state drop) verified via build/PlayMode + local Editor (per plan S20-02).
-// Headless/CLI: OsintStagingReviewCommand + E2E tests cover approve path.
-// Local Editor visual + interactive signoff: per sprint-18-c2-signoff-runbook + S20 evidence (Run PlayMode, invoke panel in scene with catalog.db or fixture present; select row (kbd supported), Approve commits via gate, Refresh shows updated count/state). See also docs comments.
-// Per ui-code rules: display only (no direct game state), supports kbd/gamepad via UITK, skippable anims, scalable.
-
-// TDD / Step 3.1 full behavior spec (would FAIL before 3.2 impl):
-// - RefreshProposals loads real via proxy/gate (or fixture for demo) when db present: ProposalCount reflects pending or fixture records (not always the 2 hardcoded samples).
-// - OnApproveSelected calls Run (or gate equiv) for the selected (batch or triggers propose+approve from fixture data); after, Refresh shows live state change e.g. pending count drops (or status notes committed) for that batch/record.
-// - Uses real data from data/osint_facts.json (connectors output) when no live pending batches.
-// - Supports kbd (ListView single selection via arrows/enter), motion prefs (UITK no forced anims).
-// Current (pre-impl): always returns samples in GetSampleOrProxyProposals, OnApprove only Debug.Log + Refresh (no Run/gate call, no commit, no count drop from real). PlayMode smoke passes (wiring) but full AC FAILs until real proxy + bind + approve+refresh. Run PlayMode here documents baseline.
+// DRG-253: OSINT staging review host (ADR-006 / ADR-010 §2–3).
+// Thin UI Toolkit client: reads OsintStagingBridge + OsintStagingProjection only;
+// never opens databases or instantiates write gates directly.
 #if UNITY_5_3_OR_NEWER
+using System;
 using System.Collections.Generic;
-using System.IO;
-using System.Linq;
-using ProjectAegis.Data.Osint;
-using ProjectAegis.Data.WriteGate;
+using ProjectAegis.Delegation.UnityAdapter.Bridge;
+using ProjectAegis.Delegation.UnityAdapter.Presentation;
 using UnityEngine;
 using UnityEngine.UIElements;
 
@@ -28,24 +15,54 @@ namespace ProjectAegis.Unity.Runtime
     [RequireComponent(typeof(UIDocument))]
     public sealed class OsintStagingPanelHost : MonoBehaviour
     {
+        public const int DefaultSortingOrder = 17;
+
         private const string RootName = "osint-staging-root";
         private const string ListName = "proposal-list";
+        private const string LogOnlyListName = "logonly-list";
         private const string StatusName = "status-line";
+        private const string DetailTitleName = "osint-detail-title";
+        private const string DetailConfidenceName = "osint-detail-confidence";
+        private const string DetailTrlName = "osint-detail-trl";
+        private const string DetailCitationUrlName = "osint-detail-citation-url";
+        private const string DetailCitationSnippetName = "osint-detail-citation-snippet";
         private const string ApproveName = "approve-selected";
+        private const string RejectName = "reject-selected";
         private const string RefreshName = "refresh-button";
 
         [SerializeField] private UIDocument? document;
         [SerializeField] private VisualTreeAsset? panelAsset;
         [SerializeField] private StyleSheet? panelStyles;
-        [SerializeField] private string databasePathForProxy = "data/catalog.db"; // Editor override; CLI uses same
+        [SerializeField] private string databasePathForProxy = "data/catalog.db";
+        [SerializeField] private string fixturePathForFallback = "data/osint_facts.json";
+        [SerializeField] private string reviewerActorType = "human";
+        [SerializeField] private string reviewerActorId = "osint-staging-panel";
 
         private UIDocument _document = null!;
         private ListView? _proposalList;
+        private ListView? _logOnlyList;
         private Label? _statusLine;
+        private Label? _detailTitle;
+        private Label? _detailConfidence;
+        private Label? _detailTrl;
+        private Label? _detailCitationUrl;
+        private Label? _detailCitationSnippet;
         private Button? _approveButton;
+        private Button? _rejectButton;
         private Button? _refreshButton;
+
+        private OsintStagingFeed _feed = new OsintStagingFeed(
+            Array.Empty<OsintStagingProposalItem>(),
+            Array.Empty<OsintStagingProposalItem>(),
+            "empty");
+        private OsintStagingPanelState? _panelState;
+        private string? _selectedItemId;
+        private string? _boundDatabasePath;
+        private string? _boundFixturePath;
+        private long _clockTicks = 1000;
         private bool _wired;
-        private List<OsintDiscoveryRecord> _current = new();
+        private bool _handlersRegistered;
+        private string _lastAppliedFingerprint = string.Empty;
 
         private void Awake()
         {
@@ -53,219 +70,432 @@ namespace ProjectAegis.Unity.Runtime
             {
                 document = GetComponent<UIDocument>();
             }
+
             _document = document;
+            UiDocumentPanelSettingsBootstrap.EnsureDocument(_document);
+            if (_document != null)
+            {
+                _document.sortingOrder = DefaultSortingOrder;
+                if (panelAsset != null && _document.visualTreeAsset != panelAsset)
+                {
+                    _document.visualTreeAsset = panelAsset;
+                }
+            }
         }
 
         private void OnEnable()
         {
-            if (_wired) return;
             SetupUI();
             RefreshProposals();
-            _wired = true;
+        }
+
+        private void LateUpdate()
+        {
+            if (!_wired)
+            {
+                SetupUI();
+                if (_wired)
+                {
+                    RefreshProposals();
+                }
+            }
+        }
+
+        private void OnDisable()
+        {
+            UnregisterHandlers();
+            _wired = false;
+        }
+
+        public void BindDatabasePath(string databasePath)
+        {
+            _boundDatabasePath = databasePath;
+            if (_wired)
+            {
+                RefreshProposals();
+            }
+        }
+
+        public void BindPaths(string databasePath, string? fixturePath)
+        {
+            _boundDatabasePath = databasePath;
+            _boundFixturePath = fixturePath;
+            if (_wired)
+            {
+                RefreshProposals();
+            }
         }
 
         private void SetupUI()
         {
-            if (panelAsset != null)
+            if (_document == null)
             {
-                _document.visualTreeAsset = panelAsset;
-            }
-            if (panelStyles != null)
-            {
-                _document.rootVisualElement.styleSheets.Add(panelStyles);
+                _document = GetComponent<UIDocument>();
             }
 
-            var root = _document.rootVisualElement;
-            _proposalList = root.Q<ListView>(ListName);
-            _statusLine = root.Q<Label>(StatusName);
-            _approveButton = root.Q<Button>(ApproveName);
-            _refreshButton = root.Q<Button>(RefreshName);
-
-            if (_statusLine != null)
+            UiDocumentPanelSettingsBootstrap.EnsureDocument(_document);
+            if (_document != null)
             {
-                _statusLine.text = "OSINT Staging - proposals from digest (S20)";
+                _document.sortingOrder = DefaultSortingOrder;
             }
 
-            if (_proposalList != null)
+            if (panelAsset != null && _document != null)
             {
-                _proposalList.makeItem = () =>
+                UnregisterHandlers();
+                if (_document.visualTreeAsset != panelAsset)
                 {
-                    var label = new Label { name = "proposal-row" };
-                    label.AddToClassList("osint-proposal-row");
-                    return label;
-                };
-                _proposalList.bindItem = (e, i) =>
+                    _document.visualTreeAsset = panelAsset;
+                }
+            }
+            else
+            {
+                UnregisterHandlers();
+            }
+
+            var root = _document != null ? _document.rootVisualElement : null;
+            if (root == null)
+            {
+                return;
+            }
+
+            if (panelStyles != null && !root.styleSheets.Contains(panelStyles))
+            {
+                root.styleSheets.Add(panelStyles);
+            }
+
+            var panel = root.Q<VisualElement>(RootName) ?? root;
+            _proposalList = panel.Q<ListView>(ListName);
+            _logOnlyList = panel.Q<ListView>(LogOnlyListName);
+            _statusLine = panel.Q<Label>(StatusName);
+            _detailTitle = panel.Q<Label>(DetailTitleName);
+            _detailConfidence = panel.Q<Label>(DetailConfidenceName);
+            _detailTrl = panel.Q<Label>(DetailTrlName);
+            _detailCitationUrl = panel.Q<Label>(DetailCitationUrlName);
+            _detailCitationSnippet = panel.Q<Label>(DetailCitationSnippetName);
+            _approveButton = panel.Q<Button>(ApproveName);
+            _rejectButton = panel.Q<Button>(RejectName);
+            _refreshButton = panel.Q<Button>(RefreshName);
+
+            ConfigureProposalList();
+            ConfigureLogOnlyList();
+            RegisterHandlers();
+
+            _wired = _proposalList != null || _detailConfidence != null || _approveButton != null;
+        }
+
+        private void ConfigureProposalList()
+        {
+            if (_proposalList == null)
+            {
+                return;
+            }
+
+            _proposalList.makeItem = () =>
+            {
+                var label = new Label { name = "proposal-row" };
+                label.AddToClassList("osint-proposal-row");
+                return label;
+            };
+            _proposalList.bindItem = (e, i) =>
+            {
+                if (i < 0 || i >= _feed.Proposals.Count) return;
+                if (e is Label label)
                 {
-                    if (i < 0 || i >= _current.Count) return;
-                    var r = _current[i];
-                    if (e is Label label)
-                    {
-                        label.text = $"{r.CanonicalId} | {r.RelevanceScore:F2} | {r.SourceUrl}";
-                        label.ClearClassList();
-                        label.AddToClassList("osint-proposal-row");
-                    }
-                };
-                _proposalList.selectionType = SelectionType.Single; // keyboard (arrows, enter) + gamepad supported via UITK ListView
+                    label.text = OsintStagingProjection.FormatProposalRow(_feed.Proposals[i]);
+                }
+            };
+            _proposalList.selectionType = SelectionType.Single;
+            _proposalList.selectionChanged -= OnProposalSelectionChanged;
+            _proposalList.selectionChanged += OnProposalSelectionChanged;
+        }
+
+        private void ConfigureLogOnlyList()
+        {
+            if (_logOnlyList == null)
+            {
+                return;
+            }
+
+            _logOnlyList.makeItem = () =>
+            {
+                var label = new Label { name = "logonly-row" };
+                label.AddToClassList("osint-logonly-row");
+                return label;
+            };
+            _logOnlyList.bindItem = (e, i) =>
+            {
+                if (i < 0 || i >= _feed.LogOnly.Count) return;
+                if (e is Label label)
+                {
+                    label.text = OsintStagingProjection.FormatLogOnlyRow(_feed.LogOnly[i]);
+                }
+            };
+            _logOnlyList.selectionType = SelectionType.Single;
+            _logOnlyList.selectionChanged -= OnLogOnlySelectionChanged;
+            _logOnlyList.selectionChanged += OnLogOnlySelectionChanged;
+        }
+
+        private void RegisterHandlers()
+        {
+            if (_handlersRegistered)
+            {
+                return;
             }
 
             if (_approveButton != null)
             {
                 _approveButton.clicked += OnApproveSelected;
             }
+
+            if (_rejectButton != null)
+            {
+                _rejectButton.clicked += OnRejectSelected;
+            }
+
             if (_refreshButton != null)
             {
                 _refreshButton.clicked += RefreshProposals;
             }
+
+            _handlersRegistered = true;
         }
 
-        private void RefreshProposals()
+        private void UnregisterHandlers()
         {
-            // Real proxy/gate path (Editor): list pending batches via gate (equiv to OsintStagingReviewCommand.Run(db, null, sw) + parse).
-            // Bind live OsintDiscoveryRecord view (map from batches or load real fixture from connectors output).
-            // Fallback samples only if no db/fixture. PlayMode safe (samples when gate unavailable).
-            // Headless proxy path covered by OsintStagingReviewCommand + tests.
-            _current = GetSampleOrProxyProposals();
-            _liveFromPending = _currentFromLivePending; // snapshot for approve decision
             if (_proposalList != null)
             {
-                _proposalList.itemsSource = _current;
-                _proposalList.Rebuild();
+                _proposalList.selectionChanged -= OnProposalSelectionChanged;
             }
-            if (_statusLine != null)
+
+            if (_logOnlyList != null)
             {
-                var src = _liveFromPending ? "live-pending" : (_usedFixture ? "fixture-real" : "sample");
-                _statusLine.text = $"OSINT Staging: {_current.Count} ({src}) | select+approve commits via proxy/gate; refresh for live state";
+                _logOnlyList.selectionChanged -= OnLogOnlySelectionChanged;
+            }
+
+            if (_handlersRegistered)
+            {
+                if (_approveButton != null)
+                {
+                    _approveButton.clicked -= OnApproveSelected;
+                }
+
+                if (_rejectButton != null)
+                {
+                    _rejectButton.clicked -= OnRejectSelected;
+                }
+
+                if (_refreshButton != null)
+                {
+                    _refreshButton.clicked -= RefreshProposals;
+                }
+            }
+
+            _handlersRegistered = false;
+        }
+
+        private void OnProposalSelectionChanged(IEnumerable<object> _)
+        {
+            if (_proposalList == null) return;
+            var idx = _proposalList.selectedIndex;
+            if (idx >= 0 && idx < _feed.Proposals.Count)
+            {
+                _selectedItemId = _feed.Proposals[idx].ItemId;
+                ProjectAndApply(forceStatus: false);
             }
         }
 
-        private List<OsintDiscoveryRecord> GetSampleOrProxyProposals()
+        private void OnLogOnlySelectionChanged(IEnumerable<object> _)
         {
-            _currentFromLivePending = false;
-            _usedFixture = false;
-
-            // Real path (Editor + CLI proxy available)
-            // using var sw = new StringWriter();
-            // OsintStagingReviewCommand.Run(databasePathForProxy, null /*list*/, sw);
-            // Parse JSON pending or proposals; for demo bind to OsintDiscoveryRecord list from last digest or map from batches
-            if (File.Exists(databasePathForProxy))
+            if (_logOnlyList == null) return;
+            var idx = _logOnlyList.selectedIndex;
+            if (idx >= 0 && idx < _feed.LogOnly.Count)
             {
-                try
-                {
-                    using var gate = new CatalogWriteGate(databasePathForProxy);
-                    var pending = gate.ListPendingBatches();
-                    if (pending != null && pending.Count > 0)
-                    {
-                        _currentFromLivePending = true;
-                        return pending
-                            .Select(p => new OsintDiscoveryRecord(
-                                p.BatchId,
-                                $"batch://{p.BatchId}",
-                                $"OSINT staging (actor={p.ActorType}, records={p.RecordCount}, state={p.ApprovalState})",
-                                0.88,
-                                "10",
-                                6))
-                            .ToList();
-                    }
-                }
-                catch (System.Exception ex)
-                {
-                    Debug.LogWarning($"[OsintStagingPanelHost] Gate list pending failed (db={databasePathForProxy}): {ex.Message}. Falling to fixture/samples.");
-                }
+                _selectedItemId = _feed.LogOnly[idx].ItemId;
+                ProjectAndApply(forceStatus: false);
+            }
+        }
+
+        public void RefreshProposals()
+        {
+            var dbPath = _boundDatabasePath ?? databasePathForProxy;
+            var fixturePath = _boundFixturePath ?? fixturePathForFallback;
+            _feed = OsintStagingBridge.LoadFeed(dbPath, fixturePath);
+
+            if (_proposalList != null)
+            {
+                _proposalList.itemsSource = (System.Collections.IList)_feed.Proposals;
+                _proposalList.Rebuild();
             }
 
-            // Real data from connectors/runner fixture (data/osint_facts.json) when no live pending batches.
-            // Ties directly to Task2 real OSINT connectors output.
-            try
+            if (_logOnlyList != null)
             {
-                const string fixturePath = "data/osint_facts.json";
-                if (File.Exists(fixturePath))
-                {
-                    var conn = new ProjectAegis.Data.Osint.Connectors.FileOsintConnector(fixturePath);
-                    var records = conn.Fetch();
-                    if (records != null && records.Length > 0)
-                    {
-                        _usedFixture = true;
-                        // stable order already from connector
-                        return records.ToList();
-                    }
-                }
-            }
-            catch (System.Exception ex)
-            {
-                Debug.LogWarning($"[OsintStagingPanelHost] Fixture load (real connectors data) failed: {ex.Message}");
+                _logOnlyList.itemsSource = (System.Collections.IList)_feed.LogOnly;
+                _logOnlyList.Rebuild();
             }
 
-            // Sample for visual/PlayMode (deterministic). 
-            return new List<OsintDiscoveryRecord>
+            _lastAppliedFingerprint = string.Empty;
+            ProjectAndApply(forceStatus: true);
+        }
+
+        private void ProjectAndApply(bool forceStatus)
+        {
+            var state = OsintStagingProjection.Project(_feed, _selectedItemId);
+            _panelState = state;
+            if (state.SelectedDetail != null)
             {
-                new OsintDiscoveryRecord("hypersonic-glide-s20", "https://ex.com/hg-s20", "observed boost-glide", 0.81, "10", 7),
-                new OsintDiscoveryRecord("railgun-demo", "https://ex.com/rg-s20", "speculative railgun", 0.71, "10", 6),
-            };
+                _selectedItemId = state.SelectedDetail.ItemId;
+            }
+
+            if (!forceStatus && string.Equals(_lastAppliedFingerprint, state.Fingerprint, StringComparison.Ordinal))
+            {
+                return;
+            }
+
+            _lastAppliedFingerprint = state.Fingerprint;
+
+            if (forceStatus && _statusLine != null)
+            {
+                _statusLine.text = state.StatusSummary;
+            }
+
+            var detail = state.SelectedDetail;
+            if (detail == null)
+            {
+                if (_detailTitle != null) _detailTitle.text = "No proposal selected";
+                if (_detailConfidence != null) _detailConfidence.text = "CONFIDENCE: —";
+                if (_detailTrl != null) _detailTrl.text = "TRL —";
+                if (_detailCitationUrl != null) _detailCitationUrl.text = "CITATION: —";
+                if (_detailCitationSnippet != null) _detailCitationSnippet.text = "SNIPPET: —";
+                if (_approveButton != null) _approveButton.SetEnabled(false);
+                if (_rejectButton != null) _rejectButton.SetEnabled(false);
+                return;
+            }
+
+            if (_detailTitle != null) _detailTitle.text = detail.Title;
+            if (_detailConfidence != null) _detailConfidence.text = detail.ConfidenceText;
+            if (_detailTrl != null) _detailTrl.text = detail.TrlAndStateText;
+            if (_detailCitationUrl != null)
+            {
+                _detailCitationUrl.text = string.IsNullOrWhiteSpace(detail.CitationUrl)
+                    ? "CITATION: (none)"
+                    : "CITATION: " + detail.CitationUrl;
+            }
+            if (_detailCitationSnippet != null)
+            {
+                _detailCitationSnippet.text = string.IsNullOrWhiteSpace(detail.Snippet)
+                    ? "SNIPPET: (none)"
+                    : "SNIPPET: " + detail.Snippet;
+            }
+
+            if (_approveButton != null)
+            {
+                _approveButton.SetEnabled(detail.CanApprove);
+                _approveButton.tooltip = detail.ApproveBlockedReason ?? "Approve and commit via write gate";
+            }
+
+            if (_rejectButton != null)
+            {
+                _rejectButton.SetEnabled(detail.CanReject);
+            }
         }
 
         private void OnApproveSelected()
         {
-            if (_proposalList == null || _current.Count == 0) return;
-            int idx = _proposalList.selectedIndex;
-            if (idx < 0 || idx >= _current.Count) idx = 0;
-
-            var selected = _current[idx];
-            bool committed = false;
-            string usedBatch = selected.CanonicalId;
-
-            // Real: OnApproveSelected actually triggers propose (if needed from fixture) + approve via gate (mirrors OsintStagingReviewCommand.Run(db, batchIdToApprove, sw))
-            // Then Refresh (live state: e.g. pending count drops after approve, or fixture proposal committed).
-            try
+            var selected = ResolveSelectedItem();
+            if (selected == null)
             {
-                using var gate = new CatalogWriteGate(databasePathForProxy);
-                if (_liveFromPending || _currentFromLivePending)
+                return;
+            }
+
+            var dbPath = _boundDatabasePath ?? databasePathForProxy;
+            var result = OsintStagingBridge.ApproveItem(
+                dbPath,
+                selected,
+                reviewerActorType,
+                reviewerActorId,
+                ++_clockTicks);
+
+            _selectedItemId = null;
+            RefreshProposals();
+            if (_statusLine != null)
+            {
+                if (result.Committed)
                 {
-                    // approve existing pending batch (from proxy list)
-                    var decision = gate.ApproveBatch(selected.CanonicalId, "human", "osint-staging-panel");
-                    committed = decision.Committed;
-                    usedBatch = decision.BatchId ?? selected.CanonicalId;
+                    _statusLine.text = $"{_panelState?.StatusSummary ?? "OSINT Staging"} | COMMITTED ({result.BatchId})";
                 }
                 else
                 {
-                    // propose (if needed) from real fixture record + approve (full interactive commit path)
-                    var binding = OsintCatalogMapper.ToSensorBinding(selected);
-                    var batchId = gate.ProposeSensorBatch(
-                        new[] { binding },
-                        "osint",
-                        "OsintStagingPanelHost",
-                        "panel-propose+approve");
-                    var decision = gate.ApproveBatch(batchId, "human", "osint-staging-panel");
-                    committed = decision.Committed;
-                    usedBatch = batchId;
+                    var err = result.Errors.Count > 0 ? string.Join(", ", result.Errors) : "APPROVE_BLOCKED";
+                    _statusLine.text = $"{_panelState?.StatusSummary ?? "OSINT Staging"} | BLOCKED: {err}";
                 }
-            }
-            catch (System.Exception ex)
-            {
-                Debug.LogWarning($"[OsintStagingPanelHost] Approve/propose via gate failed (db={databasePathForProxy}; use CLI proxy for commit): {ex.Message}");
-                // demo: local drop even on sample path (no mutation)
-                if (idx < _current.Count)
-                {
-                    _current.RemoveAt(idx);
-                }
-            }
-
-            Debug.Log($"[OsintStagingPanelHost] Approve selected {selected.CanonicalId} -> batch {usedBatch} committed={committed} (db={databasePathForProxy})");
-
-            RefreshProposals();
-            if (_statusLine != null && committed)
-            {
-                _statusLine.text += " | COMMITTED";
             }
         }
 
-        private bool _currentFromLivePending;
-        private bool _liveFromPending;
-        private bool _usedFixture;
+        private void OnRejectSelected()
+        {
+            var selected = ResolveSelectedItem();
+            if (selected == null || !selected.IsPendingBatch || selected.IsLogOnly)
+            {
+                return;
+            }
 
-        // For PlayMode tests / harness (no crash, wired state)
+            var dbPath = _boundDatabasePath ?? databasePathForProxy;
+            var result = OsintStagingBridge.RejectBatch(
+                dbPath,
+                selected.BatchId,
+                reviewerActorType,
+                reviewerActorId,
+                "rejected from review panel",
+                ++_clockTicks);
+
+            _selectedItemId = null;
+            RefreshProposals();
+            if (_statusLine != null)
+            {
+                if (result.Rejected)
+                {
+                    _statusLine.text = $"{_panelState?.StatusSummary ?? "OSINT Staging"} | REJECTED ({result.BatchId})";
+                }
+                else
+                {
+                    var err = result.Errors.Count > 0 ? string.Join(", ", result.Errors) : "REJECT_FAILED";
+                    _statusLine.text = $"{_panelState?.StatusSummary ?? "OSINT Staging"} | REJECT_ERROR: {err}";
+                }
+            }
+        }
+
+        private OsintStagingProposalItem? ResolveSelectedItem()
+        {
+            if (_panelState?.SelectedDetail == null)
+            {
+                return null;
+            }
+
+            var id = _panelState.SelectedDetail.ItemId;
+            for (var i = 0; i < _feed.Proposals.Count; i++)
+            {
+                if (string.Equals(_feed.Proposals[i].ItemId, id, StringComparison.Ordinal))
+                {
+                    return _feed.Proposals[i];
+                }
+            }
+
+            for (var i = 0; i < _feed.LogOnly.Count; i++)
+            {
+                if (string.Equals(_feed.LogOnly[i].ItemId, id, StringComparison.Ordinal))
+                {
+                    return _feed.LogOnly[i];
+                }
+            }
+
+            return null;
+        }
+
         public bool IsWired => _wired;
-        public string StatusText => _statusLine?.text ?? "";
-        public int ProposalCount => _current.Count;
+        public string StatusText => _statusLine != null ? _statusLine.text : string.Empty;
+        public int ProposalCount => _feed.Proposals.Count;
+        public int LogOnlyCount => _feed.LogOnly.Count;
+        public OsintStagingDetailState? SelectedDetail => _panelState?.SelectedDetail;
     }
 }
 #endif

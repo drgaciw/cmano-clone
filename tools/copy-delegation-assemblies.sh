@@ -15,6 +15,14 @@ dotnet publish "$ROOT/src/ProjectAegis.Delegation.UnityAdapter/ProjectAegis.Dele
   -c Release -f "$TFM" -o "$PUBLISH" -v minimal
 
 cp -f "$PUBLISH"/*.dll "$PLUGINS"/
+if [ -f "$PUBLISH/runtimes/linux-x64/native/libe_sqlite3.so" ]; then
+  cp -f "$PUBLISH/runtimes/linux-x64/native/libe_sqlite3.so" "$PLUGINS"/
+else
+  SQLITE_SO="$(find "${HOME}/.nuget/packages/sqlitepclraw.lib.e_sqlite3" -name "libe_sqlite3.so" -path "*linux-x64*" 2>/dev/null | sort -V | tail -n 1 || true)"
+  if [ -n "$SQLITE_SO" ] && [ -f "$SQLITE_SO" ]; then
+    cp -f "$SQLITE_SO" "$PLUGINS"/
+  fi
+fi
 rm -rf "$PUBLISH"
 
 echo "Copied delegation assemblies and dependencies to $PLUGINS"

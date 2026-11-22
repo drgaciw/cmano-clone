@@ -17,6 +17,14 @@
                 <ui:Button name="pending-coordination-confirm-cancel" text="CANCEL" class="c2-pending-coordination-confirm-cancel" />
             </ui:VisualElement>
         </ui:VisualElement>
+        <ui:VisualElement name="pending-jev-suggested-order" class="c2-pending-jev-suggested-order">
+            <ui:Label name="pending-jev-suggested-order-title" text="JEV SUGGESTED ORDER" class="c2-pending-jev-suggested-order-title" />
+            <ui:Label name="pending-jev-suggested-order-body" text="" class="c2-pending-jev-suggested-order-body" />
+            <ui:VisualElement name="pending-jev-suggested-order-actions" class="c2-pending-jev-suggested-order-actions">
+                <ui:Button name="pending-jev-suggested-order-accept" text="ACCEPT" class="c2-pending-jev-suggested-order-accept" />
+                <ui:Button name="pending-jev-suggested-order-dismiss" text="DISMISS" class="c2-pending-jev-suggested-order-dismiss" />
+            </ui:VisualElement>
+        </ui:VisualElement>
         <ui:Label name="pending-approval-status" text="" class="c2-pending-approval-status" />
     </ui:VisualElement>
 </ui:UXML>

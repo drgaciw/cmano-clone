@@ -29,6 +29,11 @@ namespace ProjectAegis.Unity.Runtime
         private const string CoordinationConfirmBodyName = "pending-coordination-confirm-body";
         private const string CoordinationConfirmAcceptName = "pending-coordination-confirm-accept";
         private const string CoordinationConfirmCancelName = "pending-coordination-confirm-cancel";
+        private const string JevSuggestedOrderRootName = "pending-jev-suggested-order";
+        private const string JevSuggestedOrderTitleName = "pending-jev-suggested-order-title";
+        private const string JevSuggestedOrderBodyName = "pending-jev-suggested-order-body";
+        private const string JevSuggestedOrderAcceptName = "pending-jev-suggested-order-accept";
+        private const string JevSuggestedOrderDismissName = "pending-jev-suggested-order-dismiss";
 
         [SerializeField] private DelegationBridgeHost bridgeHost = null!;
         [SerializeField] private VisualTreeAsset? panelAsset;
@@ -49,10 +54,17 @@ namespace ProjectAegis.Unity.Runtime
         private Label? _coordinationConfirmBody;
         private Button? _coordinationConfirmAccept;
         private Button? _coordinationConfirmCancel;
+        private VisualElement? _jevSuggestedOrderRoot;
+        private Label? _jevSuggestedOrderTitle;
+        private Label? _jevSuggestedOrderBody;
+        private Button? _jevSuggestedOrderAccept;
+        private Button? _jevSuggestedOrderDismiss;
+        private JevSuggestedOrderGateState? _lastJevGateState;
         private IReadOnlyList<PendingApprovalRow> _rows = System.Array.Empty<PendingApprovalRow>();
         private bool _wired;
         private bool _handlersRegistered;
         private bool _coordinationHandlersRegistered;
+        private bool _jevHandlersRegistered;
         private string? _lastStatus;
 
         /// <summary>Last status line set by APPROVE or REJECT action.</summary>
@@ -92,6 +104,12 @@ namespace ProjectAegis.Unity.Runtime
             Refresh();
         }
 
+        private void OnDisable()
+        {
+            UnwireHandlers();
+            _wired = false;
+        }
+
         private void LateUpdate()
         {
             if (!showPanel || bridgeHost == null)
@@ -129,6 +147,11 @@ namespace ProjectAegis.Unity.Runtime
             _coordinationConfirmBody = panel.Q<Label>(CoordinationConfirmBodyName);
             _coordinationConfirmAccept = panel.Q<Button>(CoordinationConfirmAcceptName);
             _coordinationConfirmCancel = panel.Q<Button>(CoordinationConfirmCancelName);
+            _jevSuggestedOrderRoot = panel.Q(JevSuggestedOrderRootName);
+            _jevSuggestedOrderTitle = panel.Q<Label>(JevSuggestedOrderTitleName);
+            _jevSuggestedOrderBody = panel.Q<Label>(JevSuggestedOrderBodyName);
+            _jevSuggestedOrderAccept = panel.Q<Button>(JevSuggestedOrderAcceptName);
+            _jevSuggestedOrderDismiss = panel.Q<Button>(JevSuggestedOrderDismissName);
 
             if (_approvalList != null)
             {
@@ -152,12 +175,13 @@ namespace ProjectAegis.Unity.Runtime
 
             WireClickHandlers();
             WireCoordinationConfirmHandlers();
-            _wired = _approvalList != null || _approveButton != null || _rejectButton != null;
+            WireJevSuggestedOrderHandlers();
+            _wired = _approvalList != null || _approveButton != null || _rejectButton != null || _jevSuggestedOrderRoot != null;
         }
 
         private void WireClickHandlers()
         {
-            if (_handlersRegistered)
+            if (_handlersRegistered || (_approveButton == null && _rejectButton == null))
             {
                 return;
             }
@@ -177,7 +201,7 @@ namespace ProjectAegis.Unity.Runtime
 
         private void WireCoordinationConfirmHandlers()
         {
-            if (_coordinationHandlersRegistered)
+            if (_coordinationHandlersRegistered || (_coordinationConfirmAccept == null && _coordinationConfirmCancel == null))
             {
                 return;
             }
@@ -220,6 +244,82 @@ namespace ProjectAegis.Unity.Runtime
 
             SetStatus(null);
             RefreshCoordinationConfirmChrome();
+        }
+
+        private void WireJevSuggestedOrderHandlers()
+        {
+            if (_jevHandlersRegistered || (_jevSuggestedOrderAccept == null && _jevSuggestedOrderDismiss == null))
+            {
+                return;
+            }
+
+            if (_jevSuggestedOrderAccept != null)
+            {
+                _jevSuggestedOrderAccept.clicked += OnJevSuggestedOrderAcceptClicked;
+            }
+
+            if (_jevSuggestedOrderDismiss != null)
+            {
+                _jevSuggestedOrderDismiss.clicked += OnJevSuggestedOrderDismissClicked;
+            }
+
+            _jevHandlersRegistered = true;
+        }
+
+        private void UnwireHandlers()
+        {
+            if (_approvalList != null)
+            {
+                _approvalList.selectionChanged -= OnSelectionChanged;
+            }
+
+            if (_handlersRegistered)
+            {
+                if (_approveButton != null) _approveButton.clicked -= OnApproveClicked;
+                if (_rejectButton != null) _rejectButton.clicked -= OnRejectClicked;
+                _handlersRegistered = false;
+            }
+
+            if (_coordinationHandlersRegistered)
+            {
+                if (_coordinationConfirmAccept != null) _coordinationConfirmAccept.clicked -= OnCoordinationConfirmAcceptClicked;
+                if (_coordinationConfirmCancel != null) _coordinationConfirmCancel.clicked -= OnCoordinationConfirmCancelClicked;
+                _coordinationHandlersRegistered = false;
+            }
+
+            if (_jevHandlersRegistered)
+            {
+                if (_jevSuggestedOrderAccept != null) _jevSuggestedOrderAccept.clicked -= OnJevSuggestedOrderAcceptClicked;
+                if (_jevSuggestedOrderDismiss != null) _jevSuggestedOrderDismiss.clicked -= OnJevSuggestedOrderDismissClicked;
+                _jevHandlersRegistered = false;
+            }
+        }
+
+        private void OnJevSuggestedOrderAcceptClicked()
+        {
+            if (bridgeHost == null)
+            {
+                SetStatus("NO_BRIDGE");
+                return;
+            }
+
+            var result = bridgeHost.TrySubmitJevSuggestedDecision();
+            SetStatus(result.Accepted
+                ? $"JEV ACCEPTED {result.Decision} -> {result.GroupId}"
+                : $"JEV BLOCKED: {result.FailureReason}");
+            RefreshJevSuggestedOrderChrome();
+        }
+
+        private void OnJevSuggestedOrderDismissClicked()
+        {
+            if (bridgeHost == null)
+            {
+                return;
+            }
+
+            bridgeHost.ClearJevSuggestedOrder();
+            SetStatus("JEV DISMISSED");
+            RefreshJevSuggestedOrderChrome();
         }
 
         private void OnSelectionChanged(IEnumerable<object> _)
@@ -318,6 +418,7 @@ namespace ProjectAegis.Unity.Runtime
             UpdateActionButtons();
             UpdateAuthorityContext();
             RefreshCoordinationConfirmChrome();
+            RefreshJevSuggestedOrderChrome();
 
             var rootEl = _document.rootVisualElement?.Q(RootName);
             if (rootEl != null)
@@ -407,6 +508,46 @@ namespace ProjectAegis.Unity.Runtime
             if (_coordinationConfirmCancel != null)
             {
                 _coordinationConfirmCancel.text = labels.CancelLabel;
+            }
+        }
+
+        private void RefreshJevSuggestedOrderChrome()
+        {
+            if (bridgeHost == null)
+            {
+                return;
+            }
+
+            var gate = bridgeHost.LastJevSuggestedOrder;
+            if (ReferenceEquals(gate, _lastJevGateState))
+            {
+                return;
+            }
+
+            _lastJevGateState = gate;
+            if (_jevSuggestedOrderRoot != null)
+            {
+                _jevSuggestedOrderRoot.style.display = gate.CardVisible ? DisplayStyle.Flex : DisplayStyle.None;
+            }
+
+            if (_jevSuggestedOrderAccept != null)
+            {
+                _jevSuggestedOrderAccept.SetEnabled(gate.CardVisible && gate.ConfirmEnabled);
+            }
+
+            if (!gate.CardVisible)
+            {
+                return;
+            }
+
+            if (_jevSuggestedOrderTitle != null)
+            {
+                _jevSuggestedOrderTitle.text = $"JEV SUGGESTED ORDER ({gate.ModelPin})";
+            }
+
+            if (_jevSuggestedOrderBody != null)
+            {
+                _jevSuggestedOrderBody.text = gate.SummaryLine;
             }
         }
 

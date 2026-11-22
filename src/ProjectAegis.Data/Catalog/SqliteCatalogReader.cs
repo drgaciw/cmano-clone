@@ -787,24 +787,59 @@ public sealed class SqliteCatalogReader : ICatalogReader, IDisposable
     private static string NormalizeModality(string? modality) =>
         string.IsNullOrWhiteSpace(modality) ? CatalogSensorModalities.Radar : modality;
 
-    private static IReadOnlyList<string> ResolveMigrationPaths()
-    {
-        var dir = new DirectoryInfo(AppContext.BaseDirectory);
-        while (dir != null)
-        {
-            var migrationsDir = Path.Combine(dir.FullName, "assets", "data", "catalog", "migrations");
-            if (Directory.Exists(migrationsDir))
-            {
-                return Directory
-                    .EnumerateFiles(migrationsDir, "*.sql", SearchOption.TopDirectoryOnly)
-                    .OrderBy(path => path, StringComparer.Ordinal)
-                    .ToArray();
-            }
+    private static IReadOnlyList<string> ResolveMigrationPaths() =>
+        ResolveMigrationPaths(AppContext.BaseDirectory, Directory.GetCurrentDirectory);
 
-            dir = dir.Parent;
+    internal static IReadOnlyList<string> ResolveMigrationPaths(
+        string? baseDirectory,
+        Func<string> getCurrentDirectory)
+    {
+        if (TryFindMigrationFiles(baseDirectory, out var fromBase))
+        {
+            return fromBase;
+        }
+
+        string? currentDirectory;
+        try
+        {
+            currentDirectory = getCurrentDirectory();
+        }
+        catch (Exception ex) when (ex is IOException or UnauthorizedAccessException)
+        {
+            currentDirectory = null;
+        }
+
+        if (TryFindMigrationFiles(currentDirectory, out var fromCwd))
+        {
+            return fromCwd;
         }
 
         return [Path.Combine("assets", "data", "catalog", "migrations", "001_sensor_base_pd.sql")];
+    }
+
+    private static bool TryFindMigrationFiles(string? startDir, out IReadOnlyList<string> paths)
+    {
+        if (!string.IsNullOrWhiteSpace(startDir))
+        {
+            var dir = new DirectoryInfo(startDir);
+            while (dir != null)
+            {
+                var migrationsDir = Path.Combine(dir.FullName, "assets", "data", "catalog", "migrations");
+                if (Directory.Exists(migrationsDir))
+                {
+                    paths = Directory
+                        .EnumerateFiles(migrationsDir, "*.sql", SearchOption.TopDirectoryOnly)
+                        .OrderBy(path => path, StringComparer.Ordinal)
+                        .ToArray();
+                    return true;
+                }
+
+                dir = dir.Parent;
+            }
+        }
+
+        paths = Array.Empty<string>();
+        return false;
     }
 
     private void EnsureSnapshotsLoaded()

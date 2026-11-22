@@ -133,6 +133,15 @@ namespace ProjectAegis.Unity.Runtime
         private readonly List<CoordinationApprovedScope> _pendingGroupScopes = new();
         /// <summary>Current selected-contact evidence; recommendations never enqueue orders.</summary>
         public AdviceFrame? LastAdvice { get; private set; }
+        private readonly SupervisedAdviceCardBinder _supervisedAdviceBinder = new SupervisedAdviceCardBinder();
+        private string? _lastAdviceSubjectUnitId;
+        /// <summary>Unit id used for supervised advice projection/accept (preserves selected unit across contact selection).</summary>
+        public string? SupervisedAdviceUnitId =>
+            !string.IsNullOrWhiteSpace(SelectedUnitId) ? SelectedUnitId : _lastAdviceSubjectUnitId;
+        /// <summary>Client-local dismissed contact id for supervised advice (never mutates DecisionLog).</summary>
+        public string? DismissedSupervisedAdviceContactId => _supervisedAdviceBinder.DismissedContactId;
+        /// <summary>DRG-321 Jev VS3 ROE Noul gate state for the pending suggested-order card.</summary>
+        public JevSuggestedOrderGateState LastJevSuggestedOrder { get; private set; } = JevSuggestedOrderGateState.Empty;
         /// <summary>Current group responsibilities and authored coverage.</summary>
         public CoordinationSnapshot LastCoordination { get; private set; } = CoordinationSnapshot.Empty;
         /// <summary>Replay-stable mission-package / C2-node snapshot (DRG-189 presentation bind).</summary>
@@ -159,6 +168,139 @@ namespace ProjectAegis.Unity.Runtime
             var result = CoordinationCommandBridge.Submit(Bridge, _lastSnapshot, groupId, decision, review?.Intent, _pendingGroupScopes);
             if (result.ApprovedScope != null) _pendingGroupScopes.Add(result.ApprovedScope);
             return result.Accepted ? $"Queued {decision}: {string.Join(", ", result.AffectedUnitIds)}" : $"Prevented: {result.FailureReason}";
+        }
+
+        /// <summary>DRG-255: projects supervised advice card with evidence pointers and FULL_AUTONOMOUS guard.</summary>
+        public SupervisedAdviceCardState ProjectSupervisedAdviceCard(
+            string proposedCommandId = "fire-single",
+            string? attackOptionId = "fire-single",
+            bool explicitFullAutonomousLethalOptIn = false) =>
+            _supervisedAdviceBinder.ProjectForUnit(
+                Bridge,
+                _lastSnapshot,
+                LastAdvice,
+                SupervisedAdviceUnitId,
+                proposedCommandId,
+                attackOptionId,
+                explicitFullAutonomousLethalOptIn);
+
+        /// <summary>DRG-255: validates evidence pointers, ROE, and engage gates before enqueueing a PlayerOrder.</summary>
+        public SupervisedAdviceAcceptResult TryAcceptSupervisedAdvice(
+            string commandId,
+            string? attackOptionId = null,
+            bool explicitFullAutonomousLethalOptIn = false)
+        {
+            var unitId = SupervisedAdviceUnitId ?? string.Empty;
+            if (CommandTimeline.IsInspecting)
+            {
+                return new SupervisedAdviceAcceptResult(
+                    false,
+                    unitId,
+                    LastAdvice?.ContactId ?? string.Empty,
+                    null,
+                    null,
+                    null,
+                    "REPLAY_TIMELINE_INSPECTING",
+                    Array.Empty<SupervisedAdviceEvidenceLine>());
+            }
+
+            if (LastAdvice == null)
+            {
+                return new SupervisedAdviceAcceptResult(
+                    false,
+                    unitId,
+                    string.Empty,
+                    null,
+                    null,
+                    null,
+                    SupervisedAdviceAcceptBridge.ReasonAdviceUnavailable,
+                    Array.Empty<SupervisedAdviceEvidenceLine>());
+            }
+
+            return SupervisedAdviceAcceptBridge.TryAccept(
+                Bridge,
+                _lastSnapshot,
+                new SupervisedAdviceAcceptRequest(
+                    unitId,
+                    LastAdvice,
+                    commandId,
+                    attackOptionId,
+                    explicitFullAutonomousLethalOptIn));
+        }
+
+        /// <summary>DRG-255: client-local dismiss without mutating order log or replay fingerprint.</summary>
+        public void DismissSupervisedAdvice() =>
+            _supervisedAdviceBinder.Dismiss(LastAdvice?.ContactId);
+
+        /// <summary>DRG-321: evaluates a Jev VS3 ROE Noul state payload (fail-closed, never auto-fires).</summary>
+        public JevSuggestedOrderGateState EvaluateJevSuggestedOrder(string json)
+        {
+            LastJevSuggestedOrder = JevRoeOrderGateBinder.Evaluate(json);
+            return LastJevSuggestedOrder;
+        }
+
+        /// <summary>DRG-321: dismisses the suggested-order card with zero order-log mutation.</summary>
+        public void ClearJevSuggestedOrder()
+        {
+            LastJevSuggestedOrder = JevSuggestedOrderGateState.Empty;
+        }
+
+        /// <summary>DRG-321: routes explicit Accept click exclusively through <see cref="CoordinationCommandBridge.Submit"/>.</summary>
+        public CoordinationDecisionResult TrySubmitJevSuggestedDecision()
+        {
+            var gate = LastJevSuggestedOrder;
+            if (!gate.CardVisible || !gate.ConfirmEnabled || string.IsNullOrWhiteSpace(gate.GroupId))
+            {
+                return new CoordinationDecisionResult(
+                    false,
+                    gate.GroupId,
+                    gate.Decision,
+                    Array.Empty<string>(),
+                    gate.BlockReason ?? JevRoeOrderGateBinder.ReasonInvalidProposal,
+                    null);
+            }
+
+            if (CommandTimeline.IsInspecting)
+            {
+                return new CoordinationDecisionResult(
+                    false,
+                    gate.GroupId,
+                    gate.Decision,
+                    Array.Empty<string>(),
+                    "REPLAY_TIMELINE_INSPECTING",
+                    null);
+            }
+
+            if (_pendingGroupScopes.Any(x => x.GroupId == gate.GroupId))
+            {
+                return new CoordinationDecisionResult(
+                    false,
+                    gate.GroupId,
+                    gate.Decision,
+                    Array.Empty<string>(),
+                    CoordinationCommandBridge.ReasonGroupDecisionPending,
+                    null);
+            }
+
+            var review = LastCoordination.Groups.FirstOrDefault(x => x.Coordination.GroupId == gate.GroupId);
+            var result = CoordinationCommandBridge.Submit(
+                Bridge,
+                _lastSnapshot,
+                gate.GroupId,
+                gate.Decision,
+                review?.Intent,
+                _pendingGroupScopes);
+            if (result.ApprovedScope != null)
+            {
+                _pendingGroupScopes.Add(result.ApprovedScope);
+            }
+
+            if (result.Accepted)
+            {
+                LastJevSuggestedOrder = JevSuggestedOrderGateState.Empty;
+            }
+
+            return result;
         }
         private void RefreshAdvice()
         {
@@ -846,6 +988,7 @@ namespace ProjectAegis.Unity.Runtime
 
         public void SelectUnit(string unitId)
         {
+            _lastAdviceSubjectUnitId = string.IsNullOrWhiteSpace(unitId) ? null : unitId;
             Presentation.SelectFriendlyUnit(unitId);
             RefreshSelectionPresentation();
             ApplyGraphSurfacingForSelection();  // S37-04 C2 graph surfacing (highlights/bind)
@@ -853,6 +996,7 @@ namespace ProjectAegis.Unity.Runtime
 
         public void SelectContact(string contactId)
         {
+            _supervisedAdviceBinder.ClearDismiss();
             var contacts = ContactPictureProjection.Project(Bridge.Orchestrator.DecisionLog);
             Presentation.SelectHostileContact(contactId, contacts);
             RefreshSelectionPresentation();
