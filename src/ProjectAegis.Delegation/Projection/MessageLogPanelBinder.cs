@@ -21,7 +21,15 @@ public static class MessageLogPanelBinder
     public static MessageLogPanelState Bind(
         IReadOnlyList<MessageLogLine> lines,
         MessageLogBindingSource source,
-        MessageLogPanelViewMode viewMode)
+        MessageLogPanelViewMode viewMode) =>
+        Bind(lines, policy: null, source, viewMode);
+
+    /// <summary>Bind lines filtering out categories with <see cref="MessageCategoryRule.Log"/> == false.</summary>
+    public static MessageLogPanelState Bind(
+        IReadOnlyList<MessageLogLine> lines,
+        MessageCategoryPolicy? policy,
+        MessageLogBindingSource source = MessageLogBindingSource.FullDecisionLog,
+        MessageLogPanelViewMode viewMode = MessageLogPanelViewMode.Categorized)
     {
         if (lines is null)
         {
@@ -31,6 +39,11 @@ public static class MessageLogPanelBinder
         var rows = new List<MessageLogDisplayRow>(lines.Count);
         foreach (var line in lines)
         {
+            if (policy is not null && !policy.GetRule(line.Category).Log)
+            {
+                continue;
+            }
+
             var display = viewMode == MessageLogPanelViewMode.Raw
                 ? MessageLogTextExport.FormatLine(line)
                 : FormatCategorized(line.Category, line.Text);
@@ -39,10 +52,70 @@ public static class MessageLogPanelBinder
                 display,
                 line.SequenceId,
                 line.UnitId,
-                MessageLogCategoryClassMap.CssClassFor(line.Category)));
+                MessageLogCategoryClassMap.CssClassFor(line.Category),
+                line.ActorId,
+                line.AgentId,
+                line.SourceKind,
+                FormatAttributionLabel(line)));
         }
 
         return new MessageLogPanelState(rows, source, viewMode);
+    }
+
+    public static string FormatAttributedDisplayLine(
+        MessageLogDisplayRow row,
+        MessageCategoryPolicy? policy = null)
+    {
+        if (row is null)
+        {
+            throw new ArgumentNullException(nameof(row));
+        }
+
+        var actionTokens = policy is null
+            ? string.Empty
+            : policy.GetRule(row.Category).FormatActionTokens() + " ";
+        var attribution = string.IsNullOrEmpty(row.AttributionLabel)
+            ? string.Empty
+            : $" ({row.AttributionLabel})";
+        return $"{actionTokens}{row.DisplayLine}{attribution}";
+    }
+
+    public static string? FormatAttributionLabel(MessageLogLine line)
+    {
+        if (line is null)
+        {
+            throw new ArgumentNullException(nameof(line));
+        }
+
+        var source = string.IsNullOrWhiteSpace(line.SourceKind) ? null : line.SourceKind.Trim();
+        var actor = string.IsNullOrWhiteSpace(line.ActorId) ? null : line.ActorId.Trim();
+        var unit = string.IsNullOrWhiteSpace(line.UnitId) ? null : line.UnitId.Trim();
+
+        if (source is null && actor is null && unit is null)
+        {
+            return null;
+        }
+
+        var parts = new List<string>(2);
+        if (source is not null && actor is not null)
+        {
+            parts.Add(string.Equals(source, actor, StringComparison.Ordinal) ? source : $"{source} {actor}");
+        }
+        else if (source is not null)
+        {
+            parts.Add(source);
+        }
+        else if (actor is not null)
+        {
+            parts.Add(actor);
+        }
+
+        if (unit is not null && !string.Equals(unit, actor, StringComparison.Ordinal))
+        {
+            parts.Add($"Unit {unit}");
+        }
+
+        return parts.Count > 0 ? string.Join(" · ", parts) : null;
     }
 
     /// <summary>

@@ -81,6 +81,76 @@ public sealed class FixedStepFrameRunner
         return steps;
     }
 
+    /// <summary>
+    /// Factor-aware overload (DRG-398): re-reads <paramref name="getAccelerationFactor"/> after each step
+    /// and resets/breaks immediately if a safe-stop lowers acceleration (<c>nextFactor &lt; activeFactor</c>)
+    /// or pauses (<c>!canStep()</c>).
+    /// </summary>
+    public int Advance(
+        double elapsedSeconds,
+        Func<int> getAccelerationFactor,
+        Func<bool> canStep,
+        Action step)
+    {
+        if (double.IsNaN(elapsedSeconds) || double.IsInfinity(elapsedSeconds) || elapsedSeconds < 0)
+        {
+            throw new ArgumentOutOfRangeException(nameof(elapsedSeconds));
+        }
+
+        if (getAccelerationFactor is null)
+        {
+            throw new ArgumentNullException(nameof(getAccelerationFactor));
+        }
+
+        if (canStep is null)
+        {
+            throw new ArgumentNullException(nameof(canStep));
+        }
+
+        if (step is null)
+        {
+            throw new ArgumentNullException(nameof(step));
+        }
+
+        if (!canStep())
+        {
+            Reset();
+            return 0;
+        }
+
+        var activeFactor = Math.Clamp(getAccelerationFactor(), 1, 256);
+        var acceleratedSeconds = elapsedSeconds * activeFactor;
+        var accumulated = _accumulatedSeconds + acceleratedSeconds;
+        if (double.IsInfinity(accumulated))
+        {
+            throw new ArgumentOutOfRangeException(nameof(elapsedSeconds));
+        }
+
+        _accumulatedSeconds = accumulated;
+        var steps = 0;
+        var tolerance = _fixedDeltaSeconds * 1e-9;
+        while (steps < _maxStepsPerFrame && _accumulatedSeconds + tolerance >= _fixedDeltaSeconds)
+        {
+            _accumulatedSeconds = Math.Max(0, _accumulatedSeconds - _fixedDeltaSeconds);
+            step();
+            steps++;
+            if (!canStep())
+            {
+                Reset();
+                break;
+            }
+
+            var nextFactor = Math.Clamp(getAccelerationFactor(), 1, 256);
+            if (nextFactor < activeFactor)
+            {
+                Reset();
+                break;
+            }
+        }
+
+        return steps;
+    }
+
     /// <summary>Discards fractional accumulation and backlog on pause, restart or scenario change.</summary>
     public void Reset() => _accumulatedSeconds = 0;
 }

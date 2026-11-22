@@ -1,7 +1,18 @@
 <ui:UXML xmlns:ui="UnityEngine.UIElements" editor-extension-mode="False">
     <ui:VisualElement name="message-log-root" class="message-log-panel">
-        <ui:Label text="MESSAGE LOG" class="message-log-title" />
+        <ui:VisualElement name="message-log-header" class="message-log-header">
+            <ui:Label text="MESSAGE LOG" class="message-log-title" />
+            <ui:Button name="message-log-policy-toggle" text="POLICY" class="message-log-policy-toggle" focusable="true" />
+        </ui:VisualElement>
+        <ui:VisualElement name="message-log-alert-banner" class="message-log-alert-banner" />
+        <ui:ScrollView name="message-log-policy-drawer" class="message-log-policy-drawer" />
         <ui:Label name="message-log-onboarding-hint" text="MISSION: Patrol Baltic — classify hostile ◆ contacts, then Begin Execution." class="message-log-onboarding-hint" />
         <ui:ListView name="message-list" class="message-log-list" selection-type="Single" focusable="true" />
+        <ui:VisualElement name="message-log-deeplink-drawer" class="message-log-deeplink-drawer">
+            <ui:Label name="message-log-deeplink-header" text="" class="message-log-deeplink-header" />
+            <ui:Label name="message-log-deeplink-attribution" text="" class="message-log-deeplink-attribution" />
+            <ui:Label name="message-log-deeplink-detail" text="" class="message-log-deeplink-detail" />
+            <ui:Label name="message-log-deeplink-telemetry" text="" class="message-log-deeplink-telemetry" />
+        </ui:VisualElement>
     </ui:VisualElement>
 </ui:UXML>

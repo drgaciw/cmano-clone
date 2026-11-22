@@ -1,0 +1,6 @@
+<ui:UXML xmlns:ui="UnityEngine.UIElements" editor-extension-mode="False">
+    <ui:VisualElement name="map-balloon-overlay-root" class="map-balloon-overlay" picking-mode="Ignore">
+        <ui:VisualElement name="map-balloon-unanchored-strip" class="map-balloon-unanchored-strip" picking-mode="Ignore" />
+        <ui:VisualElement name="map-balloon-canvas" class="map-balloon-canvas" picking-mode="Ignore" />
+    </ui:VisualElement>
+</ui:UXML>

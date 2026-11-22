@@ -56,4 +56,26 @@ public sealed class MessageLogRowWindowTests
         Assert.That(shown.Count(l => l.Category == "COMMS"), Is.GreaterThanOrEqualTo(1));
         Assert.That(shown.First(l => l.Category == "COMMS").Text, Does.StartWith("Comms ").And.Contain("→"));
     }
+
+    [Test]
+    public void Select_with_policy_filters_Log_false_before_taking_trailing_maxRows_window()
+    {
+        var policy = MessageCategoryPolicy.LoadDefault()
+            .WithRule("FUEL", new MessageCategoryRule(Log: false, Pause: false, MapBalloon: false, DropToRealTime: false));
+
+        var lines = new List<MessageLogLine>
+        {
+            Line(1, "DAMAGE", "Damage u1: 100% -> 80% (Hit)"),
+            Line(2, "CONTACT", "Contact c1 Detected -> Classified"),
+        };
+        for (ulong i = 3; i <= 14; i++)
+        {
+            lines.Add(Line(i, "FUEL", $"Fuel u1 tick {i}"));
+        }
+
+        var shown = MessageLogRowWindow.Select(lines, 12, policy);
+
+        Assert.That(shown, Has.Count.EqualTo(2));
+        Assert.That(shown.Select(l => l.SequenceId), Is.EqualTo(new[] { 1UL, 2UL }));
+    }
 }

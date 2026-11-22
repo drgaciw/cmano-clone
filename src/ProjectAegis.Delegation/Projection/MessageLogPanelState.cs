@@ -36,10 +36,14 @@ public sealed record MessageLogPanelState(
     MessageLogBindingSource Source = MessageLogBindingSource.FullDecisionLog,
     MessageLogPanelViewMode ViewMode = MessageLogPanelViewMode.Categorized);
 
-/// <summary>Display row with order-log deep-link fields for CMD-05 selection.</summary>
+/// <summary>Display row with order-log deep-link fields for CMD-05 selection & DRG-273 attribution.</summary>
 public sealed record MessageLogDisplayRow(
     string Category,
     string DisplayLine,
     ulong SequenceId = 0,
     string? UnitId = null,
-    string? CategoryCssClass = null);
+    string? CategoryCssClass = null,
+    string? ActorId = null,
+    string? AgentId = null,
+    string? SourceKind = null,
+    string? AttributionLabel = null);

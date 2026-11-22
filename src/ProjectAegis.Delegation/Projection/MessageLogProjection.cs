@@ -80,7 +80,9 @@ public static class MessageLogProjection
                             entry.SimTime,
                             "WEAPON_LAUNCH",
                             $"Unit {engagement.ShooterTargetId.Value} launched engagement {engagement.EngagementId}",
-                            engagement.ShooterTargetId.Value));
+                            engagement.ShooterTargetId.Value,
+                            ActorId: engagement.ShooterTargetId.Value,
+                            SourceKind: "Combat"));
                     }
                     else if (!engagement.Launched && aborts.Contains(entry.SequenceId))
                     {
@@ -143,7 +145,14 @@ public static class MessageLogProjection
         }
 
         abortRuns[key] = new AbortRun(engagement.AbortReasonCode, lines.Count, 1);
-        lines.Add(new MessageLogLine(entry.SequenceId, entry.SimTime, "ENGAGE_ABORT", baseText, shooter));
+        lines.Add(new MessageLogLine(
+            entry.SequenceId,
+            entry.SimTime,
+            "ENGAGE_ABORT",
+            baseText,
+            shooter,
+            ActorId: shooter,
+            SourceKind: "Combat"));
     }
 
     private static (string Shooter, string Victim) AbortKey(EngagementRecord engagement) =>
@@ -337,109 +346,155 @@ public static class MessageLogProjection
                     entry.SimTime,
                     "POLICY_DENIAL",
                     $"Fire denied for {d.TargetId.Value}: {d.Reason} ({d.AttemptedKind})",
-                    d.TargetId.Value),
+                    d.TargetId.Value,
+                    ActorId: d.AgentId.Value,
+                    AgentId: d.AgentId.Value,
+                    SourceKind: "Policy"),
             OrderLogEntryKind.ContactChange when entry.Payload is ContactChangeRecord c =>
                 new MessageLogLine(
                     entry.SequenceId,
                     entry.SimTime,
                     "CONTACT",
                     $"Contact {c.ContactId} {c.PreviousState} → {c.NewState} ({c.TargetId})",
-                    c.ObserverId),
+                    c.ObserverId,
+                    ActorId: c.ObserverId,
+                    SourceKind: "Sensor"),
             OrderLogEntryKind.MagazineChange when entry.Payload is MagazineChangeRecord m =>
                 new MessageLogLine(
                     entry.SequenceId,
                     entry.SimTime,
                     "MAGAZINE",
                     $"Magazine {m.ShooterTargetId.Value} mount {m.MountId}: {m.Delta} ({m.ReasonCode})",
-                    m.ShooterTargetId.Value),
+                    m.ShooterTargetId.Value,
+                    ActorId: m.ShooterTargetId.Value,
+                    SourceKind: "Logistics"),
             OrderLogEntryKind.ModeChange when entry.Payload is ModeChangeRecord mc =>
                 new MessageLogLine(
                     entry.SequenceId,
                     entry.SimTime,
                     "MODE",
                     $"Mode {mc.PreviousMode} → {mc.NewMode}",
-                    mc.UnitId?.Value),
+                    mc.UnitId?.Value,
+                    ActorId: mc.UnitId?.Value ?? "session",
+                    SourceKind: "Mode"),
             OrderLogEntryKind.PlayerOrder when entry.Payload is PlayerOrderRecord po =>
                 new MessageLogLine(
                     entry.SequenceId,
                     entry.SimTime,
                     "PLAYER_ORDER",
                     $"Player ordered {po.Kind} for {po.UnitId.Value}",
-                    po.UnitId.Value),
+                    po.UnitId.Value,
+                    ActorId: po.Source,
+                    SourceKind: "Player"),
             OrderLogEntryKind.CommsStateChange when entry.Payload is CommsStateChangeRecord c =>
                 new MessageLogLine(
                     entry.SequenceId,
                     entry.SimTime,
                     "COMMS",
                     $"Comms {c.NodeId}: {c.PreviousState} → {c.NewState} ({c.Reason})",
-                    c.NodeId),
+                    c.NodeId,
+                    ActorId: c.NodeId,
+                    SourceKind: "Comms"),
             OrderLogEntryKind.FuelStateChange when entry.Payload is FuelStateChangeRecord f =>
                 new MessageLogLine(
                     entry.SequenceId,
                     entry.SimTime,
                     "FUEL",
                     $"Fuel {f.UnitId.Value}: {f.PreviousState} → {f.NewState} ({f.RemainingFuelKg:F0} kg)",
-                    f.UnitId.Value),
+                    f.UnitId.Value,
+                    ActorId: f.UnitId.Value,
+                    SourceKind: "Logistics"),
             OrderLogEntryKind.OrdnanceStateChange when entry.Payload is OrdnanceStateChangeRecord o =>
                 new MessageLogLine(
                     entry.SequenceId,
                     entry.SimTime,
                     "ORDNANCE",
                     $"Ordnance {o.UnitId.Value}: {o.PreviousState} → {o.NewState} (rem {o.RoundsRemaining})",
-                    o.UnitId.Value),
+                    o.UnitId.Value,
+                    ActorId: o.UnitId.Value,
+                    SourceKind: "Logistics"),
             OrderLogEntryKind.FuelBurn when entry.Payload is FuelBurnRecord b =>
                 new MessageLogLine(
                     entry.SequenceId,
                     entry.SimTime,
                     "FUEL",
                     $"Fuel burn {b.UnitId.Value}: {b.DeltaKg:F0} kg (rem {b.RemainingFuelKg:F0} kg)",
-                    b.UnitId.Value),
+                    b.UnitId.Value,
+                    ActorId: b.UnitId.Value,
+                    SourceKind: "Logistics"),
             OrderLogEntryKind.PolicyUpdate when entry.Payload is PolicyUpdateRecord u =>
                 new MessageLogLine(
                     entry.SequenceId,
                     entry.SimTime,
                     "POLICY_UPDATE",
-                    $"Policy {u.Field}: {u.PreviousValue} → {u.NewValue}"),
+                    $"Policy {u.Field}: {u.PreviousValue} → {u.NewValue}",
+                    ActorId: $"policy:{u.PolicySnapshotId}",
+                    SourceKind: "Policy"),
             OrderLogEntryKind.AgentDecision when entry.Payload is AgentDecisionPayload d =>
                 new MessageLogLine(
                     entry.SequenceId,
                     entry.SimTime,
                     "AGENT_DECISION",
                     $"Agent {d.AgentId.Value} chose {d.ChosenOrderKind} for {d.TargetId.Value}: {d.Rationale}",
-                    d.TargetId.Value),
+                    d.TargetId.Value,
+                    ActorId: d.AgentId.Value,
+                    AgentId: d.AgentId.Value,
+                    SourceKind: "Agent"),
             OrderLogEntryKind.AgentDecision when entry.Payload is DecisionRecord legacy =>
                 new MessageLogLine(
                     entry.SequenceId,
                     entry.SimTime,
                     "AGENT_DECISION",
                     $"Agent {legacy.AgentId.Value} chose {legacy.ChosenKind} for {legacy.TargetId.Value}: {legacy.Rationale}",
-                    legacy.TargetId.Value),
+                    legacy.TargetId.Value,
+                    ActorId: legacy.AgentId.Value,
+                    AgentId: legacy.AgentId.Value,
+                    SourceKind: "Agent"),
             OrderLogEntryKind.MissionTransition when entry.Payload is MissionTransitionRecord mt =>
                 new MessageLogLine(
                     entry.SequenceId,
                     entry.SimTime,
                     "MISSION",
-                    $"Mission {mt.EventId} → {mt.PhaseCode}"),
+                    $"Mission {mt.EventId} → {mt.PhaseCode}",
+                    ActorId: mt.EventId,
+                    SourceKind: "Mission"),
             OrderLogEntryKind.EventFired when entry.Payload is EventFiredRecord ev =>
                 new MessageLogLine(
                     entry.SequenceId,
                     entry.SimTime,
                     "EVENT",
-                    $"Event {ev.EventId}: {ev.EventCode}"),
+                    $"Event {ev.EventId}: {ev.EventCode}",
+                    ActorId: ev.EventId,
+                    SourceKind: "Event"),
             OrderLogEntryKind.PlatformDamageChange when entry.Payload is PlatformDamageChangeRecord dmg =>
                 new MessageLogLine(
                     entry.SequenceId,
                     entry.SimTime,
                     "DAMAGE",
                     $"Damage {dmg.UnitId.Value}: {dmg.PreviousHpPct:F0}% → {dmg.NewHpPct:F0}% ({dmg.ReasonCode})",
-                    dmg.UnitId.Value),
+                    dmg.UnitId.Value,
+                    ActorId: dmg.UnitId.Value,
+                    SourceKind: "Damage"),
             OrderLogEntryKind.ControllerChange when entry.Payload is ControllerChangeRecord cc =>
                 new MessageLogLine(
                     entry.SequenceId,
                     entry.SimTime,
                     "CONTROLLER",
                     $"Controller {cc.TargetId.Value}: {cc.PreviousKind} → {cc.NewKind}",
-                    cc.TargetId.Value),
+                    cc.TargetId.Value,
+                    ActorId: cc.AgentId?.Value ?? cc.NewKind,
+                    AgentId: cc.AgentId?.Value,
+                    SourceKind: "Controller"),
+            OrderLogEntryKind.ContactOverride when entry.Payload is ContactOverrideRecord co =>
+                new MessageLogLine(
+                    entry.SequenceId,
+                    entry.SimTime,
+                    "CONTACT",
+                    co.Action == ContactOverrideAction.Drop
+                        ? $"Contact {co.ContactId} operator dropped (was {co.PreviousValue})"
+                        : $"Contact {co.ContactId} operator reclassified: {co.PreviousValue} → {co.NewValue}",
+                    ActorId: "operator",
+                    SourceKind: "Operator"),
             _ => null,
         };
 
@@ -449,6 +504,7 @@ public static class MessageLogProjection
         double simTime)
     {
         var victim = o.VictimTargetId.Value;
+        var shooter = o.ShooterTargetId.Value;
         return o.OutcomeCode switch
         {
             EngagementOutcomeCodes.Kill => new MessageLogLine(
@@ -456,31 +512,41 @@ public static class MessageLogProjection
                 simTime,
                 "KILL_CONFIRMED",
                 $"Hostile destroyed: {victim} (engagement {o.EngagementId})",
-                o.ShooterTargetId.Value),
+                shooter,
+                ActorId: shooter,
+                SourceKind: "Combat"),
             EngagementOutcomeCodes.Intercept => new MessageLogLine(
                 sequenceId,
                 simTime,
                 "INTERCEPT_SUCCESS",
                 $"Threat neutralized (intercept): {victim} — target remains operational",
-                o.ShooterTargetId.Value),
+                shooter,
+                ActorId: shooter,
+                SourceKind: "Combat"),
             EngagementOutcomeCodes.Hit => new MessageLogLine(
                 sequenceId,
                 simTime,
                 "HIT",
                 $"Weapon hit {victim} (engagement {o.EngagementId})",
-                o.ShooterTargetId.Value),
+                shooter,
+                ActorId: shooter,
+                SourceKind: "Combat"),
             EngagementOutcomeCodes.Miss => new MessageLogLine(
                 sequenceId,
                 simTime,
                 "MISS",
                 $"Weapon missed {victim} (engagement {o.EngagementId})",
-                o.ShooterTargetId.Value),
+                shooter,
+                ActorId: shooter,
+                SourceKind: "Combat"),
             _ => new MessageLogLine(
                 sequenceId,
                 simTime,
                 "COMBAT",
                 $"Outcome {o.OutcomeCode} vs {victim}",
-                o.ShooterTargetId.Value),
+                shooter,
+                ActorId: shooter,
+                SourceKind: "Combat"),
         };
     }
 }
