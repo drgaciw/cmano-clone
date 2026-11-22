@@ -1,6 +1,7 @@
 #if UNITY_5_3_OR_NEWER
 using System;
 using System.Collections.Generic;
+using ProjectAegis.Delegation.Projection;
 using ProjectAegis.Delegation.UnityAdapter.CommandReview;
 using UnityEngine;
 using UnityEngine.UIElements;
@@ -20,6 +21,15 @@ namespace ProjectAegis.Unity.Runtime
         private readonly List<Label> _labels = new();
         private CoordinationSnapshot? _snapshot;
         private bool _visible;
+        private MapScaleState? _scaleState;
+        private CoveragePostureSnapshot? _posture;
+
+        /// <summary>Latest evaluated map-scale appropriateness decision (DRG-192).</summary>
+        public CoverageMapScaleDecision LastScaleDecision { get; private set; } =
+            CoverageMapScaleEvaluator.Evaluate(null);
+
+        /// <summary>Latest bound layered defense posture snapshot, if supplied.</summary>
+        public CoveragePostureSnapshot? LastPosture => _posture;
 
         /// <summary>Creates a coverage layer attached to the supplied map canvas.</summary>
         public CoverageMapView(VisualElement canvas)
@@ -49,11 +59,29 @@ namespace ProjectAegis.Unity.Runtime
         public string StatusText => _status.text;
 
         /// <summary>Binds a current projection. Passing false hides all coverage while history is shown.</summary>
-        public void Bind(CoordinationSnapshot snapshot, bool visible)
+        public void Bind(CoordinationSnapshot snapshot, bool visible) =>
+            Bind(snapshot, visible, scaleState: null, posture: null);
+
+        /// <summary>Binds a current projection with explicit map-scale evaluation and layered posture summary (DRG-192).</summary>
+        public void Bind(
+            CoordinationSnapshot snapshot,
+            bool visible,
+            MapScaleState? scaleState,
+            CoveragePostureSnapshot? posture = null)
         {
-            if (ReferenceEquals(_snapshot, snapshot) && _visible == visible) return;
-            _snapshot = snapshot ?? CoordinationSnapshot.Empty;
+            var normalized = snapshot ?? CoordinationSnapshot.Empty;
+            if (ReferenceEquals(_snapshot, normalized)
+                && _visible == visible
+                && Equals(_scaleState, scaleState)
+                && ReferenceEquals(_posture, posture))
+            {
+                return;
+            }
+
+            _snapshot = normalized;
             _visible = visible;
+            _scaleState = scaleState;
+            _posture = posture;
             _layer.style.display = visible ? DisplayStyle.Flex : DisplayStyle.None;
             Rebuild();
         }
@@ -65,9 +93,18 @@ namespace ProjectAegis.Unity.Runtime
             PolygonCount = 0;
             SegmentCount = 0;
             HidePool();
+            LastScaleDecision = CoverageMapScaleEvaluator.Evaluate(_scaleState, !_visible);
+
             if (!_visible || _snapshot == null)
             {
                 _status.text = _visible ? "Coverage: no frame" : "Coverage hidden during history inspection";
+                return;
+            }
+
+            if (!LastScaleDecision.ShowPolygons)
+            {
+                var posture = _posture ?? CoveragePostureProjection.Project(_snapshot);
+                _status.text = $"Coverage: {posture.TotalCovered} covered | {posture.TotalGaps} gaps | {LastScaleDecision.SummaryLabel}";
                 return;
             }
 
@@ -108,11 +145,23 @@ namespace ProjectAegis.Unity.Runtime
                 }
             }
 
-            _status.text = (PolygonCount == 0 ? "Coverage: no usable authored spatial evidence" : $"Coverage: {PolygonCount} polygons | {SegmentCount} segments") +
+            var baseStatus = (PolygonCount == 0 ? "Coverage: no usable authored spatial evidence" : $"Coverage: {PolygonCount} polygons | {SegmentCount} segments") +
                 (invalid > 0 ? $" | INVALID {invalid} (finite [0..1] coordinates and source required)" : string.Empty) +
                 (truncatedPolygons > 0 ? $" | TRUNCATED polygons {truncatedPolygons} (cap {MaxPolygons})" : string.Empty) +
                 (truncatedSegments ? $" | TRUNCATED segments (cap {MaxSegments})" : string.Empty) +
                 (!drawable && PolygonCount > 0 ? " | awaiting map geometry" : string.Empty);
+
+            if (LastScaleDecision.IsScaleExplicit)
+            {
+                baseStatus += $" | {LastScaleDecision.TierLabel}";
+            }
+
+            if (_posture != null)
+            {
+                baseStatus += $" | {_posture.CompactSummary}";
+            }
+
+            _status.text = baseStatus;
         }
 
         private void RenderPolygon(CoverageAssessment coverage, int polygonIndex, float width, float height)
@@ -138,7 +187,7 @@ namespace ProjectAegis.Unity.Runtime
             label.style.color = gap ? new Color(1f, 0.65f, 0.35f) : new Color(0.45f, 1f, 0.7f);
             label.style.left = (float)points[0].NormalizedX * width;
             label.style.top = (float)points[0].NormalizedY * height;
-            label.style.display = DisplayStyle.Flex;
+            label.style.display = LastScaleDecision.ShowSectorLabels ? DisplayStyle.Flex : DisplayStyle.None;
         }
 
         private void ApplySegment(Vector2 from, Vector2 to, Color color)

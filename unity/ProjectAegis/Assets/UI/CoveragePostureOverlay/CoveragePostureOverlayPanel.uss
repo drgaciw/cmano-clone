@@ -1,0 +1,85 @@
+/* DRG-192: Passive companion coverage posture overlay aligned to the map canvas. */
+
+.coverage-posture-overlay {
+    position: absolute;
+    left: 260px;
+    right: 300px;
+    top: 56px;
+    bottom: 0;
+    flex-direction: column;
+    justify-content: flex-end;
+    padding: 8px 8px 32px 8px;
+}
+
+.coverage-posture-card {
+    max-width: 520px;
+    padding: 6px 8px;
+    background-color: rgba(10, 16, 26, 0.88);
+    border-width: 1px;
+    border-left-width: 3px;
+}
+
+.coverage-posture-header-strip {
+    flex-direction: row;
+    flex-wrap: wrap;
+    margin-bottom: 3px;
+}
+
+.coverage-posture-badge {
+    font-size: 9px;
+    -unity-font-style: bold;
+    color: rgb(210, 225, 240);
+    background-color: rgba(24, 38, 56, 0.9);
+    padding: 1px 5px;
+    margin-right: 6px;
+    border-width: 1px;
+    border-color: rgb(65, 92, 120);
+}
+
+.coverage-posture-summary {
+    font-size: 11px;
+    -unity-font-style: bold;
+    color: rgb(225, 232, 240);
+    white-space: normal;
+    margin-bottom: 2px;
+}
+
+.coverage-posture-detail {
+    font-size: 10px;
+    color: rgb(195, 208, 222);
+    white-space: normal;
+    margin-bottom: 2px;
+}
+
+.coverage-posture-diff-box {
+    display: none;
+    margin-top: 3px;
+    padding: 4px 6px;
+    background-color: rgba(28, 22, 14, 0.86);
+    border-width: 1px;
+    border-color: rgb(230, 180, 75);
+}
+
+.coverage-posture-diff-headline {
+    font-size: 10px;
+    -unity-font-style: bold;
+    color: rgb(255, 224, 150);
+    white-space: normal;
+    margin-bottom: 2px;
+}
+
+.coverage-posture--nominal {
+    border-color: rgb(95, 205, 135);
+}
+
+.coverage-posture--degraded {
+    border-color: rgb(235, 175, 65);
+}
+
+.coverage-posture--critical {
+    border-color: rgb(230, 90, 90);
+}
+
+.coverage-posture--unknown {
+    border-color: rgb(135, 150, 170);
+}
