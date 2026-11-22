@@ -187,6 +187,11 @@ public sealed class DelegationOrchestrator
     /// </summary>
     public bool AttachReplayViewer { get; set; }
 
+    /// <summary>
+    /// DRG-245: Last simulation mode profile applied via <see cref="SimulationModeConfigurator.Apply"/>.
+    /// </summary>
+    public SimulationModeProfile? SimulationMode { get; internal set; }
+
     public SimulationPhase Phase { get; private set; } = SimulationPhase.Planning;
 
     public int GlobalSeed { get; }
@@ -398,6 +403,59 @@ public sealed class DelegationOrchestrator
         return true;
     }
 
+    /// <summary>
+    /// DRG-247: suspend autonomous agent decisions for <paramref name="target"/> without clearing
+    /// tasking, changing <see cref="ControllerSlot.Active"/>, or emitting duplicate log entries.
+    /// </summary>
+    public bool TryPauseAgentActions(ICommandableTarget target, double simTime)
+    {
+        if (AttachReplayViewer || target is null)
+        {
+            return false;
+        }
+
+        if (!ReferenceEquals(FindTarget(target.Id), target))
+        {
+            return false;
+        }
+
+        if (target.Slot.Active is not AgentController agent || agent.IsActionsPaused)
+        {
+            return false;
+        }
+
+        agent.PauseActions();
+        DecisionLog.AppendControllerChange(new ControllerChangeRecord(
+            0, simTime, target.Id, "Agent", "AgentPaused", agent.Id));
+        return true;
+    }
+
+    /// <summary>
+    /// DRG-247: restore autonomous agent decisions for <paramref name="target"/> when currently paused.
+    /// </summary>
+    public bool TryResumeAgentActions(ICommandableTarget target, double simTime)
+    {
+        if (AttachReplayViewer || target is null)
+        {
+            return false;
+        }
+
+        if (!ReferenceEquals(FindTarget(target.Id), target))
+        {
+            return false;
+        }
+
+        if (target.Slot.Active is not AgentController agent || !agent.IsActionsPaused)
+        {
+            return false;
+        }
+
+        agent.ResumeActions();
+        DecisionLog.AppendControllerChange(new ControllerChangeRecord(
+            0, simTime, target.Id, "AgentPaused", "Agent", agent.Id));
+        return true;
+    }
+
     public GroupTarget? FindParentGroup(TargetId unitId)
     {
         foreach (var target in _targets)
@@ -469,6 +527,7 @@ public sealed class DelegationOrchestrator
         slot.Active switch
         {
             HumanController => "Human",
+            AgentController agent when agent.IsActionsPaused => "AgentPaused",
             AgentController => "Agent",
             null when slot.SuspendedAgent is not null => "AgentSuspended",
             _ => "None",
@@ -504,14 +563,18 @@ public sealed class DelegationOrchestrator
             switch (target.Slot.Active)
             {
                 case AgentController agent:
-                    agent.TryDecide(
-                        target.Id,
-                        state,
-                        memberCount,
-                        ref _orderIdSequence,
-                        _autonomyGate,
-                        DecisionLog,
-                        _pendingApprovalQueue);
+                    if (!agent.IsActionsPaused)
+                    {
+                        agent.TryDecide(
+                            target.Id,
+                            state,
+                            memberCount,
+                            ref _orderIdSequence,
+                            _autonomyGate,
+                            DecisionLog,
+                            _pendingApprovalQueue);
+                    }
+
                     executed.AddRange(agent.DrainIssuedOrders(simTick));
                     break;
                 case HumanController human:

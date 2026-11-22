@@ -21,4 +21,5 @@ public enum OrderLogEntryKind
     FuelBurn = 16,
     PlatformDamageChange = 17,
     OrdnanceStateChange = 18,
+    ContactOverride = 19,
 }

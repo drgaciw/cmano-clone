@@ -65,4 +65,27 @@ public sealed class SliceAContactHostContractTests
         Assert.That(source, Does.Contain("SetEnabled(_liveSurface.ContactExplanationAvailable)"));
         Assert.That(source, Does.Contain("SetEnabled(_liveSurface.EngagementExplanationAvailable)"));
     }
+
+    [Test]
+    public void Contact_panel_wires_override_controls_via_bridge_host_without_sim_or_orchestrator()
+    {
+        var xml = XDocument.Parse(UiIaSourceReader.ReadUnder("unity", "ProjectAegis", "Assets", "UI", "ContactDetail", "ContactDetailPanel.uxml"));
+        foreach (var name in new[]
+        {
+            "override-status-line",
+            "contact-reclassify-dropdown",
+            "contact-reclassify-button",
+            "contact-drop-button",
+            "override-feedback-line",
+        })
+        {
+            Assert.That(xml.Descendants().Count(e => (string?)e.Attribute("name") == name), Is.EqualTo(1), name);
+        }
+
+        var source = UiIaSourceReader.ReadRuntime("ContactDetailPanelHost.cs");
+        Assert.That(source, Does.Contain("TryReclassifySelectedContact"));
+        Assert.That(source, Does.Contain("TryDropSelectedContact"));
+        Assert.That(source, Does.Not.Contain("Bridge.Orchestrator"));
+        Assert.That(source, Does.Not.Contain("using ProjectAegis.Sim"));
+    }
 }

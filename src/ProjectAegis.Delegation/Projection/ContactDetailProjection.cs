@@ -9,7 +9,8 @@ public static class ContactDetailProjection
     public static ContactDetailEntry? Project(
         ContactPictureEntry? contact,
         ulong currentSimTick,
-        string? bdaLifecycleOverride = null)
+        string? bdaLifecycleOverride = null,
+        ContactOverrideEntry? operatorOverride = null)
     {
         if (contact is null)
         {
@@ -33,14 +34,18 @@ public static class ContactDetailProjection
             FormatWra(lifecycle),
             FormatBda(lifecycle),
             $"{ageTicks} ticks stale",
-            lifecycle);
+            lifecycle,
+            operatorOverride?.StatusLabel ?? "OVERRIDE: —",
+            operatorOverride?.AffiliationOverride,
+            operatorOverride?.IsDropped ?? false);
     }
 
     public static ContactDetailEntry? Project(
         string contactId,
         IReadOnlyList<ContactPictureEntry> contacts,
         ulong currentSimTick,
-        string? bdaLifecycleOverride = null)
+        string? bdaLifecycleOverride = null,
+        ContactOverrideEntry? operatorOverride = null)
     {
         if (string.IsNullOrEmpty(contactId) || contacts is null)
         {
@@ -49,7 +54,7 @@ public static class ContactDetailProjection
 
         var match = contacts.FirstOrDefault(c =>
             string.Equals(c.ContactId, contactId, StringComparison.Ordinal));
-        return Project(match, currentSimTick, bdaLifecycleOverride);
+        return Project(match, currentSimTick, bdaLifecycleOverride, operatorOverride);
     }
 
     private static string FormatClassification(string targetId, string lifecycle) =>

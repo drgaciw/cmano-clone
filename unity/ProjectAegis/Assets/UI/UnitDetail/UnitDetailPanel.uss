@@ -187,3 +187,34 @@
     font-size: 11px;
     white-space: normal;
 }
+
+/* DRG-247: Unit control handoff & agent pause/resume actions. */
+.unit-detail-control-status {
+    margin-top: 2px;
+    margin-bottom: 2px;
+    font-size: 11px;
+    color: rgb(205, 220, 235);
+}
+
+.unit-detail-control-actions {
+    flex-direction: row;
+    flex-wrap: wrap;
+    margin-top: 2px;
+    margin-bottom: 4px;
+}
+
+.unit-detail-control-btn {
+    margin-right: 4px;
+    margin-bottom: 4px;
+    font-size: 11px;
+    min-height: 20px;
+}
+
+.unit-detail-control-btn:disabled {
+    opacity: 0.45;
+}
+
+.unit-detail-control-feedback {
+    font-size: 11px;
+    color: rgb(225, 200, 150);
+}

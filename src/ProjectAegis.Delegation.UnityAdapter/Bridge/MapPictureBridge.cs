@@ -29,7 +29,8 @@ public static class MapPictureBridge
         int layoutSeed)
     {
         var (oob, contacts, poses) = CollectPictureInputs(snapshot, registry, log);
-        return MapPictureProjection.Project(oob, contacts, layoutSeed, poses);
+        var overrides = ContactOverrideProjection.Project(log);
+        return MapPictureProjection.Project(oob, contacts, layoutSeed, poses, overrides);
     }
 
     /// <summary>

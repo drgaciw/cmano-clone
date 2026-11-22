@@ -59,6 +59,15 @@ public sealed class AgentController : IController
 
     public bool IsHuman => false;
 
+    /// <summary>DRG-247: when true, agent decisions are suspended without clearing tasking or replacing controller.</summary>
+    public bool IsActionsPaused { get; private set; }
+
+    /// <summary>DRG-247: suspend autonomous decision emission for this agent.</summary>
+    public void PauseActions() => IsActionsPaused = true;
+
+    /// <summary>DRG-247: resume autonomous decision emission for this agent.</summary>
+    public void ResumeActions() => IsActionsPaused = false;
+
     public void BindPolicySnapshot(ulong policySnapshotId, EffectivePolicy effective, DecisionLog? log = null, double simTime = 0, ulong simTick = 0)
     {
         if (log != null && policySnapshotId != PolicySnapshotId)
@@ -104,6 +113,11 @@ public sealed class AgentController : IController
         DecisionLog log,
         PendingApprovalQueue? pendingQueue = null)
     {
+        if (IsActionsPaused)
+        {
+            return;
+        }
+
         if (state.SimTime < _nextDecisionSimTime)
         {
             return;

@@ -25,4 +25,5 @@ public enum EvidenceEntryKind
     FuelBurn = 17,
     PlatformDamageChange = 18,
     OrdnanceStateChange = 19,
+    ContactOverride = 20,
 }

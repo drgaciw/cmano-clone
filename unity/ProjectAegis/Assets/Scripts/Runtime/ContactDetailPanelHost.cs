@@ -1,6 +1,7 @@
 // CMD-29 contact detail panel — belief/inference view distinct from own-unit RightUnitPanelHost.
 #if UNITY_5_3_OR_NEWER
 using System;
+using System.Collections.Generic;
 using ProjectAegis.Delegation.Projection;
 using ProjectAegis.Delegation.UnityAdapter.Bridge;
 using ProjectAegis.Delegation.UnityAdapter.Presentation;
@@ -60,9 +61,18 @@ namespace ProjectAegis.Unity.Runtime
         private Foldout? _targetingExplanationFoldout;
         private Button? _contactExplanationLink;
         private Button? _engagementExplanationLink;
+        private Label? _overrideStatusLine;
+        private DropdownField? _reclassifyDropdown;
+        private Button? _reclassifyButton;
+        private Button? _dropButton;
+        private Label? _overrideFeedbackLine;
         private SliceAContactFrame? _lastFrame;
         private CombatPresentationFrame? _lastCombatFrame;
         private string? _lastContactId;
+        private bool _lastReplayReadOnly;
+        private string? _overrideFeedback;
+        private string? _lastSyncedOverrideContactId;
+        private string? _lastSyncedOverrideStatus;
         private SliceAContactPresentation _sliceA = SliceAContactPresentation.Empty;
         private SliceAContactLiveSurfaceState _liveSurface = SliceAContactLiveSurfaceState.Empty;
         private DlzLiveSurfaceState _dlzSurface = DlzLiveSurfaceState.Empty;
@@ -159,6 +169,32 @@ namespace ProjectAegis.Unity.Runtime
             _targetingExplanationFoldout = panel.Q<Foldout>("targeting-explanation");
             _contactExplanationLink = panel.Q<Button>("contact-explanation-link");
             _engagementExplanationLink = panel.Q<Button>("engagement-explanation-link");
+            _overrideStatusLine = panel.Q<Label>("override-status-line");
+            _reclassifyDropdown = panel.Q<DropdownField>("contact-reclassify-dropdown");
+            if (_reclassifyDropdown != null)
+            {
+                _reclassifyDropdown.choices = new List<string>(MilitarySymbology.SupportedAffiliations);
+                if (string.IsNullOrEmpty(_reclassifyDropdown.value))
+                {
+                    _reclassifyDropdown.SetValueWithoutNotify("Hostile");
+                }
+            }
+
+            _reclassifyButton = panel.Q<Button>("contact-reclassify-button");
+            if (_reclassifyButton != null)
+            {
+                _reclassifyButton.clicked -= OnReclassifyClicked;
+                _reclassifyButton.clicked += OnReclassifyClicked;
+            }
+
+            _dropButton = panel.Q<Button>("contact-drop-button");
+            if (_dropButton != null)
+            {
+                _dropButton.clicked -= OnDropClicked;
+                _dropButton.clicked += OnDropClicked;
+            }
+
+            _overrideFeedbackLine = panel.Q<Label>("override-feedback-line");
             if (_contactExplanationLink != null)
             {
                 _contactExplanationLink.clicked -= OnContactExplanationClicked;
@@ -220,13 +256,21 @@ namespace ProjectAegis.Unity.Runtime
 
             var frame = bridgeHost == null ? SliceAContactFrame.Empty : bridgeHost.LastSliceAContacts;
             var combatFrame = bridgeHost == null ? CombatPresentationFrame.Empty : bridgeHost.DisplayCombatFrame;
+            var isReplay = frame.IsReplayReadOnly || (bridgeHost != null && bridgeHost.IsReplayViewerAttached);
             if (ReferenceEquals(frame, _lastFrame) && ReferenceEquals(combatFrame, _lastCombatFrame)
-                && string.Equals(contactId, _lastContactId, StringComparison.Ordinal))
+                && string.Equals(contactId, _lastContactId, StringComparison.Ordinal)
+                && isReplay == _lastReplayReadOnly)
                 return;
+
+            if (!string.Equals(contactId, _lastContactId, StringComparison.Ordinal))
+            {
+                _overrideFeedback = null;
+            }
 
             _lastFrame = frame;
             _lastContactId = contactId;
             _lastCombatFrame = combatFrame;
+            _lastReplayReadOnly = isReplay;
             _combat = CombatSelectionPresenter.Build(combatFrame, null, null, contactId);
             if (string.IsNullOrEmpty(contactId))
             {
@@ -237,10 +281,12 @@ namespace ProjectAegis.Unity.Runtime
             }
             else
             {
+                var activeOverride = frame.ContactOverrides.Find(contactId);
                 _presentation = ContactDetailApplyState.ProjectAndApply(
                     contactId,
                     frame.Contacts,
-                    frame.SimTick);
+                    frame.SimTick,
+                    operatorOverride: activeOverride);
                 frame.Authorities.TryGetValue(contactId ?? string.Empty, out var authority);
                 _sliceA = SliceAContactPresenter.Build(contactId, frame.KillChain, frame.Provenance,
                     frame.EligibilityAvailable ? frame.Chains : null, authority);
@@ -327,6 +373,86 @@ namespace ProjectAegis.Unity.Runtime
             if (_engagementExplanationLink != null)
             {
                 _engagementExplanationLink.SetEnabled(_liveSurface.EngagementExplanationAvailable);
+            }
+
+            ApplyOverrideControlsToView();
+        }
+
+        private void ApplyOverrideControlsToView()
+        {
+            if (_overrideStatusLine != null)
+            {
+                _overrideStatusLine.text = _presentation.OverrideStatusLine;
+            }
+
+            if (_reclassifyDropdown != null
+                && (!string.Equals(_lastSyncedOverrideContactId, _lastContactId, StringComparison.Ordinal)
+                    || !string.Equals(_lastSyncedOverrideStatus, _presentation.OverrideStatusLine, StringComparison.Ordinal)))
+            {
+                _lastSyncedOverrideContactId = _lastContactId;
+                _lastSyncedOverrideStatus = _presentation.OverrideStatusLine;
+                _reclassifyDropdown.SetValueWithoutNotify(_presentation.OperatorAffiliation ?? "Hostile");
+            }
+
+            var hasSelection = !string.IsNullOrEmpty(_lastContactId);
+            if (_lastReplayReadOnly)
+            {
+                _reclassifyDropdown?.SetEnabled(false);
+                _reclassifyButton?.SetEnabled(false);
+                _dropButton?.SetEnabled(false);
+                if (_overrideFeedbackLine != null)
+                {
+                    _overrideFeedbackLine.text = ObserverModeChromePresentation.ReplayAttachedReasonText;
+                }
+
+                return;
+            }
+
+            _reclassifyDropdown?.SetEnabled(hasSelection);
+            _reclassifyButton?.SetEnabled(hasSelection);
+            _dropButton?.SetEnabled(hasSelection && !_presentation.IsOperatorDropped);
+            if (_overrideFeedbackLine != null)
+            {
+                _overrideFeedbackLine.text = _overrideFeedback ?? string.Empty;
+            }
+        }
+
+        private void OnReclassifyClicked()
+        {
+            if (bridgeHost == null)
+            {
+                _overrideFeedback = "OVERRIDE DENIED: Bridge unavailable.";
+                ApplyOverrideControlsToView();
+                return;
+            }
+
+            var affiliation = _reclassifyDropdown?.value ?? "Hostile";
+            var ok = bridgeHost.TryReclassifySelectedContact(affiliation, out var reason);
+            _overrideFeedback = ok
+                ? (reason ?? $"Reclassified to {affiliation}.")
+                : $"OVERRIDE DENIED: {reason}";
+            if (!ok)
+            {
+                ApplyOverrideControlsToView();
+            }
+        }
+
+        private void OnDropClicked()
+        {
+            if (bridgeHost == null)
+            {
+                _overrideFeedback = "OVERRIDE DENIED: Bridge unavailable.";
+                ApplyOverrideControlsToView();
+                return;
+            }
+
+            var ok = bridgeHost.TryDropSelectedContact(out var reason);
+            _overrideFeedback = ok
+                ? (reason ?? "Contact dropped.")
+                : $"OVERRIDE DENIED: {reason}";
+            if (!ok)
+            {
+                ApplyOverrideControlsToView();
             }
         }
 

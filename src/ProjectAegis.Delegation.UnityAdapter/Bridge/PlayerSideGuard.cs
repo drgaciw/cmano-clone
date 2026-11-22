@@ -56,7 +56,20 @@ public static class PlayerSideGuard
             return bridge.Registry.IsPlayerCommandTarget(binding.TargetId) != false;
         }
 
-        return slot.Active is AgentController && IsPlayerSide(bridge.Registry, binding.TargetId);
+        if (slot.Active is AgentController && IsPlayerSide(bridge.Registry, binding.TargetId))
+        {
+            return true;
+        }
+
+        if (slot.Active is null &&
+            binding.Target is UnitTarget unit &&
+            bridge.Orchestrator.FindParentGroup(unit.Id) is { } parentGroup &&
+            (parentGroup.Slot.Active is HumanController || parentGroup.Slot.Active is AgentController))
+        {
+            return IsPlayerSide(bridge.Registry, binding.TargetId);
+        }
+
+        return false;
     }
 
     /// <summary>Attack menu for <paramref name="unitId"/>; every row disabled with NOT_PLAYER_CONTROLLED for opposing AI units.</summary>

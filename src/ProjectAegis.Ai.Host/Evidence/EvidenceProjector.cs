@@ -319,6 +319,15 @@ public sealed class EvidenceProjector : IEvidenceProjector
                     ("eventId", fired.EventId),
                     ("eventCode", fired.EventCode),
                     ("simTick", fired.SimTick.ToString(CultureInfo.InvariantCulture)))),
+            ContactOverrideRecord contactOverride => (
+                contactOverride.ContactId,
+                $"{contactOverride.Action}:{contactOverride.PreviousValue}->{contactOverride.NewValue}",
+                Dict(
+                    ("contactId", contactOverride.ContactId),
+                    ("action", contactOverride.Action.ToString()),
+                    ("previousValue", contactOverride.PreviousValue),
+                    ("newValue", contactOverride.NewValue),
+                    ("simTick", contactOverride.SimTick.ToString(CultureInfo.InvariantCulture)))),
             IReadOnlyDictionary<string, string> bag => (
                 bag.TryGetValue("unitId", out var u) ? u
                     : bag.TryGetValue("shooterUnitId", out var s) ? s

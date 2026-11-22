@@ -34,7 +34,28 @@ public static class SensorC2Bridge
             throw new ArgumentNullException(nameof(log));
         }
 
-        return SensorC2Projection.Build(log, new SnapshotIndicators(snapshot));
+        if (log.ContactOverrides.Count == 0)
+        {
+            return SensorC2Projection.Build(log, new SnapshotIndicators(snapshot));
+        }
+
+        var dropped = ContactOverrideProjection.Project(log).ToDroppedContactIds();
+        if (dropped.Count == 0)
+        {
+            return SensorC2Projection.Build(log, new SnapshotIndicators(snapshot));
+        }
+
+        var contacts = ContactPictureProjection.Project(log);
+        var filtered = new List<ContactPictureEntry>(contacts.Count);
+        for (var i = 0; i < contacts.Count; i++)
+        {
+            if (!dropped.Contains(contacts[i].ContactId))
+            {
+                filtered.Add(contacts[i]);
+            }
+        }
+
+        return SensorC2Projection.Build(Array.AsReadOnly(filtered.ToArray()), new SnapshotIndicators(snapshot));
     }
 
     /// <summary>
