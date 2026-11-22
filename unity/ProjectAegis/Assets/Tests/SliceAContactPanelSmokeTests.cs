@@ -168,8 +168,8 @@ namespace ProjectAegis.Unity.Tests
 
                 Assert.That(root.Q<Label>("contact-id-line").text, Does.Contain("c1"));
                 Assert.That(root.Q<Label>("authority-line").text, Does.Contain("UNKNOWN"));
-                Assert.That(panel.LastLiveSurface.SourceLine, Does.Contain("UNKNOWN"));
-                Assert.That(panel.LastLiveSurface.CommsLine, Does.Contain("UNKNOWN"));
+                Assert.That(panel.LastLiveSurface.SourceLine, Does.Contain("SRC: u1"));
+                Assert.That(panel.LastLiveSurface.CommsLine, Does.Contain("COMMS: no degradation reported"));
                 var presentation = panel.LastSliceAPresentation;
                 yield return null;
                 Assert.That(panel.LastSliceAPresentation, Is.SameAs(presentation), "No tick or selection change: reuse presentation.");
