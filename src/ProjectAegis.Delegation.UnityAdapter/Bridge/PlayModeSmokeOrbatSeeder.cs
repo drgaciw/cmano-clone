@@ -1,21 +1,36 @@
 namespace ProjectAegis.Delegation.UnityAdapter.Bridge;
 
+using Controllers;
 using Core;
 using Decision;
+using Targets;
 using Traits;
 
 /// <summary>
-/// Shared smoke-ORBAT seed for play-mode C2 panels (OOB, Unit Detail, Message Log).
+/// Shared smoke-ORBAT seed for play-mode C2 panels (OOB, Unit Detail, Message Log, Command Review).
 /// Called by Unity <c>SimplePlayModeSimHost</c> and headless projection gates — single shipped entry.
+/// Registers the DRG-239 smoke task group (<see cref="TaskGroupId"/>) without touching
+/// <c>DelegationBridge.cs</c>; enables owner Play Mode signoff (DRG-175/185/192/235/244) and does
+/// NOT replace DRG-208 owner acceptance.
 /// </summary>
 public static class PlayModeSmokeOrbatSeeder
 {
     public const string FriendlyUnitId = "u1";
+    public const string FriendlyEscortUnitId = "u2";
     public const string HostileUnitId = "hostile-1";
     public const string ContactId = "c1";
+    public const string TaskGroupId = "tg-baltic-escort";
+
+    /// <summary>Entity key assigned to <see cref="TaskGroupId"/> in the smoke registry.</summary>
+    public static readonly EntityKey TaskGroupEntityKey = new(100);
+
+    /// <summary>Entity key assigned to <see cref="FriendlyEscortUnitId"/> when seeded.</summary>
+    public static readonly EntityKey FriendlyEscortEntityKey = new(3);
 
     /// <summary>
-    /// Registers friendly/hostile units, configures Mixed mode, and seeds contact/magazine log rows.
+    /// Registers friendly/hostile units plus the named smoke task group (<see cref="TaskGroupId"/>),
+    /// configures Mixed mode (human control for friendly units and task group), and seeds
+    /// contact/magazine log rows. Preserves the 2-unit smoke ORBAT count (<c>u1</c> + <c>hostile-1</c>).
     /// Idempotent when the registry already has members.
     /// Returns true when the registry is ready (seeded now or already populated); false if bridge is null.
     /// </summary>
@@ -33,14 +48,56 @@ public static class PlayModeSmokeOrbatSeeder
 
         var friendly = bridge.Registry.RegisterUnit(new EntityKey(1), FriendlyUnitId);
         var opposing = bridge.Registry.RegisterUnit(new EntityKey(2), HostileUnitId);
+        var taskGroup = bridge.Registry.RegisterGroup(TaskGroupEntityKey, TaskGroupId);
+        bridge.Registry.LinkGroupMember(taskGroup.TargetId, friendly.TargetId);
 
         bridge.ConfigureSimulationMode(
             new SimulationModeProfile(SimulationModeKind.Mixed, PlayerControlsFriendlySide: true),
-            friendly: new[] { friendly.Target },
-            opposing: new[] { opposing.Target },
+            friendly: new ICommandableTarget[] { friendly.Target, taskGroup.Target },
+            opposing: new ICommandableTarget[] { opposing.Target },
             defaultTraits: PersonalityCatalog.All[0].Traits);
 
         SeedDecisionLog(bridge.Orchestrator.DecisionLog);
+        return true;
+    }
+
+    /// <summary>
+    /// Seeds the base smoke ORBAT plus the second friendly escort unit (<see cref="FriendlyEscortUnitId"/>)
+    /// linked into <see cref="TaskGroupId"/> for multi-member coordination, Hold/Withdraw expansion,
+    /// and detached/lost coverage-gap acceptance flows (DRG-239). Idempotent on repeat calls.
+    /// </summary>
+    public static bool TrySeedWithEscortTaskGroup(DelegationBridge? bridge)
+    {
+        if (!TrySeed(bridge) || bridge == null)
+        {
+            return false;
+        }
+
+        var groupTargetId = new TargetId(TaskGroupId);
+        if (!bridge.Registry.TryGetBinding(groupTargetId, out var groupBinding))
+        {
+            groupBinding = bridge.Registry.RegisterGroup(TaskGroupEntityKey, TaskGroupId);
+            groupBinding.Target.Slot.SetActive(new HumanController());
+            if (bridge.Registry.TryGetBinding(new TargetId(FriendlyUnitId), out var leadBinding))
+            {
+                bridge.Registry.LinkGroupMember(groupBinding.TargetId, leadBinding.TargetId);
+            }
+        }
+
+        var escortTargetId = new TargetId(FriendlyEscortUnitId);
+        if (!bridge.Registry.TryGetBinding(escortTargetId, out var escortBinding))
+        {
+            // Leave escort's individual controller slot unassigned so it operates under task-group
+            // control and can transition cleanly via TryTakeDirectControl (detach -> CoverageStatus.Gap).
+            escortBinding = bridge.Registry.RegisterUnit(FriendlyEscortEntityKey, FriendlyEscortUnitId);
+            bridge.Registry.MarkFriendlyMeshMember(escortBinding.TargetId);
+        }
+
+        if (groupBinding.Target is GroupTarget group && !group.Members.Contains(escortBinding.TargetId))
+        {
+            bridge.Registry.LinkGroupMember(groupBinding.TargetId, escortBinding.TargetId);
+        }
+
         return true;
     }
 
