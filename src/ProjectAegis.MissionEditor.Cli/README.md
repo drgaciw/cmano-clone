@@ -39,10 +39,12 @@ McpToolResult.WriteOk / WriteError          ← single-line camelCase JSON on st
   `ParseWaypoints` (`lat,lon` → `ScenarioWaypointDto`, throws `FormatException` on bad input).
 - **`McpToolResult.cs`** — serializes results as one camelCase JSON line and maps error codes to exit codes.
 
-The project references `ProjectAegis.Data`, `ProjectAegis.Data.Excel` (the ClosedXML edge adapter,
-wired for the `platform_*_xlsx` verbs), `ProjectAegis.Delegation.UnityAdapter` (the Baltic harness
-used by `scenario_simulate_sample`), and `ProjectAegis.Ai.Host` (fake-client AAR pipeline for
-`aar_explain`). Targets `net11.0`.
+The project references `ProjectAegis.Ai.Contracts` (zero-package IPC DTOs used to invoke the
+standalone `ProjectAegis.Ai.Host` executable out-of-process for `aar_explain` and
+`mission_plan_suggest --provider fake`, per ADR-030 / DRG-772), `ProjectAegis.Data`,
+`ProjectAegis.Data.Excel` (the ClosedXML edge adapter, wired for the `platform_*_xlsx` verbs), and
+`ProjectAegis.Delegation.UnityAdapter` (the Baltic harness used by `scenario_simulate_sample`).
+Targets `net11.0`.
 
 ---
 

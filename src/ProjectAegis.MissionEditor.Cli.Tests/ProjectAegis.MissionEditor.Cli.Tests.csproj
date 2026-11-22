@@ -16,6 +16,8 @@
   <ItemGroup>
     <ProjectReference Include="..\ProjectAegis.MissionEditor.Cli\ProjectAegis.MissionEditor.Cli.csproj" />
     <ProjectReference Include="..\ProjectAegis.Data\ProjectAegis.Data.csproj" />
+    <!-- Build-order only so standalone CLI test runs always have a fresh Ai.Host executable for IPC without linking it in-process. -->
+    <ProjectReference Include="..\ProjectAegis.Ai.Host\ProjectAegis.Ai.Host.csproj" ReferenceOutputAssembly="false" Private="false" />
   </ItemGroup>
   <ItemGroup>
     <Content Include="..\..\assets\data\scenarios\validation\**\*" Link="assets\data\scenarios\validation\%(RecursiveDir)%(Filename)%(Extension)" CopyToOutputDirectory="PreserveNewest" />

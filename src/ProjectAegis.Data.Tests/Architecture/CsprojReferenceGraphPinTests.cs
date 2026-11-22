@@ -11,7 +11,8 @@ public sealed class CsprojReferenceGraphPinTests
 {
     /// <summary>
     /// Exact ProjectReference Include file names (basename) allowed per product csproj.
-    /// MissionEditor.Cli → Ai.Host is current main state (Decision item in DRG-771 §8.1; Lane D waiver).
+    /// DRG-772 exited the temporary MissionEditor.Cli → Ai.Host waiver: CLI uses Ai.Contracts
+    /// over a process boundary to a separate ProjectAegis.Ai.Host executable.
     /// </summary>
     private static readonly Dictionary<string, string[]> AllowedProjectReferenceBasenames =
         new(StringComparer.Ordinal)
@@ -42,7 +43,7 @@ public sealed class CsprojReferenceGraphPinTests
             ["src/ProjectAegis.MissionEditor.Cli/ProjectAegis.MissionEditor.Cli.csproj"] =
                 new[]
                 {
-                    "ProjectAegis.Ai.Host.csproj",
+                    "ProjectAegis.Ai.Contracts.csproj",
                     "ProjectAegis.Data.csproj",
                     "ProjectAegis.Data.Excel.csproj",
                     "ProjectAegis.Delegation.UnityAdapter.csproj",
@@ -190,6 +191,35 @@ public sealed class CsprojReferenceGraphPinTests
         }
 
         Assert.That(LoadProjectReferenceBasenames(path), Is.Empty);
+    }
+
+    [Test]
+    public void MissionEditor_cli_does_not_reference_ai_host_or_ai_provider_packages()
+    {
+        var path = ResolveRepoFile("src", "ProjectAegis.MissionEditor.Cli", "ProjectAegis.MissionEditor.Cli.csproj");
+        if (path is null)
+        {
+            Assert.Fail("Missing ProjectAegis.MissionEditor.Cli.csproj.");
+            return;
+        }
+
+        var projectRefs = LoadProjectReferenceBasenames(path);
+        Assert.That(
+            projectRefs,
+            Does.Not.Contain("ProjectAegis.Ai.Host.csproj"),
+            "DRG-772 / ADR-030: ProjectAegis.MissionEditor.Cli must not hold an in-process ProjectReference to ProjectAegis.Ai.Host.csproj.");
+
+        var packageRefs = LoadPackageReferenceIncludes(path);
+        foreach (var forbidden in ForbiddenAiPackageSubstrings)
+        {
+            var offending = packageRefs
+                .Where(i => i.Contains(forbidden, StringComparison.OrdinalIgnoreCase))
+                .ToList();
+            Assert.That(
+                offending.Count == 0,
+                Is.True,
+                $"ProjectAegis.MissionEditor.Cli.csproj references forbidden AI/provider package matching '{forbidden}': {string.Join(", ", offending)} (ADR-030 / DRG-772).");
+        }
     }
 
     private static List<string> LoadProjectReferenceBasenames(string csprojPath)

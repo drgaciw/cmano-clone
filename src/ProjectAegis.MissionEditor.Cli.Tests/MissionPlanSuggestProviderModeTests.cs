@@ -1,5 +1,4 @@
 using System.Text.Json;
-using ProjectAegis.Ai.Host.Authoring;
 using NUnit.Framework;
 
 namespace ProjectAegis.MissionEditor.Cli.Tests;
@@ -35,7 +34,7 @@ public sealed class MissionPlanSuggestProviderModeTests
         Assert.That(root.GetProperty("provider").GetString(), Is.EqualTo("fake"));
         Assert.That(root.GetProperty("outcomeClass").GetString(), Is.EqualTo("ValidDraft"));
         Assert.That(root.GetProperty("apply").GetBoolean(), Is.False);
-        Assert.That(root.GetProperty("transparencyLabel").GetString(), Is.EqualTo(AuthoringTransparencyLabel.AgentAssisted));
+        Assert.That(root.GetProperty("transparencyLabel").GetString(), Is.EqualTo("agent-assisted"));
 
         var tags = root.GetProperty("provenanceTags").EnumerateArray().ToList();
         Assert.That(tags, Is.Not.Empty);
