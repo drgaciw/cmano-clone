@@ -1,0 +1,71 @@
+{
+  "model": "typesafe/jev-1.14",
+  "state": "Project Aegis Sprint 2 DoD Gate Round 1 (2026-11-22), branch sprint/s2-c2-combat-ux stacked cleanly on sprint/s1-hygiene-wiring (d0fde4af). CLEAN ATOMIC COMMITS ALREADY CREATED ON BRANCH: Commit 1 960007df (46 files, M2: DRG-247, DRG-272), Commit 2 da173102 (21 files, M3: DRG-712, DRG-245), Commit 3 738c6c1c (48 files, M4: DRG-408, DRG-398, DRG-273). sprint/s1-hygiene-wiring stays untouched at d0fde4af; git status holds only QA files + 45 unstaged Bucket 5 Editor files. ALL 7 ACTIVE SPRINT 2 STORIES DELIVERED WITH VERBATIM RED->GREEN IN production/qa/evidence/sprint-2/s2-c8-red-evidence.md: (1) DRG-247: AgentController.IsActionsPaused, TryPauseAgentActions/TryResumeAgentActions, single active controller handoff, InputCommandInventory (DRG-348) + adr-029 update, AttachReplayViewer disabled reason, RightUnitPanelHost live sweep; (2) DRG-272: ContactOverrideCommand TryReclassify/TryDrop, ContactOverrideRecord, Ai.Host EvidenceProjector mirror, ContactDetailPanelHost controls, replay refusal, catalog DBs untouched; (3) DRG-712: MapCueOverlayProjection + companion MapCueOverlayPanelHost (sortingOrder=6, PickingMode.Ignore, 0 diff MapPlaceholderPanelHost/GlobeMapProductHost), zero selection-switch badge leak; (4) DRG-245: SimulationModeConfigurator + LoopPolicyChromeBinder + C2TopBarPanelHost TEST SANDBOX banner visible iff AllowDualSideControl && Mixed; (5) DRG-408: MessageCategoryPolicy (message-category-policy.default.json), shared MessageLogNotificationCoordinator (SequenceId dedup, Pause>DropToRealTime, unresolved pause kept on single dismiss, fog-safe MessageLogBridge.ProjectLive, AttachReplayViewer read-only), companion MapBalloonOverlayPanelHost (sortingOrder=7, PickingMode.Ignore), MessageLogPanelHost policy drawer + ACK/DISMISS banner + collapse/expand display restore polish; (6) DRG-398: C2ClockCommand.EvaluateAndApplyNotificationStop + FixedStepFrameRunner + SimplePlayModeSimHost consuming DRG-408 shared coordinator with deterministic 1x/2x/4x/8x parity and 0 diff SimulationSession.cs; (7) DRG-273: attributed MessageLogLine/MessageLogProjection (preserving MessageLogTextExport golden) + read-only DecisionLogDeepLinkProjection/drawer. HELD ITEMS UNTOUCHED (hold:owner-go, 0 wiring): DRG-268 & DRG-269. MECHANICAL GATES POST-FINAL-EDIT: dotnet format 0 issues; dotnet build ProjectAegis.sln 0w/0e; Release/netstandard2.1 0w/0e; bash tools/copy-delegation-assemblies.sh 15 DLLs; dotnet test ProjectAegis.sln 4,800/4,800 passed (0 failed across 9 projects, >=4,706 floor); ReplayGolden 17/17; PlayModeSmokeHarnessTests 27/27; Arch fences (CsprojReferenceGraphPinTests|NamespaceSccBaselineTests|UnitySimImportForbidTests|AiHostBoundaryGateTests) 61/61; Meta/UI integrity 6/6; Baltic v2 hash 17144800277401907079 preserved (26 hits); hard-no 0 diff (DelegationBridge.cs, WriteGate/, SimulationSession.cs, GlobeMapProductHost.cs, MapPlaceholderPanelHost.cs, DelegationSmoke.unity, DelegationSmokeSceneBuilder.cs); catalog DB SHA-256 byte-identical (82d26212..., 75ea357a...). LIVE UNITY PLAYMODE (:8081): compile 0 errors & 0 Sprint-2 USS warnings; ProjectAegis.Unity.Tests 43/43 PASSED (27 Sprint 1 + 16 Sprint 2 across all 7 PlayMode classes); DelegationSmoke.unity UatHarness.cs sweep exercised all 7 features + 4 PNG screenshots saved in production/qa/evidence/sprint-2/ (s2-drg247-unit-control.png, s2-drg272-contact-override.png, s2-drg712-drg245-cues-sandbox.png, s2-drg408-398-273-policy-safestop-deeplink.png); 0 Console Errors/Exceptions. ARCHITECTURE & GOVERNANCE: unity-csharp-architect pr-finish.md PASS verdict embedded in production/qa/dod-rubric-sprint-s2.md citing ADR-010, ADR-007, ADR-001, ADR-029, ADR-030 (zero ADR-018 presentation refs, ProjectAegis.Unity.Tests.asmdef has 0 Sim refs). LINEAR H2 EVIDENCE COMMENTS POSTED (all remain Backlog, never Done): DRG-247 (e0ffd6ad), DRG-272 (7eda1128), DRG-712 (af5074e2), DRG-408 (b790c762), DRG-398 (57cff66d), DRG-273 (0d5079ff), DRG-245 (102b8a68). AGENT-OWNED S1-S6 PROOF: S1=2 (atomic commits + 0 warnings + pr-finish PASS), S2=2 (DRG-268/269 held + H6 owner PR/walk noted), S3=2 (adr-029 + DRG-348 InputCommandInventory + ADRs), S4=2 (7 Linear comment IDs w/ SHAs/counts/hash/screenshots), S5=2 (every claim verified), S6=2 (real edge cases: replay refusal, fog filter, 8x safe-stop, selection leak, collapse/expand restore) => 12/12 agent-owned S1-S6 (owner PR submit/merge & Play Mode walk explicitly reserved under H6/C10).",
+  "questions": {
+    "h1_c1_build_and_suite": {
+      "type": "noul",
+      "instructions": "Does the evidence show zero build warnings/errors (net11.0 and Release/netstandard2.1) and full headless suite green (4,800/4,800 passed, 0 failed across 9 projects)?"
+    },
+    "h3_h4_invariants": {
+      "type": "noul",
+      "instructions": "Does the evidence show hard-no surfaces untouched (0 diff), DRG-268/DRG-269 hold:owner-go unimplemented, ReplayGolden 17/17 passing, and Baltic v2 hash 17144800277401907079 unchanged?"
+    },
+    "h5_c8_tdd_and_fences": {
+      "type": "noul",
+      "instructions": "Does s2-c8-red-evidence.md satisfy H5/C8 with verbatim RED outputs, passing GREEN, and 61/61 architecture fence tests?"
+    },
+    "c4_c13_playmode_unity": {
+      "type": "noul",
+      "instructions": "Does live Unity (:8081) show 0 Console Errors/Exceptions, 0 Sprint-2 USS warnings, and 43/43 (0 failures) on ProjectAegis.Unity.Tests PlayMode?"
+    },
+    "c9_c11_ui_wiring_live": {
+      "type": "noul",
+      "instructions": "Were all 7 Sprint 2 features exercised live in DelegationSmoke.unity via UatHarness.cs/script-execute with 4 screenshots saved in production/qa/evidence/sprint-2/?"
+    },
+    "c12_shipped_data": {
+      "type": "noul",
+      "instructions": "Did PlayModeSmokeHarnessTests pass 27/27 and shipped catalog DB SHA-256 hashes remain byte-identical?"
+    },
+    "c14_handoff_invariants": {
+      "type": "noul",
+      "instructions": "Does DRG-247 satisfy single active controller, agent pause distinct from sim pause/direct control, task retention, DRG-348 inventory registration, and 0 DelegationBridge/SimulationSession edits?"
+    },
+    "c15_replay_mutation_refusal": {
+      "type": "noul",
+      "instructions": "Do tests prove AttachReplayViewer refuses handoff, contact-override, message-policy, safe-stop/clock mutations with zero log writes and read-only deep-link?"
+    },
+    "c16_fog_and_selection_hygiene": {
+      "type": "noul",
+      "instructions": "Do tests prove DRG-712 clears stale contact/order badges on selection switch and DRG-408 notification alerts avoid fog leaks via MessageLogBridge.ProjectLive?"
+    },
+    "c17_safe_stop_and_sandbox_banner": {
+      "type": "noul",
+      "instructions": "Does DRG-398 consume DRG-408 shared coordinator with deterministic 1x/2x/4x/8x safe-stop parity (0 SimulationSession diff) and DRG-245 show TEST SANDBOX iff AllowDualSideControl && Mixed?"
+    },
+    "h2_h6_governance": {
+      "type": "noul",
+      "instructions": "Are H2 (7 Linear evidence comments posted with IDs, status kept Backlog, never Done) and H6 (owner PR submit/merge & Play Mode walk kept owner-only) honored?"
+    },
+    "scored_s1_s6_pass": {
+      "type": "noul",
+      "instructions": "Counting agent-owned S1-S6 (clean atomic commits 960007df/da173102/738c6c1c, pr-finish.md PASS, DRG-268/269 held, ADRs/DRG-348 updated, 7 Linear comment IDs, real edge-case tests, with H6 owner PR/walk reserved), does Sprint 2 achieve S1-S6 >= 9/12?"
+    },
+    "more_rounds": {
+      "type": "score",
+      "instructions": "How many more rounds does Sprint 2 need before owner review/walk?",
+      "criteria": [
+        "0 rounds (Sprint 2 agent DoD met)",
+        "1 round",
+        "2 rounds"
+      ]
+    },
+    "sprint2_verdict": {
+      "type": "choice",
+      "instructions": "What is the Sprint 2 DoD gate verdict?",
+      "criteria": {
+        "pass_owner_walk": "PASS: All Sprint 2 agent-owned DoD gates met; ready for owner PR review and H6 Play Mode walk",
+        "needs_more_work": "FAIL: Remediate missing evidence or failing gate"
+      }
+    }
+  }
+}
