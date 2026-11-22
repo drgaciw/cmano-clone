@@ -401,6 +401,20 @@ public static class DecisionLogDeepLinkProjection
                         Kv("NewValue", co.NewValue),
                     });
 
+            case OrderLogEntryKind.CommsGridRejoin when entry.Payload is CommsGridRejoinRecord cr:
+                return SimpleDetail(
+                    entry, cr.SimTick, "COMMS", "Comms", cr.UnitId, null, cr.UnitId,
+                    $"Comms rejoin {cr.UnitId}: {cr.InformativeMerges.Count} contact merge(s)",
+                    fields: new[]
+                    {
+                        KV("UnitId", cr.UnitId),
+                        KV("OffGridSinceTick", cr.OffGridSinceTick.ToString(CultureInfo.InvariantCulture)),
+                        KV("RejoinTick", cr.RejoinTick.ToString(CultureInfo.InvariantCulture)),
+                        KV("InformativeMergeCount", cr.InformativeMerges.Count.ToString(CultureInfo.InvariantCulture)),
+                        KV("SuppressedCount", cr.SuppressedCount.ToString(CultureInfo.InvariantCulture)),
+                        KV("MergedTargets", string.Join(", ", cr.InformativeMerges.Select(m => $"{m.TargetId}:{m.PreviousState}->{m.NewState}"))),
+                    });
+
             default:
                 return SimpleDetail(
                     entry, 0, entry.Kind.ToString().ToUpperInvariant(), entry.Kind.ToString(),

@@ -328,6 +328,16 @@ public sealed class EvidenceProjector : IEvidenceProjector
                     ("previousValue", contactOverride.PreviousValue),
                     ("newValue", contactOverride.NewValue),
                     ("simTick", contactOverride.SimTick.ToString(CultureInfo.InvariantCulture)))),
+            CommsGridRejoinRecord rejoin => (
+                rejoin.UnitId,
+                $"rejoin:{rejoin.InformativeMerges.Count}_merges",
+                Dict(
+                    ("unitId", rejoin.UnitId),
+                    ("offGridSinceTick", rejoin.OffGridSinceTick.ToString(CultureInfo.InvariantCulture)),
+                    ("rejoinTick", rejoin.RejoinTick.ToString(CultureInfo.InvariantCulture)),
+                    ("informativeMergeCount", rejoin.InformativeMerges.Count.ToString(CultureInfo.InvariantCulture)),
+                    ("suppressedCount", rejoin.SuppressedCount.ToString(CultureInfo.InvariantCulture)),
+                    ("simTick", rejoin.SimTick.ToString(CultureInfo.InvariantCulture)))),
             IReadOnlyDictionary<string, string> bag => (
                 bag.TryGetValue("unitId", out var u) ? u
                     : bag.TryGetValue("shooterUnitId", out var s) ? s

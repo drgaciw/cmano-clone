@@ -46,4 +46,13 @@ public sealed class HindsightIntegration
         bool missionSucceeded,
         double objectivesMetRatio) =>
         _finalizer.OnScenarioFinalized(log, trustSignals, missionSucceeded, objectivesMetRatio);
+
+    /// <summary>DRG-746: awaitable session finalization beside <see cref="OnScenarioFinalized"/>.</summary>
+    public Task<HindsightFinalizeResult> OnScenarioFinalizedAsync(
+        Decision.IReadOnlyOrderLog log,
+        IReadOnlyList<Trust.TrustSignal> trustSignals,
+        bool missionSucceeded,
+        double objectivesMetRatio,
+        CancellationToken cancellationToken = default) =>
+        _finalizer.OnScenarioFinalizedAsync(log, trustSignals, missionSucceeded, objectivesMetRatio, cancellationToken);
 }
