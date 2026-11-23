@@ -1,0 +1,63 @@
+{
+  "model": "typesafe/jev-1.14",
+  "state": "Project Aegis Sprint 5 DoD Gate Round 1 (2026-11-23), branch sprint/s5-h6-save-resume stacked cleanly on sprint/s4-h4-editors-g3 (618e5e46). ATOMIC TRACK COMMITS ON BRANCH: Track A f7267cde (21 files: DRG-349 save/resume core driver, journal, envelope & full catalog identity), Track B ef2fd8fc (3 files: DRG-349 differential proof matrix, 8-cell restore latency benchmark & SaveEnvelopeBounds fix), plus QA/evidence commit (dod-rubric-sprint-s5.md, s5-c8-red-evidence.md, s5-h6-save-proof-evidence.md, Jev JSONs). H1/C1 BUILD & TEST BREAKDOWN: dotnet build ProjectAegis.sln --no-restore -> 0 Warning(s), 0 Error(s); ProjectAegis.Data & ProjectAegis.Delegation.UnityAdapter -c Release -f netstandard2.1 -> 0 Warning(s), 0 Error(s); dotnet test ProjectAegis.sln -v minimal --no-build -> 4,987/4,987 passed, 0 failed, 0 skipped across all 9 test assemblies (Ai.Contracts.Tests 18 + Delegation.Demo.Tests 15 + Sim.Tests 653 + Ai.Host.Tests 88 + Delegation.Tests 1,543 + Data.Excel.Tests 24 + Delegation.UnityAdapter.Tests 1,501 [Save 40/40] + Data.Tests 974 + MissionEditor.Cli.Tests 171 = 4,987; >= 4,938 floor). H2 LINEAR TRACKER HONESTY: Verified evidence comment posted via save_comment ONLY on DRG-349 (verified comment UUID 8c395f15-a8af-413d-9c76-436045baf144) with issue status kept Backlog (NEVER moved to Done prior to owner PR merge). Held issue DRG-347 verified via get_issue as Backlog with hold:owner-go label and completely untouched (updatedAt 2026-11-23T13:51:06.592Z). H3/C7 HARD-NO & W0 ZERO-TOUCH SURFACES (0 DIFF): git diff 618e5e46..HEAD is 0 lines across DelegationBridge.cs, SimulationSession.cs, src/ProjectAegis.Data/WriteGate/, MapPlaceholderPanelHost.cs, GlobeMapProductHost.cs, tests/regression/, DelegationSmoke.unity, assets/data/catalog/, *.csproj, unity/ProjectAegis/Assets/, and CatalogSnapshotHasher.cs. UnitySimImportForbidTests|NamespaceSccBaselineTests|CsprojReferenceGraphPinTests 31/31 pass; 0 UnityEngine references in Data, Sim, Delegation, or Delegation.UnityAdapter; GitNexus detect_changes -s compare -b 618e5e46 ran read-only (51 files, 6 symbols, risk low; stale index at 5605a97 not re-analyzed on dirty feature branch per DRG-323). H4/C2 DETERMINISM: ReplayGolden 17/17 pass; Baltic v2 hash 17144800277401907079 preserved (26 hits in tests/ & data/); SeededRng only (no Random.Shared or DateTime.UtcNow in sim paths). H5/C8 VERBATIM TDD, REFLECTION-FREE & FENCES: production/qa/evidence/sprint-5/s5-c8-red-evidence.md records verbatim pre-fix RED outputs and post-fix GREEN across all 4 cycles: (1) Track A RED 46 compile Error(s) -> GREEN 4,969/4,969; (2) Track A Iter 2 verbatim StackOverflowException (Repeated 37417 times in ReplayableSimWorld.ApplyOrder) + 3 CS1739 compile Error(s) -> GREEN 25/25 Save tests; (3) Track B RED 15/15 Failed in SaveResumeDifferentialProofTests -> GREEN 15/15 Passed (8.4737s) + M3 post-Track-B full-suite 4,987/4,987 cross-reference. Zero reflection / private-field hydration verified by grep across Save/, BalticReplayStepper.cs, CatalogFullSnapshotHasher.cs, InputCommandInventory.cs (0 hits for BindingFlags, NonPublic, GetField, GetProperty, GetMethod, FormatterServices, RuntimeHelpers). Architecture fences UnitySimImportForbidTests|NamespaceSccBaselineTests|CsprojReferenceGraphPinTests 31/31 pass. Sprint 5 fixture breakdown (51/51): CatalogFullSnapshotHasherTests 7/7, InputCommandInventoryTests 4/4, BalticReplayStepperTests 2/2, SessionCommandFacadeInventoryTests 5/5, SaveEnvelopeAndSlotStoreTests 9/9, SaveResumeDriverTests 9/9, SaveResumeDifferentialProofTests 15/15. H8/C3/C12 SMOKE, PLUGINS & DATA: PlayModeSmokeHarnessTests 27/27; sha256sum assets/data/catalog/*.db identical (82d262129d41c6fbb78fa636a3c2923471dedf37db071f7a4e7c99bdec4760fd aegis_public_corpus.db, 75ea357a22de185808c4097b3ab1ddfcd836a4da37635576c0816b514d0b88ab baltic_patrol.db); copy-delegation-assemblies.sh synced 15 DLLs + libe_sqlite3.so into unity/ProjectAegis/Assets/Plugins/ProjectAegis/ (git status clean). C4/C13 LIVE UNITY (:8081): ProjectAegis.Unity.Tests PlayMode 61/61 PASSED (0 failed, 0 skipped, 00:00:05.4016290 in M3); Unity Console error/exception count=0 post-tests; clean Edit Mode (isPlaying=false, isPaused=false, isCompiling=false, isUpdating=false, scene isDirty=false). TRACK A (DRG-349, f7267cde): ICatalogReader.GetSortedWeapons/GetSortedPlatforms + 13-domain CatalogFullSnapshotHasher (CatalogSnapshotHasher preserved intact); 22-command InputCommandInventory parity; BalticReplayStepper shared stepper extracted from BalticReplayHarness.RunCore; canonical SaveEnvelope/SaveEnvelopeSerializer with strict bounds & EnvelopeHashSha256; SessionInputJournal + SessionCommandFacade recording accepted external public calls (ObservedTick, PipelineTick, SequenceOrder, Arguments) with AuthorityShadowState unjournaled-mutation detector; atomic SaveSlotStore (manual-1..3 + rolling autosave via WriteThrough/Flush/Replace); ReplayableSimWorld + 9-step isolated tick-0 SaveResumeDriver (pre-validation -> isolated candidate build & replay -> digest/fingerprint/worldHash/checkpoint verify -> WatchAttentionQueue IsAcknowledged/IsDismissed clear + PauseSim -> atomic swap -> BalticV3SideRegistry guard on rollback). TRACK B (DRG-349, ef2fd8fc): SaveDifferentialAssert + SaveResumeDifferentialProofTests (14 differential/rollback proof cases comparing continuous N+M vs N-tick save/restore + M-tick run across clocks, hashes, SimulationSession, DecisionLog sequence/content/fingerprint, ReplayCheckpointStore boundaries, IOrderSink side effects, PendingApprovalQueue, and controller/agent state across >=3 interruption points [before pending approval, delayed comms order in flight, active engagement & magazine depletion], 2x/4x/8x time acceleration, same-tick multi-command SequenceOrder, trait rebind/rebrief/assign/doctrine override, direct control handoff & pause/resume agent actions, pending NextEngageSalvoOverride, craft ops, contact overrides + PlayDelegationCommands, 2nd-gen watch auto-pause gate, real SQLite baltic_patrol.db gauntlet ORBAT, omitted/unknown journal commands, and corrupt/truncated/wrong-version/lockstep/mismatched rollback leaving active host, BalticV3SideRegistry, slot bytes, and DB unchanged) + 8-cell restore latency benchmark (60/180/360/600 ticks @ 1x & 4x: peak 0.5457s Worker / 0.7419s M2 Auditor max at T=600 1x 14.24 MB envelope vs 30.0s ceiling, ~40x-55x faster; SaveEnvelopeBounds raised to 64 MiB / 2 MiB). H6/C10 BOUNDARY: Agent/MCP prep evidence complete; interactive owner Play Mode walk, H6/C10 sign-off, and PR submit/merge remain owner-only. AGENT-OWNED S1-S6 PROOF (12/12 in dod-rubric-sprint-s5.md): S1=2 (clean commits f7267cde, ef2fd8fc + QA commit, 0 compiler warnings, unity-csharp-architect pr-finish.md PASS citing ADR-010 §2-3, ADR-007, ADR-001, ADR-029, ADR-006), S2=2 (H6 owner walk & PR submit/merge reserved, DRG-347 hold:owner-go untouched), S3=2 (ADR-010 §2-3, ADR-007, ADR-001, ADR-029, ADR-006 honored, 0 UnityEngine in UnityAdapter/Data/Sim/Delegation, 31/31 fences), S4=2 (Linear comment 8c395f15-a8af-413d-9c76-436045baf144 on DRG-349 with exact counts, latency, pr-finish.md PASS & H6 boundary note, status Backlog), S5=2 (empirical M3 verification post-final-edit: 4,987/4,987 headless, 61/61 Unity :8081 PlayMode, 0 Console errors, 0 Hard-No diff), S6=2 (adversarial edge cases: ReplayableSimWorld mutual recursion caught & fixed in TDD Iter 2, SaveEnvelopeBounds 64 MiB/2 MiB quadratic fingerprint growth caught & fixed in F11 benchmark, forged re-signed omitted commands, truncated/lockstep/mismatched rollback, 2nd-gen watch auto-pause clearance).",
+  "questions": {
+    "h1_c1_build_and_suite": {
+      "type": "noul",
+      "instructions": "Does the evidence show zero build warnings/errors (net11.0 and Release/netstandard2.1) and full headless suite green (4,987/4,987 passed, 0 failed, 0 skipped across all 9 test assemblies, >= 4,938 floor)?"
+    },
+    "h2_tracker_honesty": {
+      "type": "noul",
+      "instructions": "Is the Linear evidence comment posted ONLY on DRG-349 (verified comment UUID 8c395f15-a8af-413d-9c76-436045baf144) while keeping DRG-349 in Backlog (never moved to Done before PR merge), and does DRG-347 remain hold:owner-go and untouched?"
+    },
+    "h3_c7_hard_no_surfaces": {
+      "type": "noul",
+      "instructions": "Are all hard-no and W0 surfaces untouched (0 diff vs 618e5e46 on DelegationBridge.cs, SimulationSession.cs, WriteGate/, MapPlaceholderPanelHost.cs, GlobeMapProductHost.cs, tests/regression/, DelegationSmoke.unity, assets/data/catalog/), with 31/31 architecture fences passing and 0 UnityEngine refs in headless assemblies?"
+    },
+    "h4_c2_determinism": {
+      "type": "noul",
+      "instructions": "Are ReplayGolden (17/17), Baltic v2 hash 17144800277401907079 (26 hits in tests/ & data/), and SeededRng-only determinism preserved?"
+    },
+    "h5_c8_tdd_and_fences": {
+      "type": "noul",
+      "instructions": "Does s5-c8-red-evidence.md satisfy H5/C8 with verbatim pre-fix RED outputs (Track A 46 errors, Track A Iter 2 StackOverflow/CS1739, Track B 15/15 fail), passing GREEN (51/51 Sprint 5 tests, 4,987/4,987 full), 31/31 fences, and zero reflection/private-field hydration?"
+    },
+    "h8_c3_c12_smoke_and_data": {
+      "type": "noul",
+      "instructions": "Did PlayModeSmokeHarnessTests pass 27/27, catalog DB SHA-256 hashes stay byte-identical, and copy-delegation-assemblies.sh sync 15 DLLs + libe_sqlite3.so cleanly into Assets/Plugins/ProjectAegis/?"
+    },
+    "c4_c13_unity_playmode": {
+      "type": "noul",
+      "instructions": "Does live Unity (:8081) show 61/61 passed (0 failed, 0 skipped) on ProjectAegis.Unity.Tests PlayMode with 0 Console Error/Exception logs and clean Edit Mode?"
+    },
+    "track_a_drg349_save_core": {
+      "type": "noul",
+      "instructions": "Do Track A deliverables (f7267cde) satisfy ADR-029 Option B + h6-save-resume-contract.md: 22-command InputCommandInventory & SessionCommandFacade outside DelegationBridge/SimulationSession, 13-domain CatalogFullSnapshotHasher, shared BalticReplayStepper, canonical SaveEnvelope, atomic SaveSlotStore, and 9-step isolated tick-0 SaveResumeDriver?"
+    },
+    "track_b_drg349_proof_latency": {
+      "type": "noul",
+      "instructions": "Do Track B deliverables (ef2fd8fc) satisfy DRG-349 differential proof & F11 latency: 14 differential/rollback tests (N+M vs N restore+M across >=3 interruption points, 2x/4x/8x accel, same-tick order, traits/rebrief, direct control, NextEngageSalvoOverride, craft ops, 2nd-gen watch gate, SQLite ORBAT, omitted/corrupt rollback) and 8-cell benchmark peaking at 0.5457s/0.7419s vs 30s ceiling?"
+    },
+    "scored_s1_s6_pass": {
+      "type": "noul",
+      "instructions": "Counting agent-owned S1-S6 (12/12 itemized in dod-rubric-sprint-s5.md: clean per-track commits, pr-finish.md PASS, ADR-010/007/001/029/006, Linear DRG-349 comment with H6 note, empirical verification, adversarial edge-case tests, with H6 owner Play Mode walk & PR submit/merge reserved), does Sprint 5 achieve S1-S6 >= 9/12?"
+    },
+    "more_rounds": {
+      "type": "score",
+      "instructions": "With all 10 agent-owned criteria and itemized S1-S6 proof consolidated alongside verbatim RED->GREEN, differential/latency proof, live Unity :8081 PlayMode, and per-track commit SHAs, how many more rounds does Sprint 5 need before owner review and H6 Play Mode walk?",
+      "criteria": [
+        "0 rounds (Sprint 5 agent DoD met)",
+        "1 round",
+        "2 rounds"
+      ]
+    },
+    "sprint5_verdict": {
+      "type": "choice",
+      "instructions": "What is the Sprint 5 DoD gate verdict?",
+      "criteria": {
+        "pass_owner_walk": "PASS: All Sprint 5 agent-owned DoD gates met; ready for owner PR review and H6 Play Mode walk",
+        "needs_more_work": "FAIL: Remediate missing evidence or failing gate"
+      }
+    }
+  }
+}
