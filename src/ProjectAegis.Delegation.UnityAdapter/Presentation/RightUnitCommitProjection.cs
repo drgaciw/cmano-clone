@@ -67,7 +67,7 @@ public static class RightUnitCommitProjection
     {
         if (!string.IsNullOrWhiteSpace(armedOptionId))
         {
-            return armedOptionId!;
+            return armedOptionId;
         }
 
         if (attackMenu is { Rows.Count: > 0 })

@@ -1,7 +1,7 @@
 namespace ProjectAegis.MissionEditor.Cli;
 
 using System.Text.Json;
-using ProjectAegis.Ai.Contracts;
+using Ai.Contracts;
 
 /// <summary>
 /// Headless NL plan stub — suggests patrol/strike/ferry/support ops from keywords (req 11).

@@ -80,7 +80,8 @@ public sealed class AiHostProcessClient
         psi.ArgumentList.Add(hostDllPath);
         psi.ArgumentList.Add(verb);
 
-        using var process = new Process { StartInfo = psi };
+        using var process = new Process();
+        process.StartInfo = psi;
         try
         {
             if (!process.Start())

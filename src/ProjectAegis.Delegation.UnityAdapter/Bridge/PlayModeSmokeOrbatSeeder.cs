@@ -53,8 +53,8 @@ public static class PlayModeSmokeOrbatSeeder
 
         bridge.ConfigureSimulationMode(
             new SimulationModeProfile(SimulationModeKind.Mixed, PlayerControlsFriendlySide: true),
-            friendly: new ICommandableTarget[] { friendly.Target, taskGroup.Target },
-            opposing: new ICommandableTarget[] { opposing.Target },
+            friendly: [friendly.Target, taskGroup.Target],
+            opposing: [opposing.Target],
             defaultTraits: PersonalityCatalog.All[0].Traits);
 
         SeedDecisionLog(bridge.Orchestrator.DecisionLog);
