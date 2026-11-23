@@ -136,7 +136,7 @@ public static class MissionPlanSuggestHostHandler
     }
 
     private static string DefaultScriptIdempotencyKey(string intent) =>
-        "cli-script-" + StableHash.Fnv1a32(intent).ToString("x8");
+        "cli-script-" + StableHash.Fnv1A32(intent).ToString("x8");
 
     private static (AuthoringProposeRequest Request, AuthoringModelDraft Draft, string ScriptSource)
         LoadDraftAndRequest(AiHostMissionPlanSuggestRequest req)
