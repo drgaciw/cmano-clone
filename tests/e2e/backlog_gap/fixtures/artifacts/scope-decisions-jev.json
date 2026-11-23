@@ -1,0 +1,66 @@
+{
+  "generated_at": "2026-11-22T22:58:00Z",
+  "model": "typesafe/jev-1.14",
+  "decisions": [
+    {
+      "decision_id": "scope_notion_target",
+      "topic": "Notion Target Surface",
+      "ratified_choice": "tasks_db_only",
+      "allow_frozen_mirror_writes": false,
+      "jev_request": {
+        "model": "typesafe/jev-1.14",
+        "state": "Notion has Tasks DB (Project=Project Aegis) and Frozen Git mirror (archive, do not edit expecting tracker sync).",
+        "questions": {
+          "notion_target": {
+            "type": "choice",
+            "instructions": "Which Notion surface should receive gap remediation writes?",
+            "criteria": {
+              "tasks_db_only": "Write to Tasks DB only; keep Frozen Git mirror untouched.",
+              "both_dbs": "Write to Tasks DB and Frozen Git mirror.",
+              "none": "Do not write to Notion.",
+              "other": "Alternative surface."
+            }
+          }
+        }
+      },
+      "jev_response": {
+        "id": "gen-dec-scope-0001",
+        "model": "typesafe/jev-1.14-20261014",
+        "answers": {
+          "notion_target": {
+            "choice": "tasks_db_only",
+            "confidence": 0.91
+          }
+        },
+        "usage": { "input_tokens": 120, "output_tokens": 24, "cost": 0.0003 }
+      }
+    },
+    {
+      "decision_id": "scope_phase_n_handling",
+      "topic": "Phase N & Draft Classification",
+      "ratified_choice": "complete_when_deferred_tracked",
+      "jev_request": {
+        "model": "typesafe/jev-1.14",
+        "state": "DRG-47 defers REQ-09 design matrix, REQ-10b, and SWARM-27..30 to Phase N Backlog.",
+        "questions": {
+          "phase_n_rule": {
+            "type": "noul",
+            "instructions": "Should explicitly deferred Phase N items tracked in Backlog under DRG-47 count as complete?",
+            "criteria": {
+              "true": "Counts as complete when explicitly tracked as deferred Backlog.",
+              "false": "Always mark incomplete until shipped."
+            }
+          }
+        }
+      },
+      "jev_response": {
+        "id": "gen-dec-scope-0002",
+        "model": "typesafe/jev-1.14-20261014",
+        "answers": {
+          "phase_n_rule": { "noul": 0.89 }
+        },
+        "usage": { "input_tokens": 110, "output_tokens": 18, "cost": 0.0002 }
+      }
+    }
+  ]
+}

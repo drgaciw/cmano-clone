@@ -1,0 +1,48 @@
+{
+  "team": "DRG",
+  "issues": [
+    {
+      "id": "DRG-101",
+      "project": "P-DRG-1",
+      "state": "Backlog",
+      "state_id": "3fcf0557-d032-48c7-95fb-efd198c700d9",
+      "title": "FR-01 Theater Command Overview",
+      "labels": ["type:feature", "area:sim"],
+      "description": "Source: `Game-Requirements/requirements/01-Project-Overview.md`\nReq IDs: FR-01\nAC: Theater command loop compiles and runs deterministically.\nNotion: https://www.notion.so/11111111222233334444555566667777"
+    },
+    {
+      "id": "DRG-268",
+      "project": "P-DRG-1",
+      "state": "Todo",
+      "title": "Owner-gated visual signoff item",
+      "labels": ["hold:owner-go", "NEEDS_OWNER"],
+      "description": "Source: `Game-Requirements/requirements/20-Command-And-Control-UI.md`\nReq IDs: C2-01\nAC: Owner reviews Play Mode HUD screenshots.\nNotion: https://www.notion.so/22222222222233334444555566667777"
+    },
+    {
+      "id": "DRG-377",
+      "project": "Unassigned",
+      "state": "Backlog",
+      "state_id": "3fcf0557-d032-48c7-95fb-efd198c700d9",
+      "title": "[MILSIM-R2] Comparative Milsim Research Requirements",
+      "labels": ["type:epic", "area:sim"],
+      "description": "Source: `notion://3f2f7cb4-e4df-8199-aad8-f1dd50c6831e`\nReq IDs: ENV-01..03, ASW-01..05\nAC: Tracks comparative milsim research."
+    },
+    {
+      "id": "DRG-112",
+      "project": "P-DRG-7",
+      "state": "Backlog",
+      "state_id": "3fcf0557-d032-48c7-95fb-efd198c700d9",
+      "title": "[Phase N] Drone Swarm Autonomy Extensions SWARM-27..30",
+      "labels": ["type:feature", "single-owner"],
+      "description": "Source: `Game-Requirements/requirements/22-Drone-Swarm-Platforms.md`\nReq IDs: SWARM-27..30\nAC: Deferred Phase N tracking under DRG-47."
+    },
+    {
+      "id": "DRG-900",
+      "project": "P-DRG-6",
+      "state": "Backlog",
+      "title": "Quote / Proposal Approval",
+      "labels": ["Open-CRM-CPQ", "CPQ Phase 1"],
+      "description": "Source: `tests/uat/quote-lifecycle-management-cpq.md`\nCPQ commercial pipeline item."
+    }
+  ]
+}

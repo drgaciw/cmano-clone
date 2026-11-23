@@ -1,0 +1,97 @@
+{
+  "generated_at": "2026-11-22T22:58:10Z",
+  "source_files": [
+    {
+      "path": "Game-Requirements/requirements/01-Project-Overview.md",
+      "category": "A",
+      "lines": 120,
+      "in_scope": true
+    },
+    {
+      "path": "Game-Requirements/drafts/23-Kill-Chain-Explainability.md",
+      "category": "B",
+      "lines": 90,
+      "in_scope": true
+    },
+    {
+      "path": "docs/product/prd-mvp-ui-2026-07-15.md",
+      "category": "C",
+      "lines": 150,
+      "in_scope": true
+    },
+    {
+      "path": "Game-Requirements/requirements/22-Drone-Swarm-Platforms.md",
+      "category": "A",
+      "lines": 140,
+      "in_scope": true
+    },
+    {
+      "path": "notion://3f2f7cb4-e4df-8199-aad8-f1dd50c6831e",
+      "category": "NotionOnly",
+      "lines": 80,
+      "in_scope": true
+    }
+  ],
+  "requirements": [
+    {
+      "req_id": "FR-01",
+      "title": "Theater Command Loop",
+      "source_file": "Game-Requirements/requirements/01-Project-Overview.md",
+      "source_lines": "10-25",
+      "domain_project": "cmano-clone",
+      "lifecycle_state": "active",
+      "summary": "Deterministic theater-level simulation and agent delegation loop.",
+      "acceptance_criteria": [
+        "DelegationOrchestrator.Tick executes deterministically given same SeededRng."
+      ]
+    },
+    {
+      "req_id": "KCX-01",
+      "title": "Kill Chain Explainability Panel",
+      "source_file": "Game-Requirements/drafts/23-Kill-Chain-Explainability.md",
+      "source_lines": "12-30",
+      "domain_project": "Combat Interaction UX",
+      "lifecycle_state": "draft",
+      "summary": "Explain targetability gates and engagement denials to the player.",
+      "acceptance_criteria": [
+        "Every engagement denial displays deterministic gate reason in C2 UI."
+      ]
+    },
+    {
+      "req_id": "UI-01",
+      "title": "MVP C2 Viewport & HUD",
+      "source_file": "docs/product/prd-mvp-ui-2026-07-15.md",
+      "source_lines": "20-45",
+      "domain_project": "Combat Interaction UX",
+      "lifecycle_state": "shipped",
+      "summary": "Provide unified C2 HUD with unit detail and message log.",
+      "acceptance_criteria": [
+        "HUD displays active contacts, orders, and unit detail without clipping."
+      ]
+    },
+    {
+      "req_id": "SWARM-27",
+      "title": "Phase N Autonomous Swarm Coordinated Strike",
+      "source_file": "Game-Requirements/requirements/22-Drone-Swarm-Platforms.md",
+      "source_lines": "80-95",
+      "domain_project": "Aegis Horizons H4-H6",
+      "lifecycle_state": "deferred_phase_n",
+      "summary": "Post-release Phase N swarm multi-axis coordination.",
+      "acceptance_criteria": [
+        "Tracked as deferred Phase N under DRG-47 and DRG-112."
+      ]
+    },
+    {
+      "req_id": "ENV-01",
+      "title": "Sea State & Acoustic Thermocline Propagation",
+      "source_file": "notion://3f2f7cb4-e4df-8199-aad8-f1dd50c6831e",
+      "source_lines": "1-20",
+      "domain_project": "cmano-clone",
+      "lifecycle_state": "active",
+      "summary": "Comparative milsim environmental modeling from Notion-only draft.",
+      "acceptance_criteria": [
+        "Tracked in MILSIM-R2 epic DRG-377 and linked Notion Tasks entry."
+      ]
+    }
+  ]
+}

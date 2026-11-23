@@ -1,0 +1,30 @@
+{
+  "model": "typesafe/jev-1.14",
+  "state": {
+    "req_id": "FR-01",
+    "source_file": "Game-Requirements/requirements/01-Project-Overview.md",
+    "linear_matches": ["DRG-101"],
+    "notion_matches": ["3f2f7cb4-e4df-8199-aad8-f1dd50c6831e"]
+  },
+  "questions": {
+    "backlog_completeness": {
+      "type": "noul",
+      "instructions": "Is FR-01 completely tracked across Linear and Notion?",
+      "criteria": {
+        "true": "Source citation, AC, and bidirectional links present.",
+        "false": "Missing citation, AC, or cross-link."
+      }
+    },
+    "gap_classification": {
+      "type": "choice",
+      "instructions": "Classify the gap status for FR-01.",
+      "criteria": {
+        "complete": "Complete coverage.",
+        "incomplete": "Partial coverage.",
+        "missing": "Not tracked.",
+        "none": "No gap.",
+        "other": "Other state."
+      }
+    }
+  }
+}

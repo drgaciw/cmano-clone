@@ -1,0 +1,53 @@
+{
+  "completed_at": "2026-11-22T22:59:00Z",
+  "operations": [
+    {
+      "req_id": "KCX-01",
+      "target": "linear",
+      "action": "update",
+      "issue_id": "DRG-501",
+      "url": "https://linear.app/drgamtd-workspace/issue/DRG-501",
+      "before_state": { "state": "Backlog", "labels": ["hold:owner-go"], "ac_present": false },
+      "after_state": { "state": "Backlog", "labels": ["hold:owner-go"], "ac_present": true }
+    },
+    {
+      "req_id": "KCX-01",
+      "target": "notion",
+      "action": "create",
+      "database_id": "a722ffc6-7048-48d9-92db-8207b0ef5cae",
+      "page_id": "33333333-2222-3333-4444-555566667777",
+      "url": "https://www.notion.so/33333333222233334444555566667777",
+      "before_state": null,
+      "after_state": { "status": "Not started", "project_id": "3d5f7cb4-e4df-8196-bbd0-fcc18493713a" }
+    },
+    {
+      "req_id": "UI-01",
+      "target": "notion",
+      "action": "update",
+      "database_id": "a722ffc6-7048-48d9-92db-8207b0ef5cae",
+      "page_id": "22222222-2222-3333-4444-555566667777",
+      "url": "https://www.notion.so/22222222222233334444555566667777",
+      "before_state": { "status": "Blocked", "note": "" },
+      "after_state": { "status": "Blocked", "note": "Linear: https://linear.app/drgamtd-workspace/issue/DRG-268" }
+    },
+    {
+      "req_id": "ENV-01",
+      "target": "linear",
+      "action": "create",
+      "issue_id": "DRG-801",
+      "url": "https://linear.app/drgamtd-workspace/issue/DRG-801",
+      "before_state": null,
+      "after_state": { "state": "Backlog", "state_id": "3fcf0557-d032-48c7-95fb-efd198c700d9" }
+    },
+    {
+      "req_id": "ENV-01",
+      "target": "notion",
+      "action": "create",
+      "database_id": "a722ffc6-7048-48d9-92db-8207b0ef5cae",
+      "page_id": "44444444-2222-3333-4444-555566667777",
+      "url": "https://www.notion.so/44444444222233334444555566667777",
+      "before_state": null,
+      "after_state": { "status": "Not started", "project_id": "3d5f7cb4-e4df-8196-bbd0-fcc18493713a" }
+    }
+  ]
+}

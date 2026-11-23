@@ -1,0 +1,65 @@
+{
+  "evaluated_at": "2026-11-22T22:58:20Z",
+  "rubric_version": "v1",
+  "jev_model": "typesafe/jev-1.14",
+  "summary": {
+    "total_requirements": 4,
+    "source_files_covered": 4,
+    "linear": { "complete": 2, "incomplete": 1, "missing": 1 },
+    "notion": { "complete": 1, "incomplete": 1, "missing": 2 }
+  },
+  "evaluations": [
+    {
+      "req_id": "FR-01",
+      "source_file": "Game-Requirements/requirements/01-Project-Overview.md",
+      "linear_matches": ["DRG-101"],
+      "notion_matches": ["11111111-2222-3333-4444-555566667777"],
+      "linear_status": "complete",
+      "notion_status": "complete",
+      "deterministic_checks": { "linear_matched": true, "notion_matched": true },
+      "jev_answers": { "backlog_completeness": { "noul": 0.94 } },
+      "jev_decision_id": "gen-dec-base-0001",
+      "gaps": [],
+      "recommended_action": "none"
+    },
+    {
+      "req_id": "KCX-01",
+      "source_file": "Game-Requirements/drafts/23-Kill-Chain-Explainability.md",
+      "linear_matches": ["DRG-501"],
+      "notion_matches": [],
+      "linear_status": "incomplete",
+      "notion_status": "missing",
+      "deterministic_checks": { "linear_matched": true, "notion_matched": false },
+      "jev_answers": { "backlog_completeness": { "noul": 0.62 } },
+      "jev_decision_id": "gen-dec-base-0002",
+      "gaps": ["linear missing acceptance criteria", "notion missing record"],
+      "recommended_action": "both"
+    },
+    {
+      "req_id": "UI-01",
+      "source_file": "docs/product/prd-mvp-ui-2026-07-15.md",
+      "linear_matches": ["DRG-268"],
+      "notion_matches": ["22222222-2222-3333-4444-555566667777"],
+      "linear_status": "complete",
+      "notion_status": "incomplete",
+      "deterministic_checks": { "linear_matched": true, "notion_matched": true },
+      "jev_answers": { "backlog_completeness": { "noul": 0.74 } },
+      "jev_decision_id": "gen-dec-base-0003",
+      "gaps": ["notion missing cross-link"],
+      "recommended_action": "update_notion"
+    },
+    {
+      "req_id": "ENV-01",
+      "source_file": "notion://3f2f7cb4-e4df-8199-aad8-f1dd50c6831e",
+      "linear_matches": [],
+      "notion_matches": [],
+      "linear_status": "missing",
+      "notion_status": "missing",
+      "deterministic_checks": { "linear_matched": false, "notion_matched": false },
+      "jev_answers": { "backlog_completeness": { "noul": 0.12 } },
+      "jev_decision_id": "gen-dec-base-0004",
+      "gaps": ["linear missing issue", "notion missing task"],
+      "recommended_action": "both"
+    }
+  ]
+}

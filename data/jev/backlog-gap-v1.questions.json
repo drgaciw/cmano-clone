@@ -1,0 +1,100 @@
+{
+  "id": "backlog-gap-v1",
+  "model": "typesafe/jev-1.14",
+  "fallback_model": "typesafe/jev-1.13",
+  "calibrated_from": "production/qa/evidence/backlog-gap-2026-11-22/scope-decisions-jev.json (gen-dec-1795388377-OviBPfiHh1PQl2eUKKlv)",
+  "description": "Off-tick advisory evaluator for Project Aegis requirement completeness in Linear and Notion backlogs. Script-first: deterministic mechanical pre-checks run first and Jev never overrides a failed mechanical gate.",
+  "thresholds": {
+    "noul_pass_floor": 0.8,
+    "choice_confidence_human_floor": 0.5,
+    "score_complete_floor": 1.5,
+    "noul_note": "Noul probability is the uncertainty (no separate confidence field). Pass requires noul >= 0.80.",
+    "choice_note": "Choice confidence < 0.50 or choice='other' triggers needs_human_review=true and blocks auto-complete.",
+    "score_note": "Use Score (0/1/2) for rank/threshold only; 0=missing, 1=incomplete, 2=complete. Require >= 1.50 for complete."
+  },
+  "questions": {
+    "linear_presence_and_traceability": {
+      "type": "noul",
+      "instructions": "Does the Linear record—or verified-shipped trunk code/test/merged-Done exemption (sub_status=shipped_verified per M1 complete_if_code_verified_no_backfill, no Backlog ticket backfill required)—establish accurate presence and traceability (valid repo source_file, req_id cited on open Backlog including multi-requirement clause-cluster bundles covering this req_id, or shipped_verified evidence present, no OPEN-CRM-CPQ bleed, no contradiction with main)?",
+      "criteria": {
+        "true": "Linear record (including valid multi-requirement clause-cluster bundles with a targeted section for this req_id) or verified-shipped exemption (shipped_verified with trunk evidence or merged Done issue, no Backlog ticket required) accurately traces to the source requirement.",
+        "false": "Linear match is absent, points to wrong requirement/project, or cites invalid paths."
+      }
+    },
+    "linear_ac_and_scope_completeness": {
+      "type": "noul",
+      "instructions": "Does Linear coverage satisfy backlog intake completeness (valid source and req_id, testable AC or [Phase N]/Draft marker, honest lifecycle/blocker status, NO Surface: line/label on Backlog/Todo, no fake Done, Notion cross-link — including multi-requirement clause-cluster issues with a targeted AC section for this req_id), OR is this requirement exempt as shipped_verified (verified trunk code/test evidence or merged Done DRG-* issue)?",
+      "criteria": {
+        "true": "Linear coverage satisfies all contract and lifecycle honesty criteria (including multi-req clause-cluster issues with a targeted AC section), or requirement is exempt as shipped_verified with verified trunk/Done evidence.",
+        "false": "Not exempt as shipped_verified and missing testable AC, Draft/Phase N marker, or Notion link, or has premature Done or unauthorized Surface: line/label on Backlog/Todo."
+      }
+    },
+    "linear_completeness_score": {
+      "type": "score",
+      "instructions": "Score the Linear backlog coverage quality for this requirement on the Project Aegis 0/1/2 scale.",
+      "criteria": [
+        "missing — no Linear match and not exempt as shipped_verified",
+        "incomplete — Linear match exists but lacks source citation, testable AC, lifecycle/deferral honesty, or Notion cross-link, or has Surface: violation",
+        "complete — satisfies all contract, AC/deferral, cross-link, and lifecycle honesty criteria (including valid clause-cluster bundles) or shipped_verified exemption"
+      ]
+    },
+    "linear_classification": {
+      "type": "choice",
+      "instructions": "Classify the requirement's Linear backlog tracking status given deterministic_checks, matched issues, and M1 Jev-calibrated scope rules (an open Backlog/In-Progress/In-Review/Todo issue with valid source/req_id, testable AC or [Phase N]/Draft marker, Notion link, no Surface: on Backlog/Todo, and honest status is 'complete' even if unstarted/Draft/Deferred or in a multi-req clause-cluster issue).",
+      "criteria": {
+        "complete": "P_LIN_CONTRACT=true (cites source/req_id, testable AC or [Phase N]/Draft marker, no Surface: on Backlog/Todo, Notion link, honest status — including multi-req clause-cluster issues) OR shipped_verified_exempt=true.",
+        "incomplete": "Linear issue exists, not shipped_verified_exempt, and fails P_LIN_CONTRACT/P_ISO/P_SRC (missing source/req_id, AC, Notion link, dishonest status, or Surface: on Backlog/Todo).",
+        "missing": "No matching Linear issue exists (P_LIN_EXISTS=false) and requirement is not shipped_verified_exempt.",
+        "other": "Ambiguous or conflicting evidence preventing clean classification (valid tracked Draft, [Phase N] Deferred, multi-req cluster bundles, or properly labeled hold:owner-go items with complete contract use 'complete')."
+      }
+    },
+    "notion_presence_and_traceability": {
+      "type": "noul",
+      "instructions": "Does the M1-ratified active Notion surface (Tasks DB with Project=Project Aegis and/or cmano-clone wiki including Shipped Baseline & Requirements drafts, excluding read-only Frozen Git mirror) contain an entry (including multi-requirement clause-cluster entries) accurately tracing to this requirement (source_file, req_id, and Linear DRG-* link or shipped_verified note)?",
+      "criteria": {
+        "true": "Active Notion surface (Tasks DB or cmano-clone wiki, including multi-requirement clause-cluster entries for this req_id) accurately traces to source_file, req_id, and Linear DRG-* link or shipped_verified evidence.",
+        "false": "No active-surface Notion entry (or only in Frozen Git mirror), or traceability links/project relation are missing or wrong."
+      }
+    },
+    "notion_completeness_and_honesty": {
+      "type": "noul",
+      "instructions": "Does the Notion entry satisfy active-surface hygiene and honesty (if Tasks DB: non-null icon, Project=Project Aegis, Status=Blocked when blocked [Not started, In progress, and Done are valid—including Not started or In progress for open Backlog/Todo/In-Review/Partial+/Draft/[Phase N] items], and AC/deferral/shipped summary in Note or page content; accurate Draft/Phase N/active/shipped_verified framing; no premature Done before Linear unless shipped_verified; Frozen Git mirror untouched)?",
+      "criteria": {
+        "true": "Active Notion entry has required icon/Project (if Tasks DB), AC or deferral/shipped summary (or Shipped Baseline table) in Note or page content, and honest lifecycle/Status framing (Not started or In progress is valid for open Backlog/Todo/In-Review/Partial+/Draft/[Phase N] items; Done/Shipped valid when Linear Done or shipped_verified).",
+        "false": "Notion entry lacks required icon/Project/metadata/AC summary (in Note and page content) or misstates Draft/Phase N/Blocked/Done status."
+      }
+    },
+    "notion_completeness_score": {
+      "type": "score",
+      "instructions": "Score the Notion backlog coverage quality for this requirement on the Project Aegis 0/1/2 scale.",
+      "criteria": [
+        "missing — no entry on the active Notion surface (Tasks DB or cmano-clone wiki)",
+        "incomplete — active Notion entry exists but lacks Linear cross-link (or shipped_verified summary for shipped_verified_exempt), source citation, icon/Project, or honest lifecycle framing",
+        "complete — satisfies all active Notion surface schema, cross-link or shipped_verified summary, and honesty criteria"
+      ]
+    },
+    "notion_classification": {
+      "type": "choice",
+      "instructions": "Classify the requirement's Notion backlog tracking status given deterministic_checks, matched Notion records, and M1 Jev-calibrated scope rules (an active Tasks DB/wiki entry with valid icon, Project=Project Aegis, source/req_id, Linear link, AC/deferral/shipped summary, and honest status is 'complete' even if unstarted/Draft/Deferred).",
+      "criteria": {
+        "complete": "P_NOT_CONTRACT=true on active surface (Tasks DB with Project=Project Aegis, icon, source/req_id, Linear link or shipped_verified, AC/deferral/shipped summary, honest Draft/Phase N/active/shipped status).",
+        "incomplete": "Active Notion entry exists but fails P_NOT_CONTRACT/P_ISO/P_SRC (missing icon/Project, source/req_id, Linear link, AC/deferral summary, or dishonest Draft/Phase N/Done status).",
+        "missing": "No entry exists on the active Notion surface (P_NOT_EXISTS=false; Frozen Git mirror does not count).",
+        "other": "Ambiguous or conflicting evidence preventing clean classification (valid tracked Draft, [Phase N] Deferred, or properly labeled hold:owner-go items with complete contract use 'complete')."
+      }
+    },
+    "recommended_remediation": {
+      "type": "choice",
+      "instructions": "What backlog-tracker remediation is needed if Linear or Notion tracking itself is missing or fails contract? (Valid open Backlog/In-Progress/In-Review/Draft/Phase N tracking with complete links and AC requires 'none', NOT 'both'.)",
+      "criteria": {
+        "none": "Tracker coverage is complete (P_LIN_CONTRACT or shipped_verified_exempt AND P_NOT_CONTRACT pass, including valid open Backlog/In-Progress/In-Review/Draft/Phase N items); no tracker mutation needed.",
+        "create_linear": "Linear tracking is missing (P_LIN_EXISTS=false and not shipped_verified_exempt); create Backlog issue only.",
+        "update_linear": "Linear issue exists but fails contract/traceability (P_LIN_CONTRACT=false); update Linear only.",
+        "create_notion": "Active Notion entry is missing (P_NOT_EXISTS=false); create Tasks/wiki entry only.",
+        "update_notion": "Active Notion entry exists but fails contract/metadata/AC summary (P_NOT_CONTRACT=false); update Notion only.",
+        "both": "Both Linear and active Notion tracking are missing or fail contract (P_LIN_CONTRACT=false and P_NOT_CONTRACT=false).",
+        "other": "Ambiguous contradiction requiring human owner decision (never use for properly tracked Draft, [Phase N] Deferred, or hold:owner-go items, which use 'none')."
+      }
+    }
+  }
+}

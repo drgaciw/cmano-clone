@@ -1,0 +1,232 @@
+{
+  "generated_at": "2026-11-22T22:59:37Z",
+  "purpose": "M1 open-scope and completeness calibration decisions via typesafe ai jev",
+  "decisions": [
+    {
+      "status": "ok",
+      "route_used": "openrouter_alpha_decisions",
+      "fallback_used": false,
+      "requested_at_utc": "2026-11-22T22:59:37Z",
+      "request": {
+        "model": "typesafe/jev-1.14",
+        "state": "Project Aegis (cmano-clone) Requirements Backlog Gap Analysis — M1 Open-Scope & Rubric Calibration (2026-11-22). Repo facts: (1) Scope covers Team DRG Aegis projects (cmano-clone, Combat Interaction UX, Aegis Horizons H4-H6, DRG-377) and excludes OPEN-CRM-CPQ (P-DRG-6) and docs/reference/cmano-db/. (2) Requirements corpus includes Game-Requirements/requirements/01..22.md, drafts/23..27.md, drafts/2026-09-05-*-symbology.md (SYM-MIL-01/SYM-CIV-01), docs/product/prd-mvp-ui-2026-07-15.md, design/accessibility-requirements.md, design/difficulty-curve.md, docs/superpowers/specs/2026-09-30-requirements-planning-reconciliation.md (AME-6.11, RPL-29..31, LIB-05.1..3, VER-07.3..6), docs/superpowers/specs/2026-08-17-cmd-38/39-*-draft.md, docs/requirements/impact-sim-c2-requirements-2026-05-29.md, docs/engineering/sim-capability-gap-backlog.md, and Notion-only page 'Milsim Comparative Research & New Requirements - 2026-10-07' (ENV-01..03, ASW-01..05, EW-01..04, C3-01..04, DMG-01..02, HUM-01..02, OPS-01..04 mapped to DRG-378..401). (3) Governance rules: linear-usage-contract.md s1/s2/s8 says Linear is a pointer+state (git path + AC + status), Done means merged to main, and s8 forbids backfilling ~350 already-shipped historical items. Project Aegis Rubrics DRAFT v1 s2(b)-(c) says new requirements enter Linear as Backlog with NO Surface: line (only owner drg stamps Surfaces), Linear updates first then Notion with bidirectional links, Notion Tasks rows require a page icon and Blocked as Status. drg-47-phase-n-scoping-decision-2026-08-09.md and Backlog rubric pass (DRG-112..117) defer 10b, SWARM-27..30, and REQ-09/10 matrix to Phase N post-release (Backlog, Do not start, owner-gated). ADR-023..026 are Deferred until 2027-01-15. (4) Notion state: Project Aegis Hub (2026-11-20) states Linear is the only delivery-status source, live wiki is cmano-clone (containing Requirements drafts), Tasks DB (Project=Project Aegis) tracks ownership/claims/links, and 'Frozen Git mirror' (containing inline 'Requirements' DB) carries banner 'Archive of the July 2026 one-way Git import. Not a tracker. Do not edit rows here expecting them to stay.' Requirements DB has only 29 rows (22 July-2026 Done + 7 CMD-31..37 Draft); missing 22-27, SYM, PRD, ENV-OPS. (5) Rubric precedents: UAT/Sprint DoD rubrics enforce script-first mechanical gates + Jev noul >= 0.80, choice confidence >= 0.50 (with escape option), score 0/1/2 rank/threshold only, and Backlog rubric pass uses S1-S6 (0/1/2, pass >= 9/12).",
+        "questions": {
+          "notion_target_surface": {
+            "type": "choice",
+            "instructions": "Given the Project Aegis Hub banner, Frozen Git mirror warning ('Not a tracker. Do not edit rows here'), Tasks DB schema, and cmano-clone wiki, which Notion surface(s) should the gap analysis evaluate and update for incomplete/missing requirements?",
+            "criteria": {
+              "tasks_db_plus_wiki_drafts": "Evaluate and remediate actionable requirement gaps in Notion Tasks DB (Project=Project Aegis, icon, Status, Note with Linear URL + source path + req IDs) and keep cmano-clone/Requirements drafts wiki current for narrative drafts; keep Frozen Git mirror (Requirements DB) strictly read-only.",
+              "requirements_db_and_tasks_db": "Update Requirements DB (syncing missing requirement docs 22-27, SYM, PRD, etc.) AND maintain Tasks DB rows for open Linear gaps, explicitly overriding the Frozen Git mirror banner.",
+              "tasks_db_only": "Evaluate and remediate in Tasks DB (Project=Project Aegis) only; leave both Frozen Git mirror and wiki untouched.",
+              "requirements_db_only": "Evaluate and remediate only the Requirements DB inside Frozen Git mirror, ignoring Tasks DB.",
+              "other": "None of the above fits; escalate to owner."
+            }
+          },
+          "notion_frozen_mirror_respect": {
+            "type": "noul",
+            "instructions": "Should Frozen Git mirror and its inline Requirements DB remain strictly read-only (never mutated by M3 remediation) in accordance with its explicit 'Not a tracker. Do not edit rows here' banner?",
+            "criteria": {
+              "true": "Keep Frozen Git mirror read-only; do not edit rows in the July 2026 archive DB.",
+              "false": "Allow M3 remediation to create or update rows inside Frozen Git mirror Requirements DB."
+            }
+          },
+          "extraction_granularity": {
+            "type": "choice",
+            "instructions": "At what granularity should requirements be extracted from workspace markdown files into requirements-catalog.json to evaluate Linear and Notion backlog completeness?",
+            "criteria": {
+              "req_id_clause_cluster": "Extract per addressable requirement ID or cohesive capability-clause cluster (e.g. KCX-01, ENV-01, AME-6.11, RPL-29..31, SYM-MIL-01, P0-1, or section capability cluster where IDs are absent), yielding one testable single-outcome backlog unit per entry.",
+              "whole_document": "Extract one coarse entry per markdown file (~35-45 entries total).",
+              "individual_sub_bullet": "Extract every individual sub-bullet and acceptance checkbox (~1,500+ micro-items).",
+              "other": "Use a different extraction granularity."
+            }
+          },
+          "shipped_req_linear_rule": {
+            "type": "choice",
+            "instructions": "How should requirements already verified as shipped/implemented on main (with code, tests, or gate evidence, e.g. 01-21 MVP slices) be classified in Linear when no historical Backlog ticket exists for them, given linear-usage-contract.md s8 forbids backfilling ~350 shipped items?",
+            "criteria": {
+              "complete_if_code_verified_no_backfill": "Classify as complete (sub_status=shipped_verified) when backed by cited code/test/gate evidence or a Done DRG issue without creating redundant historical Linear Backlog tickets; flag only unshipped or partial residuals as incomplete/missing.",
+              "require_linear_ticket_for_all": "Classify as missing unless a Linear issue exists for every shipped requirement and backfill historical Linear tickets.",
+              "exclude_shipped_from_catalog": "Omit already-shipped requirements from requirements-catalog.json entirely.",
+              "other": "Use a different rule for shipped requirements."
+            }
+          },
+          "phase_n_deferred_rule": {
+            "type": "choice",
+            "instructions": "How should explicitly deferred Phase N requirements (10b Kessler/DEW, SWARM-27..30, REQ-09/10 matrix, ADR-023..026 deferred to 2027-01-15) be classified and remediated?",
+            "criteria": {
+              "complete_when_tracked_deferred_backlog": "Classify as complete (lifecycle_state=deferred_phase_n) when explicitly tracked in Linear Backlog and Notion target with [Phase N]/Deferred owner-gate markers and no Surface: line (matching DRG-112..117); classify as missing/incomplete only if untracked or missing deferral markers.",
+              "always_incomplete_until_shipped": "Classify all Phase N deferred items as incomplete regardless of backlog tracking.",
+              "exclude_phase_n": "Exclude Phase N items from the catalog and rubric.",
+              "other": "Use a different rule for Phase N deferred items."
+            }
+          },
+          "draft_docs_inclusion": {
+            "type": "choice",
+            "instructions": "How should Draft and Proposed requirement documents (drafts 23-27, SYM-MIL-01/SYM-CIV-01, CMD-38/39, 2026-09-30 reconciliation clauses, Milsim Comparative Research ENV..OPS) be treated in the backlog gap audit?",
+            "criteria": {
+              "in_scope_backlog_preserve_draft": "Include all Draft/Proposed requirements in scope; require Linear Backlog (no Surface:) and Notion tracking explicitly labeled Draft / owner-acceptance-pending (never promoting to Approved or Done); mark missing/incomplete if untracked or lacking source/AC/draft markers.",
+              "exclude_all_drafts": "Exclude all Draft/Proposed documents until owner-approved.",
+              "require_approved_status_in_backlog": "Mark all Draft documents incomplete until formally promoted to Approved even if tracked in Backlog.",
+              "other": "Use a different rule for Draft/Proposed documents."
+            }
+          },
+          "backlog_surface_line_rule": {
+            "type": "noul",
+            "instructions": "Under Project Aegis Rubrics s2(b)-(c) ('New requirements go in as Backlog with no Surface: line; only drg stamps Surfaces'), should Backlog requirement completeness omit the sprint-dispatch G2 Surface-stamp gate and forbid agents from adding Surface: lines?",
+            "criteria": {
+              "true": "Backlog intake completeness does not require a Surface: line; agents must never stamp Surface: on Backlog items.",
+              "false": "Require a Surface: file list on every Backlog requirement item."
+            }
+          },
+          "completeness_gate_model": {
+            "type": "choice",
+            "instructions": "What classification mechanism should separate complete, incomplete, and missing in Linear and Notion across M2-M4?",
+            "criteria": {
+              "hybrid_prechecks_plus_jev_thresholds": "Script-first two-stage gate: deterministic mechanical pre-checks run first (existence, source path on main, project isolation, required IDs/AC/cross-links, no agent Surface:, no fake Done, Notion Project+icon), followed by Jev System One (noul >= 0.80, choice confidence >= 0.50, score 0/1/2 aligned to S1-S6 >= 9/12 equivalent). Jev never overrides a failed mechanical pre-check.",
+              "jev_only_no_prechecks": "Use Jev System One scores alone without deterministic mechanical pre-checks.",
+              "deterministic_regex_only": "Use deterministic string/regex checks only without Jev evaluation.",
+              "other": "Use a different classification mechanism."
+            }
+          },
+          "low_confidence_escalation": {
+            "type": "noul",
+            "instructions": "When Jev returns choice.confidence < 0.50 or choice='other', should the evaluator flag needs_human_review=true and conservatively treat the item as incomplete rather than auto-marking complete?",
+            "criteria": {
+              "true": "Flag needs_human_review=true and do not auto-classify as complete when choice confidence < 0.50 or choice='other'.",
+              "false": "Allow auto-marking complete even when choice confidence < 0.50."
+            }
+          },
+          "backlog_rigor_level": {
+            "type": "score",
+            "instructions": "Which rigor tier best calibrates Backlog gap evaluation for Project Aegis (given Backlog rubric pass 2026-10-29 and linear-usage-contract.md)?",
+            "criteria": [
+              "minimal_existence_only — match any Linear/Notion title without source path, AC, or cross-link checks",
+              "balanced_intake_s1_s6_no_surface — require valid source path, req ID, testable AC or deferral note, lifecycle honesty, bidirectional Linear/Notion links, and S1-S6 >= 9/12 without dispatch-only Surface/PlayMode gates",
+              "full_dispatch_dor_with_surface — require drg Surface stamp and Play Mode human gate on every Backlog requirement"
+            ]
+          }
+        }
+      },
+      "response": {
+        "id": "gen-dec-1795388377-OviBPfiHh1PQl2eUKKlv",
+        "model": "typesafe/jev-1.14-20261014",
+        "provider": "TypeSafe",
+        "answers": {
+          "notion_target_surface": {
+            "type": "choice",
+            "choice": "tasks_db_plus_wiki_drafts",
+            "probabilities": {
+              "tasks_db_plus_wiki_drafts": 0.99,
+              "requirements_db_and_tasks_db": 0,
+              "tasks_db_only": 0.01,
+              "requirements_db_only": 0,
+              "other": 0
+            },
+            "confidence": 0.99
+          },
+          "notion_frozen_mirror_respect": {
+            "type": "noul",
+            "noul": 0.94
+          },
+          "extraction_granularity": {
+            "type": "choice",
+            "choice": "req_id_clause_cluster",
+            "probabilities": {
+              "req_id_clause_cluster": 1,
+              "whole_document": 0,
+              "individual_sub_bullet": 0,
+              "other": 0
+            },
+            "confidence": 1
+          },
+          "shipped_req_linear_rule": {
+            "type": "choice",
+            "choice": "complete_if_code_verified_no_backfill",
+            "probabilities": {
+              "complete_if_code_verified_no_backfill": 0.99,
+              "require_linear_ticket_for_all": 0,
+              "exclude_shipped_from_catalog": 0,
+              "other": 0.01
+            },
+            "confidence": 0.99
+          },
+          "phase_n_deferred_rule": {
+            "type": "choice",
+            "choice": "complete_when_tracked_deferred_backlog",
+            "probabilities": {
+              "complete_when_tracked_deferred_backlog": 0.99,
+              "always_incomplete_until_shipped": 0.01,
+              "exclude_phase_n": 0,
+              "other": 0
+            },
+            "confidence": 0.99
+          },
+          "draft_docs_inclusion": {
+            "type": "choice",
+            "choice": "in_scope_backlog_preserve_draft",
+            "probabilities": {
+              "in_scope_backlog_preserve_draft": 1,
+              "exclude_all_drafts": 0,
+              "require_approved_status_in_backlog": 0,
+              "other": 0
+            },
+            "confidence": 1
+          },
+          "backlog_surface_line_rule": {
+            "type": "noul",
+            "noul": 0.93
+          },
+          "completeness_gate_model": {
+            "type": "choice",
+            "choice": "hybrid_prechecks_plus_jev_thresholds",
+            "probabilities": {
+              "hybrid_prechecks_plus_jev_thresholds": 1,
+              "jev_only_no_prechecks": 0,
+              "deterministic_regex_only": 0,
+              "other": 0
+            },
+            "confidence": 1
+          },
+          "low_confidence_escalation": {
+            "type": "noul",
+            "noul": 0.93
+          },
+          "backlog_rigor_level": {
+            "type": "score",
+            "score": 1.01,
+            "legend": {
+              "0": "minimal_existence_only — match any Linear/Notion title without source path, AC, or cross-link checks",
+              "1": "balanced_intake_s1_s6_no_surface — require valid source path, req ID, testable AC or deferral note, lifecycle honesty, bidirectional Linear/Notion links, and S1-S6 >= 9/12 without dispatch-only Surface/PlayMode gates",
+              "2": "full_dispatch_dor_with_surface — require drg Surface stamp and Play Mode human gate on every Backlog requirement"
+            },
+            "probabilities": {
+              "0": 0,
+              "1": 0.99,
+              "2": 0.01
+            },
+            "confidence": 0.98
+          }
+        },
+        "usage": {
+          "input_tokens": 3224,
+          "output_tokens": 512,
+          "cost": 0.000135408,
+          "is_byok": false,
+          "cost_details": {
+            "upstream_inference_cost": 0.000135408,
+            "upstream_inference_prompt_cost": 0.000135408,
+            "upstream_inference_completions_cost": 0
+          }
+        }
+      },
+      "attempts": [
+        {
+          "url": "https://openrouter.ai/api/alpha/decisions",
+          "model": "typesafe/jev-1.14",
+          "status_code": 200,
+          "error": null
+        }
+      ]
+    }
+  ]
+}
