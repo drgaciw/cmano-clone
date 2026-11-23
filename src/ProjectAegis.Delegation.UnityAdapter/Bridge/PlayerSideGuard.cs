@@ -3,6 +3,7 @@ namespace ProjectAegis.Delegation.UnityAdapter.Bridge;
 using Controllers;
 using Core;
 using Projection;
+using Targets;
 using ProjectAegis.Sim.Scenario;
 
 /// <summary>
