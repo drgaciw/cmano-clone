@@ -8,13 +8,13 @@ using Traits;
 
 public static class SaveEnvelopeBounds
 {
-    public const int MaxPayloadBytes = 4 * 1024 * 1024;
+    public const int MaxPayloadBytes = 64 * 1024 * 1024;
     public const int MaxJsonDepth = 16;
     public const int MaxJournalRows = 100_000;
     public const int MaxCheckpointRows = 50_000;
     public const int MaxPolicyCount = 256;
     public const int MaxShortStringLength = 4096;
-    public const int MaxRawFingerprintLength = 512 * 1024;
+    public const int MaxRawFingerprintLength = 2 * 1024 * 1024;
 }
 
 public static class SaveEnvelopeSerializer
