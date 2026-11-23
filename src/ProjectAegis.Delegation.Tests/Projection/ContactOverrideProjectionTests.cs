@@ -28,6 +28,8 @@ public sealed class ContactOverrideProjectionTests
         var entryAfterDrop = afterDrop.Find("c1");
         Assert.That(entryAfterDrop, Is.Not.Null);
         Assert.That(entryAfterDrop!.IsDropped, Is.True);
+        Assert.That(entryAfterDrop.LastSimTick, Is.EqualTo(2UL));
+        Assert.That(entryAfterDrop.LastSequenceId, Is.GreaterThan(0UL));
         Assert.That(entryAfterDrop.StatusLabel, Is.EqualTo("OVERRIDE: DROPPED (operator)"));
         Assert.That(afterDrop.ToDroppedContactIds(), Does.Contain("c1"));
 

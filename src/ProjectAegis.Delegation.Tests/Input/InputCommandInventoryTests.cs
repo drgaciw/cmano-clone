@@ -30,6 +30,7 @@ public sealed class InputCommandInventoryTests
             Assert.That(descriptor, Is.Not.Null);
             Assert.That(descriptor!.PublicApiMethod, Is.Not.Null.And.Not.Empty);
             Assert.That(descriptor.BlockedByReplayViewer, Is.True);
+            Assert.That(descriptor.AppendsDecisionLog, Is.True);
         }
     }
 

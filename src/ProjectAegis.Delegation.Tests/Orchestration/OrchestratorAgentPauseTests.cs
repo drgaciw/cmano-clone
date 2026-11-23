@@ -3,7 +3,6 @@ namespace ProjectAegis.Delegation.Tests.Orchestration;
 using NUnit.Framework;
 using ProjectAegis.Delegation.Controllers;
 using ProjectAegis.Delegation.Core;
-using ProjectAegis.Delegation.Decision;
 using ProjectAegis.Delegation.Orchestration;
 using ProjectAegis.Delegation.Sim;
 using ProjectAegis.Delegation.Targets;

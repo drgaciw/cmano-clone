@@ -1,5 +1,4 @@
 using NUnit.Framework;
-using ProjectAegis.Delegation.UnityAdapter.Presentation;
 
 namespace ProjectAegis.Delegation.UnityAdapter.Tests.Presentation;
 

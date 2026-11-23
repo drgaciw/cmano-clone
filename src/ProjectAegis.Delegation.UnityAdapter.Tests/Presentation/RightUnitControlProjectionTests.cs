@@ -1,13 +1,12 @@
-namespace ProjectAegis.Delegation.UnityAdapter.Tests.Presentation;
-
 using NUnit.Framework;
-using ProjectAegis.Delegation.Controllers;
 using ProjectAegis.Delegation.Core;
 using ProjectAegis.Delegation.Targets;
 using ProjectAegis.Delegation.Traits;
 using ProjectAegis.Delegation.UnityAdapter.Bridge;
 using ProjectAegis.Delegation.UnityAdapter.Presentation;
 using ProjectAegis.Sim.Policy;
+
+namespace ProjectAegis.Delegation.UnityAdapter.Tests.Presentation;
 
 [TestFixture]
 public sealed class RightUnitControlProjectionTests
@@ -46,6 +45,12 @@ public sealed class RightUnitControlProjectionTests
         bridge.Orchestrator.AssignAgentToTarget(sa, standalone.Target, EffectivePolicy.DefaultFree);
 
         var activeAgent = RightUnitControlProjection.Project(bridge, "u3");
+        Assert.That(activeAgent.UnitId, Is.EqualTo("u3"));
+        Assert.That(activeAgent.AgentId, Is.EqualTo("a3"));
+        Assert.That(activeAgent.StatusLabel, Is.Not.Empty);
+        Assert.That(activeAgent.HasAgent, Is.True);
+        Assert.That(activeAgent.IsAgentActive, Is.True);
+        Assert.That(activeAgent.IsDetachedFromGroup, Is.False);
         Assert.That(activeAgent.ControllerKind, Is.EqualTo("Agent"));
         Assert.That(activeAgent.CanTakeControl, Is.True);
         Assert.That(activeAgent.CanPauseAgent, Is.True);

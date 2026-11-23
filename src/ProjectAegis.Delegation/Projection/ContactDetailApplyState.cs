@@ -16,14 +16,14 @@ public static class ContactDetailApplyState
         return new ContactDetailPresentation(
             ContactIdLine: $"CONTACT: {entry.ContactId}",
             TargetIdLine: $"TARGET: {entry.TargetId}",
-            ClassificationLine: entry.ClassificationLine ?? string.Empty,
-            ConfidenceLine: entry.ConfidenceLine ?? string.Empty,
-            DetectionProvenanceLine: entry.DetectionProvenanceLine ?? string.Empty,
-            WraLine: entry.WraLine ?? string.Empty,
-            BdaLine: entry.BdaLine ?? string.Empty,
-            StalenessLine: entry.StalenessLine ?? string.Empty,
+            ClassificationLine: entry.ClassificationLine,
+            ConfidenceLine: entry.ConfidenceLine,
+            DetectionProvenanceLine: entry.DetectionProvenanceLine,
+            WraLine: entry.WraLine,
+            BdaLine: entry.BdaLine,
+            StalenessLine: entry.StalenessLine,
             LifecycleLine: $"STATE: {entry.LifecycleState}",
-            OverrideStatusLine: entry.OverrideStatusLine ?? "OVERRIDE: —",
+            OverrideStatusLine: entry.OverrideStatusLine,
             OperatorAffiliation: entry.OperatorAffiliation,
             IsOperatorDropped: entry.IsOperatorDropped);
     }

@@ -60,7 +60,7 @@ public static class RightUnitControlProjection
             return RightUnitControlState.Empty;
         }
 
-        if (!TryFindBinding(bridge, selectedUnitId!, out var binding))
+        if (!TryFindBinding(bridge, selectedUnitId, out var binding))
         {
             return RightUnitControlState.Empty with
             {

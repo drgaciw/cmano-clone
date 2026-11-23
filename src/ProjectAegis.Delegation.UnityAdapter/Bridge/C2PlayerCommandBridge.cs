@@ -1,7 +1,6 @@
 namespace ProjectAegis.Delegation.UnityAdapter.Bridge;
 
 using Controllers;
-using Core;
 using Input;
 using Targets;
 
@@ -90,7 +89,7 @@ public static class C2PlayerCommandBridge
 
     /// <summary>DRG-247: take direct player control of <paramref name="entity"/> (including group member detach).</summary>
     public static bool TryTakeControl(
-        DelegationBridge bridge,
+        DelegationBridge? bridge,
         EntityKey entity,
         double simTime,
         out string? failureReason)
@@ -149,7 +148,7 @@ public static class C2PlayerCommandBridge
 
     /// <summary>DRG-247: return direct player control of <paramref name="entity"/> back to its agent or parent group.</summary>
     public static bool TryReturnToAgent(
-        DelegationBridge bridge,
+        DelegationBridge? bridge,
         EntityKey entity,
         double simTime,
         out string? failureReason)
@@ -208,7 +207,7 @@ public static class C2PlayerCommandBridge
 
     /// <summary>DRG-247: suspend autonomous agent decisions for <paramref name="entity"/> without clearing tasking.</summary>
     public static bool TryPauseAgentActions(
-        DelegationBridge bridge,
+        DelegationBridge? bridge,
         EntityKey entity,
         double simTime,
         out string? failureReason)
@@ -261,7 +260,7 @@ public static class C2PlayerCommandBridge
 
     /// <summary>DRG-247: resume suspended autonomous agent decisions for <paramref name="entity"/>.</summary>
     public static bool TryResumeAgentActions(
-        DelegationBridge bridge,
+        DelegationBridge? bridge,
         EntityKey entity,
         double simTime,
         out string? failureReason)

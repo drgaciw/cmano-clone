@@ -50,7 +50,7 @@ public static class ContactOverrideCommand
         }
 
         var log = bridge.Orchestrator.DecisionLog;
-        if (!HasActiveContact(log, contactId!))
+        if (!HasActiveContact(log, contactId))
         {
             return new ContactOverrideResult(false, ReasonUnknownContact,
                 $"Contact '{contactId}' is not active.");
@@ -75,7 +75,7 @@ public static class ContactOverrideCommand
             SequenceId: 0,
             SimTime: simTime,
             SimTick: simTick,
-            ContactId: contactId!,
+            ContactId: contactId,
             Action: ContactOverrideAction.Reclassify,
             PreviousValue: previous,
             NewValue: canonical));
@@ -106,7 +106,7 @@ public static class ContactOverrideCommand
         }
 
         var log = bridge.Orchestrator.DecisionLog;
-        if (!HasActiveContact(log, contactId!))
+        if (!HasActiveContact(log, contactId))
         {
             return new ContactOverrideResult(false, ReasonUnknownContact,
                 $"Contact '{contactId}' is not active.");
@@ -125,7 +125,7 @@ public static class ContactOverrideCommand
             SequenceId: 0,
             SimTime: simTime,
             SimTick: simTick,
-            ContactId: contactId!,
+            ContactId: contactId,
             Action: ContactOverrideAction.Drop,
             PreviousValue: previous,
             NewValue: "Dropped"));
@@ -155,7 +155,7 @@ public static class ContactOverrideCommand
             return null;
         }
 
-        var trimmed = affiliation!.Trim();
+        var trimmed = affiliation.Trim();
         foreach (var supported in MilitarySymbology.SupportedAffiliations)
         {
             if (string.Equals(supported, trimmed, StringComparison.OrdinalIgnoreCase))

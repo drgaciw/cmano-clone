@@ -60,7 +60,6 @@ public sealed class FixedStepFrameRunnerSafeStopTests
 
         Assert.That(executed, Is.EqualTo(2));
         Assert.That(steps, Is.EqualTo(2));
-        paused = false;
-        Assert.That(runner.Advance(0.0, () => factor, () => !paused, () => steps++), Is.Zero);
+        Assert.That(runner.Advance(0.0, () => factor, () => true, () => steps++), Is.Zero);
     }
 }

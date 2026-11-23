@@ -26,6 +26,10 @@ public sealed class MapBalloonOverlayProjectionTests
         Assert.That(state.UnanchoredBalloons, Is.Empty);
         var row = state.AnchoredBalloons[0];
         Assert.That(row.BalloonId, Is.EqualTo("msglog:10"));
+        Assert.That(row.SequenceId, Is.EqualTo(10UL));
+        Assert.That(row.Category, Is.EqualTo("DAMAGE"));
+        Assert.That(row.SubjectId, Is.EqualTo("u1"));
+        Assert.That(row.Text, Does.Contain("Damage u1"));
         Assert.That(row.HasMapAnchor, Is.True);
         Assert.That(row.NormalizedX, Is.EqualTo(0.35f).Within(0.0001f));
         Assert.That(row.NormalizedY, Is.EqualTo(0.65f).Within(0.0001f));

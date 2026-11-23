@@ -407,7 +407,7 @@ public sealed class DelegationOrchestrator
     /// DRG-247: suspend autonomous agent decisions for <paramref name="target"/> without clearing
     /// tasking, changing <see cref="ControllerSlot.Active"/>, or emitting duplicate log entries.
     /// </summary>
-    public bool TryPauseAgentActions(ICommandableTarget target, double simTime)
+    public bool TryPauseAgentActions(ICommandableTarget? target, double simTime)
     {
         if (AttachReplayViewer || target is null)
         {
@@ -433,7 +433,7 @@ public sealed class DelegationOrchestrator
     /// <summary>
     /// DRG-247: restore autonomous agent decisions for <paramref name="target"/> when currently paused.
     /// </summary>
-    public bool TryResumeAgentActions(ICommandableTarget target, double simTime)
+    public bool TryResumeAgentActions(ICommandableTarget? target, double simTime)
     {
         if (AttachReplayViewer || target is null)
         {

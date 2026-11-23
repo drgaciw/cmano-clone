@@ -1,5 +1,3 @@
-namespace ProjectAegis.Delegation.UnityAdapter.Tests.Bridge;
-
 using NUnit.Framework;
 using ProjectAegis.Delegation.Controllers;
 using ProjectAegis.Delegation.Core;
@@ -7,6 +5,8 @@ using ProjectAegis.Delegation.Targets;
 using ProjectAegis.Delegation.Traits;
 using ProjectAegis.Delegation.UnityAdapter.Bridge;
 using ProjectAegis.Sim.Policy;
+
+namespace ProjectAegis.Delegation.UnityAdapter.Tests.Bridge;
 
 [TestFixture]
 public sealed class C2PlayerCommandBridgeControlTests

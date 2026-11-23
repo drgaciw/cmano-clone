@@ -2,7 +2,6 @@ using System.Text;
 using NUnit.Framework;
 using ProjectAegis.Delegation.Core;
 using ProjectAegis.Delegation.Decision;
-using ProjectAegis.Delegation.Orchestration;
 using ProjectAegis.Delegation.Projection;
 using ProjectAegis.Sim.Engage;
 using ProjectAegis.Sim.Policy;
@@ -56,6 +55,8 @@ public sealed class MessageLogAttributionAndDeepLinkTests
 
         var bound = MessageLogPanelBinder.Bind(lines);
         Assert.That(bound.Rows[0].ActorId, Is.EqualTo("agent-alpha"));
+        Assert.That(bound.Rows[0].AgentId, Is.EqualTo("agent-alpha"));
+        Assert.That(bound.Rows[0].SourceKind, Is.EqualTo("Agent"));
         Assert.That(bound.Rows[0].AttributionLabel, Does.Contain("Agent"));
         Assert.That(bound.Rows[0].AttributionLabel, Does.Contain("agent-alpha"));
     }

@@ -1,11 +1,8 @@
-namespace ProjectAegis.Delegation.Projection;
-
-using System;
-using System.Collections.Generic;
-using System.IO;
 using System.Text;
 using System.Text.Json;
 using ProjectAegis.Data.Scenario;
+
+namespace ProjectAegis.Delegation.Projection;
 
 [Flags]
 public enum MessageNotificationActions

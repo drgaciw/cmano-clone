@@ -1,10 +1,9 @@
-namespace ProjectAegis.Delegation.UnityAdapter.Tests.Bridge;
-
 using NUnit.Framework;
-using ProjectAegis.Delegation.Core;
 using ProjectAegis.Delegation.Decision;
 using ProjectAegis.Delegation.Projection;
 using ProjectAegis.Delegation.UnityAdapter.Bridge;
+
+namespace ProjectAegis.Delegation.UnityAdapter.Tests.Bridge;
 
 [TestFixture]
 public sealed class ContactOverrideCommandTests

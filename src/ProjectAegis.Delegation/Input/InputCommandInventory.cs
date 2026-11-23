@@ -95,7 +95,7 @@ public static class InputCommandInventory
             return false;
         }
 
-        return ById.TryGetValue(commandId!.Trim().ToLowerInvariant(), out descriptor);
+        return ById.TryGetValue(commandId.Trim().ToLowerInvariant(), out descriptor);
     }
 
     private static Dictionary<string, InputCommandDescriptor> BuildIndex()

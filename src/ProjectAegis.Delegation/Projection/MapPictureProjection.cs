@@ -65,7 +65,7 @@ public static class MapPictureProjection
             }
 
             var affiliation = !string.IsNullOrEmpty(ov?.AffiliationOverride)
-                ? MilitarySymbology.NormalizeAffiliation(ov!.AffiliationOverride)
+                ? MilitarySymbology.NormalizeAffiliation(ov.AffiliationOverride)
                 : "Hostile";
             var (x, y, lat, lon, authoritative, course, speed) =
                 ResolvePlacement(contact.ContactId, layoutSeed + 17, poses);

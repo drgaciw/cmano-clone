@@ -153,10 +153,10 @@ public static class DecisionLogDeepLinkProjection
                         ScoredAlternatives: alternatives,
                         Fields: new[]
                         {
-                        KV("OrderKind", p.ChosenOrderKind.ToString()),
-                        KV("Autonomy", p.AutonomyLevel.ToString()),
-                        KV("Attention", string.Format(CultureInfo.InvariantCulture, "{0:F2}/{1:F2}", p.AttentionLoad, p.AttentionBudget)),
-                        KV("RngDraw", string.Format(CultureInfo.InvariantCulture, "{0:F6}", p.RngDraw)),
+                        Kv("OrderKind", p.ChosenOrderKind.ToString()),
+                        Kv("Autonomy", p.AutonomyLevel.ToString()),
+                        Kv("Attention", string.Format(CultureInfo.InvariantCulture, "{0:F2}/{1:F2}", p.AttentionLoad, p.AttentionBudget)),
+                        Kv("RngDraw", string.Format(CultureInfo.InvariantCulture, "{0:F6}", p.RngDraw)),
                         },
                         UnavailableReason: null);
                 }
@@ -185,10 +185,10 @@ public static class DecisionLogDeepLinkProjection
                         ScoredAlternatives: alternatives,
                         Fields: new[]
                         {
-                        KV("OrderKind", r.ChosenKind.ToString()),
-                        KV("Autonomy", r.AutonomyLevel.ToString()),
-                        KV("Attention", string.Format(CultureInfo.InvariantCulture, "{0:F2}/{1:F2}", r.AttentionLoad, r.AttentionBudget)),
-                        KV("RngDraw", string.Format(CultureInfo.InvariantCulture, "{0:F6}", r.RngDraw)),
+                        Kv("OrderKind", r.ChosenKind.ToString()),
+                        Kv("Autonomy", r.AutonomyLevel.ToString()),
+                        Kv("Attention", string.Format(CultureInfo.InvariantCulture, "{0:F2}/{1:F2}", r.AttentionLoad, r.AttentionBudget)),
+                        Kv("RngDraw", string.Format(CultureInfo.InvariantCulture, "{0:F6}", r.RngDraw)),
                         },
                         UnavailableReason: null);
                 }
@@ -201,9 +201,9 @@ public static class DecisionLogDeepLinkProjection
                     policySnapshotId: d.PolicySnapshotId,
                     fields: new[]
                     {
-                        KV("AttemptedKind", d.AttemptedKind.ToString()),
-                        KV("Reason", d.Reason.ToString()),
-                        KV("PolicySnapshotId", d.PolicySnapshotId.ToString(CultureInfo.InvariantCulture)),
+                        Kv("AttemptedKind", d.AttemptedKind.ToString()),
+                        Kv("Reason", d.Reason.ToString()),
+                        Kv("PolicySnapshotId", d.PolicySnapshotId.ToString(CultureInfo.InvariantCulture)),
                     });
 
             case OrderLogEntryKind.Engagement when entry.Payload is EngagementRecord e:
@@ -216,11 +216,11 @@ public static class DecisionLogDeepLinkProjection
                     rationale: e.AbortReasonCode,
                     fields: new[]
                     {
-                        KV("EngagementId", e.EngagementId.ToString(CultureInfo.InvariantCulture)),
-                        KV("Launched", e.Launched ? "true" : "false"),
-                        KV("Victim", e.VictimTargetId?.Value ?? "—"),
-                        KV("WeaponFamily", e.WeaponFamilyId ?? "—"),
-                        KV("SalvoSize", e.SalvoSize.ToString(CultureInfo.InvariantCulture)),
+                        Kv("EngagementId", e.EngagementId.ToString(CultureInfo.InvariantCulture)),
+                        Kv("Launched", e.Launched ? "true" : "false"),
+                        Kv("Victim", e.VictimTargetId?.Value ?? "—"),
+                        Kv("WeaponFamily", e.WeaponFamilyId ?? "—"),
+                        Kv("SalvoSize", e.SalvoSize.ToString(CultureInfo.InvariantCulture)),
                     });
 
             case OrderLogEntryKind.EngagementOutcome when entry.Payload is EngagementOutcomeRecord o:
@@ -230,10 +230,10 @@ public static class DecisionLogDeepLinkProjection
                     $"Engagement {o.EngagementId} outcome: {o.OutcomeCode} vs {o.VictimTargetId.Value}",
                     fields: new[]
                     {
-                        KV("EngagementId", o.EngagementId.ToString(CultureInfo.InvariantCulture)),
-                        KV("Victim", o.VictimTargetId.Value),
-                        KV("OutcomeCode", o.OutcomeCode),
-                        KV("PkDraw", string.Format(CultureInfo.InvariantCulture, "{0:F6}", o.PkDraw)),
+                        Kv("EngagementId", o.EngagementId.ToString(CultureInfo.InvariantCulture)),
+                        Kv("Victim", o.VictimTargetId.Value),
+                        Kv("OutcomeCode", o.OutcomeCode),
+                        Kv("PkDraw", string.Format(CultureInfo.InvariantCulture, "{0:F6}", o.PkDraw)),
                     });
 
             case OrderLogEntryKind.ControllerChange when entry.Payload is ControllerChangeRecord cc:
@@ -243,21 +243,21 @@ public static class DecisionLogDeepLinkProjection
                     $"Controller {cc.TargetId.Value}: {cc.PreviousKind} → {cc.NewKind}",
                     fields: new[]
                     {
-                        KV("PreviousKind", cc.PreviousKind),
-                        KV("NewKind", cc.NewKind),
+                        Kv("PreviousKind", cc.PreviousKind),
+                        Kv("NewKind", cc.NewKind),
                     });
 
             case OrderLogEntryKind.GroupMemberDetach when entry.Payload is GroupMemberDetachRecord gd:
                 return SimpleDetail(
                     entry, 0, "CONTROLLER", "Group", gd.GroupId.Value, null, gd.UnitId.Value,
                     $"Unit {gd.UnitId.Value} detached from {gd.GroupId.Value}",
-                    fields: new[] { KV("GroupId", gd.GroupId.Value) });
+                    fields: new[] { Kv("GroupId", gd.GroupId.Value) });
 
             case OrderLogEntryKind.GroupMemberRejoin when entry.Payload is GroupMemberRejoinRecord gr:
                 return SimpleDetail(
                     entry, 0, "CONTROLLER", "Group", gr.GroupId.Value, null, gr.UnitId.Value,
                     $"Unit {gr.UnitId.Value} rejoined {gr.GroupId.Value}",
-                    fields: new[] { KV("GroupId", gr.GroupId.Value) });
+                    fields: new[] { Kv("GroupId", gr.GroupId.Value) });
 
             case OrderLogEntryKind.MagazineChange when entry.Payload is MagazineChangeRecord m:
                 return SimpleDetail(
@@ -266,9 +266,9 @@ public static class DecisionLogDeepLinkProjection
                     rationale: m.ReasonCode,
                     fields: new[]
                     {
-                        KV("MountId", m.MountId.ToString(CultureInfo.InvariantCulture)),
-                        KV("Delta", m.Delta.ToString(CultureInfo.InvariantCulture)),
-                        KV("ReasonCode", m.ReasonCode),
+                        Kv("MountId", m.MountId.ToString(CultureInfo.InvariantCulture)),
+                        Kv("Delta", m.Delta.ToString(CultureInfo.InvariantCulture)),
+                        Kv("ReasonCode", m.ReasonCode),
                     });
 
             case OrderLogEntryKind.ContactChange when entry.Payload is ContactChangeRecord c:
@@ -277,9 +277,9 @@ public static class DecisionLogDeepLinkProjection
                     $"Contact {c.ContactId} {c.PreviousState} → {c.NewState} ({c.TargetId})",
                     fields: new[]
                     {
-                        KV("ContactId", c.ContactId),
-                        KV("TargetId", c.TargetId),
-                        KV("Transition", $"{c.PreviousState} → {c.NewState}"),
+                        Kv("ContactId", c.ContactId),
+                        Kv("TargetId", c.TargetId),
+                        Kv("Transition", $"{c.PreviousState} → {c.NewState}"),
                     });
 
             case OrderLogEntryKind.MissionTransition when entry.Payload is MissionTransitionRecord mt:
@@ -288,8 +288,8 @@ public static class DecisionLogDeepLinkProjection
                     $"Mission {mt.EventId} → {mt.PhaseCode}",
                     fields: new[]
                     {
-                        KV("EventId", mt.EventId),
-                        KV("PhaseCode", mt.PhaseCode),
+                        Kv("EventId", mt.EventId),
+                        Kv("PhaseCode", mt.PhaseCode),
                     });
 
             case OrderLogEntryKind.EventFired when entry.Payload is EventFiredRecord ev:
@@ -298,8 +298,8 @@ public static class DecisionLogDeepLinkProjection
                     $"Event {ev.EventId}: {ev.EventCode}",
                     fields: new[]
                     {
-                        KV("EventId", ev.EventId),
-                        KV("EventCode", ev.EventCode),
+                        Kv("EventId", ev.EventId),
+                        Kv("EventCode", ev.EventCode),
                     });
 
             case OrderLogEntryKind.PlayerOrder when entry.Payload is PlayerOrderRecord po:
@@ -308,9 +308,9 @@ public static class DecisionLogDeepLinkProjection
                     $"Player ordered {po.Kind} for {po.UnitId.Value}",
                     fields: new[]
                     {
-                        KV("OrderKind", po.Kind.ToString()),
-                        KV("Source", po.Source),
-                        KV("ExecuteSimTick", po.ResolvedExecuteSimTick.ToString(CultureInfo.InvariantCulture)),
+                        Kv("OrderKind", po.Kind.ToString()),
+                        Kv("Source", po.Source),
+                        Kv("ExecuteSimTick", po.ResolvedExecuteSimTick.ToString(CultureInfo.InvariantCulture)),
                     });
 
             case OrderLogEntryKind.PolicyUpdate when entry.Payload is PolicyUpdateRecord pu:
@@ -320,9 +320,9 @@ public static class DecisionLogDeepLinkProjection
                     policySnapshotId: pu.PolicySnapshotId,
                     fields: new[]
                     {
-                        KV("Field", pu.Field),
-                        KV("Transition", $"{pu.PreviousValue} → {pu.NewValue}"),
-                        KV("PolicySnapshotId", pu.PolicySnapshotId.ToString(CultureInfo.InvariantCulture)),
+                        Kv("Field", pu.Field),
+                        Kv("Transition", $"{pu.PreviousValue} → {pu.NewValue}"),
+                        Kv("PolicySnapshotId", pu.PolicySnapshotId.ToString(CultureInfo.InvariantCulture)),
                     });
 
             case OrderLogEntryKind.ModeChange when entry.Payload is ModeChangeRecord mc:
@@ -331,8 +331,8 @@ public static class DecisionLogDeepLinkProjection
                     $"Mode {mc.PreviousMode} → {mc.NewMode}",
                     fields: new[]
                     {
-                        KV("PreviousMode", mc.PreviousMode),
-                        KV("NewMode", mc.NewMode),
+                        Kv("PreviousMode", mc.PreviousMode),
+                        Kv("NewMode", mc.NewMode),
                     });
 
             case OrderLogEntryKind.CommsStateChange when entry.Payload is CommsStateChangeRecord cs:
@@ -342,9 +342,9 @@ public static class DecisionLogDeepLinkProjection
                     rationale: cs.Reason,
                     fields: new[]
                     {
-                        KV("NodeId", cs.NodeId),
-                        KV("Transition", $"{cs.PreviousState} → {cs.NewState}"),
-                        KV("Reason", cs.Reason),
+                        Kv("NodeId", cs.NodeId),
+                        Kv("Transition", $"{cs.PreviousState} → {cs.NewState}"),
+                        Kv("Reason", cs.Reason),
                     });
 
             case OrderLogEntryKind.FuelStateChange when entry.Payload is FuelStateChangeRecord fs:
@@ -353,8 +353,8 @@ public static class DecisionLogDeepLinkProjection
                     $"Fuel {fs.UnitId.Value}: {fs.PreviousState} → {fs.NewState}",
                     fields: new[]
                     {
-                        KV("Transition", $"{fs.PreviousState} → {fs.NewState}"),
-                        KV("RemainingKg", string.Format(CultureInfo.InvariantCulture, "{0:F1}", fs.RemainingFuelKg)),
+                        Kv("Transition", $"{fs.PreviousState} → {fs.NewState}"),
+                        Kv("RemainingKg", string.Format(CultureInfo.InvariantCulture, "{0:F1}", fs.RemainingFuelKg)),
                     });
 
             case OrderLogEntryKind.FuelBurn when entry.Payload is FuelBurnRecord fb:
@@ -363,8 +363,8 @@ public static class DecisionLogDeepLinkProjection
                     $"Fuel burn {fb.UnitId.Value}: {fb.DeltaKg:F1} kg",
                     fields: new[]
                     {
-                        KV("DeltaKg", string.Format(CultureInfo.InvariantCulture, "{0:F1}", fb.DeltaKg)),
-                        KV("RemainingKg", string.Format(CultureInfo.InvariantCulture, "{0:F1}", fb.RemainingFuelKg)),
+                        Kv("DeltaKg", string.Format(CultureInfo.InvariantCulture, "{0:F1}", fb.DeltaKg)),
+                        Kv("RemainingKg", string.Format(CultureInfo.InvariantCulture, "{0:F1}", fb.RemainingFuelKg)),
                     });
 
             case OrderLogEntryKind.PlatformDamageChange when entry.Payload is PlatformDamageChangeRecord dmg:
@@ -374,9 +374,9 @@ public static class DecisionLogDeepLinkProjection
                     rationale: dmg.ReasonCode,
                     fields: new[]
                     {
-                        KV("HpPct", string.Format(CultureInfo.InvariantCulture, "{0:F0}% → {1:F0}%", dmg.PreviousHpPct, dmg.NewHpPct)),
-                        KV("ReasonCode", dmg.ReasonCode),
-                        KV("DamageLevel", dmg.DamageLevel.ToString(CultureInfo.InvariantCulture)),
+                        Kv("HpPct", string.Format(CultureInfo.InvariantCulture, "{0:F0}% → {1:F0}%", dmg.PreviousHpPct, dmg.NewHpPct)),
+                        Kv("ReasonCode", dmg.ReasonCode),
+                        Kv("DamageLevel", dmg.DamageLevel.ToString(CultureInfo.InvariantCulture)),
                     });
 
             case OrderLogEntryKind.OrdnanceStateChange when entry.Payload is OrdnanceStateChangeRecord ord:
@@ -385,8 +385,8 @@ public static class DecisionLogDeepLinkProjection
                     $"Ordnance {ord.UnitId.Value}: {ord.PreviousState} → {ord.NewState} (rem {ord.RoundsRemaining})",
                     fields: new[]
                     {
-                        KV("Transition", $"{ord.PreviousState} → {ord.NewState}"),
-                        KV("RoundsRemaining", ord.RoundsRemaining.ToString(CultureInfo.InvariantCulture)),
+                        Kv("Transition", $"{ord.PreviousState} → {ord.NewState}"),
+                        Kv("RoundsRemaining", ord.RoundsRemaining.ToString(CultureInfo.InvariantCulture)),
                     });
 
             case OrderLogEntryKind.ContactOverride when entry.Payload is ContactOverrideRecord co:
@@ -395,10 +395,10 @@ public static class DecisionLogDeepLinkProjection
                     $"Contact {co.ContactId} {co.Action}: {co.PreviousValue} → {co.NewValue}",
                     fields: new[]
                     {
-                        KV("ContactId", co.ContactId),
-                        KV("Action", co.Action.ToString()),
-                        KV("PreviousValue", co.PreviousValue),
-                        KV("NewValue", co.NewValue),
+                        Kv("ContactId", co.ContactId),
+                        Kv("Action", co.Action.ToString()),
+                        Kv("PreviousValue", co.PreviousValue),
+                        Kv("NewValue", co.NewValue),
                     });
 
             default:
@@ -466,5 +466,5 @@ public static class DecisionLogDeepLinkProjection
         return list;
     }
 
-    private static KeyValuePair<string, string> KV(string key, string value) => new(key, value);
+    private static KeyValuePair<string, string> Kv(string key, string value) => new(key, value);
 }

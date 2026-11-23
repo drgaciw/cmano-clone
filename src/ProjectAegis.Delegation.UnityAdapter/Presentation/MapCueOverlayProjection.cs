@@ -1,6 +1,5 @@
-using System;
-using System.Collections.Generic;
 using ProjectAegis.Delegation.Core;
+using ProjectAegis.Delegation.Decision;
 using ProjectAegis.Delegation.Projection;
 using ProjectAegis.Delegation.UnityAdapter.Bridge;
 
@@ -97,7 +96,7 @@ public static class MapCueOverlayProjection
     }
 
     private static IReadOnlyList<ContactOriginFact>? MergeDatalinkOrigins(
-        Delegation.Decision.DecisionLog log,
+        DecisionLog log,
         IReadOnlyList<ContactOriginFact>? explicitOrigins)
     {
         var merged = new List<ContactOriginFact>();

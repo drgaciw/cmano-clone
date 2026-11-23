@@ -1,5 +1,3 @@
-using System;
-using System.Collections.Generic;
 using ProjectAegis.Delegation.Projection;
 
 namespace ProjectAegis.Delegation.UnityAdapter.Presentation;

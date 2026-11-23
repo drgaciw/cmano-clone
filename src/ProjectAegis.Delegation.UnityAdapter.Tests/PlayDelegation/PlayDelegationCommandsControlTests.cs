@@ -1,11 +1,10 @@
-namespace ProjectAegis.Delegation.UnityAdapter.Tests.PlayDelegation;
-
 using NUnit.Framework;
 using ProjectAegis.Delegation.Controllers;
 using ProjectAegis.Delegation.Core;
 using ProjectAegis.Delegation.UnityAdapter.PlayDelegation;
 using ProjectAegis.Delegation.UnityAdapter.PlayEntry;
-using ProjectAegis.Sim.Scenario;
+
+namespace ProjectAegis.Delegation.UnityAdapter.Tests.PlayDelegation;
 
 [TestFixture]
 public sealed class PlayDelegationCommandsControlTests

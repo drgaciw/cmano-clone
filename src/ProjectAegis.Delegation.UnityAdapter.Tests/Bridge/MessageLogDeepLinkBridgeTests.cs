@@ -48,9 +48,33 @@ public sealed class MessageLogDeepLinkBridgeTests
         var bound = DecisionLogDeepLinkBinder.Bind(liveVisible);
         Assert.That(bound.Visible, Is.True);
         Assert.That(bound.Found, Is.True);
+        Assert.That(bound.SequenceId, Is.EqualTo(visibleSeq));
+        Assert.That(bound.HeaderLine, Does.Contain($"SEQ #{visibleSeq}"));
         Assert.That(bound.AttributionLine, Does.Contain("assisted-1"));
         Assert.That(bound.RationaleLine, Does.Contain("assisted hold"));
+        Assert.That(bound.TelemetryLine, Does.Contain("Assisted"));
+        Assert.That(bound.AlternativeLines, Is.Empty);
+        Assert.That(bound.FieldLines, Is.Not.Empty);
+        Assert.That(bound.UnavailableText, Is.Empty);
+
+        var boundFogged = DecisionLogDeepLinkBinder.Bind(liveFogged);
+        Assert.That(boundFogged.Visible, Is.True);
+        Assert.That(boundFogged.Found, Is.False);
+        Assert.That(boundFogged.UnavailableText, Is.EqualTo(DecisionLogDeepLinkProjection.UnavailableReasonCode));
         Assert.That(log.ComputeFingerprint(), Is.EqualTo(fingerprintBefore));
+    }
+
+    [Test]
+    public void MessageCategoryPolicyBinder_projects_all_rule_flags_and_tokens()
+    {
+        var rows = MessageCategoryPolicyBinder.Bind(MessageCategoryPolicy.LoadDefault());
+        Assert.That(rows, Is.Not.Empty);
+        var damage = rows.Single(r => r.Category == "DAMAGE");
+        Assert.That(damage.Log, Is.True);
+        Assert.That(damage.Pause, Is.True);
+        Assert.That(damage.MapBalloon, Is.True);
+        Assert.That(damage.DropToRealTime, Is.True);
+        Assert.That(damage.ActionTokens, Is.Not.Empty);
     }
 
     [Test]

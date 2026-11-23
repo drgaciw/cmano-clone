@@ -1,9 +1,9 @@
-namespace ProjectAegis.Ai.Host.Tests.Evidence;
-
 using NUnit.Framework;
 using ProjectAegis.Ai.Contracts;
 using ProjectAegis.Ai.Host.Evidence;
 using ProjectAegis.Delegation.Decision;
+
+namespace ProjectAegis.Ai.Host.Tests.Evidence;
 
 [TestFixture]
 public sealed class EvidenceProjectorContactOverrideTests

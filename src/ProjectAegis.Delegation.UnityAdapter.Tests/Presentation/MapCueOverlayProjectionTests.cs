@@ -65,6 +65,10 @@ public sealed class MapCueOverlayProjectionTests
         Assert.That(dlRow.IsContact, Is.True);
         Assert.That(dlRow.IsStale, Is.True);
         Assert.That(dlRow.IsDatalinkSourced, Is.True);
+        Assert.That(dlRow.NormalizedX, Is.EqualTo(0.4f).Within(0.0001f));
+        Assert.That(dlRow.NormalizedY, Is.EqualTo(0.5f).Within(0.0001f));
+        Assert.That(dlRow.IsSelected, Is.False);
+        Assert.That(dlRow.TooltipText, Is.Not.Empty);
         Assert.That(dlRow.Origin, Is.EqualTo(ContactInformationOrigin.Datalink));
         Assert.That(dlRow.ContactTokensText, Does.Contain(MapCueOverlayProjection.StaleTokenText));
         Assert.That(dlRow.ContactTokensText, Does.Contain(MapCueOverlayProjection.DatalinkTokenText));
@@ -119,10 +123,16 @@ public sealed class MapCueOverlayProjectionTests
             selectedUnitId: "u-queued",
             terminalOrders: terminals);
 
-        Assert.That(state.Symbols.Single(s => s.SymbolId == "u-queued").IsQueuedOrder, Is.True);
-        Assert.That(state.Symbols.Single(s => s.SymbolId == "u-queued").UnitBadgeText, Does.Contain(MapCueOverlayProjection.QueuedBadgeText));
-        Assert.That(state.Symbols.Single(s => s.SymbolId == "u-queued").CssClasses, Does.Contain(MapCueOverlayProjection.QueuedCssClass));
+        var queuedRow = state.Symbols.Single(s => s.SymbolId == "u-queued");
+        Assert.That(queuedRow.IsQueuedOrder, Is.True);
+        Assert.That(queuedRow.OrderDisposition, Is.EqualTo(UnitOrderDisposition.Queued));
+        Assert.That(queuedRow.OrderKind, Is.EqualTo(OrderKind.Hold));
+        Assert.That(queuedRow.IsSelected, Is.True);
+        Assert.That(queuedRow.UnitBadgeText, Does.Contain(MapCueOverlayProjection.QueuedBadgeText));
+        Assert.That(queuedRow.CssClasses, Does.Contain(MapCueOverlayProjection.QueuedCssClass));
         Assert.That(state.SelectedUnitOrderCue.Visible, Is.True);
+        Assert.That(state.SelectedUnitOrderCue.Disposition, Is.EqualTo(UnitOrderDisposition.Queued));
+        Assert.That(state.SelectedUnitOrderCue.OrderKind, Is.EqualTo(OrderKind.Hold));
         Assert.That(state.SelectedUnitOrderCue.Text, Does.Contain("QUEUED"));
 
         foreach (var nonPendingId in new[] { "u-delayed", "u-rejected", "u-executed", "u-expired", "u-none" })
@@ -163,6 +173,8 @@ public sealed class MapCueOverlayProjectionTests
 
         Assert.That(first.SelectedContactCue.Visible, Is.True);
         Assert.That(first.SelectedContactCue.ContactId, Is.EqualTo("dl-stale"));
+        Assert.That(first.SelectedContactCue.IsStale, Is.True);
+        Assert.That(first.SelectedContactCue.IsDatalinkSourced, Is.True);
         Assert.That(first.SelectedContactCue.Text, Does.Contain(MapCueOverlayProjection.StaleTokenText));
         Assert.That(first.SelectedContactCue.Text, Does.Contain(MapCueOverlayProjection.DatalinkTokenText));
         Assert.That(first.SelectedUnitOrderCue.Visible, Is.True);

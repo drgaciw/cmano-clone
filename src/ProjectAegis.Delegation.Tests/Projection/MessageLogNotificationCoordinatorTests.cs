@@ -1,9 +1,7 @@
 using NUnit.Framework;
 using ProjectAegis.Delegation.Core;
 using ProjectAegis.Delegation.Decision;
-using ProjectAegis.Delegation.Orchestration;
 using ProjectAegis.Delegation.Projection;
-using ProjectAegis.Sim.Policy;
 using ProjectAegis.Sim.Scenario;
 
 namespace ProjectAegis.Delegation.Tests.Projection;
@@ -28,6 +26,11 @@ public sealed class MessageLogNotificationCoordinatorTests
         Assert.That(first.ClockAction, Is.EqualTo(ClockStopAction.Pause));
         Assert.That(first.TriggeredSequenceIds, Is.EqualTo(new[] { 10UL }));
         Assert.That(first.NewlyTriggeredAlerts, Has.Count.EqualTo(1));
+        Assert.That(first.NewlyTriggeredAlerts[0].SimTime, Is.EqualTo(5.0));
+        Assert.That(first.NewlyTriggeredAlerts[0].SubjectId, Is.EqualTo("u1"));
+        Assert.That(first.NewlyTriggeredAlerts[0].TriggersDropToRealTime, Is.True);
+        Assert.That(coordinator.ActiveBalloons, Has.Count.EqualTo(1));
+        Assert.That(coordinator.ActiveBalloons[0].SimTime, Is.EqualTo(5.0));
 
         Assert.That(second.ShouldPause, Is.False);
         Assert.That(second.ShouldDropToRealTime, Is.False);
@@ -105,11 +108,13 @@ public sealed class MessageLogNotificationCoordinatorTests
         var eval = coordinator.Evaluate(lines);
 
         Assert.That(eval.ShouldPause, Is.True);
+        Assert.That(eval.CoalescedRoutines, Is.Not.Empty);
         Assert.That(coordinator.HasUnresolvedPause, Is.True);
         var missionSummary = coordinator.CoalescedSummaries.Single(s => s.Category == "MISSION");
         Assert.That(missionSummary.Count, Is.EqualTo(2));
         Assert.That(missionSummary.SequenceIds, Is.EqualTo(new[] { 1UL, 2UL }));
         Assert.That(missionSummary.LatestSequenceId, Is.EqualTo(2UL));
+        Assert.That(missionSummary.LatestText, Does.Contain("ON_STATION"));
     }
 
     [Test]
@@ -249,6 +254,12 @@ public sealed class MessageLogNotificationCoordinatorTests
             isReplayViewerAttached: false);
         Assert.That(whilePaused, Has.Count.EqualTo(1));
         Assert.That(whilePaused[0].SequenceId, Is.EqualTo(103UL));
+        Assert.That(whilePaused[0].Prefix, Is.Not.Empty);
+        Assert.That(whilePaused[0].Category, Is.EqualTo("DAMAGE"));
+        Assert.That(whilePaused[0].Text, Does.Contain("Damage u1"));
+        Assert.That(whilePaused[0].IsPauseAlert, Is.True);
+        Assert.That(whilePaused[0].IsDismissed, Is.False);
+        Assert.That(whilePaused[0].IsAcknowledged, Is.False);
         Assert.That(whilePaused[0].ShowAck, Is.True);
         Assert.That(whilePaused[0].CanAck, Is.True);
         Assert.That(whilePaused[0].CanDismiss, Is.True);
