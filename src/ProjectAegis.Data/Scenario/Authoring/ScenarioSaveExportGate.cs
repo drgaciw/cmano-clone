@@ -54,7 +54,19 @@ public static class ScenarioSaveExportGate
     public static ValidationReport LiveValidate(
         ScenarioDocumentDto document,
         ICatalogReader? boundCatalog,
-        ValidationConfig? config = null)
+        ValidationConfig? config = null) =>
+        LiveValidate(document, boundCatalog, config, MissionRoleCapabilityManifest.DefaultBackendId);
+
+    /// <summary>
+    /// DRG-372 + DRG-371 additive overload: validate a draft document against its bound catalog and
+    /// target execution backend. When <paramref name="boundCatalog"/> is null, returns a single stable
+    /// <see cref="CatalogUnboundFindingCode"/> finding — never the Baltic fixture.
+    /// </summary>
+    public static ValidationReport LiveValidate(
+        ScenarioDocumentDto document,
+        ICatalogReader? boundCatalog,
+        ValidationConfig? config,
+        string backendId)
     {
         if (document is null) throw new ArgumentNullException(nameof(document));
 
@@ -71,20 +83,28 @@ public static class ScenarioSaveExportGate
             ]);
         }
 
-        return new ScenarioValidationEngine().Validate(document, boundCatalog, config);
+        return new ScenarioValidationEngine().Validate(document, boundCatalog, config, backendId);
     }
 
     /// <summary>Persists the session draft; reports (but never enforces) blocking findings.</summary>
     public static ScenarioDraftSaveOutcome SaveDraft(
         ScenarioAuthoringSession session,
         ICatalogReader? catalog = null,
-        ValidationConfig? config = null)
+        ValidationConfig? config = null) =>
+        SaveDraft(session, catalog, config, MissionRoleCapabilityManifest.DefaultBackendId);
+
+    /// <summary>Persists the session draft and evaluates blocking findings against <paramref name="backendId"/>.</summary>
+    public static ScenarioDraftSaveOutcome SaveDraft(
+        ScenarioAuthoringSession session,
+        ICatalogReader? catalog,
+        ValidationConfig? config,
+        string backendId)
     {
         if (session is null) throw new ArgumentNullException(nameof(session));
 
         config ??= new ValidationConfig();
         session.Save();
-        var report = LiveValidate(session.Editor.ToDto(), catalog, config);
+        var report = LiveValidate(session.Editor.ToDto(), catalog, config, backendId);
         var blocking = BlockingFindings(report, config).Count;
         var status = blocking == 0
             ? "Draft saved — not exported. Export to produce the validated artifact."
@@ -102,7 +122,17 @@ public static class ScenarioSaveExportGate
         ICatalogReader catalog,
         string artifactPath,
         string? draftPath = null,
-        ValidationConfig? config = null)
+        ValidationConfig? config = null) =>
+        Export(document, catalog, artifactPath, draftPath, config, MissionRoleCapabilityManifest.DefaultBackendId);
+
+    /// <summary>Runs the export gate for a specific execution backend and writes <paramref name="artifactPath"/> when allowed.</summary>
+    public static ScenarioValidatedExportOutcome Export(
+        ScenarioDocumentDto document,
+        ICatalogReader catalog,
+        string artifactPath,
+        string? draftPath,
+        ValidationConfig? config,
+        string backendId)
     {
         if (document is null) throw new ArgumentNullException(nameof(document));
         if (catalog is null) throw new ArgumentNullException(nameof(catalog));
@@ -113,7 +143,7 @@ public static class ScenarioSaveExportGate
         }
 
         config ??= new ValidationConfig();
-        var package = ScenarioExportCommand.Prepare(document, catalog, config);
+        var package = ScenarioExportCommand.Prepare(document, catalog, config, backendId);
         var blocking = BlockingFindings(package.ValidationReport, config);
         if (!package.Allowed)
         {

@@ -362,4 +362,22 @@ public sealed class ScenarioSimulateSampleCliTests
         Assert.That(hashStrike, Is.Not.EqualTo(hashClean));
         // fire_order shape differs as policies differ (empty vs nonempty) but contract holds independently.
     }
+
+    [Test]
+    public void scenario_simulate_sample_patrol_preserves_single_json_before_seed_with_generic_only_warnings()
+    {
+        var path = ScenarioValidationFixturePaths.Require("golden_clean.json");
+
+        using var writer = new StringWriter();
+        Assert.That(ScenarioSimulateSampleCommand.Run(path, ticks: 8, quiet: false, writer), Is.EqualTo(0));
+
+        var (json, seedLine) = SplitSimulateSampleOutput(writer.ToString());
+        using var doc = JsonDocument.Parse(json);
+        var root = doc.RootElement;
+        Assert.That(seedLine, Does.StartWith("SEED=42 "));
+        Assert.That(root.GetProperty("worldStateSha256").GetString(), Does.Match("^[0-9a-f]{64}$"));
+        Assert.That(root.TryGetProperty("warnings", out var warnings), Is.True);
+        var first = warnings.EnumerateArray().Single();
+        Assert.That(first.GetProperty("code").GetString(), Is.EqualTo(MissionRoleCapabilityManifest.CodeRoleGenericOnly));
+    }
 }

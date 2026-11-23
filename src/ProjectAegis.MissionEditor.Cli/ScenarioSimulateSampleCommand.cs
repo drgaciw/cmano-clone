@@ -37,7 +37,11 @@ public static class ScenarioSimulateSampleCommand
             ? InMemoryCatalogReader.BalticV3Fixture()
             : ScenarioValidateCommand.ResolveCatalogPublic(scenario);
         var config = ValidationConfigLoader.LoadFromRepo();
-        var exportPackage = ScenarioExportCommand.Prepare(scenario, catalog, config);
+        var exportPackage = ScenarioExportCommand.Prepare(
+            scenario,
+            catalog,
+            config,
+            MissionRoleCapabilityManifest.CliSimulateBackendId);
         if (!exportPackage.Allowed)
         {
             if (!quiet)
@@ -47,6 +51,17 @@ public static class ScenarioSimulateSampleCommand
 
             return 1;
         }
+
+        var capabilityWarnings = exportPackage.ValidationReport.Findings
+            .Where(f => f.Severity == ValidationSeverity.Warning && MissionRoleCapabilityManifest.IsCapabilityCode(f.Code))
+            .Select(f => new SimulateWarningJsonDto
+            {
+                Code = f.Code,
+                Severity = f.Severity.ToString(),
+                MissionId = f.MissionId,
+                Message = f.Message,
+            })
+            .ToArray();
 
         var package = ScenarioPackage.FromDocument(
             Path.GetFileNameWithoutExtension(scenarioPath),
@@ -87,6 +102,7 @@ public static class ScenarioSimulateSampleCommand
             ReportHash = exportPackage.ValidationReport.ReportHash,
             FireOrder = fireOrder,
             WorldStateSha256 = worldStateSha256,
+            Warnings = capabilityWarnings.Length == 0 ? null : capabilityWarnings,
         };
 
         if (!quiet)
@@ -170,5 +186,18 @@ public static class ScenarioSimulateSampleCommand
         public string[] FireOrder { get; init; } = [];
 
         public string WorldStateSha256 { get; init; } = "";
+
+        public SimulateWarningJsonDto[]? Warnings { get; init; }
+    }
+
+    private sealed class SimulateWarningJsonDto
+    {
+        public string Code { get; init; } = "";
+
+        public string Severity { get; init; } = "";
+
+        public string? MissionId { get; init; }
+
+        public string Message { get; init; } = "";
     }
 }

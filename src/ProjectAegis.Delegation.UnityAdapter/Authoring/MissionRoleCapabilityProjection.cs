@@ -45,8 +45,9 @@ public sealed class MissionRoleCapabilityRow
     /// <summary>Actionable disclosure (identical to the validation finding message).</summary>
     public string Message { get; }
 
-    /// <summary>True when this mission keeps Export and Play closed.</summary>
-    public bool BlocksExportAndPlay => Execution != MissionRoleExecution.Executed;
+    /// <summary>True when this mission keeps Export and Play closed (NotExecuted or Unknown; GenericOnly is non-blocking).</summary>
+    public bool BlocksExportAndPlay =>
+        Execution is MissionRoleExecution.NotExecuted or MissionRoleExecution.Unknown;
 }
 
 /// <summary>Display row for one built-in mission template's runtime support (DRG-345).</summary>
@@ -112,6 +113,7 @@ public static class MissionRoleCapabilityProjection
     public static string StatusLabel(MissionRoleExecution execution, string backendId) => execution switch
     {
         MissionRoleExecution.Executed => $"Executed by {backendId}",
+        MissionRoleExecution.GenericOnly => $"Generic behavior only on {backendId} — Export and Play allowed",
         MissionRoleExecution.NotExecuted => $"Not executed by {backendId} — Export and Play blocked",
         _ => $"Unknown role for {backendId} — Export and Play blocked",
     };
