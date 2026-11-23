@@ -1,14 +1,14 @@
 namespace ProjectAegis.Delegation.UnityAdapter.Tests.Bridge;
 
 using NUnit.Framework;
-using ProjectAegis.Delegation.Projection;
+using Projection;
 
 /// <summary>UAT D38: the HUD row cap must not evict comms state transitions.</summary>
 [TestFixture]
 public sealed class MessageLogRowWindowTests
 {
     private static MessageLogLine Line(ulong seq, string category, string text) =>
-        new(seq, seq, category, text, null);
+        new(seq, seq, category, text);
 
     [Test]
     public void Select_keeps_early_comms_rows_when_later_chatter_exceeds_cap()

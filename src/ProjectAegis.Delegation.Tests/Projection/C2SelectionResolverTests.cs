@@ -83,7 +83,7 @@ public sealed class C2SelectionResolverTests
     {
         Assert.That(
             C2SelectionResolver.TryResolveHostileContactFromSymbol(
-                "hostile-1", D36Symbols, System.Array.Empty<ContactPictureEntry>(), out var contactId),
+                "hostile-1", D36Symbols, Array.Empty<ContactPictureEntry>(), out var contactId),
             Is.False);
         Assert.That(contactId, Is.Empty);
     }

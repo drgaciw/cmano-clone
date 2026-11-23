@@ -62,7 +62,7 @@ public sealed class DoctrinePanelLeftDrawerLayoutTests
     [Test]
     public void Override_dropdown_stacks_label_above_full_width_input()
     {
-        const double MinInnerWidth = 150; // longest ROE value + dropdown arrow
+        const double minInnerWidth = 150; // longest ROE value + dropdown arrow
         var uss = UiIaSourceReader.ReadUnder("unity", "ProjectAegis", "Assets", "UI", "DoctrineInheritance", "DoctrineInheritancePanel.uss");
 
         var panel = RuleBody(uss, ".doctrine-panel");
@@ -94,6 +94,6 @@ public sealed class DoctrinePanelLeftDrawerLayoutTests
         Assert.That(inputMatch.Success, Is.True, ".doctrine-dropdown > .unity-base-field__input rule missing");
         Assert.That(inputMatch.Groups[1].Value, Does.Match(@"(?<![\w-])flex-grow:\s*1\b"));
 
-        Assert.That(innerWidth, Is.GreaterThanOrEqualTo(MinInnerWidth), "inner width must fit the longest ROE value plus arrow");
+        Assert.That(innerWidth, Is.GreaterThanOrEqualTo(minInnerWidth), "inner width must fit the longest ROE value plus arrow");
     }
 }
