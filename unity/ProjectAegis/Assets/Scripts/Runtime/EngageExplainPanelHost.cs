@@ -38,6 +38,7 @@ namespace ProjectAegis.Unity.Runtime
         private string? _lastSelection;
         private string? _lastUnit;
         private string? _lastContact;
+        private ulong? _lastDeepLinkSequenceId;
 
         /// <summary>Correlated event explanation from the shared Slice B frame.</summary>
         public CombatDetailPresentation LastCombatDetail { get; private set; } = CombatDetailPresentation.Empty;
@@ -139,6 +140,26 @@ namespace ProjectAegis.Unity.Runtime
             }
 
             if (bridgeHost == null || bridgeHost.Bridge == null) return;
+
+            // DRG-268: when a message-log row deep-link is active, display its reused EngageExplain directly.
+            var deepLink = bridgeHost.LastMessageLogExplainLink;
+            if (deepLink != null && deepLink.HasExplain)
+            {
+                if (_lastDeepLinkSequenceId != deepLink.SequenceId)
+                {
+                    _lastDeepLinkSequenceId = deepLink.SequenceId;
+                    Apply(deepLink.Explain);
+                    var linkRootEl = _document.rootVisualElement?.Q(RootName);
+                    if (linkRootEl != null)
+                    {
+                        linkRootEl.style.display = showPanel ? DisplayStyle.Flex : DisplayStyle.None;
+                    }
+                }
+
+                return;
+            }
+
+            _lastDeepLinkSequenceId = null;
             var frame = bridgeHost.DisplayCombatFrame;
             var selected = bridgeHost.DisplayCombatKey;
             if (ReferenceEquals(frame, _lastFrame) && selected == _lastSelection

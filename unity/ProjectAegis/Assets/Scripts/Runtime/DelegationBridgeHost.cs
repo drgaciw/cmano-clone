@@ -394,6 +394,8 @@ namespace ProjectAegis.Unity.Runtime
         private readonly C2ChromePrefsStore _chromePrefs = new();
         private readonly AttentionToastBinder _attentionToast = new();
         private readonly MessageLogNotificationCoordinator _notificationCoordinator = new();
+        private readonly PendingApprovalInterruptCoordinator _pendingApprovalInterrupt = new();
+        private readonly Dictionary<OrderId, double?> _pendingApprovalDlzExpiry = new();
         private MessageCategoryPolicy _notificationPolicy;
         private bool _markedPreExecutionSeen;
         private ISimWorldSnapshot? _lastSnapshot;
@@ -408,6 +410,161 @@ namespace ProjectAegis.Unity.Runtime
 
         /// <summary>DRG-408 / DRG-398: shared notification and safe-stop coordinator.</summary>
         public MessageLogNotificationCoordinator NotificationCoordinator => _notificationCoordinator;
+
+        /// <summary>DRG-269: pending-approval 1x interrupt and authoritative sim-time DLZ countdown coordinator.</summary>
+        public PendingApprovalInterruptCoordinator PendingApprovalInterrupt => _pendingApprovalInterrupt;
+
+        /// <summary>DRG-269: latest evaluated pending-approval interrupt batch.</summary>
+        public PendingApprovalInterruptBatch LastPendingApprovalInterrupt { get; private set; } = PendingApprovalInterruptBatch.Empty;
+
+        /// <summary>DRG-268: latest fog-safe message-log click-through explain link.</summary>
+        public MessageLogExplainLinkResult LastMessageLogExplainLink { get; private set; } = MessageLogExplainLinkResult.Empty;
+
+        /// <summary>DRG-269: binds an authoritative DLZ expiry sim time for a pending approval order.</summary>
+        public void SetPendingApprovalDlzExpiry(OrderId orderId, double? expiresAtSimTime)
+        {
+            if (expiresAtSimTime.HasValue)
+            {
+                _pendingApprovalDlzExpiry[orderId] = expiresAtSimTime.Value;
+            }
+            else
+            {
+                _pendingApprovalDlzExpiry.Remove(orderId);
+            }
+        }
+
+        /// <summary>DRG-269: evaluates pending approvals and applies a single-shot 1x drop via C2ClockCommand.</summary>
+        public PendingApprovalInterruptBatch EvaluatePendingApprovalInterrupts()
+        {
+            if (Bridge?.Orchestrator == null)
+            {
+                LastPendingApprovalInterrupt = PendingApprovalInterruptBatch.Empty;
+                return LastPendingApprovalInterrupt;
+            }
+
+            var isObserver = ObserverModeChromePresentation.Project(Bridge).IsObserver;
+            var currentSimTime = _lastSnapshot?.SimTime ?? 0.0;
+            var batch = _pendingApprovalInterrupt.Evaluate(
+                Bridge.Orchestrator.PendingApprovals,
+                currentSimTime,
+                _pendingApprovalDlzExpiry,
+                IsReplayViewerAttached,
+                isObserver);
+            LastPendingApprovalInterrupt = batch;
+
+            if (batch.ShouldDropToRealTime && Session != null)
+            {
+                C2ClockCommand.TrySetAcceleration(Session, 1, out _);
+                SyncTimeCompressionLabel();
+            }
+
+            return batch;
+        }
+
+        /// <summary>DRG-269: validates replay/observer/stale/DLZ-expiry before approving a pending order.</summary>
+        public bool TryApprovePendingOrderValidated(OrderId orderId, out PendingApprovalDecisionValidation validation)
+        {
+            var isObserver = Bridge != null && ObserverModeChromePresentation.Project(Bridge).IsObserver;
+            var currentSimTime = _lastSnapshot?.SimTime ?? 0.0;
+            _pendingApprovalDlzExpiry.TryGetValue(orderId, out var expiry);
+
+            validation = _pendingApprovalInterrupt.ValidateDecision(
+                orderId,
+                Bridge?.Orchestrator?.PendingApprovals,
+                currentSimTime,
+                expiry,
+                IsReplayViewerAttached,
+                isObserver);
+            if (!validation.Allowed || Bridge?.Orchestrator == null)
+            {
+                return false;
+            }
+
+            var ok = Bridge.Orchestrator.TryApprovePendingOrder(orderId);
+            if (ok)
+            {
+                _pendingApprovalDlzExpiry.Remove(orderId);
+                EvaluatePendingApprovalInterrupts();
+            }
+
+            return ok;
+        }
+
+        /// <summary>DRG-269: validates replay/observer/stale before rejecting a pending order.</summary>
+        public bool TryRejectPendingOrderValidated(OrderId orderId, out PendingApprovalDecisionValidation validation)
+        {
+            var isObserver = Bridge != null && ObserverModeChromePresentation.Project(Bridge).IsObserver;
+            var currentSimTime = _lastSnapshot?.SimTime ?? 0.0;
+            validation = _pendingApprovalInterrupt.ValidateDecision(
+                orderId,
+                Bridge?.Orchestrator?.PendingApprovals,
+                currentSimTime,
+                expiresAtSimTime: null,
+                IsReplayViewerAttached,
+                isObserver);
+            if (!validation.Allowed || Bridge?.Orchestrator == null)
+            {
+                return false;
+            }
+
+            var ok = Bridge.Orchestrator.TryRejectPendingOrder(orderId);
+            if (ok)
+            {
+                _pendingApprovalDlzExpiry.Remove(orderId);
+                EvaluatePendingApprovalInterrupts();
+            }
+
+            return ok;
+        }
+
+        /// <summary>DRG-268: fog-safe message-log row click-through selecting visible unit/contact and populating EngageExplain.</summary>
+        public MessageLogExplainLinkResult SelectMessageLogDeepLink(DecisionLogDeepLinkDetail? detail)
+        {
+            if (detail == null || !detail.Found)
+            {
+                LastMessageLogExplainLink = MessageLogExplainLinkResult.Empty;
+                return LastMessageLogExplainLink;
+            }
+
+            var visibleFriendlies = new HashSet<string>(StringComparer.Ordinal);
+            if (LastOobTree != null)
+            {
+                for (var i = 0; i < LastOobTree.Count; i++)
+                {
+                    if (!string.IsNullOrWhiteSpace(LastOobTree[i].UnitId))
+                    {
+                        visibleFriendlies.Add(LastOobTree[i].UnitId);
+                    }
+                }
+            }
+
+            var visibleContacts = new HashSet<string>(StringComparer.Ordinal);
+            if (LastSliceAContacts != null)
+            {
+                foreach (var key in LastSliceAContacts.Authorities.Keys)
+                {
+                    if (!string.IsNullOrWhiteSpace(key))
+                    {
+                        visibleContacts.Add(key);
+                    }
+                }
+            }
+
+            if (_lastSnapshot?.PrimaryHostileContactId is { } primaryHostile && !string.IsNullOrWhiteSpace(primaryHostile.Value))
+            {
+                visibleContacts.Add(primaryHostile.Value);
+            }
+
+            var resolved = MessageLogExplainDeepLinkCoordinator.Resolve(detail, visibleFriendlies, visibleContacts);
+            LastMessageLogExplainLink = resolved;
+
+            if (!resolved.SuppressedByFog && !string.IsNullOrWhiteSpace(resolved.SafeUnitIdToSelect))
+            {
+                SelectUnit(resolved.SafeUnitIdToSelect);
+            }
+
+            return resolved;
+        }
 
         /// <summary>DRG-408 / DRG-398: evaluation outcome from the latest live message log batch.</summary>
         public NotificationBatchEvaluation LastNotificationBatch { get; private set; } = NotificationBatchEvaluation.Empty;

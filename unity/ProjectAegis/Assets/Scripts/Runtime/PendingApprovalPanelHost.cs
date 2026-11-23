@@ -18,6 +18,8 @@ namespace ProjectAegis.Unity.Runtime
         private const string RootName = "pending-approval-root";
         private const string HeaderName = "pending-approval-header";
         private const string BadgeName = "pending-approval-badge";
+        private const string InterruptLabelName = "pending-approval-interrupt-label";
+        private const string DlzCountdownName = "pending-approval-dlz-countdown";
         private const string EmptyName = "pending-approval-empty";
         private const string ListName = "pending-approval-list";
         private const string ApproveButtonName = "pending-approval-approve";
@@ -43,6 +45,8 @@ namespace ProjectAegis.Unity.Runtime
         private UIDocument _document = null!;
         private Label? _headerLine;
         private Label? _badgeLine;
+        private Label? _interruptLine;
+        private Label? _dlzCountdownLine;
         private Label? _emptyLine;
         private Label? _statusLine;
         private Label? _authorityLine;
@@ -136,6 +140,8 @@ namespace ProjectAegis.Unity.Runtime
             var panel = root.Q<VisualElement>(RootName) ?? root;
             _headerLine = panel.Q<Label>(HeaderName);
             _badgeLine = panel.Q<Label>(BadgeName);
+            _interruptLine = panel.Q<Label>(InterruptLabelName);
+            _dlzCountdownLine = panel.Q<Label>(DlzCountdownName);
             _emptyLine = panel.Q<Label>(EmptyName);
             _statusLine = panel.Q<Label>(StatusName);
             _authorityLine = panel.Q<Label>(AuthorityName);
@@ -342,14 +348,14 @@ namespace ProjectAegis.Unity.Runtime
                 return;
             }
 
-            if (bridgeHost.Bridge.Orchestrator.TryApprovePendingOrder(row.OrderId))
+            if (bridgeHost.TryApprovePendingOrderValidated(row.OrderId, out var validation))
             {
                 SetStatus(null);
                 Refresh();
             }
             else
             {
-                SetStatus("APPROVE_FAILED");
+                SetStatus(validation.Allowed ? "APPROVE_FAILED" : validation.ReasonCode);
             }
         }
 
@@ -368,14 +374,14 @@ namespace ProjectAegis.Unity.Runtime
                 return;
             }
 
-            if (bridgeHost.Bridge.Orchestrator.TryRejectPendingOrder(row.OrderId))
+            if (bridgeHost.TryRejectPendingOrderValidated(row.OrderId, out var validation))
             {
                 SetStatus(null);
                 Refresh();
             }
             else
             {
-                SetStatus("REJECT_FAILED");
+                SetStatus(validation.Allowed ? "REJECT_FAILED" : validation.ReasonCode);
             }
         }
 
@@ -386,6 +392,7 @@ namespace ProjectAegis.Unity.Runtime
                 return;
             }
 
+            var interruptBatch = bridgeHost.EvaluatePendingApprovalInterrupts();
             var pending = bridgeHost.Bridge.Orchestrator.PendingApprovals;
             _rows = PendingApprovalProjection.Project(pending);
 
@@ -397,6 +404,36 @@ namespace ProjectAegis.Unity.Runtime
             if (_badgeLine != null)
             {
                 _badgeLine.text = PendingApprovalProjection.FormatBadge(pending);
+            }
+
+            if (_interruptLine != null)
+            {
+                _interruptLine.text = interruptBatch.Cards.Count > 0
+                    ? (interruptBatch.ShouldDropToRealTime ? "INTERRUPT: 1x FORCED" : "APPROVAL REQUIRED (1x)")
+                    : string.Empty;
+            }
+
+            if (_dlzCountdownLine != null)
+            {
+                var selected = SelectedRow();
+                PendingApprovalInterruptCard? activeCard = null;
+                if (selected != null)
+                {
+                    for (var i = 0; i < interruptBatch.Cards.Count; i++)
+                    {
+                        if (interruptBatch.Cards[i].OrderId == selected.OrderId)
+                        {
+                            activeCard = interruptBatch.Cards[i];
+                            break;
+                        }
+                    }
+                }
+                else if (interruptBatch.Cards.Count > 0)
+                {
+                    activeCard = interruptBatch.Cards[0];
+                }
+
+                _dlzCountdownLine.text = activeCard?.CountdownLine ?? string.Empty;
             }
 
             if (_emptyLine != null)
@@ -443,16 +480,25 @@ namespace ProjectAegis.Unity.Runtime
         private void UpdateActionButtons()
         {
             var hasSelection = SelectedRow() != null;
+            var isReplay = bridgeHost != null && bridgeHost.IsReplayViewerAttached;
+            var isObserver = bridgeHost?.Bridge != null && ObserverModeChromePresentation.Project(bridgeHost.Bridge).IsObserver;
+            var canAct = hasSelection && !isReplay && !isObserver;
+            var disabledReason = isReplay
+                ? "READ-ONLY (REPLAY): approval commands disabled"
+                : isObserver
+                    ? "OBSERVER MODE: approval commands disabled"
+                    : "Select an order first";
+
             if (_approveButton != null)
             {
-                _approveButton.SetEnabled(hasSelection);
-                _approveButton.tooltip = hasSelection ? "Approve selected order" : "Select an order first";
+                _approveButton.SetEnabled(canAct);
+                _approveButton.tooltip = canAct ? "Approve selected order" : disabledReason;
             }
 
             if (_rejectButton != null)
             {
-                _rejectButton.SetEnabled(hasSelection);
-                _rejectButton.tooltip = hasSelection ? "Reject selected order" : "Select an order first";
+                _rejectButton.SetEnabled(canAct);
+                _rejectButton.tooltip = canAct ? "Reject selected order" : disabledReason;
             }
         }
 
