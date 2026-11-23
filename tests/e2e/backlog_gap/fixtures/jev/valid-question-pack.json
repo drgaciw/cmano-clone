@@ -1,0 +1,41 @@
+{
+  "id": "backlog-gap-v1",
+  "model": "typesafe/jev-1.14",
+  "description": "Gap analysis rubric question pack for Project Aegis requirements vs Linear/Notion backlogs.",
+  "thresholds": {
+    "noul_pass_floor": 0.80,
+    "choice_confidence_human_floor": 0.50,
+    "score_note": "Use Score for discrete rank/threshold triage only; never treat as linear multiplier."
+  },
+  "questions": {
+    "backlog_completeness": {
+      "type": "noul",
+      "instructions": "Given the requirement summary, acceptance criteria, and matched Linear/Notion records, is this requirement completely and traceably represented?",
+      "criteria": {
+        "true": "Matched records cover core scope, source citation, acceptance criteria, and cross-links.",
+        "false": "Missing coverage, partial AC, or stale/unlinked backlog entry."
+      }
+    },
+    "gap_classification": {
+      "type": "choice",
+      "instructions": "Classify the primary gap status for this requirement across Linear and Notion.",
+      "criteria": {
+        "complete": "Requirement is fully represented in both Linear and Notion.",
+        "incomplete": "Record exists but lacks required source citation, acceptance criteria, or cross-link.",
+        "missing": "No corresponding requirement record exists in the target backlog.",
+        "deferred_tracked": "Explicitly deferred Phase N requirement properly tracked in Backlog under DRG-47.",
+        "none": "No gap classification applies.",
+        "other": "Does not fit any listed classification."
+      }
+    },
+    "remediation_priority": {
+      "type": "score",
+      "instructions": "Rank the remediation urgency for this requirement gap.",
+      "criteria": [
+        "low — deferred Phase N or minor metadata enrichment",
+        "medium — incomplete acceptance criteria or missing cross-link",
+        "high — missing core MVP/combat requirement from active backlog"
+      ]
+    }
+  }
+}

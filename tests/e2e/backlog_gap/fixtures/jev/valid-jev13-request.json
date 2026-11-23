@@ -1,0 +1,14 @@
+{
+  "model": "typesafe/jev-1.13",
+  "state": "Requirement REQ-13 ROE inheritance verified across DRG-204 and Notion Tasks row.",
+  "questions": {
+    "roe_tracked": {
+      "type": "noul",
+      "instructions": "Does the evidence confirm ROE inheritance is completely tracked?",
+      "criteria": {
+        "true": "Tracked with AC and git source.",
+        "false": "Missing or incomplete."
+      }
+    }
+  }
+}

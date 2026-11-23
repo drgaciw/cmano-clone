@@ -1,0 +1,46 @@
+{
+  "run_started_at": "2026-11-23T03:52:08Z",
+  "run_completed_at": "2026-11-23T03:55:07Z",
+  "primary_model": "typesafe/jev-1.14",
+  "fallback_model": "typesafe/jev-1.13",
+  "observed_models": {
+    "typesafe/jev-1.14-20261014": 439
+  },
+  "route_counts": {
+    "openrouter_alpha_decisions": 439
+  },
+  "questions_pack": "data/jev/backlog-gap-v1.questions.json",
+  "questions_pack_sha256": "bb64dc3d3ace6226fa77b8d875c22f1ce07825a8dedd344d5dff5c0ebaa85eba",
+  "skip_jev_on_missing": true,
+  "allow_fallback": true,
+  "timeout_ms": 30000,
+  "workers": 1,
+  "spacing_seconds": 0.2,
+  "max_retries": 4,
+  "total_requirements": 698,
+  "jev_queried_count": 439,
+  "jev_skipped_count": 259,
+  "fallback_count": 0,
+  "no_advisory_count": 0,
+  "usage": {
+    "input_tokens": 1303428,
+    "output_tokens": 133595,
+    "total_tokens": 1437023,
+    "cost": 0.054743976
+  },
+  "decisions_file": "decisions.jsonl",
+  "matrix_summary": {
+    "total_requirements": 698,
+    "source_files_covered": 39,
+    "linear": {
+      "complete": 0,
+      "incomplete": 432,
+      "missing": 266
+    },
+    "notion": {
+      "complete": 0,
+      "incomplete": 191,
+      "missing": 507
+    }
+  }
+}

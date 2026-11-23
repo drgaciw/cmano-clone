@@ -1,0 +1,36 @@
+{
+  "id": "gen-dec-fixture-0001",
+  "model": "typesafe/jev-1.14-20261014",
+  "provider": "TypeSafe",
+  "answers": {
+    "backlog_completeness": {
+      "noul": 0.92
+    },
+    "gap_classification": {
+      "choice": "complete",
+      "confidence": 0.87,
+      "probabilities": {
+        "complete": 0.87,
+        "incomplete": 0.08,
+        "missing": 0.02,
+        "deferred_tracked": 0.01,
+        "none": 0.01,
+        "other": 0.01
+      }
+    },
+    "remediation_priority": {
+      "score": 1.49,
+      "legend": [
+        "low — deferred Phase N or minor metadata enrichment",
+        "medium — incomplete acceptance criteria or missing cross-link",
+        "high — missing core MVP/combat requirement from active backlog"
+      ],
+      "probabilities": [0.15, 0.25, 0.60]
+    }
+  },
+  "usage": {
+    "input_tokens": 310,
+    "output_tokens": 58,
+    "cost": 0.0009
+  }
+}

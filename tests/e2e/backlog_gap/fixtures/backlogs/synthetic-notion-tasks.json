@@ -1,0 +1,28 @@
+{
+  "pages": [
+    {
+      "id": "11111111-2222-3333-4444-555566667777",
+      "url": "https://www.notion.so/11111111222233334444555566667777",
+      "icon": "🎯",
+      "project_id": "3d5f7cb4-e4df-8196-bbd0-fcc18493713a",
+      "status": "Not started",
+      "note": "Linear: https://linear.app/drgamtd-workspace/issue/DRG-101"
+    },
+    {
+      "id": "22222222-2222-3333-4444-555566667777",
+      "url": "https://www.notion.so/22222222222233334444555566667777",
+      "icon": "🛡️",
+      "project_id": "3d5f7cb4-e4df-8196-bbd0-fcc18493713a",
+      "status": "Blocked",
+      "note": "Linear: https://linear.app/drgamtd-workspace/issue/DRG-268"
+    },
+    {
+      "id": "99999999-aaaa-bbbb-cccc-dddddddddddd",
+      "url": "https://www.notion.so/99999999aaaabbbbccccdddddddddddd",
+      "icon": "💼",
+      "project_id": "cpq-project-id-excluded",
+      "status": "In progress",
+      "note": "OPEN-CRM-CPQ Quote Approval"
+    }
+  ]
+}

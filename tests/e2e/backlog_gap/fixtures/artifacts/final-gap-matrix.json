@@ -1,0 +1,65 @@
+{
+  "evaluated_at": "2026-11-22T23:00:00Z",
+  "rubric_version": "v1",
+  "jev_model": "typesafe/jev-1.14",
+  "summary": {
+    "total_requirements": 4,
+    "source_files_covered": 4,
+    "linear": { "complete": 4, "incomplete": 0, "missing": 0 },
+    "notion": { "complete": 4, "incomplete": 0, "missing": 0 }
+  },
+  "evaluations": [
+    {
+      "req_id": "FR-01",
+      "source_file": "Game-Requirements/requirements/01-Project-Overview.md",
+      "linear_matches": ["DRG-101"],
+      "notion_matches": ["11111111-2222-3333-4444-555566667777"],
+      "linear_status": "complete",
+      "notion_status": "complete",
+      "deterministic_checks": { "linear_matched": true, "notion_matched": true },
+      "jev_answers": { "backlog_completeness": { "noul": 0.96 } },
+      "jev_decision_id": "gen-dec-final-0001",
+      "gaps": [],
+      "recommended_action": "none"
+    },
+    {
+      "req_id": "KCX-01",
+      "source_file": "Game-Requirements/drafts/23-Kill-Chain-Explainability.md",
+      "linear_matches": ["DRG-501"],
+      "notion_matches": ["33333333-2222-3333-4444-555566667777"],
+      "linear_status": "complete",
+      "notion_status": "complete",
+      "deterministic_checks": { "linear_matched": true, "notion_matched": true },
+      "jev_answers": { "backlog_completeness": { "noul": 0.91 } },
+      "jev_decision_id": "gen-dec-final-0002",
+      "gaps": [],
+      "recommended_action": "none"
+    },
+    {
+      "req_id": "UI-01",
+      "source_file": "docs/product/prd-mvp-ui-2026-07-15.md",
+      "linear_matches": ["DRG-268"],
+      "notion_matches": ["22222222-2222-3333-4444-555566667777"],
+      "linear_status": "complete",
+      "notion_status": "complete",
+      "deterministic_checks": { "linear_matched": true, "notion_matched": true },
+      "jev_answers": { "backlog_completeness": { "noul": 0.89 } },
+      "jev_decision_id": "gen-dec-final-0003",
+      "gaps": [],
+      "recommended_action": "none"
+    },
+    {
+      "req_id": "ENV-01",
+      "source_file": "notion://3f2f7cb4-e4df-8199-aad8-f1dd50c6831e",
+      "linear_matches": ["DRG-801"],
+      "notion_matches": ["44444444-2222-3333-4444-555566667777"],
+      "linear_status": "complete",
+      "notion_status": "complete",
+      "deterministic_checks": { "linear_matched": true, "notion_matched": true },
+      "jev_answers": { "backlog_completeness": { "noul": 0.92 } },
+      "jev_decision_id": "gen-dec-final-0004",
+      "gaps": [],
+      "recommended_action": "none"
+    }
+  ]
+}
