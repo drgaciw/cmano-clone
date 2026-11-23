@@ -1,0 +1,91 @@
+{
+  "model": "typesafe/jev-1.14",
+  "state": {
+    "project": "Project Aegis (cmano-clone)",
+    "sprint": "Sprint 7 (Jev-Released C2 Pair: DRG-269 Pending-Approval Interrupt + DRG-268 Fog-Safe Message-Log Explain Deep-Link)",
+    "branch": "sprint/s7-c2-interrupt-deeplink",
+    "parent_branch": "sprint/s6-gauntlet-g2-gate (6e406bec, Draft PR #913)",
+    "authorization_decisions": [
+      "gen-dec-1795465081-eG3fo2QUC5Aty4EJpDGD",
+      "gen-dec-1795465106-JCrlUfufH4ONrxCV7Y1M"
+    ],
+    "commit_landed": "3ccf20c0 (11 files: PendingApprovalInterruptCoordinator, MessageLogExplainDeepLinkCoordinator, DelegationBridgeHost, PendingApprovalPanelHost/UXML, MessageLogPanelHost, EngageExplainPanelHost, headless + PlayMode tests)",
+    "kept_held_untouched": [
+      "DRG-236",
+      "DRG-231",
+      "DRG-347"
+    ],
+    "verified_measurements": {
+      "dotnet_build_errors": 0,
+      "dotnet_build_warnings": 0,
+      "netstandard2_1_dlls_synced": 15,
+      "headless_tests_passed": 5088,
+      "headless_tests_failed": 0,
+      "headless_tests_skipped": 0,
+      "prior_floor": 5083,
+      "replay_golden_passed": 17,
+      "golden_hash_17144800277401907079_hits": 26,
+      "playmode_smoke_harness_passed": 27,
+      "unity_playmode_total_passed": 70,
+      "unity_playmode_new_s7_passed": 4,
+      "unity_playmode_console_errors": 0,
+      "unity_final_state": "isPlaying=False, scene=DelegationSmoke, isDirty=False",
+      "hard_no_diff_lines_vs_6e406bec": 0,
+      "catalog_db_sha256": "byte-identical (82d26212..., 75ea357a...)",
+      "red_evidence_recorded": "production/qa/evidence/sprint-7/s7-c8-red-evidence.md",
+      "linear_h2_comments": "Posted on DRG-269 and DRG-268 (kept Backlog); DRG-236/231/347 untouched",
+      "h6_owner_walk": "Honestly preserved as owner-only pending"
+    }
+  },
+  "questions": {
+    "h1_c1_build_and_suite": {
+      "type": "noul",
+      "instructions": "Verify H1/C1: 0 build warnings/errors, netstandard2.1 synced, 5,088/5,088 headless tests passing."
+    },
+    "h2_tracker_honesty": {
+      "type": "noul",
+      "instructions": "Verify H2: Linear comments posted on DRG-269 and DRG-268 (kept Backlog), and held issues DRG-236/231/347 untouched."
+    },
+    "h3_c7_hard_no_surfaces": {
+      "type": "noul",
+      "instructions": "Verify H3/C7: 0 diff lines on DelegationBridge.cs, SimulationSession.cs, CatalogWriteGate, MapPlaceholderPanelHost.cs, GlobeMapProductHost.cs, tests/regression/, DelegationSmoke.unity, and catalog DBs."
+    },
+    "h4_c2_determinism": {
+      "type": "noul",
+      "instructions": "Verify H4/C2: ReplayGolden 17/17 passing and golden hash 17144800277401907079 preserved (26 hits)."
+    },
+    "h5_c8_tdd": {
+      "type": "noul",
+      "instructions": "Verify H5/C8: strict RED->GREEN TDD with verbatim RED output recorded in s7-c8-red-evidence.md."
+    },
+    "h8_c4_unity_playmode": {
+      "type": "noul",
+      "instructions": "Verify H8/C4: PlayModeSmokeHarnessTests 27/27, live Unity :8081 PlayMode 70/70 (4/4 Sprint 7 tests), 0 Console errors, clean Edit Mode."
+    },
+    "drg269_interrupt_and_dlz": {
+      "type": "noul",
+      "instructions": "Verify DRG-269: single-shot 1x drop per OrderId, sim-time DLZ countdown halting while paused, UNKNOWN on missing DLZ, fail-closed replay/observer/stale/expired validation."
+    },
+    "drg268_fog_safe_deeplink": {
+      "type": "noul",
+      "instructions": "Verify DRG-268: message-log row selection selects visible unit fog-safely, suppresses unobserved enemy under fog, and binds existing EngageExplain DTO on EngageExplainPanelHost."
+    },
+    "more_rounds": {
+      "type": "score",
+      "instructions": "How many more agent remediation rounds are needed before Sprint 7 agent-owned DoD is met?",
+      "criteria": [
+        "0 rounds (Sprint 7 agent DoD met)",
+        "1 round (minor gap)",
+        "2 rounds (major gap)"
+      ]
+    },
+    "sprint7_verdict": {
+      "type": "choice",
+      "instructions": "Final Sprint 7 agent-owned DoD verdict.",
+      "criteria": {
+        "pass_submit_draft_pr": "Sprint 7 meets all agent-owned DoD criteria; submit sprint/s7-c2-interrupt-deeplink as a draft PR on top of PR #913 and keep H6 owner walk pending.",
+        "needs_more_work": "Sprint 7 requires another remediation round."
+      }
+    }
+  }
+}
