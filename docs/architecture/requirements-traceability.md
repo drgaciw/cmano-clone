@@ -27,6 +27,9 @@ Historical **COVERED/PARTIAL/DEFERRED/GAP** rows below describe their named impl
 | [26 / VER-01…07](../../Game-Requirements/drafts/26-Verification-CI-Gauntlet.md) | Draft; VER-07.3…6 proposed | Gauntlet/oracle/provenance subset exists; complete acceptance schema/validator pending | Existing oracle candidate tests; new revision-bound evidence tests planned | Pending; engineering green cannot assign an accepting owner |
 | [27 / LIB-01…05](../../Game-Requirements/drafts/27-Scenario-Library-Campaigns.md) | Draft; LIB-05.1…3 proposed | Library/package/campaign subsets; advanced ZIP/media residual; H5 loader/fallback pilot pending | Existing package/library candidate tests; presentation failure isolation tests planned | Pending |
 
+> **F2T2EA Kill-Chain & Slice Acceptance Matrix (`DRG-187`):** Cross-layer `Find -> Fix -> Track -> Target -> Engage -> Assess` traceability, unverified-transition flags, evidence-class non-substitution boundaries, and `hold:owner-go` isolation are maintained in [`kill-chain-traceability-matrix.md`](kill-chain-traceability-matrix.md).
+> **Baseline-Regression & GitNexus Selection Policy (`DRG-204` / `ARCH-NFR-3` / `VER-06`):** Tiered fast-PR vs full-baseline selection, fail-closed conservative fallback, monotonic `production/test-floor.json` validation, and `DRG-323` safe-reindex rules are specified in [`baseline-regression-and-test-selection-policy.md`](../engineering/baseline-regression-and-test-selection-policy.md).
+
 ### Proposed criteria requiring new delivery evidence
 
 | Clause | Requirement / boundary | Required proof | Current state |

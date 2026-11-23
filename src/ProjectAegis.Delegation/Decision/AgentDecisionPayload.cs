@@ -14,7 +14,9 @@ public sealed record AgentDecisionPayload(
     string Rationale,
     double AttentionLoad,
     double AttentionBudget,
-    double RngDraw)
+    double RngDraw,
+    ulong? PolicySnapshotId = null,
+    string? Personality = null)
 {
     public static AgentDecisionPayload FromDecisionRecord(DecisionRecord record, ulong simTick) =>
         new(
@@ -28,7 +30,9 @@ public sealed record AgentDecisionPayload(
             record.Rationale,
             record.AttentionLoad,
             record.AttentionBudget,
-            record.RngDraw);
+            record.RngDraw,
+            record.PolicySnapshotId,
+            record.Personality);
 
     public DecisionRecord ToDecisionRecord() =>
         new(
@@ -42,5 +46,7 @@ public sealed record AgentDecisionPayload(
             AttentionLoad,
             AttentionBudget,
             RngDraw,
-            SimTick);
+            SimTick,
+            PolicySnapshotId,
+            Personality);
 }

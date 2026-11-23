@@ -27,7 +27,8 @@ public sealed record DecisionLogDeepLinkDetail(
     ulong? PolicySnapshotId,
     IReadOnlyList<string> ScoredAlternatives,
     IReadOnlyList<KeyValuePair<string, string>> Fields,
-    string? UnavailableReason)
+    string? UnavailableReason,
+    string? Personality = null)
 {
     public static DecisionLogDeepLinkDetail NotFound(ulong sequenceId) => new(
         Found: false,
@@ -49,7 +50,8 @@ public sealed record DecisionLogDeepLinkDetail(
         PolicySnapshotId: null,
         ScoredAlternatives: Array.Empty<string>(),
         Fields: Array.Empty<KeyValuePair<string, string>>(),
-        UnavailableReason: DecisionLogDeepLinkProjection.UnavailableReasonCode);
+        UnavailableReason: DecisionLogDeepLinkProjection.UnavailableReasonCode,
+        Personality: null);
 }
 
 /// <summary>
@@ -132,6 +134,8 @@ public static class DecisionLogDeepLinkProjection
             case OrderLogEntryKind.AgentDecision when entry.Payload is AgentDecisionPayload p:
                 {
                     var alternatives = FormatAlternatives(p.ScoredIntents);
+                    var policySnapshotId = p.PolicySnapshotId ?? 0UL;
+                    var personality = !string.IsNullOrWhiteSpace(p.Personality) ? p.Personality : "unspecified";
                     return new DecisionLogDeepLinkDetail(
                         Found: true,
                         SequenceId: entry.SequenceId,
@@ -149,7 +153,7 @@ public static class DecisionLogDeepLinkProjection
                         AttentionLoad: p.AttentionLoad,
                         AttentionBudget: p.AttentionBudget,
                         RngDraw: p.RngDraw,
-                        PolicySnapshotId: null,
+                        PolicySnapshotId: policySnapshotId,
                         ScoredAlternatives: alternatives,
                         Fields: new[]
                         {
@@ -157,13 +161,18 @@ public static class DecisionLogDeepLinkProjection
                         Kv("Autonomy", p.AutonomyLevel.ToString()),
                         Kv("Attention", string.Format(CultureInfo.InvariantCulture, "{0:F2}/{1:F2}", p.AttentionLoad, p.AttentionBudget)),
                         Kv("RngDraw", string.Format(CultureInfo.InvariantCulture, "{0:F6}", p.RngDraw)),
+                        Kv("PolicySnapshotId", policySnapshotId.ToString(CultureInfo.InvariantCulture)),
+                        Kv("Personality", personality),
                         },
-                        UnavailableReason: null);
+                        UnavailableReason: null,
+                        Personality: personality);
                 }
 
             case OrderLogEntryKind.AgentDecision when entry.Payload is DecisionRecord r:
                 {
                     var alternatives = FormatAlternatives(r.Alternatives);
+                    var policySnapshotId = r.PolicySnapshotId ?? 0UL;
+                    var personality = !string.IsNullOrWhiteSpace(r.Personality) ? r.Personality : "unspecified";
                     return new DecisionLogDeepLinkDetail(
                         Found: true,
                         SequenceId: entry.SequenceId,
@@ -181,7 +190,7 @@ public static class DecisionLogDeepLinkProjection
                         AttentionLoad: r.AttentionLoad,
                         AttentionBudget: r.AttentionBudget,
                         RngDraw: r.RngDraw,
-                        PolicySnapshotId: null,
+                        PolicySnapshotId: policySnapshotId,
                         ScoredAlternatives: alternatives,
                         Fields: new[]
                         {
@@ -189,8 +198,11 @@ public static class DecisionLogDeepLinkProjection
                         Kv("Autonomy", r.AutonomyLevel.ToString()),
                         Kv("Attention", string.Format(CultureInfo.InvariantCulture, "{0:F2}/{1:F2}", r.AttentionLoad, r.AttentionBudget)),
                         Kv("RngDraw", string.Format(CultureInfo.InvariantCulture, "{0:F6}", r.RngDraw)),
+                        Kv("PolicySnapshotId", policySnapshotId.ToString(CultureInfo.InvariantCulture)),
+                        Kv("Personality", personality),
                         },
-                        UnavailableReason: null);
+                        UnavailableReason: null,
+                        Personality: personality);
                 }
 
             case OrderLogEntryKind.PolicyDenial when entry.Payload is PolicyDenialRecord d:
@@ -456,7 +468,8 @@ public static class DecisionLogDeepLinkProjection
             PolicySnapshotId: policySnapshotId,
             ScoredAlternatives: Array.Empty<string>(),
             Fields: fields ?? Array.Empty<KeyValuePair<string, string>>(),
-            UnavailableReason: null);
+            UnavailableReason: null,
+            Personality: null);
 
     private static IReadOnlyList<string> FormatAlternatives(IReadOnlyList<ScoredIntent>? intents)
     {

@@ -1,5 +1,6 @@
 namespace ProjectAegis.Delegation.Controllers;
 
+using System.Globalization;
 using Attention;
 using Core;
 using Decision;
@@ -153,7 +154,9 @@ public sealed class AgentController : IController
                 attention.Load,
                 attention.Budget,
                 choice.RngDraw,
-                simTick),
+                simTick,
+                PolicySnapshotId: PolicySnapshotId,
+                Personality: FormatPersonalityProvenance(PersonalitySlug, Traits)),
             simTick));
 
         var gateResult = gate.Evaluate(Autonomy, order, playerApproved: false);
@@ -178,5 +181,24 @@ public sealed class AgentController : IController
         {
             pendingQueue.Enqueue(order);
         }
+    }
+
+    /// <summary>Formats deterministic personality provenance from preset slug or trait vector.</summary>
+    public static string FormatPersonalityProvenance(string? personalitySlug, TraitVector traits)
+    {
+        if (!string.IsNullOrWhiteSpace(personalitySlug))
+        {
+            return personalitySlug.Trim();
+        }
+
+        return string.Format(
+            CultureInfo.InvariantCulture,
+            "custom(agg={0:F2},risk={1:F2},delay={2:F2},err={3:F2},sa={4:F2},dec={5:F2})",
+            traits.Aggression,
+            traits.RiskTolerance,
+            traits.ReactionDelay,
+            traits.ErrorRate,
+            traits.SituationalAwareness,
+            traits.Decisiveness);
     }
 }
