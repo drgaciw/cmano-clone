@@ -33,7 +33,7 @@ public sealed class LiveFindingsPresenter
     /// <param name="debounceMs">
     /// Intended host debounce in milliseconds (default 300).
     /// When <c>&lt;= 0</c>, <see cref="ScheduleRefresh"/> is documented as immediate (tests).
-    /// When <c>&gt; 0</c>, P2.1 still calls <see cref="RefreshImmediate"/> immediately;
+    /// When <c>&gt; 0</c>, P2.1 still calls <see cref="RefreshImmediate(ICatalogReader?, string?)"/> immediately;
     /// a Unity host may later honor this interval on an EditorWindow tick.
     /// </param>
     /// <param name="config">

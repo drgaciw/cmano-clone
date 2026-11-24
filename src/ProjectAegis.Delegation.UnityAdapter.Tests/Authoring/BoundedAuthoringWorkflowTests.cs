@@ -1,10 +1,8 @@
 using NUnit.Framework;
 using ProjectAegis.Data.Catalog;
 using ProjectAegis.Data.Scenario.Authoring;
-using ProjectAegis.Data.Validation;
 using ProjectAegis.Delegation.Core;
 using ProjectAegis.Delegation.Orchestration;
-using ProjectAegis.Delegation.Projection;
 using ProjectAegis.Delegation.UnityAdapter.Authoring;
 using ProjectAegis.Delegation.UnityAdapter.PlayEntry;
 
@@ -46,6 +44,8 @@ public sealed class BoundedAuthoringWorkflowTests
 
         var opened = workflow.OpenDraft(draftPath, catalog);
         Assert.That(opened.Succeeded, Is.True, opened.Message);
+        Assert.That(opened.EditVersion, Is.GreaterThanOrEqualTo(0));
+        Assert.That(opened.ValidationReport, Is.Not.Null);
         Assert.That(workflow.HasOpenSession, Is.True);
         Assert.That(workflow.CanUndo, Is.False);
         Assert.That(workflow.CanRedo, Is.False);
@@ -80,6 +80,7 @@ public sealed class BoundedAuthoringWorkflowTests
             Lat = 57.5,
             Lon = 20.6,
             AllowReplace = true,
+            SaveImmediately = true,
         });
         Assert.That(edited.Succeeded, Is.True, edited.Message);
         var u2 = workflow.Surface.Units.Single(u => u.UnitId == "u2");
@@ -106,6 +107,12 @@ public sealed class BoundedAuthoringWorkflowTests
         Assert.That(saved.Saved, Is.True);
         Assert.That(saved.ExportArtifactWritten, Is.False);
 
+        var shellSnapshot = workflow.BuildShellSnapshot();
+        Assert.That(shellSnapshot.ShellState.SessionOpen, Is.True);
+        Assert.That(shellSnapshot.SaveExportState, Is.Not.Null);
+        Assert.That(shellSnapshot.Gate.CanExport, Is.True);
+        Assert.That(shellSnapshot.Capabilities, Is.Not.Null);
+
         var shell = workflow.BuildShellState();
         Assert.That(shell.SessionOpen, Is.True);
         Assert.That(shell.SelectedEntityId, Is.EqualTo("u1"));
@@ -122,8 +129,9 @@ public sealed class BoundedAuthoringWorkflowTests
 
         // HandOffToPlay loads exported package via PlayEntrySession, selects mode/side, enters Execution
         var playEntry = new PlayEntrySession(catalog: catalog);
-        var handoff = workflow.HandOffToPlay(playEntry, SimulationModeKind.Mixed, PlaySide.Friendly);
+        var handoff = workflow.HandOffToPlay(playEntry);
         Assert.That(handoff.Succeeded, Is.True, handoff.Message);
+        Assert.That(handoff.PlayState, Is.Not.Null);
         Assert.That(handoff.ExportArtifactPath, Is.EqualTo(exported.ArtifactPath));
         Assert.That(playEntry.State.HasPackage, Is.True);
         Assert.That(playEntry.State.Mode, Is.EqualTo(SimulationModeKind.Mixed));
@@ -181,6 +189,7 @@ public sealed class BoundedAuthoringWorkflowTests
         workflow.OpenDraft(draftPath, catalog);
 
         var initial = workflow.Validate();
+        Assert.That(initial.BackendId, Is.Not.Empty);
         Assert.That(initial.Gate.CanExport, Is.False);
         Assert.That(initial.Gate.Codes, Does.Contain("MISSION_NO_UNITS"));
 
@@ -195,8 +204,9 @@ public sealed class BoundedAuthoringWorkflowTests
         Assert.That(blockedExport.ArtifactPath, Is.Null);
 
         var playEntry = new PlayEntrySession(catalog: catalog);
-        var blockedPlay = workflow.HandOffToPlay(playEntry, SimulationModeKind.Mixed, PlaySide.Friendly);
+        var blockedPlay = workflow.HandOffToPlay(playEntry);
         Assert.That(blockedPlay.Succeeded, Is.False);
+        Assert.That(blockedPlay.ErrorCode, Is.Not.Null.And.Not.Empty);
         Assert.That(playEntry.State.HasPackage, Is.False);
 
         var blockedShell = workflow.BuildShellState();
@@ -217,7 +227,7 @@ public sealed class BoundedAuthoringWorkflowTests
         Assert.That(unblockedExport.Allowed, Is.True);
         Assert.That(File.Exists(unblockedExport.ArtifactPath!), Is.True);
 
-        var unblockedPlay = workflow.HandOffToPlay(playEntry, SimulationModeKind.Mixed, PlaySide.Friendly);
+        var unblockedPlay = workflow.HandOffToPlay(playEntry);
         Assert.That(unblockedPlay.Succeeded, Is.True, unblockedPlay.Message);
         Assert.That(playEntry.State.Phase, Is.EqualTo(SimulationPhase.Executing));
     }
@@ -242,7 +252,7 @@ public sealed class BoundedAuthoringWorkflowTests
         Assert.That(exportBlocked.Allowed, Is.False);
 
         var playEntry = new PlayEntrySession(catalog: catalog);
-        var playBlocked = workflow.HandOffToPlay(playEntry, SimulationModeKind.Mixed, PlaySide.Friendly, forceConfirmInvalid: true);
+        var playBlocked = workflow.HandOffToPlay(playEntry, forceConfirmInvalid: true);
         Assert.That(playBlocked.Succeeded, Is.False);
 
         // GenericOnly backend on supported Patrol+Strike fixture emits Warning without blocking Export or Play
@@ -257,7 +267,7 @@ public sealed class BoundedAuthoringWorkflowTests
         var genericExport = workflow.ExportPackage();
         Assert.That(genericExport.Allowed, Is.True);
 
-        var genericPlay = workflow.HandOffToPlay(playEntry, SimulationModeKind.Mixed, PlaySide.Friendly);
+        var genericPlay = workflow.HandOffToPlay(playEntry);
         Assert.That(genericPlay.Succeeded, Is.True, genericPlay.Message);
         Assert.That(playEntry.State.Phase, Is.EqualTo(SimulationPhase.Executing));
     }

@@ -1,14 +1,13 @@
-namespace ProjectAegis.Delegation.UnityAdapter.Authoring;
+using ProjectAegis.Data.Catalog;
+using ProjectAegis.Data.Scenario.Authoring;
+using ProjectAegis.Data.Validation;
+using ProjectAegis.Delegation.Core;
+using ProjectAegis.Delegation.Projection;
+using ProjectAegis.Delegation.Targets;
+using ProjectAegis.Delegation.UnityAdapter.Bridge;
+using ProjectAegis.Delegation.UnityAdapter.PlayEntry;
 
-using Bridge;
-using Data.Catalog;
-using Data.Scenario;
-using Data.Scenario.Authoring;
-using Data.Validation;
-using Delegation.Core;
-using Delegation.Projection;
-using Delegation.Targets;
-using PlayEntry;
+namespace ProjectAegis.Delegation.UnityAdapter.Authoring;
 
 /// <summary>
 /// Headless bounded H4 authoring workflow façade (DRG-346 + DRG-371).
@@ -192,7 +191,7 @@ public sealed class BoundedAuthoringWorkflow : IDisposable
     /// and finite coordinates), executes placement or edit through <see cref="ScenarioEditCommandBus"/>,
     /// optionally assigns to a mission, clears redo, rebuilds the map surface, and refreshes live findings.
     /// </summary>
-    public BoundedAuthoringOperationResult PlaceOrEditUnit(BoundedUnitEditRequest request)
+    public BoundedAuthoringOperationResult PlaceOrEditUnit(BoundedUnitEditRequest? request)
     {
         if (_session == null || _surface == null || _findings == null)
         {

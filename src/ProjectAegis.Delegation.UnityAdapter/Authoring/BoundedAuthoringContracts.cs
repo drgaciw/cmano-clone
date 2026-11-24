@@ -1,9 +1,8 @@
-namespace ProjectAegis.Delegation.UnityAdapter.Authoring;
+using ProjectAegis.Data.Validation;
+using ProjectAegis.Delegation.Projection;
+using ProjectAegis.Delegation.UnityAdapter.PlayEntry;
 
-using Data.Scenario.Authoring;
-using Data.Validation;
-using Delegation.Projection;
-using PlayEntry;
+namespace ProjectAegis.Delegation.UnityAdapter.Authoring;
 
 /// <summary>Bounded unit place/edit request for <see cref="BoundedAuthoringWorkflow.PlaceOrEditUnit"/> (DRG-346).</summary>
 public sealed class BoundedUnitEditRequest

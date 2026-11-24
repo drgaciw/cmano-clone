@@ -188,7 +188,7 @@ public sealed class MissionRoleCapabilityProjectionTests
     {
         var doc = LoadFixture("role-capability-mixed-tiers.json");
 
-        var defaultRows = MissionRoleCapabilityProjection.Project(doc, MissionRoleCapabilityManifest.DefaultBackendId);
+        var defaultRows = MissionRoleCapabilityProjection.Project(doc);
         var cliRows = MissionRoleCapabilityProjection.Project(doc, MissionRoleCapabilityManifest.CliSimulateBackendId);
 
         Assert.That(defaultRows.Single(r => r.MissionId == "patrol-1").Execution, Is.EqualTo(MissionRoleExecution.Executed));

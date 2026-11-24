@@ -24,7 +24,7 @@ public sealed record ScenarioValidatedExportOutcome(
 /// <summary>
 /// S125-04 / AUTH-04 (AME-6.5 / AC-12): the two distinct persistence verbs of the Mission Editor.
 /// <b>Save</b> writes the work-in-progress draft to its own path and is allowed while invalid.
-/// <b>Export</b> runs <see cref="ScenarioExportCommand.Prepare"/> (TeleportUnit transform + validation
+/// <b>Export</b> runs <see cref="ScenarioExportCommand.Prepare(ScenarioDocumentDto, ICatalogReader, ValidationConfig?, string)"/> (TeleportUnit transform + validation
 /// export gate) and writes a separate artifact only when the gate allows it.
 /// </summary>
 public static class ScenarioSaveExportGate
@@ -33,7 +33,7 @@ public static class ScenarioSaveExportGate
     public const string ExportArtifactSuffix = ".export.json";
 
     /// <summary>
-    /// Stable finding when SaveDraft / <see cref="LiveValidate"/> has no bound catalog.
+    /// Stable finding when SaveDraft / <see cref="LiveValidate(ScenarioDocumentDto, ICatalogReader?, ValidationConfig?, string)"/> has no bound catalog.
     /// Replaces the former silent <c>InMemoryCatalogReader.BalticPatrolFixture</c> fallback (DRG-372).
     /// </summary>
     public const string CatalogUnboundFindingCode = "CATALOG_UNBOUND";

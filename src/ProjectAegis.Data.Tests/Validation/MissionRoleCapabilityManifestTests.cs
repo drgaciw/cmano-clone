@@ -251,7 +251,7 @@ Assert.That(string.IsNullOrWhiteSpace(e.RuntimeEvidence), Is.False);
         var doc = LoadFixture("role-capability-generic-only.json");
         var catalog = InMemoryCatalogReader.BalticPatrolFixture();
 
-        var defaultFindings = MissionRoleCapabilityManifest.EvaluateFindings(doc, MissionRoleCapabilityManifest.DefaultBackendId);
+        var defaultFindings = MissionRoleCapabilityManifest.EvaluateFindings(doc);
         Assert.That(defaultFindings, Is.Empty);
 
         var cliFindings = MissionRoleCapabilityManifest.EvaluateFindings(doc, MissionRoleCapabilityManifest.CliSimulateBackendId);
