@@ -41,6 +41,26 @@ public sealed class TimeCompressionSafeStopHostContractTests
     }
 
     [Test]
+    public void DelegationBridgeHost_RefreshExternalPresentation_evaluates_notifications_after_mission_message_filter()
+    {
+        var source = UiIaSourceReader.ReadRuntime("DelegationBridgeHost.cs");
+
+        var extStart = source.IndexOf("public void RefreshExternalPresentation(", StringComparison.Ordinal);
+        Assert.That(extStart, Is.GreaterThanOrEqualTo(0));
+        var extEnd = source.IndexOf("public void ToggleMessageLogCollapsed()", extStart, StringComparison.Ordinal);
+        Assert.That(extEnd, Is.GreaterThan(extStart));
+
+        var extBody = source.Substring(extStart, extEnd - extStart);
+        var refreshCall = extBody.IndexOf("RefreshPresentation(snapshot, evaluateNotifications: false);", StringComparison.Ordinal);
+        var filterAssign = extBody.IndexOf("LastMessageLog = observedMessages ?? Array.Empty<MessageLogLine>();", StringComparison.Ordinal);
+        var evalCall = extBody.IndexOf("EvaluateMessageNotifications();", StringComparison.Ordinal);
+
+        Assert.That(refreshCall, Is.GreaterThan(0), "RefreshExternalPresentation must defer notification evaluation during RefreshPresentation");
+        Assert.That(filterAssign, Is.GreaterThan(refreshCall), "Mission-filtered observedMessages must be assigned before evaluating notifications");
+        Assert.That(evalCall, Is.GreaterThan(filterAssign), "EvaluateMessageNotifications must run after mission visibility filtering");
+    }
+
+    [Test]
     public void Hard_no_bridge_session_and_pending_queue_have_no_M4_safe_stop_couplings()
     {
         var bridge = UiIaSourceReader.ReadUnder(

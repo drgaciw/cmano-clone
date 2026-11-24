@@ -325,13 +325,14 @@ namespace ProjectAegis.Unity.Runtime
             IReadOnlyList<MapSymbolEntry>? knownSymbols = null,
             IReadOnlyList<MessageLogLine>? observedMessages = null)
         {
-            RefreshPresentation(snapshot);
+            RefreshPresentation(snapshot, evaluateNotifications: false);
             // The legacy combined order log contains both sides' decisions. Player mission
             // views publish only their explicitly scoped picture and observable messages.
             LastMapSymbols = knownSymbols ?? Array.Empty<MapSymbolEntry>();
             LastOobTree = LastOobTree.Where(unit => LastMapSymbols.Any(symbol =>
                 symbol.Affiliation == "Friendly" && symbol.SymbolId == unit.UnitId)).ToArray();
             LastMessageLog = observedMessages ?? Array.Empty<MessageLogLine>();
+            EvaluateMessageNotifications();
             LastCombatDomainActivityTags = CombatDomainActivityTags.FromMessageLog(LastMessageLog);
             LastCombatVfx = CombatVfxFrame.Empty;
             LastSensorC2 = LastSensorC2 with
@@ -343,6 +344,7 @@ namespace ProjectAegis.Unity.Runtime
             {
                 ScoreLabel = $"MISSION SCORE: {missionScore}",
                 PhaseLabel = missionStatus,
+                CompressionLabel = timeCompressionLabel,
                 RemainingDurationLabel = $"REMAIN {TimeSpan.FromSeconds(Math.Max(0, remainingSeconds)):mm\\:ss}",
             };
         }
@@ -873,11 +875,14 @@ namespace ProjectAegis.Unity.Runtime
             return result;
         }
 
-        private void RefreshPresentation(ISimWorldSnapshot snapshot)
+        private void RefreshPresentation(ISimWorldSnapshot snapshot, bool evaluateNotifications = true)
         {
             _lastSnapshot = snapshot;
             LastMessageLog = MessageLogBridge.ProjectLive(Bridge);
-            EvaluateMessageNotifications();
+            if (evaluateNotifications)
+            {
+                EvaluateMessageNotifications();
+            }
             LastCombatDomainActivityTags = CombatDomainActivityTags.FromMessageLog(LastMessageLog);
             LastOobTree = OobTreeBridge.Build(snapshot, Bridge.Registry);
             Presentation.ApplyDefaultSelection(LastOobTree);
