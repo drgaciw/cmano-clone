@@ -2,6 +2,8 @@
     <ui:VisualElement name="pending-approval-root" class="c2-pending-approval">
         <ui:Label name="pending-approval-header" text="PENDING APPROVAL" class="c2-pending-approval-header" />
         <ui:Label name="pending-approval-badge" text="" class="c2-pending-approval-badge" />
+        <ui:Label name="pending-approval-interrupt-label" text="" class="c2-pending-approval-interrupt" />
+        <ui:Label name="pending-approval-dlz-countdown" text="" class="c2-pending-approval-dlz" />
         <ui:Label name="pending-approval-empty" text="" class="c2-pending-approval-empty" />
         <ui:ListView name="pending-approval-list" class="c2-pending-approval-list" selection-type="Single" />
         <ui:Label name="pending-approval-authority" text="" class="c2-pending-approval-authority" />

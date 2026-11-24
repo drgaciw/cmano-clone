@@ -5,7 +5,7 @@ namespace ProjectAegis.MissionEditor.Cli.Tests;
 
 /// <summary>
 /// CLI contract for <c>gauntlet_oracle_eval</c> — drives
-/// <see cref="GauntletOracleEvalCommand.Run"/> which calls
+/// <see cref="GauntletOracleEvalCommand.Run(string?, string?, string?, string?, TextWriter, string)"/> which calls
 /// <c>GauntletOracleEvaluator.EvaluateFromPolicyAndCsv</c>.
 /// </summary>
 [TestFixture]

@@ -39,7 +39,7 @@
 
             <ui:VisualElement name="scenario-editor-shell-content" class="scenario-editor-shell-content">
                 <ui:VisualElement name="scenario-editor-shell-map-slot" class="scenario-editor-shell-slot">
-                    <ui:Label text="Map Authoring surface slot" class="scenario-editor-shell-placeholder" />
+                    <ui:Label name="scenario-editor-shell-map-summary" text="Map Authoring surface slot" class="scenario-editor-shell-placeholder" />
                 </ui:VisualElement>
                 <ui:VisualElement name="scenario-editor-shell-mission-board-slot" class="scenario-editor-shell-slot scenario-editor-shell-slot--hidden">
                     <ui:Label text="Mission Board surface slot" class="scenario-editor-shell-placeholder" />

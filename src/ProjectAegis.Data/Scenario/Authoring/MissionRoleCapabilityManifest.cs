@@ -2,7 +2,7 @@ namespace ProjectAegis.Data.Scenario.Authoring;
 
 using Validation;
 
-/// <summary>Whether an execution backend runs an authored mission role (DRG-345 / proposed AME-6.11).</summary>
+/// <summary>Whether an execution backend runs an authored mission role (DRG-345 / DRG-371).</summary>
 public enum MissionRoleExecution
 {
     /// <summary>The backend generates every order the role requires.</summary>
@@ -13,6 +13,9 @@ public enum MissionRoleExecution
 
     /// <summary>The role or the backend is not described by the manifest.</summary>
     Unknown = 2,
+
+    /// <summary>The backend runs generic unit behavior instead of mission-specific authored orders (Warning tier).</summary>
+    GenericOnly = 3,
 }
 
 /// <summary>One manifest row: an authored mission role and its runtime support on a backend.</summary>
@@ -82,6 +85,12 @@ public static class MissionRoleCapabilityManifest
     /// <summary>Headless Play / simulate backend id.</summary>
     public const string DefaultBackendId = "baltic-replay-harness";
 
+    /// <summary>CLI simulate-sample backend id (runs generic PatrolCandidateEngagePolicy intents; DRG-371).</summary>
+    public const string CliSimulateBackendId = "cli-simulate-sample";
+
+    /// <summary>Known role that runs with generic behavior only on the selected backend (Warning tier; DRG-371).</summary>
+    public const string CodeRoleGenericOnly = "MISSION_ROLE_GENERIC_ONLY";
+
     /// <summary>Known role that the backend does not execute.</summary>
     public const string CodeRoleNotExecuted = "MISSION_ROLE_NOT_EXECUTED";
 
@@ -94,19 +103,37 @@ public static class MissionRoleCapabilityManifest
     private const string HarnessEvidence =
         "BalticReplayHarness agents use PatrolCandidateEngagePolicy (Hold, Move, Engage) with MvpEngagementResolver";
 
-    /// <summary>Manifest rows ordered by mission type then support role (ordinal).</summary>
+    private const string CliSimulateEvidence =
+        "CLI simulate-sample runs BalticReplayHarness generic PatrolCandidateEngagePolicy (Hold, Move, Engage) without mission-specific zone or target assignment enforcement";
+
+    /// <summary>Manifest rows for <see cref="DefaultBackendId"/> ordered by mission type then support role (ordinal).</summary>
     public static IReadOnlyList<MissionRoleCapability> Entries { get; } =
     [
-        Row("Ferry", null, MissionRoleExecution.NotExecuted, ["ReturnToBase"],
+        Row(DefaultBackendId, "Ferry", null, MissionRoleExecution.NotExecuted, ["ReturnToBase"],
             HarnessEvidence + "; no policy generates ReturnToBase/rebase to a destination base"),
-        Row("Patrol", null, MissionRoleExecution.Executed, ["Hold", "Move"], HarnessEvidence),
-        Row("Strike", null, MissionRoleExecution.Executed, ["Engage"], HarnessEvidence),
-        Row("Support", "AEW", MissionRoleExecution.NotExecuted, ["SetSensors"],
+        Row(DefaultBackendId, "Patrol", null, MissionRoleExecution.Executed, ["Hold", "Move"], HarnessEvidence),
+        Row(DefaultBackendId, "Strike", null, MissionRoleExecution.Executed, ["Engage"], HarnessEvidence),
+        Row(DefaultBackendId, "Support", "AEW", MissionRoleExecution.NotExecuted, ["SetSensors"],
             HarnessEvidence + "; no policy generates SetSensors for an airborne early-warning station"),
-        Row("Support", "EW", MissionRoleExecution.NotExecuted, ["SetEwPosture"],
+        Row(DefaultBackendId, "Support", "EW", MissionRoleExecution.NotExecuted, ["SetEwPosture"],
             HarnessEvidence + "; no policy generates SetEwPosture for a support station"),
-        Row("Support", "Tanker", MissionRoleExecution.NotExecuted, ["Refuel"],
+        Row(DefaultBackendId, "Support", "Tanker", MissionRoleExecution.NotExecuted, ["Refuel"],
             HarnessEvidence + "; no refuelling order or runtime exists"),
+    ];
+
+    /// <summary>Manifest rows for <see cref="CliSimulateBackendId"/> ordered by mission type then support role (ordinal).</summary>
+    public static IReadOnlyList<MissionRoleCapability> CliSimulateEntries { get; } =
+    [
+        Row(CliSimulateBackendId, "Ferry", null, MissionRoleExecution.NotExecuted, ["ReturnToBase"],
+            CliSimulateEvidence + "; no policy generates ReturnToBase/rebase to a destination base"),
+        Row(CliSimulateBackendId, "Patrol", null, MissionRoleExecution.GenericOnly, ["Hold", "Move"], CliSimulateEvidence),
+        Row(CliSimulateBackendId, "Strike", null, MissionRoleExecution.GenericOnly, ["Engage"], CliSimulateEvidence),
+        Row(CliSimulateBackendId, "Support", "AEW", MissionRoleExecution.NotExecuted, ["SetSensors"],
+            CliSimulateEvidence + "; no policy generates SetSensors for an airborne early-warning station"),
+        Row(CliSimulateBackendId, "Support", "EW", MissionRoleExecution.NotExecuted, ["SetEwPosture"],
+            CliSimulateEvidence + "; no policy generates SetEwPosture for a support station"),
+        Row(CliSimulateBackendId, "Support", "Tanker", MissionRoleExecution.NotExecuted, ["Refuel"],
+            CliSimulateEvidence + "; no refuelling order or runtime exists"),
     ];
 
     private static readonly string SupportedRolesList = string.Join(
@@ -114,8 +141,30 @@ public static class MissionRoleCapabilityManifest
         Entries.Where(e => e.Execution == MissionRoleExecution.Executed)
             .Select(e => e.SupportRole == null ? e.MissionType : e.MissionType + "/" + e.SupportRole));
 
-    /// <summary>True when <paramref name="code"/> is one of the capability finding codes.</summary>
+    /// <summary>Returns the manifest rows registered for <paramref name="backendId"/> (empty when unknown).</summary>
+    public static IReadOnlyList<MissionRoleCapability> EntriesForBackend(string? backendId)
+    {
+        var normalized = Normalize(backendId);
+        if (string.Equals(normalized, DefaultBackendId, StringComparison.OrdinalIgnoreCase))
+        {
+            return Entries;
+        }
+
+        if (string.Equals(normalized, CliSimulateBackendId, StringComparison.OrdinalIgnoreCase))
+        {
+            return CliSimulateEntries;
+        }
+
+        return Array.Empty<MissionRoleCapability>();
+    }
+
+    /// <summary>True when <paramref name="code"/> is one of the capability finding codes (blocking or generic-only warning).</summary>
     public static bool IsCapabilityCode(string? code) =>
+        string.Equals(code, CodeRoleGenericOnly, StringComparison.Ordinal)
+        || IsBlockingCapabilityCode(code);
+
+    /// <summary>True when <paramref name="code"/> is a blocking (Error-tier) capability finding code.</summary>
+    public static bool IsBlockingCapabilityCode(string? code) =>
         string.Equals(code, CodeRoleNotExecuted, StringComparison.Ordinal)
         || string.Equals(code, CodeRoleUnknown, StringComparison.Ordinal)
         || string.Equals(code, CodeBackendUnknown, StringComparison.Ordinal);
@@ -125,8 +174,9 @@ public static class MissionRoleCapabilityManifest
     {
         var type = Normalize(missionType);
         var role = Normalize(supportRole);
-        return Entries.FirstOrDefault(e =>
-            string.Equals(e.BackendId, backendId, StringComparison.Ordinal)
+        var normalizedBackend = Normalize(backendId);
+        return EntriesForBackend(normalizedBackend).FirstOrDefault(e =>
+            string.Equals(e.BackendId, normalizedBackend, StringComparison.OrdinalIgnoreCase)
             && string.Equals(e.MissionType, type, StringComparison.OrdinalIgnoreCase)
             && string.Equals(e.SupportRole, role, StringComparison.OrdinalIgnoreCase));
     }
@@ -141,39 +191,49 @@ public static class MissionRoleCapabilityManifest
 
         var type = Normalize(mission.Type) ?? "";
         var role = Normalize(mission.SupportRole);
+        var normalizedBackend = Normalize(backendId) ?? "";
         var roleText = role == null ? $"{type} mission '{mission.Id}'" : $"{type} mission '{mission.Id}' role '{role}'";
         const string blocked = "Export and Play are blocked; Save remains available.";
 
-        if (!Entries.Any(e => string.Equals(e.BackendId, backendId, StringComparison.Ordinal)))
+        var entries = EntriesForBackend(normalizedBackend);
+        if (entries.Count == 0)
         {
-            return Build(mission.Id, type, role, backendId, MissionRoleExecution.Unknown, CodeBackendUnknown,
-                $"{roleText} cannot be assessed: execution backend '{backendId}' is unknown. {blocked} Select backend '{DefaultBackendId}'.");
+            return Build(mission.Id, type, role, normalizedBackend, MissionRoleExecution.Unknown, CodeBackendUnknown,
+                $"{roleText} cannot be assessed: execution backend '{normalizedBackend}' is unknown. {blocked} Select backend '{DefaultBackendId}'.");
         }
+
+        var canonicalBackend = entries[0].BackendId;
 
         // Support missions are keyed by role; a role on a non-Support type is ignored by the runtime.
         var lookupRole = string.Equals(type, "Support", StringComparison.OrdinalIgnoreCase) ? role : null;
         if (lookupRole == null && string.Equals(type, "Support", StringComparison.OrdinalIgnoreCase))
         {
-            return Build(mission.Id, type, role, backendId, MissionRoleExecution.Unknown, CodeRoleUnknown,
+            return Build(mission.Id, type, role, canonicalBackend, MissionRoleExecution.Unknown, CodeRoleUnknown,
                 $"{roleText} has no support role. {blocked} Set a support role or change the mission to a supported role ({SupportedRolesList}).");
         }
 
-        var entry = Find(type, lookupRole, backendId);
+        var entry = Find(type, lookupRole, canonicalBackend);
         if (entry == null)
         {
-            var label = type.Length == 0 ? $"Mission '{mission.Id}' has no type and" : $"{roleText} is unknown to backend '{backendId}' and";
-            return Build(mission.Id, type, role, backendId, MissionRoleExecution.Unknown, CodeRoleUnknown,
+            var label = type.Length == 0 ? $"Mission '{mission.Id}' has no type and" : $"{roleText} is unknown to backend '{canonicalBackend}' and";
+            return Build(mission.Id, type, role, canonicalBackend, MissionRoleExecution.Unknown, CodeRoleUnknown,
                 $"{label} cannot run. {blocked} Change it to a supported role ({SupportedRolesList}).");
         }
 
         if (entry.Execution == MissionRoleExecution.Executed)
         {
-            return Build(mission.Id, entry.MissionType, role, backendId, MissionRoleExecution.Executed, null,
-                $"{roleText} is executed by backend '{backendId}'.");
+            return Build(mission.Id, entry.MissionType, role, canonicalBackend, MissionRoleExecution.Executed, null,
+                $"{roleText} is executed by backend '{canonicalBackend}'.");
         }
 
-        return Build(mission.Id, type, role, backendId, MissionRoleExecution.NotExecuted, CodeRoleNotExecuted,
-            $"{roleText} is not executed by backend '{backendId}'. {blocked} Remove the mission or change it to a supported role ({SupportedRolesList}).");
+        if (entry.Execution == MissionRoleExecution.GenericOnly)
+        {
+            return Build(mission.Id, entry.MissionType, role, canonicalBackend, MissionRoleExecution.GenericOnly, CodeRoleGenericOnly,
+                $"{roleText} runs with generic behavior on backend '{canonicalBackend}' (unit-level PatrolCandidateEngagePolicy intents; mission-specific zone/target orders are not enforced). Export and Play remain allowed.");
+        }
+
+        return Build(mission.Id, type, role, canonicalBackend, MissionRoleExecution.NotExecuted, CodeRoleNotExecuted,
+            $"{roleText} is not executed by backend '{canonicalBackend}'. {blocked} Remove the mission or change it to a supported role ({SupportedRolesList}).");
     }
 
     /// <summary>Assesses every mission in <paramref name="document"/>, ordered by mission id (ordinal).</summary>
@@ -195,7 +255,10 @@ public static class MissionRoleCapabilityManifest
     }
 
     /// <summary>
-    /// Error-severity findings for every mission the backend does not execute, ordered by mission id.
+    /// Capability findings for every mission that is not fully <see cref="MissionRoleExecution.Executed"/>,
+    /// ordered by mission id. <see cref="MissionRoleExecution.GenericOnly"/> produces
+    /// <see cref="ValidationSeverity.Warning"/>; <see cref="MissionRoleExecution.NotExecuted"/> and
+    /// <see cref="MissionRoleExecution.Unknown"/> produce <see cref="ValidationSeverity.Error"/>.
     /// Executed missions produce no finding, so supported scenarios keep their existing report hashes.
     /// </summary>
     public static IReadOnlyList<ValidationFinding> EvaluateFindings(
@@ -205,7 +268,9 @@ public static class MissionRoleCapabilityManifest
             .Where(a => a.FindingCode != null)
             .Select(a => new ValidationFinding(
                 a.FindingCode!,
-                ValidationSeverity.Error,
+                a.Execution == MissionRoleExecution.GenericOnly
+                    ? ValidationSeverity.Warning
+                    : ValidationSeverity.Error,
                 a.Message,
                 MissionId: a.MissionId,
                 Data: FindingData(a)))
@@ -228,6 +293,7 @@ public static class MissionRoleCapabilityManifest
     }
 
     private static MissionRoleCapability Row(
+        string backendId,
         string type,
         string? role,
         MissionRoleExecution execution,
@@ -237,7 +303,7 @@ public static class MissionRoleCapabilityManifest
         {
             MissionType = type,
             SupportRole = role,
-            BackendId = DefaultBackendId,
+            BackendId = backendId,
             Execution = execution,
             RequiredOrderKinds = requiredOrderKinds,
             RuntimeEvidence = evidence,

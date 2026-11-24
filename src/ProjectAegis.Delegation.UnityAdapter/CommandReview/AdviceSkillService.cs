@@ -28,6 +28,13 @@ public static class AdviceSkillCatalog
     }
 }
 
+/// <summary>Auditable advisory policy invocation result with explicit degraded-mode disclosure.</summary>
+public sealed record AdviceSkillPolicyResult(
+    AdviceSkillResult? Result,
+    DegradedModeAssessment Assessment,
+    bool IsFireOrder,
+    bool IsWeaponsReleaseAuthorization);
+
 /// <summary>Invokes a bounded advisory read function and returns the existing auditable skill envelope.</summary>
 public static class AdviceSkillService
 {
@@ -46,5 +53,67 @@ public static class AdviceSkillService
         }
 
         return new AdviceSkillResult(envelope, advice);
+    }
+
+    /// <summary>Assesses all 5 AGD-08 degraded-mode conditions from <paramref name="skillId"/>, <paramref name="advice"/>, and optional runtime context.</summary>
+    public static DegradedModeAssessment AssessDegradedMode(
+        string skillId,
+        AdviceFrame advice,
+        DegradedModeContext? runtimeContext = null)
+    {
+        if (advice is null) throw new ArgumentNullException(nameof(advice));
+
+        var skillMissing = string.IsNullOrWhiteSpace(skillId) || !AdviceSkillCatalog.TryGet(skillId, out _);
+        var modelUnavailable = skillMissing || advice.Availability is AdviceAvailability.ModelUnavailable or AdviceAvailability.EvidenceUnavailable;
+        var stale = advice.Availability == AdviceAvailability.Stale;
+        var partitioned = (runtimeContext?.NetworkPartition ?? false)
+            || (!string.IsNullOrWhiteSpace(advice.Fallback) && advice.Fallback.IndexOf("reporting link", StringComparison.OrdinalIgnoreCase) >= 0);
+        var authorityWithheld = (runtimeContext?.AuthorityWithheld ?? false)
+            || advice.Authority?.Targeting.Disposition == C2AuthorityDisposition.Withheld
+            || advice.PolicyConstraints.Any(p => p.IndexOf("authority:Withheld", StringComparison.OrdinalIgnoreCase) >= 0);
+        var resourceConflict = (runtimeContext?.ResourceConflict ?? false)
+            || advice.ResourceCommitments.Count > 0;
+
+        var merged = new DegradedModeContext(
+            ModelOrSkillUnavailable: modelUnavailable || (runtimeContext?.ModelOrSkillUnavailable ?? false),
+            StaleData: stale || (runtimeContext?.StaleData ?? false),
+            NetworkPartition: partitioned,
+            AuthorityWithheld: authorityWithheld,
+            ResourceConflict: resourceConflict,
+            Detail: runtimeContext?.Detail ?? (skillMissing ? $"unknown skill '{skillId}'" : advice.Fallback));
+
+        return DegradedModePolicy.Evaluate(merged);
+    }
+
+    /// <summary>
+    /// Policy-governed invocation that never throws on unknown skill or degraded frames,
+    /// performs zero hidden fallback, and returns explicit operator disclosure.
+    /// </summary>
+    public static AdviceSkillPolicyResult InvokeWithPolicy(
+        string skillId,
+        AdviceFrame advice,
+        DegradedModeContext? runtimeContext = null)
+    {
+        if (advice is null) throw new ArgumentNullException(nameof(advice));
+
+        var assessment = AssessDegradedMode(skillId, advice, runtimeContext);
+        if (assessment.IsDegraded
+            || string.IsNullOrWhiteSpace(skillId)
+            || !AdviceSkillCatalog.TryGet(skillId, out _)
+            || advice.Availability != AdviceAvailability.Available)
+        {
+            return new AdviceSkillPolicyResult(
+                Result: null,
+                Assessment: assessment,
+                IsFireOrder: false,
+                IsWeaponsReleaseAuthorization: false);
+        }
+
+        var result = Invoke(skillId, advice);
+        return new AdviceSkillPolicyResult(
+            Result: result,
+            Assessment: assessment,
+            IsFireOrder: false,
+            IsWeaponsReleaseAuthorization: false);
     }
 }

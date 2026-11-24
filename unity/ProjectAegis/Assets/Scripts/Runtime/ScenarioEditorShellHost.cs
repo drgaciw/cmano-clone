@@ -1,10 +1,16 @@
 // SE-UX: Unified Scenario Editor product chrome —
 // top bar · Map | Mission Board (+ Events P2.3) · drawer/inspector · findings dock · Play/Sample gate.
-// Hosts remain thin binders over ScenarioEditorShellProjection; mutations stay on ScenarioEditCommandBus.
+// Hosts remain thin binders over ScenarioEditorShellProjection and BoundedAuthoringWorkflow (ADR-010/017).
 #if UNITY_5_3_OR_NEWER
 using System;
 using System.Collections.Generic;
+using System.Text;
+using ProjectAegis.Data.Catalog;
+using ProjectAegis.Data.Scenario.Authoring;
+using ProjectAegis.Delegation.Core;
 using ProjectAegis.Delegation.Projection;
+using ProjectAegis.Delegation.UnityAdapter.Authoring;
+using ProjectAegis.Delegation.UnityAdapter.PlayEntry;
 using UnityEngine;
 using UnityEngine.UIElements;
 
@@ -24,6 +30,7 @@ namespace ProjectAegis.Unity.Runtime
         private const string TabEventsName = "scenario-editor-shell-tab-events";
         private const string TabsName = "scenario-editor-shell-tabs";
         private const string MapSlotName = "scenario-editor-shell-map-slot";
+        private const string MapSummaryName = "scenario-editor-shell-map-summary";
         private const string MissionBoardSlotName = "scenario-editor-shell-mission-board-slot";
         private const string SlotHiddenClass = "scenario-editor-shell-slot--hidden";
         private const string MapRootClass = "scenario-editor-shell--map";
@@ -73,10 +80,12 @@ namespace ProjectAegis.Unity.Runtime
         private Button? _btnPlay;
         private Button? _btnSample;
         private VisualElement? _mapSlot;
+        private Label? _mapSummary;
         private VisualElement? _missionBoardSlot;
         private VisualElement? _tabs;
         private ScrollView? _findingsList;
         private ScenarioEditorShellState _state = ScenarioEditorShellProjection.Bind();
+        private VisualElement? _wiredRoot;
         private bool _wired;
         private Action? _loadRequested;
         private Action? _saveRequested;
@@ -84,9 +93,59 @@ namespace ProjectAegis.Unity.Runtime
         private Action? _redoRequested;
         private Action? _playRequested;
         private Action? _sampleRequested;
+        private BoundedAuthoringWorkflow? _workflow;
+        private PlayEntrySession? _playEntry;
+        private DelegationBridgeHost? _bridgeHost;
+        private string? _defaultDraftPath;
+        private string? _defaultBackendId;
+        private bool _ownsWorkflow;
+        private bool _workflowSubscribed;
+        private BoundedPlayHandoffResult? _lastPlayHandoff;
 
         /// <summary>Current shell projection state (test / curator sync).</summary>
         public ScenarioEditorShellState State => _state;
+
+        /// <summary>True when a <see cref="BoundedAuthoringWorkflow"/> is attached to this shell host.</summary>
+        public bool IsAuthoringAttached => _workflow != null;
+
+        /// <summary>True when the attached authoring workflow has an open scenario session.</summary>
+        public bool HasOpenAuthoringSession => _workflow?.HasOpenSession == true;
+
+        /// <summary>True when an undo snapshot is available in the attached authoring workflow.</summary>
+        public bool CanUndoAuthoring => _workflow?.CanUndo == true;
+
+        /// <summary>True when a redo snapshot is available in the attached authoring workflow.</summary>
+        public bool CanRedoAuthoring => _workflow?.CanRedo == true;
+
+        /// <summary>Count of ORBAT units currently projected on the map surface.</summary>
+        public int AuthoringUnitCount => _workflow?.Surface?.Units.Count ?? 0;
+
+        /// <summary>Count of authored missions in the open scenario session.</summary>
+        public int AuthoringMissionCount => _workflow?.Session?.Editor.Missions.Count ?? 0;
+
+        /// <summary>True when DRG-371 generic-only capability warnings are present (non-blocking).</summary>
+        public bool HasGenericExecutionWarnings => _workflow?.Findings?.Gate.HasGenericExecutionWarnings == true;
+
+        /// <summary>True when unsupported mission roles block Export and Play.</summary>
+        public bool HasUnsupportedExecution => _workflow?.Findings?.Gate.HasUnsupportedExecution == true;
+
+        /// <summary>True when the validation export gate allows Export and Play.</summary>
+        public bool CanExportAuthoring => _workflow?.Findings?.Gate.CanExport == true;
+
+        /// <summary>Most recent validated export artifact path, if any.</summary>
+        public string? LastExportArtifactPath => _workflow?.LastExportOutcome?.ArtifactPath;
+
+        /// <summary>Immutable state of the bound <see cref="PlayEntrySession"/>, if attached.</summary>
+        public PlayEntryState? ActivePlayEntryState => _playEntry?.State;
+
+        /// <summary>Most recent Play handoff result, if any.</summary>
+        public BoundedPlayHandoffResult? LastPlayHandoff => _lastPlayHandoff;
+
+        /// <summary>Simulation mode used when handing off from Edit to Play.</summary>
+        public SimulationModeKind PlayHandoffMode { get; set; } = SimulationModeKind.Mixed;
+
+        /// <summary>Commanded side used when handing off from Edit to Play.</summary>
+        public PlaySide PlayHandoffSide { get; set; } = PlaySide.Friendly;
 
         /// <summary>Raised when Load is clicked (curator / session owns IO).</summary>
         public event Action? LoadRequested
@@ -200,6 +259,394 @@ namespace ProjectAegis.Unity.Runtime
             ApplyPanelVisibility();
         }
 
+        private void OnDisable()
+        {
+            ResetWiredElements();
+        }
+
+        private void OnDestroy()
+        {
+            DetachAuthoringWorkflow();
+        }
+
+        /// <summary>
+        /// Attaches a default <see cref="BoundedAuthoringWorkflow"/> and <see cref="PlayEntrySession"/>
+        /// owned by this shell host (DRG-346).
+        /// </summary>
+        public void AttachDefaultAuthoringWorkflow(
+            DelegationBridgeHost? bridgeHost = null,
+            string? defaultDraftPath = null,
+            string? defaultBackendId = null)
+        {
+            var workflow = new BoundedAuthoringWorkflow();
+            var playCatalog = (bridgeHost != null ? bridgeHost.CatalogReader : null)
+                ?? CatalogReaderFactory.TryCreateBalticPatrolReader()
+                ?? InMemoryCatalogReader.BalticPatrolFixture();
+            var playEntry = new PlayEntrySession(catalog: playCatalog);
+            AttachAuthoringWorkflow(
+                workflow,
+                playEntry,
+                bridgeHost,
+                defaultDraftPath,
+                defaultBackendId,
+                ownsWorkflow: true);
+        }
+
+        /// <summary>
+        /// Attaches a caller-owned <see cref="BoundedAuthoringWorkflow"/> and optional
+        /// <see cref="PlayEntrySession"/> / <see cref="DelegationBridgeHost"/> to the D26 shell actions.
+        /// </summary>
+        public void AttachAuthoringWorkflow(
+            BoundedAuthoringWorkflow workflow,
+            PlayEntrySession? playEntry = null,
+            DelegationBridgeHost? bridgeHost = null,
+            string? defaultDraftPath = null,
+            string? defaultBackendId = null)
+        {
+            AttachAuthoringWorkflow(
+                workflow,
+                playEntry,
+                bridgeHost,
+                defaultDraftPath,
+                defaultBackendId,
+                ownsWorkflow: false);
+        }
+
+        /// <summary>Detaches the current authoring workflow, restoring D26 NOT_AVAILABLE gating.</summary>
+        public void DetachAuthoringWorkflow()
+        {
+            if (_workflowSubscribed)
+            {
+                LoadRequested -= HandleLoadRequested;
+                SaveRequested -= HandleSaveRequested;
+                UndoRequested -= HandleUndoRequested;
+                RedoRequested -= HandleRedoRequested;
+                PlayRequested -= HandlePlayRequested;
+                SampleRequested -= HandleSampleRequested;
+                _workflowSubscribed = false;
+            }
+
+            if (_ownsWorkflow)
+            {
+                _workflow?.Dispose();
+            }
+
+            _workflow = null;
+            _playEntry = null;
+            _bridgeHost = null;
+            _defaultDraftPath = null;
+            _defaultBackendId = null;
+            _ownsWorkflow = false;
+            _lastPlayHandoff = null;
+            _state = ScenarioEditorShellProjection.Bind(mode: _state.Mode, findingsFilter: _state.FindingsFilter);
+            if (_document != null)
+            {
+                ApplyState(_state);
+            }
+        }
+
+        /// <summary>Opens a scenario draft through the attached workflow and refreshes shell chrome.</summary>
+        public bool OpenAuthoringDraft(string scenarioPath, string? backendId = null)
+        {
+            if (_workflow == null)
+            {
+                return false;
+            }
+
+            var resolvedBackend = string.IsNullOrWhiteSpace(backendId)
+                ? (_defaultBackendId ?? MissionRoleCapabilityManifest.DefaultBackendId)
+                : backendId.Trim();
+            var result = _workflow.OpenDraft(scenarioPath, backendId: resolvedBackend);
+            if (result.Succeeded
+                && _workflow.HasOpenSession
+                && _workflow.BoundCatalog == null
+                && _workflow.Session != null)
+            {
+                var meta = _workflow.Session.Editor.Metadata;
+                var dbRef = !string.IsNullOrWhiteSpace(meta.DbRef)
+                    ? meta.DbRef.Trim()
+                    : meta.DbSnapshotId?.Trim();
+                if (!string.IsNullOrWhiteSpace(dbRef)
+                    && CatalogValidationDefaults.TryResolveBalticDbRef(dbRef, out _))
+                {
+                    var fallbackCatalog = (_bridgeHost != null ? _bridgeHost.CatalogReader : null)
+                        ?? InMemoryCatalogReader.BalticPatrolFixture();
+                    result = _workflow.OpenDraft(scenarioPath, catalog: fallbackCatalog, backendId: resolvedBackend);
+                }
+            }
+
+            if (result.Succeeded)
+            {
+                _defaultDraftPath = scenarioPath;
+                _lastPlayHandoff = null;
+                SyncFromWorkflow();
+                return true;
+            }
+
+            SyncFromWorkflow();
+            SetStatusSummary(result.Message);
+            return false;
+        }
+
+        /// <summary>Selects an ORBAT unit on the map surface and updates inspector/map slot chrome.</summary>
+        public bool SelectAuthoringUnit(string? unitId)
+        {
+            if (_workflow == null)
+            {
+                return false;
+            }
+
+            var result = _workflow.SelectUnit(unitId);
+            SyncFromWorkflow();
+            return result.Succeeded;
+        }
+
+        /// <summary>Places or edits a unit on the map surface via the attached workflow.</summary>
+        public BoundedAuthoringOperationResult PlaceOrEditAuthoringUnit(BoundedUnitEditRequest request)
+        {
+            if (_workflow == null)
+            {
+                return BoundedAuthoringOperationResult.Fail("NOT_ATTACHED", "Authoring workflow is not attached.");
+            }
+
+            var result = _workflow.PlaceOrEditUnit(request);
+            SyncFromWorkflow();
+            return result;
+        }
+
+        /// <summary>Assigns an existing unit to a mission through the attached workflow.</summary>
+        public BoundedAuthoringOperationResult AssignAuthoringUnitToMission(
+            string missionId,
+            string unitId,
+            bool saveImmediately = false)
+        {
+            if (_workflow == null)
+            {
+                return BoundedAuthoringOperationResult.Fail("NOT_ATTACHED", "Authoring workflow is not attached.");
+            }
+
+            var result = _workflow.AssignUnitToMission(missionId, unitId, saveImmediately);
+            SyncFromWorkflow();
+            return result;
+        }
+
+        /// <summary>Removes an authored mission through the attached workflow.</summary>
+        public BoundedAuthoringOperationResult RemoveAuthoringMission(
+            string missionId,
+            bool saveImmediately = false)
+        {
+            if (_workflow == null)
+            {
+                return BoundedAuthoringOperationResult.Fail("NOT_ATTACHED", "Authoring workflow is not attached.");
+            }
+
+            var result = _workflow.RemoveMission(missionId, saveImmediately);
+            SyncFromWorkflow();
+            return result;
+        }
+
+        /// <summary>Reads a projected unit's fields from the map surface without exposing Data DTOs.</summary>
+        public bool TryGetAuthoringUnit(
+            string unitId,
+            out string sideId,
+            out string platformId,
+            out double lat,
+            out double lon)
+        {
+            sideId = string.Empty;
+            platformId = string.Empty;
+            lat = 0;
+            lon = 0;
+
+            var units = _workflow?.Surface?.Units;
+            if (units == null || string.IsNullOrWhiteSpace(unitId))
+            {
+                return false;
+            }
+
+            for (var i = 0; i < units.Count; i++)
+            {
+                var unit = units[i];
+                if (string.Equals(unit.UnitId, unitId, StringComparison.OrdinalIgnoreCase))
+                {
+                    sideId = unit.SideId;
+                    platformId = unit.PlatformId;
+                    lat = unit.Lat;
+                    lon = unit.Lon;
+                    return true;
+                }
+            }
+
+            return false;
+        }
+
+        /// <summary>Validates the open draft and refreshes findings/gate chrome.</summary>
+        public bool ValidateAuthoring(string? backendId = null)
+        {
+            if (_workflow == null || !_workflow.HasOpenSession)
+            {
+                return false;
+            }
+
+            _workflow.Validate(backendId);
+            SyncFromWorkflow();
+            return true;
+        }
+
+        /// <summary>Saves the current draft (allowed even with validation errors) and refreshes chrome.</summary>
+        public bool SaveAuthoringDraft()
+        {
+            if (_workflow == null || !_workflow.HasOpenSession)
+            {
+                return false;
+            }
+
+            var outcome = _workflow.SaveDraft();
+            SyncFromWorkflow();
+            return outcome.Saved;
+        }
+
+        /// <summary>Undoes the most recent authoring edit and refreshes chrome.</summary>
+        public bool UndoAuthoring()
+        {
+            if (_workflow == null)
+            {
+                return false;
+            }
+
+            var result = _workflow.Undo();
+            SyncFromWorkflow();
+            return result.Succeeded;
+        }
+
+        /// <summary>Redoes the most recently undone authoring edit and refreshes chrome.</summary>
+        public bool RedoAuthoring()
+        {
+            if (_workflow == null)
+            {
+                return false;
+            }
+
+            var result = _workflow.Redo();
+            SyncFromWorkflow();
+            return result.Succeeded;
+        }
+
+        /// <summary>Exports the validated package and hands off into <see cref="PlayEntrySession"/>.</summary>
+        public BoundedPlayHandoffResult ExportAndPlayAuthoring()
+        {
+            if (_workflow == null || _playEntry == null)
+            {
+                var unattached = BoundedPlayHandoffResult.Fail("NOT_ATTACHED", "Authoring workflow is not attached.");
+                _lastPlayHandoff = unattached;
+                return unattached;
+            }
+
+            var handoff = _workflow.HandOffToPlay(_playEntry, PlayHandoffMode, PlayHandoffSide);
+            _lastPlayHandoff = handoff;
+            if (handoff.Succeeded && _bridgeHost != null && _playEntry.Bridge != null)
+            {
+                var seed = unchecked((int)(_workflow.Session?.Editor.Metadata.Seed ?? 42UL));
+                _bridgeHost.BindExternalSession(_playEntry.Bridge, seed);
+            }
+
+            SyncFromWorkflow();
+            return handoff;
+        }
+
+        /// <summary>Synchronizes shell projection state and map slot summary from the attached workflow.</summary>
+        public void SyncFromWorkflow()
+        {
+            if (_workflow == null)
+            {
+                return;
+            }
+
+            _state = _workflow.BuildShellState(_state.Mode, _state.FindingsFilter);
+            if (_document != null)
+            {
+                ApplyState(_state);
+            }
+        }
+
+        private void AttachAuthoringWorkflow(
+            BoundedAuthoringWorkflow workflow,
+            PlayEntrySession? playEntry,
+            DelegationBridgeHost? bridgeHost,
+            string? defaultDraftPath,
+            string? defaultBackendId,
+            bool ownsWorkflow)
+        {
+            if (workflow == null)
+            {
+                throw new ArgumentNullException(nameof(workflow));
+            }
+
+            DetachAuthoringWorkflow();
+
+            _workflow = workflow;
+            _playEntry = playEntry ?? new PlayEntrySession();
+            _bridgeHost = bridgeHost;
+            _defaultDraftPath = defaultDraftPath;
+            _defaultBackendId = string.IsNullOrWhiteSpace(defaultBackendId) ? null : defaultBackendId.Trim();
+            _ownsWorkflow = ownsWorkflow;
+
+            LoadRequested += HandleLoadRequested;
+            SaveRequested += HandleSaveRequested;
+            UndoRequested += HandleUndoRequested;
+            RedoRequested += HandleRedoRequested;
+            PlayRequested += HandlePlayRequested;
+            SampleRequested += HandleSampleRequested;
+            _workflowSubscribed = true;
+
+            SyncFromWorkflow();
+        }
+
+        private void HandleLoadRequested()
+        {
+            var path = !string.IsNullOrWhiteSpace(_defaultDraftPath)
+                ? _defaultDraftPath
+                : _workflow?.Session?.Path;
+            if (string.IsNullOrWhiteSpace(path))
+            {
+                SetStatusSummary("No scenario path configured for Load.");
+                return;
+            }
+
+            OpenAuthoringDraft(path!, _defaultBackendId);
+        }
+
+        private void HandleSaveRequested()
+        {
+            SaveAuthoringDraft();
+        }
+
+        private void HandleUndoRequested()
+        {
+            UndoAuthoring();
+        }
+
+        private void HandleRedoRequested()
+        {
+            RedoAuthoring();
+        }
+
+        private void HandlePlayRequested()
+        {
+            ExportAndPlayAuthoring();
+        }
+
+        private void HandleSampleRequested()
+        {
+            if (_workflow == null || !_workflow.HasOpenSession)
+            {
+                return;
+            }
+
+            _workflow.ExportPackage();
+            SyncFromWorkflow();
+        }
+
         /// <summary>Switch Map | Mission Board without destroying child slot content.</summary>
         public void SetMode(ScenarioEditorShellMode mode)
         {
@@ -280,11 +727,23 @@ namespace ProjectAegis.Unity.Runtime
 
         private void TryWireElements()
         {
+            if (_document == null)
+            {
+                return;
+            }
+
             var root = _document.rootVisualElement;
             if (root == null)
             {
                 return;
             }
+
+            if (_wiredRoot != null && (!ReferenceEquals(_wiredRoot, root) || (_btnLoad != null && root.Q<Button>(BtnLoadName) != _btnLoad)))
+            {
+                ResetWiredElements();
+            }
+
+            _wiredRoot = root;
 
             _modeTitle ??= root.Q<Label>(ModeTitleName);
             _status ??= root.Q<Label>(StatusName);
@@ -296,6 +755,18 @@ namespace ProjectAegis.Unity.Runtime
             _inspectorBody ??= root.Q<Label>(InspectorBodyName);
             _drawerTitle ??= root.Q<Label>(DrawerTitleName);
             _mapSlot ??= root.Q(MapSlotName);
+            if (_mapSlot != null && _mapSummary == null)
+            {
+                _mapSummary = _mapSlot.Q<Label>(MapSummaryName)
+                              ?? _mapSlot.Q<Label>(className: "scenario-editor-shell-placeholder");
+                if (_mapSummary == null)
+                {
+                    _mapSummary = new Label("Map Authoring surface slot") { name = MapSummaryName };
+                    _mapSummary.AddToClassList("scenario-editor-shell-placeholder");
+                    _mapSlot.Add(_mapSummary);
+                }
+            }
+
             _missionBoardSlot ??= root.Q(MissionBoardSlotName);
             _findingsList ??= root.Q<ScrollView>(FindingsListName);
 
@@ -304,7 +775,7 @@ namespace ProjectAegis.Unity.Runtime
                 _tabMap = root.Q<Button>(TabMapName);
                 if (_tabMap != null)
                 {
-                    _tabMap.clicked += () => SetMode(ScenarioEditorShellMode.Map);
+                    _tabMap.clicked += OnTabMapClicked;
                 }
             }
 
@@ -313,7 +784,7 @@ namespace ProjectAegis.Unity.Runtime
                 _tabMissions = root.Q<Button>(TabMissionsName);
                 if (_tabMissions != null)
                 {
-                    _tabMissions.clicked += () => SetMode(ScenarioEditorShellMode.MissionBoard);
+                    _tabMissions.clicked += OnTabMissionsClicked;
                 }
             }
 
@@ -323,46 +794,16 @@ namespace ProjectAegis.Unity.Runtime
                 _tabEvents.SetEnabled(false);
             }
 
-            WireFilter(_filterAll, FilterAllName, ScenarioEditorFindingsFilter.All, b => _filterAll = b);
-            WireFilter(_filterErrors, FilterErrorsName, ScenarioEditorFindingsFilter.Errors, b => _filterErrors = b);
-            WireFilter(_filterWarnings, FilterWarningsName, ScenarioEditorFindingsFilter.Warnings, b => _filterWarnings = b);
+            WireFilter(root, ref _filterAll, FilterAllName, OnFilterAllClicked);
+            WireFilter(root, ref _filterErrors, FilterErrorsName, OnFilterErrorsClicked);
+            WireFilter(root, ref _filterWarnings, FilterWarningsName, OnFilterWarningsClicked);
 
-            WireAction(ref _btnLoad, BtnLoadName, () => _loadRequested?.Invoke());
-            WireAction(ref _btnSave, BtnSaveName, () =>
-            {
-                if (_state.SaveEnabled)
-                {
-                    _saveRequested?.Invoke();
-                }
-            });
-            WireAction(ref _btnUndo, BtnUndoName, () =>
-            {
-                if (_state.UndoEnabled)
-                {
-                    _undoRequested?.Invoke();
-                }
-            });
-            WireAction(ref _btnRedo, BtnRedoName, () =>
-            {
-                if (_state.RedoEnabled)
-                {
-                    _redoRequested?.Invoke();
-                }
-            });
-            WireAction(ref _btnPlay, BtnPlayName, () =>
-            {
-                if (_state.PlayEnabled)
-                {
-                    _playRequested?.Invoke();
-                }
-            });
-            WireAction(ref _btnSample, BtnSampleName, () =>
-            {
-                if (_state.SampleEnabled)
-                {
-                    _sampleRequested?.Invoke();
-                }
-            });
+            WireAction(root, ref _btnLoad, BtnLoadName, OnBtnLoadClicked);
+            WireAction(root, ref _btnSave, BtnSaveName, OnBtnSaveClicked);
+            WireAction(root, ref _btnUndo, BtnUndoName, OnBtnUndoClicked);
+            WireAction(root, ref _btnRedo, BtnRedoName, OnBtnRedoClicked);
+            WireAction(root, ref _btnPlay, BtnPlayName, OnBtnPlayClicked);
+            WireAction(root, ref _btnSample, BtnSampleName, OnBtnSampleClicked);
 
             if (_tabs == null)
             {
@@ -376,36 +817,140 @@ namespace ProjectAegis.Unity.Runtime
             _wired = root.Q(RootName) != null;
         }
 
-        private void WireFilter(
-            Button? existing,
-            string name,
-            ScenarioEditorFindingsFilter filter,
-            Action<Button?> assign)
+        private void ResetWiredElements()
         {
-            if (existing != null)
+            if (_tabMap != null)
             {
-                return;
+                _tabMap.clicked -= OnTabMapClicked;
+                _tabMap = null;
             }
 
-            var root = _document.rootVisualElement;
-            var button = root?.Q<Button>(name);
-            if (button != null)
+            if (_tabMissions != null)
             {
-                button.clicked += () => SetFindingsFilter(filter);
+                _tabMissions.clicked -= OnTabMissionsClicked;
+                _tabMissions = null;
             }
 
-            assign(button);
+            if (_filterAll != null)
+            {
+                _filterAll.clicked -= OnFilterAllClicked;
+                _filterAll = null;
+            }
+
+            if (_filterErrors != null)
+            {
+                _filterErrors.clicked -= OnFilterErrorsClicked;
+                _filterErrors = null;
+            }
+
+            if (_filterWarnings != null)
+            {
+                _filterWarnings.clicked -= OnFilterWarningsClicked;
+                _filterWarnings = null;
+            }
+
+            if (_btnLoad != null)
+            {
+                _btnLoad.clicked -= OnBtnLoadClicked;
+                _btnLoad = null;
+            }
+
+            if (_btnSave != null)
+            {
+                _btnSave.clicked -= OnBtnSaveClicked;
+                _btnSave = null;
+            }
+
+            if (_btnUndo != null)
+            {
+                _btnUndo.clicked -= OnBtnUndoClicked;
+                _btnUndo = null;
+            }
+
+            if (_btnRedo != null)
+            {
+                _btnRedo.clicked -= OnBtnRedoClicked;
+                _btnRedo = null;
+            }
+
+            if (_btnPlay != null)
+            {
+                _btnPlay.clicked -= OnBtnPlayClicked;
+                _btnPlay = null;
+            }
+
+            if (_btnSample != null)
+            {
+                _btnSample.clicked -= OnBtnSampleClicked;
+                _btnSample = null;
+            }
+
+            if (_tabs != null)
+            {
+                _tabs.UnregisterCallback<KeyDownEvent>(OnTabsKeyDown);
+                _tabs = null;
+            }
+
+            _modeTitle = null;
+            _status = null;
+            _findingsSummary = null;
+            _playGate = null;
+            _scenarioTitle = null;
+            _dirty = null;
+            _editVersion = null;
+            _inspectorBody = null;
+            _drawerTitle = null;
+            _mapSlot = null;
+            _mapSummary = null;
+            _missionBoardSlot = null;
+            _findingsList = null;
+            _tabEvents = null;
+            _wiredRoot = null;
+            _wired = false;
         }
 
-        private void WireAction(ref Button? field, string name, Action onClick)
+        private void OnTabMapClicked() => SetMode(ScenarioEditorShellMode.Map);
+        private void OnTabMissionsClicked() => SetMode(ScenarioEditorShellMode.MissionBoard);
+        private void OnFilterAllClicked() => SetFindingsFilter(ScenarioEditorFindingsFilter.All);
+        private void OnFilterErrorsClicked() => SetFindingsFilter(ScenarioEditorFindingsFilter.Errors);
+        private void OnFilterWarningsClicked() => SetFindingsFilter(ScenarioEditorFindingsFilter.Warnings);
+        private void OnBtnLoadClicked() => _loadRequested?.Invoke();
+        private void OnBtnSaveClicked() { if (_state.SaveEnabled) _saveRequested?.Invoke(); }
+        private void OnBtnUndoClicked() { if (_state.UndoEnabled) _undoRequested?.Invoke(); }
+        private void OnBtnRedoClicked() { if (_state.RedoEnabled) _redoRequested?.Invoke(); }
+        private void OnBtnPlayClicked() { if (_state.PlayEnabled) _playRequested?.Invoke(); }
+        private void OnBtnSampleClicked() { if (_state.SampleEnabled) _sampleRequested?.Invoke(); }
+
+        private static void WireFilter(
+            VisualElement root,
+            ref Button? field,
+            string name,
+            Action onClick)
         {
             if (field != null)
             {
                 return;
             }
 
-            var root = _document.rootVisualElement;
-            field = root?.Q<Button>(name);
+            field = root.Q<Button>(name);
+            if (field != null)
+            {
+                field.clicked += onClick;
+            }
+        }
+
+        private static void WireAction(
+            VisualElement root,
+            ref Button? field,
+            string name,
+            Action onClick)
+        {
+            if (field != null)
+            {
+                return;
+            }
+
+            field = root.Q<Button>(name);
             if (field != null)
             {
                 field.clicked += onClick;
@@ -425,10 +970,20 @@ namespace ProjectAegis.Unity.Runtime
 
         private void ApplyState(ScenarioEditorShellState state)
         {
+            if (_document == null)
+            {
+                return;
+            }
+
             var root = _document.rootVisualElement;
             if (root == null)
             {
                 return;
+            }
+
+            if (!ReferenceEquals(_wiredRoot, root))
+            {
+                TryWireElements();
             }
 
             root.EnableInClassList(MapRootClass, state.Mode == ScenarioEditorShellMode.Map);
@@ -503,7 +1058,75 @@ namespace ProjectAegis.Unity.Runtime
             _mapSlot?.EnableInClassList(SlotHiddenClass, !state.MapContentVisible);
             _missionBoardSlot?.EnableInClassList(SlotHiddenClass, !state.MissionBoardContentVisible);
 
+            UpdateMapSlotSummary();
             RebuildFindingsList(state);
+        }
+
+        private void UpdateMapSlotSummary()
+        {
+            if (_mapSummary == null)
+            {
+                return;
+            }
+
+            if (_workflow == null || !_workflow.HasOpenSession || _workflow.Surface == null)
+            {
+                _mapSummary.text = "Map Authoring surface slot";
+                return;
+            }
+
+            var sb = new StringBuilder();
+            sb.Append(_state.ScenarioTitle)
+              .Append(" (v").Append(_state.EditVersion)
+              .Append(", backend=").Append(_workflow.BackendId).AppendLine(")");
+
+            var units = _workflow.Surface.Units;
+            sb.Append("Units (").Append(units.Count).Append("): ");
+            for (var i = 0; i < units.Count; i++)
+            {
+                if (i > 0)
+                {
+                    sb.Append(", ");
+                }
+
+                var u = units[i];
+                sb.Append(u.UnitId).Append('[').Append(u.PlatformId).Append('@')
+                  .Append(u.Lat.ToString("F2", System.Globalization.CultureInfo.InvariantCulture)).Append(',')
+                  .Append(u.Lon.ToString("F2", System.Globalization.CultureInfo.InvariantCulture)).Append(']');
+            }
+
+            sb.AppendLine();
+            sb.Append("Selection: ").Append(_state.SelectedEntityId ?? "none")
+              .Append(" | RPs: ").Append(_workflow.Surface.ReferencePoints.Count)
+              .Append(" | Missions: ").Append(AuthoringMissionCount);
+
+            var gate = _workflow.Findings?.Gate;
+            if (gate != null && gate.HasUnsupportedExecution)
+            {
+                sb.AppendLine()
+                  .Append("Capability: ")
+                  .Append(gate.UnsupportedExecutionFindings.Count)
+                  .Append(" unsupported role error(s) — Export and Play blocked.");
+            }
+
+            if (gate != null && gate.HasGenericExecutionWarnings)
+            {
+                sb.AppendLine()
+                  .Append("Capability: ")
+                  .Append(gate.GenericExecutionFindings.Count)
+                  .Append(gate.CanExport
+                      ? " generic-only warning(s) — Export and Play remain allowed."
+                      : " generic-only warning(s) (non-blocking warning; Export and Play blocked by other errors).");
+            }
+
+            if (_lastPlayHandoff != null)
+            {
+                sb.AppendLine()
+                  .Append("Play handoff: ")
+                  .Append(_lastPlayHandoff.Succeeded ? _lastPlayHandoff.Message : _lastPlayHandoff.ErrorCode);
+            }
+
+            _mapSummary.text = sb.ToString();
         }
 
         private static void ApplyActionButton(
@@ -599,6 +1222,11 @@ namespace ProjectAegis.Unity.Runtime
 
         private void ApplyAccessibility()
         {
+            if (_document == null)
+            {
+                return;
+            }
+
             var root = _document.rootVisualElement;
             if (root == null)
             {
@@ -614,6 +1242,11 @@ namespace ProjectAegis.Unity.Runtime
 
         private void ApplyPanelVisibility()
         {
+            if (_document == null)
+            {
+                return;
+            }
+
             var root = _document.rootVisualElement;
             if (root != null)
             {

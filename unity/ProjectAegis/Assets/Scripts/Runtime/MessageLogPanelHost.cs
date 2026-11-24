@@ -334,6 +334,7 @@ namespace ProjectAegis.Unity.Runtime
                 SelectedUnitId = null;
                 SelectedRowIndex = null;
                 _deepLinkPresentation = DecisionLogDeepLinkPresentation.Empty;
+                bridgeHost?.SelectMessageLogDeepLink(null);
                 ApplyDeepLinkDrawer();
                 return false;
             }
@@ -342,12 +343,16 @@ namespace ProjectAegis.Unity.Runtime
             SelectedUnitId = selection.UnitId;
             SelectedRowIndex = selection.RowIndex;
 
-            if (bridgeHost != null && !string.IsNullOrEmpty(selection.UnitId))
+            RefreshDeepLinkSelection();
+
+            // DRG-268: Fog-safe selection — only fall back to raw SelectUnit if no deep-link detail existed and not fog-suppressed.
+            if (bridgeHost != null
+                && !bridgeHost.LastMessageLogExplainLink.HasExplain
+                && !string.IsNullOrEmpty(selection.UnitId))
             {
                 bridgeHost.SelectUnit(selection.UnitId);
             }
 
-            RefreshDeepLinkSelection();
             return true;
         }
 
@@ -395,12 +400,14 @@ namespace ProjectAegis.Unity.Runtime
             if (bridgeHost == null || !SelectedSequenceId.HasValue)
             {
                 _deepLinkPresentation = DecisionLogDeepLinkPresentation.Empty;
+                bridgeHost?.SelectMessageLogDeepLink(null);
                 ApplyDeepLinkDrawer();
                 return;
             }
 
             var detail = bridgeHost.InspectMessageLogDecision(SelectedSequenceId.Value);
             _deepLinkPresentation = DecisionLogDeepLinkBinder.Bind(detail);
+            bridgeHost.SelectMessageLogDeepLink(detail);
             ApplyDeepLinkDrawer();
         }
 

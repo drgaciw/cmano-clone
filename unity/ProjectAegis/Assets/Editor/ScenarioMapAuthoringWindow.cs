@@ -604,16 +604,45 @@ namespace ProjectAegis.Unity.Editor
 
             if (gate.CanExport)
             {
-                _exportGateLabel.text = $"READY TO EXPORT — {counts}";
-                _exportGateLabel.tooltip =
-                    "No blocking findings. Export, publish, brief and simulate-sample are permitted.";
+                if (gate.HasGenericExecutionWarnings)
+                {
+                    _exportGateLabel.text = $"READY TO EXPORT (generic warnings) — {counts}";
+                    _exportGateLabel.tooltip = BuildGenericExecutionWarningTooltip(gate)
+                        + " Export and Play remain allowed.";
+                }
+                else
+                {
+                    _exportGateLabel.text = $"READY TO EXPORT — {counts}";
+                    _exportGateLabel.tooltip =
+                        "No blocking findings. Export, publish, brief and simulate-sample are permitted.";
+                }
+
                 _exportGateLabel.AddToClassList(ExportGateReadyClass);
                 return;
             }
 
             _exportGateLabel.text = $"EXPORT BLOCKED — {counts}";
-            _exportGateLabel.tooltip = gate.BlockingReason;
+            _exportGateLabel.tooltip = gate.HasGenericExecutionWarnings
+                ? $"{gate.BlockingReason} {BuildGenericExecutionWarningTooltip(gate)}"
+                : gate.BlockingReason;
             _exportGateLabel.AddToClassList(ExportGateBlockedClass);
+        }
+
+        private static string BuildGenericExecutionWarningTooltip(ScenarioExportGateState gate)
+        {
+            var warnings = gate.GenericExecutionFindings;
+            if (warnings.Count == 0)
+            {
+                return string.Empty;
+            }
+
+            var messages = new string[warnings.Count];
+            for (var i = 0; i < warnings.Count; i++)
+            {
+                messages[i] = warnings[i].Message;
+            }
+
+            return $"Generic behavior only ({warnings.Count} warning(s)): " + string.Join("; ", messages);
         }
 
         private static string DescribeGateCounts(ScenarioExportGateState gate)
@@ -660,15 +689,40 @@ namespace ProjectAegis.Unity.Editor
 
         private IReadOnlyList<string> BuildFindingsLines()
         {
-            if (_findings == null || _findings.LastCodes.Count == 0)
+            if (_findings == null)
             {
                 return Array.Empty<string>();
             }
 
-            var lines = new List<string>(_findings.LastCodes.Count);
-            for (var i = 0; i < _findings.LastCodes.Count; i++)
+            var findings = _findings.Gate.Findings;
+            if (findings.Count == 0)
             {
-                lines.Add(_findings.LastCodes[i]);
+                return _findings.LastCodes.Count == 0
+                    ? Array.Empty<string>()
+                    : _findings.LastCodes;
+            }
+
+            var lines = new List<string>(findings.Count);
+            for (var i = 0; i < findings.Count; i++)
+            {
+                var f = findings[i];
+                if (string.Equals(f.Code, MissionRoleCapabilityManifest.CodeRoleGenericOnly, StringComparison.Ordinal))
+                {
+                    var suffix = !_findings.Gate.CanExport
+                        ? " (non-blocking warning; export blocked by other errors)"
+                        : f.Message.IndexOf("Export and Play remain allowed", StringComparison.OrdinalIgnoreCase) >= 0
+                            ? string.Empty
+                            : " (Export and Play remain allowed)";
+                    lines.Add($"[WARN] {f.Code} — {f.Message}{suffix}");
+                }
+                else if (MissionRoleCapabilityManifest.IsBlockingCapabilityCode(f.Code))
+                {
+                    lines.Add($"[BLOCKING] {f.Code} — {f.Message}");
+                }
+                else
+                {
+                    lines.Add(f.Code);
+                }
             }
 
             return lines;

@@ -39,6 +39,12 @@ public interface ICatalogReader
     bool TryGetWeaponEnvelope(string weaponId, out WeaponEnvelopeDto envelope) =>
         TryGetWeaponEnvelopeCore(weaponId, out envelope);
 
+    /// <summary>H6-01 / DRG-349: sorted weapon rows (weapon_id ordinal) for whole-catalog identity.</summary>
+    IReadOnlyList<CatalogWeaponRecord> GetSortedWeapons() => GetSortedWeaponsCore();
+
+    /// <summary>H6-01 / DRG-349: sorted platform rows (platform_id ordinal) for whole-catalog identity.</summary>
+    IReadOnlyList<CatalogPlatformEntry> GetSortedPlatforms() => GetSortedPlatformsCore();
+
     /// <summary>Req-21 Phase B: sorted mobility rows (platform_id).</summary>
     IReadOnlyList<CatalogMobility> GetSortedMobility() => GetSortedMobilityCore();
 
@@ -101,6 +107,10 @@ public interface ICatalogReader
 
     PlatformCatalogExportData LoadExportDataCore(string? maxTlTier = null) =>
         PlatformCatalogExportData.Empty;
+
+    IReadOnlyList<CatalogWeaponRecord> GetSortedWeaponsCore() => [];
+
+    IReadOnlyList<CatalogPlatformEntry> GetSortedPlatformsCore() => LoadExportData().Platforms;
 
     IReadOnlyList<CatalogMount> GetSortedMountsCore() => [];
 

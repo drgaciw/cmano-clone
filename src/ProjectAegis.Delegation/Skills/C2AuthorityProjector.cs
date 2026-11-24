@@ -17,6 +17,7 @@ public static class C2AuthorityProjector
     public const string ReasonApprovalRequired = SkillEnvelopeValidator.ReasonApprovalRequired;
     public const string ReasonNotHumanControlled = "NOT_HUMAN_CONTROL";
     public const string ReasonLaneSubmit = "LANE_SUBMIT_NO_RECOMMEND";
+    public const string ReasonPolicyUnavailable = SkillEnvelopeValidator.ReasonPolicyUnavailable;
 
     /// <summary>Project authority for the supplied context.</summary>
     public static C2AuthorityProjection Project(in C2AuthorityProjectionContext ctx)
@@ -65,6 +66,16 @@ public static class C2AuthorityProjector
 
     private static RoeProjection ProjectRoe(in C2AuthorityProjectionContext ctx)
     {
+        if (ctx.PolicyUnavailable)
+        {
+            return new RoeProjection(
+                ctx.Roe,
+                "POLICY_UNAVAILABLE",
+                C2AuthorityDisposition.Withheld,
+                ReasonPolicyUnavailable,
+                EngageAllowedByRoe: false);
+        }
+
         var engageAllowed = ctx.Roe == RoeLevel.WeaponsFree;
         var disposition = engageAllowed
             ? C2AuthorityDisposition.Permitted
@@ -88,6 +99,14 @@ public static class C2AuthorityProjector
         in C2AuthorityProjectionContext ctx,
         RoeProjection roe)
     {
+        if (ctx.PolicyUnavailable)
+        {
+            return new C2TargetingAuthority(
+                C2AuthorityDisposition.Withheld,
+                ReasonPolicyUnavailable,
+                PendingApproval: null);
+        }
+
         if (IsSharedSa(ctx.TrackSource))
         {
             return new C2TargetingAuthority(
