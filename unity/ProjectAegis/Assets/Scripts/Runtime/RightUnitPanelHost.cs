@@ -87,6 +87,9 @@ namespace ProjectAegis.Unity.Runtime
         private CommitRefusalBark? _commitBark;
         private CommitRefusalBark? _refusedCommitBark;
         private string? _refusedBarkUnitId;
+        private string? _commitBarkProjectionUnitId;
+        private int _commitBarkProjectionEntryCount = -1;
+        private ulong _commitBarkProjectionLastSequenceId;
         private readonly RightUnitCombatDetailCache _combatDetailCache = new();
         private readonly RuntimeTooltipPresenter _tooltipPresenter = new();
 
@@ -345,8 +348,7 @@ namespace ProjectAegis.Unity.Runtime
                 _wraSalvoSurface,
                 _weaponAbort,
                 _armedCommitOptionId);
-            _commitBark = _refusedCommitBark
-                ?? RightUnitCommitProjection.ProjectLatestDroppedBark(bridgeHost.Bridge, selectedUnitId);
+            _commitBark = _refusedCommitBark ?? ProjectLatestDroppedBarkCached(selectedUnitId);
             _controlState = bridgeHost.ProjectSelectedControlHandoff();
             ApplyPresentationToLabels();
             RefreshAttackMenuButtons();
@@ -496,6 +498,32 @@ namespace ProjectAegis.Unity.Runtime
             var row = CommitRefusalBarkBinder.BindRow(_commitBark);
             ApplyCueSurfaceRow(_commitBarkLine, row.Text, row.CueClass, CommitRefusalBarkCueClasses.All);
             _commitBarkLine.style.display = DisplayStyle.Flex;
+        }
+
+        private CommitRefusalBark? ProjectLatestDroppedBarkCached(string? selectedUnitId)
+        {
+            if (bridgeHost?.Bridge is null || string.IsNullOrWhiteSpace(selectedUnitId))
+            {
+                _commitBarkProjectionUnitId = null;
+                _commitBarkProjectionEntryCount = -1;
+                _commitBarkProjectionLastSequenceId = 0;
+                return null;
+            }
+
+            var entries = bridgeHost.Bridge.Orchestrator.DecisionLog.ChronologicalEntries();
+            var entryCount = entries.Count;
+            var lastSequenceId = entryCount == 0 ? 0 : entries[entryCount - 1].SequenceId;
+            if (!string.Equals(_commitBarkProjectionUnitId, selectedUnitId, System.StringComparison.Ordinal)
+                || _commitBarkProjectionEntryCount != entryCount
+                || _commitBarkProjectionLastSequenceId != lastSequenceId)
+            {
+                _commitBark = RightUnitCommitProjection.ProjectLatestDroppedBark(bridgeHost.Bridge, selectedUnitId);
+                _commitBarkProjectionUnitId = selectedUnitId;
+                _commitBarkProjectionEntryCount = entryCount;
+                _commitBarkProjectionLastSequenceId = lastSequenceId;
+            }
+
+            return _commitBark;
         }
 
         private void RefreshAttackMenuButtons()
