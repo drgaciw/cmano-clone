@@ -492,6 +492,7 @@ namespace ProjectAegis.Unity.Runtime
                 _commsLegend.ClearClassList();
                 _commsLegend.AddToClassList("c2-topbar-comms-legend");
                 _commsLegend.AddToClassList(_networkLabels.CssClass);
+                _commsLegend.tooltip = C2CommsLegendTooltipBinder.BuildTooltip(_networkLabels);
             }
         }
 

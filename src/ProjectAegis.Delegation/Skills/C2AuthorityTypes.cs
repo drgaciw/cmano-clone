@@ -55,7 +55,8 @@ public sealed record C2AuthorityProjectionContext(
     TrackSource TrackSource,
     bool FireControlSatisfied,
     string? CommandId = null,
-    bool HumanControlled = true)
+    bool HumanControlled = true,
+    bool PolicyUnavailable = false)
 {
     /// <summary>Build from an envelope authority basis plus resolved ROE.</summary>
     public static C2AuthorityProjectionContext FromEnvelope(
@@ -71,5 +72,6 @@ public sealed record C2AuthorityProjectionContext(
             basis.TrackSource,
             basis.FireControlSatisfied,
             commandId,
-            HumanControlled: true);
+            HumanControlled: true,
+            PolicyUnavailable: basis.PolicyUnavailable);
 }

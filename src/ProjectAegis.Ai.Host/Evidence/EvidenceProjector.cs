@@ -248,14 +248,20 @@ public sealed class EvidenceProjector : IEvidenceProjector
                 Dict(
                     ("agentId", a.AgentId.Value),
                     ("chosenOrderKind", a.ChosenOrderKind.ToString()),
-                    ("simTick", a.SimTick.ToString(CultureInfo.InvariantCulture)))),
+                    ("simTick", a.SimTick.ToString(CultureInfo.InvariantCulture)),
+                    ("autonomyLevel", a.AutonomyLevel.ToString()),
+                    ("policySnapshotId", a.PolicySnapshotId?.ToString(CultureInfo.InvariantCulture)),
+                    ("personality", a.Personality))),
             DecisionRecord r => (
                 r.TargetId.Value,
                 r.ChosenKind.ToString(),
                 Dict(
                     ("agentId", r.AgentId.Value),
                     ("chosenKind", r.ChosenKind.ToString()),
-                    ("simTick", r.SimTick.ToString(CultureInfo.InvariantCulture)))),
+                    ("simTick", r.SimTick.ToString(CultureInfo.InvariantCulture)),
+                    ("autonomyLevel", r.AutonomyLevel.ToString()),
+                    ("policySnapshotId", r.PolicySnapshotId?.ToString(CultureInfo.InvariantCulture)),
+                    ("personality", r.Personality))),
             ContactChangeRecord contact => (
                 contact.TargetId,
                 $"{contact.PreviousState}->{contact.NewState}",
