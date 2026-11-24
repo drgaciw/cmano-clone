@@ -72,7 +72,7 @@ public static class OsintStagingProjection
             fingerprint);
     }
 
-    public static string FormatProposalRow(OsintStagingProposalItem item)
+    public static string FormatProposalRow(OsintStagingProposalItem? item)
     {
         if (item is null)
         {
@@ -89,7 +89,7 @@ public static class OsintStagingProjection
             cite);
     }
 
-    public static string FormatLogOnlyRow(OsintStagingProposalItem item)
+    public static string FormatLogOnlyRow(OsintStagingProposalItem? item)
     {
         if (item is null)
         {
@@ -149,14 +149,11 @@ public static class OsintStagingProjection
             citations.Add(item.CitationUrl);
         }
 
-        if (item.AdditionalCitations is not null)
+        foreach (var extra in item.AdditionalCitations)
         {
-            foreach (var extra in item.AdditionalCitations)
+            if (!string.IsNullOrWhiteSpace(extra) && !citations.Contains(extra, StringComparer.Ordinal))
             {
-                if (!string.IsNullOrWhiteSpace(extra) && !citations.Contains(extra, StringComparer.Ordinal))
-                {
-                    citations.Add(extra);
-                }
+                citations.Add(extra);
             }
         }
 

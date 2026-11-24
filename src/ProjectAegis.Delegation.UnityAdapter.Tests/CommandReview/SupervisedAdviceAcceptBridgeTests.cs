@@ -3,7 +3,6 @@ using ProjectAegis.Delegation.Controllers;
 using ProjectAegis.Delegation.Core;
 using ProjectAegis.Delegation.Decision;
 using ProjectAegis.Delegation.Input;
-using ProjectAegis.Delegation.Projection;
 using ProjectAegis.Delegation.Skills;
 using ProjectAegis.Delegation.Traits;
 using ProjectAegis.Delegation.UnityAdapter.Bridge;
@@ -28,7 +27,7 @@ public sealed class SupervisedAdviceAcceptBridgeTests
     {
         public double SimTime { get; set; } = 5.0;
         public int ContactCount { get; set; } = 1;
-        public int ActiveEngagementCount { get; set; }
+        public int ActiveEngagementCount => 0;
         public TargetId? PrimaryHostileContactId { get; set; } = new("hostile-1");
         public bool HasFireControlTrackOnPrimaryContact { get; set; } = true;
         public bool ObserverRadarEmconActive { get; set; } = true;
@@ -45,9 +44,20 @@ public sealed class SupervisedAdviceAcceptBridgeTests
 
         Assert.That(card.CardVisible, Is.True);
         Assert.That(card.CanAccept, Is.True);
+        Assert.That(card.UnitId, Is.EqualTo("u1"));
+        Assert.That(card.ContactId, Is.EqualTo("c1"));
+        Assert.That(card.ProposedCommandId, Is.EqualTo("engage"));
+        Assert.That(card.AttackOptionId, Is.EqualTo("fire-single"));
+        Assert.That(card.Rationale, Is.Not.Empty);
+        Assert.That(card.AuthoritySummary, Is.Not.Empty);
+        Assert.That(card.ResolvedAutonomy, Is.EqualTo(AutonomyLevel.Assisted));
         Assert.That(card.EvidenceLines, Has.Count.GreaterThanOrEqualTo(1));
         Assert.That(card.EvidenceLines[0].FormattedPointer, Does.Contain("u1 | c1 | "));
         Assert.That(card.EvidenceLines[0].FormattedPointer.Split('|'), Has.Length.EqualTo(4));
+        Assert.That(card.EvidenceLines[0].Kind, Is.EqualTo(EvidenceKind.Contact));
+        Assert.That(card.EvidenceLines[0].Id, Is.Not.Empty);
+        Assert.That(card.EvidenceLines[0].PolicySnapshotId, Is.Not.Empty);
+        Assert.That(card.EvidenceLines[0].SequenceId, Is.Not.Empty);
 
         var noEvidenceAdvice = advice with { Evidence = Array.Empty<EvidencePointer>() };
         var blockedNoEvidence = SupervisedAdviceCardBinder.Project(
@@ -79,8 +89,11 @@ public sealed class SupervisedAdviceAcceptBridgeTests
                 ExplicitFullAutonomousLethalOptIn: false));
 
         Assert.That(result.Accepted, Is.True, result.FailureReason);
+        Assert.That(result.UnitId, Is.EqualTo("u1"));
+        Assert.That(result.ContactId, Is.EqualTo("c1"));
         Assert.That(result.EnqueuedKind, Is.EqualTo(OrderKind.Engage));
         Assert.That(result.PlayerOrderSequenceId, Is.Not.Null);
+        Assert.That(result.ResolvedExecuteSimTick, Is.Not.Null);
         Assert.That(result.EvidenceLines, Has.Count.GreaterThanOrEqualTo(1));
         Assert.That(bridge.Orchestrator.DecisionLog.PlayerOrders, Has.Count.EqualTo(beforeOrders + 1));
 

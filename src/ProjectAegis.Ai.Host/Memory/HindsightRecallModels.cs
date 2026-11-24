@@ -1,6 +1,6 @@
-namespace ProjectAegis.Ai.Host.Memory;
-
 using ProjectAegis.Ai.Contracts;
+
+namespace ProjectAegis.Ai.Host.Memory;
 
 /// <summary>Request payload for host-side Hindsight memory recall (DRG-746 / AI-S2-4).</summary>
 public sealed record HindsightRecallRequest(

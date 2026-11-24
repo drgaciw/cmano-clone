@@ -1,9 +1,7 @@
 namespace ProjectAegis.Delegation.UnityAdapter.CommandReview;
 
-using System.Globalization;
 using System.Text;
 using Bridge;
-using C2Nodes;
 using Controllers;
 using Core;
 using MissionIntent;
@@ -209,11 +207,6 @@ public static class CoordinationPresentation
         var groups = new List<CoordinationGroupPresentation>(snapshot.Groups.Count);
         foreach (var group in snapshot.Groups)
         {
-            if (group is null)
-            {
-                continue;
-            }
-
             groups.Add(BuildGroup(group, bridge, world, isTimelineInspecting, hasPendingScope));
         }
 
@@ -257,7 +250,7 @@ public static class CoordinationPresentation
             hasPendingScope);
         var isAllowed = blockReason is null;
         var explanation = blockReason is null ? null : CoordinationBlockExplainer.Explain(blockReason);
-        var unitEffects = BuildUnitEffectPreviews(group, decision, blockReason, bridge, world);
+        var unitEffects = BuildUnitEffectPreviews(group, decision, blockReason, world);
 
         var willApplyCount = unitEffects.Count(u => string.Equals(u.EffectStatus, "WILL_APPLY", StringComparison.Ordinal));
         var excludedCount = unitEffects.Count(u => string.Equals(u.EffectStatus, "EXCLUDED_DETACHED", StringComparison.Ordinal));
@@ -288,14 +281,14 @@ public static class CoordinationPresentation
         }
         var details = group.Details ?? CoordinationGroupDetails.Empty;
         var coord = group.Coordination;
-        var intent = group.Intent;
-        var members = coord?.Members ?? Array.Empty<string>();
-        var constraints = intent?.Constraints ?? Array.Empty<string>();
-        var effects = group.Effects ?? Array.Empty<CoordinationEffect>();
-        var gaps = group.Gaps ?? Array.Empty<CoordinationGap>();
+        var intent = AsNullable<MissionIntentSnapshot>(group.Intent);
+        var members = coord.Members;
+        var constraints = AsNullable<IReadOnlyList<string>>(intent?.Constraints) ?? Array.Empty<string>();
+        var effects = group.Effects;
+        var gaps = AsNullable<IReadOnlyList<CoordinationGap>>(group.Gaps) ?? Array.Empty<CoordinationGap>();
         var lines = new List<string>
         {
-            coord?.StatusLine ?? "TGC: —",
+            coord.StatusLine,
             intent?.StatusLine ?? "INTENT: —",
             "Members: " + string.Join(", ", members),
             "Constraints: " + string.Join(", ", constraints),
@@ -303,20 +296,20 @@ public static class CoordinationPresentation
             $"Controller: {details.ControllerKind} | Autonomy: {details.DelegationAutonomy} | OffGrid: {details.IsOffGrid} | PendingReplan: {details.PendingReplan}",
         };
 
-        foreach (var escort in details.Escorts ?? Array.Empty<CoordinationEscortAssignment>())
+        foreach (var escort in details.Escorts)
         {
             lines.Add(
                 $"Escort: {escort.EscortUnitId} -> {(string.IsNullOrEmpty(escort.ProtectedUnitId) ? "group" : escort.ProtectedUnitId)} ({escort.CapabilityScope}) [{escort.State}]");
         }
 
-        foreach (var sector in details.Sectors ?? Array.Empty<CoordinationSectorResponsibility>())
+        foreach (var sector in details.Sectors)
         {
             lines.Add(
                 $"Sector: {sector.CoverageId} ({sector.Label}) | owner {sector.OwnerUnitId} ({sector.Role?.ToString() ?? "UNKNOWN"}) | {sector.Status}"
                 + (string.IsNullOrEmpty(sector.SourceRef) ? string.Empty : $" | {sector.SourceRef}"));
         }
 
-        foreach (var target in details.SharedTargets ?? Array.Empty<CoordinationSharedTargetAssignment>())
+        foreach (var target in details.SharedTargets)
         {
             lines.Add(
                 $"Shared target: {target.TargetId} | units [{string.Join(", ", target.AssignedUnitIds)}] | FCR={target.HasFireControlTrack} | {target.SourceKind}");
@@ -382,7 +375,7 @@ public static class CoordinationPresentation
         Func<string, bool>? hasPendingScope)
     {
         var coord = group.Coordination;
-        var groupId = coord?.GroupId ?? string.Empty;
+        var groupId = coord.GroupId;
         var details = group.Details ?? CoordinationGroupDetails.Empty;
         var pending = hasPendingScope?.Invoke(groupId) ?? false;
 
@@ -394,9 +387,8 @@ public static class CoordinationPresentation
             PreviewGroupDecision(group, CoordinationDecision.Reattack, bridge, world, isTimelineInspecting, pending),
         };
 
-        var gaps = group.Gaps ?? Array.Empty<CoordinationGap>();
+        var gaps = AsNullable<IReadOnlyList<CoordinationGap>>(group.Gaps) ?? Array.Empty<CoordinationGap>();
         var gapLines = gaps
-            .Where(g => g is not null)
             .Select(g => $"GAP {g.Code} · {g.UnitId} ({g.Role?.ToString() ?? "UNASSIGNED"}): {g.Detail}")
             .ToArray();
 
@@ -404,15 +396,16 @@ public static class CoordinationPresentation
         var activeReason = primaryBlocked?.BlockReasonCode ?? string.Empty;
         var activeExplanation = CoordinationBlockExplainer.Explain(activeReason);
 
-        var pkgLabel = coord is null || string.IsNullOrWhiteSpace(coord.AssignedPackageId)
+        var pkgLabel = string.IsNullOrWhiteSpace(coord.AssignedPackageId)
             ? "unassigned"
             : $"{coord.AssignedPackageId} ({coord.GapCode})";
-        var constraints = group.Intent?.Constraints;
+        var intent = AsNullable<MissionIntentSnapshot>(group.Intent);
+        var constraints = AsNullable<IReadOnlyList<string>>(intent?.Constraints);
         var constraintsLabel = constraints is null || constraints.Count == 0
             ? "none"
             : string.Join(", ", constraints);
-        var intentCode = group.Intent?.IntentCode ?? "UNSPECIFIED";
-        var advisoryRetask = group.Intent?.AdvisoryRetask ?? MissionIntentRetaskAdvice.None;
+        var intentCode = intent?.IntentCode ?? "UNSPECIFIED";
+        var advisoryRetask = intent?.AdvisoryRetask ?? MissionIntentRetaskAdvice.None;
         var intentHeader = $"{groupId} · pkg {pkgLabel} · intent {intentCode} [constraints: {constraintsLabel}] · retask {advisoryRetask}";
         var controllerLine = $"Controller: {details.ControllerKind} · Autonomy: {details.DelegationAutonomy}"
             + (details.IsOffGrid ? " · COMMS OFF GRID" : string.Empty)
@@ -434,9 +427,9 @@ public static class CoordinationPresentation
         CoordinationGroupDetails details)
     {
         var list = new List<CoordinationResponsibilityBoundary>();
-        var fallbackGroupId = group.Coordination?.GroupId ?? string.Empty;
+        var fallbackGroupId = group.Coordination.GroupId;
 
-        foreach (var escort in details.Escorts ?? Array.Empty<CoordinationEscortAssignment>())
+        foreach (var escort in details.Escorts)
         {
             var status = escort.State switch
             {
@@ -453,7 +446,7 @@ public static class CoordinationPresentation
                 $"Escort {escort.EscortUnitId} screens {protectedTarget} ({escort.CapabilityScope}) — {escort.State}"));
         }
 
-        foreach (var sector in details.Sectors ?? Array.Empty<CoordinationSectorResponsibility>())
+        foreach (var sector in details.Sectors)
         {
             var status = sector.Status switch
             {
@@ -470,9 +463,9 @@ public static class CoordinationPresentation
                 + (string.IsNullOrEmpty(sector.ReasonCode) ? string.Empty : $" ({sector.ReasonCode})")));
         }
 
-        foreach (var target in details.SharedTargets ?? Array.Empty<CoordinationSharedTargetAssignment>())
+        foreach (var target in details.SharedTargets)
         {
-            var assigned = target.AssignedUnitIds ?? Array.Empty<string>();
+            var assigned = target.AssignedUnitIds;
             list.Add(new CoordinationResponsibilityBoundary(
                 "SharedTarget",
                 string.Join(", ", assigned),
@@ -481,8 +474,7 @@ public static class CoordinationPresentation
                 $"Shared target {target.TargetId}: [{string.Join(", ", assigned)}] (FCR={(target.HasFireControlTrack ? "Yes" : "No")}, {target.SourceKind})"));
         }
 
-        var effects = group.Effects ?? Array.Empty<CoordinationEffect>();
-        foreach (var effect in effects.Where(e => e is not null && e.Role is not null))
+        foreach (var effect in group.Effects.Where(e => e.Role is not null))
         {
             var status = effect.State switch
             {
@@ -529,9 +521,9 @@ public static class CoordinationPresentation
             return CoordinationCommandBridge.ReasonGroupDecisionPending;
         }
 
-        var groupId = group.Coordination?.GroupId ?? string.Empty;
-        var effects = group.Effects ?? Array.Empty<CoordinationEffect>();
-        var members = group.Coordination?.Members ?? Array.Empty<string>();
+        var groupId = group.Coordination.GroupId;
+        var effects = group.Effects;
+        var members = group.Coordination.Members;
         if (bridge is not null)
         {
             var groupBinding = bridge.Registry.Bindings.FirstOrDefault(b =>
@@ -559,8 +551,7 @@ public static class CoordinationPresentation
                     || unit.IsDetachedFromGroup
                     || (world is not null && !world.IsMemberAlive(memberId))
                     || (world is null && effects.Any(e =>
-                        e is not null
-                        && e.State == CoordinationEffectState.Lost
+                        e.State == CoordinationEffectState.Lost
                         && string.Equals(e.UnitId, memberId.Value, StringComparison.Ordinal))))
                 {
                     return CoordinationCommandBridge.ReasonMissingMember;
@@ -581,15 +572,14 @@ public static class CoordinationPresentation
             }
 
             if (effects.Any(e =>
-                    e is not null
-                    && e.State == CoordinationEffectState.Lost
+                    e.State == CoordinationEffectState.Lost
                     && members.Contains(e.UnitId, StringComparer.Ordinal)))
             {
                 return CoordinationCommandBridge.ReasonMissingMember;
             }
         }
 
-        if (IsConstrained(decision, group.Intent))
+        if (IsConstrained(decision, AsNullable<MissionIntentSnapshot>(group.Intent)))
         {
             return CoordinationCommandBridge.ReasonIntentConstraint;
         }
@@ -624,13 +614,11 @@ public static class CoordinationPresentation
         CoordinationGroupSnapshot group,
         CoordinationDecision decision,
         string? blockReason,
-        DelegationBridge? bridge,
         ISimWorldSnapshot? world)
     {
-        var effects = group.Effects ?? Array.Empty<CoordinationEffect>();
-        var members = group.Coordination?.Members ?? Array.Empty<string>();
+        var effects = group.Effects;
+        var members = group.Coordination.Members;
         var effectsByUnit = effects
-            .Where(e => e is not null)
             .GroupBy(e => e.UnitId, StringComparer.Ordinal)
             .OrderBy(g => g.Key, StringComparer.Ordinal);
         var scopeSet = new HashSet<string>(members, StringComparer.Ordinal);
@@ -705,12 +693,12 @@ public static class CoordinationPresentation
 
     private static bool IsConstrained(CoordinationDecision decision, MissionIntentSnapshot? intent)
     {
-        if (intent is null || intent.Constraints is null)
+        var constraints = AsNullable<IReadOnlyList<string>>(intent?.Constraints);
+        if (constraints is null)
         {
             return false;
         }
 
-        var constraints = intent.Constraints;
         if (decision == CoordinationDecision.Reattack)
         {
             return constraints.Contains(MissionIntentConstraintCode.NoStrike, StringComparer.Ordinal)
@@ -721,4 +709,6 @@ public static class CoordinationPresentation
         return decision == CoordinationDecision.Withdraw
             && constraints.Contains(MissionIntentConstraintCode.Hold, StringComparer.Ordinal);
     }
+
+    private static T? AsNullable<T>(object? value) where T : class => value as T;
 }

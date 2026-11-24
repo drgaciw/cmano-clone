@@ -1,6 +1,7 @@
 using ProjectAegis.Delegation.Controllers;
 using ProjectAegis.Delegation.Core;
 using ProjectAegis.Delegation.Input;
+using ProjectAegis.Delegation.Projection;
 using ProjectAegis.Delegation.Roe;
 using ProjectAegis.Delegation.Skills;
 using ProjectAegis.Delegation.Targets;
@@ -52,29 +53,28 @@ public static class SupervisedAdviceAcceptBridge
     {
         if (bridge is null || snapshot is null || request is null)
         {
-            return Reject(request?.UnitId ?? string.Empty, request?.Advice?.ContactId ?? string.Empty, C2PlayerCommandBridge.ReasonUnknownUnit);
+            return Reject(request?.UnitId ?? string.Empty, request?.Advice.ContactId ?? string.Empty, C2PlayerCommandBridge.ReasonUnknownUnit);
         }
 
         if (bridge.AttachReplayViewer)
         {
-            return Reject(request.UnitId, request.Advice?.ContactId ?? string.Empty, C2PlayerCommandBridge.ReasonReplayAttached);
+            return Reject(request.UnitId, request.Advice.ContactId, C2PlayerCommandBridge.ReasonReplayAttached);
         }
 
         if (!double.IsFinite(snapshot.SimTime) || snapshot.SimTime < 0)
         {
-            return Reject(request.UnitId, request.Advice?.ContactId ?? string.Empty, CoordinationCommandBridge.ReasonInvalidSimTime);
+            return Reject(request.UnitId, request.Advice.ContactId, CoordinationCommandBridge.ReasonInvalidSimTime);
         }
 
-        if (request.Advice is null || request.Advice.Availability != AdviceAvailability.Available)
+        if (request.Advice.Availability != AdviceAvailability.Available)
         {
-            return Reject(request.UnitId, request.Advice?.ContactId ?? string.Empty, ReasonAdviceUnavailable);
+            return Reject(request.UnitId, request.Advice.ContactId, ReasonAdviceUnavailable);
         }
 
-        if (request.Advice.Evidence is null
-            || request.Advice.Evidence.Count == 0
+        if (request.Advice.Evidence.Count == 0
             || string.IsNullOrWhiteSpace(request.Advice.ContactId))
         {
-            return Reject(request.UnitId, request.Advice.ContactId ?? string.Empty, ReasonMissingEvidencePointer);
+            return Reject(request.UnitId, request.Advice.ContactId, ReasonMissingEvidencePointer);
         }
 
         var evidenceLines = SupervisedAdviceCardBinder.BuildEvidenceLines(bridge, request.Advice, request.UnitId);
@@ -157,7 +157,7 @@ public static class SupervisedAdviceAcceptBridge
 
             var optionId = string.IsNullOrWhiteSpace(request.AttackOptionId) ? "fire-single" : request.AttackOptionId!;
             var options = PlayerSideGuard.GetAttackMenuOptions(bridge, binding.TargetId.Value, snapshot);
-            ProjectAegis.Delegation.Projection.EngageAttackOptions.AttackOption? matchedOption = null;
+            EngageAttackOptions.AttackOption? matchedOption = null;
             for (var i = 0; i < options.Count; i++)
             {
                 if (string.Equals(options[i].Id, optionId, StringComparison.Ordinal))

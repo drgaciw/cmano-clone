@@ -407,12 +407,12 @@ public static class DecisionLogDeepLinkProjection
                     $"Comms rejoin {cr.UnitId}: {cr.InformativeMerges.Count} contact merge(s)",
                     fields: new[]
                     {
-                        KV("UnitId", cr.UnitId),
-                        KV("OffGridSinceTick", cr.OffGridSinceTick.ToString(CultureInfo.InvariantCulture)),
-                        KV("RejoinTick", cr.RejoinTick.ToString(CultureInfo.InvariantCulture)),
-                        KV("InformativeMergeCount", cr.InformativeMerges.Count.ToString(CultureInfo.InvariantCulture)),
-                        KV("SuppressedCount", cr.SuppressedCount.ToString(CultureInfo.InvariantCulture)),
-                        KV("MergedTargets", string.Join(", ", cr.InformativeMerges.Select(m => $"{m.TargetId}:{m.PreviousState}->{m.NewState}"))),
+                        Kv("UnitId", cr.UnitId),
+                        Kv("OffGridSinceTick", cr.OffGridSinceTick.ToString(CultureInfo.InvariantCulture)),
+                        Kv("RejoinTick", cr.RejoinTick.ToString(CultureInfo.InvariantCulture)),
+                        Kv("InformativeMergeCount", cr.InformativeMerges.Count.ToString(CultureInfo.InvariantCulture)),
+                        Kv("SuppressedCount", cr.SuppressedCount.ToString(CultureInfo.InvariantCulture)),
+                        Kv("MergedTargets", string.Join(", ", cr.InformativeMerges.Select(m => $"{m.TargetId}:{m.PreviousState}->{m.NewState}"))),
                     });
 
             default:

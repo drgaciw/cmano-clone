@@ -35,8 +35,15 @@ public sealed class OsintStagingProjectionTests
         var state = OsintStagingProjection.Project(feed, selectedItemId: "hypersonic-glide-s20");
 
         Assert.That(state.Proposals, Has.Count.EqualTo(1));
+        Assert.That(state.Proposals[0].PlatformId, Is.EqualTo("osint-platform"));
+        Assert.That(state.StatusSummary, Is.Not.Empty);
+        Assert.That(state.SourceKind, Is.EqualTo("fixture"));
+        Assert.That(state.Fingerprint, Is.Not.Empty);
         Assert.That(state.SelectedDetail, Is.Not.Null);
-        Assert.That(state.SelectedDetail!.Confidence, Is.EqualTo(0.81).Within(0.0001));
+        Assert.That(state.SelectedDetail!.ItemId, Is.EqualTo("hypersonic-glide-s20"));
+        Assert.That(state.SelectedDetail.Title, Is.Not.Empty);
+        Assert.That(state.SelectedDetail.TrlAndStateText, Is.Not.Empty);
+        Assert.That(state.SelectedDetail.Confidence, Is.EqualTo(0.81).Within(0.0001));
         Assert.That(state.SelectedDetail.ConfidenceText, Does.Contain("0.81"));
         Assert.That(state.SelectedDetail.HasCitation, Is.True);
         Assert.That(state.SelectedDetail.CitationUrl, Is.EqualTo("https://ex.com/hg-s20"));
@@ -180,6 +187,8 @@ public sealed class OsintStagingProjectionTests
                 "nonexistent.db", forgedItem, "human", "reviewer-1", clockTicks: 703);
             Assert.That(approveResult.Succeeded, Is.False);
             Assert.That(approveResult.Committed, Is.False);
+            Assert.That(approveResult.Rejected, Is.False);
+            Assert.That(approveResult.BatchId, Is.EqualTo("batch-nf"));
             Assert.That(approveResult.Errors, Does.Contain("BELOW_CONFIDENCE_THRESHOLD"));
         }
 

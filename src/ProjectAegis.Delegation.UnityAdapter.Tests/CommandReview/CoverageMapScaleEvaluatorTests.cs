@@ -1,8 +1,8 @@
-namespace ProjectAegis.Delegation.UnityAdapter.Tests.CommandReview;
-
 using NUnit.Framework;
 using ProjectAegis.Delegation.Projection;
 using ProjectAegis.Delegation.UnityAdapter.CommandReview;
+
+namespace ProjectAegis.Delegation.UnityAdapter.Tests.CommandReview;
 
 [TestFixture]
 public sealed class CoverageMapScaleEvaluatorTests
@@ -16,6 +16,9 @@ public sealed class CoverageMapScaleEvaluatorTests
         Assert.That(nullResult.ShowPolygons, Is.True);
         Assert.That(nullResult.ShowSectorLabels, Is.True);
         Assert.That(nullResult.ShowSummaryBanner, Is.True);
+        Assert.That(nullResult.ScaleNauticalMiles, Is.EqualTo(0.0));
+        Assert.That(nullResult.CameraAltitudeMeters, Is.EqualTo(0.0));
+        Assert.That(nullResult.SummaryLabel, Is.Not.Empty);
 
         var zeroResult = CoverageMapScaleEvaluator.Evaluate(new MapScaleState("0 NM", "0 m", 0, 0));
         Assert.That(zeroResult.Tier, Is.EqualTo(CoverageMapScaleTier.Unknown));

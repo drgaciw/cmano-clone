@@ -1,9 +1,6 @@
 using System.Globalization;
-using ProjectAegis.Delegation.Controllers;
 using ProjectAegis.Delegation.Core;
-using ProjectAegis.Delegation.Input;
 using ProjectAegis.Delegation.Skills;
-using ProjectAegis.Delegation.Targets;
 using ProjectAegis.Delegation.UnityAdapter.Bridge;
 using ProjectAegis.Delegation.UnityAdapter.CommandReview;
 
@@ -116,7 +113,7 @@ public sealed class SupervisedAdviceCardBinder
             return SupervisedAdviceCardState.Empty;
         }
 
-        var unitId = string.IsNullOrWhiteSpace(selectedUnitId) ? "unassigned" : selectedUnitId!;
+        var unitId = string.IsNullOrWhiteSpace(selectedUnitId) ? "unassigned" : selectedUnitId;
         var evidenceLines = BuildEvidenceLines(bridge, advice, unitId);
         var isLethalOrder = IsLethalProposal(proposedCommandId, attackOptionId);
         var autonomy = ResolveAutonomy(bridge, selectedUnitId);
@@ -180,7 +177,7 @@ public sealed class SupervisedAdviceCardBinder
         AdviceFrame advice,
         string unitId)
     {
-        if (advice.Evidence is null || advice.Evidence.Count == 0)
+        if (advice.Evidence.Count == 0)
         {
             return Array.Empty<SupervisedAdviceEvidenceLine>();
         }
@@ -224,7 +221,7 @@ public sealed class SupervisedAdviceCardBinder
             return AutonomyLevel.Manual;
         }
 
-        if (!bridge.Registry.TryGetBinding(new TargetId(unitId!), out var binding))
+        if (!bridge.Registry.TryGetBinding(new TargetId(unitId), out var binding))
         {
             return AutonomyLevel.Manual;
         }

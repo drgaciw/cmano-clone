@@ -1,11 +1,10 @@
-namespace ProjectAegis.Ai.Host.Memory;
-
 using System.Net;
 using System.Net.Http.Headers;
-using System.Net.Http.Json;
 using System.Text.Json;
 using System.Text.Json.Serialization;
 using ProjectAegis.Ai.Contracts;
+
+namespace ProjectAegis.Ai.Host.Memory;
 
 /// <summary>
 /// HTTP recall adapter calling <c>POST /v1/default/banks/{bankId}/memories/recall</c>
@@ -43,12 +42,10 @@ public sealed class HindsightRecallAdapter : IHindsightRecallClient
         var budget = string.IsNullOrWhiteSpace(request.Budget) ? "mid" : request.Budget;
         var maxTokens = request.MaxTokens > 0 ? request.MaxTokens : 4096;
         var path = $"/v1/default/banks/{Uri.EscapeDataString(request.BankId)}/memories/recall";
-        var body = new RecallRequestDto(request.Query, budget, maxTokens);
+        var body = new { query = request.Query, budget, maxTokens };
 
-        using var message = new HttpRequestMessage(HttpMethod.Post, path)
-        {
-            Content = JsonContent.Create(body, options: JsonOptions),
-        };
+        using var message = new HttpRequestMessage(HttpMethod.Post, path);
+        message.Content = JsonContent.Create(body, options: JsonOptions);
         if (!string.IsNullOrEmpty(_apiKey))
         {
             message.Headers.Authorization = new AuthenticationHeaderValue("Bearer", _apiKey);
@@ -145,8 +142,6 @@ public sealed class HindsightRecallAdapter : IHindsightRecallClient
             request.Query,
             Array.Empty<HindsightRecallItem>(),
             error);
-
-    private sealed record RecallRequestDto(string Query, string Budget, int MaxTokens);
 
     private sealed record RecallResponseDto(
         string? BankId,

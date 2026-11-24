@@ -44,6 +44,10 @@ public sealed class OsintStagingReviewServiceTests
             Assert.That(row.SourceFactId, Is.EqualTo("osint:09"));
             Assert.That(row.TrlLevel, Is.EqualTo(7));
             Assert.That(row.SourceFile, Is.EqualTo("digest.json"));
+            Assert.That(row.ActorType, Is.EqualTo("osint"));
+            Assert.That(row.ActorId, Is.EqualTo("osint-digest"));
+            Assert.That(row.ProposedUtcTicks, Is.EqualTo(1000L));
+            Assert.That(row.Rationale, Is.EqualTo("observed spec radar"));
             Assert.That(row.Snippet, Is.Not.Empty);
             Assert.That(row.IsLogOnly, Is.False);
             Assert.That(row.CitationRef, Does.Not.StartWith("batch://"));

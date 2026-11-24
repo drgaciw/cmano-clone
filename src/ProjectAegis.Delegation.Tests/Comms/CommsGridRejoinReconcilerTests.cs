@@ -34,6 +34,7 @@ public sealed class CommsGridRejoinReconcilerTests
 
         Assert.That(log.CommsGridRejoins, Has.Count.EqualTo(1));
         var summary = log.CommsGridRejoins[0];
+        Assert.That(summary.SequenceId, Is.GreaterThan(0UL));
         Assert.That(summary.UnitId, Is.EqualTo("u1"));
         Assert.That(summary.OffGridSinceTick, Is.EqualTo(10UL));
         Assert.That(summary.RejoinTick, Is.EqualTo(20UL));

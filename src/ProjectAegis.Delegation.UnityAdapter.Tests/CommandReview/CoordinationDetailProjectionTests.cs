@@ -10,7 +10,7 @@ using ProjectAegis.Delegation.UnityAdapter.Bridge;
 using ProjectAegis.Delegation.UnityAdapter.CommandReview;
 using ProjectAegis.Sim.Comms;
 using ProjectAegis.Sim.Scenario;
-using Targets;
+using TaskGroupCoord;
 
 [TestFixture]
 public sealed class CoordinationDetailProjectionTests
@@ -360,18 +360,29 @@ public sealed class CoordinationDetailProjectionTests
         Assert.That(joined, Does.Contain("Controller:"));
         Assert.That(joined, Does.Contain("Command effects:"));
         Assert.That(sw.Elapsed.TotalMilliseconds, Is.LessThan(100));
+
+        var pres = CoordinationPresentation.Build(coordination, bridge, snapshot);
+        Assert.That(pres.Fingerprint, Is.Not.Empty);
+        var grpPres = pres.Groups.Single();
+        Assert.That(grpPres.ActiveBlockExplanation, Is.Not.Empty);
+        Assert.That(grpPres.Boundaries[0].ScopeLabel, Is.Not.Empty);
+        var holdPrev = grpPres.GetPreview(CoordinationDecision.Hold);
+        Assert.That(holdPrev.SummaryLine, Is.Not.Empty);
+        Assert.That(holdPrev.UnitEffects[0].RoleLabel, Is.Not.Empty);
+        Assert.That(holdPrev.UnitEffects[0].EffectSummary, Is.Not.Empty);
+        Assert.That(coordination.Groups.Single().Details!.Sectors[0].ElementId, Is.Not.Empty);
     }
 
     [Test]
     public void Build_and_PreviewGroupDecision_handle_null_gaps_null_intent_and_bridge_null_members_fallback()
     {
-        var coord = new ProjectAegis.Delegation.TaskGroupCoord.TaskGroupCoordSnapshot(
+        var coord = new TaskGroupCoordSnapshot(
             "g-null-safe",
             new[] { "u1", "u2" },
             "pkg-1",
             "Baltic Escort",
             "NONE",
-            ProjectAegis.Delegation.TaskGroupCoord.TaskGroupCoordKind.AdvisoryCoordination,
+            TaskGroupCoordKind.AdvisoryCoordination,
             false,
             false,
             false,

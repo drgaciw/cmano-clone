@@ -34,6 +34,9 @@ public sealed class JevRoeOrderGateBinderTests
         Assert.That(state.Decision, Is.EqualTo(CoordinationDecision.Withdraw));
         Assert.That(state.RoeNoul, Is.EqualTo(0.88).Within(0.001));
         Assert.That(state.RiskLevel, Is.EqualTo("low"));
+        Assert.That(state.ModelPin, Is.EqualTo(JevDisclosurePresentation.PinnedModel));
+        Assert.That(state.OpenRouterModel, Is.EqualTo(JevDisclosurePresentation.PinnedOpenRouterModel));
+        Assert.That(state.SummaryLine, Does.Contain("tg-baltic-escort"));
         Assert.That(state.BlockReason, Is.Null);
     }
 

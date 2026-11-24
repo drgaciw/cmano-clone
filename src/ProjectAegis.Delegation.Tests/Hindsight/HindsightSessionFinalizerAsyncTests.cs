@@ -1,4 +1,3 @@
-using System.Net.Http;
 using NUnit.Framework;
 using ProjectAegis.Delegation.Core;
 using ProjectAegis.Delegation.Decision;

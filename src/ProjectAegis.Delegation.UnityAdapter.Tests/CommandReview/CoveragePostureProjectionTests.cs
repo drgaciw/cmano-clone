@@ -19,21 +19,38 @@ public sealed class CoveragePostureProjectionTests
         Assert.That(posture.Groups, Has.Count.EqualTo(1));
         Assert.That(posture.TotalCovered, Is.EqualTo(2));
         Assert.That(posture.TotalGaps, Is.Zero);
+        Assert.That(posture.TotalUnknown, Is.Zero);
         Assert.That(posture.TotalUsablePolygons, Is.EqualTo(2));
         Assert.That(posture.HasGaps, Is.False);
+        Assert.That(posture.CompactSummary, Does.Contain("POSTURE:"));
 
         var group = posture.Groups[0];
+        Assert.That(group.GroupId, Is.EqualTo(PlayModeSmokeOrbatSeeder.TaskGroupId));
+        Assert.That(group.PackageId, Is.Not.Empty);
+        Assert.That(group.PackageLabel, Is.Not.Empty);
+        Assert.That(group.SummaryLine, Does.Contain(group.GroupId));
         Assert.That(group.Severity, Is.EqualTo(CoveragePostureSeverity.Nominal));
         Assert.That(group.GapCode, Is.EqualTo("NONE"));
         Assert.That(group.AuthorityBoundary.IsOrder, Is.False);
         Assert.That(group.AuthorityBoundary.IsWeaponsReleaseAuthorization, Is.False);
         Assert.That(group.AuthorityBoundary.IsFireOrder, Is.False);
         Assert.That(group.AuthorityBoundary.IsAutomaticEngagement, Is.False);
+        Assert.That(group.AuthorityBoundary.HasDetachedUnits, Is.False);
+        Assert.That(group.AuthorityBoundary.ActiveConstraints, Is.Not.Null);
+        Assert.That(group.AuthorityBoundary.Summary, Does.Contain("Advisory only"));
 
         var c2Layer = group.Layers.Single(l => l.Role == C2NodeRole.C2);
+        Assert.That(c2Layer.RoleLabel, Is.EqualTo("C2"));
         Assert.That(c2Layer.Status, Is.EqualTo(CoverageLayerStatus.Intact));
         Assert.That(c2Layer.AvailableCount, Is.EqualTo(1));
         Assert.That(c2Layer.TotalElements, Is.EqualTo(1));
+        Assert.That(c2Layer.DetachedCount, Is.Zero);
+        Assert.That(c2Layer.LostCount, Is.Zero);
+        Assert.That(c2Layer.LastKnownCount, Is.Zero);
+        Assert.That(c2Layer.CoveredCount, Is.EqualTo(1));
+        Assert.That(c2Layer.GapCount, Is.Zero);
+        Assert.That(c2Layer.UnknownCoverageCount, Is.Zero);
+        Assert.That(c2Layer.Detail, Does.Contain("C2:"));
 
         var shooterLayer = group.Layers.Single(l => l.Role == C2NodeRole.Shooter);
         Assert.That(shooterLayer.Status, Is.EqualTo(CoverageLayerStatus.Intact));
@@ -57,14 +74,38 @@ public sealed class CoveragePostureProjectionTests
         Assert.That(diff.OverallDelta, Is.EqualTo(CoveragePostureDeltaKind.Degraded));
 
         var groupDiff = diff.GroupDiffs.Single();
+        Assert.That(groupDiff.GroupId, Is.EqualTo(PlayModeSmokeOrbatSeeder.TaskGroupId));
         Assert.That(groupDiff.PreviousGapCode, Is.EqualTo("NONE"));
         Assert.That(groupDiff.CurrentGapCode, Is.EqualTo("SPLIT"));
+        Assert.That(groupDiff.PreviousCoveredCount, Is.EqualTo(2));
+        Assert.That(groupDiff.CurrentCoveredCount, Is.EqualTo(1));
+        Assert.That(groupDiff.PreviousGapCount, Is.Zero);
+        Assert.That(groupDiff.CurrentGapCount, Is.EqualTo(1));
         Assert.That(groupDiff.LostOrDetachedUnitIds, Does.Contain(PlayModeSmokeOrbatSeeder.FriendlyEscortUnitId));
+        Assert.That(groupDiff.RestoredUnitIds, Is.Empty);
         Assert.That(groupDiff.DegradedOrLostRoles, Does.Contain(C2NodeRole.Shooter));
-        Assert.That(groupDiff.CoverageTransitions.Any(t =>
-            t.CoverageId == PlayModeSmokeCoordinationFactsProvider.EscortCoverageId
-            && t.PreviousStatus == CoverageStatus.Covered
-            && t.CurrentStatus == CoverageStatus.Gap), Is.True);
+        var escortTransition = groupDiff.CoverageTransitions.Single(t =>
+            t.CoverageId == PlayModeSmokeCoordinationFactsProvider.EscortCoverageId);
+        Assert.That(escortTransition.UnitId, Is.EqualTo(PlayModeSmokeOrbatSeeder.FriendlyEscortUnitId));
+        Assert.That(escortTransition.ElementId, Is.Not.Empty);
+        Assert.That(escortTransition.Role, Is.EqualTo(C2NodeRole.Shooter));
+        Assert.That(escortTransition.CoverageLabel, Is.Not.Empty);
+        Assert.That(escortTransition.PreviousStatus, Is.EqualTo(CoverageStatus.Covered));
+        Assert.That(escortTransition.CurrentStatus, Is.EqualTo(CoverageStatus.Gap));
+        Assert.That(escortTransition.PreviousState, Is.EqualTo(CoordinationEffectState.Available));
+        Assert.That(escortTransition.CurrentState, Is.EqualTo(CoordinationEffectState.Detached));
+
+        var currentPosture = CoveragePostureProjection.Project(current);
+        var gapEntry = currentPosture.Groups.Single().UnprotectedGaps.Single();
+        Assert.That(gapEntry.GroupId, Is.EqualTo(PlayModeSmokeOrbatSeeder.TaskGroupId));
+        Assert.That(gapEntry.UnitId, Is.EqualTo(PlayModeSmokeOrbatSeeder.FriendlyEscortUnitId));
+        Assert.That(gapEntry.ElementId, Is.Not.Empty);
+        Assert.That(gapEntry.Role, Is.EqualTo(C2NodeRole.Shooter));
+        Assert.That(gapEntry.CoverageId, Is.EqualTo(PlayModeSmokeCoordinationFactsProvider.EscortCoverageId));
+        Assert.That(gapEntry.CoverageLabel, Is.Not.Empty);
+        Assert.That(gapEntry.ReasonCode, Is.Not.Empty);
+        Assert.That(gapEntry.HasGeometry, Is.True);
+        Assert.That(gapEntry.Detail, Does.Contain("GAP:"));
 
         var joined = string.Join(" ", diff.ExplanationLines);
         Assert.That(joined, Does.Contain("IsOrder=false"));

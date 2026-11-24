@@ -76,7 +76,7 @@ public sealed class OsintStagingReviewService
 
         if (!string.IsNullOrWhiteSpace(databasePath) && File.Exists(databasePath))
         {
-            var dbRows = TryReadPendingStagingRows(databasePath!, fixtureLookup, minimumConfidence);
+            var dbRows = TryReadPendingStagingRows(databasePath, fixtureLookup, minimumConfidence);
             if (dbRows.Count > 0)
             {
                 var proposals = dbRows.Where(r => !r.IsLogOnly).ToArray();
@@ -87,7 +87,7 @@ public sealed class OsintStagingReviewService
 
         if (!string.IsNullOrWhiteSpace(fixturePath) && File.Exists(fixturePath))
         {
-            var records = new FileOsintConnector(fixturePath!).Fetch();
+            var records = new FileOsintConnector(fixturePath).Fetch();
             if (records.Length > 0)
             {
                 var ordered = records
@@ -99,11 +99,11 @@ public sealed class OsintStagingReviewService
                 {
                     if (IsConfidencePermitted(record.RelevanceScore, minimumConfidence))
                     {
-                        proposals.Add(FromDiscovery(record, fixturePath!, isLogOnly: false));
+                        proposals.Add(FromDiscovery(record, fixturePath, isLogOnly: false));
                     }
                     else
                     {
-                        logOnly.Add(FromDiscovery(record, fixturePath!, isLogOnly: true));
+                        logOnly.Add(FromDiscovery(record, fixturePath, isLogOnly: true));
                     }
                 }
 
@@ -119,7 +119,7 @@ public sealed class OsintStagingReviewService
 
     public static OsintStagingDecisionResult ProposeDiscovery(
         string databasePath,
-        OsintDiscoveryRecord record,
+        OsintDiscoveryRecord? record,
         string actorType,
         string actorId,
         string sourceFile = "osint_facts.json",
@@ -161,7 +161,7 @@ public sealed class OsintStagingReviewService
 
     public static OsintStagingDecisionResult ApproveBatch(
         string databasePath,
-        string batchId,
+        string? batchId,
         string actorType,
         string actorId,
         ICatalogClock? clock = null)
@@ -179,7 +179,7 @@ public sealed class OsintStagingReviewService
 
     public static OsintStagingDecisionResult RejectBatch(
         string databasePath,
-        string batchId,
+        string? batchId,
         string actorType,
         string actorId,
         string rationale = "",
@@ -427,7 +427,7 @@ public sealed class OsintStagingReviewService
             return dict;
         }
 
-        foreach (var record in new FileOsintConnector(fixturePath!).Fetch())
+        foreach (var record in new FileOsintConnector(fixturePath).Fetch())
         {
             if (!string.IsNullOrWhiteSpace(record.SourceUrl))
             {

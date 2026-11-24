@@ -61,7 +61,7 @@ public sealed class SqliteCatalogReaderTests
             Directory.SetCurrentDirectory(doomedCwd);
             Directory.Delete(doomedCwd);
 
-            using var reader = new SqliteCatalogReader(dbPath, "p0-sqlite");
+            using var reader = new SqliteCatalogReader(dbPath);
             Assert.That(reader.GetSortedSensorBindings(), Is.Empty);
         }
         finally

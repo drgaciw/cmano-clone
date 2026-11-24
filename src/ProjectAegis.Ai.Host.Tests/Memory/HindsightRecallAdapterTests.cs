@@ -43,7 +43,8 @@ public sealed class HindsightRecallAdapterTests
             };
         });
 
-        using var http = new HttpClient(handler) { BaseAddress = new Uri("http://localhost:8888/") };
+        using var http = new HttpClient(handler);
+        http.BaseAddress = new Uri("http://localhost:8888/");
         IHindsightRecallClient adapter = new HindsightRecallAdapter(http, apiKey: "secret-key");
 
         var result = await adapter.RecallAsync(new HindsightRecallRequest("dev-cmano-clone", "baltic roe", "high", 2048));
@@ -63,11 +64,15 @@ public sealed class HindsightRecallAdapterTests
 
         Assert.That(result.Status, Is.EqualTo(GenerationStatus.Succeeded));
         Assert.That(result.IsSuccess, Is.True);
+        Assert.That(result.BankId, Is.EqualTo("dev-cmano-clone"));
+        Assert.That(result.Query, Is.EqualTo("baltic roe"));
         Assert.That(result.Items, Has.Count.EqualTo(1));
         Assert.That(result.Items[0].Text, Is.EqualTo("Keep WeaponsTight until contact classified"));
         Assert.That(result.Items[0].Score, Is.EqualTo(4.0));
         Assert.That(result.Items[0].Id, Is.EqualTo("mem-1"));
+        Assert.That(result.Items[0].BankId, Is.EqualTo("dev-cmano-clone"));
         Assert.That(result.Items[0].Context, Is.EqualTo("aar"));
+        Assert.That(result.Items[0].CreatedAt, Is.EqualTo("2026-11-22T00:00:00Z"));
     }
 
     [Test]
@@ -75,7 +80,8 @@ public sealed class HindsightRecallAdapterTests
     {
         var handler = new StubHttpMessageHandler((_, _) =>
             throw new HttpRequestException("Connection refused"));
-        using var http = new HttpClient(handler) { BaseAddress = new Uri("http://localhost:8888/") };
+        using var http = new HttpClient(handler);
+        http.BaseAddress = new Uri("http://localhost:8888/");
         var adapter = new HindsightRecallAdapter(http);
 
         var result = await adapter.RecallAsync(new HindsightRecallRequest("dev-cmano-clone", "roe"));
@@ -91,7 +97,8 @@ public sealed class HindsightRecallAdapterTests
     {
         var handler = new StubHttpMessageHandler((_, _) =>
             Task.FromResult(new HttpResponseMessage(HttpStatusCode.InternalServerError)));
-        using var http = new HttpClient(handler) { BaseAddress = new Uri("http://localhost:8888/") };
+        using var http = new HttpClient(handler);
+        http.BaseAddress = new Uri("http://localhost:8888/");
         var adapter = new HindsightRecallAdapter(http);
 
         var result = await adapter.RecallAsync(new HindsightRecallRequest("dev-cmano-clone", "roe"));
@@ -105,7 +112,8 @@ public sealed class HindsightRecallAdapterTests
     {
         var handler = new StubHttpMessageHandler((_, _) =>
             throw new TaskCanceledException("The request was canceled due to the configured HttpClient.Timeout."));
-        using var http = new HttpClient(handler) { BaseAddress = new Uri("http://localhost:8888/") };
+        using var http = new HttpClient(handler);
+        http.BaseAddress = new Uri("http://localhost:8888/");
         var adapter = new HindsightRecallAdapter(http);
 
         var result = await adapter.RecallAsync(new HindsightRecallRequest("dev-cmano-clone", "roe"));
@@ -118,13 +126,14 @@ public sealed class HindsightRecallAdapterTests
     public async Task RecallAsync_when_cancelled_by_caller_returns_Cancelled()
     {
         using var cts = new CancellationTokenSource();
+        cts.Cancel();
         var handler = new StubHttpMessageHandler((_, ct) =>
         {
-            cts.Cancel();
             ct.ThrowIfCancellationRequested();
             return Task.FromResult(new HttpResponseMessage(HttpStatusCode.OK));
         });
-        using var http = new HttpClient(handler) { BaseAddress = new Uri("http://localhost:8888/") };
+        using var http = new HttpClient(handler);
+        http.BaseAddress = new Uri("http://localhost:8888/");
         var adapter = new HindsightRecallAdapter(http);
 
         var result = await adapter.RecallAsync(new HindsightRecallRequest("dev-cmano-clone", "roe"), cts.Token);
@@ -142,7 +151,8 @@ public sealed class HindsightRecallAdapterTests
             {
                 Content = new StringContent(payload),
             }));
-        using var http = new HttpClient(handler) { BaseAddress = new Uri("http://localhost:8888/") };
+        using var http = new HttpClient(handler);
+        http.BaseAddress = new Uri("http://localhost:8888/");
         var adapter = new HindsightRecallAdapter(http);
 
         var result = await adapter.RecallAsync(new HindsightRecallRequest("dev-cmano-clone", "roe"));

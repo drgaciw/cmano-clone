@@ -218,8 +218,7 @@ public static class CoveragePostureProjection
         }
 
         var groups = snapshot.Groups
-            .Where(g => g is not null)
-            .OrderBy(g => g.Coordination?.GroupId ?? string.Empty, StringComparer.Ordinal)
+            .OrderBy(g => g.Coordination.GroupId, StringComparer.Ordinal)
             .Select(ProjectGroup)
             .ToArray();
 
@@ -307,12 +306,7 @@ public static class CoveragePostureProjection
         var updatedGroups = new List<CoordinationGroupSnapshot>(baseline.Groups.Count);
         foreach (var group in baseline.Groups)
         {
-            if (group is null)
-            {
-                continue;
-            }
-
-            if (group.Coordination is null || !string.Equals(group.Coordination.GroupId, groupId, StringComparison.Ordinal))
+            if (!string.Equals(group.Coordination.GroupId, groupId, StringComparison.Ordinal))
             {
                 updatedGroups.Add(group);
                 continue;
@@ -355,13 +349,13 @@ public static class CoveragePostureProjection
     {
         var coord = group.Coordination;
         var intent = group.Intent;
-        var effects = group.Effects ?? Array.Empty<CoordinationEffect>();
-        var coordGaps = group.Gaps ?? Array.Empty<CoordinationGap>();
+        var effects = group.Effects;
+        var coordGaps = group.Gaps;
 
-        var groupId = coord?.GroupId ?? string.Empty;
-        var packageId = coord?.AssignedPackageId ?? string.Empty;
-        var packageLabel = coord?.AssignedPackageLabel ?? string.Empty;
-        var gapCode = coord?.GapCode ?? "UNKNOWN";
+        var groupId = coord.GroupId;
+        var packageId = coord.AssignedPackageId;
+        var packageLabel = coord.AssignedPackageLabel;
+        var gapCode = coord.GapCode;
 
         var layers = new List<CoverageLayerSummary>();
         foreach (var role in LayerOrder)
@@ -452,16 +446,16 @@ public static class CoveragePostureProjection
 
         var hasDetached = effects.Any(e => e.State == CoordinationEffectState.Detached);
         var hasLost = effects.Any(e => e.State == CoordinationEffectState.Lost);
-        var constraints = intent?.Constraints?.ToArray() ?? Array.Empty<string>();
+        var constraints = intent.Constraints.ToArray();
         var boundary = new CoverageAuthorityBoundary(
-            IsOrder: intent?.IsOrder ?? false,
-            IsWeaponsReleaseAuthorization: coord?.IsWeaponsReleaseAuthorization ?? false,
-            IsFireOrder: coord?.IsFireOrder ?? false,
-            IsAutomaticEngagement: coord?.IsAutomaticEngagement ?? false,
+            IsOrder: intent.IsOrder,
+            IsWeaponsReleaseAuthorization: coord.IsWeaponsReleaseAuthorization,
+            IsFireOrder: coord.IsFireOrder,
+            IsAutomaticEngagement: coord.IsAutomaticEngagement,
             HasDetachedUnits: hasDetached,
             GroupCommandsBlockedByMissingMember: hasLost,
             ActiveConstraints: constraints,
-            Summary: $"Advisory only (IsOrder={(intent?.IsOrder ?? false ? "true" : "false")}, WRA=false, Fire=false)"
+            Summary: $"Advisory only (IsOrder={(intent.IsOrder ? "true" : "false")}, WRA=false, Fire=false)"
                 + (hasDetached ? " · detached units excluded from group command scope" : string.Empty)
                 + (hasLost ? " · group commands blocked (MISSING_OR_LOST_MEMBER)" : string.Empty));
 
@@ -495,13 +489,7 @@ public static class CoveragePostureProjection
 
         foreach (var group in groups)
         {
-            if (group?.Coordination is null)
-            {
-                continue;
-            }
-
-            var key = group.Coordination.GroupId ?? string.Empty;
-            map[key] = group;
+            map[group.Coordination.GroupId] = group;
         }
 
         return map;
@@ -510,27 +498,20 @@ public static class CoveragePostureProjection
     private static bool ContainsUnit(CoordinationGroupSnapshot group, string unitId)
     {
         var effects = group.Effects;
-        if (effects is not null)
+        for (var i = 0; i < effects.Count; i++)
         {
-            for (var i = 0; i < effects.Count; i++)
+            if (string.Equals(effects[i].UnitId, unitId, StringComparison.Ordinal))
             {
-                var effect = effects[i];
-                if (effect is not null && string.Equals(effect.UnitId, unitId, StringComparison.Ordinal))
-                {
-                    return true;
-                }
+                return true;
             }
         }
 
-        var members = group.Coordination?.Members;
-        if (members is not null)
+        var members = group.Coordination.Members;
+        for (var i = 0; i < members.Count; i++)
         {
-            for (var i = 0; i < members.Count; i++)
+            if (string.Equals(members[i], unitId, StringComparison.Ordinal))
             {
-                if (string.Equals(members[i], unitId, StringComparison.Ordinal))
-                {
-                    return true;
-                }
+                return true;
             }
         }
 
@@ -542,17 +523,17 @@ public static class CoveragePostureProjection
         CoordinationGroupSnapshot? previous,
         CoordinationGroupSnapshot? current)
     {
-        var prevGapCode = previous?.Coordination?.GapCode ?? "NONE";
+        var prevGapCode = previous?.Coordination.GapCode ?? "NONE";
         var currGapCode = current is null
             ? "GROUP_MISSING"
-            : current.Coordination?.GapCode ?? "NONE";
+            : current.Coordination.GapCode;
         var prevEffects = previous?.Effects ?? Array.Empty<CoordinationEffect>();
         var currEffects = current?.Effects ?? Array.Empty<CoordinationEffect>();
 
-        var prevCovered = prevEffects.Count(e => e is not null && e.Coverage.Status == CoverageStatus.Covered);
-        var currCovered = currEffects.Count(e => e is not null && e.Coverage.Status == CoverageStatus.Covered);
-        var prevGaps = prevEffects.Count(e => e is not null && e.Coverage.Status == CoverageStatus.Gap);
-        var currGaps = currEffects.Count(e => e is not null && e.Coverage.Status == CoverageStatus.Gap);
+        var prevCovered = prevEffects.Count(e => e.Coverage.Status == CoverageStatus.Covered);
+        var currCovered = currEffects.Count(e => e.Coverage.Status == CoverageStatus.Covered);
+        var prevGaps = prevEffects.Count(e => e.Coverage.Status == CoverageStatus.Gap);
+        var currGaps = currEffects.Count(e => e.Coverage.Status == CoverageStatus.Gap);
 
         var transitions = new List<CoverageTransitionItem>();
         var degradedRoles = new HashSet<C2NodeRole>();
@@ -562,11 +543,6 @@ public static class CoveragePostureProjection
         var prevByKey = new Dictionary<string, CoordinationEffect>(StringComparer.Ordinal);
         foreach (var prev in prevEffects)
         {
-            if (prev is null)
-            {
-                continue;
-            }
-
             prevByKey[$"{prev.UnitId}|{prev.ElementId}"] = prev;
         }
 
@@ -574,11 +550,6 @@ public static class CoveragePostureProjection
         {
             foreach (var prev in prevEffects)
             {
-                if (prev is null)
-                {
-                    continue;
-                }
-
                 var covId = string.IsNullOrEmpty(prev.Coverage.CoverageId) ? prev.ElementId : prev.Coverage.CoverageId;
                 var covLabel = string.IsNullOrEmpty(prev.Coverage.Label) ? covId : prev.Coverage.Label;
                 transitions.Add(new CoverageTransitionItem(
@@ -604,11 +575,6 @@ public static class CoveragePostureProjection
         {
             foreach (var curr in currEffects)
             {
-                if (curr is null)
-                {
-                    continue;
-                }
-
                 var key = $"{curr.UnitId}|{curr.ElementId}";
                 prevByKey.TryGetValue(key, out var prev);
                 var prevStatus = prev?.Coverage.Status ?? CoverageStatus.Unknown;
@@ -666,9 +632,9 @@ public static class CoveragePostureProjection
                         : CoveragePostureDeltaKind.Unchanged;
 
         var lines = new List<string>();
-        var isOrder = current?.Intent?.IsOrder ?? false;
-        var hasLost = current is null || currEffects.Any(e => e is not null && e.State == CoordinationEffectState.Lost);
-        var hasDetached = currEffects.Any(e => e is not null && e.State == CoordinationEffectState.Detached);
+        var isOrder = current?.Intent.IsOrder ?? false;
+        var hasLost = current is null || currEffects.Any(e => e.State == CoordinationEffectState.Lost);
+        var hasDetached = currEffects.Any(e => e.State == CoordinationEffectState.Detached);
 
         var detailSb = new StringBuilder();
         detailSb.Append("Posture ").Append(deltaKind.ToString().ToUpperInvariant())

@@ -1,4 +1,3 @@
-using ProjectAegis.Data.Catalog;
 using ProjectAegis.Data.Osint;
 using ProjectAegis.Data.WriteGate;
 
@@ -137,7 +136,7 @@ public static class OsintStagingBridge
             return new OsintStagingCommandResult(false, false, false, string.Empty, new[] { "NO_SELECTION" });
         }
 
-        if (item.IsLogOnly || !OsintStagingReviewService.IsConfidencePermitted(item.Confidence, DefaultConfidenceThreshold))
+        if (item.IsLogOnly || !OsintStagingReviewService.IsConfidencePermitted(item.Confidence))
         {
             return new OsintStagingCommandResult(
                 false,

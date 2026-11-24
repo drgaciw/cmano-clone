@@ -68,7 +68,7 @@ public static class JevRoeOrderGateBinder
         JsonDocument document;
         try
         {
-            document = JsonDocument.Parse(json!);
+            document = JsonDocument.Parse(json);
         }
         catch (JsonException)
         {
@@ -142,7 +142,7 @@ public static class JevRoeOrderGateBinder
                 return JevSuggestedOrderGateState.Closed(ReasonInvalidProposal, roeNoul, riskLevel);
             }
 
-            var trimmedDecision = decisionRaw!.Trim();
+            var trimmedDecision = decisionRaw.Trim();
             var isAlphaOnly = trimmedDecision.Length > 0;
             for (var i = 0; i < trimmedDecision.Length; i++)
             {
@@ -184,7 +184,7 @@ public static class JevRoeOrderGateBinder
                 CardVisible: true,
                 ConfirmEnabled: true,
                 IsAutoFire: false,
-                GroupId: groupId!,
+                GroupId: groupId,
                 Decision: decision,
                 RoeNoul: roeNoul.Value,
                 RiskLevel: normalizedRisk,

@@ -139,7 +139,7 @@ public sealed class DelegationOrchestrator
             return null;
         }
 
-        AdvanceCommsGrid(grid, simTick, (double)simTick);
+        AdvanceCommsGrid(grid, simTick, simTick);
         return OffGridOrderGate.Evaluate(grid, unitId);
     }
 
