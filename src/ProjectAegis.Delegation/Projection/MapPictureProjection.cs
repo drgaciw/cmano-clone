@@ -18,7 +18,15 @@ public static class MapPictureProjection
         IReadOnlyList<OobTreeEntry> oob,
         IReadOnlyList<ContactPictureEntry> contacts,
         int layoutSeed,
-        IReadOnlyDictionary<string, UnitKinematicPose>? poses = null)
+        IReadOnlyDictionary<string, UnitKinematicPose>? poses = null) =>
+        Project(oob, contacts, layoutSeed, poses, overrides: null);
+
+    public static IReadOnlyList<MapSymbolEntry> Project(
+        IReadOnlyList<OobTreeEntry> oob,
+        IReadOnlyList<ContactPictureEntry> contacts,
+        int layoutSeed,
+        IReadOnlyDictionary<string, UnitKinematicPose>? poses,
+        ContactOverrideSnapshot? overrides)
     {
         var symbols = new List<MapSymbolEntry>(oob.Count + contacts.Count);
         foreach (var unit in oob)
@@ -50,12 +58,21 @@ public static class MapPictureProjection
 
         foreach (var contact in contacts)
         {
+            var ov = overrides?.Find(contact.ContactId);
+            if (ov?.IsDropped == true)
+            {
+                continue;
+            }
+
+            var affiliation = !string.IsNullOrEmpty(ov?.AffiliationOverride)
+                ? MilitarySymbology.NormalizeAffiliation(ov.AffiliationOverride)
+                : "Hostile";
             var (x, y, lat, lon, authoritative, course, speed) =
                 ResolvePlacement(contact.ContactId, layoutSeed + 17, poses);
-            var resolution = App6Sidc.ResolveMapGlyph("Hostile");
+            var resolution = App6Sidc.ResolveMapGlyph(affiliation);
             symbols.Add(new MapSymbolEntry(
                 contact.ContactId,
-                "Hostile",
+                affiliation,
                 resolution.UnicodeGlyph,
                 $"{contact.ContactId} {contact.LifecycleState}",
                 x,

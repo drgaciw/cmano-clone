@@ -229,3 +229,23 @@
     color: rgb(240, 180, 80);
     -unity-font-style: bold;
 }
+
+/* DRG-245: dual-side TEST SANDBOX banner — visible only when AllowDualSideControl && Mixed. */
+.c2-topbar-sandbox-banner {
+    display: none;
+    align-self: stretch;
+    margin-bottom: 4px;
+    padding: 2px 8px;
+    background-color: rgba(140, 84, 14, 0.92);
+    border-width: 1px;
+    border-color: rgb(245, 184, 65);
+    color: rgb(255, 240, 200);
+    font-size: 11px;
+    -unity-font-style: bold;
+    -unity-text-align: middle-center;
+    letter-spacing: 1px;
+}
+
+.c2-topbar-sandbox-banner--visible {
+    display: flex;
+}

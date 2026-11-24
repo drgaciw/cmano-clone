@@ -1,0 +1,127 @@
+/* DRG-175: Task-group combat coordination panel — clear of left drawer (260px), top bar (56px), right detail (300px), and bottom log (236px). */
+@import url("../AegisTokens.uss");
+
+.coordination-panel {
+    position: absolute;
+    left: 268px;
+    top: 64px;
+    width: 340px;
+    max-height: 480px;
+    padding: 8px;
+    background-color: var(--surface-panel);
+    border-width: 1px;
+    border-color: var(--border-panel);
+}
+
+.coord-title {
+    -unity-font-style: bold;
+    font-size: 12px;
+    color: var(--text-heading);
+    margin-bottom: 2px;
+}
+
+.coord-advisory {
+    font-size: 10px;
+    color: var(--text-muted);
+    white-space: normal;
+    margin-bottom: 4px;
+}
+
+.coord-dropdown {
+    margin-bottom: 4px;
+}
+
+.coord-subtitle {
+    -unity-font-style: bold;
+    font-size: 10px;
+    color: var(--text-heading);
+    margin-top: 4px;
+    margin-bottom: 2px;
+}
+
+.coord-line {
+    font-size: 11px;
+    color: var(--text-body);
+    white-space: normal;
+    margin-bottom: 2px;
+}
+
+.coord-scroll {
+    max-height: 110px;
+    margin-bottom: 4px;
+}
+
+.coord-list {
+    flex-direction: column;
+}
+
+.coord-row {
+    font-size: 10px;
+    color: var(--text-data);
+    white-space: normal;
+    padding: 2px 4px;
+    margin-bottom: 2px;
+    border-left-width: 2px;
+}
+
+.coord-block-reason {
+    font-size: 10px;
+    white-space: normal;
+    padding: 3px 5px;
+    margin-top: 2px;
+    margin-bottom: 4px;
+    border-width: 1px;
+}
+
+.coord-actions {
+    flex-direction: row;
+    flex-wrap: wrap;
+    margin-top: 2px;
+    margin-bottom: 4px;
+}
+
+.coord-btn {
+    margin-right: 4px;
+    margin-bottom: 2px;
+    font-size: 11px;
+}
+
+.coord-confirm-box {
+    display: none;
+    padding: 6px;
+    margin-top: 4px;
+    margin-bottom: 4px;
+    background-color: var(--surface-panel-opaque);
+    border-width: 1px;
+    border-color: var(--border-section);
+}
+
+.coord-feedback {
+    font-size: 10px;
+    color: var(--text-data);
+    white-space: normal;
+}
+
+.coord-status--ok {
+    color: rgb(205, 245, 215);
+    border-color: var(--comms-nominal);
+    background-color: rgba(20, 56, 36, 0.72);
+}
+
+.coord-status--degraded {
+    color: rgb(255, 228, 165);
+    border-color: var(--comms-degraded);
+    background-color: rgba(66, 48, 16, 0.78);
+}
+
+.coord-status--blocked {
+    color: rgb(255, 196, 196);
+    border-color: var(--comms-denied);
+    background-color: rgba(74, 22, 24, 0.82);
+}
+
+.coord-status--advisory {
+    color: rgb(195, 225, 255);
+    border-color: var(--affil-friendly);
+    background-color: rgba(18, 40, 68, 0.78);
+}

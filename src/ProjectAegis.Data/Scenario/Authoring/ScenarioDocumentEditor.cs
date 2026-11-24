@@ -402,6 +402,58 @@ public sealed class ScenarioDocumentEditor
         return true;
     }
 
+    /// <summary>Restores a previously captured snapshot (for bounded redo).</summary>
+    public void RestoreSnapshot(ScenarioDocumentDto snapshot)
+    {
+        if (snapshot is null)
+        {
+            throw new ArgumentNullException(nameof(snapshot));
+        }
+
+        RestoreFromDto(snapshot);
+    }
+
+    /// <summary>Assigns an ORBAT unit id to an existing mission if not already assigned (case-insensitive).</summary>
+    public void AssignUnitToMission(string missionId, string unitId)
+    {
+        if (string.IsNullOrWhiteSpace(missionId))
+        {
+            throw new InvalidOperationException("Mission id is required.");
+        }
+
+        if (string.IsNullOrWhiteSpace(unitId))
+        {
+            throw new InvalidOperationException("Unit id is required.");
+        }
+
+        var index = Missions.FindIndex(m => string.Equals(m.Id, missionId, StringComparison.OrdinalIgnoreCase));
+        if (index < 0)
+        {
+            throw new InvalidOperationException($"Mission id '{missionId}' was not found.");
+        }
+
+        var mission = Missions[index];
+        if (mission.AssignedUnitIds.Any(id => string.Equals(id, unitId, StringComparison.OrdinalIgnoreCase)))
+        {
+            return;
+        }
+
+        var updatedUnits = mission.AssignedUnitIds.Concat(new[] { unitId.Trim() }).ToArray();
+        Missions[index] = new ScenarioMissionDto
+        {
+            Id = mission.Id,
+            Type = mission.Type,
+            AssignedUnitIds = updatedUnits,
+            TargetIds = mission.TargetIds,
+            FerryDestinationBaseId = mission.FerryDestinationBaseId,
+            PatrolZone = mission.PatrolZone,
+            StationGeometry = mission.StationGeometry,
+            SupportRole = mission.SupportRole,
+            RoeOverride = mission.RoeOverride,
+            EmconOverride = mission.EmconOverride,
+        };
+    }
+
     public bool TryRemoveMission(string missionId)
     {
         var index = Missions.FindIndex(m =>

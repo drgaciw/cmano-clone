@@ -23,6 +23,7 @@ public static class SimulationModeConfigurator
             orchestrator.ScenarioPolicy = ResolveScenarioPolicy(scenarioPolicyId);
         }
 
+        orchestrator.SimulationMode = mode;
         IEnumerable<ICommandableTarget> playerTargets = friendly;
         switch (mode.Kind)
         {

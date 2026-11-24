@@ -1,0 +1,67 @@
+{
+  "model": "typesafe/jev-1.14",
+  "state": "Project Aegis Sprint 4 DoD Gate Round 1 (2026-11-23), branch sprint/s4-h4-editors-g3 stacked cleanly on sprint/s3-coord-ai-depth (d25e017d). ATOMIC TRACK COMMITS ON BRANCH: Track A 039531a3 (23 files: DRG-371, DRG-346 headless), Track B 730e2007 (6 files: DRG-346 UI, DRG-274 PlayMode tests; plus Assets/Plugins/ProjectAegis/ synced via copy-delegation-assemblies.sh with SHA-256 parity), plus QA/G3 evidence commit (dod-rubric-sprint-s4.md, s4-c8-red-evidence.md, s4-g3-me-workflow-evidence.md, 8 PNGs, Jev JSONs). H1/C1 BUILD & TEST BREAKDOWN: dotnet build ProjectAegis.sln --no-restore -> 0 Warning(s), 0 Error(s); ProjectAegis.Data & ProjectAegis.Delegation.UnityAdapter Release/netstandard2.1 -> 0 Warning(s), 0 Error(s); dotnet test ProjectAegis.sln -v minimal --no-build -> 4,938/4,938 passed, 0 failed, 0 skipped across all 9 test assemblies (Ai.Contracts.Tests 18, Delegation.Demo.Tests 15, Ai.Host.Tests 88, Sim.Tests 653, Delegation.Tests 1,541, Data.Excel.Tests 24, Delegation.UnityAdapter.Tests 1,461, Data.Tests 967, MissionEditor.Cli.Tests 171; >= 4,912 floor). H2 LINEAR TRACKER HONESTY: Verified evidence comments posted via save_comment ONLY on the 3 Sprint 4 issues with all statuses kept Backlog (NEVER Done prior to owner PR merge): DRG-371 8b25dd84-634e-4bab-9135-b60f443f47ca, DRG-346 191eaaf0-a4f3-4f84-b2c3-e2efb80ae822, DRG-274 f2ed36a4-d689-4fd9-b271-39fed729951c. Held issues DRG-236 and DRG-231 verified via get_issue as In Progress with hold:owner-go label and untouched. H3/C7 HARD-NO & HOLD SURFACES (0 DIFF): git diff --stat d25e017d..HEAD empty (0 diff) across DelegationBridge.cs, src/ProjectAegis.Data/WriteGate/, SimulationSession.cs, MapPlaceholderPanelHost.cs, GlobeMapProductHost.cs, tests/regression/, DelegationSmoke.unity, and assets/data/catalog/. UnitySimImportForbidTests|NamespaceSccBaselineTests|CsprojReferenceGraphPinTests 31/31 pass (0 ProjectAegis.Sim imports in ScenarioEditorShellHost.cs or new runtime scripts); ProjectAegis.Delegation.UnityAdapter has 0 UnityEngine references; zero replacement hosts created (reused shipped ScenarioMapAuthoringWindow.cs and ScenarioEditorShellHost.cs). H4/C2 DETERMINISM: ReplayGolden 17/17 pass; Baltic v2 hash 17144800277401907079 preserved (26 hits in tests/ & data/); ScenarioSimulateSampleCommand emits deterministic SEED=42 HASH=a717c33911b1d5ddd3b0e4c5c5feb587cdd26be9e6b7da0e6e7425999b819c4d on role-capability-generic-only.json with GenericOnly warnings. H5/C8 VERBATIM TDD & FENCES: production/qa/evidence/sprint-4/s4-c8-red-evidence.md records verbatim pre-fix RED outputs and post-fix GREEN across Track A (39 build errors -> 4,935/4,935), Track A Iteration 2 (2 Data.Tests + 6 Workflow + 1 Presenter RED failures -> 4,935/4,935), Track B (ScenarioEditorShellHostContractTests 2/2 fail + Unity CS1061 errors -> 4,937/4,937 & 56/56), and Track B Iteration 2 (1/3 contract fail + 4/8 PlayMode fails incl. NullReferenceException -> 4,938/4,938 & 61/61). Test breakdown: MissionRoleCapabilityManifestTests 28/28, ScenarioRoleCapabilityCliTests|ScenarioSimulateSampleCliTests 17/17, MissionRoleCapabilityProjectionTests 10/10, BoundedAuthoringWorkflowTests 11/11, ScenarioEditorShellHostContractTests 3/3, ScenarioMapAuthoringPanelUiTests|ScenarioEditorActionAvailabilityTests 16/16. H8/C3/C12 SMOKE & DATA: PlayModeSmokeHarnessTests 27/27; sha256sum assets/data/catalog/*.db identical (82d262129d41c6fbb78fa636a3c2923471dedf37db071f7a4e7c99bdec4760fd aegis_public_corpus.db, 75ea357a22de185808c4097b3ab1ddfcd836a4da37635576c0816b514d0b88ab baltic_patrol.db); SHA-256 parity verified across all ProjectAegis.*.dll files in Assets/Plugins/ProjectAegis/. C4/C13 LIVE UNITY (:8081): ProjectAegis.Unity.Tests PlayMode 61/61 PASSED (0 failed, 0 skipped, 5.37s); Sprint4AuthoringPlayModeTests 8/8 PASSED (1.06s); Unity Console LogEntries.GetCountsByType errors=0 post-tests and post-live-probes (isPlaying=False, dirtyScene=False). C9/C11 LIVE UNITY MCP G3 EVIDENCE & 8 INSPECTED PNG SCREENSHOTS (production/qa/evidence/sprint-4/s4-g3-me-workflow-evidence.md): Edit Mode ScenarioMapAuthoringWindow (X11 0x4c0118b) + Play Mode ScenarioEditorShellHost (1477x721 temp S4_G3_TempShellHost, DelegationSmoke.unity untouched) + CLI checks: (1) s4-g3-me-editor-success.png: bounded-authoring-supported.json place u2, edit u2, save v3 Dirty: no, READY TO EXPORT — 0 errors, 0 warnings, export 0 transforms; (2) s4-g3-me-editor-generic-warnings.png: role-capability-generic-only.json on cli-simulate-sample -> green READY TO EXPORT (generic warnings) — 0 errors, 2 warnings, [WARN] MISSION_ROLE_GENERIC_ONLY for patrol-1 & strike-1, exportAllowed=True; (3) s4-g3-me-editor-blocked.png: bounded-authoring-invalid.json -> red EXPORT BLOCKED — 1 error, 0 warnings (MISSION_NO_UNITS), Save enabled & succeeded editVersion=1; (4) s4-g3-me-editor-recovered.png: assign u1 to patrol-1 -> green READY TO EXPORT — 0 errors, 0 warnings, export succeeds; (5) s4-g3-me-editor-unsupported-blocked.png: bounded-authoring-unsupported-role.json -> red EXPORT BLOCKED — 3 errors, 0 warnings (3x MISSION_ROLE_NOT_EXECUTED for Tanker/AEW/EW), delete 3 missions recovers to READY TO EXPORT; (6) s4-g3-shell-playmode-success.png: units=3, canExport=True, Load/Save/Undo/Play/Sample=True, Selected: u1; (7) s4-g3-shell-playmode-blocked.png: unsupported-role -> red Blocked by 3 error findings, playEn=False, saveEn=True, Capability: 3 unsupported role error(s) — Export and Play blocked., 3 [ERROR] rows; (8) s4-g3-shell-playmode-recovered-play.png: removed 3 Support missions, saved v4, playEn=True, ExportAndPlayAuthoring() -> playPhase=Executing, bridgePhase=Executing. TRACK A (DRG-371, DRG-346 headless, 039531a3): MissionRoleCapabilityManifest adds GenericOnly Warning tier + CliSimulateBackendId + CodeRoleGenericOnly + trimmed case-insensitive backend lookup (Patrol/Strike GenericOnly on cli-simulate-sample; Tanker/AEW/EW remain blocking Errors); ScenarioSimulateSampleCommand emits warnings JSON before SEED= with exit 0; MissionRoleCapabilityProjection + ScenarioExportGateState + LiveFindingsPresenter preserve explicit catalog/backend and separate GenericExecutionFindings from blocking errors; BoundedAuthoringWorkflow wires OpenDraft (preserves active session on failure, surfaces CATALOG_UNBOUND on missing/unknown dbRef), SelectUnit, PlaceOrEditUnit (pre-validates mission assignment & clears redo), Undo/Redo via RestoreSnapshot, Validate, ungated SaveDraft, error-gated ExportPackage, and PlayEntrySession handoff; 5 deterministic fixtures. TRACK B (DRG-346 UI, DRG-274, 730e2007): ScenarioEditorShellHost wires D26 events (LoadRequested, SaveRequested, UndoRequested, RedoRequested, PlayRequested, SampleRequested) + AttachAuthoringWorkflow/AttachDefaultAuthoringWorkflow/DetachAuthoringWorkflow + OnDisable element reset/unsubscription + pre-Awake null guards + DelegationBridgeHost.BindExternalSession; ScenarioEditorShell.uxml adds #scenario-editor-shell-map-summary; ScenarioMapAuthoringWindow adds non-rewriting GenericOnly disclosure (never claims export allowed when !CanExport); ScenarioEditorShellHostContractTests 3/3 + Sprint4AuthoringPlayModeTests 8/8. H6/C10 BOUNDARY: Agent/MCP prep evidence complete; interactive owner Play Mode walk, H6/C10 sign-off, and PR submit/merge remain owner-only. AGENT-OWNED S1-S6 PROOF (12/12 in dod-rubric-sprint-s4.md): S1=2 (clean commits 039531a3, 730e2007 + QA commit, 0 compiler warnings, unity-csharp-architect pr-finish.md PASS), S2=2 (H6 owner walk & PR submit/merge reserved, DRG-236/231 held), S3=2 (ADR-010 §2-3, ADR-007, ADR-001, ADR-017 honored, 0 UnityEngine in UnityAdapter, 0 ProjectAegis.Sim in runtime UI), S4=2 (3 Linear comment IDs on DRG-371/346/274 with H6 note, statuses Backlog), S5=2 (empirical verification post-final-edit: 4,938/4,938 headless, 61/61 PlayMode, 8/8 Sprint4AuthoringPlayModeTests, 0 Console errors, 0 Hard-No diff), S6=2 (adversarial edge cases: CATALOG_UNBOUND, failed OpenDraft session preservation, pre-validated AssignToMissionId, mixed error+warning without claiming Play allowed, OnDisable re-enable rewiring, pre-Awake null guards, D26 unattached NOT_AVAILABLE).",
+  "questions": {
+    "h1_c1_build_and_suite": {
+      "type": "noul",
+      "instructions": "Does the evidence show zero build warnings/errors (net11.0 and Release/netstandard2.1) and full headless suite green (4,938/4,938 passed, 0 failed across all 9 test assemblies, >= 4,912 floor)?"
+    },
+    "h2_tracker_honesty": {
+      "type": "noul",
+      "instructions": "Are Linear evidence comments posted ONLY on DRG-371, DRG-346, and DRG-274 with verified comment IDs while keeping all issue statuses at Backlog (never moved to Done before PR merge), and do DRG-236 & DRG-231 remain hold:owner-go?"
+    },
+    "h3_c7_hard_no_surfaces": {
+      "type": "noul",
+      "instructions": "Are all hard-no and hold surfaces untouched (0 diff on DelegationBridge.cs, WriteGate/, SimulationSession.cs, MapPlaceholderPanelHost.cs, GlobeMapProductHost.cs, tests/regression/, DelegationSmoke.unity, assets/data/catalog/), with UnitySimImportForbidTests/NamespaceSccBaselineTests/CsprojReferenceGraphPinTests 31/31 passing, 0 UnityEngine refs in UnityAdapter, and no replacement hosts created?"
+    },
+    "h4_c2_determinism": {
+      "type": "noul",
+      "instructions": "Are ReplayGolden (17/17), Baltic v2 hash 17144800277401907079 (26 hits in tests/ & data/), and deterministic CLI simulate-sample hash a717c339... verified?"
+    },
+    "h5_c8_tdd_and_fences": {
+      "type": "noul",
+      "instructions": "Does s4-c8-red-evidence.md satisfy H5/C8 with verbatim pre-fix RED outputs (Track A, Track A Iter 2, Track B, Track B Iter 2), passing GREEN, and ADR-010/017 source-fence & contract tests?"
+    },
+    "h8_c3_c12_smoke_and_data": {
+      "type": "noul",
+      "instructions": "Did PlayModeSmokeHarnessTests pass 27/27, catalog DB SHA-256 hashes stay byte-identical, and Assets/Plugins/ProjectAegis/ ProjectAegis.*.dll files match Release/netstandard2.1 SHA-256 parity?"
+    },
+    "c4_c13_unity_playmode": {
+      "type": "noul",
+      "instructions": "Does live Unity (:8081) show 61/61 passed (0 failed, 0 skipped) on ProjectAegis.Unity.Tests PlayMode including 8/8 Sprint4AuthoringPlayModeTests with 0 Console Error/Exception logs?"
+    },
+    "c9_c11_live_mcp_ui": {
+      "type": "noul",
+      "instructions": "Were both shipped authoring surfaces (Edit Mode ScenarioMapAuthoringWindow and Play Mode ScenarioEditorShellHost) exercised live via Unity MCP (:8081) across success, DRG-371 generic-only warnings, blocked/draft-save-allowed, and recovery->Play paths with 8 inspected PNG screenshots and s4-g3-me-workflow-evidence.md?"
+    },
+    "track_a_drg371_drg346": {
+      "type": "noul",
+      "instructions": "Do Track A deliverables satisfy DRG-371 (GenericOnly Warning tier per backend, CLI simulate-sample warnings without blocking Export/Play/Save, Tanker/AEW/EW Errors unchanged, UI projection & deterministic fixtures) and DRG-346 headless (BoundedAuthoringWorkflow edit->validate->save->export->PlayEntry, CATALOG_UNBOUND, OpenDraft preservation, deterministic supported/invalid/unsupported-role fixtures)?"
+    },
+    "track_b_drg346_drg274": {
+      "type": "noul",
+      "instructions": "Do Track B deliverables satisfy DRG-346 UI (ScenarioEditorShellHost D26 wiring + PlayEntry handoff, non-rewriting ScenarioMapAuthoringWindow GenericOnly disclosure without claiming export allowed when blocked, OnDisable rewiring & pre-Awake null guards, ADR-010/017 fences) and DRG-274 (Sprint4AuthoringPlayModeTests 8/8 + G3 workflow evidence package)?"
+    },
+    "scored_s1_s6_pass": {
+      "type": "noul",
+      "instructions": "Counting agent-owned S1-S6 (12/12 itemized in dod-rubric-sprint-s4.md: clean per-track commits, pr-finish.md PASS, ADR-010/007/001/017, 3 Linear comment IDs with H6 note, empirical verification, adversarial edge-case tests, with H6 owner Play Mode walk & PR submit/merge reserved), does Sprint 4 achieve S1-S6 >= 9/12?"
+    },
+    "more_rounds": {
+      "type": "score",
+      "instructions": "With all 11 agent-owned criteria and itemized S1-S6 proof consolidated alongside verbatim RED->GREEN, live Unity :8081 G3 evidence, and per-track commit SHAs, how many more rounds does Sprint 4 need before owner review and H6 Play Mode walk?",
+      "criteria": [
+        "0 rounds (Sprint 4 agent DoD met)",
+        "1 round",
+        "2 rounds"
+      ]
+    },
+    "sprint4_verdict": {
+      "type": "choice",
+      "instructions": "What is the Sprint 4 DoD gate verdict?",
+      "criteria": {
+        "pass_owner_walk": "PASS: All Sprint 4 agent-owned DoD gates met; ready for owner PR review and H6 Play Mode walk",
+        "needs_more_work": "FAIL: Remediate missing evidence or failing gate"
+      }
+    }
+  }
+}

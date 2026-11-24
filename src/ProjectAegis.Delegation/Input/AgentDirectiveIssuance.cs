@@ -11,6 +11,12 @@ public enum AgentDirectiveAction
     /// <summary>Return control to the suspended agent (mode change).</summary>
     ReturnToAgent,
 
+    /// <summary>Suspend autonomous agent actions without relinquishing tasking (DRG-247).</summary>
+    PauseAgent,
+
+    /// <summary>Resume suspended autonomous agent actions (DRG-247).</summary>
+    ResumeAgent,
+
     /// <summary>Hold order (reuses human enqueue path).</summary>
     Hold,
 
@@ -44,10 +50,14 @@ public static class AgentDirectiveIssuance
     public const string ReasonNoAgent = "NO_AGENT";
     public const string ReasonNoActiveAgent = "NO_ACTIVE_AGENT";
     public const string ReasonNoSuspendedAgent = "NO_SUSPENDED_AGENT";
+    public const string ReasonAgentAlreadyPaused = "AGENT_ALREADY_PAUSED";
+    public const string ReasonAgentNotPaused = "AGENT_NOT_PAUSED";
     public const string ReasonUnknownDirective = "UNKNOWN_DIRECTIVE";
 
     public const string TakeControlId = "take_control";
     public const string ReturnToAgentId = "return_to_agent";
+    public const string PauseAgentId = "pause_agent";
+    public const string ResumeAgentId = "resume_agent";
     public const string HoldId = "hold";
     public const string RtbId = "rtb";
 
@@ -74,6 +84,12 @@ public static class AgentDirectiveIssuance
                 return true;
             case ReturnToAgentId:
                 request = new AgentDirectiveRequest(ReturnToAgentId, AgentDirectiveAction.ReturnToAgent, IsModeChange: true, OrderKind: null);
+                return true;
+            case PauseAgentId:
+                request = new AgentDirectiveRequest(PauseAgentId, AgentDirectiveAction.PauseAgent, IsModeChange: true, OrderKind: null);
+                return true;
+            case ResumeAgentId:
+                request = new AgentDirectiveRequest(ResumeAgentId, AgentDirectiveAction.ResumeAgent, IsModeChange: true, OrderKind: null);
                 return true;
             case HoldId:
                 request = new AgentDirectiveRequest(HoldId, AgentDirectiveAction.Hold, IsModeChange: false, OrderKind.Hold);
@@ -144,5 +160,50 @@ public static class AgentDirectiveIssuance
         }
 
         return new AgentDirectiveResult(true, null, request);
+    }
+
+    /// <summary>
+    /// Full pre-issue validation including agent pause/resume state (DRG-247).
+    /// </summary>
+    public static AgentDirectiveResult Validate(
+        string? directiveId,
+        bool hasSelection,
+        bool hasActiveAgent,
+        bool hasSuspendedAgent,
+        bool isAgentPaused)
+    {
+        var baseResult = Validate(directiveId, hasSelection, hasActiveAgent, hasSuspendedAgent);
+        if (!baseResult.Ok || baseResult.Request is null)
+        {
+            return baseResult;
+        }
+
+        if (baseResult.Request.Action == AgentDirectiveAction.PauseAgent)
+        {
+            if (!hasActiveAgent)
+            {
+                return new AgentDirectiveResult(false, ReasonNoActiveAgent, null);
+            }
+
+            if (isAgentPaused)
+            {
+                return new AgentDirectiveResult(false, ReasonAgentAlreadyPaused, null);
+            }
+        }
+
+        if (baseResult.Request.Action == AgentDirectiveAction.ResumeAgent)
+        {
+            if (!hasActiveAgent)
+            {
+                return new AgentDirectiveResult(false, ReasonNoActiveAgent, null);
+            }
+
+            if (!isAgentPaused)
+            {
+                return new AgentDirectiveResult(false, ReasonAgentNotPaused, null);
+            }
+        }
+
+        return baseResult;
     }
 }

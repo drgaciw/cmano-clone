@@ -1235,7 +1235,27 @@ static int RunGauntletOracleEval(string[] args)
     var outPath = CliArgParser.GetFlag(args, "--out");
     var profile = CliArgParser.GetFlag(args, "--profile")
                   ?? ProjectAegis.Data.Catalog.GauntletOracleEvaluator.ProfileLadder;
-    return GauntletOracleEvalCommand.Run(policy, policyDir, csv, outPath, Console.Out, profile);
+    var baselineContext = CliArgParser.GetFlag(args, "--baseline-context");
+    var baselineContextOut = CliArgParser.GetFlag(args, "--baseline-context-out");
+    var ledgerOut = CliArgParser.GetFlag(args, "--ledger-out");
+    var catalog = CliArgParser.GetFlag(args, "--catalog");
+    var commit = CliArgParser.GetFlag(args, "--commit");
+    int? seed = int.TryParse(CliArgParser.GetFlag(args, "--seed"), System.Globalization.NumberStyles.Integer, System.Globalization.CultureInfo.InvariantCulture, out var parsedSeed) ? parsedSeed : null;
+    int? ticks = int.TryParse(CliArgParser.GetFlag(args, "--ticks"), System.Globalization.NumberStyles.Integer, System.Globalization.CultureInfo.InvariantCulture, out var parsedTicks) ? parsedTicks : null;
+    return GauntletOracleEvalCommand.Run(
+        policy,
+        policyDir,
+        csv,
+        outPath,
+        Console.Out,
+        profile,
+        baselineContext,
+        baselineContextOut,
+        ledgerOut,
+        catalog,
+        commit,
+        seed,
+        ticks);
 }
 
 static int RunCatalogReleaseDiff(string[] args)

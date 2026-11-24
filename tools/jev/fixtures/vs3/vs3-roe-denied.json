@@ -1,0 +1,17 @@
+{
+  "schema": "aegis.jev.vs3.state.v0",
+  "fixtureId": "vs3-roe-denied",
+  "skillAvailability": {
+    "jevDecide": true
+  },
+  "proposal": {
+    "groupId": "tg-baltic-escort",
+    "decision": "Hold"
+  },
+  "jevDecision": {
+    "model": "typesafe/jev-1.13",
+    "suggest_ok_under_roe": "no",
+    "roeNoul": 0.91,
+    "order_proposal_risk": "low"
+  }
+}

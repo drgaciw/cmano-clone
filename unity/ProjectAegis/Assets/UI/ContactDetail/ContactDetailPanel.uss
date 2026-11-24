@@ -137,3 +137,46 @@
     padding-left: 6px;
     -unity-font-style: bold;
 }
+
+/* DRG-272: Operator contact override controls (kept outside .contact-detail-panel). */
+.contact-detail-override-status {
+    margin-top: 2px;
+    color: rgb(220, 210, 175);
+    -unity-font-style: bold;
+}
+
+.contact-detail-override-controls {
+    flex-direction: column;
+    margin-top: 4px;
+    margin-bottom: 4px;
+}
+
+.contact-detail-override-dropdown {
+    margin-bottom: 4px;
+}
+
+.contact-detail-override-buttons {
+    flex-direction: row;
+    flex-wrap: wrap;
+}
+
+.contact-detail-override-btn {
+    margin-right: 4px;
+    margin-bottom: 4px;
+    font-size: 11px;
+    min-height: 20px;
+}
+
+.contact-detail-override-btn--drop {
+    border-left-width: 2px;
+    border-left-color: rgb(190, 100, 100);
+}
+
+.contact-detail-override-btn:disabled {
+    opacity: 0.45;
+}
+
+.contact-detail-override-feedback {
+    font-size: 11px;
+    color: rgb(225, 195, 155);
+}

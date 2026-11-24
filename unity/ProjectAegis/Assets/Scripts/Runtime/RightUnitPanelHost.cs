@@ -45,6 +45,12 @@ namespace ProjectAegis.Unity.Runtime
         private UIDocument _document = null!;
         private Label? _unitIdLine;
         private Label? _statusLine;
+        private Label? _controlStatusLine;
+        private Button? _takeControlButton;
+        private Button? _returnToAgentButton;
+        private Button? _pauseAgentButton;
+        private Button? _resumeAgentButton;
+        private Label? _controlFeedbackLine;
         private Label? _commsLine;
         private Label? _magazineLine;
         private Label? _emconLine;
@@ -62,8 +68,12 @@ namespace ProjectAegis.Unity.Runtime
         private Label? _contactLine;
         private bool _wired;
         private bool _attackHandlersRegistered;
+        private bool _controlHandlersRegistered;
         private string? _commandFeedback;
         private string? _feedbackUnitId;
+        private string? _controlFeedback;
+        private string? _controlFeedbackUnitId;
+        private RightUnitControlState _controlState = RightUnitControlState.Empty;
         private string? _feedbackBaseAttackOptionsLine;
         private string? _attackOptionsDisplay;
         private string _armedCommitOptionId = WeaponAbortTooltipBinder.FireSingleOptionId;
@@ -103,6 +113,12 @@ namespace ProjectAegis.Unity.Runtime
 
         /// <summary>Play Mode runtime tooltip presenter wired onto this panel (DRG-351).</summary>
         public RuntimeTooltipPresenter TooltipPresenter => _tooltipPresenter;
+
+        /// <summary>Last projected control-handoff and agent pause/resume state (DRG-247).</summary>
+        public RightUnitControlState LastControlState => _controlState;
+
+        /// <summary>Last control-handoff / pause-resume feedback text (DRG-247).</summary>
+        public string? LastControlFeedback => _controlFeedback;
 
         private void Reset()
         {
@@ -172,6 +188,12 @@ namespace ProjectAegis.Unity.Runtime
             _tooltipPresenter.Attach(panel);
             _unitIdLine = panel.Q<Label>(UnitIdName);
             _statusLine = panel.Q<Label>(StatusName);
+            _controlStatusLine = panel.Q<Label>("unit-control-status");
+            _takeControlButton = panel.Q<Button>("unit-take-control");
+            _returnToAgentButton = panel.Q<Button>("unit-return-to-agent");
+            _pauseAgentButton = panel.Q<Button>("unit-pause-agent");
+            _resumeAgentButton = panel.Q<Button>("unit-resume-agent");
+            _controlFeedbackLine = panel.Q<Label>("unit-control-feedback");
             _commsLine = panel.Q<Label>(CommsName);
             _magazineLine = panel.Q<Label>(MagazineName);
             _emconLine = panel.Q<Label>(EmconName);
@@ -200,6 +222,7 @@ namespace ProjectAegis.Unity.Runtime
                      _emconLine != null && _doctrineLine != null;
 
             WireAttackMenuHandlers();
+            WireControlHandoffHandlers();
 
             if (panelStyles != null && !panel.styleSheets.Contains(panelStyles))
             {
@@ -268,6 +291,13 @@ namespace ProjectAegis.Unity.Runtime
                 _refusedBarkUnitId = null;
             }
 
+            if (_controlFeedback != null &&
+                !string.Equals(_controlFeedbackUnitId, selectedUnitId, System.StringComparison.Ordinal))
+            {
+                _controlFeedback = null;
+                _controlFeedbackUnitId = null;
+            }
+
             if (!_wired || bridgeHost == null)
             {
                 return;
@@ -317,8 +347,10 @@ namespace ProjectAegis.Unity.Runtime
                 _armedCommitOptionId);
             _commitBark = _refusedCommitBark
                 ?? RightUnitCommitProjection.ProjectLatestDroppedBark(bridgeHost.Bridge, selectedUnitId);
+            _controlState = bridgeHost.ProjectSelectedControlHandoff();
             ApplyPresentationToLabels();
             RefreshAttackMenuButtons();
+            RefreshControlHandoffButtons();
             _tooltipPresenter.RefreshActive();
 
             var root = _document.rootVisualElement?.Q(RootName);
@@ -417,6 +449,18 @@ namespace ProjectAegis.Unity.Runtime
             if (_contactLine != null)
             {
                 _contactLine.text = _presentation.ContactLine;
+            }
+
+            if (_controlStatusLine != null)
+            {
+                _controlStatusLine.text = _controlState.StatusLabel;
+            }
+
+            if (_controlFeedbackLine != null)
+            {
+                _controlFeedbackLine.text = _controlState.IsDisabled && !string.IsNullOrEmpty(_controlState.DisabledReason)
+                    ? _controlState.DisabledReason
+                    : (_controlFeedback ?? string.Empty);
             }
         }
 
@@ -532,6 +576,94 @@ namespace ProjectAegis.Unity.Runtime
             {
                 _attackHandlersRegistered = true;
             }
+        }
+
+        private void WireControlHandoffHandlers()
+        {
+            if (_controlHandlersRegistered)
+            {
+                return;
+            }
+
+            var wiredAny = false;
+            if (_takeControlButton != null)
+            {
+                _takeControlButton.clicked += OnTakeControlClicked;
+                wiredAny = true;
+            }
+
+            if (_returnToAgentButton != null)
+            {
+                _returnToAgentButton.clicked += OnReturnToAgentClicked;
+                wiredAny = true;
+            }
+
+            if (_pauseAgentButton != null)
+            {
+                _pauseAgentButton.clicked += OnPauseAgentClicked;
+                wiredAny = true;
+            }
+
+            if (_resumeAgentButton != null)
+            {
+                _resumeAgentButton.clicked += OnResumeAgentClicked;
+                wiredAny = true;
+            }
+
+            if (wiredAny)
+            {
+                _controlHandlersRegistered = true;
+            }
+        }
+
+        private void RefreshControlHandoffButtons()
+        {
+            var disabledReason = _controlState.IsDisabled ? (_controlState.DisabledReason ?? string.Empty) : null;
+            ApplyControlButton(_takeControlButton, _controlState.CanTakeControl, disabledReason ?? "Take direct control");
+            ApplyControlButton(_returnToAgentButton, _controlState.CanReturnToAgent, disabledReason ?? "Return control to agent");
+            ApplyControlButton(_pauseAgentButton, _controlState.CanPauseAgent, disabledReason ?? "Pause autonomous agent actions");
+            ApplyControlButton(_resumeAgentButton, _controlState.CanResumeAgent, disabledReason ?? "Resume autonomous agent actions");
+        }
+
+        private static void ApplyControlButton(Button? button, bool enabled, string tooltip)
+        {
+            if (button == null)
+            {
+                return;
+            }
+
+            button.SetEnabled(enabled);
+            button.tooltip = tooltip;
+        }
+
+        private void OnTakeControlClicked() =>
+            ExecuteControlAction("Take Control", () => bridgeHost.TryTakeControlOfSelected(out var r) ? (true, r) : (false, r));
+
+        private void OnReturnToAgentClicked() =>
+            ExecuteControlAction("Return to Agent", () => bridgeHost.TryReturnToAgentOfSelected(out var r) ? (true, r) : (false, r));
+
+        private void OnPauseAgentClicked() =>
+            ExecuteControlAction("Pause Agent", () => bridgeHost.TryPauseAgentOfSelected(out var r) ? (true, r) : (false, r));
+
+        private void OnResumeAgentClicked() =>
+            ExecuteControlAction("Resume Agent", () => bridgeHost.TryResumeAgentOfSelected(out var r) ? (true, r) : (false, r));
+
+        private void ExecuteControlAction(string label, System.Func<(bool Ok, string? Reason)> action)
+        {
+            if (bridgeHost == null)
+            {
+                _controlFeedback = "DENIED: NO_BRIDGE";
+                _controlFeedbackUnitId = null;
+                ApplyPresentationToLabels();
+                return;
+            }
+
+            _controlFeedbackUnitId = bridgeHost.SelectedUnitId;
+            var (ok, reason) = action();
+            _controlFeedback = ok
+                ? $"APPLIED: {label}"
+                : $"DENIED: {DescribeFailure(string.IsNullOrEmpty(reason) ? "CONTROL_HANDOFF_FAILED" : reason)} ({reason})";
+            Refresh();
         }
 
         private void ArmCommitOption(string optionId)

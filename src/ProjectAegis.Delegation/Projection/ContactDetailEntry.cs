@@ -12,4 +12,7 @@ public sealed record ContactDetailEntry(
     string WraLine,
     string BdaLine,
     string StalenessLine,
-    string LifecycleState);
+    string LifecycleState,
+    string OverrideStatusLine = "OVERRIDE: —",
+    string? OperatorAffiliation = null,
+    bool IsOperatorDropped = false);

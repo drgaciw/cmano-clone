@@ -12,4 +12,6 @@ public static class PlayDelegationErrorCodes
     public const string AssignDenied = "ASSIGN_DENIED";
     public const string NoAgent = "NO_AGENT";
     public const string RebriefDenied = "REBRIEF_DENIED";
+    public const string ReplayAttached = "REPLAY_ATTACHED";
+    public const string ControlHandoffDenied = "CONTROL_HANDOFF_DENIED";
 }

@@ -1,0 +1,34 @@
+{
+  "model": "typesafe/jev-1.14",
+  "state": "Project Aegis Sprint 2 kickoff (2026-11-22) on branch sprint/s2-c2-combat-ux (base d0fde4af, Sprint 1 DoD met: 4706/0 headless, 27/27 Unity PlayMode, Baltic v2 hash 17144800277401907079 unchanged, DelegationBridge.cs 0 diff, catalog DB hashes unchanged). Sprint 2 scope is 6 non-held high/medium C2 stories across 3 file-disjoint TDD tracks: Track A (Delegation & Supervised Advice) = DRG-247 (DEL-03: take control, return to agent, pause/resume agent from unit panel; exactly one active controller, replay refuses mutations, input-journal registration) + DRG-255 (INF-03: supervised advice accept -> PlayerOrder with >=1 evidence pointer, dismiss no-op, no FULL_AUTONOMOUS lethal bypass); Track B (Contact Authority & Stale/Datalink Chrome) = DRG-272 (C2-22: contact operator reclassify/drop override via command facade, UI never owns world truth, order-log records override) + DRG-712 (C2-17 UI: stale/datalink contact icons + queued-order badge driven by ContactCue/ContactProvenance, clean selection switch); Track C (Message Log Policy & Attributed Deep-Link) = DRG-408 (Per-category message-log notification policy: data-driven {Log, Pause, Balloon, DropToRealTime}, Pause > DropTo1x precedence, replay no-op, zero hidden info leak) + DRG-273 (N-LOG-01: attributed message log with DecisionLog deep-link without mutating sim or changing replay hash). Hard invariants: zero-touch on DelegationBridge.cs hotpath, SimulationSession, CatalogWriteGate, MapPlaceholderPanelHost, GlobeMapProductHost, replay goldens. Notion Project Aegis Rubrics DRAFT v1 requires H1-H8 + S1-S6 >= 9/12; Play Mode UAT requires C1-C13.",
+  "questions": {
+    "add_c14_controller_handoff_invariants": {
+      "type": "noul",
+      "instructions": "Should Sprint 2 DoD add gate C14 requiring automated TDD proof that DRG-247 enforces exactly one active controller, distinguishes agent pause from sim pause, refuses replay/observer mutations, and never mutates DelegationBridge.Tick or SimulationSession?"
+    },
+    "add_c15_replay_mutation_refusal": {
+      "type": "noul",
+      "instructions": "Should Sprint 2 DoD add gate C15 requiring automated proof across DRG-247, DRG-255, DRG-272, and DRG-408 that under AttachReplayViewer / replay mode, all handoff, advice, contact-override, and message-policy time/pause mutations are suppressed with zero order-log writes?"
+    },
+    "add_c16_fog_and_selection_hygiene": {
+      "type": "noul",
+      "instructions": "Should Sprint 2 DoD add gate C16 requiring automated + Play Mode proof that DRG-712 selection changes never retain stale badges from another contact/unit, and DRG-408 notifications source strictly from permitted live view with zero fog-of-war info leaks?"
+    },
+    "track_split_approval": {
+      "type": "choice",
+      "instructions": "Is the 3-track file-disjoint split (Track A: DRG-247+255, Track B: DRG-272+712, Track C: DRG-408+273) safe for parallel TDD subagents in isolated workspaces?",
+      "criteria": {
+        "approve_three_parallel_tracks": "Run all 3 tracks in parallel in isolated workspaces with explicit file boundaries and merge sequentially",
+        "run_sequentially": "Run tracks one at a time"
+      }
+    },
+    "playmode_verification_scope": {
+      "type": "choice",
+      "instructions": "What Play Mode verification depth is required before Sprint 2 DoD can pass?",
+      "criteria": {
+        "headless_plus_unity_playmode_and_screenshots": "Require headless dotnet test + Unity PlayMode Test Runner (100% pass) + live Play Mode MCP exercise/screenshots with 0 Console errors, keeping owner C10/H6 walk separate",
+        "headless_only": "Headless dotnet test only"
+      }
+    }
+  }
+}

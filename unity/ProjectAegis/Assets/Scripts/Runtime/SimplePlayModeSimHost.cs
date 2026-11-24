@@ -143,7 +143,7 @@ namespace ProjectAegis.Unity.Runtime
 
             _frameRunner?.Advance(
                 Time.unscaledDeltaTime,
-                bridgeHost.Session?.TimeAccelerationFactor ?? 1,
+                () => bridgeHost.Session?.TimeAccelerationFactor ?? 1,
                 _canStep,
                 _runStep);
         }
@@ -162,6 +162,7 @@ namespace ProjectAegis.Unity.Runtime
             PlayModeSmokeOrbatSeeder.AdvanceDecisionLog(
                 bridgeHost.Bridge.Orchestrator.DecisionLog,
                 _simTime);
+            bridgeHost.RefreshMessageNotifications();
         }
 
         /// <summary>S36-05: expose captured frame times for measurement doc / test (mean/p95 in ms). Call after N frames.</summary>

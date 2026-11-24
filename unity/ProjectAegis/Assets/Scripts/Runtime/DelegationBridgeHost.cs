@@ -133,6 +133,15 @@ namespace ProjectAegis.Unity.Runtime
         private readonly List<CoordinationApprovedScope> _pendingGroupScopes = new();
         /// <summary>Current selected-contact evidence; recommendations never enqueue orders.</summary>
         public AdviceFrame? LastAdvice { get; private set; }
+        private readonly SupervisedAdviceCardBinder _supervisedAdviceBinder = new SupervisedAdviceCardBinder();
+        private string? _lastAdviceSubjectUnitId;
+        /// <summary>Unit id used for supervised advice projection/accept (preserves selected unit across contact selection).</summary>
+        public string? SupervisedAdviceUnitId =>
+            !string.IsNullOrWhiteSpace(SelectedUnitId) ? SelectedUnitId : _lastAdviceSubjectUnitId;
+        /// <summary>Client-local dismissed contact id for supervised advice (never mutates DecisionLog).</summary>
+        public string? DismissedSupervisedAdviceContactId => _supervisedAdviceBinder.DismissedContactId;
+        /// <summary>DRG-321 Jev VS3 ROE Noul gate state for the pending suggested-order card.</summary>
+        public JevSuggestedOrderGateState LastJevSuggestedOrder { get; private set; } = JevSuggestedOrderGateState.Empty;
         /// <summary>Current group responsibilities and authored coverage.</summary>
         public CoordinationSnapshot LastCoordination { get; private set; } = CoordinationSnapshot.Empty;
         /// <summary>Replay-stable mission-package / C2-node snapshot (DRG-189 presentation bind).</summary>
@@ -159,6 +168,139 @@ namespace ProjectAegis.Unity.Runtime
             var result = CoordinationCommandBridge.Submit(Bridge, _lastSnapshot, groupId, decision, review?.Intent, _pendingGroupScopes);
             if (result.ApprovedScope != null) _pendingGroupScopes.Add(result.ApprovedScope);
             return result.Accepted ? $"Queued {decision}: {string.Join(", ", result.AffectedUnitIds)}" : $"Prevented: {result.FailureReason}";
+        }
+
+        /// <summary>DRG-255: projects supervised advice card with evidence pointers and FULL_AUTONOMOUS guard.</summary>
+        public SupervisedAdviceCardState ProjectSupervisedAdviceCard(
+            string proposedCommandId = "fire-single",
+            string? attackOptionId = "fire-single",
+            bool explicitFullAutonomousLethalOptIn = false) =>
+            _supervisedAdviceBinder.ProjectForUnit(
+                Bridge,
+                _lastSnapshot,
+                LastAdvice,
+                SupervisedAdviceUnitId,
+                proposedCommandId,
+                attackOptionId,
+                explicitFullAutonomousLethalOptIn);
+
+        /// <summary>DRG-255: validates evidence pointers, ROE, and engage gates before enqueueing a PlayerOrder.</summary>
+        public SupervisedAdviceAcceptResult TryAcceptSupervisedAdvice(
+            string commandId,
+            string? attackOptionId = null,
+            bool explicitFullAutonomousLethalOptIn = false)
+        {
+            var unitId = SupervisedAdviceUnitId ?? string.Empty;
+            if (CommandTimeline.IsInspecting)
+            {
+                return new SupervisedAdviceAcceptResult(
+                    false,
+                    unitId,
+                    LastAdvice?.ContactId ?? string.Empty,
+                    null,
+                    null,
+                    null,
+                    "REPLAY_TIMELINE_INSPECTING",
+                    Array.Empty<SupervisedAdviceEvidenceLine>());
+            }
+
+            if (LastAdvice == null)
+            {
+                return new SupervisedAdviceAcceptResult(
+                    false,
+                    unitId,
+                    string.Empty,
+                    null,
+                    null,
+                    null,
+                    SupervisedAdviceAcceptBridge.ReasonAdviceUnavailable,
+                    Array.Empty<SupervisedAdviceEvidenceLine>());
+            }
+
+            return SupervisedAdviceAcceptBridge.TryAccept(
+                Bridge,
+                _lastSnapshot,
+                new SupervisedAdviceAcceptRequest(
+                    unitId,
+                    LastAdvice,
+                    commandId,
+                    attackOptionId,
+                    explicitFullAutonomousLethalOptIn));
+        }
+
+        /// <summary>DRG-255: client-local dismiss without mutating order log or replay fingerprint.</summary>
+        public void DismissSupervisedAdvice() =>
+            _supervisedAdviceBinder.Dismiss(LastAdvice?.ContactId);
+
+        /// <summary>DRG-321: evaluates a Jev VS3 ROE Noul state payload (fail-closed, never auto-fires).</summary>
+        public JevSuggestedOrderGateState EvaluateJevSuggestedOrder(string json)
+        {
+            LastJevSuggestedOrder = JevRoeOrderGateBinder.Evaluate(json);
+            return LastJevSuggestedOrder;
+        }
+
+        /// <summary>DRG-321: dismisses the suggested-order card with zero order-log mutation.</summary>
+        public void ClearJevSuggestedOrder()
+        {
+            LastJevSuggestedOrder = JevSuggestedOrderGateState.Empty;
+        }
+
+        /// <summary>DRG-321: routes explicit Accept click exclusively through <see cref="CoordinationCommandBridge.Submit"/>.</summary>
+        public CoordinationDecisionResult TrySubmitJevSuggestedDecision()
+        {
+            var gate = LastJevSuggestedOrder;
+            if (!gate.CardVisible || !gate.ConfirmEnabled || string.IsNullOrWhiteSpace(gate.GroupId))
+            {
+                return new CoordinationDecisionResult(
+                    false,
+                    gate.GroupId,
+                    gate.Decision,
+                    Array.Empty<string>(),
+                    gate.BlockReason ?? JevRoeOrderGateBinder.ReasonInvalidProposal,
+                    null);
+            }
+
+            if (CommandTimeline.IsInspecting)
+            {
+                return new CoordinationDecisionResult(
+                    false,
+                    gate.GroupId,
+                    gate.Decision,
+                    Array.Empty<string>(),
+                    "REPLAY_TIMELINE_INSPECTING",
+                    null);
+            }
+
+            if (_pendingGroupScopes.Any(x => x.GroupId == gate.GroupId))
+            {
+                return new CoordinationDecisionResult(
+                    false,
+                    gate.GroupId,
+                    gate.Decision,
+                    Array.Empty<string>(),
+                    CoordinationCommandBridge.ReasonGroupDecisionPending,
+                    null);
+            }
+
+            var review = LastCoordination.Groups.FirstOrDefault(x => x.Coordination.GroupId == gate.GroupId);
+            var result = CoordinationCommandBridge.Submit(
+                Bridge,
+                _lastSnapshot,
+                gate.GroupId,
+                gate.Decision,
+                review?.Intent,
+                _pendingGroupScopes);
+            if (result.ApprovedScope != null)
+            {
+                _pendingGroupScopes.Add(result.ApprovedScope);
+            }
+
+            if (result.Accepted)
+            {
+                LastJevSuggestedOrder = JevSuggestedOrderGateState.Empty;
+            }
+
+            return result;
         }
         private void RefreshAdvice()
         {
@@ -251,7 +393,193 @@ namespace ProjectAegis.Unity.Runtime
 
         private readonly C2ChromePrefsStore _chromePrefs = new();
         private readonly AttentionToastBinder _attentionToast = new();
+        private readonly MessageLogNotificationCoordinator _notificationCoordinator = new();
+        private readonly PendingApprovalInterruptCoordinator _pendingApprovalInterrupt = new();
+        private readonly Dictionary<OrderId, double?> _pendingApprovalDlzExpiry = new();
+        private MessageCategoryPolicy _notificationPolicy;
+        private bool _markedPreExecutionSeen;
         private ISimWorldSnapshot? _lastSnapshot;
+
+        public DelegationBridgeHost()
+        {
+            _notificationPolicy = _notificationCoordinator.Policy;
+        }
+
+        /// <summary>DRG-408: active per-category message notification policy.</summary>
+        public MessageCategoryPolicy NotificationPolicy => _notificationPolicy;
+
+        /// <summary>DRG-408 / DRG-398: shared notification and safe-stop coordinator.</summary>
+        public MessageLogNotificationCoordinator NotificationCoordinator => _notificationCoordinator;
+
+        /// <summary>DRG-269: pending-approval 1x interrupt and authoritative sim-time DLZ countdown coordinator.</summary>
+        public PendingApprovalInterruptCoordinator PendingApprovalInterrupt => _pendingApprovalInterrupt;
+
+        /// <summary>DRG-269: latest evaluated pending-approval interrupt batch.</summary>
+        public PendingApprovalInterruptBatch LastPendingApprovalInterrupt { get; private set; } = PendingApprovalInterruptBatch.Empty;
+
+        /// <summary>DRG-268: latest fog-safe message-log click-through explain link.</summary>
+        public MessageLogExplainLinkResult LastMessageLogExplainLink { get; private set; } = MessageLogExplainLinkResult.Empty;
+
+        /// <summary>DRG-269: binds an authoritative DLZ expiry sim time for a pending approval order.</summary>
+        public void SetPendingApprovalDlzExpiry(OrderId orderId, double? expiresAtSimTime)
+        {
+            if (expiresAtSimTime.HasValue)
+            {
+                _pendingApprovalDlzExpiry[orderId] = expiresAtSimTime.Value;
+            }
+            else
+            {
+                _pendingApprovalDlzExpiry.Remove(orderId);
+            }
+        }
+
+        /// <summary>DRG-269: evaluates pending approvals and applies a single-shot 1x drop via C2ClockCommand.</summary>
+        public PendingApprovalInterruptBatch EvaluatePendingApprovalInterrupts()
+        {
+            if (Bridge?.Orchestrator == null)
+            {
+                LastPendingApprovalInterrupt = PendingApprovalInterruptBatch.Empty;
+                return LastPendingApprovalInterrupt;
+            }
+
+            var isObserver = ObserverModeChromePresentation.Project(Bridge).IsObserver;
+            var currentSimTime = _lastSnapshot?.SimTime ?? 0.0;
+            var batch = _pendingApprovalInterrupt.Evaluate(
+                Bridge.Orchestrator.PendingApprovals,
+                currentSimTime,
+                _pendingApprovalDlzExpiry,
+                IsReplayViewerAttached,
+                isObserver);
+            LastPendingApprovalInterrupt = batch;
+
+            if (batch.ShouldDropToRealTime && Session != null)
+            {
+                C2ClockCommand.TrySetAcceleration(Session, 1, out _);
+                SyncTimeCompressionLabel();
+            }
+
+            return batch;
+        }
+
+        /// <summary>DRG-269: validates replay/observer/stale/DLZ-expiry before approving a pending order.</summary>
+        public bool TryApprovePendingOrderValidated(OrderId orderId, out PendingApprovalDecisionValidation validation)
+        {
+            var isObserver = Bridge != null && ObserverModeChromePresentation.Project(Bridge).IsObserver;
+            var currentSimTime = _lastSnapshot?.SimTime ?? 0.0;
+            _pendingApprovalDlzExpiry.TryGetValue(orderId, out var expiry);
+
+            validation = _pendingApprovalInterrupt.ValidateDecision(
+                orderId,
+                Bridge?.Orchestrator?.PendingApprovals,
+                currentSimTime,
+                expiry,
+                IsReplayViewerAttached,
+                isObserver);
+            if (!validation.Allowed || Bridge?.Orchestrator == null)
+            {
+                return false;
+            }
+
+            var ok = Bridge.Orchestrator.TryApprovePendingOrder(orderId);
+            if (ok)
+            {
+                _pendingApprovalDlzExpiry.Remove(orderId);
+                EvaluatePendingApprovalInterrupts();
+            }
+
+            return ok;
+        }
+
+        /// <summary>DRG-269: validates replay/observer/stale before rejecting a pending order.</summary>
+        public bool TryRejectPendingOrderValidated(OrderId orderId, out PendingApprovalDecisionValidation validation)
+        {
+            var isObserver = Bridge != null && ObserverModeChromePresentation.Project(Bridge).IsObserver;
+            var currentSimTime = _lastSnapshot?.SimTime ?? 0.0;
+            validation = _pendingApprovalInterrupt.ValidateDecision(
+                orderId,
+                Bridge?.Orchestrator?.PendingApprovals,
+                currentSimTime,
+                expiresAtSimTime: null,
+                IsReplayViewerAttached,
+                isObserver);
+            if (!validation.Allowed || Bridge?.Orchestrator == null)
+            {
+                return false;
+            }
+
+            var ok = Bridge.Orchestrator.TryRejectPendingOrder(orderId);
+            if (ok)
+            {
+                _pendingApprovalDlzExpiry.Remove(orderId);
+                EvaluatePendingApprovalInterrupts();
+            }
+
+            return ok;
+        }
+
+        /// <summary>DRG-268: fog-safe message-log row click-through selecting visible unit/contact and populating EngageExplain.</summary>
+        public MessageLogExplainLinkResult SelectMessageLogDeepLink(DecisionLogDeepLinkDetail? detail)
+        {
+            if (detail == null || !detail.Found)
+            {
+                LastMessageLogExplainLink = MessageLogExplainLinkResult.Empty;
+                return LastMessageLogExplainLink;
+            }
+
+            var visibleFriendlies = new HashSet<string>(StringComparer.Ordinal);
+            if (LastOobTree != null)
+            {
+                for (var i = 0; i < LastOobTree.Count; i++)
+                {
+                    if (!string.IsNullOrWhiteSpace(LastOobTree[i].UnitId))
+                    {
+                        visibleFriendlies.Add(LastOobTree[i].UnitId);
+                    }
+                }
+            }
+
+            var visibleContacts = new HashSet<string>(StringComparer.Ordinal);
+            if (LastSliceAContacts != null)
+            {
+                foreach (var key in LastSliceAContacts.Authorities.Keys)
+                {
+                    if (!string.IsNullOrWhiteSpace(key))
+                    {
+                        visibleContacts.Add(key);
+                    }
+                }
+            }
+
+            if (_lastSnapshot?.PrimaryHostileContactId is { } primaryHostile && !string.IsNullOrWhiteSpace(primaryHostile.Value))
+            {
+                visibleContacts.Add(primaryHostile.Value);
+            }
+
+            var resolved = MessageLogExplainDeepLinkCoordinator.Resolve(detail, visibleFriendlies, visibleContacts);
+            LastMessageLogExplainLink = resolved;
+
+            if (!resolved.SuppressedByFog && !string.IsNullOrWhiteSpace(resolved.SafeUnitIdToSelect))
+            {
+                SelectUnit(resolved.SafeUnitIdToSelect);
+            }
+
+            return resolved;
+        }
+
+        /// <summary>DRG-408 / DRG-398: evaluation outcome from the latest live message log batch.</summary>
+        public NotificationBatchEvaluation LastNotificationBatch { get; private set; } = NotificationBatchEvaluation.Empty;
+
+        /// <summary>DRG-408: active map balloon alerts projected from player-visible logs.</summary>
+        public IReadOnlyList<MapBalloonAlert> ActiveMapBalloons => _notificationCoordinator.ActiveBalloons;
+
+        /// <summary>DRG-408: active (non-dismissed) message notification alerts, including non-pause balloons.</summary>
+        public IReadOnlyList<MessageNotificationAlert> ActiveMessageAlerts => _notificationCoordinator.ActiveAlerts;
+
+        /// <summary>DRG-408: unresolved pause-class message alerts gating resume.</summary>
+        public IReadOnlyList<MessageNotificationAlert> UnresolvedMessageAlerts => _notificationCoordinator.UnresolvedPauseAlerts;
+
+        /// <summary>DRG-408 / DRG-398: true while any pause-class message alert remains unacknowledged.</summary>
+        public bool HasUnresolvedNotificationPause => _notificationCoordinator.HasUnresolvedPause;
 
         /// <summary>Latest live simulation tick for presentation staleness calculations.</summary>
         public ulong CurrentSimTick => (ulong)Math.Max(0, (long)(_lastSnapshot?.SimTime ?? 0));
@@ -282,6 +610,7 @@ namespace ProjectAegis.Unity.Runtime
             globalSeed = seed;
             CatalogReader = Bridge.Session?.CatalogReader;
             _lastSnapshot = null;
+            _markedPreExecutionSeen = false;
             Presentation.SelectFriendlyUnit("u1");
             LastMissionList = MissionListBridge.ProjectFrom(Bridge.Orchestrator.ScenarioPolicy?.MissionTimeline);
         }
@@ -295,13 +624,14 @@ namespace ProjectAegis.Unity.Runtime
             IReadOnlyList<MapSymbolEntry>? knownSymbols = null,
             IReadOnlyList<MessageLogLine>? observedMessages = null)
         {
-            RefreshPresentation(snapshot);
+            RefreshPresentation(snapshot, evaluateNotifications: false);
             // The legacy combined order log contains both sides' decisions. Player mission
             // views publish only their explicitly scoped picture and observable messages.
             LastMapSymbols = knownSymbols ?? Array.Empty<MapSymbolEntry>();
             LastOobTree = LastOobTree.Where(unit => LastMapSymbols.Any(symbol =>
                 symbol.Affiliation == "Friendly" && symbol.SymbolId == unit.UnitId)).ToArray();
             LastMessageLog = observedMessages ?? Array.Empty<MessageLogLine>();
+            EvaluateMessageNotifications();
             LastCombatDomainActivityTags = CombatDomainActivityTags.FromMessageLog(LastMessageLog);
             LastCombatVfx = CombatVfxFrame.Empty;
             LastSensorC2 = LastSensorC2 with
@@ -313,6 +643,7 @@ namespace ProjectAegis.Unity.Runtime
             {
                 ScoreLabel = $"MISSION SCORE: {missionScore}",
                 PhaseLabel = missionStatus,
+                CompressionLabel = timeCompressionLabel,
                 RemainingDurationLabel = $"REMAIN {TimeSpan.FromSeconds(Math.Max(0, remainingSeconds)):mm\\:ss}",
             };
         }
@@ -373,19 +704,20 @@ namespace ProjectAegis.Unity.Runtime
             return ok;
         }
 
-        /// <summary>CMD-39: gated resume — unresolved pause-class cards block unless override.</summary>
+        /// <summary>CMD-39: gated resume — unresolved pause-class cards and message alerts block unless override.</summary>
         public bool TryResumeSim(bool explicitOverride, out string? reason)
         {
-            var ok = C2ClockCommand.TryResume(Session, explicitOverride, out reason);
+            var ok = C2ClockCommand.TryResume(Session, _notificationCoordinator, explicitOverride, out reason);
             if (ok)
             {
                 SyncTimeCompressionLabel();
+                RefreshAttentionToast();
             }
 
             return ok;
         }
 
-        /// <summary>Re-project toast from DecisionLog attention + session watch queue (not Tick).</summary>
+        /// <summary>Re-project toast from DecisionLog attention + session watch queue + message alerts (not Tick).</summary>
         public AttentionToastPresentation RefreshAttentionToast()
         {
             if (Bridge == null)
@@ -394,15 +726,27 @@ namespace ProjectAegis.Unity.Runtime
                 return LastAttentionToast;
             }
 
-            LastAttentionToast = _attentionToast.Refresh(
+            var baseToast = _attentionToast.Refresh(
                 Bridge.Orchestrator.DecisionLog,
                 Session?.WatchQueue,
                 Session?.WatchPauseGate);
+            LastAttentionToast = AttentionToastApplyState.MergeMessageNotifications(
+                baseToast,
+                _notificationCoordinator.UnresolvedPauseAlerts,
+                _notificationCoordinator.CanResume(),
+                _notificationCoordinator.HasUnresolvedPause);
             return LastAttentionToast;
         }
 
         public bool TryAcknowledgeAttentionToast(string cardId)
         {
+            if (!string.IsNullOrEmpty(cardId)
+                && cardId.StartsWith("msglog:", StringComparison.Ordinal)
+                && ulong.TryParse(cardId.Substring("msglog:".Length), out var seqId))
+            {
+                return TryAcknowledgeMessageAlert(seqId);
+            }
+
             if (!_attentionToast.TryAcknowledge(cardId, Session?.WatchQueue))
             {
                 return false;
@@ -414,6 +758,13 @@ namespace ProjectAegis.Unity.Runtime
 
         public bool TryDismissAttentionToast(string cardId)
         {
+            if (!string.IsNullOrEmpty(cardId)
+                && cardId.StartsWith("msglog:", StringComparison.Ordinal)
+                && ulong.TryParse(cardId.Substring("msglog:".Length), out var seqId))
+            {
+                return TryDismissMessageAlert(seqId);
+            }
+
             if (!_attentionToast.TryDismiss(cardId, Session?.WatchQueue))
             {
                 return false;
@@ -421,6 +772,121 @@ namespace ProjectAegis.Unity.Runtime
 
             RefreshAttentionToast();
             return true;
+        }
+
+        /// <summary>DRG-408 / DRG-398: re-project live message log and evaluate safe-stop / map balloons.</summary>
+        public void RefreshMessageNotifications()
+        {
+            if (Bridge == null)
+            {
+                return;
+            }
+
+            LastMessageLog = MessageLogBridge.ProjectLive(Bridge);
+            EvaluateMessageNotifications();
+        }
+
+        /// <summary>DRG-408: update one category's notification rule (blocked when replay viewer attached).</summary>
+        public bool SetMessageCategoryRule(string category, MessageCategoryRule rule)
+        {
+            if (IsReplayViewerAttached || string.IsNullOrWhiteSpace(category))
+            {
+                return false;
+            }
+
+            _notificationPolicy = _notificationPolicy.WithRule(category, rule);
+            _notificationCoordinator.UpdatePolicy(_notificationPolicy);
+            return true;
+        }
+
+        /// <summary>DRG-408: restore default notification policy rules (blocked when replay viewer attached).</summary>
+        public bool ResetMessageCategoryPolicyDefaults()
+        {
+            if (IsReplayViewerAttached)
+            {
+                return false;
+            }
+
+            _notificationPolicy = MessageCategoryPolicy.LoadDefault();
+            _notificationCoordinator.UpdatePolicy(_notificationPolicy);
+            return true;
+        }
+
+        /// <summary>DRG-408: acknowledge one pause-class message alert without clearing other unresolved alerts.</summary>
+        public bool TryAcknowledgeMessageAlert(ulong sequenceId)
+        {
+            if (IsReplayViewerAttached || !_notificationCoordinator.TryAcknowledgeAlert(sequenceId))
+            {
+                return false;
+            }
+
+            RefreshAttentionToast();
+            return true;
+        }
+
+        /// <summary>DRG-408: dismiss one alert/balloon visually without clearing other unresolved pauses.</summary>
+        public bool TryDismissMessageAlert(ulong sequenceId)
+        {
+            if (IsReplayViewerAttached || !_notificationCoordinator.TryDismissAlert(sequenceId))
+            {
+                return false;
+            }
+
+            RefreshAttentionToast();
+            return true;
+        }
+
+        /// <summary>DRG-273: non-mutating live DecisionLog deep-link lookup for a message-log SequenceId.</summary>
+        public DecisionLogDeepLinkDetail InspectMessageLogDecision(ulong sequenceId)
+        {
+            if (Bridge == null)
+            {
+                return DecisionLogDeepLinkDetail.NotFound(sequenceId);
+            }
+
+            return MessageLogBridge.InspectDecisionLogLive(Bridge, sequenceId);
+        }
+
+        private void EvaluateMessageNotifications()
+        {
+            if (!_markedPreExecutionSeen && Bridge != null && Bridge.Phase == SimulationPhase.Executing)
+            {
+                _markedPreExecutionSeen = true;
+                ulong transitionSeqId = 0;
+                for (var i = 0; i < LastMessageLog.Count; i++)
+                {
+                    var line = LastMessageLog[i];
+                    if (string.Equals(line.Category, "MODE", StringComparison.Ordinal)
+                        && line.Text.Contains("Planning → Executing", StringComparison.Ordinal))
+                    {
+                        transitionSeqId = line.SequenceId;
+                        break;
+                    }
+                }
+
+                if (transitionSeqId > 0)
+                {
+                    var preExecution = new List<MessageLogLine>();
+                    for (var i = 0; i < LastMessageLog.Count; i++)
+                    {
+                        if (LastMessageLog[i].SequenceId <= transitionSeqId)
+                        {
+                            preExecution.Add(LastMessageLog[i]);
+                        }
+                    }
+
+                    _notificationCoordinator.MarkExistingAsSeen(preExecution);
+                }
+            }
+
+            LastNotificationBatch = C2ClockCommand.EvaluateAndApplyNotificationStop(
+                Session,
+                _notificationCoordinator,
+                LastMessageLog,
+                IsReplayViewerAttached,
+                out _);
+            SyncTimeCompressionLabel();
+            RefreshAttentionToast();
         }
 
         /// <summary>
@@ -679,6 +1145,7 @@ namespace ProjectAegis.Unity.Runtime
 
         public void SelectUnit(string unitId)
         {
+            _lastAdviceSubjectUnitId = string.IsNullOrWhiteSpace(unitId) ? null : unitId;
             Presentation.SelectFriendlyUnit(unitId);
             RefreshSelectionPresentation();
             ApplyGraphSurfacingForSelection();  // S37-04 C2 graph surfacing (highlights/bind)
@@ -686,6 +1153,7 @@ namespace ProjectAegis.Unity.Runtime
 
         public void SelectContact(string contactId)
         {
+            _supervisedAdviceBinder.ClearDismiss();
             var contacts = ContactPictureProjection.Project(Bridge.Orchestrator.DecisionLog);
             Presentation.SelectHostileContact(contactId, contacts);
             RefreshSelectionPresentation();
@@ -708,10 +1176,14 @@ namespace ProjectAegis.Unity.Runtime
             return result;
         }
 
-        private void RefreshPresentation(ISimWorldSnapshot snapshot)
+        private void RefreshPresentation(ISimWorldSnapshot snapshot, bool evaluateNotifications = true)
         {
             _lastSnapshot = snapshot;
             LastMessageLog = MessageLogBridge.ProjectLive(Bridge);
+            if (evaluateNotifications)
+            {
+                EvaluateMessageNotifications();
+            }
             LastCombatDomainActivityTags = CombatDomainActivityTags.FromMessageLog(LastMessageLog);
             LastOobTree = OobTreeBridge.Build(snapshot, Bridge.Registry);
             Presentation.ApplyDefaultSelection(LastOobTree);
@@ -917,7 +1389,76 @@ namespace ProjectAegis.Unity.Runtime
         }
 
 
-        /// <summary>CMD-37: take direct control of the currently selected unit.</summary>
+        /// <summary>DRG-247: project control-handoff and agent pause/resume state for the selected unit.</summary>
+        public RightUnitControlState ProjectSelectedControlHandoff() =>
+            RightUnitControlProjection.Project(Bridge, SelectedUnitId);
+
+        /// <summary>DRG-272: true when a replay viewer is attached (read-only UI gate).</summary>
+        public bool IsReplayViewerAttached => Bridge != null && Bridge.AttachReplayViewer;
+
+        /// <summary>DRG-272: operator reclassify override for the selected contact (order-log backed).</summary>
+        public bool TryReclassifySelectedContact(string affiliation, out string? reason)
+        {
+            var result = ContactOverrideCommand.TryReclassify(
+                Bridge,
+                SelectedContactId,
+                affiliation,
+                _lastSnapshot?.SimTime ?? 0);
+            reason = result.Accepted ? result.Message : (result.ReasonCode ?? ContactOverrideCommand.ReasonUnknownContact);
+            if (result.Accepted)
+            {
+                RefreshContactOverridePresentation();
+            }
+
+            return result.Accepted;
+        }
+
+        /// <summary>DRG-272: operator drop contact override for the selected contact (order-log backed).</summary>
+        public bool TryDropSelectedContact(out string? reason)
+        {
+            var result = ContactOverrideCommand.TryDrop(
+                Bridge,
+                SelectedContactId,
+                _lastSnapshot?.SimTime ?? 0);
+            reason = result.Accepted ? result.Message : (result.ReasonCode ?? ContactOverrideCommand.ReasonUnknownContact);
+            if (result.Accepted)
+            {
+                RefreshContactOverridePresentation();
+            }
+
+            return result.Accepted;
+        }
+
+        private void RefreshContactOverridePresentation()
+        {
+            if (Bridge == null)
+            {
+                return;
+            }
+
+            if (_lastSnapshot != null)
+            {
+                LastSensorC2 = SensorC2Bridge.Build(_lastSnapshot, Bridge.Orchestrator.DecisionLog);
+                LastMapSymbols = MapPictureBridge.Build(
+                    _lastSnapshot,
+                    Bridge.Registry,
+                    Bridge.Orchestrator.DecisionLog,
+                    globalSeed);
+                LastSliceAContacts = SliceAContactFrameBridge.Build(_lastSnapshot, Bridge, CatalogReader);
+            }
+            else
+            {
+                LastSliceAContacts = LastSliceAContacts with
+                {
+                    ContactOverrides = ContactOverrideProjection.Project(Bridge.Orchestrator.DecisionLog),
+                    IsReplayReadOnly = Bridge.AttachReplayViewer,
+                };
+            }
+
+            LastMessageLog = MessageLogBridge.ProjectLive(Bridge);
+        }
+
+        /// <summary>CMD-37 / DRG-247: take direct control of the currently selected unit.</summary>
         public bool TryTakeControlOfSelected(out string? reason)
         {
             reason = null;
@@ -927,36 +1468,24 @@ namespace ProjectAegis.Unity.Runtime
                 return false;
             }
 
-            if (!SelectedUnitHasActiveAgent())
-            {
-                reason = AgentDirectiveIssuance.ReasonNoAgent;
-                return false;
-            }
-
             if (!TryResolveEntityKey(SelectedUnitId, out var entityKey))
             {
-                reason = "UNKNOWN_UNIT";
-                return false;
-            }
-
-            if (!IsPlayerControlledUnit(entityKey))
-            {
-                reason = "NOT_PLAYER_CONTROLLED";
+                reason = C2PlayerCommandBridge.ReasonUnknownUnit;
                 return false;
             }
 
             var simTime = _lastSnapshot?.SimTime ?? 0;
-            if (!Bridge.TryTakeDirectControl(entityKey, simTime))
+            if (!C2PlayerCommandBridge.TryTakeControl(Bridge, entityKey, simTime, out reason))
             {
-                reason = "TAKE_CONTROL_FAILED";
                 return false;
             }
 
             RefreshAgentRoster();
+            RefreshSelectionPresentation();
             return true;
         }
 
-        /// <summary>CMD-37: return control of the selected unit to its suspended agent.</summary>
+        /// <summary>CMD-37 / DRG-247: return control of the selected unit to its suspended agent or parent group.</summary>
         public bool TryReturnToAgentOfSelected(out string? reason)
         {
             reason = null;
@@ -966,32 +1495,74 @@ namespace ProjectAegis.Unity.Runtime
                 return false;
             }
 
-            if (!SelectedUnitHasSuspendedAgent())
+            if (!TryResolveEntityKey(SelectedUnitId, out var entityKey))
             {
-                reason = AgentDirectiveIssuance.ReasonNoAgent;
+                reason = C2PlayerCommandBridge.ReasonUnknownUnit;
+                return false;
+            }
+
+            var simTime = _lastSnapshot?.SimTime ?? 0;
+            if (!C2PlayerCommandBridge.TryReturnToAgent(Bridge, entityKey, simTime, out reason))
+            {
+                return false;
+            }
+
+            RefreshAgentRoster();
+            RefreshSelectionPresentation();
+            return true;
+        }
+
+        /// <summary>DRG-247: pause autonomous agent actions for the selected unit without clearing tasking.</summary>
+        public bool TryPauseAgentOfSelected(out string? reason)
+        {
+            reason = null;
+            if (string.IsNullOrEmpty(SelectedUnitId))
+            {
+                reason = AgentDirectiveIssuance.ReasonNoSelection;
                 return false;
             }
 
             if (!TryResolveEntityKey(SelectedUnitId, out var entityKey))
             {
-                reason = "UNKNOWN_UNIT";
-                return false;
-            }
-
-            if (!IsPlayerControlledUnit(entityKey))
-            {
-                reason = "NOT_PLAYER_CONTROLLED";
+                reason = C2PlayerCommandBridge.ReasonUnknownUnit;
                 return false;
             }
 
             var simTime = _lastSnapshot?.SimTime ?? 0;
-            if (!Bridge.TryReleaseDirectControl(entityKey, simTime))
+            if (!C2PlayerCommandBridge.TryPauseAgentActions(Bridge, entityKey, simTime, out reason))
             {
-                reason = "RETURN_TO_AGENT_FAILED";
                 return false;
             }
 
             RefreshAgentRoster();
+            RefreshSelectionPresentation();
+            return true;
+        }
+
+        /// <summary>DRG-247: resume suspended autonomous agent actions for the selected unit.</summary>
+        public bool TryResumeAgentOfSelected(out string? reason)
+        {
+            reason = null;
+            if (string.IsNullOrEmpty(SelectedUnitId))
+            {
+                reason = AgentDirectiveIssuance.ReasonNoSelection;
+                return false;
+            }
+
+            if (!TryResolveEntityKey(SelectedUnitId, out var entityKey))
+            {
+                reason = C2PlayerCommandBridge.ReasonUnknownUnit;
+                return false;
+            }
+
+            var simTime = _lastSnapshot?.SimTime ?? 0;
+            if (!C2PlayerCommandBridge.TryResumeAgentActions(Bridge, entityKey, simTime, out reason))
+            {
+                return false;
+            }
+
+            RefreshAgentRoster();
+            RefreshSelectionPresentation();
             return true;
         }
 
@@ -1007,7 +1578,8 @@ namespace ProjectAegis.Unity.Runtime
                 directiveId,
                 hasSelection,
                 SelectedUnitHasActiveAgent(),
-                SelectedUnitHasSuspendedAgent());
+                SelectedUnitHasSuspendedAgent(),
+                SelectedUnitIsAgentPaused());
             if (!validation.Ok || validation.Request is null)
             {
                 reason = validation.FailureReason ?? AgentDirectiveIssuance.ReasonUnknownDirective;
@@ -1021,6 +1593,8 @@ namespace ProjectAegis.Unity.Runtime
                 {
                     AgentDirectiveAction.TakeControl => TryTakeControlOfSelected(out reason),
                     AgentDirectiveAction.ReturnToAgent => TryReturnToAgentOfSelected(out reason),
+                    AgentDirectiveAction.PauseAgent => TryPauseAgentOfSelected(out reason),
+                    AgentDirectiveAction.ResumeAgent => TryResumeAgentOfSelected(out reason),
                     _ => FailUnknown(out reason),
                 };
             }
@@ -1099,6 +1673,10 @@ namespace ProjectAegis.Unity.Runtime
 
         /// <summary>True when the selected unit has an agent suspended by direct player control.</summary>
         public bool SelectedUnitHasSuspendedAgent() => TryGetSelectedSlot(out var slot) && slot.SuspendedAgent is not null;
+
+        /// <summary>True when the selected unit currently has a paused active agent controller.</summary>
+        public bool SelectedUnitIsAgentPaused() =>
+            TryGetSelectedSlot(out var slot) && slot.Active is AgentController agent && agent.IsActionsPaused;
 
         private IReadOnlyList<AgentRosterEntry> BuildAgentRosterFromRegistry()
         {

@@ -41,13 +41,7 @@ public static class CommandReviewDashboard
             sections.Add(Section("mission-advice", "Current runtime and mission package evidence", advice.MissionPackageFacts));
         }
         sections.Add(Section("groups", "Task groups, responsibility and mission intent",
-            coordination.Groups.SelectMany(group => new[] {
-                group.Coordination.StatusLine, group.Intent.StatusLine,
-                "Members: " + string.Join(", ", group.Coordination.Members),
-                "Constraints: " + string.Join(", ", group.Intent.Constraints),
-                "Retask advice: " + group.Intent.AdvisoryRetask
-            }.Concat(group.Effects.Select(x => $"{x.UnitId} | role {x.Role?.ToString() ?? "UNKNOWN"} | {x.State} | coverage {x.Coverage.Status}: {x.Coverage.Label}"))
-             .Concat(group.Gaps.Select(x => $"GAP {x.Code} | {x.UnitId} | {x.Detail}")))));
+            coordination.Groups.SelectMany(CoordinationPresentation.BuildDashboardLines)));
         return sections.AsReadOnly();
     }
 

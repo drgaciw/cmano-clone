@@ -89,4 +89,35 @@ public static class MessageLogBridge
             .Where(m => m.Category is "KILL_CONFIRMED" or "INTERCEPT_SUCCESS" or "HIT" or "MISS" or "MAGAZINE")
             .ToArray();
     }
+
+    /// <summary>
+    /// DRG-273: non-mutating deep-link inspection over the player-visible live order-log view.
+    /// Fogged <c>FullAutonomous</c> entries return <c>Found=false</c> with <c>ENTRY_NOT_AVAILABLE</c>.
+    /// </summary>
+    public static DecisionLogDeepLinkDetail InspectDecisionLogLive(
+        DelegationBridge bridge,
+        ulong sequenceId)
+    {
+        if (bridge is null)
+        {
+            throw new ArgumentNullException(nameof(bridge));
+        }
+
+        return DecisionLogDeepLinkProjection.InspectLive(bridge.GetLiveOrderLogView(), sequenceId);
+    }
+
+    /// <summary>
+    /// DRG-273: non-mutating deep-link inspection over the complete <see cref="DecisionLog"/> (replay/AAR).
+    /// </summary>
+    public static DecisionLogDeepLinkDetail InspectDecisionLogReplay(
+        DecisionLog log,
+        ulong sequenceId)
+    {
+        if (log is null)
+        {
+            throw new ArgumentNullException(nameof(log));
+        }
+
+        return DecisionLogDeepLinkProjection.Inspect(log, sequenceId);
+    }
 }

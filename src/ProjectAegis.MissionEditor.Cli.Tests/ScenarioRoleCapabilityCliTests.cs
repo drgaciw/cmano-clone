@@ -57,4 +57,53 @@ public sealed class ScenarioRoleCapabilityCliTests
         Assert.That(output, Does.Contain(MissionRoleCapabilityManifest.CodeRoleNotExecuted));
         Assert.That(output, Does.Not.Contain("sample-complete"));
     }
+
+    [Test]
+    public void scenario_simulate_sample_emits_generic_only_warning_for_patrol_and_strike_and_exits_0()
+    {
+        var path = ScenarioValidationFixturePaths.Require("role-capability-generic-only.json");
+
+        using var writer = new StringWriter();
+        Assert.That(ScenarioSimulateSampleCommand.Run(path, ticks: 8, quiet: false, writer), Is.EqualTo(0));
+
+        var output = writer.ToString();
+        var marker = output.LastIndexOf("SEED=", StringComparison.Ordinal);
+        Assert.That(marker, Is.GreaterThan(0));
+        var jsonText = output[..marker].Trim();
+
+        using var doc = JsonDocument.Parse(jsonText);
+        var root = doc.RootElement;
+        Assert.That(root.TryGetProperty("worldStateSha256", out var sha), Is.True);
+        Assert.That(sha.GetString(), Does.Match("^[0-9a-f]{64}$"));
+        Assert.That(root.TryGetProperty("warnings", out var warnings), Is.True);
+        Assert.That(warnings.ValueKind, Is.EqualTo(JsonValueKind.Array));
+        var items = warnings.EnumerateArray().ToArray();
+        Assert.That(items.Length, Is.EqualTo(2));
+        Assert.That(items.Select(w => w.GetProperty("code").GetString()).Distinct().ToArray(),
+            Is.EqualTo(new[] { MissionRoleCapabilityManifest.CodeRoleGenericOnly }));
+        Assert.That(items.Select(w => w.GetProperty("severity").GetString()).Distinct().ToArray(),
+            Is.EqualTo(new[] { "Warning" }));
+        Assert.That(items.Select(w => w.GetProperty("missionId").GetString()).ToArray(),
+            Is.EqualTo(new[] { "patrol-1", "strike-1" }));
+        foreach (var item in items)
+        {
+            Assert.That(item.GetProperty("message").GetString(), Does.Contain("generic").IgnoreCase);
+            Assert.That(item.GetProperty("message").GetString(), Does.Contain(MissionRoleCapabilityManifest.CliSimulateBackendId));
+        }
+
+        Assert.That(output, Does.Contain("sample-complete"));
+    }
+
+    [Test]
+    public void scenario_simulate_sample_mixed_tiers_blocks_unexecuted_support_roles_with_exit_1()
+    {
+        var path = ScenarioValidationFixturePaths.Require("role-capability-mixed-tiers.json");
+
+        using var writer = new StringWriter();
+        Assert.That(ScenarioSimulateSampleCommand.Run(path, ticks: 8, quiet: false, writer), Is.EqualTo(1));
+
+        var output = writer.ToString();
+        Assert.That(output, Does.Contain(MissionRoleCapabilityManifest.CodeRoleNotExecuted));
+        Assert.That(output, Does.Not.Contain("sample-complete"));
+    }
 }

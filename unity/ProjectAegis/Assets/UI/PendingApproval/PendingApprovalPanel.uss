@@ -94,3 +94,37 @@
     margin-right: 6px;
     font-size: 11px;
 }
+
+.c2-pending-jev-suggested-order {
+    flex-direction: column;
+    margin-top: 8px;
+    padding-top: 6px;
+    border-top-width: 1px;
+    border-top-color: rgb(90, 110, 130);
+}
+
+.c2-pending-jev-suggested-order-title {
+    font-size: 11px;
+    -unity-font-style: bold;
+    color: rgb(160, 215, 240);
+    white-space: normal;
+}
+
+.c2-pending-jev-suggested-order-body {
+    font-size: 10px;
+    color: rgb(200, 210, 220);
+    white-space: normal;
+    margin-top: 4px;
+    margin-bottom: 4px;
+}
+
+.c2-pending-jev-suggested-order-actions {
+    flex-direction: row;
+}
+
+.c2-pending-jev-suggested-order-accept,
+.c2-pending-jev-suggested-order-dismiss {
+    flex-grow: 1;
+    margin-right: 6px;
+    font-size: 11px;
+}

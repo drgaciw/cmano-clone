@@ -29,6 +29,12 @@ public sealed record SliceAContactFrame(
         init => _targetability = new TargetabilityAcceptSnapshot(Array.AsReadOnly(value.Contacts.ToArray()));
     }
 
+    /// <summary>Operator contact overrides folded from the order log (DRG-272).</summary>
+    public ContactOverrideSnapshot ContactOverrides { get; init; } = ContactOverrideSnapshot.Empty;
+
+    /// <summary>True when a replay viewer is attached (DRG-272 / C15 read-only UI gate).</summary>
+    public bool IsReplayReadOnly { get; init; }
+
     /// <summary>No received simulation frame.</summary>
     public static SliceAContactFrame Empty { get; } = new(
         KillChainContactSnapshot.Empty, ContactProvenanceSnapshot.Empty, SensorToShooterSnapshot.Empty,
@@ -107,6 +113,8 @@ public static class SliceAContactFrameBridge
             new ReadOnlyDictionary<string, C2AuthorityProjection>(authorities), source != null, tick, snapshot.SimTime)
         {
             Targetability = TargetabilityAcceptProjection.ProjectPerContact(provenance, chains, authorities),
+            ContactOverrides = ContactOverrideProjection.Project(log),
+            IsReplayReadOnly = bridge.AttachReplayViewer,
         };
     }
 

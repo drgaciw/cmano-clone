@@ -1,0 +1,37 @@
+{
+  "metadata": {
+    "title": "Bounded Authoring Invalid",
+    "dbRef": "baltic_patrol",
+    "tlBranch": "TL-0",
+    "seed": 42,
+    "policyId": "baltic-patrol-catalog",
+    "editVersion": 1
+  },
+  "sides": [
+    { "id": "blue", "name": "Blue" },
+    { "id": "red", "name": "Red" }
+  ],
+  "orbat": {
+    "units": [
+      {
+        "id": "u1",
+        "sideId": "blue",
+        "platformId": "ffg",
+        "lat": 57.0,
+        "lon": 20.0
+      }
+    ]
+  },
+  "missions": [
+    {
+      "id": "patrol-1",
+      "type": "Patrol",
+      "assignedUnitIds": [],
+      "patrolZone": [
+        { "lat": 57.0, "lon": 20.0 },
+        { "lat": 57.1, "lon": 20.1 },
+        { "lat": 57.2, "lon": 20.2 }
+      ]
+    }
+  ]
+}

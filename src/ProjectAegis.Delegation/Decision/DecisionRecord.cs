@@ -13,4 +13,6 @@ public sealed record DecisionRecord(
     double AttentionLoad,
     double AttentionBudget,
     double RngDraw,
-    ulong SimTick = 0);
+    ulong SimTick = 0,
+    ulong? PolicySnapshotId = null,
+    string? Personality = null);

@@ -2,6 +2,8 @@
     <ui:VisualElement name="pending-approval-root" class="c2-pending-approval">
         <ui:Label name="pending-approval-header" text="PENDING APPROVAL" class="c2-pending-approval-header" />
         <ui:Label name="pending-approval-badge" text="" class="c2-pending-approval-badge" />
+        <ui:Label name="pending-approval-interrupt-label" text="" class="c2-pending-approval-interrupt" />
+        <ui:Label name="pending-approval-dlz-countdown" text="" class="c2-pending-approval-dlz" />
         <ui:Label name="pending-approval-empty" text="" class="c2-pending-approval-empty" />
         <ui:ListView name="pending-approval-list" class="c2-pending-approval-list" selection-type="Single" />
         <ui:Label name="pending-approval-authority" text="" class="c2-pending-approval-authority" />
@@ -15,6 +17,14 @@
             <ui:VisualElement name="pending-coordination-confirm-actions" class="c2-pending-coordination-confirm-actions">
                 <ui:Button name="pending-coordination-confirm-accept" text="CONFIRM" class="c2-pending-coordination-confirm-accept" />
                 <ui:Button name="pending-coordination-confirm-cancel" text="CANCEL" class="c2-pending-coordination-confirm-cancel" />
+            </ui:VisualElement>
+        </ui:VisualElement>
+        <ui:VisualElement name="pending-jev-suggested-order" class="c2-pending-jev-suggested-order">
+            <ui:Label name="pending-jev-suggested-order-title" text="JEV SUGGESTED ORDER" class="c2-pending-jev-suggested-order-title" />
+            <ui:Label name="pending-jev-suggested-order-body" text="" class="c2-pending-jev-suggested-order-body" />
+            <ui:VisualElement name="pending-jev-suggested-order-actions" class="c2-pending-jev-suggested-order-actions">
+                <ui:Button name="pending-jev-suggested-order-accept" text="ACCEPT" class="c2-pending-jev-suggested-order-accept" />
+                <ui:Button name="pending-jev-suggested-order-dismiss" text="DISMISS" class="c2-pending-jev-suggested-order-dismiss" />
             </ui:VisualElement>
         </ui:VisualElement>
         <ui:Label name="pending-approval-status" text="" class="c2-pending-approval-status" />

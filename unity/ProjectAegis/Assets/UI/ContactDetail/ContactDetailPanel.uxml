@@ -7,6 +7,15 @@
         <ui:Label name="target-id-line" text="TARGET: —" class="contact-detail-line" />
         <ui:Label name="lifecycle-line" text="STATE: —" class="contact-detail-line" />
         <ui:Label name="classification-line" text="CLASS: —" class="contact-detail-line" />
+        <ui:Label name="override-status-line" text="OVERRIDE: —" class="contact-detail-line contact-detail-override-status" />
+        <ui:VisualElement name="contact-override-controls" class="contact-detail-override-controls">
+            <ui:DropdownField name="contact-reclassify-dropdown" label="Reclassify" class="contact-detail-override-dropdown" />
+            <ui:VisualElement class="contact-detail-override-buttons">
+                <ui:Button name="contact-reclassify-button" text="Apply Reclassify" class="contact-detail-override-btn" />
+                <ui:Button name="contact-drop-button" text="Drop Contact" class="contact-detail-override-btn contact-detail-override-btn--drop" />
+            </ui:VisualElement>
+        </ui:VisualElement>
+        <ui:Label name="override-feedback-line" text="" class="contact-detail-line contact-detail-override-feedback" />
         <ui:Label name="dlz-line" text="DLZ: —" class="contact-detail-line dlz-cue--unknown" />
         <ui:Label name="source-line" text="SRC: —" class="contact-detail-line contact-provenance-cue--unknown" />
         <ui:Label name="confidence-line" text="CONF: —" class="contact-detail-line contact-provenance-cue--unknown" />

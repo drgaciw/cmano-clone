@@ -28,6 +28,8 @@ public sealed class DecisionLog : IOrderLog
     private readonly List<FuelBurnRecord> _fuelBurns = new();
     private readonly List<PlatformDamageChangeRecord> _platformDamageChanges = new();
     private readonly List<OrdnanceStateChangeRecord> _ordnanceStateChanges = new();
+    private readonly List<ContactOverrideRecord> _contactOverrides = new();
+    private readonly List<CommsGridRejoinRecord> _commsGridRejoins = new();
     private readonly List<OrderLogEntry> _chronological = new();
 
     public IReadOnlyList<DecisionRecord> Records =>
@@ -68,6 +70,10 @@ public sealed class DecisionLog : IOrderLog
     public IReadOnlyList<PlatformDamageChangeRecord> PlatformDamageChanges => _platformDamageChanges;
 
     public IReadOnlyList<OrdnanceStateChangeRecord> OrdnanceStateChanges => _ordnanceStateChanges;
+
+    public IReadOnlyList<ContactOverrideRecord> ContactOverrides => _contactOverrides;
+
+    public IReadOnlyList<CommsGridRejoinRecord> CommsGridRejoins => _commsGridRejoins;
 
     public void Append(OrderLogEntry entry)
     {
@@ -173,6 +179,16 @@ public sealed class DecisionLog : IOrderLog
                 _ordnanceStateChanges.Add(ordnanceChangeRecord);
                 AppendChronologicalEntry(sequenceId, OrderLogEntryKind.OrdnanceStateChange, ordnanceChangeRecord.SimTime, ordnanceChangeRecord);
                 break;
+            case OrderLogEntryKind.ContactOverride when entry.Payload is ContactOverrideRecord contactOverride:
+                var contactOverrideRecord = contactOverride with { SequenceId = sequenceId };
+                _contactOverrides.Add(contactOverrideRecord);
+                AppendChronologicalEntry(sequenceId, OrderLogEntryKind.ContactOverride, contactOverrideRecord.SimTime, contactOverrideRecord);
+                break;
+            case OrderLogEntryKind.CommsGridRejoin when entry.Payload is CommsGridRejoinRecord commsGridRejoin:
+                var commsGridRejoinRecord = commsGridRejoin with { SequenceId = sequenceId };
+                _commsGridRejoins.Add(commsGridRejoinRecord);
+                AppendChronologicalEntry(sequenceId, OrderLogEntryKind.CommsGridRejoin, commsGridRejoinRecord.SimTime, commsGridRejoinRecord);
+                break;
             default:
                 throw new ArgumentException($"Unsupported order log entry kind: {entry.Kind}", nameof(entry));
         }
@@ -250,6 +266,12 @@ public sealed class DecisionLog : IOrderLog
     public void AppendPlatformDamageChange(PlatformDamageChangeRecord change) =>
         Append(OrderLogEntryFactories.FromPlatformDamageChange(change));
 
+    public void AppendContactOverride(ContactOverrideRecord contactOverride) =>
+        Append(OrderLogEntryFactories.FromContactOverride(contactOverride));
+
+    public void AppendCommsGridRejoin(CommsGridRejoinRecord rejoin) =>
+        Append(OrderLogEntryFactories.FromCommsGridRejoin(rejoin));
+
     /// <summary>Unified timeline sorted by sequence (ADR-003 MVP).</summary>
     public IReadOnlyList<OrderLogEntry> ChronologicalEntries() => _chronological;
 
@@ -315,6 +337,10 @@ public sealed class DecisionLog : IOrderLog
                 $"{d.SimTick}|{d.UnitId.Value}|{FingerprintFloat.Format(d.PreviousHpPct)}|{FingerprintFloat.Format(d.NewHpPct)}|{d.ReasonCode}|{d.DamageLevel}",
             OrderLogEntryKind.OrdnanceStateChange when entry.Payload is OrdnanceStateChangeRecord o =>
                 $"{o.SimTick}|{o.UnitId.Value}|{o.PreviousState}|{o.NewState}|{o.RoundsRemaining}",
+            OrderLogEntryKind.ContactOverride when entry.Payload is ContactOverrideRecord co =>
+                $"{co.SimTick}|{co.ContactId}|{co.Action}|{co.PreviousValue}|{co.NewValue}",
+            OrderLogEntryKind.CommsGridRejoin when entry.Payload is CommsGridRejoinRecord cr =>
+                $"{cr.SimTick}|{cr.UnitId}|{cr.OffGridSinceTick}|{cr.RejoinTick}|{cr.SuppressedCount}|{string.Join(",", cr.InformativeMerges.Select(m => $"{m.TargetId}:{m.PreviousState}->{m.NewState}"))}",
             _ => "?",
         };
 

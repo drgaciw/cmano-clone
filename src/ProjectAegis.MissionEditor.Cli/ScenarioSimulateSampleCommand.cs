@@ -37,7 +37,11 @@ public static class ScenarioSimulateSampleCommand
             ? InMemoryCatalogReader.BalticV3Fixture()
             : ScenarioValidateCommand.ResolveCatalogPublic(scenario);
         var config = ValidationConfigLoader.LoadFromRepo();
-        var exportPackage = ScenarioExportCommand.Prepare(scenario, catalog, config);
+        var exportPackage = ScenarioExportCommand.Prepare(
+            scenario,
+            catalog,
+            config,
+            MissionRoleCapabilityManifest.CliSimulateBackendId);
         if (!exportPackage.Allowed)
         {
             if (!quiet)
@@ -47,6 +51,17 @@ public static class ScenarioSimulateSampleCommand
 
             return 1;
         }
+
+        var capabilityWarnings = exportPackage.ValidationReport.Findings
+            .Where(f => f.Severity == ValidationSeverity.Warning && MissionRoleCapabilityManifest.IsCapabilityCode(f.Code))
+            .Select(f => new
+            {
+                code = f.Code,
+                severity = f.Severity.ToString(),
+                missionId = f.MissionId,
+                message = f.Message,
+            })
+            .ToArray();
 
         var package = ScenarioPackage.FromDocument(
             Path.GetFileNameWithoutExtension(scenarioPath),
@@ -74,19 +89,20 @@ public static class ScenarioSimulateSampleCommand
         var fireOrder = result.FireOrder.Count == 0
             ? authoredFireOrder
             : CanonicalizeFireOrder(result.FireOrder);
-        var dto = new SimulateSampleJsonDto
+        var dto = new
         {
-            Seed = result.Seed,
-            ScenarioPolicyId = result.ScenarioPolicyId,
-            Ticks = result.Ticks,
-            Fingerprint = result.Fingerprint,
-            FingerprintSha256 = result.FingerprintSha256,
-            WorldHash = result.WorldHash.ToString(),
-            DetectionWorldHash = result.DetectionWorldHash.ToString(),
-            EngagementCount = result.EngagementCount,
-            ReportHash = exportPackage.ValidationReport.ReportHash,
-            FireOrder = fireOrder,
-            WorldStateSha256 = worldStateSha256,
+            seed = result.Seed,
+            scenarioPolicyId = result.ScenarioPolicyId,
+            ticks = result.Ticks,
+            fingerprint = result.Fingerprint,
+            fingerprintSha256 = result.FingerprintSha256,
+            worldHash = result.WorldHash.ToString(),
+            detectionWorldHash = result.DetectionWorldHash.ToString(),
+            engagementCount = result.EngagementCount,
+            reportHash = exportPackage.ValidationReport.ReportHash,
+            fire_order = fireOrder,
+            worldStateSha256,
+            warnings = capabilityWarnings.Length == 0 ? null : capabilityWarnings,
         };
 
         if (!quiet)
@@ -145,30 +161,4 @@ public static class ScenarioSimulateSampleCommand
         DefaultIgnoreCondition = JsonIgnoreCondition.WhenWritingNull,
         WriteIndented = false,
     };
-
-    private sealed class SimulateSampleJsonDto
-    {
-        public int Seed { get; init; }
-
-        public string ScenarioPolicyId { get; init; } = "";
-
-        public int Ticks { get; init; }
-
-        public string Fingerprint { get; init; } = "";
-
-        public string FingerprintSha256 { get; init; } = "";
-
-        public string WorldHash { get; init; } = "";
-
-        public string DetectionWorldHash { get; init; } = "";
-
-        public int EngagementCount { get; init; }
-
-        public string ReportHash { get; init; } = "";
-
-        [JsonPropertyName("fire_order")]
-        public string[] FireOrder { get; init; } = [];
-
-        public string WorldStateSha256 { get; init; } = "";
-    }
 }

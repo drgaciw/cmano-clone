@@ -1,8 +1,10 @@
 namespace ProjectAegis.Delegation.UnityAdapter.CommandReview;
 
 using C2Nodes;
+using Controllers;
 using Core;
 using MissionIntent;
+using ProjectAegis.Sim.Comms;
 using Targets;
 using TaskGroupCoord;
 using Bridge;
@@ -58,7 +60,9 @@ public static class CoordinationBridge
                 packageSnapshot,
                 coverageByElement,
                 intents,
-                facts?.Assignments ?? Array.Empty<CoordinationGroupPackageAssignment>()));
+                facts?.Assignments ?? Array.Empty<CoordinationGroupPackageAssignment>(),
+                facts?.Escorts ?? Array.Empty<CoordinationEscortFact>(),
+                facts?.SharedTargets ?? Array.Empty<CoordinationSharedTargetFact>()));
         }
 
         return groups.Count == 0 ? CoordinationSnapshot.Empty : new CoordinationSnapshot(groups);
@@ -71,7 +75,9 @@ public static class CoordinationBridge
         MissionPackageSnapshot packageSnapshot,
         IReadOnlyDictionary<string, CoverageFact> coverageByElement,
         IReadOnlyList<MissionIntentInput> intents,
-        IReadOnlyList<CoordinationGroupPackageAssignment> assignments)
+        IReadOnlyList<CoordinationGroupPackageAssignment> assignments,
+        IReadOnlyList<CoordinationEscortFact> escortFacts,
+        IReadOnlyList<CoordinationSharedTargetFact> sharedTargetFacts)
     {
         var currentMembers = group.Members
             .Select(id => id.Value)
@@ -128,8 +134,210 @@ public static class CoordinationBridge
         var intentInput = intents.FirstOrDefault(i =>
             string.Equals(i.GroupId, group.Id.Value, StringComparison.Ordinal));
         var intent = MissionIntentProjection.Project(intentInput);
+        var details = BuildGroupDetails(
+            bridge,
+            snapshot,
+            group,
+            currentMembers,
+            scopeMembers,
+            package,
+            elements,
+            effects,
+            escortFacts,
+            sharedTargetFacts);
 
-        return new CoordinationGroupSnapshot(coordination, intent, effects, gaps);
+        return new CoordinationGroupSnapshot(coordination, intent, effects, gaps, details);
+    }
+
+    private static CoordinationGroupDetails BuildGroupDetails(
+        DelegationBridge bridge,
+        ISimWorldSnapshot snapshot,
+        GroupTarget group,
+        string[] currentMembers,
+        HashSet<string> scopeMembers,
+        MissionPackageMembership? package,
+        C2NodeElement[] elements,
+        IReadOnlyList<CoordinationEffect> effects,
+        IReadOnlyList<CoordinationEscortFact> escortFacts,
+        IReadOnlyList<CoordinationSharedTargetFact> sharedTargetFacts)
+    {
+        var controllerKind = group.Slot.Active is HumanController
+            ? "Human"
+            : group.Slot.Active is AgentController
+                ? "Agent"
+                : "None";
+        var delegationAutonomy = ResolveDelegationAutonomy(bridge, group);
+        var simTick = (ulong)Math.Max(0, (long)snapshot.SimTime);
+        var isOffGrid = OffGridOrderGate.EvaluateAt(bridge.Orchestrator.CommsGrid, group.Id.Value, simTick) != null;
+
+        var stateByUnit = new Dictionary<string, CoordinationEffectState>(StringComparer.Ordinal);
+        foreach (var effect in effects)
+        {
+            if (!stateByUnit.TryGetValue(effect.UnitId, out var existing)
+                || (int)effect.State < (int)existing)
+            {
+                stateByUnit[effect.UnitId] = effect.State;
+            }
+        }
+
+        var escorts = BuildEscorts(group.Id.Value, package, elements, escortFacts, stateByUnit);
+        var sectors = BuildSectors(effects);
+        var sharedTargets = BuildSharedTargets(group.Id.Value, snapshot, currentMembers, scopeMembers, elements, sharedTargetFacts);
+
+        return new CoordinationGroupDetails(
+            controllerKind,
+            delegationAutonomy,
+            group.PendingReplan,
+            isOffGrid,
+            escorts,
+            sectors,
+            sharedTargets);
+    }
+
+    private static AutonomyLevel ResolveDelegationAutonomy(DelegationBridge bridge, GroupTarget group)
+    {
+        var resolved = AutonomyLevel.Manual;
+        for (var i = 0; i < group.Members.Count; i++)
+        {
+            if (!bridge.Registry.TryGetBinding(group.Members[i], out var memberBinding)
+                || memberBinding.Target is not UnitTarget unit)
+            {
+                continue;
+            }
+
+            var agent = unit.Slot.SuspendedAgent ?? unit.Slot.Active as AgentController;
+            if (agent is not null)
+            {
+                resolved = (AutonomyLevel)Math.Max((int)resolved, (int)agent.Autonomy);
+            }
+        }
+
+        return resolved;
+    }
+
+    private static IReadOnlyList<CoordinationEscortAssignment> BuildEscorts(
+        string groupId,
+        MissionPackageMembership? package,
+        C2NodeElement[] elements,
+        IReadOnlyList<CoordinationEscortFact> escortFacts,
+        IReadOnlyDictionary<string, CoordinationEffectState> stateByUnit)
+    {
+        var authored = escortFacts
+            .Where(f => string.Equals(f.GroupId, groupId, StringComparison.Ordinal))
+            .Select(f => new CoordinationEscortAssignment(
+                f.EscortUnitId,
+                f.ProtectedUnitId,
+                f.CapabilityScope,
+                stateByUnit.TryGetValue(f.EscortUnitId, out var st) ? st : CoordinationEffectState.UnknownRole))
+            .OrderBy(e => e.EscortUnitId, StringComparer.Ordinal)
+            .ThenBy(e => e.ProtectedUnitId, StringComparer.Ordinal)
+            .ToArray();
+        if (authored.Length > 0 || package is null)
+        {
+            return authored;
+        }
+
+        var c2UnitId = elements.FirstOrDefault(e => e.Role == C2NodeRole.C2)?.PlatformUnitId ?? string.Empty;
+        return elements
+            .Where(e =>
+                e.CapabilityScope.Contains("escort", StringComparison.OrdinalIgnoreCase)
+                || (e.Role == C2NodeRole.Shooter && !string.IsNullOrEmpty(c2UnitId) && !string.Equals(e.PlatformUnitId, c2UnitId, StringComparison.Ordinal)))
+            .Select(e => new CoordinationEscortAssignment(
+                e.PlatformUnitId,
+                c2UnitId,
+                e.CapabilityScope,
+                stateByUnit.TryGetValue(e.PlatformUnitId, out var st) ? st : CoordinationEffectState.UnknownRole))
+            .OrderBy(e => e.EscortUnitId, StringComparer.Ordinal)
+            .ThenBy(e => e.ProtectedUnitId, StringComparer.Ordinal)
+            .ToArray();
+    }
+
+    private static IReadOnlyList<CoordinationSectorResponsibility> BuildSectors(
+        IReadOnlyList<CoordinationEffect> effects) =>
+        effects
+            .Where(e => !string.IsNullOrEmpty(e.Coverage.CoverageId) || e.Coverage.Status != CoverageStatus.Unknown)
+            .Select(e => new CoordinationSectorResponsibility(
+                e.Coverage.CoverageId,
+                e.Coverage.Label,
+                e.UnitId,
+                e.ElementId,
+                e.Role,
+                e.Coverage.Status,
+                e.Coverage.Geometry?.SourceRef,
+                e.Coverage.ReasonCode))
+            .OrderBy(s => s.CoverageId, StringComparer.Ordinal)
+            .ThenBy(s => s.OwnerUnitId, StringComparer.Ordinal)
+            .ToArray();
+
+    private static IReadOnlyList<CoordinationSharedTargetAssignment> BuildSharedTargets(
+        string groupId,
+        ISimWorldSnapshot snapshot,
+        string[] currentMembers,
+        HashSet<string> scopeMembers,
+        C2NodeElement[] elements,
+        IReadOnlyList<CoordinationSharedTargetFact> sharedTargetFacts)
+    {
+        var authored = sharedTargetFacts
+            .Where(f => string.Equals(f.GroupId, groupId, StringComparison.Ordinal) && !string.IsNullOrWhiteSpace(f.TargetId))
+            .Select(f => new CoordinationSharedTargetAssignment(
+                f.TargetId,
+                f.AssignedUnitIds.OrderBy(id => id, StringComparer.Ordinal).ToArray(),
+                f.HasFireControlTrack,
+                "AUTHORED_FACT",
+                f.SourceRef))
+            .OrderBy(t => t.TargetId, StringComparer.Ordinal)
+            .ToArray();
+        if (authored.Length > 0)
+        {
+            return authored;
+        }
+
+        if (snapshot.PreferredHostileByShooter is { Count: > 0 } preferred)
+        {
+            var grouped = preferred
+                .Where(kvp => scopeMembers.Contains(kvp.Key) && !string.IsNullOrWhiteSpace(kvp.Value))
+                .GroupBy(kvp => kvp.Value, StringComparer.Ordinal)
+                .Select(g => new CoordinationSharedTargetAssignment(
+                    g.Key,
+                    g.Select(kvp => kvp.Key).OrderBy(id => id, StringComparer.Ordinal).ToArray(),
+                    snapshot.HasFireControlTrackOnPrimaryContact,
+                    "PREFERRED_HOSTILE_MAP",
+                    "snapshot:PreferredHostileByShooter"))
+                .OrderBy(t => t.TargetId, StringComparer.Ordinal)
+                .ToArray();
+            if (grouped.Length > 0)
+            {
+                return grouped;
+            }
+        }
+
+        if (snapshot.PrimaryHostileContactId is { } primary && !string.IsNullOrWhiteSpace(primary.Value))
+        {
+            var liveMembers = currentMembers
+                .Where(m => snapshot.IsMemberAlive(new TargetId(m)))
+                .ToArray();
+            if (liveMembers.Length > 0)
+            {
+                var shooterUnits = elements
+                    .Where(e => e.Role == C2NodeRole.Shooter && liveMembers.Contains(e.PlatformUnitId, StringComparer.Ordinal))
+                    .Select(e => e.PlatformUnitId)
+                    .Distinct(StringComparer.Ordinal)
+                    .OrderBy(id => id, StringComparer.Ordinal)
+                    .ToArray();
+                var assigned = shooterUnits.Length > 0 ? shooterUnits : liveMembers;
+                return new[]
+                {
+                    new CoordinationSharedTargetAssignment(
+                        primary.Value,
+                        assigned,
+                        snapshot.HasFireControlTrackOnPrimaryContact,
+                        "SNAPSHOT_PRIMARY_CONTACT",
+                        "snapshot:PrimaryHostileContactId"),
+                };
+            }
+        }
+
+        return Array.Empty<CoordinationSharedTargetAssignment>();
     }
 
     private static IReadOnlyList<CoordinationEffect> BuildEffects(

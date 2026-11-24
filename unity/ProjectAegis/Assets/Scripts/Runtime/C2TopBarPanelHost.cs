@@ -26,6 +26,8 @@ namespace ProjectAegis.Unity.Runtime
         private const string ModeName = "mode-label";
         private const string FogModeName = "fog-mode-label";
         private const string EditPolicyName = "edit-policy-label";
+        private const string TestSandboxBannerName = LoopPolicyChromeBinder.TestSandboxBannerElementName;
+        private const string TestSandboxBannerVisibleClass = "c2-topbar-sandbox-banner--visible";
         private const string CommsName = "comms-label";
         private const string ScoreName = "score-label";
         private const string ZuluTimeName = "zulu-time-label";
@@ -60,6 +62,7 @@ namespace ProjectAegis.Unity.Runtime
         private Label? _mode;
         private Label? _fogMode;
         private Label? _editPolicy;
+        private Label? _testSandboxBanner;
         private Label? _comms;
         private Label? _score;
         private Label? _zuluTime;
@@ -155,6 +158,7 @@ namespace ProjectAegis.Unity.Runtime
             _mode = panel.Q<Label>(ModeName);
             _fogMode = panel.Q<Label>(FogModeName);
             _editPolicy = panel.Q<Label>(EditPolicyName);
+            _testSandboxBanner = panel.Q<Label>(TestSandboxBannerName);
             _comms = panel.Q<Label>(CommsName);
             _score = panel.Q<Label>(ScoreName);
             // CMD-22: null-safe Q — labels optional for older UXML trees.
@@ -242,7 +246,7 @@ namespace ProjectAegis.Unity.Runtime
 
         private void OnCompressionSlowerClicked()
         {
-            if (bridgeHost == null)
+            if (bridgeHost == null || _observerChrome.IsObserver)
             {
                 return;
             }
@@ -254,7 +258,7 @@ namespace ProjectAegis.Unity.Runtime
 
         private void OnCompressionFasterClicked()
         {
-            if (bridgeHost == null)
+            if (bridgeHost == null || _observerChrome.IsObserver)
             {
                 return;
             }
@@ -266,7 +270,7 @@ namespace ProjectAegis.Unity.Runtime
 
         private void OnPauseResumeClicked()
         {
-            if (bridgeHost == null)
+            if (bridgeHost == null || _observerChrome.IsObserver)
             {
                 return;
             }
@@ -381,6 +385,18 @@ namespace ProjectAegis.Unity.Runtime
                 _editPolicy.AddToClassList(_loopPolicyChrome.EditPolicy.CssClass);
             }
 
+            if (_testSandboxBanner != null)
+            {
+                var showSandboxBanner = _loopPolicyChrome.ShowDualSideTestSandboxBanner;
+                _testSandboxBanner.text = showSandboxBanner
+                    ? _loopPolicyChrome.TestSandboxBannerLabel
+                    : string.Empty;
+                _testSandboxBanner.style.display = showSandboxBanner
+                    ? DisplayStyle.Flex
+                    : DisplayStyle.None;
+                _testSandboxBanner.EnableInClassList(TestSandboxBannerVisibleClass, showSandboxBanner);
+            }
+
             if (_score != null)
             {
                 _score.text = _presentation.ScoreLabel;
@@ -476,6 +492,7 @@ namespace ProjectAegis.Unity.Runtime
                 _commsLegend.ClearClassList();
                 _commsLegend.AddToClassList("c2-topbar-comms-legend");
                 _commsLegend.AddToClassList(_networkLabels.CssClass);
+                _commsLegend.tooltip = C2CommsLegendTooltipBinder.BuildTooltip(_networkLabels);
             }
         }
 
@@ -506,19 +523,39 @@ namespace ProjectAegis.Unity.Runtime
 
         private void RefreshPauseResumeButton()
         {
-            if (_pauseResume == null || bridgeHost == null)
+            if (bridgeHost == null)
+            {
+                return;
+            }
+
+            var isObserver = _observerChrome.IsObserver;
+            var observerTooltip = _observerChrome.DisabledReasonText ?? string.Empty;
+            if (_compressionSlower != null)
+            {
+                _compressionSlower.SetEnabled(!isObserver);
+                _compressionSlower.tooltip = isObserver ? observerTooltip : string.Empty;
+            }
+
+            if (_compressionFaster != null)
+            {
+                _compressionFaster.SetEnabled(!isObserver);
+                _compressionFaster.tooltip = isObserver ? observerTooltip : string.Empty;
+            }
+
+            if (_pauseResume == null)
             {
                 return;
             }
 
             var paused = bridgeHost.Session != null && bridgeHost.Session.IsSimPaused;
-            var canResume = !bridgeHost.LastAttentionToast.HasUnresolvedPauseClass
-                || bridgeHost.LastAttentionToast.CanResume;
+            var canResume = (!bridgeHost.LastAttentionToast.HasUnresolvedPauseClass
+                    || bridgeHost.LastAttentionToast.CanResume)
+                && !bridgeHost.HasUnresolvedNotificationPause;
             _pauseResume.text = paused ? "RESUME" : "PAUSE";
-            _pauseResume.SetEnabled(!paused || canResume);
-            _pauseResume.tooltip = paused && !canResume
-                ? "Acknowledge the attention toast to resume"
-                : string.Empty;
+            _pauseResume.SetEnabled(!isObserver && (!paused || canResume));
+            _pauseResume.tooltip = isObserver
+                ? observerTooltip
+                : (paused && !canResume ? "Acknowledge the unresolved pause alert to resume" : string.Empty);
         }
 
         private void RefreshObserverChrome()

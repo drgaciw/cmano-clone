@@ -1,0 +1,14 @@
+<ui:UXML xmlns:ui="UnityEngine.UIElements" editor-extension-mode="False">
+    <ui:VisualElement name="supervised-advice-root" class="supervised-advice-panel">
+        <ui:Label name="supervised-advice-header" text="SUPERVISED ADVICE" class="supervised-advice-header" />
+        <ui:Label name="supervised-advice-rationale" text="" class="supervised-advice-rationale" />
+        <ui:Label name="supervised-advice-authority" text="" class="supervised-advice-authority" />
+        <ui:ListView name="supervised-advice-evidence-list" class="supervised-advice-evidence-list" selection-type="None" />
+        <ui:Toggle name="supervised-advice-optin-toggle" label="Explicit FULL_AUTONOMOUS lethal engage opt-in" class="supervised-advice-optin-toggle" />
+        <ui:VisualElement name="supervised-advice-actions" class="supervised-advice-actions">
+            <ui:Button name="supervised-advice-accept" text="ACCEPT" class="supervised-advice-button supervised-advice-accept" />
+            <ui:Button name="supervised-advice-dismiss" text="DISMISS" class="supervised-advice-button supervised-advice-dismiss" />
+        </ui:VisualElement>
+        <ui:Label name="supervised-advice-status" text="" class="supervised-advice-status" />
+    </ui:VisualElement>
+</ui:UXML>

@@ -1,0 +1,32 @@
+{
+  "version": 1,
+  "fallbackRule": {
+    "log": true,
+    "pause": false,
+    "mapBalloon": false,
+    "dropToRealTime": false
+  },
+  "categories": {
+    "DAMAGE": { "log": true, "pause": true, "mapBalloon": true, "dropToRealTime": true },
+    "CONTACT": { "log": true, "pause": true, "mapBalloon": true, "dropToRealTime": true },
+    "KILL_CONFIRMED": { "log": true, "pause": false, "mapBalloon": true, "dropToRealTime": true },
+    "INTERCEPT_SUCCESS": { "log": true, "pause": false, "mapBalloon": true, "dropToRealTime": true },
+    "WEAPON_LAUNCH": { "log": true, "pause": false, "mapBalloon": true, "dropToRealTime": true },
+    "COMMS": { "log": true, "pause": false, "mapBalloon": true, "dropToRealTime": true },
+    "HIT": { "log": true, "pause": false, "mapBalloon": true, "dropToRealTime": false },
+    "POLICY_DENIAL": { "log": true, "pause": false, "mapBalloon": true, "dropToRealTime": false },
+    "ENGAGE_ABORT": { "log": true, "pause": false, "mapBalloon": false, "dropToRealTime": false },
+    "MISS": { "log": true, "pause": false, "mapBalloon": false, "dropToRealTime": false },
+    "COMBAT": { "log": true, "pause": false, "mapBalloon": false, "dropToRealTime": false },
+    "MAGAZINE": { "log": true, "pause": false, "mapBalloon": false, "dropToRealTime": false },
+    "FUEL": { "log": true, "pause": false, "mapBalloon": false, "dropToRealTime": false },
+    "ORDNANCE": { "log": true, "pause": false, "mapBalloon": false, "dropToRealTime": false },
+    "MISSION": { "log": true, "pause": false, "mapBalloon": false, "dropToRealTime": false },
+    "EVENT": { "log": true, "pause": false, "mapBalloon": false, "dropToRealTime": false },
+    "POLICY_UPDATE": { "log": true, "pause": false, "mapBalloon": false, "dropToRealTime": false },
+    "MODE": { "log": true, "pause": false, "mapBalloon": false, "dropToRealTime": false },
+    "CONTROLLER": { "log": true, "pause": false, "mapBalloon": false, "dropToRealTime": false },
+    "PLAYER_ORDER": { "log": true, "pause": false, "mapBalloon": false, "dropToRealTime": false },
+    "AGENT_DECISION": { "log": true, "pause": false, "mapBalloon": false, "dropToRealTime": false }
+  }
+}

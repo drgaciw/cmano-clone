@@ -1,4 +1,6 @@
 using NUnit.Framework;
+using ProjectAegis.Delegation.Core;
+using ProjectAegis.Delegation.Traits;
 using ProjectAegis.Delegation.UnityAdapter.Bridge;
 using ProjectAegis.Delegation.UnityAdapter.Presentation;
 using ProjectAegis.Sim.Policy;
@@ -73,5 +75,74 @@ public sealed class LoopPolicyChromeBinderTests
         var projected = LoopPolicyChromeBinder.Project(null);
         Assert.That(projected.Fog.Label, Is.EqualTo("FOG: FULL PICTURE"));
         Assert.That(projected.EditPolicy.Label, Is.EqualTo("EDITS: ANYTIME"));
+        Assert.That(projected.ShowDualSideTestSandboxBanner, Is.False);
+        Assert.That(projected.TestSandboxBannerLabel, Is.Empty);
+    }
+
+    [Test]
+    public void Test_sandbox_banner_shown_only_for_dual_side_policy_in_mixed_mode()
+    {
+        var bridge = new DelegationBridge(42, mvpEngagement: false, scenarioPolicyId: "test-sandbox-dual-side");
+        var friendly = bridge.Registry.RegisterUnit(new EntityKey(1), "u1");
+        var opposing = bridge.Registry.RegisterUnit(new EntityKey(2), "hostile-1");
+        bridge.ConfigureSimulationMode(
+            new SimulationModeProfile(SimulationModeKind.Mixed, PlayerControlsFriendlySide: true),
+            [friendly.Target],
+            [opposing.Target],
+            PersonalityCatalog.All[0].Traits);
+
+        var projected = LoopPolicyChromeBinder.Project(bridge);
+
+        Assert.That(projected.ShowDualSideTestSandboxBanner, Is.True);
+        Assert.That(projected.TestSandboxBannerLabel, Is.EqualTo(LoopPolicyChromeBinder.TestSandboxBannerText));
+        Assert.That(projected.TestSandboxBannerLabel, Does.Contain("TEST SANDBOX"));
+    }
+
+    [TestCase(SimulationModeKind.Human)]
+    [TestCase(SimulationModeKind.AgentVsAgent)]
+    public void Test_sandbox_banner_hidden_for_dual_side_policy_in_non_mixed_modes(SimulationModeKind kind)
+    {
+        var bridge = new DelegationBridge(42, mvpEngagement: false, scenarioPolicyId: "test-sandbox-dual-side");
+        var friendly = bridge.Registry.RegisterUnit(new EntityKey(1), "u1");
+        var opposing = bridge.Registry.RegisterUnit(new EntityKey(2), "hostile-1");
+        bridge.ConfigureSimulationMode(
+            new SimulationModeProfile(kind, PlayerControlsFriendlySide: true),
+            [friendly.Target],
+            [opposing.Target],
+            PersonalityCatalog.All[0].Traits);
+
+        var projected = LoopPolicyChromeBinder.Project(bridge);
+
+        Assert.That(projected.ShowDualSideTestSandboxBanner, Is.False);
+        Assert.That(projected.TestSandboxBannerLabel, Is.Empty);
+    }
+
+    [Test]
+    public void Test_sandbox_banner_hidden_for_non_sandbox_policy_in_mixed_mode()
+    {
+        var bridge = new DelegationBridge(42, mvpEngagement: false, scenarioPolicyId: "baltic-patrol");
+        var friendly = bridge.Registry.RegisterUnit(new EntityKey(1), "u1");
+        var opposing = bridge.Registry.RegisterUnit(new EntityKey(2), "hostile-1");
+        bridge.ConfigureSimulationMode(
+            new SimulationModeProfile(SimulationModeKind.Mixed, PlayerControlsFriendlySide: true),
+            [friendly.Target],
+            [opposing.Target],
+            PersonalityCatalog.All[0].Traits);
+
+        var projected = LoopPolicyChromeBinder.Project(bridge);
+
+        Assert.That(projected.ShowDualSideTestSandboxBanner, Is.False);
+        Assert.That(projected.TestSandboxBannerLabel, Is.Empty);
+    }
+
+    [Test]
+    public void Test_sandbox_banner_hidden_when_dual_side_policy_mode_is_unconfigured()
+    {
+        var bridge = new DelegationBridge(42, mvpEngagement: false, scenarioPolicyId: "test-sandbox-dual-side");
+
+        var projected = LoopPolicyChromeBinder.Project(bridge);
+
+        Assert.That(projected.ShowDualSideTestSandboxBanner, Is.False);
+        Assert.That(projected.TestSandboxBannerLabel, Is.Empty);
     }
 }

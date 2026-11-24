@@ -1,0 +1,71 @@
+{
+  "model": "typesafe/jev-1.14",
+  "state": "Project Aegis Sprint 3 DoD Gate Round 3 (2026-11-23), branch sprint/s3-coord-ai-depth stacked cleanly on sprint/s2-c2-combat-ux (7e8f3001). THREE ATOMIC TRACK COMMITS ON BRANCH: Track A 721f1e7d (21 files: DRG-391, DRG-746), Track B ce12d4fd (32 files: DRG-175, DRG-192), Track C 4d02321a (54 files: DRG-253, DRG-255, DRG-321); temporary Sprint 3 worktrees (.worktrees/track-a, track-b, track-c & s3-wt-track-{a,b,c}) removed cleanly. H1/C1 BUILD & TEST BREAKDOWN: dotnet build ProjectAegis.sln --no-restore -> 0 Warning(s), 0 Error(s); ProjectAegis.Delegation & ProjectAegis.Delegation.UnityAdapter Release/netstandard2.1 -> 0 Warning(s), 0 Error(s); dotnet format --verify-no-changes -> exit 0; dotnet test ProjectAegis.sln -v minimal --no-build -> 4,912/4,912 passed, 0 failed, 0 skipped across all 9 test assemblies (Ai.Contracts.Tests 18, Delegation.Demo.Tests 15, Sim.Tests 653, Ai.Host.Tests 88, Delegation.Tests 1,541, Data.Excel.Tests 24, Delegation.UnityAdapter.Tests 1,444, Data.Tests 961, MissionEditor.Cli.Tests 168; >= 4,800 floor). H2 LINEAR TRACKER HONESTY: Verified evidence comments posted via save_comment on all 7 Sprint 3 issues with all statuses kept Backlog (NEVER Done): DRG-391 fc821864-3de8-445c-91ea-1708b3d01a9a, DRG-746 62bc6d47-22b1-4add-b332-2dcf13b1459a, DRG-175 ec7d72fe-c401-45f9-afcc-ffc76b9eabbb, DRG-192 860d4b85-2727-4fd9-a43c-4a2aecf37444, DRG-253 4d437510-9f86-459d-a065-bd711d76ac9d, DRG-255 64fc41d8-d4fd-4692-8099-68d3f8b6f780, DRG-321 341cb42b-5aca-45c6-aa61-8c748fdabc9e. H3/C7 HARD-NO & FROZEN SURFACES (0 DIFF): git diff --stat 7e8f3001..HEAD empty across DelegationBridge.cs hotpath, WriteGate/, SimulationSession.cs, MapPlaceholderPanelHost.cs, GlobeMapProductHost.cs, IHindsightMemoryClient.cs, tests/regression/**, ThreatAssessment/, AdviceModels.cs, AdviceBridge.cs, JevAttentionPanelHost.cs, JevAttentionPanel.uxml, tools/jev/pins/jev-1.13.x.json, CoordinationCommandBridge.cs; CoverageMapView.cs has 0 'radius' matches; UnityAdapter has 0 UnityEngine refs. H4/C2 DETERMINISM: ReplayGolden 17/17 pass; Baltic v2 hash 17144800277401907079 preserved (26 hits in tests/ & data/); HindsightSessionFinalizerAsyncTests (7/7) & HindsightRecallAdapterTests (7/7) confirm order-log fingerprints and replay hashes unchanged with Hindsight on, off, or unreachable; non-mutating OffGridOrderGate.EvaluateAt verified across CoordinationBridge, CoordinationPresentation, and SupervisedAdviceAcceptBridge (15/15 adversarial rejection paths + fractional/preview SimTime). H5/C8 VERBATIM TDD & FENCES: production/qa/evidence/sprint-3/s3-c8-red-evidence.md records verbatim pre-fix RED outputs across Track A (CS0234/CS0246/CS1061/CS0117), Track B (CS0246/CS1061), Track C (12 CS0103 in Data.Tests + 53 CS0103/CS0246 in UnityAdapter.Tests), M4a live Unity PlayMode RED (47/53 -> 53/53), M4b Iteration 3 Probe_3 RED->GREEN (CommsGridRegistry.IsOffGridAt / OffGridOrderGate.EvaluateAt), and M4b Iteration 4 SupervisedAdviceAcceptBridgeTests RED (3 failed/17 passed -> 20/20 passed); Architecture 92/92, ThreatRecommendNeverFiresFenceTests 3/3. H8/C3/C12 SMOKE & DATA: PlayModeSmokeHarnessTests 27/27; sha256sum assets/data/catalog/*.db identical (82d262129d41c6fbb78fa636a3c2923471dedf37db071f7a4e7c99bdec4760fd aegis_public_corpus.db, 75ea357a22de185808c4097b3ab1ddfcd836a4da37635576c0816b514d0b88ab baltic_patrol.db); copy-delegation-assemblies.sh 15 DLLs + libe_sqlite3.so with SHA-256 parity. C4/C13 LIVE UNITY (:8081): ProjectAegis.Unity.Tests PlayMode 53/53 PASSED (0 failed, 0 skipped: 10 Sprint 3 + 43 Sprint 1/2 regression) with 0 Console Error/Exception logs. C9/C11 LIVE UNITY UAT OBSERVABLE STATE DIFFS & 5 SCREENSHOTS (production/qa/evidence/sprint-3/): DelegationSmoke.unity UatHarness.cs sweep exercised all 5 Sprint 3 panels with 0 errors: (1) DRG-175 UAT_CoordinationPanelHost (sortingOrder=16): tg-baltic-escort boundaries, coord-hold-button PlayerOrders 0->1 (Queued Hold: u1, u2), coord-reattack-button advisory-only (REATTACK_ADVISORY_ONLY) -> s3-drg175-coordination.png; (2) DRG-192 UAT_CoveragePostureOverlayPanelHost (sortingOrder=8, PickingMode.Ignore) + CoverageMapView: detach u2 -> detachDelta=Degraded (SPLIT, 1 covered / 1 gap), non-mutating SimulateElementChange(u1, Loss) -> whatIfDelta=Collapsed, isHyp=True, [WHAT-IF] Posture COLLAPSED (SPLIT -> SPLIT): u1 (C2): Available->Lost -> s3-drg192-coverage-posture.png; (3) DRG-253 UAT_OsintStagingPanelHost (sortingOrder=17): conf=0.81, TRL 7, https://ex.com/hg-s20, observed boost-glide signature, approve-selected proposals 2->1 via CatalogWriteGate (COMMITTED batch-1-7001) -> s3-drg253-osint-staging.png; (4) DRG-255 UAT_SupervisedAdvicePanelHost (sortingOrder=18): evCount=3 (ptr0=u1 | c1 | 0 | 3), supervised-advice-dismiss PlayerOrders 0->0 (fpMatchAfterDismiss=True), supervised-advice-accept PlayerOrders 0->1 (ENQUEUED seq=12 unit=u1) -> s3-drg255-supervised-advice.png; (5) DRG-321 UAT_PendingApprovalPanelHost (#pending-jev-suggested-order): low Noul 0.60 fail-closed (gateLowVis=False), ROE clear 0.88 (typesafe/jev-1.13, risk=low) card shown (gateOkVis=True, ordersPreClick=0), pending-jev-suggested-order-accept PlayerOrders 0->1 via CoordinationCommandBridge (JEV ACCEPTED Withdraw -> tg-baltic-escort) -> s3-drg255-drg321-advice-jev-roe.png. TRACK A (DRG-391/746, 721f1e7d): CommsGridRejoinReconciler merges iff unit has active track (Detected/Classified/Identified) & side has Unknown/Lost or lower rank (Lost never overwrites active side track, redundant suppressed), emits dl-{targetId} ContactChangeRecord + single CommsGridRejoinRecord only when informativeMerges.Count > 0, mirrored to Ai.Contracts.EvidenceEntryKind + Ai.Host.EvidenceProjector, hooked solely in DelegationOrchestrator.AdvanceCommsGrid (0 SimulationSession diff; CommsGridRejoinReconcilerTests 7/7, OrchestratorOffGridRejoinTests 3/3, EvidenceProjectorCommsGridRejoinTests 1/1); HindsightSessionFinalizer.OnScenarioFinalized untouched + additive OnScenarioFinalizedAsync returning HindsightFinalizeStatus (Succeeded/Unavailable/Disabled/Skipped) without throwing or mutating IReadOnlyOrderLog + Ai.Host.Memory (IHindsightRecallClient, HindsightRecallAdapter calling POST /v1/default/banks/{bankId}/memories/recall, 0 IHindsightMemoryClient diff), net11.0 + netstandard2.1 build 0w/0e, HindsightSessionFinalizerAsyncTests 7/7 + HindsightRecallAdapterTests 7/7. TRACK B (DRG-175/192, ce12d4fd): CoordinationBridge/Presentation/Types/CommandReviewDashboard + CommsGridRegistry.IsOffGridAt/OffGridOrderGate.EvaluateAt + CoordinationPanelHost (sortingOrder=16, Hold/Withdraw via CoordinationCommandBridge, CommsGridRegistryTests 15/15, CoordinationDetailProjectionTests 15/15, CoordinationHostContractTests 3/3, Sprint3CoordinationPlayModeTests 3/3); CoverageMapScaleEvaluator + CoveragePostureProjection + CoverageMapView (no 'radius') + CoveragePostureOverlayPanelHost (sortingOrder=8, PickingMode.Ignore, CoverageMapScaleEvaluatorTests 4/4, CoveragePostureProjectionTests 9/9, CoveragePostureHostContractTests 4/4, Sprint3CoveragePosturePlayModeTests 2/2). TRACK C (DRG-253/255/321, 4d02321a): OsintStagingReviewService + SqliteCatalogReader.ResolveMigrationPaths() + OsintStagingBridge/Projection/PanelHost (sortingOrder=17, numeric confidence + >=1 citation URL/snippet, <0.65 log-only, CatalogWriteGate approve/reject, OsintStagingReviewServiceTests 8/8, SqliteCatalogReaderTests 3/3, OsintStagingProjectionTests 5/5, OsintStagingHostContractTests 2/2, Sprint3OsintStagingPlayModeTests 3/3); SupervisedAdviceAcceptBridge (OffGridOrderGate.EvaluateAt non-mutating, non-engage via C2PlayerCommandBridge.TryIssue, engage via PlayerSideGuard.TryEnqueueAttackOption, 0 mutation on Dismiss or 15 rejection paths, FULL_AUTONOMOUS lethal blocked w/o opt-in) + SupervisedAdviceCardBinder + DelegationBridgeHost.TryAcceptSupervisedAdvice + SupervisedAdvicePanelHost (sortingOrder=18, >=1 evidence pointer unitId|contactId|policySnapshotId|sequenceId, SupervisedAdviceAcceptBridgeTests 20/20, SupervisedAdviceHostContractTests 2/2, Sprint3SupervisedAdvicePlayModeTests 1/1); JevRoeOrderGateBinder + tools/jev/pins/jev-1.13.x-vs3.json (pinned jev-1.13.x / typesafe/jev-1.13) + 6 VS3 fixtures + DelegationBridgeHost.TrySubmitJevSuggestedDecision + PendingApprovalPanelHost #pending-jev-suggested-order (suggest_ok_under_roe >= 0.80 & order_proposal_risk, low Noul/offline/high-risk/unpinned fail closed, Accept via CoordinationCommandBridge.Submit only, never auto-fires, JevRoeOrderGateBinderTests 9/9, JevRoeGateHostContractTests 3/3, Sprint3JevRoeGatePlayModeTests 1/1). AGENT-OWNED S1-S6 PROOF (12/12 in dod-rubric-sprint-s3.md): S1=2 (clean commits 721f1e7d/ce12d4fd/4d02321a, 0 warnings, dotnet format exit 0, unity-csharp-architect pr-finish.md PASS), S2=2 (H6 owner walk & PR submit/merge reserved, temporary worktrees removed), S3=2 (ADR-010/007/001/006 + jev-1.13.x-vs3.json pin + 0 UnityEngine refs in UnityAdapter), S4=2 (7 Linear comment IDs w/ SHAs/counts/hash/RED/screenshots/pr-finish, status Backlog), S5=2 (every claim empirically verified post-final-edit: 4,912/4,912 headless + 53/53 PlayMode + 0 Console errors), S6=2 (real edge cases: 15 rejoin-tick non-mutation paths, fractional/preview SimTime, Hindsight unreachable status, <0.65 OSINT log-only, FULL_AUTONOMOUS lethal opt-in block, low-Noul/offline fail-closed Jev VS3).",
+  "questions": {
+    "h1_c1_build_and_suite": {
+      "type": "noul",
+      "instructions": "Does the evidence show zero build warnings/errors (net11.0 and Release/netstandard2.1) and full headless suite green (4,912/4,912 passed, 0 failed across all 9 test assemblies, >= 4,800 floor)?"
+    },
+    "h2_tracker_honesty": {
+      "type": "noul",
+      "instructions": "Are Linear evidence comments posted on all 7 Sprint 3 issues with verified comment IDs while keeping all issue statuses at Backlog (never moved to Done before PR merge)?"
+    },
+    "h3_c7_hard_no_surfaces": {
+      "type": "noul",
+      "instructions": "Are all hard-no and frozen surfaces untouched (0 diff on DelegationBridge.cs hotpath, WriteGate/, SimulationSession.cs, MapPlaceholderPanelHost.cs, GlobeMapProductHost.cs, IHindsightMemoryClient.cs, tests/regression/**, ThreatAssessment/, AdviceModels.cs, JevAttentionPanelHost.cs, CoordinationCommandBridge.cs) and CoverageMapView.cs free of 'radius'?"
+    },
+    "h4_c2_determinism": {
+      "type": "noul",
+      "instructions": "Are ReplayGolden (17/17), Baltic v2 hash 17144800277401907079 (26 hits), Hindsight on/off/unreachable hash parity, and non-mutating OffGridOrderGate.EvaluateAt across projections/rejections verified?"
+    },
+    "h5_c8_tdd_and_fences": {
+      "type": "noul",
+      "instructions": "Does s3-c8-red-evidence.md satisfy H5/C8 with verbatim pre-fix RED outputs, M4a/M4b remediation TDD, passing GREEN, Architecture (92/92), and ThreatRecommendNeverFiresFenceTests (3/3)?"
+    },
+    "h8_c3_c12_smoke_and_data": {
+      "type": "noul",
+      "instructions": "Did PlayModeSmokeHarnessTests pass 27/27, catalog DB SHA-256 hashes stay byte-identical, and copy-delegation-assemblies.sh produce SHA-256 parity across 15 DLLs + libe_sqlite3.so?"
+    },
+    "c4_c13_unity_playmode": {
+      "type": "noul",
+      "instructions": "Does live Unity (:8081) show 53/53 passed (0 failed, 0 skipped) on ProjectAegis.Unity.Tests PlayMode with 0 Console Error/Exception logs?"
+    },
+    "c9_c11_live_mcp_ui": {
+      "type": "noul",
+      "instructions": "Were all Sprint 3 UI controls (DRG-175, DRG-192, DRG-253, DRG-255, DRG-321) exercised live in DelegationSmoke.unity (:8081) via UatHarness.cs with itemized observable state diffs and 5 PNG screenshots saved in production/qa/evidence/sprint-3/?"
+    },
+    "track_a_drg391_drg746": {
+      "type": "noul",
+      "instructions": "Do Track A deliverables satisfy DRG-391 (informative-only merge rules, CommsGridRejoinRecord emission, Ai.Host mirror, DelegationOrchestrator.AdvanceCommsGrid hook, 0 SimulationSession diff) and DRG-746 (untouched OnScenarioFinalized + additive OnScenarioFinalizedAsync explicit Unavailable status, Ai.Host.Memory recall adapter, 0 IHindsightMemoryClient diff, net11.0 + netstandard2.1 build, unchanged fingerprints/hashes)?"
+    },
+    "track_b_drg175_drg192": {
+      "type": "noul",
+      "instructions": "Do Track B deliverables satisfy DRG-175 (escort/sector/shared-targeting/boundaries, group-to-unit effects, block explanations, CoordinationCommandBridge routing) and DRG-192 (map-scale coverage/gap visualization without 'radius', non-mutating what-if reassignment/loss posture explanations, ADR-010/007/001)?"
+    },
+    "track_c_drg253_drg255_drg321": {
+      "type": "noul",
+      "instructions": "Do Track C deliverables satisfy DRG-253 (numeric confidence + >=1 citation, <0.65 log-only, CatalogWriteGate approve/reject), DRG-255 (>=1 evidence pointer, Accept->PlayerOrder, Dismiss 0 mutation, FULL_AUTONOMOUS opt-in gate, non-mutating rejections), and DRG-321 (ROE Noul gate pinned jev-1.13.x, Accept->CoordinationCommandBridge only, low Noul/offline fail-closed, never auto-fires)?"
+    },
+    "scored_s1_s6_pass": {
+      "type": "noul",
+      "instructions": "Counting agent-owned S1-S6 (12/12 itemized in dod-rubric-sprint-s3.md: clean commits, pr-finish.md PASS, ADR-010/007/001/006, 7 Linear comment IDs, empirical verification, adversarial edge-case tests, with H6 owner Play Mode walk & PR submit/merge reserved), does Sprint 3 achieve S1-S6 >= 9/12?"
+    },
+    "more_rounds": {
+      "type": "score",
+      "instructions": "With all 12 agent-owned criteria and itemized S1-S6 proof now consolidated alongside verbatim RED->GREEN, UAT state diffs, and per-track test counts, how many more rounds does Sprint 3 need before owner review and H6 Play Mode walk?",
+      "criteria": [
+        "0 rounds (Sprint 3 agent DoD met)",
+        "1 round",
+        "2 rounds"
+      ]
+    },
+    "sprint3_verdict": {
+      "type": "choice",
+      "instructions": "What is the Sprint 3 DoD gate verdict?",
+      "criteria": {
+        "pass_owner_walk": "PASS: All Sprint 3 agent-owned DoD gates met; ready for owner PR review and H6 Play Mode walk",
+        "needs_more_work": "FAIL: Remediate missing evidence or failing gate"
+      }
+    }
+  }
+}

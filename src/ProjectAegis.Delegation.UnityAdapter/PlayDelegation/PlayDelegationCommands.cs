@@ -4,6 +4,7 @@ using Controllers;
 using Core;
 using Decision;
 using Orchestration;
+using Targets;
 using Traits;
 using PlayEntry;
 using ProjectAegis.Sim.Scenario;
@@ -276,6 +277,130 @@ public sealed class PlayDelegationCommands
         agent.Autonomy = autonomy;
         LogRebind(orchestrator, agent, simTime, AutonomyRebindField, previous.ToString(), autonomy.ToString());
         return PlayEntryResult.Ok($"Agent {agent.Id.Value} autonomy rebound {previous} → {autonomy}.");
+    }
+
+    /// <summary>DRG-247: take direct human control of a commanded target.</summary>
+    public PlayEntryResult TryTakeControl(TargetId targetId, double simTime)
+    {
+        var blocked = RequireExecuting();
+        if (blocked != null)
+        {
+            return blocked;
+        }
+
+        var commanded = FindCommanded(targetId);
+        if (commanded == null)
+        {
+            return NotCommanded(targetId);
+        }
+
+        var orchestrator = _session.Bridge!.Orchestrator;
+        if (orchestrator.AttachReplayViewer)
+        {
+            return PlayEntryResult.Fail(PlayDelegationErrorCodes.ReplayAttached,
+                "Replay viewer attached; control handoff is disabled.");
+        }
+
+        if (commanded.Target is not UnitTarget unit || !orchestrator.TryTakeDirectControl(unit, simTime))
+        {
+            return PlayEntryResult.Fail(PlayDelegationErrorCodes.ControlHandoffDenied,
+                $"Could not take direct control of {targetId.Value}.");
+        }
+
+        return PlayEntryResult.Ok($"Player took direct control of {targetId.Value}.");
+    }
+
+    /// <summary>DRG-247: return direct human control of a commanded target back to its agent.</summary>
+    public PlayEntryResult TryReturnToAgent(TargetId targetId, double simTime)
+    {
+        var blocked = RequireExecuting();
+        if (blocked != null)
+        {
+            return blocked;
+        }
+
+        var commanded = FindCommanded(targetId);
+        if (commanded == null)
+        {
+            return NotCommanded(targetId);
+        }
+
+        var orchestrator = _session.Bridge!.Orchestrator;
+        if (orchestrator.AttachReplayViewer)
+        {
+            return PlayEntryResult.Fail(PlayDelegationErrorCodes.ReplayAttached,
+                "Replay viewer attached; control handoff is disabled.");
+        }
+
+        if (commanded.Target is not UnitTarget unit || !orchestrator.TryReleaseDirectControl(unit, simTime))
+        {
+            return PlayEntryResult.Fail(PlayDelegationErrorCodes.ControlHandoffDenied,
+                $"Could not return {targetId.Value} to agent control.");
+        }
+
+        return PlayEntryResult.Ok($"Returned {targetId.Value} to agent control.");
+    }
+
+    /// <summary>DRG-247: pause autonomous agent actions for a commanded target without clearing tasking.</summary>
+    public PlayEntryResult TryPauseAgentActions(TargetId targetId, double simTime)
+    {
+        var blocked = RequireExecuting();
+        if (blocked != null)
+        {
+            return blocked;
+        }
+
+        var commanded = FindCommanded(targetId);
+        if (commanded == null)
+        {
+            return NotCommanded(targetId);
+        }
+
+        var orchestrator = _session.Bridge!.Orchestrator;
+        if (orchestrator.AttachReplayViewer)
+        {
+            return PlayEntryResult.Fail(PlayDelegationErrorCodes.ReplayAttached,
+                "Replay viewer attached; pausing agent actions is disabled.");
+        }
+
+        if (!orchestrator.TryPauseAgentActions(commanded.Target, simTime))
+        {
+            return PlayEntryResult.Fail(PlayDelegationErrorCodes.ControlHandoffDenied,
+                $"Could not pause agent actions for {targetId.Value}.");
+        }
+
+        return PlayEntryResult.Ok($"Paused agent actions for {targetId.Value}.");
+    }
+
+    /// <summary>DRG-247: resume suspended autonomous agent actions for a commanded target.</summary>
+    public PlayEntryResult TryResumeAgentActions(TargetId targetId, double simTime)
+    {
+        var blocked = RequireExecuting();
+        if (blocked != null)
+        {
+            return blocked;
+        }
+
+        var commanded = FindCommanded(targetId);
+        if (commanded == null)
+        {
+            return NotCommanded(targetId);
+        }
+
+        var orchestrator = _session.Bridge!.Orchestrator;
+        if (orchestrator.AttachReplayViewer)
+        {
+            return PlayEntryResult.Fail(PlayDelegationErrorCodes.ReplayAttached,
+                "Replay viewer attached; resuming agent actions is disabled.");
+        }
+
+        if (!orchestrator.TryResumeAgentActions(commanded.Target, simTime))
+        {
+            return PlayEntryResult.Fail(PlayDelegationErrorCodes.ControlHandoffDenied,
+                $"Could not resume agent actions for {targetId.Value}.");
+        }
+
+        return PlayEntryResult.Ok($"Resumed agent actions for {targetId.Value}.");
     }
 
     private readonly record struct AgentResolution(AgentController? Agent, PlayEntryResult? Failure);

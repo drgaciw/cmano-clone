@@ -183,6 +183,97 @@ public sealed class MissionRoleCapabilityProjectionTests
         }
     }
 
+    [Test]
+    public void Project_covers_executed_generic_only_and_not_executed_rows_without_blocking_generic_only()
+    {
+        var doc = LoadFixture("role-capability-mixed-tiers.json");
+
+        var defaultRows = MissionRoleCapabilityProjection.Project(doc);
+        var cliRows = MissionRoleCapabilityProjection.Project(doc, MissionRoleCapabilityManifest.CliSimulateBackendId);
+
+        Assert.That(defaultRows.Single(r => r.MissionId == "patrol-1").Execution, Is.EqualTo(MissionRoleExecution.Executed));
+        Assert.That(defaultRows.Single(r => r.MissionId == "patrol-1").BlocksExportAndPlay, Is.False);
+
+        var cliPatrol = cliRows.Single(r => r.MissionId == "patrol-1");
+        Assert.That(cliPatrol.Execution, Is.EqualTo(MissionRoleExecution.GenericOnly));
+        Assert.That(cliPatrol.FindingCode, Is.EqualTo(MissionRoleCapabilityManifest.CodeRoleGenericOnly));
+        Assert.That(cliPatrol.BlocksExportAndPlay, Is.False);
+        Assert.That(cliPatrol.StatusLabel, Does.Contain("Generic").IgnoreCase);
+
+        var cliTanker = cliRows.Single(r => r.MissionId == "support-tanker");
+        Assert.That(cliTanker.Execution, Is.EqualTo(MissionRoleExecution.NotExecuted));
+        Assert.That(cliTanker.BlocksExportAndPlay, Is.True);
+    }
+
+    [Test]
+    public void Generic_only_warning_does_not_block_export_gate_or_play_entry()
+    {
+        var path = NewTempPath("generic-only-play");
+        try
+        {
+            File.Copy(FixturePath("role-capability-generic-only.json"), path);
+            using var session = ScenarioAuthoringSession.Open(path);
+            var catalog = InMemoryCatalogReader.BalticPatrolFixture();
+            var presenter = new LiveFindingsPresenter(
+                session,
+                catalog,
+                debounceMs: 0,
+                backendId: MissionRoleCapabilityManifest.CliSimulateBackendId);
+            presenter.RefreshImmediate();
+
+            Assert.That(presenter.CanExport, Is.True);
+            Assert.That(presenter.ErrorCount, Is.Zero);
+            Assert.That(presenter.WarningCount, Is.EqualTo(2));
+            Assert.That(presenter.Gate.HasUnsupportedExecution, Is.False);
+            Assert.That(presenter.Gate.HasGenericExecutionWarnings, Is.True);
+            Assert.That(presenter.Gate.GenericExecutionFindings.Count, Is.EqualTo(2));
+            Assert.That(presenter.Gate.PlayBlockingReason, Is.Null);
+
+            var controller = new EditModeController(session, presenter);
+            Assert.That(controller.TryEnterPlay(), Is.True);
+            Assert.That(controller.Mode, Is.EqualTo(ScenarioHostMode.Play));
+            Assert.That(controller.LastPlayBlockReason, Is.Null);
+        }
+        finally
+        {
+            File.Delete(path);
+        }
+    }
+
+    [Test]
+    public void LiveFindingsPresenter_RefreshImmediate_with_explicit_catalog_persists_across_parameterless_refresh()
+    {
+        var path = NewTempPath("explicit-catalog-refresh");
+        try
+        {
+            File.Copy(FixturePath("role-capability-generic-only.json"), path);
+            using var session = ScenarioAuthoringSession.Open(path);
+            var presenter = new LiveFindingsPresenter(session, debounceMs: 0);
+
+            // Bind an explicit catalog via RefreshImmediate(boundCatalog, backendId) -> GenericOnly, CanExport=true
+            presenter.RefreshImmediate(InMemoryCatalogReader.BalticPatrolFixture(), MissionRoleCapabilityManifest.CliSimulateBackendId);
+            Assert.That(presenter.CanExport, Is.True);
+            Assert.That(presenter.LastCodes, Does.Not.Contain(ScenarioSaveExportGate.CatalogUnboundFindingCode));
+            Assert.That(presenter.LastCodes, Does.Contain(MissionRoleCapabilityManifest.CodeRoleGenericOnly));
+
+            // Subsequent parameterless RefreshImmediate() must preserve the explicit catalog & backendId
+            presenter.RefreshImmediate();
+            Assert.That(presenter.CanExport, Is.True);
+            Assert.That(presenter.LastCodes, Does.Not.Contain(ScenarioSaveExportGate.CatalogUnboundFindingCode));
+            Assert.That(presenter.LastCodes, Does.Contain(MissionRoleCapabilityManifest.CodeRoleGenericOnly));
+
+            // Explicitly unbind (boundCatalog: null) -> CATALOG_UNBOUND persists across parameterless RefreshImmediate()
+            presenter.RefreshImmediate(boundCatalog: null, backendId: MissionRoleCapabilityManifest.CliSimulateBackendId);
+            presenter.RefreshImmediate();
+            Assert.That(presenter.CanExport, Is.False);
+            Assert.That(presenter.LastCodes, Does.Contain(ScenarioSaveExportGate.CatalogUnboundFindingCode));
+        }
+        finally
+        {
+            File.Delete(path);
+        }
+    }
+
     private static string NewTempPath(string tag) =>
         Path.Combine(Path.GetTempPath(), $"aegis-drg345-{tag}-{Guid.NewGuid():N}.json");
 
