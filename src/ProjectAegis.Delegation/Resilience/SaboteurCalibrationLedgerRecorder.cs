@@ -344,7 +344,7 @@ public static class SaboteurCalibrationLedgerRecorder
             throw new JsonException($"Saboteur summary string property '{propName}' must not be blank.");
         }
 
-        return value!;
+        return value;
     }
 
     private static string? ReadString(JsonElement obj, string propName) =>

@@ -128,7 +128,7 @@ public static class ThreeLayerCombatOracleEvaluator
         else
         {
             var renderedFamilies = new HashSet<string>(
-                projection.WeaponFamiliesRendered ?? Array.Empty<string>(),
+                projection.WeaponFamiliesRendered,
                 StringComparer.OrdinalIgnoreCase);
 
             if (simTruth?.WeaponFamiliesObserved is not null)
@@ -177,7 +177,7 @@ public static class ThreeLayerCombatOracleEvaluator
         else
         {
             var viewports = new HashSet<string>(
-                rendered.ViewportsVerified ?? Array.Empty<string>(),
+                rendered.ViewportsVerified,
                 StringComparer.OrdinalIgnoreCase);
 
             foreach (var required in RequiredBaselineViewports)

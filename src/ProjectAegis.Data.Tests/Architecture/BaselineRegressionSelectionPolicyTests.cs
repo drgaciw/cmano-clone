@@ -93,9 +93,12 @@ public sealed class BaselineRegressionSelectionPolicyTests
         var planA = GitNexusTestSelectionEngine.BuildPlan(requestA);
         var planB = GitNexusTestSelectionEngine.BuildPlan(requestB);
 
+        Assert.That(requestA.IsWorkingTreeClean, Is.True);
+        Assert.That(requestA.ImpactedSymbols, Is.Null);
         Assert.That(planA.RunFullSolution, Is.False);
         Assert.That(planA.IsConservativeFallback, Is.False);
         Assert.That(planA.RequireArchitectureFences, Is.True);
+        Assert.That(planA.RecommendedTestFilters, Is.Not.Null);
         Assert.That(planA.FallbackReasons, Is.Empty);
         Assert.That(planA.SelectedTestProjects, Is.EqualTo(planB.SelectedTestProjects));
 

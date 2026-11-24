@@ -263,7 +263,7 @@ public sealed class IfcMissionThreadVerificationTests
         var fireControl = new StubFireControl(contactIds);
         var killChain = KillChainContactStateProjection.Project(log, currentSimTick: 10, fireControl);
         var provenance = ContactProvenanceProjection.Project(log, currentSimTick: 10, catalog);
-        var sensorToShooter = SensorToShooterProjection.Project(killChain, shooters, catalog, CatalogWeaponIds.MvpDefault);
+        var sensorToShooter = SensorToShooterProjection.Project(killChain, shooters, catalog);
 
         for (var i = 0; i < warmupIterations; i++)
         {
@@ -459,20 +459,20 @@ public sealed class IfcMissionThreadVerificationTests
         var inputB = BuildInput("c-b", "hostile-1", IfcCaseKind.AuthorityWithheld, RoeLevel.HoldFire, true, CommsState.Nominal, 4, 0);
         var fireControl = new StubFireControl("c-a", "c-b");
 
-        var batchAB = IfcMissionThreadVerifier.Evaluate(log, 10, new[] { inputA, inputB }, fireControl, shooters, catalog);
-        var batchBA = IfcMissionThreadVerifier.Evaluate(log, 10, new[] { inputB, inputA }, fireControl, shooters, catalog);
+        var batchAb = IfcMissionThreadVerifier.Evaluate(log, 10, new[] { inputA, inputB }, fireControl, shooters, catalog);
+        var batchBa = IfcMissionThreadVerifier.Evaluate(log, 10, new[] { inputB, inputA }, fireControl, shooters, catalog);
 
-        var ledgerAB = IfcMissionThreadVerifier.BuildEvidenceLedger(
-            "ifc-order", "ifc-order-scenario", 11, batchAB,
+        var ledgerAb = IfcMissionThreadVerifier.BuildEvidenceLedger(
+            "ifc-order", "ifc-order-scenario", 11, batchAb,
             TestRevision(), TestInputs("ifc-order-scenario", 11),
             "artifact.json", new string('c', 64), "2026-11-23T16:15:00Z");
-        var ledgerBA = IfcMissionThreadVerifier.BuildEvidenceLedger(
-            "ifc-order", "ifc-order-scenario", 11, batchBA,
+        var ledgerBa = IfcMissionThreadVerifier.BuildEvidenceLedger(
+            "ifc-order", "ifc-order-scenario", 11, batchBa,
             TestRevision(), TestInputs("ifc-order-scenario", 11),
             "artifact.json", new string('c', 64), "2026-11-23T16:15:00Z");
 
-        Assert.That(ledgerAB.ContentDigestSha256, Is.EqualTo(ledgerBA.ContentDigestSha256));
-        Assert.That(EvidenceLedgerSerializer.ToCanonicalJson(ledgerAB), Is.EqualTo(EvidenceLedgerSerializer.ToCanonicalJson(ledgerBA)));
+        Assert.That(ledgerAb.ContentDigestSha256, Is.EqualTo(ledgerBa.ContentDigestSha256));
+        Assert.That(EvidenceLedgerSerializer.ToCanonicalJson(ledgerAb), Is.EqualTo(EvidenceLedgerSerializer.ToCanonicalJson(ledgerBa)));
     }
 
     [Test]
@@ -488,7 +488,7 @@ public sealed class IfcMissionThreadVerificationTests
 
         var killChain = KillChainContactStateProjection.Project(log, 10, new StubFireControl("c-dup"));
         var provenance = ContactProvenanceProjection.Project(log, 10, catalog);
-        var sensorToShooter = SensorToShooterProjection.Project(killChain, shooters, catalog, CatalogWeaponIds.MvpDefault);
+        var sensorToShooter = SensorToShooterProjection.Project(killChain, shooters, catalog);
 
         Assert.Throws<ArgumentException>(() =>
             IfcMissionThreadVerifier.EvaluateBatch(killChain, provenance, sensorToShooter, new[] { first, second }, 10, 10.0));
@@ -525,7 +525,7 @@ public sealed class IfcMissionThreadVerificationTests
             PkBase: 0.85,
             SalvoSize: 1,
             DlzPersonality: DlzPersonality.Normal);
-        var policy = new EffectivePolicy(roe, EffectivePolicy.DefaultMaxSalvo, AutoEngageAuthorized: roe == RoeLevel.WeaponsFree, ExpendAuthorized: false);
+        var policy = new EffectivePolicy(roe, AutoEngageAuthorized: roe == RoeLevel.WeaponsFree, ExpendAuthorized: false);
         var authority = C2AuthorityProjector.Project(new C2AuthorityProjectionContext(
             roe,
             roe == RoeLevel.WeaponsFree ? SkillLane.Read : SkillLane.Propose,

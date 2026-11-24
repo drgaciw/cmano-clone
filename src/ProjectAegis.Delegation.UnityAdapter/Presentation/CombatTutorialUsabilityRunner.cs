@@ -95,8 +95,8 @@ public static class CombatTutorialUsabilityRunner
     /// <summary>Evaluates recorded step outcomes, viewport coverage, and pointer/keyboard honesty.</summary>
     public static CombatTutorialUsabilityReport Evaluate(
         CombatTutorialWalkthrough walkthrough,
-        IReadOnlyList<CombatTutorialStepOutcome> outcomes,
-        IReadOnlyList<string> verifiedViewports,
+        IReadOnlyList<CombatTutorialStepOutcome>? outcomes,
+        IReadOnlyList<string>? verifiedViewports,
         bool scaleExtremesVerified,
         bool containsFixtureOnlySteps)
     {

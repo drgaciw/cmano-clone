@@ -1,5 +1,3 @@
-using ProjectAegis.Delegation.CombatEvents;
-
 namespace ProjectAegis.Delegation.UnityAdapter.Presentation;
 
 /// <summary>Provenance of combat-picture timing capture (DRG-176 honest boundary: headless bind vs Unity frame).</summary>
@@ -140,7 +138,7 @@ public static class CombatPictureDeclutterEvaluator
             throw new ArgumentNullException(nameof(state));
         }
 
-        var legCount = Math.Max(state.VisibleCount, state.Legs?.Count ?? 0);
+        var legCount = Math.Max(state.VisibleCount, state.Legs.Count);
         return Evaluate(new CombatPictureBudgetSample(
             ZoomBand: state.Zoom,
             CaptureSource: captureSource,

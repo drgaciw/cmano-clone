@@ -14,6 +14,7 @@ public sealed class CombatPictureDeclutterBudgetTests
         var operational = CombatPictureDeclutterBudgets.ForZoomBand(CombatZoomBand.Operational);
         var tactical = CombatPictureDeclutterBudgets.ForZoomBand(CombatZoomBand.Tactical);
 
+        Assert.That(theater.ZoomBand, Is.EqualTo(CombatZoomBand.Theater));
         Assert.That(theater.MaxVisibleBattleLegs, Is.LessThan(operational.MaxVisibleBattleLegs));
         Assert.That(operational.MaxVisibleBattleLegs, Is.LessThanOrEqualTo(tactical.MaxVisibleBattleLegs));
         Assert.That(theater.MaxVisibleLabels, Is.LessThan(tactical.MaxVisibleLabels));
@@ -38,7 +39,10 @@ public sealed class CombatPictureDeclutterBudgetTests
 
         var result = CombatPictureDeclutterEvaluator.Evaluate(sample);
 
+        Assert.That(sample.Resolution, Is.EqualTo("1600x979"));
+        Assert.That(sample.EntityCount, Is.EqualTo(64));
         Assert.That(result.Passed, Is.True, string.Join("; ", result.Violations));
+        Assert.That(result.BudgetApplied.ZoomBand, Is.EqualTo(CombatZoomBand.Operational));
         Assert.That(result.ProvesUnityFrameTiming, Is.False);
         Assert.That(result.Violations, Is.Empty);
     }

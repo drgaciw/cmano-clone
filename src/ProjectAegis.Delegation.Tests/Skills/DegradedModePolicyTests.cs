@@ -1,8 +1,6 @@
 using NUnit.Framework;
-using ProjectAegis.Delegation.Core;
 using ProjectAegis.Delegation.Decision;
 using ProjectAegis.Delegation.Skills;
-using ProjectAegis.Sim.Policy;
 
 namespace ProjectAegis.Delegation.Tests.Skills;
 
@@ -25,6 +23,7 @@ public sealed class DegradedModePolicyTests
 
         foreach (var rule in DegradedModePolicy.Rules)
         {
+            Assert.That(rule.Disposition, Is.Not.EqualTo(DegradedModeDisposition.Normal));
             Assert.That(rule.AllowHiddenFallback, Is.False);
             Assert.That(rule.RequireOperatorDisclosure, Is.True);
             Assert.That(string.IsNullOrWhiteSpace(rule.DisclosureCode), Is.False);

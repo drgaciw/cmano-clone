@@ -42,7 +42,6 @@ public static class AcceptanceEvidenceValidator
         var requiresReassessment = reassessmentReasons.Count > 0;
         var isOwnerAccepted = isSchemaValid
             && !requiresReassessment
-            && record.OwnerAcceptance is not null
             && record.OwnerAcceptance.Status == OwnerAcceptanceStatus.Accepted;
 
         return new AcceptanceEvidenceValidationResult(
@@ -64,40 +63,26 @@ public static class AcceptanceEvidenceValidator
         Require(record.ArtifactSha256, nameof(record.ArtifactSha256), errors);
         Require(record.CollectedAtUtc, nameof(record.CollectedAtUtc), errors);
 
-        if (record.Revision is null)
-        {
-            errors.Add("Revision identity is required.");
-        }
-        else
-        {
-            Require(record.Revision.CommitSha, "Revision.CommitSha", errors);
-            Require(record.Revision.BuildIdentity, "Revision.BuildIdentity", errors);
-            Require(record.Revision.LocalDeltaIdentity, "Revision.LocalDeltaIdentity", errors);
-        }
+        Require(record.Revision.CommitSha, "Revision.CommitSha", errors);
+        Require(record.Revision.BuildIdentity, "Revision.BuildIdentity", errors);
+        Require(record.Revision.LocalDeltaIdentity, "Revision.LocalDeltaIdentity", errors);
 
-        if (record.Inputs is null)
+        Require(record.Inputs.ScenarioId, "Inputs.ScenarioId", errors);
+        Require(record.Inputs.ScenarioSha256, "Inputs.ScenarioSha256", errors);
+        Require(record.Inputs.CatalogId, "Inputs.CatalogId", errors);
+        Require(record.Inputs.CatalogSha256, "Inputs.CatalogSha256", errors);
+        if (record.Inputs.Policies.Count == 0)
         {
-            errors.Add("Input digest manifest is required.");
+            errors.Add("Inputs.Policies must contain at least one policy digest.");
         }
         else
         {
-            Require(record.Inputs.ScenarioId, "Inputs.ScenarioId", errors);
-            Require(record.Inputs.ScenarioSha256, "Inputs.ScenarioSha256", errors);
-            Require(record.Inputs.CatalogId, "Inputs.CatalogId", errors);
-            Require(record.Inputs.CatalogSha256, "Inputs.CatalogSha256", errors);
-            if (record.Inputs.Policies is null || record.Inputs.Policies.Count == 0)
+            for (var i = 0; i < record.Inputs.Policies.Count; i++)
             {
-                errors.Add("Inputs.Policies must contain at least one policy digest.");
-            }
-            else
-            {
-                for (var i = 0; i < record.Inputs.Policies.Count; i++)
+                var p = record.Inputs.Policies[i];
+                if (string.IsNullOrWhiteSpace(p.Path) || string.IsNullOrWhiteSpace(p.Sha256))
                 {
-                    var p = record.Inputs.Policies[i];
-                    if (string.IsNullOrWhiteSpace(p.Path) || string.IsNullOrWhiteSpace(p.Sha256))
-                    {
-                        errors.Add($"Inputs.Policies[{i}] requires non-empty path and sha256.");
-                    }
+                    errors.Add($"Inputs.Policies[{i}] requires non-empty path and sha256.");
                 }
             }
         }
@@ -105,12 +90,6 @@ public static class AcceptanceEvidenceValidator
 
     private static void ValidateCounts(RevisionBoundAcceptanceRecord record, List<string> errors)
     {
-        if (record.Counts is null)
-        {
-            errors.Add("FloorVsObservedCounts is required.");
-            return;
-        }
-
         if (record.Counts.DeclaredFloor < 0 || record.Counts.ObservedPassed < 0 || record.Counts.ObservedFailed < 0 || record.Counts.ObservedSkipped < 0)
         {
             errors.Add("Counts must be non-negative.");
@@ -148,12 +127,6 @@ public static class AcceptanceEvidenceValidator
 
     private static void ValidateOwnerAcceptance(RevisionBoundAcceptanceRecord record, List<string> errors)
     {
-        if (record.OwnerAcceptance is null)
-        {
-            errors.Add("OwnerAcceptance is required.");
-            return;
-        }
-
         var oa = record.OwnerAcceptance;
         switch (oa.Status)
         {
@@ -176,7 +149,7 @@ public static class AcceptanceEvidenceValidator
                 {
                     errors.Add("OwnerAcceptance.AcceptedRevision is required when Status is Accepted.");
                 }
-                else if (record.Revision is not null && !RevisionsEqual(record.Revision, oa.AcceptedRevision))
+                else if (!RevisionsEqual(record.Revision, oa.AcceptedRevision))
                 {
                     errors.Add("OwnerAcceptance.AcceptedRevision does not match record Revision.");
                 }
@@ -185,7 +158,7 @@ public static class AcceptanceEvidenceValidator
                 {
                     errors.Add("OwnerAcceptance.AcceptedInputs is required when Status is Accepted.");
                 }
-                else if (record.Inputs is not null && !InputsEqual(record.Inputs, oa.AcceptedInputs))
+                else if (!InputsEqual(record.Inputs, oa.AcceptedInputs))
                 {
                     errors.Add("OwnerAcceptance.AcceptedInputs does not match record Inputs.");
                 }
@@ -214,7 +187,7 @@ public static class AcceptanceEvidenceValidator
         InputDigestManifest? currentInputs,
         List<string> reassessmentReasons)
     {
-        if (currentRevision is not null && record.Revision is not null)
+        if (currentRevision is not null)
         {
             if (!string.Equals(record.Revision.CommitSha, currentRevision.CommitSha, StringComparison.Ordinal))
             {
@@ -237,7 +210,7 @@ public static class AcceptanceEvidenceValidator
             }
         }
 
-        if (currentInputs is not null && record.Inputs is not null)
+        if (currentInputs is not null)
         {
             if (!string.Equals(record.Inputs.ScenarioId, currentInputs.ScenarioId, StringComparison.Ordinal))
             {

@@ -263,7 +263,7 @@ public static class GauntletOracleEvalCommand
 
             baselineContext = new BaselineContextProvenance(
                 SchemaVersion: 1,
-                CommitSha: string.IsNullOrWhiteSpace(commitSha) ? "HEAD" : commitSha!,
+                CommitSha: string.IsNullOrWhiteSpace(commitSha) ? "HEAD" : commitSha,
                 Seed: seed ?? 42,
                 Ticks: ticks ?? 10,
                 CatalogPath: resolvedCatalogPath,

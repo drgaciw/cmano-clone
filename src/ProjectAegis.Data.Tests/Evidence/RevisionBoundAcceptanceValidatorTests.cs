@@ -16,6 +16,7 @@ public sealed class RevisionBoundAcceptanceValidatorTests
         Assert.That(result.Errors, Is.Empty);
         Assert.That(result.IsOwnerAcceptedForCurrentRevision, Is.False);
         Assert.That(result.HistoricalRecordPreserved, Is.True);
+        Assert.That(record.Notes, Is.Null);
         Assert.That(record.Counts.DeclaredFloor, Is.Not.EqualTo(record.Counts.ObservedPassed));
     }
 
@@ -99,6 +100,7 @@ public sealed class RevisionBoundAcceptanceValidatorTests
         var commitResult = AcceptanceEvidenceValidator.Validate(accepted, driftedCommit, accepted.Inputs);
         Assert.That(commitResult.IsOwnerAcceptedForCurrentRevision, Is.False);
         Assert.That(commitResult.RequiresReassessment, Is.True);
+        Assert.That(commitResult.ReassessmentReasons, Is.Not.Empty);
         Assert.That(commitResult.HistoricalRecordPreserved, Is.True);
         Assert.That(accepted.Revision, Is.EqualTo(originalRevision));
 

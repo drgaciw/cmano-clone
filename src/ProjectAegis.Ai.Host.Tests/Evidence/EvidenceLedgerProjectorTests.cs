@@ -1,11 +1,9 @@
 using NUnit.Framework;
 using ProjectAegis.Ai.Contracts;
 using ProjectAegis.Ai.Host.Evidence;
-using ProjectAegis.Data.Evidence;
 using ProjectAegis.Delegation.Comms;
 using ProjectAegis.Delegation.Core;
 using ProjectAegis.Delegation.Decision;
-using ProjectAegis.Delegation.Traits;
 using ProjectAegis.Sim.Policy;
 
 namespace ProjectAegis.Ai.Host.Tests.Evidence;

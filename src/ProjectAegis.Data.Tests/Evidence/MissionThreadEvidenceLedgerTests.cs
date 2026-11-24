@@ -64,6 +64,22 @@ public sealed class MissionThreadEvidenceLedgerTests
         };
 
         Assert.That(records.Select(r => r.Kind).Distinct().Count(), Is.EqualTo(6));
+        Assert.That(records[0].Contact!.KillChainPhase, Is.EqualTo("Track"));
+        Assert.That(records[0].Contact!.Confidence, Is.EqualTo("PROBABLE"));
+        Assert.That(records[0].Contact!.QualityFlags, Is.EqualTo("Fresh"));
+        Assert.That(records[1].Authority!.ActorId, Is.EqualTo("agent-1"));
+        Assert.That(records[1].Authority!.RequiredApproval, Is.EqualTo("WeaponsRelease"));
+        Assert.That(records[2].DataLink!.ShareLagTicks, Is.EqualTo(2));
+        Assert.That(records[3].Recommendation!.TargetId, Is.EqualTo("u1"));
+        Assert.That(records[3].Recommendation!.PolicySnapshotId, Is.EqualTo("42"));
+        Assert.That(records[3].Recommendation!.PersonalitySlug, Is.EqualTo("aggressive"));
+        Assert.That(records[3].Recommendation!.Outcome, Is.EqualTo("Proposed"));
+        Assert.That(records[3].Recommendation!.WithheldReasonCode, Is.Null);
+        Assert.That(records[4].Engagement!.WeaponFamilyId, Is.EqualTo("asm-fixture"));
+        Assert.That(records[4].Engagement!.SalvoSize, Is.EqualTo(2));
+        Assert.That(records[4].Engagement!.AbortReasonCode, Is.Null);
+        Assert.That(records[5].Assessment!.ContactId, Is.EqualTo("c-1"));
+        Assert.That(records[5].Assessment!.SourceKind, Is.EqualTo("SimDamage"));
         foreach (var record in records)
         {
             Assert.That(record.PreservesSimAuthority, Is.True);
@@ -155,7 +171,11 @@ public sealed class MissionThreadEvidenceLedgerTests
         Assert.That(roundTrip.ContentDigestSha256, Is.EqualTo(ledgerA.ContentDigestSha256));
         Assert.That(roundTrip.Entries[0].EvidenceId, Is.EqualTo("ev-1"));
         Assert.That(roundTrip.ReplayWorldHash, Is.EqualTo("17144800277401907079"));
+        Assert.That(roundTrip.CiCorrelation?.Provider, Is.EqualTo("Buildkite"));
+        Assert.That(roundTrip.CiCorrelation?.PipelineOrWorkflow, Is.EqualTo("gauntlet-oracle"));
         Assert.That(roundTrip.CiCorrelation?.RunId, Is.EqualTo("bk-101"));
+        Assert.That(roundTrip.CiCorrelation?.RunUrl, Is.EqualTo("https://buildkite.example/101"));
+        Assert.That(roundTrip.CiCorrelation?.Status, Is.EqualTo("passed"));
         Assert.That(roundTrip.DefectFollowUps[0].IssueId, Is.EqualTo("DRG-201"));
     }
 

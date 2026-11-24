@@ -161,7 +161,7 @@ public static class CombatReleaseGateEvaluator
         }
 
         var buttons = new HashSet<string>(
-            input.PlatformEditorButtonLabels ?? Array.Empty<string>(),
+            input.PlatformEditorButtonLabels,
             StringComparer.OrdinalIgnoreCase);
 
         foreach (var required in RequiredPlatformButtons)

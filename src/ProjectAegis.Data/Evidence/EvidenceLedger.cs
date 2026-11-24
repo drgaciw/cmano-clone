@@ -142,15 +142,15 @@ public static class EvidenceLedgerBuilder
             .ThenBy(a => a.ArtifactSha256, StringComparer.Ordinal)
             .ThenBy(a => a.ArtifactLocation, StringComparer.Ordinal)
             .ThenBy(a => a.Result, StringComparer.Ordinal)
-            .ThenBy(a => a.OwnerAcceptance?.Status ?? OwnerAcceptanceStatus.Pending)
-            .ThenBy(a => a.Counts?.ObservedPassed ?? 0)
+            .ThenBy(a => a.OwnerAcceptance.Status)
+            .ThenBy(a => a.Counts.ObservedPassed)
             .ToArray();
 
         var normalizedBaseline = baselineContext is null
             ? null
             : baselineContext with
             {
-                Policies = (baselineContext.Policies ?? Array.Empty<HashedInputFile>())
+                Policies = baselineContext.Policies
                     .OrderBy(p => p.Path, StringComparer.Ordinal)
                     .ThenBy(p => p.Sha256, StringComparer.OrdinalIgnoreCase)
                     .ToArray(),
@@ -160,9 +160,9 @@ public static class EvidenceLedgerBuilder
             ? null
             : oracleEvaluation with
             {
-                Scenarios = (oracleEvaluation.Scenarios ?? Array.Empty<string>()).OrderBy(s => s, StringComparer.Ordinal).ToArray(),
-                Failures = (oracleEvaluation.Failures ?? Array.Empty<string>()).ToArray(),
-                Warnings = (oracleEvaluation.Warnings ?? Array.Empty<string>()).ToArray(),
+                Scenarios = oracleEvaluation.Scenarios.OrderBy(s => s, StringComparer.Ordinal).ToArray(),
+                Failures = oracleEvaluation.Failures.ToArray(),
+                Warnings = oracleEvaluation.Warnings.ToArray(),
             };
 
         var draft = new EvidenceLedger(

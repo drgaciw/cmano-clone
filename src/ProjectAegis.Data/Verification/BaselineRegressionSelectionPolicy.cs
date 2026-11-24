@@ -212,7 +212,7 @@ public static class GitNexusTestSelectionEngine
         }
 
         var fallbackReasons = new List<string>();
-        if (request.IndexState is null || !request.IndexState.IsDrg323IntegrityValid())
+        if (!request.IndexState.IsDrg323IntegrityValid())
         {
             fallbackReasons.Add("GitNexus index failed DRG-323 integrity validation.");
         }
@@ -222,45 +222,42 @@ public static class GitNexusTestSelectionEngine
             fallbackReasons.Add($"GitNexus impact risk '{request.ImpactRisk}' requires full baseline fallback.");
         }
 
-        if (request.ChangedPaths is null || request.ChangedPaths.Count == 0)
+        if (request.ChangedPaths.Count == 0)
         {
             fallbackReasons.Add("No changed paths provided; falling back to full solution.");
         }
 
         var selected = new HashSet<string>(StringComparer.Ordinal);
-        if (request.ChangedPaths is not null)
+        for (var i = 0; i < request.ChangedPaths.Count; i++)
         {
-            for (var i = 0; i < request.ChangedPaths.Count; i++)
+            var raw = request.ChangedPaths[i];
+            if (string.IsNullOrWhiteSpace(raw))
             {
-                var raw = request.ChangedPaths[i];
-                if (string.IsNullOrWhiteSpace(raw))
-                {
-                    fallbackReasons.Add("Empty changed path entry encountered.");
-                    continue;
-                }
+                fallbackReasons.Add("Empty changed path entry encountered.");
+                continue;
+            }
 
-                var normalized = raw.Trim().Replace('\\', '/');
-                while (normalized.StartsWith("./", StringComparison.Ordinal))
-                {
-                    normalized = normalized.Substring(2);
-                }
+            var normalized = raw.Trim().Replace('\\', '/');
+            while (normalized.StartsWith("./", StringComparison.Ordinal))
+            {
+                normalized = normalized.Substring(2);
+            }
 
-                if (string.IsNullOrWhiteSpace(normalized))
-                {
-                    fallbackReasons.Add("Empty changed path entry encountered.");
-                    continue;
-                }
+            if (string.IsNullOrWhiteSpace(normalized))
+            {
+                fallbackReasons.Add("Empty changed path entry encountered.");
+                continue;
+            }
 
-                if (IsConservativeFullSolutionPath(normalized))
-                {
-                    fallbackReasons.Add($"High-blast or Hard-No path modified: '{normalized}'.");
-                    continue;
-                }
+            if (IsConservativeFullSolutionPath(normalized))
+            {
+                fallbackReasons.Add($"High-blast or Hard-No path modified: '{normalized}'.");
+                continue;
+            }
 
-                if (!TryMapPathToTransitiveTests(normalized, selected))
-                {
-                    fallbackReasons.Add($"Unmapped path '{normalized}' requires conservative full fallback.");
-                }
+            if (!TryMapPathToTransitiveTests(normalized, selected))
+            {
+                fallbackReasons.Add($"Unmapped path '{normalized}' requires conservative full fallback.");
             }
         }
 
@@ -581,7 +578,7 @@ public static class BaselineRegressionPolicy
                 SolutionMinPass: solutionMinPass,
                 ReplayGoldenMin: replayGoldenMin,
                 PlayModeSmokeMin: playModeSmokeMin,
-                BalticV2Hash: balticV2Hash!,
+                BalticV2Hash: balticV2Hash,
                 BaselineWarnings: baselineWarnings,
                 BaselinePluginDllCount: baselinePluginDllCount);
             error = null;

@@ -12,7 +12,10 @@ public sealed class CombatTutorialUsabilityRunnerTests
         var walkthrough = CombatTutorialUsabilityRunner.BuildDegradedCommsAcceptanceWalkthrough();
 
         Assert.That(walkthrough.ScenarioId, Is.EqualTo("baltic-patrol-degraded-comms-g2"));
+        Assert.That(walkthrough.Title, Is.Not.Empty);
         Assert.That(walkthrough.Steps.Count, Is.EqualTo(7));
+        Assert.That(walkthrough.Steps.All(s => !string.IsNullOrWhiteSpace(s.Title)), Is.True);
+        Assert.That(walkthrough.Steps.All(s => !string.IsNullOrWhiteSpace(s.PlayerPrompt)), Is.True);
         Assert.That(walkthrough.Steps.Select(s => s.StageKey).ToArray(), Is.EqualTo(new[]
         {
             "plan-assign",
@@ -48,8 +51,13 @@ public sealed class CombatTutorialUsabilityRunnerTests
             scaleExtremesVerified: true,
             containsFixtureOnlySteps: true);
 
+        Assert.That(outcomes[0].ElapsedSeconds, Is.EqualTo(4.5));
+        Assert.That(outcomes[0].EvidenceSource, Is.EqualTo("EditorPlayModeFixture"));
         Assert.That(report.Passed, Is.True, string.Join("; ", report.Failures));
+        Assert.That(report.ScenarioId, Is.EqualTo("baltic-patrol-degraded-comms-g2"));
+        Assert.That(report.TotalStepCount, Is.EqualTo(7));
         Assert.That(report.CompletedStepCount, Is.EqualTo(7));
+        Assert.That(report.VerifiedViewports, Has.Count.EqualTo(2));
         Assert.That(report.ClaimsLiveScenarioProof, Is.False);
     }
 

@@ -1,12 +1,10 @@
 using NUnit.Framework;
+using ProjectAegis.Data.Evidence;
 using ProjectAegis.Delegation.Core;
 using ProjectAegis.Delegation.Decision;
 using ProjectAegis.Delegation.Projection;
-using ProjectAegis.Delegation.ResourceRank;
 using ProjectAegis.Delegation.Skills;
-using ProjectAegis.Delegation.ThreatAssessment;
 using ProjectAegis.Delegation.UnityAdapter.Baltic;
-using ProjectAegis.Delegation.UnityAdapter.Bridge;
 using ProjectAegis.Delegation.UnityAdapter.CommandReview;
 using ProjectAegis.Delegation.UnityAdapter.Presentation;
 using ProjectAegis.Sim.Policy;
@@ -134,13 +132,13 @@ public sealed class DegradedModeAdviceVerificationTests
     {
         var result = BalticReplayHarness.Run(42, "baltic-patrol", 4);
         var fp = result.DecisionLog.ComputeFingerprint();
-        var extracted = ProjectAegis.Data.Evidence.GauntletFingerprintEvidenceExtractor.Extract("baltic-patrol", fp);
+        var extracted = GauntletFingerprintEvidenceExtractor.Extract("baltic-patrol", fp);
 
         Assert.That(extracted, Is.Not.Empty);
         Assert.That(extracted.All(e => e.HasValidPayload()), Is.True);
 
         var recommendations = extracted
-            .Where(e => e.Kind == ProjectAegis.Data.Evidence.MissionThreadEvidenceKind.Recommendation)
+            .Where(e => e.Kind == MissionThreadEvidenceKind.Recommendation)
             .ToArray();
         Assert.That(recommendations, Is.Not.Empty);
         Assert.That(recommendations.All(r => r.Recommendation!.AgentId != r.Recommendation.ChosenKind), Is.True);

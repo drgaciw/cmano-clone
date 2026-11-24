@@ -2,11 +2,9 @@ using System.Text.Json;
 using NUnit.Framework;
 using ProjectAegis.Data.Evidence;
 using ProjectAegis.Delegation.Attention;
-using ProjectAegis.Delegation.Comms;
 using ProjectAegis.Delegation.Controllers;
 using ProjectAegis.Delegation.Core;
 using ProjectAegis.Delegation.Decision;
-using ProjectAegis.Delegation.Groups;
 using ProjectAegis.Delegation.Orchestration;
 using ProjectAegis.Delegation.Policy;
 using ProjectAegis.Delegation.Projection;
@@ -172,6 +170,8 @@ public sealed class AgenticResilienceAndSaboteurTests
 
         foreach (var check in checks)
         {
+            Assert.That(check.Context, Is.Not.Null);
+            Assert.That(check.Notes, Is.Not.Null);
             Assert.That(check.Assessment.IsDegraded, Is.True);
             Assert.That(check.Assessment.AllowAutonomousOrSilentFallback, Is.False);
             Assert.That(check.Assessment.RequiresOperatorDisclosure, Is.True);
@@ -183,6 +183,7 @@ public sealed class AgenticResilienceAndSaboteurTests
             Assert.That(check.OverrideEvidence.FaultInjectedSummary, Is.Not.Null.And.Not.WhiteSpace);
         }
 
+        Assert.That(checks[0].EnvelopeValidation, Is.Not.Null);
         var summary = AgenticResilienceVerifier.Summarize(checks);
         Assert.That(summary.AllFailClosed, Is.True);
         Assert.That(summary.AllDisclosedToOperator, Is.True);
@@ -396,6 +397,7 @@ public sealed class AgenticResilienceAndSaboteurTests
         """;
         var parsed = SaboteurCalibrationLedgerRecorder.ParseReportJson(mismatchedKillRateJson);
         var eval = SaboteurCalibrationLedgerRecorder.Evaluate(parsed);
+        Assert.That(eval.Report, Is.SameAs(parsed));
         Assert.That(eval.Passed, Is.False);
         Assert.That(eval.Failures, Has.Some.Contains("killRate"));
     }
@@ -477,7 +479,6 @@ public sealed class AgenticResilienceAndSaboteurTests
                         policy: new EngageOnlyPolicy());
                     var holdPolicy = new EffectivePolicy(
                         RoeLevel.HoldFire,
-                        EffectivePolicy.DefaultMaxSalvo,
                         AutoEngageAuthorized: false,
                         ExpendAuthorized: false);
                     orchestrator.AssignAgentToTarget(aggressiveAgent, unit, holdPolicy, isFriendly: true);
@@ -590,9 +591,8 @@ public sealed class AgenticResilienceAndSaboteurTests
         human.Enqueue(new Order(orderId, unit.Id, 2.0, OrderKind.Hold, RiskLevel.Low), executeSimTick: 22);
         var enqueued = human.PendingOrderCount == 1;
 
-        var redundantOk = condition == DegradedModeCondition.NetworkPartition
-            ? ((HumanController)unit.Slot.Active!).PendingOrderCount == 1
-            : orchestrator.TryTakeDirectControl(unit, simTime: 2.0) && ((HumanController)unit.Slot.Active!).PendingOrderCount == 1;
+        var redundantOk = orchestrator.TryTakeDirectControl(unit, simTime: 2.0)
+            && ((HumanController)unit.Slot.Active!).PendingOrderCount == 1;
 
         var replacementAgent = orchestrator.CreateAgentFromPreset(new AgentId("agent-2"), PersonalityCatalog.All[1], AutonomyLevel.Assisted);
         var assignRefused = !orchestrator.TryAssignAgentController(unit, replacementAgent, isFriendly: true, simTime: 2.5).Allowed;

@@ -1,7 +1,4 @@
 using NUnit.Framework;
-using ProjectAegis.Data.Evidence;
-using ProjectAegis.Delegation.Projection;
-using ProjectAegis.Delegation.UnityAdapter.Baltic;
 using ProjectAegis.Delegation.UnityAdapter.Presentation;
 
 namespace ProjectAegis.Delegation.UnityAdapter.Tests.Presentation;
@@ -41,6 +38,9 @@ public sealed class CombatReleaseGateEvaluatorTests
             runs: 3);
 
         Assert.That(proof.Passed, Is.True, string.Join("; ", proof.Failures));
+        Assert.That(proof.ScenarioPolicyId, Is.EqualTo("baltic-patrol-classify"));
+        Assert.That(proof.Seed, Is.EqualTo(7));
+        Assert.That(proof.Ticks, Is.EqualTo(10));
         Assert.That(proof.RunsExecuted, Is.EqualTo(3));
         Assert.That(proof.LogFingerprint, Is.Not.Empty);
         Assert.That(proof.FinalWorldHash, Is.Not.EqualTo(0UL));
@@ -60,6 +60,7 @@ public sealed class CombatReleaseGateEvaluatorTests
             AffiliationShapeNotColorOnly: true));
 
         Assert.That(passing.Passed, Is.True, string.Join("; ", passing.Failures));
+        Assert.That(passing.GateId, Is.Not.Empty);
 
         var failing = CombatReleaseGateEvaluator.EvaluateAcc11(new Acc11AccessibilityInput(
             TierDeclaredStandard: true,
