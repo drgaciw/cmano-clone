@@ -68,7 +68,7 @@ it (unknown/blank → `DlzState.Unknown`).
 | `contactId` null/blank | `DlzLiveSurfaceState.Empty` (`Missing_contact_selection_fails_closed`) |
 | `threatRange` present | `Bind(threatRange)` — exact range + envelope (`Contact_hover_prefers_exact_threat_range_over_unit_preview`) |
 | else `unitEngagePreview` present | `BindFromEngagePreview(preview)` — the selected unit's DLZ label (`Contact_hover_falls_back_to_unit_preview_when_no_threat_range`) |
-| else | `DLZ: UNKNOWN — select a friendly unit for range assessment`, `[DLZ:UNKNOWN]` cue (`Contact_hover_without_range_or_preview_reports_unknown`) |
+| else | `DLZ: UNKNOWN — range assessment is shown on the selected unit's panel`, `[DLZ:UNKNOWN]` cue (`Contact_hover_without_range_or_preview_reports_unknown`, `Contact_hover_unknown_hint_matches_exclusive_selection`) |
 
 So an in-zone contact at 50 km with a 1–100 km envelope → `DLZ: InZone (Normal) | 50000 m | envelope 1000–100000 m`,
 short `IN` (`Threat_range_assessment_binds_in_zone_with_range_and_cue`); an approaching preview → short `MARGINAL`
@@ -153,7 +153,7 @@ The hosts project — they never set a fact, touch a controller slot, or call `D
   log, re-evaluates a gate, or participates in the `SimWorldHash` / order-log fingerprint. The Baltic v2 hash
   `17144800277401907079` is untouched.
 - **Fails closed.** No/blank contact or missing range evidence → `Empty`; a hover with neither exact range nor unit
-  preview shows an explicit "select a friendly unit" help line, never a blank or guessed zone.
+  preview shows an explicit "range assessment is shown on the selected unit's panel" help line, never a blank or guessed zone.
 - **Exact range wins.** `BindContact` prefers the structured `ThreatRangeAssessment` over the unit's engage-preview
   label, so a contact's own measured range is never displaced by the selected shooter's preview.
 - **Never color-only.** Every cue class is paired with a text declutter token, and `ShortLabel` carries the state in

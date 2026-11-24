@@ -78,24 +78,102 @@ namespace ProjectAegis.Unity.Runtime
         private ScrollView? _findingsList;
         private ScenarioEditorShellState _state = ScenarioEditorShellProjection.Bind();
         private bool _wired;
+        private Action? _loadRequested;
+        private Action? _saveRequested;
+        private Action? _undoRequested;
+        private Action? _redoRequested;
+        private Action? _playRequested;
+        private Action? _sampleRequested;
 
         /// <summary>Current shell projection state (test / curator sync).</summary>
         public ScenarioEditorShellState State => _state;
 
         /// <summary>Raised when Load is clicked (curator / session owns IO).</summary>
-        public event Action? LoadRequested;
+        public event Action? LoadRequested
+        {
+            add
+            {
+                _loadRequested += value;
+                RefreshActionAvailability();
+            }
+            remove
+            {
+                _loadRequested -= value;
+                RefreshActionAvailability();
+            }
+        }
 
         /// <summary>Raised when Save is clicked (allowed with errors).</summary>
-        public event Action? SaveRequested;
+        public event Action? SaveRequested
+        {
+            add
+            {
+                _saveRequested += value;
+                RefreshActionAvailability();
+            }
+            remove
+            {
+                _saveRequested -= value;
+                RefreshActionAvailability();
+            }
+        }
 
-        public event Action? UndoRequested;
-        public event Action? RedoRequested;
+        public event Action? UndoRequested
+        {
+            add
+            {
+                _undoRequested += value;
+                RefreshActionAvailability();
+            }
+            remove
+            {
+                _undoRequested -= value;
+                RefreshActionAvailability();
+            }
+        }
+        public event Action? RedoRequested
+        {
+            add
+            {
+                _redoRequested += value;
+                RefreshActionAvailability();
+            }
+            remove
+            {
+                _redoRequested -= value;
+                RefreshActionAvailability();
+            }
+        }
 
         /// <summary>Raised when Play is clicked and projection allows it.</summary>
-        public event Action? PlayRequested;
+        public event Action? PlayRequested
+        {
+            add
+            {
+                _playRequested += value;
+                RefreshActionAvailability();
+            }
+            remove
+            {
+                _playRequested -= value;
+                RefreshActionAvailability();
+            }
+        }
 
         /// <summary>Raised when Sample is clicked and projection allows it.</summary>
-        public event Action? SampleRequested;
+        public event Action? SampleRequested
+        {
+            add
+            {
+                _sampleRequested += value;
+                RefreshActionAvailability();
+            }
+            remove
+            {
+                _sampleRequested -= value;
+                RefreshActionAvailability();
+            }
+        }
 
         /// <summary>Raised when a findings row is activated (entity jump already applied to state).</summary>
         public event Action<ScenarioEditorFindingRow>? FindingActivated;
@@ -191,6 +269,15 @@ namespace ProjectAegis.Unity.Runtime
             FindingActivated?.Invoke(row);
         }
 
+        /// <summary>Subscribers change action availability (UAT D26), so re-apply the current state.</summary>
+        private void RefreshActionAvailability()
+        {
+            if (_document != null)
+            {
+                ApplyState(_state);
+            }
+        }
+
         private void TryWireElements()
         {
             var root = _document.rootVisualElement;
@@ -240,40 +327,40 @@ namespace ProjectAegis.Unity.Runtime
             WireFilter(_filterErrors, FilterErrorsName, ScenarioEditorFindingsFilter.Errors, b => _filterErrors = b);
             WireFilter(_filterWarnings, FilterWarningsName, ScenarioEditorFindingsFilter.Warnings, b => _filterWarnings = b);
 
-            WireAction(ref _btnLoad, BtnLoadName, () => LoadRequested?.Invoke());
+            WireAction(ref _btnLoad, BtnLoadName, () => _loadRequested?.Invoke());
             WireAction(ref _btnSave, BtnSaveName, () =>
             {
                 if (_state.SaveEnabled)
                 {
-                    SaveRequested?.Invoke();
+                    _saveRequested?.Invoke();
                 }
             });
             WireAction(ref _btnUndo, BtnUndoName, () =>
             {
                 if (_state.UndoEnabled)
                 {
-                    UndoRequested?.Invoke();
+                    _undoRequested?.Invoke();
                 }
             });
             WireAction(ref _btnRedo, BtnRedoName, () =>
             {
                 if (_state.RedoEnabled)
                 {
-                    RedoRequested?.Invoke();
+                    _redoRequested?.Invoke();
                 }
             });
             WireAction(ref _btnPlay, BtnPlayName, () =>
             {
                 if (_state.PlayEnabled)
                 {
-                    PlayRequested?.Invoke();
+                    _playRequested?.Invoke();
                 }
             });
             WireAction(ref _btnSample, BtnSampleName, () =>
             {
                 if (_state.SampleEnabled)
                 {
-                    SampleRequested?.Invoke();
+                    _sampleRequested?.Invoke();
                 }
             });
 
@@ -400,12 +487,14 @@ namespace ProjectAegis.Unity.Runtime
             _tabMissions?.EnableInClassList("scenario-editor-shell-tab--active", state.MissionBoardTabActive);
             _tabEvents?.EnableInClassList("scenario-editor-shell-tab--disabled", !state.EventsTabEnabled);
 
-            ApplyActionButton(_btnLoad, state.LoadEnabled);
-            ApplyActionButton(_btnSave, state.SaveEnabled);
-            ApplyActionButton(_btnUndo, state.UndoEnabled);
-            ApplyActionButton(_btnRedo, state.RedoEnabled);
-            ApplyActionButton(_btnPlay, state.PlayEnabled);
-            ApplyActionButton(_btnSample, state.SampleEnabled);
+            ApplyActionButton(_btnLoad, "Load", _loadRequested != null, state.LoadEnabled, null);
+            ApplyActionButton(_btnSave, "Save", _saveRequested != null, state.SaveEnabled, null);
+            ApplyActionButton(_btnUndo, "Undo", _undoRequested != null, state.UndoEnabled, null);
+            ApplyActionButton(_btnRedo, "Redo", _redoRequested != null, state.RedoEnabled, null);
+            ApplyActionButton(_btnPlay, "Play", _playRequested != null, state.PlayEnabled,
+                state.PlayBlocked ? state.PlayBlockReason : null);
+            ApplyActionButton(_btnSample, "Sample", _sampleRequested != null, state.SampleEnabled,
+                state.PlayBlocked ? state.PlayBlockReason : null);
 
             ApplyFilterChip(_filterAll, ScenarioEditorFindingsFilter.All, state.FindingsFilter);
             ApplyFilterChip(_filterErrors, ScenarioEditorFindingsFilter.Errors, state.FindingsFilter);
@@ -417,15 +506,24 @@ namespace ProjectAegis.Unity.Runtime
             RebuildFindingsList(state);
         }
 
-        private static void ApplyActionButton(Button? button, bool enabled)
+        private static void ApplyActionButton(
+            Button? button,
+            string actionName,
+            bool hasSubscriber,
+            bool stateEnabled,
+            string? stateDisabledReason)
         {
             if (button == null)
             {
                 return;
             }
 
-            button.SetEnabled(enabled);
-            button.EnableInClassList("scenario-editor-shell-action--disabled", !enabled);
+            // UAT D26: unwired actions are disabled with a NOT_AVAILABLE reason.
+            var availability = ScenarioEditorActionAvailability.Resolve(
+                actionName, hasSubscriber, stateEnabled, stateDisabledReason);
+            button.SetEnabled(availability.Enabled);
+            button.tooltip = availability.Tooltip;
+            button.EnableInClassList("scenario-editor-shell-action--disabled", !availability.Enabled);
         }
 
         private static void ApplyFilterChip(

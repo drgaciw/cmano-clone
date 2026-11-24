@@ -182,19 +182,47 @@ public sealed class PlayModeSmokeHarnessTests
         Assert.That(MessageLogBridge.ProjectFrom(log).Count, Is.EqualTo(afterSeed.Count));
 
         PlayModeSmokeOrbatSeeder.AdvanceDecisionLog(log, 5.0);
-        var afterFive = MessageLogBridge.ProjectFrom(log);
-        Assert.That(afterFive.Count, Is.GreaterThan(afterSeed.Count));
-        Assert.That(afterFive.Any(m => m.Text.Contains("emcon", StringComparison.Ordinal)), Is.True);
+        Assert.That(MessageLogBridge.ProjectFrom(log).Count, Is.EqualTo(afterSeed.Count));
 
-        PlayModeSmokeOrbatSeeder.AdvanceDecisionLog(log, 5.0);
-        Assert.That(MessageLogBridge.ProjectFrom(log).Count, Is.EqualTo(afterFive.Count));
+        PlayModeSmokeOrbatSeeder.AdvanceDecisionLog(log, 8.0);
+        var afterEight = MessageLogBridge.ProjectFrom(log);
+        Assert.That(afterEight.Count, Is.GreaterThan(afterSeed.Count));
+        Assert.That(afterEight.Any(m => m.Category == "MISSION" && m.Text.Contains("ON_STATION")), Is.True);
+
+        PlayModeSmokeOrbatSeeder.AdvanceDecisionLog(log, 8.0);
+        Assert.That(MessageLogBridge.ProjectFrom(log).Count, Is.EqualTo(afterEight.Count));
 
         PlayModeSmokeOrbatSeeder.AdvanceDecisionLog(log, 30.0);
         var afterThirty = MessageLogBridge.ProjectFrom(log);
-        Assert.That(afterThirty.Count, Is.GreaterThan(afterFive.Count));
+        Assert.That(afterThirty.Count, Is.GreaterThan(afterEight.Count));
         Assert.That(afterThirty.Any(m => m.Category == "MISSION" && m.Text.Contains("ON_STATION")), Is.True);
         Assert.That(afterThirty.Any(m => m.Category == "AGENT_DECISION" && m.Text.Contains("Engage")), Is.True);
         Assert.That(afterThirty.Any(m => m.Text.Contains("maxSalvo", StringComparison.Ordinal)), Is.True);
+    }
+
+    /// <summary>
+    /// UAT Round 8 D40: AdvanceDecisionLog must not emit a synthetic unit-less
+    /// <c>emcon: Active → Passive</c> policy update that contradicts actual unit EMCON state.
+    /// </summary>
+    [Test]
+    public void AdvanceDecisionLog_does_not_emit_synthetic_emcon_policy_update()
+    {
+        var log = new DecisionLog();
+        PlayModeSmokeOrbatSeeder.SeedDecisionLog(log);
+
+        PlayModeSmokeOrbatSeeder.AdvanceDecisionLog(log, 5.0);
+        PlayModeSmokeOrbatSeeder.AdvanceDecisionLog(log, 30.0);
+
+        Assert.That(
+            log.PolicyUpdates.Any(u => string.Equals(u.Field, "emcon", StringComparison.OrdinalIgnoreCase)),
+            Is.False,
+            "D40: synthetic emcon policy update contradicts active unit EMCON posture.");
+
+        var messages = MessageLogBridge.ProjectFrom(log);
+        Assert.That(
+            messages.Any(m => m.Category == "POLICY_UPDATE" && m.Text.Contains("emcon", StringComparison.OrdinalIgnoreCase)),
+            Is.False,
+            "D40: Message Log must not show a contradictory synthetic EMCON policy update.");
     }
 
     [Test]

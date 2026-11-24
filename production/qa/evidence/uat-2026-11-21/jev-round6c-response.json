@@ -1,0 +1,68 @@
+{
+  "id": "gen-dec-1795295161-evsiogNKUWVkoo73KVJh",
+  "provider": "TypeSafe",
+  "answers": {
+    "c1": {
+      "type": "noul",
+      "noul": 0.83
+    },
+    "c2": {
+      "type": "noul",
+      "noul": 0.92
+    },
+    "c3": {
+      "type": "noul",
+      "noul": 0.95
+    },
+    "c4": {
+      "type": "noul",
+      "noul": 0.91
+    },
+    "c5": {
+      "type": "noul",
+      "noul": 0.82
+    },
+    "c6": {
+      "type": "noul",
+      "noul": 0.91
+    },
+    "c7": {
+      "type": "noul",
+      "noul": 0.84
+    },
+    "c8": {
+      "type": "noul",
+      "noul": 0.54
+    },
+    "c9": {
+      "type": "noul",
+      "noul": 0.97
+    },
+    "c10": {
+      "type": "noul",
+      "noul": 0.95
+    },
+    "c11": {
+      "type": "noul",
+      "noul": 0.86
+    },
+    "c12": {
+      "type": "noul",
+      "noul": 0.91
+    },
+    "close_uat": {
+      "type": "noul",
+      "noul": 0.48
+    },
+    "next_step": {
+      "type": "choice",
+      "choice": "owner_review_first",
+      "probabilities": {
+        "submit_pr": 0.19,
+        "another_round": 0.11,
+        "owner_review_first": 0.7
+      },
+      "confidence": 0.55
+    }
+  }
+}

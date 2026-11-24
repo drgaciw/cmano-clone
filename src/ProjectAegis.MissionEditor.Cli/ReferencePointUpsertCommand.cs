@@ -42,6 +42,22 @@ public static class ReferencePointUpsertCommand
                 "At least one --latlon lat,lon is required.");
         }
 
+        var candidate = new ScenarioReferencePointDto
+        {
+            Id = referencePointId,
+            Type = type,
+            Geometry = geometry,
+            RadiusNm = radiusNm,
+        };
+        if (!ScenarioGeometryValidity.IsValid(candidate, out var geometryReason))
+        {
+            // Single source of truth for type/vertex/radius rules is ScenarioGeometryValidity (UAT CLI-7).
+            var code = geometryReason != null && geometryReason.StartsWith("unknown reference point type", StringComparison.Ordinal)
+                ? "INVALID_TYPE"
+                : "INVALID_GEOMETRY";
+            return McpToolResult.WriteError(output, code, $"Invalid reference point: {geometryReason}");
+        }
+
         try
         {
             var editor = ScenarioDocumentEditor.Load(scenarioPath);

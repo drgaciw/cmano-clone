@@ -70,18 +70,15 @@ public sealed class CatalogDependencyGraphCommandTests
     }
 
     [Test]
-    public void DependencyGraph_reported_database_path_reflects_actual_source_when_input_path_missing()
+    public void DependencyGraph_reported_database_path_reflects_default_source_when_no_db_passed()
     {
-        var missingPath = Path.Combine(Path.GetTempPath(), $"aegis-cli-dep-missing-{Guid.NewGuid():N}.db");
-        Assert.That(File.Exists(missingPath), Is.False);
-
+        // CLI-12: an explicit missing --db is NOT_FOUND (CatalogMissingDbCliTests); no --db keeps default resolution.
         using var writer = new StringWriter();
-        Assert.That(CatalogDependencyGraphCommand.Run(missingPath, writer), Is.EqualTo(0));
+        Assert.That(CatalogDependencyGraphCommand.Run(null, writer), Is.EqualTo(0));
 
         using var doc = JsonDocument.Parse(writer.ToString());
         var reportedPath = doc.RootElement.GetProperty("databasePath").GetString();
 
-        Assert.That(reportedPath, Is.Not.EqualTo(missingPath));
         Assert.That(reportedPath, Is.EqualTo(CatalogReaderFactory.ResolveBalticPatrolDatabasePath()));
     }
 

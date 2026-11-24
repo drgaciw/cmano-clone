@@ -14,6 +14,11 @@ public static class CatalogLinkReportCommand
 
     public static int Run(string? databasePath, TextWriter output)
     {
+        if (CatalogDbGuard.IsMissing(databasePath, output, out var missingDbExit))
+        {
+            return missingDbExit;
+        }
+
         using var reader = OpenReader(databasePath, out var resolvedDatabasePath);
         var links = reader.GetSortedLinks();
         var canonicalLines = LinkCatalogReport.BuildCanonicalLines(links);

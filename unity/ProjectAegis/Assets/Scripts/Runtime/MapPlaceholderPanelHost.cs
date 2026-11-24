@@ -707,7 +707,8 @@ namespace ProjectAegis.Unity.Runtime
                 return;
             }
 
-            if (C2SelectionResolver.TryResolveHostileContactFromSymbol(symbolId, symbols, out var contactId))
+            if (C2SelectionResolver.TryResolveHostileContactFromSymbol(
+                    symbolId, symbols, PresentationFeed.LastSensorC2.Contacts, out var contactId))
             {
                 PresentationFeed.SelectContact(contactId);
             }

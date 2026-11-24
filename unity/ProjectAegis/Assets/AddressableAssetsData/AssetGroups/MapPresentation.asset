@@ -1,0 +1,31 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: bbb281ee3bf0b054c82ac2347e9e782c, type: 3}
+  m_Name: MapPresentation
+  m_EditorClassIdentifier: Unity.Addressables.Editor::UnityEditor.AddressableAssets.Settings.AddressableAssetGroup
+  m_GroupName: MapPresentation
+  m_GUID: 66ad5856b15533056b27091ad2a75804
+  m_SerializeEntries:
+  - m_GUID: a4f8c2e19b3d4a7089e1f52c6d0ab731
+    m_Address: Map/App6FrameAtlas
+    m_ReadOnly: 0
+    m_SerializedLabels:
+    - app6
+    - atlas
+    - map
+    FlaggedDuringContentUpdateRestriction: 0
+  m_ReadOnly: 0
+  m_Settings: {fileID: 11400000, guid: 8151bf2b32d429e6a832aaf28901b502, type: 2}
+  m_SchemaSet:
+    m_Schemas:
+    - {fileID: 11400000, guid: 2dad3e2c478ebcefc876ad9b761d81de, type: 2}
+    - {fileID: 11400000, guid: 21db663681fad13e89a5d96b47784781, type: 2}

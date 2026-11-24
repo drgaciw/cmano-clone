@@ -1,6 +1,7 @@
 namespace ProjectAegis.MissionEditor.Cli;
 
 using Data.Scenario.Authoring;
+using Sim.Policy;
 
 /// <summary>
 /// Headless MCP/CLI verb <c>side_list</c> — read-only listing of scenario sides/factions (AME-4.5).
@@ -47,6 +48,10 @@ public static class SideListCommand
 /// </summary>
 public static class SideUpsertCommand
 {
+    // ROE names come from the sim enum (single source of truth); numeric strings are not accepted.
+    private static string? CanonicalRoe(string value) =>
+        Enum.GetNames<RoeLevel>().FirstOrDefault(n => string.Equals(n, value.Trim(), StringComparison.OrdinalIgnoreCase));
+
     /// <summary>
     /// Loads the scenario, upserts the side, and persists with edit-version + undo semantics.
     /// </summary>
@@ -73,6 +78,20 @@ public static class SideUpsertCommand
         if (string.IsNullOrWhiteSpace(name))
         {
             return McpToolResult.WriteError(output, "INVALID_SIDE", "A --name is required.");
+        }
+
+        if (!string.IsNullOrWhiteSpace(defaultRoe))
+        {
+            var canonicalRoe = CanonicalRoe(defaultRoe);
+            if (canonicalRoe == null)
+            {
+                return McpToolResult.WriteError(
+                    output,
+                    "INVALID_ROE",
+                    $"Default ROE must be one of: {string.Join(", ", Enum.GetNames<RoeLevel>())}.");
+            }
+
+            defaultRoe = canonicalRoe;
         }
 
         try

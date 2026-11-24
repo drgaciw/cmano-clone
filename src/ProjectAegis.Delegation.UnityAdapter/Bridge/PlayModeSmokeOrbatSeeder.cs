@@ -148,18 +148,6 @@ public static class PlayModeSmokeOrbatSeeder
             return;
         }
 
-        if (simTime >= 5.0 && !HasPolicyField(log, "emcon"))
-        {
-            log.AppendPolicyUpdate(new PolicyUpdateRecord(
-                SequenceId: 0,
-                SimTime: 5.0,
-                SimTick: 8,
-                PolicySnapshotId: 2,
-                Field: "emcon",
-                PreviousValue: "Active",
-                NewValue: "Passive"));
-        }
-
         if (simTime >= 8.0 && !HasMissionPhase(log, "ON_STATION"))
         {
             log.AppendMissionTransition(new MissionTransitionRecord(

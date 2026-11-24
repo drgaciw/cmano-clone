@@ -21,25 +21,25 @@ public static class ScenarioEventTraceCommand
     public static int Run(string[] args, TextWriter output, TextWriter error)
     {
         var path = CliArgParser.GetFlag(args, "--path");
-        var eventId = CliArgParser.GetFlag(args, "--event")
-            ?? CliArgParser.GetFlag(args, "--id")
-            ?? "evt-no-fire";
+        var requestedEventId = CliArgParser.GetFlag(args, "--event")
+            ?? CliArgParser.GetFlag(args, "--id");
+        var eventId = requestedEventId ?? "evt-no-fire";
+
+        if (!string.IsNullOrWhiteSpace(path) && string.IsNullOrWhiteSpace(requestedEventId))
+        {
+            return McpToolResult.WriteError(output, "INVALID_ARGUMENT", "--event is required when --path is given.");
+        }
+
+        if (!string.IsNullOrWhiteSpace(path) && !File.Exists(path))
+        {
+            return McpToolResult.WriteError(output, "NOT_FOUND", $"Scenario not found: {path}");
+        }
 
         ScenarioDocumentEditor editor;
+        var loadedFromFile = !string.IsNullOrWhiteSpace(path);
         try
         {
-            if (string.IsNullOrWhiteSpace(path) || !File.Exists(path))
-            {
-                editor = ScenarioDocumentEditor.CreateNew();
-                if (!string.IsNullOrWhiteSpace(path))
-                {
-                    error.WriteLine($"warning: path not found, using in-memory default for event trace");
-                }
-            }
-            else
-            {
-                editor = ScenarioDocumentEditor.Load(path);
-            }
+            editor = loadedFromFile ? ScenarioDocumentEditor.Load(path!) : ScenarioDocumentEditor.CreateNew();
         }
         catch (Exception ex)
         {
@@ -47,8 +47,18 @@ public static class ScenarioEventTraceCommand
             return 2;
         }
 
-        // Ensure event is known for trace (idempotent)
-        editor.AddEvent(eventId);
+        if (loadedFromFile)
+        {
+            if (!editor.Events.Any(e => string.Equals(e.Id, eventId, StringComparison.Ordinal)))
+            {
+                return McpToolResult.WriteError(output, "NOT_FOUND", $"Event '{eventId}' was not found in {path}.");
+            }
+        }
+        else
+        {
+            // No --path: in-memory demo mode, unchanged (event is created on the fly).
+            editor.AddEvent(eventId);
+        }
 
         var json = editor.ExplainEventTrace(eventId);
         output.WriteLine(json);

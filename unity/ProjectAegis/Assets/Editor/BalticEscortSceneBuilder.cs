@@ -23,7 +23,13 @@ namespace ProjectAegis.Unity.Editor
                 return;
             }
 
-            Build();
+            // UAT D28: play the committed scene; only the explicit Build menu rebuilds it.
+            if (!File.Exists(ScenePath))
+            {
+                Build();
+            }
+
+            EditorSceneManager.OpenScene(ScenePath, OpenSceneMode.Single);
             EditorApplication.isPlaying = true;
         }
 

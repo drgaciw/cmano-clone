@@ -60,15 +60,12 @@ namespace ProjectAegis.Unity.Tests
         public void Source_declares_gap_dashes_covered_solids_geometry_scaling_and_segment_cap()
         {
             var source = System.IO.File.ReadAllText(System.IO.Path.Combine(
-                TestContext.CurrentContext.TestDirectory, "..", "..", "..", "..", "ProjectAegis", "Assets", "Scripts", "Runtime", "CoverageMapView.cs"));
-            Assert.Multiple(() =>
-            {
-                Assert.That(source, Does.Contain("coverage.Status == CoverageStatus.Gap ? 4 : 1"));
-                Assert.That(source, Does.Contain("gap ? \"GAP\" : \"COVERED\""));
-                Assert.That(source, Does.Contain("GeometryChangedEvent"));
-                Assert.That(source, Does.Contain("MaxSegments = 2048"));
-                Assert.That(source, Does.Not.Contain("radius"));
-            });
+                UnityEngine.Application.dataPath, "Scripts", "Runtime", "CoverageMapView.cs"));
+            Assert.That(source, Does.Contain("coverage.Status == CoverageStatus.Gap ? 4 : 1"));
+            Assert.That(source, Does.Contain("gap ? \"GAP\" : \"COVERED\""));
+            Assert.That(source, Does.Contain("GeometryChangedEvent"));
+            Assert.That(source, Does.Contain("MaxSegments = 2048"));
+            Assert.That(source, Does.Not.Contain("radius"));
         }
 
         private static CoordinationSnapshot Snapshot(CoverageAssessment coverage) =>

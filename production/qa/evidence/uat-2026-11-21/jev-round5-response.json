@@ -1,0 +1,141 @@
+{
+  "id": "gen-dec-1795292256-cO4Cp8S3k3IsxnwhskMj",
+  "provider": "TypeSafe",
+  "answers": {
+    "d15_d18": {
+      "type": "choice",
+      "choice": "add_layout_safe_subset",
+      "probabilities": {
+        "add_layout_safe_subset": 0.87,
+        "add_all_builder_hosts": 0.01,
+        "keep_minimal_document": 0.12
+      },
+      "confidence": 0.8
+    },
+    "d26": {
+      "type": "choice",
+      "choice": "disable_with_reason",
+      "probabilities": {
+        "disable_with_reason": 0.84,
+        "wire_load_save_now": 0.02,
+        "leave_unchanged": 0.14
+      },
+      "confidence": 0.76
+    },
+    "d24b": {
+      "type": "choice",
+      "choice": "change_hint_text_only",
+      "probabilities": {
+        "use_last_friendly_for_assessment": 0.3,
+        "change_hint_text_only": 0.66,
+        "allow_dual_selection": 0.04
+      },
+      "confidence": 0.49
+    },
+    "d35": {
+      "type": "choice",
+      "choice": "commit_generated_settings",
+      "probabilities": {
+        "commit_generated_settings": 0.86,
+        "document_direct_load": 0.13,
+        "defer": 0.01
+      },
+      "confidence": 0.79
+    },
+    "d22_default_skips_red": {
+      "type": "noul",
+      "noul": 0.64
+    },
+    "d28": {
+      "type": "choice",
+      "choice": "play_without_rebuild",
+      "probabilities": {
+        "play_without_rebuild": 0.8,
+        "deterministic_builder": 0.2,
+        "accept": 0
+      },
+      "confidence": 0.7
+    },
+    "cli_defects": {
+      "type": "choice",
+      "choice": "fix_high_value_subset",
+      "probabilities": {
+        "fix_now": 0.19,
+        "fix_high_value_subset": 0.8,
+        "defer": 0.01
+      },
+      "confidence": 0.7
+    },
+    "d16": {
+      "type": "choice",
+      "choice": "defer_to_design",
+      "probabilities": {
+        "defer_to_design": 1,
+        "fix_now": 0
+      },
+      "confidence": 1
+    },
+    "catalog_backups": {
+      "type": "choice",
+      "choice": "discard",
+      "probabilities": {
+        "discard": 0.99,
+        "restore": 0.01
+      },
+      "confidence": 0.98
+    },
+    "more_rounds": {
+      "type": "score",
+      "score": 1.95,
+      "legend": {
+        "0": "0 more rounds: close the UAT now",
+        "1": "1 more round",
+        "2": "2 more rounds",
+        "3": "3 more rounds"
+      },
+      "probabilities": {
+        "0": 0.02,
+        "1": 0.27,
+        "2": 0.45,
+        "3": 0.26
+      },
+      "confidence": 0.43
+    },
+    "c1": {
+      "type": "noul",
+      "noul": 0.96
+    },
+    "c2": {
+      "type": "noul",
+      "noul": 0.93
+    },
+    "c4": {
+      "type": "noul",
+      "noul": 0.97
+    },
+    "c6": {
+      "type": "noul",
+      "noul": 0.83
+    },
+    "c7": {
+      "type": "noul",
+      "noul": 0.85
+    },
+    "c8": {
+      "type": "noul",
+      "noul": 0.05
+    },
+    "c9": {
+      "type": "noul",
+      "noul": 0.49
+    },
+    "c11": {
+      "type": "noul",
+      "noul": 0.5
+    },
+    "c12": {
+      "type": "noul",
+      "noul": 0.93
+    }
+  }
+}

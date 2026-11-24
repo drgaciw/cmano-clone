@@ -1,0 +1,83 @@
+{
+  "state": "Project Aegis Play Mode UAT, round 7 (the 1 extra round Jev chose in 6d), 2026-11-21. Unity Editor 6000.3.27f2, committed DelegationSmoke scene. D39 (Doctrine panel ROE override dropdown clipped, Jev 6d fix_now) is FIXED test-first: a headless USS layout test went RED on each pre-fix USS and GREEN after; 1 initial commit + 2 fix rounds, each reviewed by a separate reviewer and verified in Play Mode by measurement: the label now sits above the input, the input is 220 units wide in a 224-unit row, the value 'WeaponsFree' needs 90.5 units and has 142, the label colour is light grey (180,190,200), Apply is on its own line, the panel is 425 tall under its 470 max, 0 console errors; screenshot r7-d39-doctrine-override-final.png. D37 and D38 verified in Play Mode in 6d (doctrine panel inside the left drawer column, clear of map and Unit Detail; -comms shows COMMS DENIED and both COMMS transition rows pinned in the 12-row Message Log). ROUND 7 EVIDENCE: all 5 baltic-patrol scenarios run 5 s each in Play Mode with 0 console errors: baltic-patrol and -classify nominal; -comms COMMS DENIED, unit 'UNKNOWN (Out of comms)', both COMMS rows in the log; -mission-roe Unit Detail 'WeaponsTight (mission)', Doctrine panel ROE WeaponsTight, SOURCE Mission, EMCON ACTIVE (matches the spec); -mission nominal. Full UI sweep with 24 extra panel hosts spawned: 158 controls enumerated, 63 exercised (press, dropdown select, toggle, slider, text, foldout), 0 new console errors, 0 exceptions, 95 skipped because disabled or hidden (same classification as earlier rounds; native Browse file dialog excluded). Headless suite 4,668 passed / 0 failed across 9 projects; Phase 0 CI smoke PASS (DelegationBridge.cs diff 0 lines vs main, replay goldens intact); shipped catalog DB hashes unchanged (82d26212, 75ea357a). C8: two scene-config fixes (toolbar added to the scene, f787b3a2; Doctrine panel showPanel 1, 716b3dfd) originally had no test; in round 7 headless scene guard tests were added that read the committed scene by script GUID and they FAILED on each fix's real parent scene (no stubs: 'Expected Count 1 But was 0' for the toolbar, 'Expected \"1\" But was \"0\"' for showPanel) and pass on the branch (1291/1291), reviewed clean. With that, every fix in rounds 3-7 has a test that failed first on real pre-fix content; D20, D24 and D25 have red evidence on real pre-fix code (D25 PlayMode test failed with 'Expected ISSUED: hold -> u1 But was <empty>' when the old toolbar code was restored); D39 went red before each fix round. C10: the screenshot package (now including r6/r7 D37/D38/D39 screenshots) is with the owner; the owner's tick boxes are still empty — sign-off is the owner's action and cannot be done by the agent. Open backlog with owners: CLI-7b, CLI cosmetic items, D16 (game design), D33, D32 (user's local edit), D22 default-selection owner confirmation, 22 panel hosts not placed in any scene (backlog by Jev round-5 decision). CORRECTED FACTS omitted from the first round-7 request: (C5) in every scenario the map shows the hostile unit as a red square symbol and the classified contact c1 as a red symbol labelled 'c1 Classified', the map HUD shows 'ENVELOPES: 2' and 'DATALINKS: 1' as the smoke spec requires, the selected unit has the sensor and weapon rings, and the datalink edge is green in nominal comms; Unit Detail shows 'STATUS: UNKNOWN (Out of comms)' under DENIED. (C11) the 95 sweep skips are classified per panel: 26 MapPlaceholder overlay controls hidden until a map context action opens them; 22 PlatformCatalog/PlatformImport controls belong to editor shells hidden in the game scene (their Editor windows were exercised in earlier rounds: Scenario Map Authoring 14/14, Escort Command Post 21/21); 7 Scenario Editor actions disabled by design with a NOT_AVAILABLE reason (Jev round-5 D26 decision); the rest are panel actions disabled until a selection, approval or target exists, or controls inside collapsed tabs; 4 were transient rows that refreshed between enumeration and action. NEW PRE-EXISTING DEFECT D40 (found in round 7): at sim 5 s every scenario's Message Log shows '[POLICY_UPDATE] Policy emcon: Active -> Passive' with no unit, while Unit Detail and the Doctrine panel correctly keep 'EMCON: ACTIVE'; the row comes from a canned Play Mode smoke feed (PlayModeSmokeOrbatSeeder.AdvanceDecisionLog) that appends demonstration rows and changes no policy. It predates this UAT, is S3, touches the smoke feed that headless smoke-harness tests may depend on, and is not in DelegationBridge.cs.",
+  "questions": {
+    "c1": {
+      "type": "noul",
+      "instructions": "Does the evidence show the full headless suite passes with zero failures?"
+    },
+    "c2": {
+      "type": "noul",
+      "instructions": "Does the evidence show determinism is preserved (replay goldens passing and unchanged)?"
+    },
+    "c3": {
+      "type": "noul",
+      "instructions": "Does the evidence show the Play Mode smoke harness / CI smoke passes?"
+    },
+    "c4": {
+      "type": "noul",
+      "instructions": "Does the evidence show a clean console across all five scenarios?"
+    },
+    "c5": {
+      "type": "noul",
+      "instructions": "Does the evidence show scenario behaviour matches the spec (comms transitions in top bar and Message Log, doctrine/EMCON, hostile symbols)?"
+    },
+    "c6": {
+      "type": "noul",
+      "instructions": "Does the evidence show the presentation defects found were fixed and verified by screenshot?"
+    },
+    "c7": {
+      "type": "noul",
+      "instructions": "Does the evidence show forbidden surfaces (DelegationBridge.cs, replay goldens) are untouched?"
+    },
+    "c8": {
+      "type": "noul",
+      "instructions": "Does the evidence show every fix had a test that failed before the fix?"
+    },
+    "c9": {
+      "type": "noul",
+      "instructions": "Does the evidence show interactive behaviour was exercised and passes?"
+    },
+    "c10": {
+      "type": "noul",
+      "instructions": "Has pixel-level visual evidence been handed to the owner for sign-off?"
+    },
+    "c11": {
+      "type": "noul",
+      "instructions": "Does the evidence show every UI function was exercised or explicitly classified with a reason?"
+    },
+    "c12": {
+      "type": "noul",
+      "instructions": "Does the evidence show shipped data stays byte-identical?"
+    },
+    "more_rounds": {
+      "type": "score",
+      "instructions": "How many more full UAT rounds should run?",
+      "criteria": [
+        "0 rounds",
+        "1 round",
+        "2 rounds"
+      ]
+    },
+    "close_uat": {
+      "type": "noul",
+      "instructions": "Should the agent-run UAT be closed now, handing the C10 owner sign-off and the backlog to their owners?"
+    },
+    "next_step": {
+      "type": "choice",
+      "instructions": "What is the best next step for this branch?",
+      "criteria": {
+        "submit_pr": "Submit the round 5-7 branch as a pull request stacked on the round 3-4 PR",
+        "another_round": "Run another UAT round before submitting",
+        "owner_review_first": "Hold for owner review (C10 sign-off) before submitting"
+      }
+    },
+    "d40": {
+      "type": "choice",
+      "instructions": "How should D40 (smoke feed logs a synthetic EMCON change that no unit reflects) be handled?",
+      "criteria": {
+        "fix_now": "Fix now test-first (make the feed row consistent with the panels or drop it) before handing over",
+        "backlog": "Record it in the backlog with an owner and hand over now"
+      }
+    }
+  }
+}

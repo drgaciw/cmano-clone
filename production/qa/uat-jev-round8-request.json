@@ -1,0 +1,78 @@
+{
+  "state": "Project Aegis Play Mode UAT, Round 8 (2026-11-22), branch uat/round5-jev-decisions, Unity Editor 6000.3.27f2 via live Unity MCP (localhost:8081). Round 8 executed every Jev Round-8 triage decision (d32_action=fix_now, d33_action=fix_now, d40_action=fix_now, cli_1b_5b_action=fix_now, c11_rubric_clarification=verified_state_counts_as_covered) and added C13 (Unity PlayMode tests 100% green). MECHANICAL EVIDENCE: (C1) dotnet build ProjectAegis.sln: 0 Warnings, 0 Errors (fixed 2 CS8602 warnings in UnitDetailSelectionGateTests.cs and synced manifest.template.json to 1.14.0/2.1.4 per ADR-027); dotnet test ProjectAegis.sln: 4,671 passed, 0 failed, 0 skipped across all 9 test projects. (C2) ReplayGolden 17/17 passed, Baltic v2 hash 17144800277401907079 unchanged; CLI-5b verified fixed (42d7c8fa, zero GetHashCode calls remain in CLI/Data). (C3) PlayModeSmokeHarnessTests 27/27 passed (>=20 floor); BranchIntegrationPhase0SmokeTests PASS. (C4) Clean console: 0 Error/Exception entries across all 5 DelegationSmoke scenarios (baltic-patrol, -classify, -comms, -mission-roe, -mission), BalticEscort, and Scenario Map Authoring Editor window. (C5) Scenario behaviour matches spec in all 5 scenarios: -comms shows COMMS: DENIED, STATUS: UNKNOWN (Out of comms), both [COMMS] transition rows pinned in MessageLog, AND D40 is FIXED (zero synthetic '[POLICY_UPDATE] Policy emcon: Active -> Passive' row in any of the 5 scenarios; screenshot r8-d40-comms-clean.png); -mission-roe shows DOCTRINE: WeaponsTight (mission), Doctrine panel ROE WeaponsTight, SOURCE Mission, EMCON ACTIVE; hostile symbols and overlay counts nominal. (C6) All presentation defects + D40 verified fixed with Game View screenshots (r4-d29-d12, r4-d30b, r4-d31b, r5-d15, r6-d37-d38, r7-d39, r8-d40-comms-clean.png). (C7) Forbidden surfaces untouched: git diff main -- DelegationBridge.cs is 0 lines; CatalogWriteGate and replay goldens untouched. (C8) Every fix in Round 8 had a verified RED test on real pre-fix code before the fix (no stubs): D40 AdvanceDecisionLog_does_not_emit_synthetic_emcon_policy_update failed RED (Expected False, But was True) then GREEN; D32 CoverageMapViewTests failed RED (DirectoryNotFoundException) in Unity PlayMode then GREEN; D33 SliceAContactPanelSmokeTests failed RED (Expected UNKNOWN, But was SRC: u1 / COMMS: no degradation reported) in Unity PlayMode then GREEN; UnityPackageManifestMirrorTests failed RED on 1.14.0/2.1.4 drift then GREEN; all prior rounds 3-7 fixes also have real pre-fix RED evidence recorded in c8-red-evidence.md. (C9) Interactive behaviour exercised via Unity MCP NavigationSubmitEvent: 49 committed-panel controls exercised with 0 errors in DelegationSmoke, plus 22/22 controls exercised with observable state transitions and 0 errors in BalticEscort Escort Command Post (D28 verified: BalticEscort.unity git diff is 0 lines after Play). (C10) Visual sign-off package updated with screenshot #9 (r8-d40-comms-clean.png) in c10-owner-signoff.md; owner tick boxes remain owner-only. (C11) Every UI surface exercised or verified in expected disabled/hidden state per Jev Round-8 rule (verified_state_counts_as_covered): DelegationSmoke committed 98 controls (49 exercised, 46 disabled/hidden verified, 3 sampled, 0 errors), 24 spawned panel hosts 48 controls (48 disabled/hidden verified by empty scenario state or NOT_AVAILABLE per D26, 0 errors), BalticEscort 22/22 exercised (0 errors), Scenario Map Authoring Editor window + 5 Scenario Editor menu items 6/6 executed (21 buttons, 13 text fields, Refresh Findings clicked, 0 errors), Mission Editor CLI 163/163 tests pass with CLI-1b (4dbc9389) and CLI-5b (42d7c8fa) fixed; 0 open rows remain in uat-ui-function-matrix.md. (C12) Shipped catalog DB sha256 hashes byte-identical before and after (82d26212..., 75ea357a...). (C13) Unity Editor PlayMode Test Runner (ProjectAegis.Unity.Tests) via Unity MCP tests-run: 22/22 passed, 0 failed (D32 and D33 fixed).",
+  "questions": {
+    "c1": {
+      "type": "noul",
+      "instructions": "Does the evidence show the full headless suite passes with zero failures and zero build warnings?"
+    },
+    "c2": {
+      "type": "noul",
+      "instructions": "Does the evidence show determinism is preserved (ReplayGolden 17/17, Baltic hash 17144800277401907079 unchanged, CLI-5b fixed)?"
+    },
+    "c3": {
+      "type": "noul",
+      "instructions": "Does the evidence show PlayModeSmokeHarnessTests (>=20) and Phase 0 CI smoke pass?"
+    },
+    "c4": {
+      "type": "noul",
+      "instructions": "Does the evidence show a clean console (0 errors/exceptions) across all 5 scenarios, BalticEscort, and Editor windows?"
+    },
+    "c5": {
+      "type": "noul",
+      "instructions": "Does the evidence show scenario behaviour matches spec across all 5 scenarios including D40 fixed?"
+    },
+    "c6": {
+      "type": "noul",
+      "instructions": "Does the evidence show presentation defects and D40 are fixed and verified by screenshots?"
+    },
+    "c7": {
+      "type": "noul",
+      "instructions": "Does the evidence show forbidden surfaces (DelegationBridge.cs, CatalogWriteGate, replay goldens) are untouched?"
+    },
+    "c8": {
+      "type": "noul",
+      "instructions": "Does the evidence show every fix had a verified red test on real pre-fix code before passing?"
+    },
+    "c9": {
+      "type": "noul",
+      "instructions": "Does the evidence show interactive behaviour was exercised via Unity MCP and passes with 0 errors?"
+    },
+    "c10": {
+      "type": "noul",
+      "instructions": "Has complete pixel-level visual evidence (including r8-d40-comms-clean.png) been handed to the owner for C10 sign-off?"
+    },
+    "c11": {
+      "type": "noul",
+      "instructions": "Under the Round-8 rubric rule (verified_state_counts_as_covered), does the evidence show every UI function across game panels, spawned panels, BalticEscort, Editor windows, and Mission Editor CLI is covered with 0 open rows?"
+    },
+    "c12": {
+      "type": "noul",
+      "instructions": "Does the evidence show shipped catalog DB files stayed byte-identical?"
+    },
+    "c13": {
+      "type": "noul",
+      "instructions": "Does the evidence show Unity PlayMode Test Runner (ProjectAegis.Unity.Tests) passed 22/22 with 0 failures?"
+    },
+    "more_rounds": {
+      "type": "score",
+      "instructions": "How many more agent-run UAT rounds are needed?",
+      "criteria": [
+        "0 rounds",
+        "1 round",
+        "2 rounds"
+      ]
+    },
+    "close_uat": {
+      "type": "noul",
+      "instructions": "Are all agent-owned UAT DoD criteria (C1-C9, C11-C13) met so the UAT can close and hand C10 to the owner?"
+    },
+    "next_step": {
+      "type": "choice",
+      "instructions": "What is the best next step now?",
+      "criteria": {
+        "owner_c10_signoff": "Hand over for owner C10 pixel sign-off and PR review/merge",
+        "another_round": "Run another agent UAT round to fix remaining defects"
+      }
+    }
+  }
+}

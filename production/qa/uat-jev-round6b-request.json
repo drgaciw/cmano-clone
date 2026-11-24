@@ -1,0 +1,26 @@
+{
+  "state": "Project Aegis UAT round 6 (final round per Jev), re-checking C5 'scenario behaviour matches spec' against PLAYMODE-SMOKE.md after Jev scored C5 0.70. Verified matches: baltic-patrol overlay HUD ENVELOPES 2 / DATALINKS 1; baltic-patrol-comms top bar NOMINAL at 0 s, DEGRADED at 2 s, DENIED at 4 s exactly as specified; mission-roe Unit Detail DOCTRINE 'WeaponsTight (mission)' and EMCON ACTIVE; classify hostile symbols and contact c1. Two spec mismatches found. D37: the spec says in baltic-patrol-mission-roe 'doctrine panel shows WeaponsTight ROE from mission; EMCON line populated; SOURCE includes Mission; inheritance hint visible'. The Doctrine Inheritance panel exists in the committed scene but an earlier QA commit set showPanel=false without a stated reason (it also hid the platform catalog/import panels). Turned on at runtime it shows exactly the specified content (ROE WeaponsTight, SALVO 8, EMCON ACTIVE, SOURCE Mission, inheritance order, override dropdown), but it is drawn on top of the right-hand Unit Detail panel, covering its attack buttons; it does not overlap the map, message log, left drawer or orders toolbar. D38: the spec says baltic-patrol-comms shows purple-bold COMMS lines in the message log for each state transition; the message log contains only AGENT_DECISION, POLICY_DENIAL and ENGAGE_ABORT rows and no COMMS rows, although the message-log projection code has a COMMS category for comms state changes, so the comms entries are not reaching the log view.",
+  "questions": {
+    "d37": {
+      "type": "choice",
+      "instructions": "What should be done about the hidden Doctrine Inheritance panel?",
+      "criteria": {
+        "show_and_reposition": "Show it in the scene and move it so it does not cover the Unit Detail attack buttons",
+        "show_as_is": "Show it in the scene as currently laid out, overlapping Unit Detail",
+        "keep_hidden_update_spec": "Keep it hidden and change the smoke spec, since Unit Detail already shows doctrine and EMCON"
+      }
+    },
+    "d38": {
+      "type": "choice",
+      "instructions": "What should be done about missing COMMS transition lines in the message log?",
+      "criteria": {
+        "fix_now": "Fix now with a failing test first: comms state changes must appear as COMMS rows",
+        "defer": "Defer to backlog"
+      }
+    },
+    "within_final_round": {
+      "type": "noul",
+      "instructions": "Are these two spec mismatches small enough to fix inside the final round rather than requiring another UAT round?"
+    }
+  }
+}
