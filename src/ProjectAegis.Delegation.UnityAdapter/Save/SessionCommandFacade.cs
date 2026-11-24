@@ -33,6 +33,7 @@ public sealed class SessionCommandFacade
     private readonly Func<ulong>? _observedTickProvider;
     private readonly Func<ulong>? _combinedWorldHashProvider;
     private AuthorityShadowState _shadowState;
+    private string? _latchedUnjournaledViolation;
 
     public SessionCommandFacade(
         DelegationBridge bridge,
@@ -56,6 +57,12 @@ public sealed class SessionCommandFacade
 
     public bool VerifyNoUnjournaledMutations(out string? violation)
     {
+        if (_latchedUnjournaledViolation is not null)
+        {
+            violation = _latchedUnjournaledViolation;
+            return false;
+        }
+
         var live = CaptureAuthorityShadowState();
         return _shadowState.TryCompare(live, out violation);
     }
@@ -119,6 +126,7 @@ public sealed class SessionCommandFacade
     [SessionCommand(InputCommandJournalKind.TakeDirectControl)]
     public bool TryTakeDirectControl(EntityKey entity, double simTime)
     {
+        var preCommandViolation = CapturePreCommandViolation();
         var obsTick = ResolveObservedTick(simTime);
         var pipeTick = CurrentPipelineTick();
         if (!Bridge.TryTakeDirectControl(entity, simTime))
@@ -128,13 +136,14 @@ public sealed class SessionCommandFacade
 
         Journal.Append(obsTick, pipeTick, InputCommandJournalKind.TakeDirectControl,
             new SaveJournalArguments(EntityKeyValue: entity.Value, SimTime: simTime));
-        SyncShadowStateAfterTick();
+        RefreshShadowAfterAcceptedCommand(preCommandViolation);
         return true;
     }
 
     [SessionCommand(InputCommandJournalKind.ReleaseDirectControl)]
     public bool TryReleaseDirectControl(EntityKey entity, double simTime)
     {
+        var preCommandViolation = CapturePreCommandViolation();
         var obsTick = ResolveObservedTick(simTime);
         var pipeTick = CurrentPipelineTick();
         if (!Bridge.TryReleaseDirectControl(entity, simTime))
@@ -144,13 +153,14 @@ public sealed class SessionCommandFacade
 
         Journal.Append(obsTick, pipeTick, InputCommandJournalKind.ReleaseDirectControl,
             new SaveJournalArguments(EntityKeyValue: entity.Value, SimTime: simTime));
-        SyncShadowStateAfterTick();
+        RefreshShadowAfterAcceptedCommand(preCommandViolation);
         return true;
     }
 
     [SessionCommand(InputCommandJournalKind.PauseAgentActions)]
     public bool TryPauseAgentActions(TargetId targetId, double simTime)
     {
+        var preCommandViolation = CapturePreCommandViolation();
         var obsTick = ResolveObservedTick(simTime);
         var pipeTick = CurrentPipelineTick();
         if (Bridge.AttachReplayViewer || !Bridge.Registry.TryGetBinding(targetId, out var binding))
@@ -165,13 +175,14 @@ public sealed class SessionCommandFacade
 
         Journal.Append(obsTick, pipeTick, InputCommandJournalKind.PauseAgentActions,
             new SaveJournalArguments(TargetId: targetId.Value, SimTime: simTime));
-        SyncShadowStateAfterTick();
+        RefreshShadowAfterAcceptedCommand(preCommandViolation);
         return true;
     }
 
     [SessionCommand(InputCommandJournalKind.ResumeAgentActions)]
     public bool TryResumeAgentActions(TargetId targetId, double simTime)
     {
+        var preCommandViolation = CapturePreCommandViolation();
         var obsTick = ResolveObservedTick(simTime);
         var pipeTick = CurrentPipelineTick();
         if (Bridge.AttachReplayViewer || !Bridge.Registry.TryGetBinding(targetId, out var binding))
@@ -186,13 +197,14 @@ public sealed class SessionCommandFacade
 
         Journal.Append(obsTick, pipeTick, InputCommandJournalKind.ResumeAgentActions,
             new SaveJournalArguments(TargetId: targetId.Value, SimTime: simTime));
-        SyncShadowStateAfterTick();
+        RefreshShadowAfterAcceptedCommand(preCommandViolation);
         return true;
     }
 
     [SessionCommand(InputCommandJournalKind.EnqueueHumanOrder)]
     public bool TryEnqueueHumanOrder(EntityKey entity, OrderKind kind, double simTime, RiskLevel? risk = null)
     {
+        var preCommandViolation = CapturePreCommandViolation();
         var obsTick = ResolveObservedTick(simTime);
         var pipeTick = CurrentPipelineTick();
         if (!Bridge.TryEnqueueHumanOrder(entity, kind, simTime, risk))
@@ -206,13 +218,14 @@ public sealed class SessionCommandFacade
                 OrderKind: kind,
                 RiskLevel: risk,
                 SimTime: simTime));
-        SyncShadowStateAfterTick();
+        RefreshShadowAfterAcceptedCommand(preCommandViolation);
         return true;
     }
 
     [SessionCommand(InputCommandJournalKind.IssuePlayerCommand)]
     public bool TryIssuePlayerCommand(EntityKey entity, string commandId, double simTime, out string? failureReason)
     {
+        var preCommandViolation = CapturePreCommandViolation();
         var obsTick = ResolveObservedTick(simTime);
         var pipeTick = CurrentPipelineTick();
         if (!Bridge.TryIssuePlayerCommand(entity, commandId, simTime, out failureReason))
@@ -225,7 +238,7 @@ public sealed class SessionCommandFacade
                 EntityKeyValue: entity.Value,
                 SubCommandId: commandId,
                 SimTime: simTime));
-        SyncShadowStateAfterTick();
+        RefreshShadowAfterAcceptedCommand(preCommandViolation);
         return true;
     }
 
@@ -243,6 +256,7 @@ public sealed class SessionCommandFacade
             return false;
         }
 
+        var preCommandViolation = CapturePreCommandViolation();
         var obsTick = ResolveObservedTick(snapshot.SimTime);
         var pipeTick = CurrentPipelineTick();
         if (Bridge.AttachReplayViewer ||
@@ -259,13 +273,14 @@ public sealed class SessionCommandFacade
                 OptionId: optionId,
                 ResolvedSalvo: resolvedSalvo,
                 SimTime: snapshot.SimTime));
-        SyncShadowStateAfterTick();
+        RefreshShadowAfterAcceptedCommand(preCommandViolation);
         return true;
     }
 
     [SessionCommand(InputCommandJournalKind.ApprovePendingOrder)]
     public bool TryApprovePendingOrder(OrderId orderId)
     {
+        var preCommandViolation = CapturePreCommandViolation();
         var obsTick = CurrentObservedTick();
         var pipeTick = CurrentPipelineTick();
         if (Bridge.AttachReplayViewer || !Bridge.Orchestrator.TryApprovePendingOrder(orderId))
@@ -275,13 +290,14 @@ public sealed class SessionCommandFacade
 
         Journal.Append(obsTick, pipeTick, InputCommandJournalKind.ApprovePendingOrder,
             new SaveJournalArguments(OrderId: orderId.Value, SimTime: obsTick));
-        SyncShadowStateAfterTick();
+        RefreshShadowAfterAcceptedCommand(preCommandViolation);
         return true;
     }
 
     [SessionCommand(InputCommandJournalKind.RejectPendingOrder)]
     public bool TryRejectPendingOrder(OrderId orderId)
     {
+        var preCommandViolation = CapturePreCommandViolation();
         var obsTick = CurrentObservedTick();
         var pipeTick = CurrentPipelineTick();
         if (Bridge.AttachReplayViewer || !Bridge.Orchestrator.TryRejectPendingOrder(orderId))
@@ -291,7 +307,7 @@ public sealed class SessionCommandFacade
 
         Journal.Append(obsTick, pipeTick, InputCommandJournalKind.RejectPendingOrder,
             new SaveJournalArguments(OrderId: orderId.Value, SimTime: obsTick));
-        SyncShadowStateAfterTick();
+        RefreshShadowAfterAcceptedCommand(preCommandViolation);
         return true;
     }
 
@@ -303,6 +319,7 @@ public sealed class SessionCommandFacade
             return false;
         }
 
+        var preCommandViolation = CapturePreCommandViolation();
         var obsTick = CurrentObservedTick();
         var pipeTick = CurrentPipelineTick();
         if (Bridge.AttachReplayViewer || !TryResolveAgent(targetId, out var agent))
@@ -322,13 +339,14 @@ public sealed class SessionCommandFacade
                 AgentId: agent!.Id.Value,
                 SimTime: obsTick,
                 Traits: SaveTraitValues.FromTraitVector(traits)));
-        SyncShadowStateAfterTick();
+        RefreshShadowAfterAcceptedCommand(preCommandViolation);
         return true;
     }
 
     [SessionCommand(InputCommandJournalKind.PauseSim)]
     public bool TryPauseSim(out string? reason)
     {
+        var preCommandViolation = CapturePreCommandViolation();
         var obsTick = CurrentObservedTick();
         var pipeTick = CurrentPipelineTick();
         if (!C2ClockCommand.TryPause(Bridge.Session, out reason))
@@ -338,13 +356,14 @@ public sealed class SessionCommandFacade
 
         Journal.Append(obsTick, pipeTick, InputCommandJournalKind.PauseSim,
             new SaveJournalArguments(SimTime: obsTick));
-        SyncShadowStateAfterTick();
+        RefreshShadowAfterAcceptedCommand(preCommandViolation);
         return true;
     }
 
     [SessionCommand(InputCommandJournalKind.ResumeSim)]
     public bool TryResumeSim(bool explicitOverride, out string? reason)
     {
+        var preCommandViolation = CapturePreCommandViolation();
         var obsTick = CurrentObservedTick();
         var pipeTick = CurrentPipelineTick();
         if (!C2ClockCommand.TryResume(Bridge.Session, explicitOverride, out reason))
@@ -354,13 +373,14 @@ public sealed class SessionCommandFacade
 
         Journal.Append(obsTick, pipeTick, InputCommandJournalKind.ResumeSim,
             new SaveJournalArguments(SimTime: obsTick, ExplicitOverride: explicitOverride));
-        SyncShadowStateAfterTick();
+        RefreshShadowAfterAcceptedCommand(preCommandViolation);
         return true;
     }
 
     [SessionCommand(InputCommandJournalKind.SetTimeAccelerationFactor)]
     public bool TrySetTimeAccelerationFactor(int factor, out string? reason)
     {
+        var preCommandViolation = CapturePreCommandViolation();
         var obsTick = CurrentObservedTick();
         var pipeTick = CurrentPipelineTick();
         if (!C2ClockCommand.TrySetAcceleration(Bridge.Session, factor, out reason))
@@ -370,7 +390,7 @@ public sealed class SessionCommandFacade
 
         Journal.Append(obsTick, pipeTick, InputCommandJournalKind.SetTimeAccelerationFactor,
             new SaveJournalArguments(SimTime: obsTick, AccelerationFactor: Bridge.Session!.TimeAccelerationFactor));
-        SyncShadowStateAfterTick();
+        RefreshShadowAfterAcceptedCommand(preCommandViolation);
         return true;
     }
 
@@ -381,6 +401,7 @@ public sealed class SessionCommandFacade
         double simTime,
         out ContactOverrideResult result)
     {
+        var preCommandViolation = CapturePreCommandViolation();
         var obsTick = ResolveObservedTick(simTime);
         var pipeTick = CurrentPipelineTick();
         result = ContactOverrideCommand.TryReclassify(Bridge, contactId, affiliation, simTime);
@@ -394,7 +415,7 @@ public sealed class SessionCommandFacade
                 SimTime: simTime,
                 ContactId: contactId,
                 Affiliation: affiliation));
-        SyncShadowStateAfterTick();
+        RefreshShadowAfterAcceptedCommand(preCommandViolation);
         return true;
     }
 
@@ -404,6 +425,7 @@ public sealed class SessionCommandFacade
         double simTime,
         out ContactOverrideResult result)
     {
+        var preCommandViolation = CapturePreCommandViolation();
         var obsTick = ResolveObservedTick(simTime);
         var pipeTick = CurrentPipelineTick();
         result = ContactOverrideCommand.TryDrop(Bridge, contactId, simTime);
@@ -414,13 +436,14 @@ public sealed class SessionCommandFacade
 
         Journal.Append(obsTick, pipeTick, InputCommandJournalKind.ContactDropOverride,
             new SaveJournalArguments(SimTime: simTime, ContactId: contactId));
-        SyncShadowStateAfterTick();
+        RefreshShadowAfterAcceptedCommand(preCommandViolation);
         return true;
     }
 
     [SessionCommand(InputCommandJournalKind.RebriefAgent)]
     public bool TryRebriefAgent(TargetId targetId, string presetName, double simTime)
     {
+        var preCommandViolation = CapturePreCommandViolation();
         var obsTick = ResolveObservedTick(simTime);
         var pipeTick = CurrentPipelineTick();
         if (Bridge.AttachReplayViewer || !TryResolveAgent(targetId, out var agent))
@@ -446,7 +469,7 @@ public sealed class SessionCommandFacade
                 AgentId: agent!.Id.Value,
                 SimTime: simTime,
                 PresetName: preset.Name));
-        SyncShadowStateAfterTick();
+        RefreshShadowAfterAcceptedCommand(preCommandViolation);
         return true;
     }
 
@@ -466,6 +489,7 @@ public sealed class SessionCommandFacade
             return false;
         }
 
+        var preCommandViolation = CapturePreCommandViolation();
         var obsTick = ResolveObservedTick(simTime);
         var pipeTick = CurrentPipelineTick();
         if (Bridge.AttachReplayViewer || !Bridge.Registry.TryGetBinding(targetId, out var binding))
@@ -494,13 +518,14 @@ public sealed class SessionCommandFacade
                 AutonomyLevel: autonomy,
                 AttentionBudget: agent.AttentionBudget,
                 IsFriendly: isFriendly));
-        SyncShadowStateAfterTick();
+        RefreshShadowAfterAcceptedCommand(preCommandViolation);
         return true;
     }
 
     [SessionCommand(InputCommandJournalKind.DoctrineOverride)]
     public bool TryApplyDoctrineOverride(TargetId unitId, string roeLevelLabel, double simTime)
     {
+        var preCommandViolation = CapturePreCommandViolation();
         var obsTick = ResolveObservedTick(simTime);
         var pipeTick = CurrentPipelineTick();
         if (Bridge.AttachReplayViewer ||
@@ -514,13 +539,14 @@ public sealed class SessionCommandFacade
                 TargetId: unitId.Value,
                 SimTime: simTime,
                 RoeLevelLabel: roeLevelLabel));
-        SyncShadowStateAfterTick();
+        RefreshShadowAfterAcceptedCommand(preCommandViolation);
         return true;
     }
 
     [SessionCommand(InputCommandJournalKind.AcknowledgeWatchAttention)]
     public bool TryAcknowledgeWatchAttention(string eventId)
     {
+        var preCommandViolation = CapturePreCommandViolation();
         var obsTick = CurrentObservedTick();
         var pipeTick = CurrentPipelineTick();
         if (Bridge.AttachReplayViewer || Bridge.Session is null || !Bridge.Session.WatchQueue.TryAcknowledge(eventId))
@@ -530,13 +556,14 @@ public sealed class SessionCommandFacade
 
         Journal.Append(obsTick, pipeTick, InputCommandJournalKind.AcknowledgeWatchAttention,
             new SaveJournalArguments(SimTime: obsTick, WatchEventId: eventId));
-        SyncShadowStateAfterTick();
+        RefreshShadowAfterAcceptedCommand(preCommandViolation);
         return true;
     }
 
     [SessionCommand(InputCommandJournalKind.DismissWatchAttention)]
     public bool TryDismissWatchAttention(string eventId)
     {
+        var preCommandViolation = CapturePreCommandViolation();
         var obsTick = CurrentObservedTick();
         var pipeTick = CurrentPipelineTick();
         if (Bridge.AttachReplayViewer || Bridge.Session is null || !Bridge.Session.WatchQueue.TryDismiss(eventId))
@@ -546,7 +573,7 @@ public sealed class SessionCommandFacade
 
         Journal.Append(obsTick, pipeTick, InputCommandJournalKind.DismissWatchAttention,
             new SaveJournalArguments(SimTime: obsTick, WatchEventId: eventId));
-        SyncShadowStateAfterTick();
+        RefreshShadowAfterAcceptedCommand(preCommandViolation);
         return true;
     }
 
@@ -558,6 +585,7 @@ public sealed class SessionCommandFacade
         double simTime,
         out PlayEntryResult result)
     {
+        var preCommandViolation = CapturePreCommandViolation();
         var obsTick = ResolveObservedTick(simTime);
         var pipeTick = CurrentPipelineTick();
 
@@ -580,7 +608,7 @@ public sealed class SessionCommandFacade
                 TargetId: targetId.Value,
                 SimTime: simTime,
                 PresetName: presetName));
-        SyncShadowStateAfterTick();
+        RefreshShadowAfterAcceptedCommand(preCommandViolation);
         return true;
     }
 
@@ -592,6 +620,7 @@ public sealed class SessionCommandFacade
         double simTime,
         out PlayEntryResult result)
     {
+        var preCommandViolation = CapturePreCommandViolation();
         var obsTick = ResolveObservedTick(simTime);
         var pipeTick = CurrentPipelineTick();
 
@@ -614,8 +643,31 @@ public sealed class SessionCommandFacade
                 TargetId: targetId.Value,
                 SimTime: simTime,
                 AutonomyLevel: autonomy));
-        SyncShadowStateAfterTick();
+        RefreshShadowAfterAcceptedCommand(preCommandViolation);
         return true;
+    }
+
+    private string? CapturePreCommandViolation()
+    {
+        if (_latchedUnjournaledViolation is not null)
+        {
+            return _latchedUnjournaledViolation;
+        }
+
+        var live = CaptureAuthorityShadowState();
+        return _shadowState.TryCompare(live, out var violation)
+            ? null
+            : violation ?? "Unjournaled authority mutation detected prior to command execution.";
+    }
+
+    private void RefreshShadowAfterAcceptedCommand(string? preCommandViolation)
+    {
+        if (preCommandViolation is not null && _latchedUnjournaledViolation is null)
+        {
+            _latchedUnjournaledViolation = preCommandViolation;
+        }
+
+        _shadowState = CaptureAuthorityShadowState();
     }
 
     private PlayEntryResult ExecuteHeadlessSetPersonality(TargetId targetId, string presetName, double simTime)

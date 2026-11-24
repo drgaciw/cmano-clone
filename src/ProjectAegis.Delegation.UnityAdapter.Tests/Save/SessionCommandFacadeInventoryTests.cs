@@ -252,6 +252,53 @@ public sealed class SessionCommandFacadeInventoryTests
     }
 
     [Test]
+    public void Unjournaled_mutation_followed_by_accepted_facade_command_retains_violation_and_blocks_save_capture()
+    {
+        var identity = SaveIdentityContext.Create(
+            buildId: "build-test",
+            scenarioPolicyId: "baltic-patrol",
+            catalogSnapshotId: "baltic-fixture",
+            catalogReader: InMemoryCatalogReader.BalticPatrolFixture(),
+            globalSeed: 42);
+
+        // 1. Direct NextEngageSalvoOverride bypass followed by accepted TryPauseSim and subsequent commands/tick sync
+        {
+            var (bridge, _, facade) = BuildMixedTestSession(false);
+            bridge.Session!.NextEngageSalvoOverride = 3;
+
+            Assert.That(facade.TryPauseSim(out _), Is.True);
+            Assert.That(facade.VerifyNoUnjournaledMutations(out var violation), Is.False);
+            Assert.That(violation, Does.Contain("NextEngageSalvoOverride"));
+
+            var capture = facade.TryCaptureEnvelope(identity);
+            Assert.That(capture.Succeeded, Is.False);
+            Assert.That(capture.FailureCode, Is.EqualTo(SaveFailureCode.UnjournaledMutationDetected));
+            Assert.That(capture.FailureReason, Does.Contain("NextEngageSalvoOverride"));
+
+            // Subsequent accepted commands or tick sync must not erase the latched violation.
+            Assert.That(facade.TrySetTimeAccelerationFactor(2, out _), Is.True);
+            facade.SyncShadowStateAfterTick();
+
+            var captureAfterSync = facade.TryCaptureEnvelope(identity);
+            Assert.That(captureAfterSync.Succeeded, Is.False);
+            Assert.That(captureAfterSync.FailureCode, Is.EqualTo(SaveFailureCode.UnjournaledMutationDetected));
+            Assert.That(captureAfterSync.FailureReason, Does.Contain("NextEngageSalvoOverride"));
+        }
+
+        // 2. Direct DecisionLog bypass followed by accepted TryEnqueueHumanOrder
+        {
+            var (bridge, _, facade) = BuildMixedTestSession(false);
+            bridge.Orchestrator.DecisionLog.AppendEventFired(new EventFiredRecord(0, 1.0, 1, "rogue", "ROGUE"));
+
+            Assert.That(facade.TryEnqueueHumanOrder(new EntityKey(1), OrderKind.Hold, 1.0), Is.True);
+            var capture = facade.TryCaptureEnvelope(identity);
+            Assert.That(capture.Succeeded, Is.False);
+            Assert.That(capture.FailureCode, Is.EqualTo(SaveFailureCode.UnjournaledMutationDetected));
+            Assert.That(capture.FailureReason, Does.Contain("DecisionLog"));
+        }
+    }
+
+    [Test]
     public void WatchQueue_reset_clears_acknowledged_and_dismissed_flags_via_public_api()
     {
         var queue = new WatchAttentionQueue();
