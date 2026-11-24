@@ -23,6 +23,8 @@ public static class SkillEnvelopeValidator
     public const string ReasonWeaponsReleaseRequired = "WEAPONS_RELEASE_REQUIRED";
     public const string ReasonCommandNotAllowed = "COMMAND_NOT_ALLOWED";
     public const string ReasonApprovalRequired = "APPROVAL_REQUIRED";
+    public const string ReasonPolicyUnavailable = "POLICY_UNAVAILABLE";
+    public const string ReasonProposalExpired = "PROPOSAL_EXPIRED";
 
     /// <summary>
     /// Validate <paramref name="envelope"/>. Pass <paramref name="proposalApproved"/> only for
@@ -35,9 +37,27 @@ public static class SkillEnvelopeValidator
             throw new ArgumentNullException(nameof(envelope));
         }
 
+        return Validate(envelope, proposalApproved, envelope.SimTick);
+    }
+
+    /// <summary>
+    /// Validate <paramref name="envelope"/> at an explicit <paramref name="currentSimTick"/>,
+    /// enforcing fail-closed <see cref="ReasonPolicyUnavailable"/> and <see cref="ReasonProposalExpired"/> checks.
+    /// </summary>
+    public static SkillEnvelopeValidation Validate(
+        SkillEnvelope envelope,
+        bool proposalApproved,
+        ulong? currentSimTick)
+    {
+        if (envelope is null)
+        {
+            throw new ArgumentNullException(nameof(envelope));
+        }
+
+        var evalTick = currentSimTick ?? envelope.SimTick;
         if (string.Equals(envelope.SkillId, SkillIds.Submit, StringComparison.Ordinal))
         {
-            return ValidateSubmit(envelope, proposalApproved);
+            return ValidateSubmit(envelope, proposalApproved, evalTick);
         }
 
         if (!SkillCatalog.TryGet(envelope.SkillId, out var descriptor))
@@ -53,9 +73,40 @@ public static class SkillEnvelopeValidator
         return envelope.Lane switch
         {
             SkillLane.Read => ValidateRead(envelope),
-            SkillLane.Propose => ValidatePropose(envelope, descriptor),
+            SkillLane.Propose => ValidatePropose(envelope, descriptor, evalTick),
             _ => Fail(ReasonLaneNotAllowed),
         };
+    }
+
+    /// <summary>Evaluates explicit AGD-08 degraded-mode policy state for a skill envelope.</summary>
+    public static DegradedModeAssessment EvaluateDegradedMode(
+        SkillEnvelope envelope,
+        DegradedModeContext? context = null,
+        ulong? currentSimTick = null)
+    {
+        if (envelope is null)
+        {
+            throw new ArgumentNullException(nameof(envelope));
+        }
+
+        var evalTick = currentSimTick ?? envelope.SimTick;
+        var unknownSkill = !string.Equals(envelope.SkillId, SkillIds.Submit, StringComparison.Ordinal)
+            && !SkillCatalog.TryGet(envelope.SkillId, out _);
+        var expired = envelope.CreatedSimTick.HasValue
+            && envelope.TtlTicks is > 0
+            && IsExpired(envelope.CreatedSimTick.Value, envelope.TtlTicks.Value, evalTick);
+        var policyWithheld = envelope.AuthorityBasis?.PolicyUnavailable == true
+            || envelope.AuthorityBasis?.EngagementAuthorizationImplied == true;
+
+        var merged = new DegradedModeContext(
+            ModelOrSkillUnavailable: (context?.ModelOrSkillUnavailable ?? false) || unknownSkill,
+            StaleData: (context?.StaleData ?? false) || expired,
+            NetworkPartition: context?.NetworkPartition ?? false,
+            AuthorityWithheld: (context?.AuthorityWithheld ?? false) || policyWithheld,
+            ResourceConflict: context?.ResourceConflict ?? false,
+            Detail: context?.Detail);
+
+        return DegradedModePolicy.Evaluate(merged);
     }
 
     /// <summary>
@@ -97,11 +148,16 @@ public static class SkillEnvelopeValidator
         return Ok();
     }
 
-    private static SkillEnvelopeValidation ValidatePropose(SkillEnvelope envelope, SkillDescriptor descriptor)
+    private static SkillEnvelopeValidation ValidatePropose(SkillEnvelope envelope, SkillDescriptor descriptor, ulong currentSimTick)
     {
         if (envelope.AuthorityBasis is null)
         {
             return Fail(ReasonMissingAuthority);
+        }
+
+        if (envelope.AuthorityBasis.PolicyUnavailable)
+        {
+            return Fail(ReasonPolicyUnavailable);
         }
 
         if (envelope.AuthorityBasis.EngagementAuthorizationImplied)
@@ -119,9 +175,14 @@ public static class SkillEnvelopeValidator
             return Fail(ReasonMissingProposal);
         }
 
-        if (envelope.TtlTicks is null || envelope.CreatedSimTick is null)
+        if (envelope.TtlTicks is null or <= 0 || envelope.CreatedSimTick is null)
         {
             return Fail(ReasonMissingTtl);
+        }
+
+        if (IsExpired(envelope.CreatedSimTick.Value, envelope.TtlTicks.Value, currentSimTick))
+        {
+            return Fail(ReasonProposalExpired);
         }
 
         if (!string.IsNullOrEmpty(envelope.CommandId))
@@ -152,7 +213,7 @@ public static class SkillEnvelopeValidator
         return Ok();
     }
 
-    private static SkillEnvelopeValidation ValidateSubmit(SkillEnvelope envelope, bool proposalApproved)
+    private static SkillEnvelopeValidation ValidateSubmit(SkillEnvelope envelope, bool proposalApproved, ulong currentSimTick)
     {
         if (envelope.Lane != SkillLane.Submit)
         {
@@ -172,6 +233,22 @@ public static class SkillEnvelopeValidator
         if (envelope.AuthorityBasis is null)
         {
             return Fail(ReasonMissingAuthority);
+        }
+
+        if (envelope.AuthorityBasis.PolicyUnavailable)
+        {
+            return Fail(ReasonPolicyUnavailable);
+        }
+
+        if (envelope.TtlTicks is <= 0)
+        {
+            return Fail(ReasonMissingTtl);
+        }
+
+        if (envelope.CreatedSimTick.HasValue && envelope.TtlTicks.HasValue
+            && IsExpired(envelope.CreatedSimTick.Value, envelope.TtlTicks.Value, currentSimTick))
+        {
+            return Fail(ReasonProposalExpired);
         }
 
         if (envelope.PlayerOverride is null)
@@ -277,6 +354,11 @@ public static class SkillEnvelopeValidator
 
         return null;
     }
+
+    private static bool IsExpired(ulong createdSimTick, int ttlTicks, ulong currentSimTick) =>
+        ttlTicks > 0
+        && currentSimTick > createdSimTick
+        && currentSimTick - createdSimTick > (ulong)ttlTicks;
 
     private static bool IsEngage(string? commandId) =>
         string.Equals(commandId?.Trim(), "engage", StringComparison.OrdinalIgnoreCase);
