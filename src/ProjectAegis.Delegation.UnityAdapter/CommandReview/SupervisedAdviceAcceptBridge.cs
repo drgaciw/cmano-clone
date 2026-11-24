@@ -45,6 +45,7 @@ public static class SupervisedAdviceAcceptBridge
     public const string ReasonAuthorityWithheld = "AUTHORITY_WITHHELD";
     public const string ReasonTakeControlFailed = "TAKE_CONTROL_FAILED";
     public const string ReasonEngageGateBlocked = "ENGAGE_GATE_BLOCKED";
+    public const string ReasonAdviceTargetMismatch = "ADVICE_TARGET_MISMATCH";
 
     public static SupervisedAdviceAcceptResult TryAccept(
         DelegationBridge? bridge,
@@ -145,6 +146,15 @@ public static class SupervisedAdviceAcceptBridge
 
         if (kind == OrderKind.Engage)
         {
+            if (!TryValidateAdvisedEngageTarget(bridge, snapshot, binding.TargetId.Value, request.Advice.ContactId, out var targetFailure))
+            {
+                return Reject(
+                    request.UnitId,
+                    request.Advice.ContactId,
+                    targetFailure ?? ReasonAdviceTargetMismatch,
+                    evidenceLines);
+            }
+
             var preview = bridge.GetEngagePreviewForUnit(binding.TargetId.Value, snapshot);
             if (preview is null || !preview.CanFire)
             {
@@ -283,6 +293,52 @@ public static class SupervisedAdviceAcceptBridge
         }
 
         return AutonomyLevel.Manual;
+    }
+
+    internal static bool TryValidateAdvisedEngageTarget(
+        DelegationBridge bridge,
+        ISimWorldSnapshot snapshot,
+        string shooterUnitId,
+        string adviceContactId,
+        out string? failureReason)
+    {
+        var activeContacts = ContactPictureProjection.ProjectWithBda(bridge.Orchestrator.DecisionLog);
+        string? advisedTargetId = null;
+        for (var i = 0; i < activeContacts.Count; i++)
+        {
+            if (string.Equals(activeContacts[i].ContactId, adviceContactId, StringComparison.Ordinal))
+            {
+                advisedTargetId = activeContacts[i].TargetId;
+                break;
+            }
+        }
+
+        if (string.IsNullOrWhiteSpace(advisedTargetId))
+        {
+            failureReason = ReasonAdviceTargetMismatch;
+            return false;
+        }
+
+        var primaryTargetId = snapshot.PrimaryHostileContactId?.Value;
+        if (string.IsNullOrWhiteSpace(primaryTargetId)
+            || !string.Equals(primaryTargetId, advisedTargetId, StringComparison.Ordinal))
+        {
+            failureReason = ReasonAdviceTargetMismatch;
+            return false;
+        }
+
+        var preferredMap = snapshot.PreferredHostileByShooter;
+        if (preferredMap is not null
+            && preferredMap.TryGetValue(shooterUnitId, out var preferredTargetId)
+            && !string.IsNullOrWhiteSpace(preferredTargetId)
+            && !string.Equals(preferredTargetId, advisedTargetId, StringComparison.Ordinal))
+        {
+            failureReason = ReasonAdviceTargetMismatch;
+            return false;
+        }
+
+        failureReason = null;
+        return true;
     }
 
     private static bool TryFindBinding(DelegationBridge bridge, string unitId, out SimEntityBinding binding)

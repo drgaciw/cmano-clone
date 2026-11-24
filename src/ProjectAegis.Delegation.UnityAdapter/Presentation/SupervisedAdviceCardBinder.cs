@@ -155,6 +155,12 @@ public sealed class SupervisedAdviceCardBinder
         {
             blockReason = SupervisedAdviceAcceptBridge.ReasonFullAutonomousOptInRequired;
         }
+        else if (isLethalOrder
+            && !SupervisedAdviceAcceptBridge.TryValidateAdvisedEngageTarget(
+                bridge, snapshot, unitId, advice.ContactId, out var targetBlockReason))
+        {
+            blockReason = targetBlockReason ?? SupervisedAdviceAcceptBridge.ReasonAdviceTargetMismatch;
+        }
 
         return new SupervisedAdviceCardState(
             CardVisible: true,

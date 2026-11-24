@@ -31,6 +31,7 @@ public sealed class SupervisedAdviceAcceptBridgeTests
         public TargetId? PrimaryHostileContactId { get; set; } = new("hostile-1");
         public bool HasFireControlTrackOnPrimaryContact { get; set; } = true;
         public bool ObserverRadarEmconActive { get; set; } = true;
+        public IReadOnlyDictionary<string, string>? PreferredHostileByShooter { get; set; }
         public bool IsMemberAlive(TargetId memberId) => true;
     }
 
@@ -568,6 +569,79 @@ public sealed class SupervisedAdviceAcceptBridgeTests
         Assert.That(acceptedHold.Accepted, Is.True, acceptedHold.FailureReason);
         Assert.That(acceptedHold.EnqueuedKind, Is.EqualTo(OrderKind.Hold));
         Assert.That(bridgeHold.Orchestrator.DecisionLog.PlayerOrders, Has.Count.EqualTo(1));
+    }
+
+    [Test]
+    public void Lethal_accept_rejects_when_advised_contact_differs_from_actual_engagement_target()
+    {
+        var (bridge, snapshot, adviceC1) = CreateAvailableScenario(AutonomyLevel.Assisted, RoeLevel.WeaponsFree);
+        bridge.Orchestrator.DecisionLog.AppendContactChange(new ContactChangeRecord(
+            SequenceId: 0,
+            SimTime: 2.0,
+            SimTick: 2,
+            ObserverId: "u1",
+            ContactId: "c2",
+            TargetId: "hostile-2",
+            PreviousState: "Unknown",
+            NewState: "Classified"));
+        var seqC2 = checked((int)bridge.Orchestrator.DecisionLog.ContactChanges[^1].SequenceId);
+        var adviceC2 = CreateAdviceFrame(seqC2, RoeLevel.WeaponsFree) with
+        {
+            ContactId = "c2",
+            Evidence = new[]
+            {
+                new EvidencePointer(EvidenceKind.Contact, "c2", seqC2, "SliceAContactFrame", "Status"),
+            },
+        };
+
+        var beforeFp = bridge.Orchestrator.DecisionLog.ComputeFingerprint();
+
+        // Case 1: advice is for c2 (hostile-2), but snapshot primary target is hostile-1.
+        var cardMismatchPrimary = SupervisedAdviceCardBinder.Project(
+            bridge, snapshot, adviceC2, selectedUnitId: "u1", proposedCommandId: "engage", attackOptionId: "fire-single");
+        Assert.That(cardMismatchPrimary.CanAccept, Is.False);
+        Assert.That(cardMismatchPrimary.BlockReason, Is.EqualTo(SupervisedAdviceAcceptBridge.ReasonAdviceTargetMismatch));
+
+        var rejectPrimary = SupervisedAdviceAcceptBridge.TryAccept(
+            bridge, snapshot, new SupervisedAdviceAcceptRequest("u1", adviceC2, "engage", "fire-single"));
+        Assert.That(rejectPrimary.Accepted, Is.False);
+        Assert.That(rejectPrimary.FailureReason, Is.EqualTo(SupervisedAdviceAcceptBridge.ReasonAdviceTargetMismatch));
+        Assert.That(bridge.Orchestrator.DecisionLog.PlayerOrders, Is.Empty);
+        Assert.That(bridge.Orchestrator.DecisionLog.ComputeFingerprint(), Is.EqualTo(beforeFp));
+        Assert.That(bridge.Registry.TryGetBinding(new TargetId("u1"), out var bindingAfterPrimary), Is.True);
+        Assert.That(bindingAfterPrimary.Target.Slot.Active, Is.InstanceOf<AgentController>());
+
+        // Case 2: advice is for c1 (hostile-1), matching PrimaryHostileContactId,
+        // but PreferredHostileByShooter redirects u1 to hostile-2.
+        snapshot.PreferredHostileByShooter = new Dictionary<string, string>(StringComparer.Ordinal)
+        {
+            ["u1"] = "hostile-2",
+        };
+        var cardMismatchPreferred = SupervisedAdviceCardBinder.Project(
+            bridge, snapshot, adviceC1, selectedUnitId: "u1", proposedCommandId: "engage", attackOptionId: "fire-single");
+        Assert.That(cardMismatchPreferred.CanAccept, Is.False);
+        Assert.That(cardMismatchPreferred.BlockReason, Is.EqualTo(SupervisedAdviceAcceptBridge.ReasonAdviceTargetMismatch));
+
+        var rejectPreferred = SupervisedAdviceAcceptBridge.TryAccept(
+            bridge, snapshot, new SupervisedAdviceAcceptRequest("u1", adviceC1, "engage", "fire-single"));
+        Assert.That(rejectPreferred.Accepted, Is.False);
+        Assert.That(rejectPreferred.FailureReason, Is.EqualTo(SupervisedAdviceAcceptBridge.ReasonAdviceTargetMismatch));
+        Assert.That(bridge.Orchestrator.DecisionLog.PlayerOrders, Is.Empty);
+        Assert.That(bridge.Orchestrator.DecisionLog.ComputeFingerprint(), Is.EqualTo(beforeFp));
+
+        // Case 3: non-lethal hold advice on non-primary contact c2 remains allowed.
+        var holdOnC2 = SupervisedAdviceAcceptBridge.TryAccept(
+            bridge, snapshot, new SupervisedAdviceAcceptRequest("u1", adviceC2, "hold"));
+        Assert.That(holdOnC2.Accepted, Is.True, holdOnC2.FailureReason);
+        Assert.That(holdOnC2.EnqueuedKind, Is.EqualTo(OrderKind.Hold));
+
+        // Case 4: aligning PrimaryHostileContactId and PreferredHostileByShooter to hostile-2 allows lethal accept for c2.
+        snapshot.PrimaryHostileContactId = new TargetId("hostile-2");
+        var alignedAccept = SupervisedAdviceAcceptBridge.TryAccept(
+            bridge, snapshot, new SupervisedAdviceAcceptRequest("u1", adviceC2, "engage", "fire-single"));
+        Assert.That(alignedAccept.Accepted, Is.True, alignedAccept.FailureReason);
+        Assert.That(alignedAccept.ContactId, Is.EqualTo("c2"));
+        Assert.That(alignedAccept.EnqueuedKind, Is.EqualTo(OrderKind.Engage));
     }
 
     private static (DelegationBridge Bridge, TestWorldSnapshot Snapshot, AdviceFrame Advice) CreateRejoinPendingScenario()
