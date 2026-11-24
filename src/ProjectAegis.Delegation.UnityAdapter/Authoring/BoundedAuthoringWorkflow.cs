@@ -238,13 +238,41 @@ public sealed class BoundedAuthoringWorkflow : IDisposable
                 _findings.Gate);
         }
 
+        var unitId = request.UnitId.Trim();
+        ScenarioOrbatUnitDto? existing = null;
+        if (request.AllowReplace)
+        {
+            var existingUnits = _session.Editor.ToDto().Orbat?.Units;
+            if (existingUnits != null)
+            {
+                for (var i = 0; i < existingUnits.Count; i++)
+                {
+                    if (string.Equals(existingUnits[i].Id, unitId, StringComparison.OrdinalIgnoreCase))
+                    {
+                        existing = existingUnits[i];
+                        break;
+                    }
+                }
+            }
+        }
+
         var dto = new ScenarioOrbatUnitDto
         {
-            Id = request.UnitId.Trim(),
+            Id = unitId,
             SideId = request.SideId.Trim(),
             PlatformId = request.PlatformId.Trim(),
+            PlatformDbId = existing?.PlatformDbId,
             Lat = request.Lat,
             Lon = request.Lon,
+            BaseId = existing?.BaseId,
+            GroupId = existing?.GroupId,
+            ParentUnitId = existing?.ParentUnitId,
+            RoeOverride = existing?.RoeOverride,
+            EmconOverride = existing?.EmconOverride,
+            DroneCount = existing?.DroneCount,
+            HostUnitId = existing?.HostUnitId,
+            MissionType = existing?.MissionType,
+            Mode = existing?.Mode,
         };
 
         var mutation = request.AllowReplace

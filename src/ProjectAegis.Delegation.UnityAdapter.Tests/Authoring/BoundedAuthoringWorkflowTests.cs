@@ -421,6 +421,94 @@ public sealed class BoundedAuthoringWorkflowTests
         Assert.That(workflow.Session, Is.SameAs(sessionBefore));
     }
 
+    [Test]
+    public void PlaceOrEditUnit_edit_preserves_non_bounded_unit_fields_across_save_and_export()
+    {
+        var source = ScenarioDocumentJsonLoader.LoadFromFile(FixturePath("bounded-authoring-supported.json"));
+        var existingUnits = source.Orbat!.Units.ToList();
+        var originalU1 = existingUnits.Single(u => u.Id == "u1");
+        var enrichedU1 = new ScenarioOrbatUnitDto
+        {
+            Id = originalU1.Id,
+            SideId = originalU1.SideId,
+            PlatformId = originalU1.PlatformId,
+            PlatformDbId = "db-ffg-001",
+            Lat = originalU1.Lat,
+            Lon = originalU1.Lon,
+            BaseId = "base-alpha",
+            GroupId = "grp-surface-1",
+            ParentUnitId = "hq-blue",
+            RoeOverride = "WeaponsTight",
+            EmconOverride = "Passive",
+            DroneCount = 6,
+            HostUnitId = "u-host",
+            MissionType = "Patrol",
+            Mode = "Screen",
+        };
+        var idx = existingUnits.FindIndex(u => u.Id == "u1");
+        existingUnits[idx] = enrichedU1;
+
+        var doc = new ScenarioDocumentDto
+        {
+            Metadata = source.Metadata,
+            Sides = source.Sides,
+            Orbat = new ScenarioOrbatDto
+            {
+                Units = existingUnits,
+                Groups = source.Orbat.Groups,
+                Bases = source.Orbat.Bases,
+                Cargo = source.Orbat.Cargo,
+            },
+            Missions = source.Missions,
+        };
+        var draftPath = Path.Combine(_tempDir, $"preserve-fields-{Guid.NewGuid():N}.json");
+        ScenarioDocumentJsonWriter.WriteToFile(doc, draftPath);
+
+        var catalog = InMemoryCatalogReader.BalticPatrolFixture();
+        using var workflow = new BoundedAuthoringWorkflow();
+        Assert.That(workflow.OpenDraft(draftPath, catalog).Succeeded, Is.True);
+
+        var editResult = workflow.PlaceOrEditUnit(new BoundedUnitEditRequest
+        {
+            UnitId = "u1",
+            SideId = "blue",
+            PlatformId = "ddg",
+            Lat = 57.65,
+            Lon = 20.85,
+            AllowReplace = true,
+            SaveImmediately = true,
+        });
+        Assert.That(editResult.Succeeded, Is.True, editResult.Message);
+
+        var exported = workflow.ExportPackage();
+        Assert.That(exported.Allowed, Is.True, exported.StatusText);
+
+        var reloadedDraft = ScenarioDocumentJsonLoader.LoadFromFile(draftPath);
+        var reloadedExport = ScenarioDocumentJsonLoader.LoadFromFile(exported.ArtifactPath!);
+
+        foreach (var candidate in new[]
+                 {
+                     workflow.Session!.Editor.ToDto().Orbat!.Units.Single(u => u.Id == "u1"),
+                     reloadedDraft.Orbat!.Units.Single(u => u.Id == "u1"),
+                     reloadedExport.Orbat!.Units.Single(u => u.Id == "u1"),
+                 })
+        {
+            Assert.That(candidate.PlatformId, Is.EqualTo("ddg"));
+            Assert.That(candidate.Lat, Is.EqualTo(57.65).Within(1e-6));
+            Assert.That(candidate.Lon, Is.EqualTo(20.85).Within(1e-6));
+            Assert.That(candidate.PlatformDbId, Is.EqualTo("db-ffg-001"));
+            Assert.That(candidate.BaseId, Is.EqualTo("base-alpha"));
+            Assert.That(candidate.GroupId, Is.EqualTo("grp-surface-1"));
+            Assert.That(candidate.ParentUnitId, Is.EqualTo("hq-blue"));
+            Assert.That(candidate.RoeOverride, Is.EqualTo("WeaponsTight"));
+            Assert.That(candidate.EmconOverride, Is.EqualTo("Passive"));
+            Assert.That(candidate.DroneCount, Is.EqualTo(6));
+            Assert.That(candidate.HostUnitId, Is.EqualTo("u-host"));
+            Assert.That(candidate.MissionType, Is.EqualTo("Patrol"));
+            Assert.That(candidate.Mode, Is.EqualTo("Screen"));
+        }
+    }
+
     private string CopyFixture(string fileName)
     {
         var src = FixturePath(fileName);
