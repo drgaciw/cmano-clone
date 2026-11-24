@@ -68,22 +68,19 @@ public static class MessageLogExplainDeepLinkCoordinator
             }
         }
 
-        if (detail.Fields is not null)
+        for (var i = 0; i < detail.Fields.Count; i++)
         {
-            for (var i = 0; i < detail.Fields.Count; i++)
+            var kv = detail.Fields[i];
+            if (string.Equals(kv.Key, "TargetId", StringComparison.OrdinalIgnoreCase)
+                && !string.IsNullOrWhiteSpace(kv.Value))
             {
-                var kv = detail.Fields[i];
-                if (string.Equals(kv.Key, "TargetId", StringComparison.OrdinalIgnoreCase)
-                    && !string.IsNullOrWhiteSpace(kv.Value))
+                if (contacts.Contains(kv.Value))
                 {
-                    if (contacts.Contains(kv.Value))
-                    {
-                        safeContact = kv.Value;
-                    }
-                    else if (safeUnit is null && friendlies.Contains(kv.Value))
-                    {
-                        safeUnit = kv.Value;
-                    }
+                    safeContact = kv.Value;
+                }
+                else if (safeUnit is null && friendlies.Contains(kv.Value))
+                {
+                    safeUnit = kv.Value;
                 }
             }
         }

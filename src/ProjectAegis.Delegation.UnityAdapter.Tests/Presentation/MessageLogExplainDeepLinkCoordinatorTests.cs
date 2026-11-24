@@ -39,6 +39,7 @@ public sealed class MessageLogExplainDeepLinkCoordinatorTests
             playerVisibleContactIds: new[] { "hostile-1" });
 
         Assert.That(result.HasExplain, Is.True);
+        Assert.That(result.SequenceId, Is.EqualTo(42UL));
         Assert.That(result.SuppressedByFog, Is.False);
         Assert.That(result.SafeUnitIdToSelect, Is.EqualTo("u1"));
         Assert.That(result.SafeContactIdToSelect, Is.EqualTo("hostile-1"));

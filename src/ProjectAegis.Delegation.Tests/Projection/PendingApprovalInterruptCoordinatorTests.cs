@@ -24,6 +24,13 @@ public sealed class PendingApprovalInterruptCoordinatorTests
         Assert.That(batch1.ShouldDropToRealTime, Is.True);
         Assert.That(batch1.NewlyInterruptedOrderIds, Is.EqualTo(new[] { orderId }));
         Assert.That(batch1.Cards.Count, Is.EqualTo(1));
+        Assert.That(batch1.Cards[0].OrderId, Is.EqualTo(orderId));
+        Assert.That(batch1.Cards[0].TargetId, Is.EqualTo(new TargetId("hostile-1")));
+        Assert.That(batch1.Cards[0].SummaryLine, Is.Not.Empty);
+        Assert.That(batch1.Cards[0].RiskLabel, Is.Not.Empty);
+        Assert.That(batch1.Cards[0].IsHighRisk, Is.True);
+        Assert.That(batch1.Cards[0].IsExpired, Is.False);
+        Assert.That(batch1.Cards[0].ForcedRealTimeIssued, Is.True);
         Assert.That(batch1.Cards[0].RemainingSimSeconds, Is.EqualTo(30.0).Within(0.001));
         Assert.That(batch1.Cards[0].CountdownLine, Does.Contain("30.0s"));
 
@@ -79,9 +86,11 @@ public sealed class PendingApprovalInterruptCoordinatorTests
         var expired = coordinator.ValidateDecision(orderId, pending, currentSimTime: 25.0, expiresAtSimTime: 20.0, isReplayViewer: false, isObserver: false);
         Assert.That(expired.Allowed, Is.False);
         Assert.That(expired.ReasonCode, Is.EqualTo("DLZ_EXPIRED"));
+        Assert.That(expired.StatusLine, Is.Not.Empty);
 
         var valid = coordinator.ValidateDecision(orderId, pending, currentSimTime: 15.0, expiresAtSimTime: 20.0, isReplayViewer: false, isObserver: false);
         Assert.That(valid.Allowed, Is.True);
         Assert.That(valid.ReasonCode, Is.EqualTo("OK"));
+        Assert.That(valid.StatusLine, Is.Empty);
     }
 }
