@@ -1,12 +1,10 @@
-namespace ProjectAegis.Delegation.UnityAdapter.Tests.Save;
-
 using System.Text;
-using System.Text.Json;
 using System.Text.Json.Nodes;
 using NUnit.Framework;
-using ProjectAegis.Delegation.Core;
 using ProjectAegis.Delegation.Input;
 using ProjectAegis.Delegation.UnityAdapter.Save;
+
+namespace ProjectAegis.Delegation.UnityAdapter.Tests.Save;
 
 [TestFixture]
 public sealed class SaveEnvelopeAndSlotStoreTests
@@ -116,6 +114,9 @@ public sealed class SaveEnvelopeAndSlotStoreTests
         try
         {
             var store = new SaveSlotStore(tempDir);
+            var invalidSave = store.Save("unsupported-slot", CreateValidEnvelope());
+            Assert.That(invalidSave.Succeeded, Is.False);
+            Assert.That(invalidSave.FailureReason, Is.Not.Empty);
             Assert.That(store.IsValidSlotId("manual-1"), Is.True);
             Assert.That(store.IsValidSlotId("manual-2"), Is.True);
             Assert.That(store.IsValidSlotId("manual-3"), Is.True);

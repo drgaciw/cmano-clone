@@ -44,7 +44,7 @@ public sealed class SaveSlotStore
 
     public SaveOperationResult Save(
         string slotId,
-        SaveEnvelope envelope,
+        SaveEnvelope? envelope,
         Func<(bool Ok, string? Violation)>? preWriteGuard = null,
         Action<string>? faultInjector = null)
     {

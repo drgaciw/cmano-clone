@@ -1,18 +1,16 @@
-namespace ProjectAegis.Delegation.UnityAdapter.Tests.Save;
-
 using System.Text;
 using System.Text.Json.Nodes;
 using NUnit.Framework;
 using ProjectAegis.Data.Catalog;
 using ProjectAegis.Delegation.Core;
-using ProjectAegis.Delegation.Input;
 using ProjectAegis.Delegation.Replay;
 using ProjectAegis.Delegation.Traits;
 using ProjectAegis.Delegation.UnityAdapter.Baltic;
 using ProjectAegis.Delegation.UnityAdapter.Bridge;
 using ProjectAegis.Delegation.UnityAdapter.Save;
-using ProjectAegis.Delegation.Watch;
 using ProjectAegis.Sim.Scenario;
+
+namespace ProjectAegis.Delegation.UnityAdapter.Tests.Save;
 
 [TestFixture]
 public sealed class SaveResumeDriverTests
@@ -233,7 +231,8 @@ public sealed class SaveResumeDriverTests
         Assert.That(world.GetPlottedCourse("u1"), Is.Not.Null);
         Assert.That(world.TryGetKinematicPose("u1", out var movedPose), Is.True);
         Assert.That(
-            movedPose.NormalizedX != initialPose.NormalizedX || movedPose.NormalizedY != initialPose.NormalizedY,
+            Math.Abs(movedPose.NormalizedX.GetValueOrDefault() - initialPose.NormalizedX.GetValueOrDefault()) > 1e-6f
+            || Math.Abs(movedPose.NormalizedY.GetValueOrDefault() - initialPose.NormalizedY.GetValueOrDefault()) > 1e-6f,
             Is.True,
             "Move order + AdvanceKinematics must move the unit pose.");
         Assert.That(world.EmconPostures["u1"], Is.EqualTo("active"));

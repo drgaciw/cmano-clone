@@ -1,5 +1,3 @@
-namespace ProjectAegis.Delegation.UnityAdapter.Tests.Save;
-
 using System.Reflection;
 using NUnit.Framework;
 using ProjectAegis.Data.Catalog;
@@ -7,17 +5,14 @@ using ProjectAegis.Delegation.Controllers;
 using ProjectAegis.Delegation.Core;
 using ProjectAegis.Delegation.Decision;
 using ProjectAegis.Delegation.Input;
-using ProjectAegis.Delegation.Orchestration;
 using ProjectAegis.Delegation.Policy;
-using ProjectAegis.Delegation.Roe;
-using ProjectAegis.Delegation.Targets;
 using ProjectAegis.Delegation.Traits;
-using ProjectAegis.Delegation.Trust;
 using ProjectAegis.Delegation.UnityAdapter.Bridge;
 using ProjectAegis.Delegation.UnityAdapter.Save;
 using ProjectAegis.Delegation.Watch;
-using ProjectAegis.Sim.Engage;
 using ProjectAegis.Sim.Policy;
+
+namespace ProjectAegis.Delegation.UnityAdapter.Tests.Save;
 
 [TestFixture]
 public sealed class SessionCommandFacadeInventoryTests
@@ -293,8 +288,8 @@ public sealed class SessionCommandFacadeInventoryTests
         var h1 = bridge.Registry.RegisterUnit(new EntityKey(2), "hostile-1");
         bridge.ConfigureSimulationMode(
             new SimulationModeProfile(SimulationModeKind.Mixed, PlayerControlsFriendlySide: true),
-            new ICommandableTarget[] { u1.Target },
-            new ICommandableTarget[] { h1.Target },
+            new[] { u1.Target },
+            new[] { h1.Target },
             PersonalityCatalog.All[0].Traits);
         bridge.AttachReplayViewer = attachReplayViewer;
 

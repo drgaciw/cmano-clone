@@ -4,7 +4,6 @@ using System.Security.Cryptography;
 using System.Text;
 using System.Text.Json;
 using Core;
-using Traits;
 
 public static class SaveEnvelopeBounds
 {
@@ -252,7 +251,7 @@ public static class SaveEnvelopeSerializer
         return ms.ToArray();
     }
 
-    public static SaveResult<SaveEnvelope> TryDeserializeAndVerify(byte[] utf8Bytes)
+    public static SaveResult<SaveEnvelope> TryDeserializeAndVerify(byte[]? utf8Bytes)
     {
         if (utf8Bytes is null)
         {
@@ -262,7 +261,7 @@ public static class SaveEnvelopeSerializer
         return TryDeserializeAndVerify(utf8Bytes.AsSpan());
     }
 
-    public static SaveResult<SaveEnvelope> TryDeserializeAndVerify(string json)
+    public static SaveResult<SaveEnvelope> TryDeserializeAndVerify(string? json)
     {
         if (json is null)
         {
@@ -323,18 +322,14 @@ public static class SaveEnvelopeSerializer
             var posErrCode = SaveFailureCode.None;
             var jErrCode = SaveFailureCode.None;
             var chkErrCode = SaveFailureCode.None;
-            SaveIdentityBlock identity = null!;
-            SavePositionBlock position = null!;
-            SaveInputJournalBlock inputJournal = null!;
-            SaveChecksumsBlock checksums = null!;
             if (!TryGetRequiredObject(root, "identity", out var idEl, out var err) ||
-                !TryParseIdentity(idEl, out identity, out idErrCode, out err) ||
+                !TryParseIdentity(idEl, out var identity, out idErrCode, out err) ||
                 !TryGetRequiredObject(root, "position", out var posEl, out err) ||
-                !TryParsePosition(posEl, out position, out posErrCode, out err) ||
+                !TryParsePosition(posEl, out var position, out posErrCode, out err) ||
                 !TryGetRequiredObject(root, "inputJournal", out var journalEl, out err) ||
-                !TryParseJournal(journalEl, out inputJournal, out jErrCode, out err) ||
+                !TryParseJournal(journalEl, out var inputJournal, out jErrCode, out err) ||
                 !TryGetRequiredObject(root, "checksums", out var chkEl, out err) ||
-                !TryParseChecksums(chkEl, position.ObservedTick, out checksums, out chkErrCode, out err))
+                !TryParseChecksums(chkEl, position.ObservedTick, out var checksums, out chkErrCode, out err))
             {
                 var failureCode = idErrCode != SaveFailureCode.None ? idErrCode
                     : posErrCode != SaveFailureCode.None ? posErrCode

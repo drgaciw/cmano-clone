@@ -12,9 +12,7 @@ using Orchestration;
 using PlayDelegation;
 using PlayEntry;
 using Replay;
-using Targets;
 using Traits;
-using ProjectAegis.Sim.Policy;
 
 [AttributeUsage(AttributeTargets.Method, AllowMultiple = false, Inherited = false)]
 public sealed class SessionCommandAttribute : Attribute
@@ -63,7 +61,7 @@ public sealed class SessionCommandFacade
     }
 
     public SaveResult<SaveEnvelope> TryCaptureEnvelope(
-        SaveIdentityContext identity,
+        SaveIdentityContext? identity,
         ReplayCheckpointStore? checkpointStore = null,
         ulong combinedWorldHash = 0)
     {
@@ -235,7 +233,7 @@ public sealed class SessionCommandFacade
     public bool TryEnqueueAttackOption(
         EntityKey entity,
         string optionId,
-        ISimWorldSnapshot snapshot,
+        ISimWorldSnapshot? snapshot,
         out string? failureReason)
     {
         failureReason = null;
@@ -298,7 +296,7 @@ public sealed class SessionCommandFacade
     }
 
     [SessionCommand(InputCommandJournalKind.RebindAgentTraits)]
-    public bool TryRebindAgentTraits(TargetId targetId, TraitVector traits)
+    public bool TryRebindAgentTraits(TargetId targetId, TraitVector? traits)
     {
         if (traits is null)
         {
@@ -456,7 +454,7 @@ public sealed class SessionCommandFacade
     public bool TryAssignAgentController(
         TargetId targetId,
         string agentId,
-        TraitVector traits,
+        TraitVector? traits,
         AutonomyLevel autonomy,
         double attentionBudget,
         string? presetName,

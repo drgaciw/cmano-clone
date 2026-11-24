@@ -1,11 +1,11 @@
-namespace ProjectAegis.Delegation.UnityAdapter.Tests.Save;
-
 using System.Globalization;
 using NUnit.Framework;
 using ProjectAegis.Delegation.Controllers;
 using ProjectAegis.Delegation.Decision;
 using ProjectAegis.Delegation.Replay;
 using ProjectAegis.Delegation.UnityAdapter.Save;
+
+namespace ProjectAegis.Delegation.UnityAdapter.Tests.Save;
 
 /// <summary>
 /// Genuine deep-state differential proof assertion helper for DRG-349 (H6 save/resume).

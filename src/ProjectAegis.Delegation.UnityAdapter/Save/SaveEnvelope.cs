@@ -192,7 +192,7 @@ public sealed record SaveIdentityContext(
         var policyHash = ComputePolicyHashSha256(scenarioPolicyId);
         var scenarioHash = string.IsNullOrWhiteSpace(scenarioContentOverrideHash)
             ? policyHash
-            : scenarioContentOverrideHash!;
+            : scenarioContentOverrideHash;
         var wholeCatalogHash = CatalogFullSnapshotHasher.ComputeSha256Hex(catalogReader);
         var policyEntries = new[]
         {

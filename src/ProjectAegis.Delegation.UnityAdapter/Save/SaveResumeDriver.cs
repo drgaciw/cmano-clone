@@ -2,15 +2,12 @@ namespace ProjectAegis.Delegation.UnityAdapter.Save;
 
 using Baltic;
 using Bridge;
-using Controllers;
 using Core;
 using Data.Catalog;
 using Data.Scenario;
 using Data.Snapshots;
 using Input;
-using PlayDelegation;
 using Replay;
-using Targets;
 using Watch;
 using ProjectAegis.Sim.Scenario;
 
@@ -98,8 +95,8 @@ public static class SaveResumeDriver
     }
 
     public static SaveResult<SaveResumeSessionUnit> TryRestoreFromSlot(
-        ISaveResumeHost host,
-        SaveSlotStore store,
+        ISaveResumeHost? host,
+        SaveSlotStore? store,
         string slotId,
         Func<SaveIdentityContext, SaveCandidateRuntimeArgs>? candidateArgsFactory = null)
     {
@@ -118,7 +115,7 @@ public static class SaveResumeDriver
     }
 
     public static SaveResult<SaveResumeSessionUnit> TryRestore(
-        ISaveResumeHost host,
+        ISaveResumeHost? host,
         ReadOnlySpan<byte> utf8Bytes,
         Func<SaveIdentityContext, SaveCandidateRuntimeArgs>? candidateArgsFactory = null)
     {
@@ -140,8 +137,8 @@ public static class SaveResumeDriver
     }
 
     public static SaveResult<SaveResumeSessionUnit> TryRestoreEnvelope(
-        ISaveResumeHost host,
-        SaveEnvelope envelope,
+        ISaveResumeHost? host,
+        SaveEnvelope? envelope,
         Func<SaveIdentityContext, SaveCandidateRuntimeArgs>? candidateArgsFactory = null)
     {
         if (host is null) return SaveResult<SaveResumeSessionUnit>.Fail(SaveFailureCode.InvalidArgument, "Host is null.");
@@ -575,7 +572,7 @@ public static class SaveResumeDriver
                     var side = BalticV3SideRegistry.GetSideForUnit(u.PlatformId);
                     if (!string.IsNullOrEmpty(side))
                     {
-                        snapshot.Add((u.PlatformId, side!));
+                        snapshot.Add((u.PlatformId, side));
                     }
                 }
             }

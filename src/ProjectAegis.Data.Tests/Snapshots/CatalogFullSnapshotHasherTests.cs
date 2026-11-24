@@ -219,11 +219,11 @@ public sealed class CatalogFullSnapshotHasherTests
 
         public IReadOnlyList<CatalogLoadout> GetSortedLoadouts() => Order(
             new CatalogLoadout("p1", "l1", "ASuW", "asuw", true),
-            new CatalogLoadout("p2", "l2", "CAP", "cap", false));
+            new CatalogLoadout("p2", "l2", "CAP", "cap"));
 
         public IReadOnlyList<CatalogMagazineEntry> GetSortedMagazines() => Order(
             new CatalogMagazineEntry("p1", "l1", "m1", "w1", 8, 10, 1),
-            new CatalogMagazineEntry("p2", "l2", "m2", "w2", 2, 0, 0));
+            new CatalogMagazineEntry("p2", "l2", "m2", "w2", 2));
 
         public IReadOnlyList<CatalogMobility> GetSortedMobility() => Order(
             new CatalogMobility("p1", 30, 18, 0, 0, 100, 4000, 100),
@@ -235,7 +235,7 @@ public sealed class CatalogFullSnapshotHasherTests
 
         public IReadOnlyList<CatalogCommsBinding> GetSortedComms() => Order(
             new CatalogCommsBinding("p1", "lk1", "txrx", true),
-            new CatalogCommsBinding("p2", "lk2", "rx", false));
+            new CatalogCommsBinding("p2", "lk2", "rx"));
 
         public IReadOnlyList<CatalogLinkEntry> GetSortedLinks() => Order(
             new CatalogLinkEntry("lk1", "Link 1", CatalogLinkTypes.Tactical, 50),
@@ -243,15 +243,15 @@ public sealed class CatalogFullSnapshotHasherTests
 
         public IReadOnlyList<CatalogSignature> GetSortedSignatures() => Order(
             new CatalogSignature("p1", 10, 5, 110, 2),
-            new CatalogSignature("p2", -5, 8, 90, 0));
+            new CatalogSignature("p2", -5, 8, 90));
 
         public IReadOnlyList<CatalogEmcon> GetSortedEmcon() => Order(
             new CatalogEmcon("p1", "free", "s1", "active"),
-            new CatalogEmcon("p2", "silent", "s2", "off"));
+            new CatalogEmcon("p2", "silent", "s2"));
 
         public IReadOnlyList<CatalogSwarmPlatform> GetSortedSwarmPlatforms() => Order(
-            new CatalogSwarmPlatform("p1", 10, true),
-            new CatalogSwarmPlatform("p2", 20, true));
+            new CatalogSwarmPlatform("p1", 10),
+            new CatalogSwarmPlatform("p2", 20));
 
         public bool TryGetBasePd(string platformId, string sensorId, out double basePd)
         {
@@ -333,7 +333,7 @@ public sealed class CatalogFullSnapshotHasherTests
 
         public IReadOnlyList<CatalogSwarmPlatform> GetSortedSwarmPlatforms() =>
         [
-            new CatalogSwarmPlatform("p1", _mutatedDomainIndex == 12 ? 40 : 10, true),
+            new CatalogSwarmPlatform("p1", _mutatedDomainIndex == 12 ? 40 : 10),
         ];
 
         public bool TryGetBasePd(string platformId, string sensorId, out double basePd)

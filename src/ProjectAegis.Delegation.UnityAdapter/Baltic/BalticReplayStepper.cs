@@ -679,10 +679,7 @@ public sealed class BalticReplayStepper
         string PlatformId,
         string Domain,
         bool IsBlue,
-        int EntityKey,
-        SimEntityBinding Binding,
-        int SeededRounds,
-        double MaxWeaponRangeMeters);
+        SimEntityBinding Binding);
 
     private sealed record GauntletOrbatRegistration(
         int NextEntityKey,
@@ -763,10 +760,7 @@ public sealed class BalticReplayStepper
                 unit.PlatformId,
                 domain,
                 isBlue,
-                key,
-                binding,
-                seededRounds,
-                maxRange));
+                binding));
         }
 
         return new GauntletOrbatRegistration(entityKey, registered);

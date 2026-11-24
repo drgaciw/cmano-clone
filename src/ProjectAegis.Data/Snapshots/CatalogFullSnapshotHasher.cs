@@ -284,7 +284,7 @@ public static class CatalogFullSnapshotHasher
             return false;
         }
 
-        var trimmed = hash!.Trim();
+        var trimmed = hash.Trim();
         if (trimmed.Length != 64)
         {
             return false;

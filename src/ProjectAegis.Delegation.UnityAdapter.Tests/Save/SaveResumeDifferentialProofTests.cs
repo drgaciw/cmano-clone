@@ -1,5 +1,3 @@
-namespace ProjectAegis.Delegation.UnityAdapter.Tests.Save;
-
 using System.Diagnostics;
 using System.Security.Cryptography;
 using System.Text;
@@ -9,7 +7,6 @@ using ProjectAegis.Data.Catalog;
 using ProjectAegis.Delegation.Comms;
 using ProjectAegis.Delegation.Controllers;
 using ProjectAegis.Delegation.Core;
-using ProjectAegis.Delegation.Input;
 using ProjectAegis.Delegation.Projection;
 using ProjectAegis.Delegation.Replay;
 using ProjectAegis.Delegation.Traits;
@@ -17,6 +14,8 @@ using ProjectAegis.Delegation.UnityAdapter.Baltic;
 using ProjectAegis.Delegation.UnityAdapter.Bridge;
 using ProjectAegis.Delegation.UnityAdapter.Save;
 using ProjectAegis.Sim.Scenario;
+
+namespace ProjectAegis.Delegation.UnityAdapter.Tests.Save;
 
 [TestFixture]
 public sealed class SaveResumeDifferentialProofTests
@@ -246,7 +245,7 @@ public sealed class SaveResumeDifferentialProofTests
             StepTicks(restored, 2);
 
             Assert.That(cont.Facade.TrySetTimeAccelerationFactor(8, out var e8), Is.True, e8);
-            Assert.That(restored.Facade.TrySetTimeAccelerationFactor(8, out var e8r), Is.True, e8r);
+            Assert.That(restored.Facade.TrySetTimeAccelerationFactor(8, out var e8R), Is.True, e8R);
 
             // Ticks 9..10 at 8x -> PipelineTick = 25 + 2*8 = 41
             StepTicks(cont, 2);
@@ -920,7 +919,7 @@ public sealed class SaveResumeDifferentialProofTests
                 var res = SaveResumeDriver.TryRestore(
                     host,
                     bytes,
-                    _ => new SaveCandidateRuntimeArgs(Catalog: catalog));
+                    CatalogArgs(catalog));
                 Assert.That(res.Succeeded, Is.False, name);
                 Assert.That(res.FailureCode, Is.EqualTo(expectedCode), name);
                 SaveDifferentialAssert.AssertHostUnchanged(
@@ -934,7 +933,7 @@ public sealed class SaveResumeDifferentialProofTests
                 host,
                 store,
                 SaveSlotStore.Manual3,
-                _ => new SaveCandidateRuntimeArgs(Catalog: catalog));
+                CatalogArgs(catalog));
             Assert.That(missingSlotRes.Succeeded, Is.False);
             Assert.That(missingSlotRes.FailureCode, Is.EqualTo(SaveFailureCode.SlotNotFound));
             SaveDifferentialAssert.AssertHostUnchanged(
@@ -980,7 +979,7 @@ public sealed class SaveResumeDifferentialProofTests
                 host,
                 store,
                 SaveSlotStore.Manual2,
-                _ => new SaveCandidateRuntimeArgs(Catalog: catalog));
+                CatalogArgs(catalog));
             Assert.That(restore.Succeeded, Is.True, restore.FailureReason);
 
             var restored = host.Active;
@@ -1056,7 +1055,7 @@ public sealed class SaveResumeDifferentialProofTests
                 var maxSec = maxMs / 1000.0;
 
                 report.AppendLine(
-                    $"| {ticks} | {accel}x | {pipelineTickReached} | {saveBytes.Length} | {minMs:F2} | {medianMs:F2} | {maxMs:F2} | {maxSec:F4} | PASS |");
+                    FormattableString.Invariant($"| {ticks} | {accel}x | {pipelineTickReached} | {saveBytes.Length} | {minMs:F2} | {medianMs:F2} | {maxMs:F2} | {maxSec:F4} | PASS |"));
 
                 SaveDifferentialAssert.AssertRestoreLatencyUnderCeiling(
                     maxSec,
@@ -1141,6 +1140,9 @@ public sealed class SaveResumeDifferentialProofTests
             unit.Facade.SyncShadowStateAfterTick();
         }
     }
+
+    private static Func<SaveIdentityContext, SaveCandidateRuntimeArgs> CatalogArgs(ICatalogReader catalog) =>
+        _ => new SaveCandidateRuntimeArgs(Catalog: catalog);
 
     private static string ResolveBalticCatalogDbPath()
     {

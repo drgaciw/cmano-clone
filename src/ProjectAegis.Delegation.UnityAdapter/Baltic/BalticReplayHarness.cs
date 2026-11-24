@@ -1,24 +1,10 @@
 namespace ProjectAegis.Delegation.UnityAdapter.Baltic;
 
-using Comms;
 using Decision;
-using Core;
-using Orchestration;
-using Policy;
-using Sim;
-using Traits;
-using Bridge;
 using Data.Catalog;
-
-using Mission;
 using Projection;
 using Replay;
-using ProjectAegis.Sim.Catalog;
-using ProjectAegis.Sim.Core;
-using ProjectAegis.Sim.Engage;
-using ProjectAegis.Sim.Policy;
 using ProjectAegis.Sim.Scenario;
-using ProjectAegis.Sim.Sensors;
 
 /// <summary>Headless Baltic slice runner for CLI and replay-verify gate.</summary>
 public static class BalticReplayHarness
