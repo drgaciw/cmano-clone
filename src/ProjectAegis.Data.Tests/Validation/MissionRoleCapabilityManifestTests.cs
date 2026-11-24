@@ -228,6 +228,116 @@ Assert.That(string.IsNullOrWhiteSpace(e.RuntimeEvidence), Is.False);
 }
     }
 
+    [TestCase("Patrol")]
+    [TestCase("Strike")]
+    public void Cli_simulate_backend_classifies_patrol_and_strike_as_generic_only_warning(string type)
+    {
+        var mission = new ScenarioMissionDto { Id = "m1", Type = type, AssignedUnitIds = ["u1"] };
+
+        var assessment = MissionRoleCapabilityManifest.Assess(mission, MissionRoleCapabilityManifest.CliSimulateBackendId);
+
+        Assert.That(assessment.Execution, Is.EqualTo(MissionRoleExecution.GenericOnly));
+        Assert.That(assessment.FindingCode, Is.EqualTo(MissionRoleCapabilityManifest.CodeRoleGenericOnly));
+        Assert.That(assessment.BackendId, Is.EqualTo(MissionRoleCapabilityManifest.CliSimulateBackendId));
+        Assert.That(assessment.Message, Does.Contain("generic").IgnoreCase);
+        Assert.That(assessment.Message, Does.Contain(MissionRoleCapabilityManifest.CliSimulateBackendId));
+        Assert.That(MissionRoleCapabilityManifest.IsCapabilityCode(MissionRoleCapabilityManifest.CodeRoleGenericOnly), Is.True);
+        Assert.That(MissionRoleCapabilityManifest.IsBlockingCapabilityCode(MissionRoleCapabilityManifest.CodeRoleGenericOnly), Is.False);
+    }
+
+    [Test]
+    public void Generic_only_fixture_emits_warning_on_cli_backend_and_allows_export_while_default_is_clean()
+    {
+        var doc = LoadFixture("role-capability-generic-only.json");
+        var catalog = InMemoryCatalogReader.BalticPatrolFixture();
+
+        var defaultFindings = MissionRoleCapabilityManifest.EvaluateFindings(doc);
+        Assert.That(defaultFindings, Is.Empty);
+
+        var cliFindings = MissionRoleCapabilityManifest.EvaluateFindings(doc, MissionRoleCapabilityManifest.CliSimulateBackendId);
+        Assert.That(cliFindings.Select(f => (f.MissionId!, f.Code, f.Severity)).ToArray(), Is.EqualTo(new[]
+        {
+            ("patrol-1", MissionRoleCapabilityManifest.CodeRoleGenericOnly, ValidationSeverity.Warning),
+            ("strike-1", MissionRoleCapabilityManifest.CodeRoleGenericOnly, ValidationSeverity.Warning),
+        }));
+        foreach (var f in cliFindings)
+        {
+            Assert.That(f.Message, Does.Contain("generic").IgnoreCase);
+            Assert.That(f.Data!["execution"], Is.EqualTo("GenericOnly"));
+        }
+
+        var (allowed, report) = ScenarioValidationExportGate.EvaluateExport(
+            doc,
+            catalog,
+            Config,
+            MissionRoleCapabilityManifest.CliSimulateBackendId);
+        Assert.That(allowed, Is.True);
+        Assert.That(report.Passed, Is.True);
+        Assert.That(report.Findings.Count(f => f.Code == MissionRoleCapabilityManifest.CodeRoleGenericOnly), Is.EqualTo(2));
+    }
+
+    [Test]
+    public void Mixed_tiers_fixture_keeps_tanker_aew_ew_as_blocking_errors_on_both_backends_while_save_stays_allowed()
+    {
+        var doc = LoadFixture("role-capability-mixed-tiers.json");
+        var catalog = InMemoryCatalogReader.BalticPatrolFixture();
+
+        var (allowedDefault, reportDefault) = ScenarioValidationExportGate.EvaluateExport(
+            doc, catalog, Config, MissionRoleCapabilityManifest.DefaultBackendId);
+        var (allowedCli, reportCli) = ScenarioValidationExportGate.EvaluateExport(
+            doc, catalog, Config, MissionRoleCapabilityManifest.CliSimulateBackendId);
+
+        Assert.That(allowedDefault, Is.False);
+        Assert.That(allowedCli, Is.False);
+        Assert.That(
+            reportDefault.Findings.Where(f => f.Code == MissionRoleCapabilityManifest.CodeRoleNotExecuted).Select(f => f.MissionId).ToArray(),
+            Is.EqualTo(new[] { "support-aew", "support-ew", "support-tanker" }));
+        Assert.That(
+            reportCli.Findings.Where(f => f.Code == MissionRoleCapabilityManifest.CodeRoleNotExecuted).Select(f => f.MissionId).ToArray(),
+            Is.EqualTo(new[] { "support-aew", "support-ew", "support-tanker" }));
+        Assert.That(
+            reportCli.Findings.Where(f => f.Code == MissionRoleCapabilityManifest.CodeRoleGenericOnly).Select(f => f.MissionId).ToArray(),
+            Is.EqualTo(new[] { "patrol-1", "strike-1" }));
+
+        var draftPath = Path.Combine(Path.GetTempPath(), $"aegis-drg371-draft-{Guid.NewGuid():N}.json");
+        try
+        {
+            ScenarioDocumentJsonWriter.WriteToFile(doc, draftPath);
+            using var session = ScenarioAuthoringSession.Open(draftPath);
+            var saveOutcome = ScenarioSaveExportGate.SaveDraft(session, catalog, Config);
+            Assert.That(saveOutcome.Saved, Is.True);
+            Assert.That(saveOutcome.BlockingFindingCount, Is.EqualTo(3));
+        }
+        finally
+        {
+            if (File.Exists(draftPath))
+            {
+                File.Delete(draftPath);
+            }
+        }
+    }
+
+    [TestCase(" cli-simulate-sample ")]
+    [TestCase("CLI-SIMULATE-SAMPLE")]
+    public void EntriesForBackend_Find_and_Assess_trim_and_ignore_case_on_backendId(string rawBackendId)
+    {
+        var entries = MissionRoleCapabilityManifest.EntriesForBackend(rawBackendId);
+        Assert.That(entries, Has.Count.EqualTo(MissionRoleCapabilityManifest.CliSimulateEntries.Count));
+        Assert.That(entries[0].BackendId, Is.EqualTo(MissionRoleCapabilityManifest.CliSimulateBackendId));
+
+        var found = MissionRoleCapabilityManifest.Find("Patrol", null, rawBackendId);
+        Assert.That(found, Is.Not.Null);
+        Assert.That(found!.Execution, Is.EqualTo(MissionRoleExecution.GenericOnly));
+        Assert.That(found.BackendId, Is.EqualTo(MissionRoleCapabilityManifest.CliSimulateBackendId));
+
+        var assessment = MissionRoleCapabilityManifest.Assess(
+            new ScenarioMissionDto { Id = "p1", Type = "Patrol", AssignedUnitIds = ["u1"] },
+            rawBackendId);
+        Assert.That(assessment.Execution, Is.EqualTo(MissionRoleExecution.GenericOnly));
+        Assert.That(assessment.FindingCode, Is.EqualTo(MissionRoleCapabilityManifest.CodeRoleGenericOnly));
+        Assert.That(assessment.BackendId, Is.EqualTo(MissionRoleCapabilityManifest.CliSimulateBackendId));
+    }
+
     private static ScenarioDocumentDto LoadFixture(string fileName)
     {
         var dir = new DirectoryInfo(AppContext.BaseDirectory);

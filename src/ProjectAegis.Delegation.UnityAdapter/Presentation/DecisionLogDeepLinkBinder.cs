@@ -113,6 +113,11 @@ public static class DecisionLogDeepLinkBinder
             telemetryParts.Add($"PolicySnap: {detail.PolicySnapshotId.Value}");
         }
 
+        if (!string.IsNullOrEmpty(detail.Personality))
+        {
+            telemetryParts.Add($"Personality: {detail.Personality}");
+        }
+
         var fieldLines = new List<string>(detail.Fields.Count);
         for (var i = 0; i < detail.Fields.Count; i++)
         {

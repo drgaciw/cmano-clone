@@ -201,6 +201,35 @@ public sealed class CommsGridRegistry
 
     public bool IsOffGrid(string unitId) => GetMembership(unitId) == CommsGridMembership.OffGrid;
 
+    /// <summary>
+    /// Pure non-mutating query evaluating whether <paramref name="unitId"/> is off grid at
+    /// <paramref name="simTick"/> from scheduled transitions without mutating registry state.
+    /// </summary>
+    public bool IsOffGridAt(string unitId, ulong simTick)
+    {
+        if (string.IsNullOrEmpty(unitId))
+        {
+            return false;
+        }
+
+        var membership = CommsGridMembership.OnGrid;
+        for (var i = 0; i < _transitions.Length; i++)
+        {
+            var t = _transitions[i];
+            if (t.AtTick > simTick)
+            {
+                break;
+            }
+
+            if (string.Equals(t.UnitId, unitId, StringComparison.Ordinal))
+            {
+                membership = ParseMembership(t.Membership);
+            }
+        }
+
+        return membership == CommsGridMembership.OffGrid;
+    }
+
     public bool TryGetOffGridSince(string unitId, out ulong sinceTick) =>
         _offGridSince.TryGetValue(unitId, out sinceTick);
 
@@ -259,4 +288,13 @@ public static class OffGridOrderGate
 {
     public static FireAbortReason? Evaluate(CommsGridRegistry? registry, string unitId) =>
         registry != null && registry.IsOffGrid(unitId) ? FireAbortReason.OffGrid : null;
+
+    /// <summary>
+    /// Pure non-mutating command-façade gate evaluating off-grid status at <paramref name="simTick"/>
+    /// without advancing or mutating <paramref name="registry"/>.
+    /// </summary>
+    public static FireAbortReason? EvaluateAt(CommsGridRegistry? registry, string? unitId, ulong simTick) =>
+        registry != null && !string.IsNullOrEmpty(unitId) && registry.IsOffGridAt(unitId, simTick)
+            ? FireAbortReason.OffGrid
+            : null;
 }

@@ -1,0 +1,32 @@
+{
+  "schema": "aegis.jev.pin.vs3.v0",
+  "pinModel": "jev-1.13.x",
+  "openRouterModel": "typesafe/jev-1.13",
+  "package": "jev-1.13.x",
+  "privacyAck": "Projection-only ROE gate. No coordinates, no proprietary catalog db3, no decisionLog/scenarioXml/secret payloads, and never auto-fires.",
+  "draftThresholds": {
+    "roeNoulFloor": 0.80,
+    "allowedRisks": [ "low", "medium" ],
+    "note": "Fail closed on offline, roeNoul < 0.80, suggest_ok_under_roe != yes, blocked/high risk, or Reattack advisory-only decision."
+  },
+  "questions": {
+    "suggest_ok_under_roe": {
+      "type": "noul",
+      "instructions": "Evaluate whether the proposed coordination action is permitted under current ROE and authority projections. Return yes/no and calibrated roeNoul in [0, 1]. Never auto-fire or bypass CoordinationCommandBridge.",
+      "criteria": {
+        "yes": "Proposal is permitted under current ROE projection (still requires explicit player Accept)",
+        "no": "Proposal violates ROE or authority constraints — fail closed"
+      }
+    },
+    "order_proposal_risk": {
+      "type": "choice",
+      "instructions": "Classify execution risk for this suggested coordination order.",
+      "criteria": {
+        "low": "Low risk under current ROE and comms posture",
+        "medium": "Moderate risk; human review recommended before Accept",
+        "high": "High risk; fail closed (do not show Accept card)",
+        "blocked": "Explicitly blocked by policy or posture; fail closed"
+      }
+    }
+  }
+}

@@ -1,0 +1,71 @@
+{
+  "model": "typesafe/jev-1.14",
+  "state": "Project Aegis Sprint 3 DoD Gate Round 1 (2026-11-23), branch sprint/s3-coord-ai-depth stacked cleanly on sprint/s2-c2-combat-ux (7e8f3001). THREE ATOMIC TRACK COMMITS ON BRANCH: Track A 721f1e7d (21 files: DRG-391, DRG-746), Track B ce12d4fd (32 files: DRG-175, DRG-192), Track C 4d02321a (54 files: DRG-253, DRG-255, DRG-321); temporary Sprint 3 worktrees (.worktrees/track-a, track-b, track-c & s3-wt-track-{a,b,c}) removed cleanly. H1/C1 BUILD & TEST BREAKDOWN: dotnet build ProjectAegis.sln --no-restore -> 0 Warning(s), 0 Error(s); ProjectAegis.Delegation & ProjectAegis.Delegation.UnityAdapter Release/netstandard2.1 -> 0 Warning(s), 0 Error(s); dotnet format --verify-no-changes -> exit 0; dotnet test ProjectAegis.sln -v minimal --no-build -> 4,912/4,912 passed, 0 failed, 0 skipped across all 9 test assemblies (Ai.Contracts.Tests 18, Delegation.Demo.Tests 15, Sim.Tests 653, Ai.Host.Tests 88, Delegation.Tests 1,541, Data.Excel.Tests 24, Delegation.UnityAdapter.Tests 1,444, Data.Tests 961, MissionEditor.Cli.Tests 168; >= 4,800 floor). H2 LINEAR TRACKER HONESTY: Verified evidence comments posted via save_comment on all 7 Sprint 3 issues with all statuses kept Backlog (NEVER Done): DRG-391 fc821864-3de8-445c-91ea-1708b3d01a9a, DRG-746 62bc6d47-22b1-4add-b332-2dcf13b1459a, DRG-175 ec7d72fe-c401-45f9-afcc-ffc76b9eabbb, DRG-192 860d4b85-2727-4fd9-a43c-4a2aecf37444, DRG-253 4d437510-9f86-459d-a065-bd711d76ac9d, DRG-255 64fc41d8-d4fd-4692-8099-68d3f8b6f780, DRG-321 341cb42b-5aca-45c6-aa61-8c748fdabc9e. H3/C7 HARD-NO & FROZEN SURFACES (0 DIFF): git diff --stat 7e8f3001..HEAD empty across DelegationBridge.cs hotpath, WriteGate/, SimulationSession.cs, MapPlaceholderPanelHost.cs, GlobeMapProductHost.cs, IHindsightMemoryClient.cs, tests/regression/**, ThreatAssessment/, AdviceModels.cs, AdviceBridge.cs, JevAttentionPanelHost.cs, JevAttentionPanel.uxml, tools/jev/pins/jev-1.13.x.json, CoordinationCommandBridge.cs; CoverageMapView.cs has 0 'radius' matches; UnityAdapter has 0 UnityEngine refs. H4/C2 DETERMINISM: ReplayGolden 17/17 pass; Baltic v2 hash 17144800277401907079 preserved (26 hits in tests/ & data/); HindsightSessionFinalizerAsyncTests (7/7) & HindsightRecallAdapterTests (7/7) confirm order-log fingerprints and replay hashes unchanged with Hindsight on, off, or unreachable; non-mutating OffGridOrderGate.EvaluateAt verified across CoordinationBridge, CoordinationPresentation, and SupervisedAdviceAcceptBridge (15/15 adversarial rejection paths + fractional/preview SimTime). H5/C8 TDD & FENCES: production/qa/evidence/sprint-3/s3-c8-red-evidence.md records verbatim pre-fix RED outputs + M4a/M4b remediations + GREEN outputs; Architecture 92/92, ThreatRecommendNeverFiresFenceTests 3/3. H8/C3/C12 SMOKE & DATA: PlayModeSmokeHarnessTests 27/27; sha256sum assets/data/catalog/*.db identical (82d262129d41c6fbb78fa636a3c2923471dedf37db071f7a4e7c99bdec4760fd aegis_public_corpus.db, 75ea357a22de185808c4097b3ab1ddfcd836a4da37635576c0816b514d0b88ab baltic_patrol.db); copy-delegation-assemblies.sh 15 DLLs + libe_sqlite3.so with SHA-256 parity. C4/C13 & C9/C11 LIVE UNITY (:8081): ProjectAegis.Unity.Tests PlayMode 53/53 PASSED (0 failed, 10 Sprint 3 + 43 Sprint 1/2 regression) with 0 Console Error/Exception logs; DelegationSmoke.unity UatHarness.cs sweep exercised all Sprint 3 controls with 0 errors and 5 PNG screenshots saved in production/qa/evidence/sprint-3/ (s3-drg175-coordination.png, s3-drg192-coverage-posture.png, s3-drg253-osint-staging.png, s3-drg255-supervised-advice.png, s3-drg255-drg321-advice-jev-roe.png). TRACK A (DRG-391/746): CommsGridRejoinReconciler + DelegationOrchestrator.AdvanceCommsGrid (0 SimulationSession diff; CommsGridRejoinReconcilerTests 7/7, OrchestratorOffGridRejoinTests 3/3, EvidenceProjectorCommsGridRejoinTests 1/1); HindsightSessionFinalizer.OnScenarioFinalizedAsync (beside untouched OnScenarioFinalized, explicit Unavailable status) + Ai.Host.Memory.HindsightRecallAdapter (0 IHindsightMemoryClient diff; HindsightSessionFinalizerAsyncTests 7/7, HindsightRecallAdapterTests 7/7). TRACK B (DRG-175/192): CoordinationBridge/Presentation/CoordinationPanelHost (sortingOrder=16, Hold/Withdraw via CoordinationCommandBridge, CommsGridRegistryTests 15/15, CoordinationDetailProjectionTests 15/15, CoordinationHostContractTests 3/3, Sprint3CoordinationPlayModeTests 3/3); CoverageMapScaleEvaluator + CoveragePostureProjection + CoverageMapView (no 'radius') + CoveragePostureOverlayPanelHost (sortingOrder=8, PickingMode.Ignore, CoverageMapScaleEvaluatorTests 4/4, CoveragePostureProjectionTests 9/9, CoveragePostureHostContractTests 4/4, Sprint3CoveragePosturePlayModeTests 2/2). TRACK C (DRG-253/255/321): OsintStagingReviewService + OsintStagingProjection + OsintStagingPanelHost (sortingOrder=17, >=1 citation + confidence, <0.65 log-only, CatalogWriteGate approve/reject, OsintStagingReviewServiceTests 8/8, SqliteCatalogReaderTests 3/3, OsintStagingProjectionTests 5/5, OsintStagingHostContractTests 2/2, Sprint3OsintStagingPlayModeTests 3/3); SupervisedAdviceAcceptBridge + SupervisedAdviceCardBinder + SupervisedAdvicePanelHost (sortingOrder=18, >=1 evidence pointer, Accept->PlayerOrder, Dismiss 0 mutation, FULL_AUTONOMOUS lethal blocked w/o opt-in, OffGridOrderGate.EvaluateAt non-mutating, SupervisedAdviceAcceptBridgeTests 20/20, SupervisedAdviceHostContractTests 2/2, Sprint3SupervisedAdvicePlayModeTests 1/1); JevRoeOrderGateBinder + jev-1.13.x-vs3.json (typesafe/jev-1.13) + PendingApprovalPanelHost #pending-jev-suggested-order (low Noul/offline fail-closed, Accept via CoordinationCommandBridge only, never auto-fires, JevRoeOrderGateBinderTests 9/9, JevRoeGateHostContractTests 3/3, Sprint3JevRoeGatePlayModeTests 1/1). GOVERNANCE: unity-csharp-architect pr-finish.md PASS in dod-rubric-sprint-s3.md (ADR-010/007/001/006); S1-S6 12/12 agent-owned (H6 owner Play Mode walk & PR submit/merge reserved).",
+  "questions": {
+    "h1_c1_build_and_suite": {
+      "type": "noul",
+      "instructions": "Does the evidence show zero build warnings/errors (net11.0 and Release/netstandard2.1) and full headless suite green (4,912/4,912 passed, 0 failed across all 9 test assemblies, >= 4,800 floor)?"
+    },
+    "h2_tracker_honesty": {
+      "type": "noul",
+      "instructions": "Are Linear evidence comments posted on all 7 Sprint 3 issues with verified comment IDs while keeping all issue statuses at Backlog (never moved to Done before PR merge)?"
+    },
+    "h3_c7_hard_no_surfaces": {
+      "type": "noul",
+      "instructions": "Are all hard-no and frozen surfaces untouched (0 diff on DelegationBridge.cs hotpath, WriteGate/, SimulationSession.cs, MapPlaceholderPanelHost.cs, GlobeMapProductHost.cs, IHindsightMemoryClient.cs, tests/regression/**, ThreatAssessment/, AdviceModels.cs, JevAttentionPanelHost.cs, CoordinationCommandBridge.cs) and CoverageMapView.cs free of 'radius'?"
+    },
+    "h4_c2_determinism": {
+      "type": "noul",
+      "instructions": "Are ReplayGolden (17/17), Baltic v2 hash 17144800277401907079 (26 hits), Hindsight on/off/unreachable hash parity, and non-mutating OffGridOrderGate.EvaluateAt across projections/rejections verified?"
+    },
+    "h5_c8_tdd_and_fences": {
+      "type": "noul",
+      "instructions": "Does s3-c8-red-evidence.md satisfy H5/C8 with verbatim pre-fix RED outputs, remediation TDD, passing GREEN, Architecture (92/92), and ThreatRecommendNeverFiresFenceTests (3/3)?"
+    },
+    "h8_c3_c12_smoke_and_data": {
+      "type": "noul",
+      "instructions": "Did PlayModeSmokeHarnessTests pass 27/27, catalog DB SHA-256 hashes stay byte-identical, and copy-delegation-assemblies.sh produce SHA-256 parity across 15 DLLs + libe_sqlite3.so?"
+    },
+    "c4_c13_unity_playmode": {
+      "type": "noul",
+      "instructions": "Does live Unity (:8081) show 53/53 passed (0 failed, 0 skipped) on ProjectAegis.Unity.Tests PlayMode with 0 Console Error/Exception logs?"
+    },
+    "c9_c11_live_mcp_ui": {
+      "type": "noul",
+      "instructions": "Were all Sprint 3 UI controls exercised live in DelegationSmoke.unity (:8081) via UatHarness.cs with observable state diffs and 5 PNG screenshots saved in production/qa/evidence/sprint-3/?"
+    },
+    "track_a_drg391_drg746": {
+      "type": "noul",
+      "instructions": "Do Track A deliverables satisfy DRG-391 (informative-only rejoin merge via CommsGridRejoinReconciler + DelegationOrchestrator.AdvanceCommsGrid, 0 SimulationSession diff, Ai.Host mirror) and DRG-746 (additive OnScenarioFinalizedAsync + Ai.Host.Memory recall adapter, 0 IHindsightMemoryClient diff, explicit Unavailable status, both net11.0 and netstandard2.1)?"
+    },
+    "track_b_drg175_drg192": {
+      "type": "noul",
+      "instructions": "Do Track B deliverables satisfy DRG-175 (escort/sector/shared-targeting/boundaries, group-to-unit effects, block explanations, CoordinationCommandBridge routing) and DRG-192 (map-scale coverage/gap visualization without 'radius', non-mutating what-if reassignment/loss posture explanations, ADR-010/007/001)?"
+    },
+    "track_c_drg253_drg255_drg321": {
+      "type": "noul",
+      "instructions": "Do Track C deliverables satisfy DRG-253 (numeric confidence + >=1 citation, <0.65 log-only, CatalogWriteGate approve/reject), DRG-255 (>=1 evidence pointer, Accept->PlayerOrder, Dismiss 0 mutation, FULL_AUTONOMOUS opt-in gate, non-mutating rejections), and DRG-321 (ROE Noul gate pinned jev-1.13.x, Accept->CoordinationCommandBridge only, low Noul/offline fail-closed, never auto-fires)?"
+    },
+    "scored_s1_s6_pass": {
+      "type": "noul",
+      "instructions": "Counting agent-owned S1-S6 (clean per-track commits 721f1e7d/ce12d4fd/4d02321a, pr-finish.md PASS, ADR-010/007/001/006, 7 Linear comment IDs, empirical post-edit verification, adversarial edge-case tests, with H6 owner Play Mode walk & PR submit/merge reserved), does Sprint 3 achieve S1-S6 >= 9/12?"
+    },
+    "more_rounds": {
+      "type": "score",
+      "instructions": "How many more rounds does Sprint 3 need before owner review and H6 Play Mode walk?",
+      "criteria": [
+        "0 rounds (Sprint 3 agent DoD met)",
+        "1 round",
+        "2 rounds"
+      ]
+    },
+    "sprint3_verdict": {
+      "type": "choice",
+      "instructions": "What is the Sprint 3 DoD gate verdict?",
+      "criteria": {
+        "pass_owner_walk": "PASS: All Sprint 3 agent-owned DoD gates met; ready for owner PR review and H6 Play Mode walk",
+        "needs_more_work": "FAIL: Remediate missing evidence or failing gate"
+      }
+    }
+  }
+}

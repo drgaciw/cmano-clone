@@ -20,6 +20,8 @@ public sealed class InMemoryCatalogReader : ICatalogReader
     private readonly Dictionary<string, int> _linkLatencyLookup;
     private readonly CatalogDependencyEdge[] _dependencyEdges;
     private readonly HashSet<string> _doctrinePlatforms;
+    private readonly CatalogWeaponRecord[] _weapons;
+    private readonly CatalogPlatformEntry[] _sortedPlatforms;
 
     public InMemoryCatalogReader(
         IEnumerable<CatalogSensorBinding> bindings,
@@ -35,7 +37,8 @@ public sealed class InMemoryCatalogReader : ICatalogReader
         IEnumerable<CatalogCommsBinding>? comms = null,
         IEnumerable<CatalogLinkEntry>? links = null,
         IEnumerable<string>? doctrinePlatforms = null,
-        IEnumerable<CatalogSwarmPlatform>? swarmPlatforms = null)
+        IEnumerable<CatalogSwarmPlatform>? swarmPlatforms = null,
+        IEnumerable<CatalogWeaponRecord>? weapons = null)
     {
         LayerVersion = layerVersion;
         _bindings = bindings
@@ -86,6 +89,12 @@ public sealed class InMemoryCatalogReader : ICatalogReader
         _linkLatencyLookup = _links.ToDictionary(l => l.LinkId, l => l.LatencyMsNominal, StringComparer.Ordinal);
         _dependencyEdges = CatalogDependencyGraphIndex.BuildFrom(_mounts, _magazines, _bindings, _comms, _links).ToArray();
         _doctrinePlatforms = (doctrinePlatforms ?? Array.Empty<string>()).ToHashSet(StringComparer.Ordinal);
+        _weapons = (weapons ?? Array.Empty<CatalogWeaponRecord>())
+            .OrderBy(w => w.WeaponId, StringComparer.Ordinal)
+            .ToArray();
+        _sortedPlatforms = _platforms.Values
+            .OrderBy(p => p.PlatformId, StringComparer.Ordinal)
+            .ToArray();
     }
 
     public string LayerVersion { get; }
@@ -307,8 +316,23 @@ public sealed class InMemoryCatalogReader : ICatalogReader
         return false;
     }
 
-    public bool TryGetWeaponEnvelope(string weaponId, out WeaponEnvelopeDto envelope) =>
-        CatalogWeaponDefaults.TryResolve(weaponId, out envelope);
+    public bool TryGetWeaponEnvelope(string weaponId, out WeaponEnvelopeDto envelope)
+    {
+        foreach (var weapon in _weapons)
+        {
+            if (string.Equals(weapon.WeaponId, weaponId, StringComparison.Ordinal))
+            {
+                envelope = new WeaponEnvelopeDto(weapon.MinRangeMeters, weapon.MaxRangeMeters);
+                return true;
+            }
+        }
+
+        return CatalogWeaponDefaults.TryResolve(weaponId, out envelope);
+    }
+
+    public IReadOnlyList<CatalogWeaponRecord> GetSortedWeapons() => _weapons;
+
+    public IReadOnlyList<CatalogPlatformEntry> GetSortedPlatforms() => _sortedPlatforms;
 
     public IReadOnlyList<CatalogMobility> GetSortedMobility() => _mobility;
 

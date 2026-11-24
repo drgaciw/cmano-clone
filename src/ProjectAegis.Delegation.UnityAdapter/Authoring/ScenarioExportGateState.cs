@@ -38,7 +38,11 @@ public sealed class ScenarioExportGateState
         CanExport = canExport;
         BlockingReason = blockingReason;
         UnsupportedExecutionFindings = findings
-            .Where(f => MissionRoleCapabilityManifest.IsCapabilityCode(f.Code))
+            .Where(f => MissionRoleCapabilityManifest.IsBlockingCapabilityCode(f.Code)
+                        && f.Severity >= ValidationSeverity.Error)
+            .ToArray();
+        GenericExecutionFindings = findings
+            .Where(f => string.Equals(f.Code, MissionRoleCapabilityManifest.CodeRoleGenericOnly, StringComparison.Ordinal))
             .ToArray();
         PlayBlockingReason = UnsupportedExecutionFindings.Count == 0
             ? null
@@ -48,10 +52,19 @@ public sealed class ScenarioExportGateState
     }
 
     /// <summary>
-    /// Capability findings from <see cref="MissionRoleCapabilityManifest"/> (DRG-345), in
+    /// Blocking capability findings from <see cref="MissionRoleCapabilityManifest"/> (DRG-345 / DRG-371), in
     /// <see cref="Findings"/> order. A view must not derive runtime support any other way.
     /// </summary>
     public IReadOnlyList<ValidationFinding> UnsupportedExecutionFindings { get; }
+
+    /// <summary>
+    /// Non-blocking generic-only capability warnings (<see cref="MissionRoleCapabilityManifest.CodeRoleGenericOnly"/>)
+    /// in <see cref="Findings"/> order (DRG-371).
+    /// </summary>
+    public IReadOnlyList<ValidationFinding> GenericExecutionFindings { get; }
+
+    /// <summary>True when any authored mission role runs with generic behavior only on the selected backend.</summary>
+    public bool HasGenericExecutionWarnings => GenericExecutionFindings.Count > 0;
 
     /// <summary>True when any authored mission role is not executed by the selected backend.</summary>
     public bool HasUnsupportedExecution => UnsupportedExecutionFindings.Count > 0;

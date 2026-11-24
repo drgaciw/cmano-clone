@@ -10,7 +10,15 @@ public sealed class ScenarioValidationEngine : IScenarioValidationEngine
     public ValidationReport Validate(
         ScenarioDocumentDto scenario,
         ICatalogReader catalog,
-        ValidationConfig config)
+        ValidationConfig config) =>
+        Validate(scenario, catalog, config, MissionRoleCapabilityManifest.DefaultBackendId);
+
+    /// <summary>Validates <paramref name="scenario"/> against <paramref name="catalog"/> for a specific execution backend (DRG-371).</summary>
+    public ValidationReport Validate(
+        ScenarioDocumentDto scenario,
+        ICatalogReader catalog,
+        ValidationConfig config,
+        string backendId)
     {
         var findings = new List<ValidationFinding>();
         ValidationRules.TlBranchRule(scenario, catalog, findings);
@@ -29,8 +37,8 @@ public sealed class ScenarioValidationEngine : IScenarioValidationEngine
         ValidationRules.EventGraphComplexityRule(scenario, config, findings); // ADR-016 S84: soft warnings + hard 32-cond cap (never blocks on soft)
         // ME-W2: pure event static analysis as warnings (export honesty; does not block at Error floor)
         findings.AddRange(EventStaticAnalyzer.Analyze(scenario));
-        // DRG-345 / AME-6.11: roles the Play backend does not execute block Export/Play (Save is ungated).
-        findings.AddRange(MissionRoleCapabilityManifest.EvaluateFindings(scenario));
+        // DRG-345 / DRG-371: capability assessment for the target execution backend (Save is ungated).
+        findings.AddRange(MissionRoleCapabilityManifest.EvaluateFindings(scenario, backendId));
         return ValidationReport.FromFindings(findings);
     }
 }

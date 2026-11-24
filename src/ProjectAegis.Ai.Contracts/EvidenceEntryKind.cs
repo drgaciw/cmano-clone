@@ -26,4 +26,5 @@ public enum EvidenceEntryKind
     PlatformDamageChange = 18,
     OrdnanceStateChange = 19,
     ContactOverride = 20,
+    CommsGridRejoin = 21,
 }

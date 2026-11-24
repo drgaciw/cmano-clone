@@ -1,6 +1,7 @@
 namespace ProjectAegis.Delegation.Orchestration;
 
 using Controllers;
+using Comms;
 using Core;
 using Decision;
 using Groups;
@@ -91,6 +92,12 @@ public sealed class DelegationOrchestrator
 
     private CommsGridRegistry? _commsGrid;
     private bool _commsGridResolved;
+    private readonly CommsGridRejoinReconciler _commsGridRejoinReconciler = new();
+
+    /// <summary>
+    /// C3-02 / DRG-391: Reconciles unit-local contact observations into the side picture upon comms-grid rejoin.
+    /// </summary>
+    public CommsGridRejoinReconciler CommsGridRejoinReconciler => _commsGridRejoinReconciler;
 
     /// <summary>
     /// C3-01 / DRG-390: Sim-authoritative per-unit comms-grid membership. Resolved lazily from
@@ -104,6 +111,7 @@ public sealed class DelegationOrchestrator
             {
                 _commsGrid = CommsGridRegistry.TryCreate(ScenarioPolicy);
                 _commsGridResolved = true;
+                SeedOffGridUnitsFromRegistry(_commsGrid);
             }
 
             return _commsGrid;
@@ -112,6 +120,7 @@ public sealed class DelegationOrchestrator
         {
             _commsGrid = value;
             _commsGridResolved = true;
+            SeedOffGridUnitsFromRegistry(_commsGrid);
         }
     }
 
@@ -130,16 +139,33 @@ public sealed class DelegationOrchestrator
             return null;
         }
 
-        AdvanceCommsGrid(grid, simTick);
+        AdvanceCommsGrid(grid, simTick, simTick);
         return OffGridOrderGate.Evaluate(grid, unitId);
     }
 
-    private void AdvanceCommsGrid(CommsGridRegistry grid, ulong simTick)
+    private void AdvanceCommsGrid(CommsGridRegistry grid, ulong simTick, double simTime)
     {
         var changes = grid.Advance(simTick);
         if (changes.Count > 0)
         {
             LastCommsGridChanges = changes;
+            _commsGridRejoinReconciler.ReconcileChanges(changes, DecisionLog, simTime);
+        }
+    }
+
+    private void SeedOffGridUnitsFromRegistry(CommsGridRegistry? grid)
+    {
+        if (grid == null)
+        {
+            return;
+        }
+
+        foreach (var unitId in grid.OffGridUnitIds)
+        {
+            if (grid.TryGetOffGridSince(unitId, out var sinceTick))
+            {
+                _commsGridRejoinReconciler.NotifyOffGrid(unitId, sinceTick);
+            }
         }
     }
 
@@ -545,7 +571,7 @@ public sealed class DelegationOrchestrator
         var executed = new List<Order>();
         if (CommsGrid is { } commsGrid)
         {
-            AdvanceCommsGrid(commsGrid, simTick);
+            AdvanceCommsGrid(commsGrid, simTick, state.SimTime);
         }
 
         // Drain any orders previously approved by the player (DRG-66).

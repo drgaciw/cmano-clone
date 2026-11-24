@@ -1,0 +1,86 @@
+{
+  "model": "typesafe/jev-1.14-20261014",
+  "answers": {
+    "h1_c1_build_and_suite": {
+      "type": "noul",
+      "noul": 0.97
+    },
+    "h2_tracker_honesty": {
+      "type": "noul",
+      "noul": 0.96
+    },
+    "h3_c7_hard_no_surfaces": {
+      "type": "noul",
+      "noul": 0.63
+    },
+    "h4_c2_determinism": {
+      "type": "noul",
+      "noul": 0.84
+    },
+    "h5_c8_tdd_and_fences": {
+      "type": "noul",
+      "noul": 0.64
+    },
+    "h6_honest_evidence_and_owner_boundary": {
+      "type": "noul",
+      "noul": 0.94
+    },
+    "h8_c3_c4_unity_playmode": {
+      "type": "noul",
+      "noul": 0.91
+    },
+    "track_a_gauntlet_oracle_and_gates": {
+      "type": "noul",
+      "noul": 0.9
+    },
+    "track_b_slice_g2_and_usability": {
+      "type": "noul",
+      "noul": 0.91
+    },
+    "track_c_drg244_acceptance_pack": {
+      "type": "noul",
+      "noul": 0.68
+    },
+    "scored_s1_s6_pass": {
+      "type": "noul",
+      "noul": 0.51
+    },
+    "more_rounds": {
+      "type": "score",
+      "score": 0.16,
+      "legend": {
+        "0": "0 rounds (Sprint 6 agent DoD met)",
+        "1": "1 round (minor gap remains)",
+        "2": "2 rounds (major gap remains)"
+      },
+      "probabilities": {
+        "0": 0.87,
+        "1": 0.1,
+        "2": 0.03
+      },
+      "confidence": 0.76
+    },
+    "sprint6_verdict": {
+      "type": "choice",
+      "choice": "pass_owner_walk",
+      "probabilities": {
+        "pass_owner_walk": 0.98,
+        "needs_more_work": 0.02
+      },
+      "confidence": 0.96
+    }
+  },
+  "usage": {
+    "input_tokens": 2464,
+    "output_tokens": 320,
+    "cost": 0.000103488,
+    "is_byok": false,
+    "cost_details": {
+      "upstream_inference_cost": 0.000103488,
+      "upstream_inference_prompt_cost": 0.000103488,
+      "upstream_inference_completions_cost": 0
+    }
+  },
+  "id": "gen-dec-1795460899-1QLj4tLANmsI8kU3u4NG",
+  "provider": "TypeSafe"
+}

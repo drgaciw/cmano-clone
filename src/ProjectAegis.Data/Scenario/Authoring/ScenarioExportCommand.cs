@@ -23,14 +23,25 @@ public static class ScenarioExportCommand
     public static ExportPackage Prepare(
         ScenarioDocumentDto source,
         ICatalogReader catalog,
-        ValidationConfig? config = null)
+        ValidationConfig? config = null) =>
+        Prepare(source, catalog, config, MissionRoleCapabilityManifest.DefaultBackendId);
+
+    /// <summary>
+    /// Pre-export pipeline targeting a specific execution backend (DRG-371).
+    /// </summary>
+    public static ExportPackage Prepare(
+        ScenarioDocumentDto source,
+        ICatalogReader catalog,
+        ValidationConfig? config,
+        string backendId)
     {
         config ??= new ValidationConfig();
         var transform = ApplyTeleportUnitExportTransform(source);
         var (allowed, report) = ScenarioValidationExportGate.EvaluateExport(
             transform.ExportedDocument,
             catalog,
-            config);
+            config,
+            backendId);
 
         return new ExportPackage(
             source,

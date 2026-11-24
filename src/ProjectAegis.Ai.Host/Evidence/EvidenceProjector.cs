@@ -248,14 +248,20 @@ public sealed class EvidenceProjector : IEvidenceProjector
                 Dict(
                     ("agentId", a.AgentId.Value),
                     ("chosenOrderKind", a.ChosenOrderKind.ToString()),
-                    ("simTick", a.SimTick.ToString(CultureInfo.InvariantCulture)))),
+                    ("simTick", a.SimTick.ToString(CultureInfo.InvariantCulture)),
+                    ("autonomyLevel", a.AutonomyLevel.ToString()),
+                    ("policySnapshotId", a.PolicySnapshotId?.ToString(CultureInfo.InvariantCulture)),
+                    ("personality", a.Personality))),
             DecisionRecord r => (
                 r.TargetId.Value,
                 r.ChosenKind.ToString(),
                 Dict(
                     ("agentId", r.AgentId.Value),
                     ("chosenKind", r.ChosenKind.ToString()),
-                    ("simTick", r.SimTick.ToString(CultureInfo.InvariantCulture)))),
+                    ("simTick", r.SimTick.ToString(CultureInfo.InvariantCulture)),
+                    ("autonomyLevel", r.AutonomyLevel.ToString()),
+                    ("policySnapshotId", r.PolicySnapshotId?.ToString(CultureInfo.InvariantCulture)),
+                    ("personality", r.Personality))),
             ContactChangeRecord contact => (
                 contact.TargetId,
                 $"{contact.PreviousState}->{contact.NewState}",
@@ -328,6 +334,16 @@ public sealed class EvidenceProjector : IEvidenceProjector
                     ("previousValue", contactOverride.PreviousValue),
                     ("newValue", contactOverride.NewValue),
                     ("simTick", contactOverride.SimTick.ToString(CultureInfo.InvariantCulture)))),
+            CommsGridRejoinRecord rejoin => (
+                rejoin.UnitId,
+                $"rejoin:{rejoin.InformativeMerges.Count}_merges",
+                Dict(
+                    ("unitId", rejoin.UnitId),
+                    ("offGridSinceTick", rejoin.OffGridSinceTick.ToString(CultureInfo.InvariantCulture)),
+                    ("rejoinTick", rejoin.RejoinTick.ToString(CultureInfo.InvariantCulture)),
+                    ("informativeMergeCount", rejoin.InformativeMerges.Count.ToString(CultureInfo.InvariantCulture)),
+                    ("suppressedCount", rejoin.SuppressedCount.ToString(CultureInfo.InvariantCulture)),
+                    ("simTick", rejoin.SimTick.ToString(CultureInfo.InvariantCulture)))),
             IReadOnlyDictionary<string, string> bag => (
                 bag.TryGetValue("unitId", out var u) ? u
                     : bag.TryGetValue("shooterUnitId", out var s) ? s

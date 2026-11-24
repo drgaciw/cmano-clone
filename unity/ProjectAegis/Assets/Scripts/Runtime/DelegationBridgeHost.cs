@@ -133,6 +133,15 @@ namespace ProjectAegis.Unity.Runtime
         private readonly List<CoordinationApprovedScope> _pendingGroupScopes = new();
         /// <summary>Current selected-contact evidence; recommendations never enqueue orders.</summary>
         public AdviceFrame? LastAdvice { get; private set; }
+        private readonly SupervisedAdviceCardBinder _supervisedAdviceBinder = new SupervisedAdviceCardBinder();
+        private string? _lastAdviceSubjectUnitId;
+        /// <summary>Unit id used for supervised advice projection/accept (preserves selected unit across contact selection).</summary>
+        public string? SupervisedAdviceUnitId =>
+            !string.IsNullOrWhiteSpace(SelectedUnitId) ? SelectedUnitId : _lastAdviceSubjectUnitId;
+        /// <summary>Client-local dismissed contact id for supervised advice (never mutates DecisionLog).</summary>
+        public string? DismissedSupervisedAdviceContactId => _supervisedAdviceBinder.DismissedContactId;
+        /// <summary>DRG-321 Jev VS3 ROE Noul gate state for the pending suggested-order card.</summary>
+        public JevSuggestedOrderGateState LastJevSuggestedOrder { get; private set; } = JevSuggestedOrderGateState.Empty;
         /// <summary>Current group responsibilities and authored coverage.</summary>
         public CoordinationSnapshot LastCoordination { get; private set; } = CoordinationSnapshot.Empty;
         /// <summary>Replay-stable mission-package / C2-node snapshot (DRG-189 presentation bind).</summary>
@@ -159,6 +168,139 @@ namespace ProjectAegis.Unity.Runtime
             var result = CoordinationCommandBridge.Submit(Bridge, _lastSnapshot, groupId, decision, review?.Intent, _pendingGroupScopes);
             if (result.ApprovedScope != null) _pendingGroupScopes.Add(result.ApprovedScope);
             return result.Accepted ? $"Queued {decision}: {string.Join(", ", result.AffectedUnitIds)}" : $"Prevented: {result.FailureReason}";
+        }
+
+        /// <summary>DRG-255: projects supervised advice card with evidence pointers and FULL_AUTONOMOUS guard.</summary>
+        public SupervisedAdviceCardState ProjectSupervisedAdviceCard(
+            string proposedCommandId = "fire-single",
+            string? attackOptionId = "fire-single",
+            bool explicitFullAutonomousLethalOptIn = false) =>
+            _supervisedAdviceBinder.ProjectForUnit(
+                Bridge,
+                _lastSnapshot,
+                LastAdvice,
+                SupervisedAdviceUnitId,
+                proposedCommandId,
+                attackOptionId,
+                explicitFullAutonomousLethalOptIn);
+
+        /// <summary>DRG-255: validates evidence pointers, ROE, and engage gates before enqueueing a PlayerOrder.</summary>
+        public SupervisedAdviceAcceptResult TryAcceptSupervisedAdvice(
+            string commandId,
+            string? attackOptionId = null,
+            bool explicitFullAutonomousLethalOptIn = false)
+        {
+            var unitId = SupervisedAdviceUnitId ?? string.Empty;
+            if (CommandTimeline.IsInspecting)
+            {
+                return new SupervisedAdviceAcceptResult(
+                    false,
+                    unitId,
+                    LastAdvice?.ContactId ?? string.Empty,
+                    null,
+                    null,
+                    null,
+                    "REPLAY_TIMELINE_INSPECTING",
+                    Array.Empty<SupervisedAdviceEvidenceLine>());
+            }
+
+            if (LastAdvice == null)
+            {
+                return new SupervisedAdviceAcceptResult(
+                    false,
+                    unitId,
+                    string.Empty,
+                    null,
+                    null,
+                    null,
+                    SupervisedAdviceAcceptBridge.ReasonAdviceUnavailable,
+                    Array.Empty<SupervisedAdviceEvidenceLine>());
+            }
+
+            return SupervisedAdviceAcceptBridge.TryAccept(
+                Bridge,
+                _lastSnapshot,
+                new SupervisedAdviceAcceptRequest(
+                    unitId,
+                    LastAdvice,
+                    commandId,
+                    attackOptionId,
+                    explicitFullAutonomousLethalOptIn));
+        }
+
+        /// <summary>DRG-255: client-local dismiss without mutating order log or replay fingerprint.</summary>
+        public void DismissSupervisedAdvice() =>
+            _supervisedAdviceBinder.Dismiss(LastAdvice?.ContactId);
+
+        /// <summary>DRG-321: evaluates a Jev VS3 ROE Noul state payload (fail-closed, never auto-fires).</summary>
+        public JevSuggestedOrderGateState EvaluateJevSuggestedOrder(string json)
+        {
+            LastJevSuggestedOrder = JevRoeOrderGateBinder.Evaluate(json);
+            return LastJevSuggestedOrder;
+        }
+
+        /// <summary>DRG-321: dismisses the suggested-order card with zero order-log mutation.</summary>
+        public void ClearJevSuggestedOrder()
+        {
+            LastJevSuggestedOrder = JevSuggestedOrderGateState.Empty;
+        }
+
+        /// <summary>DRG-321: routes explicit Accept click exclusively through <see cref="CoordinationCommandBridge.Submit"/>.</summary>
+        public CoordinationDecisionResult TrySubmitJevSuggestedDecision()
+        {
+            var gate = LastJevSuggestedOrder;
+            if (!gate.CardVisible || !gate.ConfirmEnabled || string.IsNullOrWhiteSpace(gate.GroupId))
+            {
+                return new CoordinationDecisionResult(
+                    false,
+                    gate.GroupId,
+                    gate.Decision,
+                    Array.Empty<string>(),
+                    gate.BlockReason ?? JevRoeOrderGateBinder.ReasonInvalidProposal,
+                    null);
+            }
+
+            if (CommandTimeline.IsInspecting)
+            {
+                return new CoordinationDecisionResult(
+                    false,
+                    gate.GroupId,
+                    gate.Decision,
+                    Array.Empty<string>(),
+                    "REPLAY_TIMELINE_INSPECTING",
+                    null);
+            }
+
+            if (_pendingGroupScopes.Any(x => x.GroupId == gate.GroupId))
+            {
+                return new CoordinationDecisionResult(
+                    false,
+                    gate.GroupId,
+                    gate.Decision,
+                    Array.Empty<string>(),
+                    CoordinationCommandBridge.ReasonGroupDecisionPending,
+                    null);
+            }
+
+            var review = LastCoordination.Groups.FirstOrDefault(x => x.Coordination.GroupId == gate.GroupId);
+            var result = CoordinationCommandBridge.Submit(
+                Bridge,
+                _lastSnapshot,
+                gate.GroupId,
+                gate.Decision,
+                review?.Intent,
+                _pendingGroupScopes);
+            if (result.ApprovedScope != null)
+            {
+                _pendingGroupScopes.Add(result.ApprovedScope);
+            }
+
+            if (result.Accepted)
+            {
+                LastJevSuggestedOrder = JevSuggestedOrderGateState.Empty;
+            }
+
+            return result;
         }
         private void RefreshAdvice()
         {
@@ -252,6 +394,8 @@ namespace ProjectAegis.Unity.Runtime
         private readonly C2ChromePrefsStore _chromePrefs = new();
         private readonly AttentionToastBinder _attentionToast = new();
         private readonly MessageLogNotificationCoordinator _notificationCoordinator = new();
+        private readonly PendingApprovalInterruptCoordinator _pendingApprovalInterrupt = new();
+        private readonly Dictionary<OrderId, double?> _pendingApprovalDlzExpiry = new();
         private MessageCategoryPolicy _notificationPolicy;
         private bool _markedPreExecutionSeen;
         private ISimWorldSnapshot? _lastSnapshot;
@@ -266,6 +410,161 @@ namespace ProjectAegis.Unity.Runtime
 
         /// <summary>DRG-408 / DRG-398: shared notification and safe-stop coordinator.</summary>
         public MessageLogNotificationCoordinator NotificationCoordinator => _notificationCoordinator;
+
+        /// <summary>DRG-269: pending-approval 1x interrupt and authoritative sim-time DLZ countdown coordinator.</summary>
+        public PendingApprovalInterruptCoordinator PendingApprovalInterrupt => _pendingApprovalInterrupt;
+
+        /// <summary>DRG-269: latest evaluated pending-approval interrupt batch.</summary>
+        public PendingApprovalInterruptBatch LastPendingApprovalInterrupt { get; private set; } = PendingApprovalInterruptBatch.Empty;
+
+        /// <summary>DRG-268: latest fog-safe message-log click-through explain link.</summary>
+        public MessageLogExplainLinkResult LastMessageLogExplainLink { get; private set; } = MessageLogExplainLinkResult.Empty;
+
+        /// <summary>DRG-269: binds an authoritative DLZ expiry sim time for a pending approval order.</summary>
+        public void SetPendingApprovalDlzExpiry(OrderId orderId, double? expiresAtSimTime)
+        {
+            if (expiresAtSimTime.HasValue)
+            {
+                _pendingApprovalDlzExpiry[orderId] = expiresAtSimTime.Value;
+            }
+            else
+            {
+                _pendingApprovalDlzExpiry.Remove(orderId);
+            }
+        }
+
+        /// <summary>DRG-269: evaluates pending approvals and applies a single-shot 1x drop via C2ClockCommand.</summary>
+        public PendingApprovalInterruptBatch EvaluatePendingApprovalInterrupts()
+        {
+            if (Bridge?.Orchestrator == null)
+            {
+                LastPendingApprovalInterrupt = PendingApprovalInterruptBatch.Empty;
+                return LastPendingApprovalInterrupt;
+            }
+
+            var isObserver = ObserverModeChromePresentation.Project(Bridge).IsObserver;
+            var currentSimTime = _lastSnapshot?.SimTime ?? 0.0;
+            var batch = _pendingApprovalInterrupt.Evaluate(
+                Bridge.Orchestrator.PendingApprovals,
+                currentSimTime,
+                _pendingApprovalDlzExpiry,
+                IsReplayViewerAttached,
+                isObserver);
+            LastPendingApprovalInterrupt = batch;
+
+            if (batch.ShouldDropToRealTime && Session != null)
+            {
+                C2ClockCommand.TrySetAcceleration(Session, 1, out _);
+                SyncTimeCompressionLabel();
+            }
+
+            return batch;
+        }
+
+        /// <summary>DRG-269: validates replay/observer/stale/DLZ-expiry before approving a pending order.</summary>
+        public bool TryApprovePendingOrderValidated(OrderId orderId, out PendingApprovalDecisionValidation validation)
+        {
+            var isObserver = Bridge != null && ObserverModeChromePresentation.Project(Bridge).IsObserver;
+            var currentSimTime = _lastSnapshot?.SimTime ?? 0.0;
+            _pendingApprovalDlzExpiry.TryGetValue(orderId, out var expiry);
+
+            validation = _pendingApprovalInterrupt.ValidateDecision(
+                orderId,
+                Bridge?.Orchestrator?.PendingApprovals,
+                currentSimTime,
+                expiry,
+                IsReplayViewerAttached,
+                isObserver);
+            if (!validation.Allowed || Bridge?.Orchestrator == null)
+            {
+                return false;
+            }
+
+            var ok = Bridge.Orchestrator.TryApprovePendingOrder(orderId);
+            if (ok)
+            {
+                _pendingApprovalDlzExpiry.Remove(orderId);
+                EvaluatePendingApprovalInterrupts();
+            }
+
+            return ok;
+        }
+
+        /// <summary>DRG-269: validates replay/observer/stale before rejecting a pending order.</summary>
+        public bool TryRejectPendingOrderValidated(OrderId orderId, out PendingApprovalDecisionValidation validation)
+        {
+            var isObserver = Bridge != null && ObserverModeChromePresentation.Project(Bridge).IsObserver;
+            var currentSimTime = _lastSnapshot?.SimTime ?? 0.0;
+            validation = _pendingApprovalInterrupt.ValidateDecision(
+                orderId,
+                Bridge?.Orchestrator?.PendingApprovals,
+                currentSimTime,
+                expiresAtSimTime: null,
+                IsReplayViewerAttached,
+                isObserver);
+            if (!validation.Allowed || Bridge?.Orchestrator == null)
+            {
+                return false;
+            }
+
+            var ok = Bridge.Orchestrator.TryRejectPendingOrder(orderId);
+            if (ok)
+            {
+                _pendingApprovalDlzExpiry.Remove(orderId);
+                EvaluatePendingApprovalInterrupts();
+            }
+
+            return ok;
+        }
+
+        /// <summary>DRG-268: fog-safe message-log row click-through selecting visible unit/contact and populating EngageExplain.</summary>
+        public MessageLogExplainLinkResult SelectMessageLogDeepLink(DecisionLogDeepLinkDetail? detail)
+        {
+            if (detail == null || !detail.Found)
+            {
+                LastMessageLogExplainLink = MessageLogExplainLinkResult.Empty;
+                return LastMessageLogExplainLink;
+            }
+
+            var visibleFriendlies = new HashSet<string>(StringComparer.Ordinal);
+            if (LastOobTree != null)
+            {
+                for (var i = 0; i < LastOobTree.Count; i++)
+                {
+                    if (!string.IsNullOrWhiteSpace(LastOobTree[i].UnitId))
+                    {
+                        visibleFriendlies.Add(LastOobTree[i].UnitId);
+                    }
+                }
+            }
+
+            var visibleContacts = new HashSet<string>(StringComparer.Ordinal);
+            if (LastSliceAContacts != null)
+            {
+                foreach (var key in LastSliceAContacts.Authorities.Keys)
+                {
+                    if (!string.IsNullOrWhiteSpace(key))
+                    {
+                        visibleContacts.Add(key);
+                    }
+                }
+            }
+
+            if (_lastSnapshot?.PrimaryHostileContactId is { } primaryHostile && !string.IsNullOrWhiteSpace(primaryHostile.Value))
+            {
+                visibleContacts.Add(primaryHostile.Value);
+            }
+
+            var resolved = MessageLogExplainDeepLinkCoordinator.Resolve(detail, visibleFriendlies, visibleContacts);
+            LastMessageLogExplainLink = resolved;
+
+            if (!resolved.SuppressedByFog && !string.IsNullOrWhiteSpace(resolved.SafeUnitIdToSelect))
+            {
+                SelectUnit(resolved.SafeUnitIdToSelect);
+            }
+
+            return resolved;
+        }
 
         /// <summary>DRG-408 / DRG-398: evaluation outcome from the latest live message log batch.</summary>
         public NotificationBatchEvaluation LastNotificationBatch { get; private set; } = NotificationBatchEvaluation.Empty;
@@ -846,6 +1145,7 @@ namespace ProjectAegis.Unity.Runtime
 
         public void SelectUnit(string unitId)
         {
+            _lastAdviceSubjectUnitId = string.IsNullOrWhiteSpace(unitId) ? null : unitId;
             Presentation.SelectFriendlyUnit(unitId);
             RefreshSelectionPresentation();
             ApplyGraphSurfacingForSelection();  // S37-04 C2 graph surfacing (highlights/bind)
@@ -853,6 +1153,7 @@ namespace ProjectAegis.Unity.Runtime
 
         public void SelectContact(string contactId)
         {
+            _supervisedAdviceBinder.ClearDismiss();
             var contacts = ContactPictureProjection.Project(Bridge.Orchestrator.DecisionLog);
             Presentation.SelectHostileContact(contactId, contacts);
             RefreshSelectionPresentation();

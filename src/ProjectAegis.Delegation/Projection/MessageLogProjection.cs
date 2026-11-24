@@ -495,6 +495,15 @@ public static class MessageLogProjection
                         : $"Contact {co.ContactId} operator reclassified: {co.PreviousValue} → {co.NewValue}",
                     ActorId: "operator",
                     SourceKind: "Operator"),
+            OrderLogEntryKind.CommsGridRejoin when entry.Payload is CommsGridRejoinRecord cr =>
+                new MessageLogLine(
+                    entry.SequenceId,
+                    entry.SimTime,
+                    "COMMS",
+                    $"Comms rejoin {cr.UnitId}: {cr.InformativeMerges.Count} contact merge(s) ({string.Join(", ", cr.InformativeMerges.Select(m => $"{m.TargetId}: {m.PreviousState} → {m.NewState}"))})",
+                    cr.UnitId,
+                    ActorId: cr.UnitId,
+                    SourceKind: "Comms"),
             _ => null,
         };
 

@@ -22,4 +22,5 @@ public enum OrderLogEntryKind
     PlatformDamageChange = 17,
     OrdnanceStateChange = 18,
     ContactOverride = 19,
+    CommsGridRejoin = 20,
 }

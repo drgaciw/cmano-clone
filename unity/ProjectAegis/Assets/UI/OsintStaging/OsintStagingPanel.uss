@@ -1,0 +1,112 @@
+@import url("../AegisTokens.uss");
+
+.osint-staging-panel {
+    position: absolute;
+    right: 12px;
+    top: 64px;
+    width: 380px;
+    max-height: 75%;
+    flex-direction: column;
+    padding: 8px;
+    background-color: var(--surface-panel-opaque);
+    border-width: 1px;
+    border-color: var(--border-panel);
+    border-radius: 4px;
+}
+
+.osint-staging-title {
+    -unity-font-style: bold;
+    color: var(--text-heading);
+    margin-bottom: 4px;
+}
+
+.osint-staging-status {
+    color: var(--text-muted);
+    white-space: normal;
+    margin-bottom: 6px;
+}
+
+.osint-staging-section-header {
+    -unity-font-style: bold;
+    color: var(--text-body);
+    margin-top: 4px;
+    margin-bottom: 2px;
+}
+
+.osint-staging-list {
+    min-height: 80px;
+    max-height: 140px;
+    margin-bottom: 6px;
+}
+
+.osint-logonly-list {
+    min-height: 60px;
+    max-height: 100px;
+}
+
+.osint-proposal-row {
+    color: var(--text-data);
+    white-space: normal;
+}
+
+.osint-logonly-row {
+    color: var(--diff-pending);
+    white-space: normal;
+}
+
+.osint-detail-card {
+    flex-direction: column;
+    padding: 6px;
+    margin-bottom: 6px;
+    border-width: 1px;
+    border-color: var(--border-subtle);
+    background-color: var(--surface-deep);
+}
+
+.osint-detail-title {
+    -unity-font-style: bold;
+    color: var(--text-heading);
+    white-space: normal;
+}
+
+.osint-detail-confidence {
+    color: var(--score-accent);
+    margin-top: 2px;
+}
+
+.osint-detail-trl {
+    color: var(--text-muted);
+}
+
+.osint-detail-citation-url {
+    color: var(--log-contact);
+    white-space: normal;
+    margin-top: 2px;
+}
+
+.osint-detail-citation-snippet {
+    color: var(--text-body);
+    white-space: normal;
+    margin-top: 2px;
+}
+
+.osint-actions {
+    flex-direction: row;
+    margin-bottom: 6px;
+}
+
+.osint-action-button {
+    flex-grow: 1;
+    margin-right: 4px;
+}
+
+.osint-approve-button:disabled {
+    opacity: var(--diff-pending-opacity);
+}
+
+.osint-action-button:focus,
+.osint-proposal-row:focus,
+.osint-logonly-row:focus {
+    border-width: var(--focus-ring-width);
+    border-color: var(--focus-ring);
+}

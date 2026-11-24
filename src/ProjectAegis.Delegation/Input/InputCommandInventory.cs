@@ -21,6 +21,13 @@ public enum InputCommandJournalKind
     SetTimeAccelerationFactor = 12,
     ContactReclassifyOverride = 13,
     ContactDropOverride = 14,
+    RebriefAgent = 15,
+    AssignAgentController = 16,
+    DoctrineOverride = 17,
+    AcknowledgeWatchAttention = 18,
+    DismissWatchAttention = 19,
+    SetAgentPersonality = 20,
+    SetAgentAutonomy = 21,
 }
 
 /// <summary>Descriptor for a registered authority-mutating player command (DRG-348 / ADR-029).</summary>
@@ -48,6 +55,13 @@ public static class InputCommandInventory
     public const string PauseSimId = "pause_sim";
     public const string ResumeSimId = "resume_sim";
     public const string SetTimeAccelerationId = "set_time_acceleration";
+    public const string RebriefAgentId = "rebrief_agent";
+    public const string AssignAgentControllerId = "assign_agent_controller";
+    public const string DoctrineOverrideId = "doctrine_override";
+    public const string AcknowledgeWatchAttentionId = "watch_acknowledge";
+    public const string DismissWatchAttentionId = "watch_dismiss";
+    public const string SetAgentPersonalityId = "set_agent_personality";
+    public const string SetAgentAutonomyId = "set_agent_autonomy";
 
     private static readonly IReadOnlyList<InputCommandDescriptor> Entries = new InputCommandDescriptor[]
     {
@@ -81,6 +95,20 @@ public static class InputCommandInventory
             "ContactOverrideCommand.TryReclassify", BlockedByReplayViewer: true, AppendsDecisionLog: true),
         new(ContactDropOverrideId, InputCommandJournalKind.ContactDropOverride,
             "ContactOverrideCommand.TryDrop", BlockedByReplayViewer: true, AppendsDecisionLog: true),
+        new(RebriefAgentId, InputCommandJournalKind.RebriefAgent,
+            "DelegationOrchestrator.TryRebriefAgent", BlockedByReplayViewer: true, AppendsDecisionLog: true),
+        new(AssignAgentControllerId, InputCommandJournalKind.AssignAgentController,
+            "DelegationOrchestrator.TryAssignAgentController", BlockedByReplayViewer: true, AppendsDecisionLog: true),
+        new(DoctrineOverrideId, InputCommandJournalKind.DoctrineOverride,
+            "DoctrineOverrideCommand.TryApply", BlockedByReplayViewer: true, AppendsDecisionLog: true),
+        new(AcknowledgeWatchAttentionId, InputCommandJournalKind.AcknowledgeWatchAttention,
+            "WatchAttentionQueue.TryAcknowledge", BlockedByReplayViewer: true, AppendsDecisionLog: false),
+        new(DismissWatchAttentionId, InputCommandJournalKind.DismissWatchAttention,
+            "WatchAttentionQueue.TryDismiss", BlockedByReplayViewer: true, AppendsDecisionLog: false),
+        new(SetAgentPersonalityId, InputCommandJournalKind.SetAgentPersonality,
+            "PlayDelegationCommands.TrySetPersonality", BlockedByReplayViewer: true, AppendsDecisionLog: true),
+        new(SetAgentAutonomyId, InputCommandJournalKind.SetAgentAutonomy,
+            "PlayDelegationCommands.TrySetAutonomy", BlockedByReplayViewer: true, AppendsDecisionLog: true),
     };
 
     private static readonly Dictionary<string, InputCommandDescriptor> ById = BuildIndex();

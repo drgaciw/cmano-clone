@@ -1,5 +1,6 @@
 namespace ProjectAegis.Delegation.UnityAdapter.Authoring;
 
+using Data.Catalog;
 using ProjectAegis.Data.Scenario.Authoring;
 using Data.Validation;
 
@@ -21,6 +22,9 @@ public sealed class LiveFindingsPresenter
     private readonly ScenarioAuthoringSession _session;
     private readonly int _debounceMs;
     private readonly ValidationConfig _config;
+    private bool _hasExplicitCatalog;
+    private ICatalogReader? _boundCatalog;
+    private string _backendId = MissionRoleCapabilityManifest.DefaultBackendId;
 
     /// <summary>
     /// Creates a findings presenter bound to the given authoring session.
@@ -29,7 +33,7 @@ public sealed class LiveFindingsPresenter
     /// <param name="debounceMs">
     /// Intended host debounce in milliseconds (default 300).
     /// When <c>&lt;= 0</c>, <see cref="ScheduleRefresh"/> is documented as immediate (tests).
-    /// When <c>&gt; 0</c>, P2.1 still calls <see cref="RefreshImmediate"/> immediately;
+    /// When <c>&gt; 0</c>, P2.1 still calls <see cref="RefreshImmediate(ICatalogReader?, string?)"/> immediately;
     /// a Unity host may later honor this interval on an EditorWindow tick.
     /// </param>
     /// <param name="config">
@@ -44,6 +48,25 @@ public sealed class LiveFindingsPresenter
         _session = session ?? throw new ArgumentNullException(nameof(session));
         _debounceMs = debounceMs;
         _config = config ?? new ValidationConfig();
+    }
+
+    /// <summary>
+    /// Creates a findings presenter bound to an explicit catalog (which may be null for unbound disclosure)
+    /// and target execution backend (DRG-371 / DRG-372 / DRG-346).
+    /// </summary>
+    public LiveFindingsPresenter(
+        ScenarioAuthoringSession session,
+        ICatalogReader? boundCatalog,
+        int debounceMs = 300,
+        ValidationConfig? config = null,
+        string backendId = MissionRoleCapabilityManifest.DefaultBackendId)
+        : this(session, debounceMs, config)
+    {
+        _hasExplicitCatalog = true;
+        _boundCatalog = boundCatalog;
+        _backendId = string.IsNullOrWhiteSpace(backendId)
+            ? MissionRoleCapabilityManifest.DefaultBackendId
+            : backendId.Trim();
     }
 
     /// <summary>Most recent live validation report, or <c>null</c> before the first refresh.</summary>
@@ -139,12 +162,31 @@ public sealed class LiveFindingsPresenter
     }
 
     /// <summary>
-    /// Re-runs live validation via the session bus and refreshes <see cref="LastReport"/> and
-    /// <see cref="Gate"/>.
+    /// Re-runs live validation via the bound catalog (when configured) or session bus and refreshes
+    /// <see cref="LastReport"/> and <see cref="Gate"/>.
     /// </summary>
     public void RefreshImmediate()
     {
-        LastReport = _session.Bus.RefreshFindings();
+        LastReport = _hasExplicitCatalog
+            ? ScenarioSaveExportGate.LiveValidate(_session.Editor.ToDto(), _boundCatalog, _config, _backendId)
+            : _session.Bus.RefreshFindings();
+        Gate = EvaluateGate(LastReport, _config);
+    }
+
+    /// <summary>
+    /// Re-runs live validation against <paramref name="boundCatalog"/> and <paramref name="backendId"/>
+    /// without silent fallback to Baltic fixtures.
+    /// </summary>
+    public void RefreshImmediate(ICatalogReader? boundCatalog, string? backendId = null)
+    {
+        _hasExplicitCatalog = true;
+        _boundCatalog = boundCatalog;
+        if (!string.IsNullOrWhiteSpace(backendId))
+        {
+            _backendId = backendId.Trim();
+        }
+
+        LastReport = ScenarioSaveExportGate.LiveValidate(_session.Editor.ToDto(), _boundCatalog, _config, _backendId);
         Gate = EvaluateGate(LastReport, _config);
     }
 

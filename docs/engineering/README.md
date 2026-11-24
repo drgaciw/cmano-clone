@@ -166,6 +166,7 @@ Deep-dives into engine-agnostic subsystems, verified against source and pinned b
 | Doc | Covers |
 |-----|--------|
 | [gitnexus-index-health.md](gitnexus-index-health.md) | Keeping the `cmano-clone` GitNexus code index current after merges — stale-index symptoms, re-index steps, and the DRG-323 [`tools/gitnexus-safe-reindex.sh`](../../tools/gitnexus-safe-reindex.sh) guard (forced full rebuild + integrity post-check) that prevents a bare/incremental `analyze` from silently corrupting the index. |
+| [baseline-regression-and-test-selection-policy.md](baseline-regression-and-test-selection-policy.md) | Tiered `FastPrInnerLoop` vs `BlockingMergeBaseline` vs `ReleaseVerification` test-selection & fail-closed conservative fallback policy (`DRG-204`, `ARCH-NFR-3`, `VER-06`), monotonic `production/test-floor.json` governance, and `DRG-323` safe-reindex enforcement (`ProjectAegis.Data.Verification`). |
 
 ---
 
