@@ -161,6 +161,87 @@ public static class AttentionToastApplyState
             PauseReasonLabel: reasonLabel);
     }
 
+    /// <summary>
+    /// Merges unresolved message-log notification alerts into an existing toast presentation
+    /// without altering <see cref="Apply"/> behavior for existing watch/tier callers (DRG-408).
+    /// </summary>
+    public static AttentionToastPresentation MergeMessageNotifications(
+        AttentionToastPresentation current,
+        IReadOnlyList<MessageNotificationAlert>? alerts,
+        bool coordinatorCanResume,
+        bool coordinatorHasUnresolvedPause,
+        bool explicitResumeOverride = false)
+    {
+        if (current is null)
+        {
+            throw new ArgumentNullException(nameof(current));
+        }
+
+        var cards = new List<AttentionToastCard>();
+        if (current.Active is not null)
+        {
+            cards.Add(current.Active);
+        }
+
+        if (alerts is not null)
+        {
+            for (var i = 0; i < alerts.Count; i++)
+            {
+                var alert = alerts[i];
+                if (alert.IsDismissed || alert.IsAcknowledged)
+                {
+                    continue;
+                }
+
+                var severity = alert.TriggersPause ? AlertSeverity.Critical : AlertSeverity.Notable;
+                var title = alert.TriggersPause ? "LOG · PAUSE" : "LOG · ALERT";
+                var accessible = alert.TriggersPause
+                    ? $"Pause-class message alert. {alert.Category}: {alert.Text}. Acknowledge to allow resume."
+                    : $"Message alert. {alert.Category}: {alert.Text}";
+                cards.Add(new AttentionToastCard(
+                    CardId: MessageLogNotificationCoordinator.BuildBalloonId(alert.SequenceId),
+                    Title: title,
+                    Body: $"{alert.Category}: {alert.Text}",
+                    AccessibleText: accessible,
+                    Severity: severity,
+                    SeverityLabel: severity.ToString(),
+                    IsPauseClass: alert.TriggersPause,
+                    SequenceHint: alert.SequenceId.ToString()));
+            }
+        }
+
+        var unresolved = current.HasUnresolvedPauseClass || coordinatorHasUnresolvedPause;
+        var canResume = current.CanResume && (explicitResumeOverride || coordinatorCanResume);
+        var reasonLabel = !string.IsNullOrEmpty(current.PauseReasonLabel)
+            ? current.PauseReasonLabel
+            : (coordinatorHasUnresolvedPause ? "Message log pause alert" : string.Empty);
+
+        if (cards.Count == 0)
+        {
+            return new AttentionToastPresentation(
+                Active: null,
+                QueuedCount: 0,
+                QueueBadge: string.Empty,
+                HasUnresolvedPauseClass: unresolved,
+                CanResume: canResume,
+                PauseReasonLabel: reasonLabel);
+        }
+
+        var totalQueued = current.QueuedCount + (cards.Count - (current.Active is not null ? 1 : 0)) - (current.Active is null ? 1 : 0);
+        if (totalQueued < 0)
+        {
+            totalQueued = 0;
+        }
+
+        return new AttentionToastPresentation(
+            Active: cards[0],
+            QueuedCount: totalQueued,
+            QueueBadge: totalQueued > 0 ? "+" + totalQueued + " queued" : string.Empty,
+            HasUnresolvedPauseClass: unresolved,
+            CanResume: canResume,
+            PauseReasonLabel: reasonLabel);
+    }
+
     private static WatchPauseReason ReasonFromKind(WatchAttentionKind kind) =>
         kind switch
         {

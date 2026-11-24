@@ -1,0 +1,17 @@
+<ui:UXML xmlns:ui="UnityEngine.UIElements" editor-extension-mode="False">
+    <ui:VisualElement name="coverage-posture-overlay-root" class="coverage-posture-overlay" picking-mode="Ignore">
+        <ui:VisualElement name="coverage-posture-card" class="coverage-posture-card coverage-posture--unknown" picking-mode="Ignore">
+            <ui:VisualElement name="coverage-posture-header-strip" class="coverage-posture-header-strip" picking-mode="Ignore">
+                <ui:Label name="coverage-posture-scale-badge" text="SCALE UNCALIBRATED" class="coverage-posture-badge" picking-mode="Ignore" />
+                <ui:Label name="coverage-posture-authority-badge" text="ADVISORY · IsOrder=false" class="coverage-posture-badge" picking-mode="Ignore" />
+            </ui:VisualElement>
+            <ui:Label name="coverage-posture-summary-label" text="POSTURE: no task-group coverage facts" class="coverage-posture-summary" picking-mode="Ignore" />
+            <ui:Label name="coverage-posture-layers-label" text="No layered defense elements authored." class="coverage-posture-detail" picking-mode="Ignore" />
+            <ui:Label name="coverage-posture-gaps-label" text="Gaps: none" class="coverage-posture-detail" picking-mode="Ignore" />
+            <ui:VisualElement name="coverage-posture-diff-box" class="coverage-posture-diff-box" picking-mode="Ignore">
+                <ui:Label name="coverage-posture-diff-headline" text="POSTURE UNCHANGED" class="coverage-posture-diff-headline" picking-mode="Ignore" />
+                <ui:Label name="coverage-posture-diff-detail" text="" class="coverage-posture-detail" picking-mode="Ignore" />
+            </ui:VisualElement>
+        </ui:VisualElement>
+    </ui:VisualElement>
+</ui:UXML>

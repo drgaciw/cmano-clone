@@ -53,6 +53,8 @@ public sealed class SqliteCatalogReader : ICatalogReader, IDisposable
     private CatalogCommsBinding[]? _commsCache;
     private CatalogLinkEntry[]? _linksCache;
     private CatalogDependencyEdge[]? _dependencyEdgesCache;
+    private CatalogWeaponRecord[]? _weaponsCache;
+    private CatalogPlatformEntry[]? _platformsSortedCache;
 
     public SqliteCatalogReader(string databasePath, string layerVersion = "p0-sqlite")
     {
@@ -236,6 +238,62 @@ public sealed class SqliteCatalogReader : ICatalogReader, IDisposable
         }
 
         return CatalogWeaponDefaults.TryResolve(weaponId, out envelope);
+    }
+
+    public IReadOnlyList<CatalogWeaponRecord> GetSortedWeapons()
+    {
+        _weaponsCache ??= LoadWeaponsSorted();
+        return _weaponsCache;
+    }
+
+    public IReadOnlyList<CatalogPlatformEntry> GetSortedPlatforms()
+    {
+        if (_platformsSortedCache != null)
+        {
+            return _platformsSortedCache;
+        }
+
+        EnsurePlatformsLoaded();
+        _platformsSortedCache = _platforms!.Values
+            .Select(p =>
+                _platformDomains != null && _platformDomains.TryGetValue(p.PlatformId, out var domain) && !string.IsNullOrEmpty(domain)
+                    ? p with { Domain = domain }
+                    : p)
+            .OrderBy(p => p.PlatformId, StringComparer.Ordinal)
+            .ToArray();
+        return _platformsSortedCache;
+    }
+
+    private CatalogWeaponRecord[] LoadWeaponsSorted()
+    {
+        if (!TableExists("weapon_catalog"))
+        {
+            return [];
+        }
+
+        using var cmd = _connection.CreateCommand();
+        cmd.CommandText =
+            """
+            SELECT weapon_id, display_name, min_range_meters, max_range_meters, weapon_type, guidance
+            FROM weapon_catalog
+            ORDER BY weapon_id ASC
+            """;
+        using var reader = cmd.ExecuteReader();
+        var list = new List<CatalogWeaponRecord>();
+        while (reader.Read())
+        {
+            list.Add(new CatalogWeaponRecord(
+                reader.GetString(0),
+                reader.GetString(1),
+                reader.GetDouble(2),
+                reader.GetDouble(3),
+                reader.GetString(4),
+                reader.GetString(5)));
+        }
+
+        return list
+            .OrderBy(w => w.WeaponId, StringComparer.Ordinal)
+            .ToArray();
     }
 
     /// <summary>Reads min/max range from <c>weapon_catalog</c> when the table and row exist.</summary>
@@ -787,24 +845,59 @@ public sealed class SqliteCatalogReader : ICatalogReader, IDisposable
     private static string NormalizeModality(string? modality) =>
         string.IsNullOrWhiteSpace(modality) ? CatalogSensorModalities.Radar : modality;
 
-    private static IReadOnlyList<string> ResolveMigrationPaths()
-    {
-        var dir = new DirectoryInfo(AppContext.BaseDirectory);
-        while (dir != null)
-        {
-            var migrationsDir = Path.Combine(dir.FullName, "assets", "data", "catalog", "migrations");
-            if (Directory.Exists(migrationsDir))
-            {
-                return Directory
-                    .EnumerateFiles(migrationsDir, "*.sql", SearchOption.TopDirectoryOnly)
-                    .OrderBy(path => path, StringComparer.Ordinal)
-                    .ToArray();
-            }
+    private static IReadOnlyList<string> ResolveMigrationPaths() =>
+        ResolveMigrationPaths(AppContext.BaseDirectory, Directory.GetCurrentDirectory);
 
-            dir = dir.Parent;
+    internal static IReadOnlyList<string> ResolveMigrationPaths(
+        string? baseDirectory,
+        Func<string> getCurrentDirectory)
+    {
+        if (TryFindMigrationFiles(baseDirectory, out var fromBase))
+        {
+            return fromBase;
+        }
+
+        string? currentDirectory;
+        try
+        {
+            currentDirectory = getCurrentDirectory();
+        }
+        catch (Exception ex) when (ex is IOException or UnauthorizedAccessException)
+        {
+            currentDirectory = null;
+        }
+
+        if (TryFindMigrationFiles(currentDirectory, out var fromCwd))
+        {
+            return fromCwd;
         }
 
         return [Path.Combine("assets", "data", "catalog", "migrations", "001_sensor_base_pd.sql")];
+    }
+
+    private static bool TryFindMigrationFiles(string? startDir, out IReadOnlyList<string> paths)
+    {
+        if (!string.IsNullOrWhiteSpace(startDir))
+        {
+            var dir = new DirectoryInfo(startDir);
+            while (dir != null)
+            {
+                var migrationsDir = Path.Combine(dir.FullName, "assets", "data", "catalog", "migrations");
+                if (Directory.Exists(migrationsDir))
+                {
+                    paths = Directory
+                        .EnumerateFiles(migrationsDir, "*.sql", SearchOption.TopDirectoryOnly)
+                        .OrderBy(path => path, StringComparer.Ordinal)
+                        .ToArray();
+                    return true;
+                }
+
+                dir = dir.Parent;
+            }
+        }
+
+        paths = Array.Empty<string>();
+        return false;
     }
 
     private void EnsureSnapshotsLoaded()

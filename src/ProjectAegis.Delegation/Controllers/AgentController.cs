@@ -1,5 +1,6 @@
 namespace ProjectAegis.Delegation.Controllers;
 
+using System.Globalization;
 using Attention;
 using Core;
 using Decision;
@@ -59,6 +60,15 @@ public sealed class AgentController : IController
 
     public bool IsHuman => false;
 
+    /// <summary>DRG-247: when true, agent decisions are suspended without clearing tasking or replacing controller.</summary>
+    public bool IsActionsPaused { get; private set; }
+
+    /// <summary>DRG-247: suspend autonomous decision emission for this agent.</summary>
+    public void PauseActions() => IsActionsPaused = true;
+
+    /// <summary>DRG-247: resume autonomous decision emission for this agent.</summary>
+    public void ResumeActions() => IsActionsPaused = false;
+
     public void BindPolicySnapshot(ulong policySnapshotId, EffectivePolicy effective, DecisionLog? log = null, double simTime = 0, ulong simTick = 0)
     {
         if (log != null && policySnapshotId != PolicySnapshotId)
@@ -104,6 +114,11 @@ public sealed class AgentController : IController
         DecisionLog log,
         PendingApprovalQueue? pendingQueue = null)
     {
+        if (IsActionsPaused)
+        {
+            return;
+        }
+
         if (state.SimTime < _nextDecisionSimTime)
         {
             return;
@@ -139,7 +154,9 @@ public sealed class AgentController : IController
                 attention.Load,
                 attention.Budget,
                 choice.RngDraw,
-                simTick),
+                simTick,
+                PolicySnapshotId: PolicySnapshotId,
+                Personality: FormatPersonalityProvenance(PersonalitySlug, Traits)),
             simTick));
 
         var gateResult = gate.Evaluate(Autonomy, order, playerApproved: false);
@@ -164,5 +181,24 @@ public sealed class AgentController : IController
         {
             pendingQueue.Enqueue(order);
         }
+    }
+
+    /// <summary>Formats deterministic personality provenance from preset slug or trait vector.</summary>
+    public static string FormatPersonalityProvenance(string? personalitySlug, TraitVector traits)
+    {
+        if (!string.IsNullOrWhiteSpace(personalitySlug))
+        {
+            return personalitySlug.Trim();
+        }
+
+        return string.Format(
+            CultureInfo.InvariantCulture,
+            "custom(agg={0:F2},risk={1:F2},delay={2:F2},err={3:F2},sa={4:F2},dec={5:F2})",
+            traits.Aggression,
+            traits.RiskTolerance,
+            traits.ReactionDelay,
+            traits.ErrorRate,
+            traits.SituationalAwareness,
+            traits.Decisiveness);
     }
 }

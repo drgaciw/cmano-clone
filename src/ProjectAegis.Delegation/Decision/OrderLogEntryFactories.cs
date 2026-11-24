@@ -71,4 +71,10 @@ public static class OrderLogEntryFactories
 
     public static OrderLogEntry FromPlatformDamageChange(PlatformDamageChangeRecord change, ulong sequenceId = 0) =>
         new(sequenceId, OrderLogEntryKind.PlatformDamageChange, change.SimTime, change);
+
+    public static OrderLogEntry FromContactOverride(ContactOverrideRecord contactOverride, ulong sequenceId = 0) =>
+        new(sequenceId, OrderLogEntryKind.ContactOverride, contactOverride.SimTime, contactOverride);
+
+    public static OrderLogEntry FromCommsGridRejoin(CommsGridRejoinRecord rejoin, ulong sequenceId = 0) =>
+        new(sequenceId, OrderLogEntryKind.CommsGridRejoin, rejoin.SimTime, rejoin);
 }

@@ -107,6 +107,14 @@ public sealed class ScenarioEditCommandBus
         bool save)
         => Mutate(expectedEditVersion, save, e => e.AddMissionFromTemplate(templateId, newMissionId));
 
+    /// <summary>Assigns an ORBAT unit id to an existing mission (DRG-346 bounded authoring recovery).</summary>
+    public ScenarioMutationResult AssignUnitToMission(
+        int expectedEditVersion,
+        string missionId,
+        string unitId,
+        bool save)
+        => Mutate(expectedEditVersion, save, e => e.AssignUnitToMission(missionId, unitId));
+
     /// <summary>Deletes a mission by id; fails when not found.</summary>
     public ScenarioMutationResult DeleteMission(int expectedEditVersion, string missionId, bool save)
         => Mutate(expectedEditVersion, save, e =>

@@ -1,0 +1,10 @@
+<ui:UXML xmlns:ui="UnityEngine.UIElements" editor-extension-mode="False">
+    <ui:VisualElement name="map-cue-overlay-root" class="map-cue-overlay" picking-mode="Ignore">
+        <ui:VisualElement name="map-cue-selected-strip" class="map-cue-selected-strip" picking-mode="Ignore">
+            <ui:Label name="map-cue-contact-badge" text="" class="map-cue-selected-badge" picking-mode="Ignore" />
+            <ui:Label name="map-cue-contact-fixture" text="" class="map-cue-selected-fixture" picking-mode="Ignore" />
+            <ui:Label name="map-cue-unit-order-badge" text="" class="map-cue-selected-badge" picking-mode="Ignore" />
+        </ui:VisualElement>
+        <ui:VisualElement name="map-cue-canvas" class="map-cue-canvas" picking-mode="Ignore" />
+    </ui:VisualElement>
+</ui:UXML>

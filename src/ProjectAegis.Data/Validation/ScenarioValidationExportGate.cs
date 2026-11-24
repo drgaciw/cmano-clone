@@ -25,11 +25,21 @@ public static class ScenarioValidationExportGate
     public static (bool Allowed, ValidationReport Report) EvaluateExport(
         ScenarioDocumentDto scenario,
         ICatalogReader catalog,
-        ValidationConfig? config = null)
+        ValidationConfig? config = null) =>
+        EvaluateExport(scenario, catalog, config, MissionRoleCapabilityManifest.DefaultBackendId);
+
+    /// <summary>
+    /// Evaluate export gate for a specific execution backend (DRG-371).
+    /// </summary>
+    public static (bool Allowed, ValidationReport Report) EvaluateExport(
+        ScenarioDocumentDto scenario,
+        ICatalogReader catalog,
+        ValidationConfig? config,
+        string backendId)
     {
         config ??= new ValidationConfig();
         var engine = new ScenarioValidationEngine();
-        var report = engine.Validate(scenario, catalog, config);
+        var report = engine.Validate(scenario, catalog, config, backendId);
         return (report.CanExport(config), report);
     }
 }

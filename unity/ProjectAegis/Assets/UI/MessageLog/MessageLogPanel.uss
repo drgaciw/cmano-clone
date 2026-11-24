@@ -121,3 +121,110 @@
     border-left-width: var(--focus-ring-width);
     border-left-color: var(--focus-ring);
 }
+
+.message-log-header {
+    flex-direction: row;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: var(--space-xs);
+}
+
+.message-log-policy-toggle {
+    height: 18px;
+    min-height: 18px;
+    padding-left: var(--space-xs);
+    padding-right: var(--space-xs);
+    font-size: 9px;
+    color: var(--text-data);
+    background-color: rgba(40, 52, 68, 0.9);
+    border-width: 1px;
+    border-color: var(--border-panel);
+    border-radius: 2px;
+}
+
+.message-log-policy-toggle:focus {
+    border-width: var(--focus-ring-width);
+    border-color: var(--focus-ring);
+}
+
+.message-log-alert-banner {
+    display: none;
+    flex-direction: column;
+    margin-bottom: var(--space-xs);
+    padding: 3px 4px;
+    background-color: rgba(88, 28, 28, 0.9);
+    border-width: 1px;
+    border-color: rgb(235, 95, 85);
+    border-radius: 2px;
+}
+
+.message-log-alert-row {
+    flex-direction: row;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 2px;
+}
+
+.message-log-alert-text {
+    font-size: 9px;
+    color: rgb(255, 232, 220);
+    flex-shrink: 1;
+}
+
+.message-log-policy-drawer {
+    display: none;
+    max-height: 120px;
+    margin-bottom: var(--space-xs);
+    padding: 4px;
+    background-color: rgba(16, 22, 30, 0.92);
+    border-width: 1px;
+    border-color: var(--border-panel);
+    border-radius: 2px;
+}
+
+.message-log-policy-row {
+    flex-direction: row;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 2px;
+}
+
+.message-log-policy-category {
+    font-size: 9px;
+    color: var(--text-data);
+    min-width: 120px;
+}
+
+.message-log-deeplink-drawer {
+    display: none;
+    flex-direction: column;
+    margin-top: var(--space-xs);
+    padding: 4px 6px;
+    background-color: rgba(18, 26, 36, 0.94);
+    border-width: 1px;
+    border-color: var(--border-panel);
+    border-radius: 2px;
+}
+
+.message-log-deeplink-header {
+    font-size: 9px;
+    -unity-font-style: bold;
+    color: var(--text-heading);
+}
+
+.message-log-deeplink-attribution {
+    font-size: 9px;
+    color: var(--log-mission);
+}
+
+.message-log-deeplink-detail {
+    font-size: 9px;
+    color: var(--text-data);
+    white-space: normal;
+}
+
+.message-log-deeplink-telemetry {
+    font-size: 8px;
+    color: var(--text-muted);
+    white-space: normal;
+}

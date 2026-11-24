@@ -20,5 +20,6 @@
   </ItemGroup>
   <ItemGroup>
     <EmbeddedResource Include="../../data/scenarios/baltic-escort.mission.json" LogicalName="ProjectAegis.BalticEscortMission.json" />
+    <EmbeddedResource Include="../../data/scenarios/message-category-policy.default.json" LogicalName="ProjectAegis.MessageCategoryPolicyDefault.json" />
   </ItemGroup>
 </Project>

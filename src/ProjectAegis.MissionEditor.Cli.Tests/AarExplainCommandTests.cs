@@ -1,7 +1,6 @@
 using System.Text;
 using System.Text.Json;
 using ProjectAegis.Ai.Contracts;
-using ProjectAegis.Ai.Host.Evidence;
 using NUnit.Framework;
 
 namespace ProjectAegis.MissionEditor.Cli.Tests;
@@ -121,16 +120,16 @@ public sealed class AarExplainCommandTests
                     null),
             ]);
 
-        var directory = Path.GetDirectoryName(path)
-            ?? throw new InvalidOperationException("Temp evidence path had no directory.");
-        var fileName = Path.GetFileName(path);
-        Assert.That(string.IsNullOrEmpty(fileName), Is.False);
+        var jsonl = new StringBuilder();
+        jsonl.Append(JsonSerializer.Serialize(doc.Header)).Append('\n');
+        foreach (var entry in doc.Entries)
+        {
+            jsonl.Append(JsonSerializer.Serialize(entry)).Append('\n');
+        }
 
-        var writer = new JsonlEvidenceWriter();
-        var result = await writer.WriteAsync(doc, directory, fileName);
-        Assert.That(result.Published, Is.True);
-        Assert.That(string.IsNullOrEmpty(result.PublishedPath), Is.False);
-        return result.PublishedPath!;
+        await File.WriteAllTextAsync(path, jsonl.ToString(), new UTF8Encoding(encoderShouldEmitUTF8Identifier: false));
+        Assert.That(File.Exists(path), Is.True);
+        return path;
     }
 
     private static void TryDelete(string path)

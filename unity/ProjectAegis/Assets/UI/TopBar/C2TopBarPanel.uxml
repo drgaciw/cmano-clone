@@ -1,5 +1,6 @@
 <ui:UXML xmlns:ui="UnityEngine.UIElements" editor-extension-mode="False">
     <ui:VisualElement name="c2-topbar-root" class="c2-topbar">
+        <ui:Label name="test-sandbox-banner" text="TEST SANDBOX" class="c2-topbar-sandbox-banner" />
         <ui:VisualElement name="c2-topbar-status-row" class="c2-topbar-status-row">
             <ui:Label name="sim-time-label" text="SIM 00:00:00" class="c2-topbar-item" />
             <ui:Label name="zulu-time-label" text="ZULU 00:00:00" class="c2-topbar-item c2-topbar-item--time" />
@@ -15,14 +16,15 @@
             </ui:VisualElement>
             <ui:Label name="mode-label" text="MODE: —" class="c2-topbar-item" />
             <ui:Label name="fog-mode-label" text="FOG: —" class="c2-topbar-item c2-topbar-item--fog" />
+            <ui:Label name="edit-policy-label" text="EDITS: —" class="c2-topbar-item c2-topbar-item--edit" />
             <ui:Label name="comms-label" text="COMMS: NOMINAL" class="c2-topbar-item c2-topbar-item--comms" />
             <ui:Label name="score-label" text="SCORE: 0" class="c2-topbar-item c2-topbar-item--score" />
         </ui:VisualElement>
-        <ui:VisualElement name="c2-topbar-comms-legend" class="c2-topbar-comms-legend">
+        <ui:VisualElement name="c2-topbar-comms-legend" class="c2-topbar-comms-legend" tooltip="COMMS STATES — NOMINAL: full sensor &amp; command picture; DEGRADED: stale contacts &amp; reduced symbol opacity; DENIED: link lost, no new remote engagements, map dimmed.">
             <ui:Label text="COMMS LEGEND:" class="c2-topbar-legend-title" />
-            <ui:Label text="NOMINAL = full picture" class="c2-topbar-legend-item c2-topbar-legend-item--nominal" />
-            <ui:Label text="DEGRADED = stale contacts, reduced symbol opacity" class="c2-topbar-legend-item c2-topbar-legend-item--degraded" />
-            <ui:Label text="DENIED = no new engagements, map dimmed" class="c2-topbar-legend-item c2-topbar-legend-item--denied" />
+            <ui:Label text="NOMINAL = full picture" tooltip="Full sensor picture and command link available." class="c2-topbar-legend-item c2-topbar-legend-item--nominal" />
+            <ui:Label text="DEGRADED = stale contacts, reduced symbol opacity" tooltip="Contacts may be stale and symbols render with reduced opacity." class="c2-topbar-legend-item c2-topbar-legend-item--degraded" />
+            <ui:Label text="DENIED = no new engagements, map dimmed" tooltip="Command link lost; no new remote engagements and map is dimmed." class="c2-topbar-legend-item c2-topbar-legend-item--denied" />
             <ui:Label name="comms-network-advisory-badge" text="" class="c2-topbar-legend-item c2-topbar-legend-item--network-advisory" />
             <ui:Label name="comms-network-health-label" text="Network: —" class="c2-topbar-legend-item c2-topbar-legend-item--network" />
             <ui:Label name="comms-network-node-label" text="" class="c2-topbar-legend-item c2-topbar-legend-item--network-node" />

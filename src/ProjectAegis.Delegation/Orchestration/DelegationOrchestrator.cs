@@ -1,6 +1,7 @@
 namespace ProjectAegis.Delegation.Orchestration;
 
 using Controllers;
+using Comms;
 using Core;
 using Decision;
 using Groups;
@@ -91,6 +92,12 @@ public sealed class DelegationOrchestrator
 
     private CommsGridRegistry? _commsGrid;
     private bool _commsGridResolved;
+    private readonly CommsGridRejoinReconciler _commsGridRejoinReconciler = new();
+
+    /// <summary>
+    /// C3-02 / DRG-391: Reconciles unit-local contact observations into the side picture upon comms-grid rejoin.
+    /// </summary>
+    public CommsGridRejoinReconciler CommsGridRejoinReconciler => _commsGridRejoinReconciler;
 
     /// <summary>
     /// C3-01 / DRG-390: Sim-authoritative per-unit comms-grid membership. Resolved lazily from
@@ -104,6 +111,7 @@ public sealed class DelegationOrchestrator
             {
                 _commsGrid = CommsGridRegistry.TryCreate(ScenarioPolicy);
                 _commsGridResolved = true;
+                SeedOffGridUnitsFromRegistry(_commsGrid);
             }
 
             return _commsGrid;
@@ -112,6 +120,7 @@ public sealed class DelegationOrchestrator
         {
             _commsGrid = value;
             _commsGridResolved = true;
+            SeedOffGridUnitsFromRegistry(_commsGrid);
         }
     }
 
@@ -130,16 +139,33 @@ public sealed class DelegationOrchestrator
             return null;
         }
 
-        AdvanceCommsGrid(grid, simTick);
+        AdvanceCommsGrid(grid, simTick, simTick);
         return OffGridOrderGate.Evaluate(grid, unitId);
     }
 
-    private void AdvanceCommsGrid(CommsGridRegistry grid, ulong simTick)
+    private void AdvanceCommsGrid(CommsGridRegistry grid, ulong simTick, double simTime)
     {
         var changes = grid.Advance(simTick);
         if (changes.Count > 0)
         {
             LastCommsGridChanges = changes;
+            _commsGridRejoinReconciler.ReconcileChanges(changes, DecisionLog, simTime);
+        }
+    }
+
+    private void SeedOffGridUnitsFromRegistry(CommsGridRegistry? grid)
+    {
+        if (grid == null)
+        {
+            return;
+        }
+
+        foreach (var unitId in grid.OffGridUnitIds)
+        {
+            if (grid.TryGetOffGridSince(unitId, out var sinceTick))
+            {
+                _commsGridRejoinReconciler.NotifyOffGrid(unitId, sinceTick);
+            }
         }
     }
 
@@ -186,6 +212,11 @@ public sealed class DelegationOrchestrator
     /// and the Unity bridge (DelegationBridge.TryEnqueueHumanOrder).
     /// </summary>
     public bool AttachReplayViewer { get; set; }
+
+    /// <summary>
+    /// DRG-245: Last simulation mode profile applied via <see cref="SimulationModeConfigurator.Apply"/>.
+    /// </summary>
+    public SimulationModeProfile? SimulationMode { get; internal set; }
 
     public SimulationPhase Phase { get; private set; } = SimulationPhase.Planning;
 
@@ -398,6 +429,59 @@ public sealed class DelegationOrchestrator
         return true;
     }
 
+    /// <summary>
+    /// DRG-247: suspend autonomous agent decisions for <paramref name="target"/> without clearing
+    /// tasking, changing <see cref="ControllerSlot.Active"/>, or emitting duplicate log entries.
+    /// </summary>
+    public bool TryPauseAgentActions(ICommandableTarget? target, double simTime)
+    {
+        if (AttachReplayViewer || target is null)
+        {
+            return false;
+        }
+
+        if (!ReferenceEquals(FindTarget(target.Id), target))
+        {
+            return false;
+        }
+
+        if (target.Slot.Active is not AgentController agent || agent.IsActionsPaused)
+        {
+            return false;
+        }
+
+        agent.PauseActions();
+        DecisionLog.AppendControllerChange(new ControllerChangeRecord(
+            0, simTime, target.Id, "Agent", "AgentPaused", agent.Id));
+        return true;
+    }
+
+    /// <summary>
+    /// DRG-247: restore autonomous agent decisions for <paramref name="target"/> when currently paused.
+    /// </summary>
+    public bool TryResumeAgentActions(ICommandableTarget? target, double simTime)
+    {
+        if (AttachReplayViewer || target is null)
+        {
+            return false;
+        }
+
+        if (!ReferenceEquals(FindTarget(target.Id), target))
+        {
+            return false;
+        }
+
+        if (target.Slot.Active is not AgentController agent || !agent.IsActionsPaused)
+        {
+            return false;
+        }
+
+        agent.ResumeActions();
+        DecisionLog.AppendControllerChange(new ControllerChangeRecord(
+            0, simTime, target.Id, "AgentPaused", "Agent", agent.Id));
+        return true;
+    }
+
     public GroupTarget? FindParentGroup(TargetId unitId)
     {
         foreach (var target in _targets)
@@ -469,6 +553,7 @@ public sealed class DelegationOrchestrator
         slot.Active switch
         {
             HumanController => "Human",
+            AgentController agent when agent.IsActionsPaused => "AgentPaused",
             AgentController => "Agent",
             null when slot.SuspendedAgent is not null => "AgentSuspended",
             _ => "None",
@@ -486,7 +571,7 @@ public sealed class DelegationOrchestrator
         var executed = new List<Order>();
         if (CommsGrid is { } commsGrid)
         {
-            AdvanceCommsGrid(commsGrid, simTick);
+            AdvanceCommsGrid(commsGrid, simTick, state.SimTime);
         }
 
         // Drain any orders previously approved by the player (DRG-66).
@@ -504,14 +589,18 @@ public sealed class DelegationOrchestrator
             switch (target.Slot.Active)
             {
                 case AgentController agent:
-                    agent.TryDecide(
-                        target.Id,
-                        state,
-                        memberCount,
-                        ref _orderIdSequence,
-                        _autonomyGate,
-                        DecisionLog,
-                        _pendingApprovalQueue);
+                    if (!agent.IsActionsPaused)
+                    {
+                        agent.TryDecide(
+                            target.Id,
+                            state,
+                            memberCount,
+                            ref _orderIdSequence,
+                            _autonomyGate,
+                            DecisionLog,
+                            _pendingApprovalQueue);
+                    }
+
                     executed.AddRange(agent.DrainIssuedOrders(simTick));
                     break;
                 case HumanController human:

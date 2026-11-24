@@ -1,29 +1,75 @@
+using ProjectAegis.Delegation.Core;
+using ProjectAegis.Delegation.UnityAdapter.Bridge;
 using ProjectAegis.Sim.Scenario;
 
 namespace ProjectAegis.Delegation.UnityAdapter.Presentation;
 
 /// <summary>
-/// DRG-251 / LOOP-05: readable loop-policy labels (fog model + personality edit policy) for the
-/// Planning and Executing top bar / briefing chrome. Presentation-only (ADR-010 projection side):
-/// pure function of the scenario policy, so labels change only when a scenario loads or its policy
-/// is rebound. No wall-clock, no sim mutation.
+/// DRG-251 / LOOP-05 / DRG-773 / DRG-717: readable loop-policy labels (fog model + personality
+/// edit policy) for the Planning and Executing top bar / briefing chrome. Presentation-only
+/// (ADR-010 §2–3 projection side): pure function of the scenario policy, so labels change only
+/// when a scenario loads or its policy is rebound. No wall-clock, no sim mutation.
 /// </summary>
 public static class LoopPolicyChromeBinder
 {
+    /// <summary>UXML element name for the fog-mode label on the top bar.</summary>
+    public const string FogModeElementName = "fog-mode-label";
+
+    /// <summary>UXML element name for the personality edit-policy label on the top bar.</summary>
+    public const string EditPolicyElementName = "edit-policy-label";
+
+    /// <summary>UXML element name for the dual-side test sandbox banner on the top bar (DRG-245).</summary>
+    public const string TestSandboxBannerElementName = "test-sandbox-banner";
+
+    /// <summary>Visible banner text when dual-side sandbox mode is active (DRG-245).</summary>
+    public const string TestSandboxBannerText = "TEST SANDBOX";
+
+    /// <summary>
+    /// Project loop-policy chrome from a live <see cref="DelegationBridge"/> without exposing
+    /// Sim scenario policy types to Unity hosts (DRG-773 / ADR-010 §3).
+    /// </summary>
+    public static LoopPolicyChromePresentation Project(DelegationBridge? bridge)
+    {
+        var profile = bridge?.Orchestrator.ScenarioPolicy;
+        var simulationMode = bridge?.Orchestrator.SimulationMode?.Kind;
+        return profile is not null
+            ? Bind(profile, simulationMode)
+            : Bind(PlayerInfoModel.FullTransparency, PersonalityEditPolicy.Anytime);
+    }
+
     /// <summary>Bind both loop-policy labels from a scenario policy profile.</summary>
-    public static LoopPolicyChromePresentation Bind(ScenarioPolicyProfile profile)
+    public static LoopPolicyChromePresentation Bind(ScenarioPolicyProfile profile) =>
+        Bind(profile, simulationMode: null);
+
+    /// <summary>
+    /// Bind loop-policy labels and the dual-side <c>TEST SANDBOX</c> banner from a scenario
+    /// policy profile and configured simulation mode (DRG-245).
+    /// </summary>
+    public static LoopPolicyChromePresentation Bind(ScenarioPolicyProfile profile, SimulationModeKind? simulationMode)
     {
         if (profile is null)
         {
             throw new ArgumentNullException(nameof(profile));
         }
 
-        return Bind(profile.PlayerInfoModel, profile.PersonalityEditPolicy);
+        var showDualSideSandboxBanner = profile.AllowDualSideControl && simulationMode == SimulationModeKind.Mixed;
+        return Bind(profile.PlayerInfoModel, profile.PersonalityEditPolicy, showDualSideSandboxBanner);
     }
 
     /// <summary>Bind both loop-policy labels from explicit policy values.</summary>
     public static LoopPolicyChromePresentation Bind(PlayerInfoModel playerInfoModel, PersonalityEditPolicy editPolicy) =>
-        new(FogModeLabelBinder.Bind(playerInfoModel), BindEditPolicy(editPolicy));
+        Bind(playerInfoModel, editPolicy, showDualSideTestSandboxBanner: false);
+
+    /// <summary>Bind loop-policy labels and dual-side sandbox banner flag from explicit values.</summary>
+    public static LoopPolicyChromePresentation Bind(
+        PlayerInfoModel playerInfoModel,
+        PersonalityEditPolicy editPolicy,
+        bool showDualSideTestSandboxBanner) =>
+        new(
+            FogModeLabelBinder.Bind(playerInfoModel),
+            BindEditPolicy(editPolicy),
+            showDualSideTestSandboxBanner,
+            showDualSideTestSandboxBanner ? TestSandboxBannerText : string.Empty);
 
     /// <summary>Bind the personality edit policy label.</summary>
     public static PersonalityEditPolicyPresentation BindEditPolicy(PersonalityEditPolicy policy) =>
@@ -39,5 +85,17 @@ public static class LoopPolicyChromeBinder
 /// <summary>Applied personality edit policy label for briefing/HUD hosts.</summary>
 public sealed record PersonalityEditPolicyPresentation(string Label, string CssClass);
 
-/// <summary>Both loop-policy labels for top bar / briefing chrome.</summary>
-public sealed record LoopPolicyChromePresentation(FogModePresentation Fog, PersonalityEditPolicyPresentation EditPolicy);
+/// <summary>Loop-policy labels and dual-side sandbox banner chrome for top bar / briefing chrome.</summary>
+public sealed record LoopPolicyChromePresentation(
+    FogModePresentation Fog,
+    PersonalityEditPolicyPresentation EditPolicy,
+    bool ShowDualSideTestSandboxBanner = false,
+    string TestSandboxBannerLabel = "")
+{
+    /// <summary>Placeholder state before a bridge or scenario policy is bound.</summary>
+    public static LoopPolicyChromePresentation Unknown { get; } = new(
+        new("FOG: —", "c2-topbar-item--fog-unknown"),
+        new("EDITS: —", "c2-topbar-item--edit-unknown"),
+        ShowDualSideTestSandboxBanner: false,
+        TestSandboxBannerLabel: string.Empty);
+}

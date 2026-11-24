@@ -19,10 +19,80 @@ public interface ICoordinationFacts
     /// <summary>Explicit group-to-package association; overlap alone never assigns a package.</summary>
     IReadOnlyList<CoordinationGroupPackageAssignment> Assignments =>
         Array.Empty<CoordinationGroupPackageAssignment>();
+
+    /// <summary>Optional authored escort links; unauthored falls back strictly to package escort elements.</summary>
+    IReadOnlyList<CoordinationEscortFact> Escorts =>
+        Array.Empty<CoordinationEscortFact>();
+
+    /// <summary>Optional authored shared-targeting commitments.</summary>
+    IReadOnlyList<CoordinationSharedTargetFact> SharedTargets =>
+        Array.Empty<CoordinationSharedTargetFact>();
 }
 
 /// <summary>Authored association between a runtime group and mission package.</summary>
 public sealed record CoordinationGroupPackageAssignment(string GroupId, string PackageId);
+
+/// <summary>Optional authored escort assignment for a task group.</summary>
+public sealed record CoordinationEscortFact(
+    string GroupId,
+    string EscortUnitId,
+    string ProtectedUnitId,
+    string CapabilityScope);
+
+/// <summary>Optional authored shared-targeting commitment for a task group.</summary>
+public sealed record CoordinationSharedTargetFact(
+    string GroupId,
+    string TargetId,
+    IReadOnlyList<string> AssignedUnitIds,
+    bool HasFireControlTrack,
+    string SourceRef);
+
+/// <summary>Projected escort responsibility within a task group.</summary>
+public sealed record CoordinationEscortAssignment(
+    string EscortUnitId,
+    string ProtectedUnitId,
+    string CapabilityScope,
+    CoordinationEffectState State);
+
+/// <summary>Projected sector responsibility derived from package coverage facts.</summary>
+public sealed record CoordinationSectorResponsibility(
+    string CoverageId,
+    string Label,
+    string OwnerUnitId,
+    string ElementId,
+    C2NodeRole? Role,
+    CoverageStatus Status,
+    string? SourceRef,
+    string? ReasonCode);
+
+/// <summary>Projected shared-targeting commitment across group members.</summary>
+public sealed record CoordinationSharedTargetAssignment(
+    string TargetId,
+    IReadOnlyList<string> AssignedUnitIds,
+    bool HasFireControlTrack,
+    string SourceKind,
+    string SourceRef);
+
+/// <summary>Extended group coordination metadata (escorting, sectors, shared targeting, controller posture).</summary>
+public sealed record CoordinationGroupDetails(
+    string ControllerKind,
+    Core.AutonomyLevel DelegationAutonomy,
+    bool PendingReplan,
+    bool IsOffGrid,
+    IReadOnlyList<CoordinationEscortAssignment> Escorts,
+    IReadOnlyList<CoordinationSectorResponsibility> Sectors,
+    IReadOnlyList<CoordinationSharedTargetAssignment> SharedTargets)
+{
+    /// <summary>Empty group coordination details when unauthored.</summary>
+    public static CoordinationGroupDetails Empty { get; } = new(
+        ControllerKind: "None",
+        DelegationAutonomy: Core.AutonomyLevel.Manual,
+        PendingReplan: false,
+        IsOffGrid: false,
+        Escorts: Array.Empty<CoordinationEscortAssignment>(),
+        Sectors: Array.Empty<CoordinationSectorResponsibility>(),
+        SharedTargets: Array.Empty<CoordinationSharedTargetAssignment>());
+}
 
 /// <summary>Observed result of one responsibility on one unit.</summary>
 public enum CoordinationEffectState
@@ -56,7 +126,8 @@ public sealed record CoordinationGroupSnapshot(
     TaskGroupCoordSnapshot Coordination,
     MissionIntentSnapshot Intent,
     IReadOnlyList<CoordinationEffect> Effects,
-    IReadOnlyList<CoordinationGap> Gaps);
+    IReadOnlyList<CoordinationGap> Gaps,
+    CoordinationGroupDetails? Details = null);
 
 /// <summary>Read-only coordination frame for every registered task group.</summary>
 public sealed record CoordinationSnapshot(IReadOnlyList<CoordinationGroupSnapshot> Groups)

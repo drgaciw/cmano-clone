@@ -7,13 +7,16 @@ using ProjectAegis.Delegation.Core;
 using ProjectAegis.Delegation.Decision;
 using ProjectAegis.Delegation.Orchestration;
 using ProjectAegis.Delegation.UnityAdapter.Bridge;
+using ProjectAegis.Delegation.UnityAdapter.C2Nodes;
+using ProjectAegis.Delegation.UnityAdapter.CommandReview;
 using ProjectAegis.Delegation.UnityAdapter.Gameplay;
+using ProjectAegis.Delegation.UnityAdapter.MissionIntent;
 using UnityEngine;
 
 namespace ProjectAegis.Unity.Runtime
 {
     [DisallowMultipleComponent]
-    public sealed class SimplePlayModeSimHost : MonoBehaviour, ISimWorldSnapshot, IOrderSink
+    public sealed class SimplePlayModeSimHost : MonoBehaviour, ISimWorldSnapshot, IOrderSink, ICoordinationFacts
     {
         public const string SmokeFriendlyUnitId = PlayModeSmokeOrbatSeeder.FriendlyUnitId;
         public const string SmokeHostileUnitId = PlayModeSmokeOrbatSeeder.HostileUnitId;
@@ -38,6 +41,7 @@ namespace ProjectAegis.Unity.Runtime
         private FixedStepFrameRunner? _frameRunner;
         private Func<bool> _canStep = null!;
         private Action _runStep = null!;
+        private readonly ICoordinationFacts _coordinationFacts = PlayModeSmokeCoordinationFactsProvider.CreateDefault();
 
         // S36-05: frame budget capture support (Unity specialist). Accumulates deltaTime for mean/p95 measurement in PlayMode / Editor host.
         private readonly List<double> _frameTimes = new();
@@ -56,6 +60,18 @@ namespace ProjectAegis.Unity.Runtime
         public bool ObserverRadarEmconActive => true;
 
         public IReadOnlyList<(EntityKey Entity, Order Order)> AppliedOrders => _applied;
+
+        /// <inheritdoc />
+        public IReadOnlyList<PackageDefinition> Packages => _coordinationFacts.Packages;
+
+        /// <inheritdoc />
+        public IReadOnlyList<CoverageFact> Coverage => _coordinationFacts.Coverage;
+
+        /// <inheritdoc />
+        public IReadOnlyList<MissionIntentInput> Intents => _coordinationFacts.Intents;
+
+        /// <inheritdoc />
+        public IReadOnlyList<CoordinationGroupPackageAssignment> Assignments => _coordinationFacts.Assignments;
 
         /// <summary>True after <see cref="SeedSmokeOrbat"/> registered members on the bridge registry.</summary>
         public bool OrbatSeeded => _orbatSeeded;
@@ -143,7 +159,7 @@ namespace ProjectAegis.Unity.Runtime
 
             _frameRunner?.Advance(
                 Time.unscaledDeltaTime,
-                bridgeHost.Session?.TimeAccelerationFactor ?? 1,
+                () => bridgeHost.Session?.TimeAccelerationFactor ?? 1,
                 _canStep,
                 _runStep);
         }
@@ -162,6 +178,7 @@ namespace ProjectAegis.Unity.Runtime
             PlayModeSmokeOrbatSeeder.AdvanceDecisionLog(
                 bridgeHost.Bridge.Orchestrator.DecisionLog,
                 _simTime);
+            bridgeHost.RefreshMessageNotifications();
         }
 
         /// <summary>S36-05: expose captured frame times for measurement doc / test (mean/p95 in ms). Call after N frames.</summary>

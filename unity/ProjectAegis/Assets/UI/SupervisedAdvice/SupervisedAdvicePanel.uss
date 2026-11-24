@@ -1,0 +1,73 @@
+@import url("../AegisTokens.uss");
+
+.supervised-advice-panel {
+    position: absolute;
+    right: 12px;
+    bottom: var(--c2-message-log-clearance);
+    width: 360px;
+    flex-direction: column;
+    padding: 8px;
+    background-color: var(--surface-panel-opaque);
+    border-width: 1px;
+    border-color: var(--border-panel);
+    border-radius: 4px;
+}
+
+.supervised-advice-header {
+    -unity-font-style: bold;
+    color: var(--text-heading);
+    margin-bottom: 4px;
+}
+
+.supervised-advice-rationale {
+    color: var(--text-body);
+    white-space: normal;
+    margin-bottom: 4px;
+}
+
+.supervised-advice-authority {
+    color: var(--text-muted);
+    white-space: normal;
+    margin-bottom: 4px;
+}
+
+.supervised-advice-evidence-list {
+    min-height: 48px;
+    max-height: 110px;
+    margin-bottom: 6px;
+}
+
+.supervised-advice-evidence-row {
+    color: var(--text-data);
+    white-space: normal;
+}
+
+.supervised-advice-optin-toggle {
+    color: var(--diff-changed);
+    margin-bottom: 6px;
+}
+
+.supervised-advice-actions {
+    flex-direction: row;
+    margin-bottom: 4px;
+}
+
+.supervised-advice-button {
+    flex-grow: 1;
+    margin-right: 4px;
+}
+
+.supervised-advice-accept:disabled {
+    opacity: var(--diff-pending-opacity);
+}
+
+.supervised-advice-status {
+    color: var(--text-muted);
+    white-space: normal;
+}
+
+.supervised-advice-button:focus,
+.supervised-advice-optin-toggle:focus {
+    border-width: var(--focus-ring-width);
+    border-color: var(--focus-ring);
+}

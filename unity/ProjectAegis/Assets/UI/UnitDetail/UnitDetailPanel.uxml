@@ -3,6 +3,14 @@
         <ui:Label text="UNIT DETAIL" class="unit-detail-title" />
         <ui:Label name="unit-id-line" text="UNIT: —" class="unit-detail-line" />
         <ui:Label name="status-line" text="STATUS: —" class="unit-detail-line" />
+        <ui:Label name="unit-control-status" text="CONTROL: —" class="unit-detail-line unit-detail-control-status" />
+        <ui:VisualElement name="unit-control-actions" class="unit-detail-control-actions">
+            <ui:Button name="unit-take-control" text="Take Control" class="unit-detail-control-btn" />
+            <ui:Button name="unit-return-to-agent" text="Return to Agent" class="unit-detail-control-btn" />
+            <ui:Button name="unit-pause-agent" text="Pause Agent" class="unit-detail-control-btn" />
+            <ui:Button name="unit-resume-agent" text="Resume Agent" class="unit-detail-control-btn" />
+        </ui:VisualElement>
+        <ui:Label name="unit-control-feedback" text="" class="unit-detail-line unit-detail-control-feedback" />
         <ui:Label name="comms-line" text="COMMS: —" class="unit-detail-line unit-detail-line--comms" />
         <ui:Label name="magazine-line" text="MAGAZINE: —" class="unit-detail-line" />
         <ui:Label name="emcon-line" text="EMCON: —" class="unit-detail-line" />
@@ -21,6 +29,9 @@
             </ui:VisualElement>
             <ui:Button name="attack-hold-fire" text="Hold fire" class="unit-detail-attack-btn" />
         </ui:VisualElement>
+        <ui:Label name="commit-strip-constraints" text="COMMIT: —" class="unit-detail-line commit-strip-cue--empty" />
+        <ui:Label name="commit-strip-cost" text="COST: —" class="unit-detail-line commit-strip-cue--empty" />
+        <ui:Label name="commit-bark-line" text="" class="unit-detail-line commit-bark-line" />
         <ui:Label name="contact-line" text="CONTACT: —" class="unit-detail-line unit-detail-line--contact" />
     </ui:VisualElement>
 </ui:UXML>

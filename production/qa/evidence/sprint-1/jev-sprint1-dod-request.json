@@ -1,0 +1,54 @@
+{
+  "state": "Project Aegis Sprint 1 DoD Gate Evaluation (2026-11-22), branch sprint/s1-hygiene-wiring (stacked on uat/round5-jev-decisions 328238af). All 7 non-held Sprint 1 Linear issues implemented via 3 parallel TDD subagents (WIP=3 <= 4, disjoint file surfaces) and verified headlessly and in live Unity 6000.3.27f2 Play Mode via Unity MCP (:8081). DELIVERED: (1) DRG-772: Removed ProjectAegis.MissionEditor.Cli -> ProjectAegis.Ai.Host in-process ProjectReference; Ai.Host is now standalone Exe speaking stdin/stdout JSON via ProjectAegis.Ai.Contracts DTOs invoked by AiHostProcessClient; zero Microsoft.Extensions.AI or Ai.Host DLLs in CLI output; CsprojReferenceGraphPinTests + AiHostProcessBoundaryTests RED->GREEN; waiver-mission-editor-cli-ai-host-2026-11-16.md marked Exited; DRG-728 kept open. (2) DRG-773 & DRG-717: Added LoopPolicyChromeBinder.Project(DelegationBridge) + FogMode/EditPolicy labels; removed using ProjectAegis.Sim.Scenario and direct Orchestrator.ScenarioPolicy reads from C2TopBarPanelHost.cs; ratcheted UnitySimImportForbidTests allowlist 3 -> 2 hosts; waiver-c2-topbar-sim-read-2026-11-16.md marked Exited; live Play Mode verified 'FOG: FULL PICTURE | EDITS: ANYTIME'. (3) DRG-370: Fixed CommitRefusalBarkBinder to coalesce correlated PolicyDenialRecord + synthetic not-launched EngagementRecord into one DROPPED bark and put fallback UNSPECIFIED in both bark and MessageLogLine (RED->GREEN); wired commit-strip-constraints, commit-strip-cost, commit-bark-line into RightUnitPanelHost.cs + UnitDetailPanel.uxml/.uss via read-only RightUnitCommitProjection; CommitStripProjectionFenceTests green; live Play Mode verified 'COMMIT: READY | COST: 1 rd | MAG 4 -> 3'. (4) DRG-351: Added ADR-010 presentation-only RuntimeTooltipPresenter on RightUnitPanelHost showing .tooltip on focus/hover and hiding on blur/leave; verified in Unity PlayMode test (Focus/Blur + MouseEnter/MouseLeave). (5) DRG-239: Added PlayModeSmokeCoordinationFactsProvider (CommandReview namespace, NamespaceSccBaselineTests 2/2 acyclic) + PlayModeSmokeOrbatSeeder.TrySeedWithEscortTaskGroup with named task group tg-baltic-escort, roles, mission intent, and source-labelled finite [0..1] coverage polygons; 7 headless tests + 2 Unity PlayMode CoverageMapView tests (Hold expansion + detached CoverageStatus.Gap) RED->GREEN. (6) DRG-781: Verified manifest.json, manifest.template.json, packages-lock.json 0 drift (Code Coverage 1.3.0, Profile Analyzer 1.4.2, Memory Profiler 1.1.12; Input System MCP removed; UnityPackageManifestMirrorTests 1/1 PASS). MECHANICAL GATES: dotnet build ProjectAegis.sln 0 Warnings / 0 Errors; dotnet test ProjectAegis.sln 4,706 passed / 0 failed across all 9 projects (+35 new tests); PlayModeSmokeHarnessTests 27/27; ReplayGolden 17/17; Baltic v2 hash 17144800277401907079 unchanged; zero Sprint 1 edits on hard-no files (DelegationBridge.cs 0 diff vs main, CatalogWriteGate, SimulationSession, MapPlaceholderPanelHost, GlobeMapProductHost); shipped catalog DB sha256 hashes byte-identical (82d26212..., 75ea357a...); netstandard2.1 DLLs copied via tools/copy-delegation-assemblies.sh; Unity PlayMode ProjectAegis.Unity.Tests via MCP tests-run: 27/27 passed, 0 failed (+5 new PlayMode tests); live DelegationSmoke Play Mode 0 console errors + screenshot production/qa/evidence/sprint-1/s1-ui-wiring-playmode.png. Linear status NOT moved to Done (H2 honored); owner Play Mode walk preserved as owner-only (H6/C10).",
+  "questions": {
+    "h1_c1_build_and_suite": {
+      "type": "noul",
+      "instructions": "Does the evidence show zero build warnings/errors and full headless test suite green (4,706/0 across 9 projects)?"
+    },
+    "h3_h4_invariants": {
+      "type": "noul",
+      "instructions": "Does the evidence show all hard-no files untouched in Sprint 1, ReplayGolden 17/17 passing, and Baltic v2 hash 17144800277401907079 unchanged?"
+    },
+    "h5_c8_tdd_and_fences": {
+      "type": "noul",
+      "instructions": "Does the evidence show strict RED->GREEN TDD tests and ADR-010/030 source-fence / boundary-pin tests across all Sprint 1 stories?"
+    },
+    "c4_c13_playmode_unity": {
+      "type": "noul",
+      "instructions": "Does the evidence show 0 Unity Console errors in live Play Mode and 100% pass (27/27, 0 failures) on ProjectAegis.Unity.Tests PlayMode?"
+    },
+    "c9_c11_ui_wiring_live": {
+      "type": "noul",
+      "instructions": "Does the evidence show the new Sprint 1 UI wiring (EDITS: ANYTIME, COMMIT: READY, COST, RuntimeTooltipPresenter, task-group CoverageMapView) verified live in Play Mode with screenshots?"
+    },
+    "c12_shipped_data": {
+      "type": "noul",
+      "instructions": "Does the evidence show shipped catalog DB files remained byte-identical?"
+    },
+    "h2_h6_governance": {
+      "type": "noul",
+      "instructions": "Does the evidence honor H2 (Linear not marked Done prior to PR merge) and H6 (owner Play Mode walk preserved as owner-only)?"
+    },
+    "scored_s1_s6_pass": {
+      "type": "noul",
+      "instructions": "Does Sprint 1 meet the Notion scored criteria S1-S6 >= 9/12 (clean diff, accurate ADR/waiver exits, Linear evidence comments, honest scope, production-path tests)?"
+    },
+    "more_rounds": {
+      "type": "score",
+      "instructions": "How many more TDD/verification rounds does Sprint 1 need before checkpointing with the owner?",
+      "criteria": [
+        "0 rounds (Sprint 1 DoD met)",
+        "1 round",
+        "2 rounds"
+      ]
+    },
+    "sprint1_verdict": {
+      "type": "choice",
+      "instructions": "What is the Sprint 1 DoD gate verdict?",
+      "criteria": {
+        "pass_checkpoint_owner": "PASS: All Sprint 1 agent-owned DoD gates met; checkpoint with owner for commit/PR review and Sprint 2 GO",
+        "needs_more_tdd": "FAIL: Run another TDD round in Sprint 1 before checkpointing"
+      }
+    }
+  }
+}

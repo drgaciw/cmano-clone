@@ -16,20 +16,24 @@ public static class ContactDetailApplyState
         return new ContactDetailPresentation(
             ContactIdLine: $"CONTACT: {entry.ContactId}",
             TargetIdLine: $"TARGET: {entry.TargetId}",
-            ClassificationLine: entry.ClassificationLine ?? string.Empty,
-            ConfidenceLine: entry.ConfidenceLine ?? string.Empty,
-            DetectionProvenanceLine: entry.DetectionProvenanceLine ?? string.Empty,
-            WraLine: entry.WraLine ?? string.Empty,
-            BdaLine: entry.BdaLine ?? string.Empty,
-            StalenessLine: entry.StalenessLine ?? string.Empty,
-            LifecycleLine: $"STATE: {entry.LifecycleState}");
+            ClassificationLine: entry.ClassificationLine,
+            ConfidenceLine: entry.ConfidenceLine,
+            DetectionProvenanceLine: entry.DetectionProvenanceLine,
+            WraLine: entry.WraLine,
+            BdaLine: entry.BdaLine,
+            StalenessLine: entry.StalenessLine,
+            LifecycleLine: $"STATE: {entry.LifecycleState}",
+            OverrideStatusLine: entry.OverrideStatusLine,
+            OperatorAffiliation: entry.OperatorAffiliation,
+            IsOperatorDropped: entry.IsOperatorDropped);
     }
 
     public static ContactDetailPresentation ProjectAndApply(
         string? contactId,
         IReadOnlyList<ContactPictureEntry> contacts,
         ulong currentSimTick,
-        string? bdaLifecycleOverride = null)
+        string? bdaLifecycleOverride = null,
+        ContactOverrideEntry? operatorOverride = null)
     {
         if (string.IsNullOrEmpty(contactId))
         {
@@ -40,7 +44,8 @@ public static class ContactDetailApplyState
             contactId,
             contacts,
             currentSimTick,
-            bdaLifecycleOverride);
+            bdaLifecycleOverride,
+            operatorOverride);
         return Apply(entry);
     }
 }
@@ -55,7 +60,10 @@ public sealed record ContactDetailPresentation(
     string WraLine,
     string BdaLine,
     string StalenessLine,
-    string LifecycleLine)
+    string LifecycleLine,
+    string OverrideStatusLine = "OVERRIDE: —",
+    string? OperatorAffiliation = null,
+    bool IsOperatorDropped = false)
 {
     public static ContactDetailPresentation Empty { get; } = new(
         "CONTACT: —",

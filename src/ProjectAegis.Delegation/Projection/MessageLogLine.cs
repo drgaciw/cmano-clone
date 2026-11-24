@@ -6,4 +6,7 @@ public sealed record MessageLogLine(
     double SimTime,
     string Category,
     string Text,
-    string? UnitId = null);
+    string? UnitId = null,
+    string? ActorId = null,
+    string? AgentId = null,
+    string? SourceKind = null);

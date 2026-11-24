@@ -5,15 +5,15 @@ using NUnit.Framework;
 
 /// <summary>
 /// Forbids new direct <c>using ProjectAegis.Sim...</c> imports in Unity Runtime scripts
-/// (ADR-010 projection boundary). Existing three hosts are frozen as an allowlist baseline
-/// (DRG-771 Lane C / CMA-30). Hard-no hosts stay listed; this lane does not edit them.
+/// (ADR-010 projection boundary). Remaining two hosts are frozen as an allowlist baseline
+/// (DRG-771 Lane C / CMA-30; ratcheted down from 3 to 2 when DRG-773 removed C2TopBarPanelHost).
+/// Hard-no hosts stay listed; this lane does not edit them.
 /// </summary>
 public sealed class UnitySimImportForbidTests
 {
     private static readonly string[] BaselineRelativePaths =
     {
         "unity/ProjectAegis/Assets/Scripts/Runtime/MapPlaceholderPanelHost.cs",
-        "unity/ProjectAegis/Assets/Scripts/Runtime/C2TopBarPanelHost.cs",
         "unity/ProjectAegis/Assets/Scripts/Runtime/DelegationBridgeHost.cs",
     };
 
@@ -22,9 +22,9 @@ public sealed class UnitySimImportForbidTests
         RegexOptions.Compiled | RegexOptions.Multiline | RegexOptions.CultureInvariant);
 
     [Test]
-    public void Baseline_is_exactly_three_unity_runtime_hosts()
+    public void Baseline_is_exactly_two_unity_runtime_hosts()
     {
-        Assert.That(BaselineRelativePaths.Length, Is.EqualTo(3));
+        Assert.That(BaselineRelativePaths.Length, Is.EqualTo(2));
     }
 
     [Test]
@@ -61,7 +61,7 @@ public sealed class UnitySimImportForbidTests
                 .Select(p => Path.GetFullPath(p!)),
             StringComparer.OrdinalIgnoreCase);
 
-        Assert.That(baselineFull.Count, Is.EqualTo(3));
+        Assert.That(baselineFull.Count, Is.EqualTo(2));
 
         var offenders = new List<string>();
         foreach (var file in Directory.EnumerateFiles(runtimeRoot, "*.cs", SearchOption.AllDirectories))

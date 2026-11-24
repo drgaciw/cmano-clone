@@ -1,5 +1,8 @@
+using ProjectAegis.Delegation.Core;
 using ProjectAegis.Delegation.Decision;
 using ProjectAegis.Delegation.Projection;
+using ProjectAegis.Sim.Engage;
+using ProjectAegis.Sim.Policy;
 
 namespace ProjectAegis.Delegation.UnityAdapter.Presentation;
 
@@ -117,12 +120,20 @@ public static class CommitRefusalBarkBinder
         bark = null;
         string code;
         string unitId;
+        var usedUnspecifiedFallback = false;
         switch (entry.Payload)
         {
             case EngagementRecord { Launched: false } engagement when entry.Kind == OrderLogEntryKind.Engagement:
-                code = string.IsNullOrWhiteSpace(engagement.AbortReasonCode)
-                    ? UnspecifiedCode
-                    : engagement.AbortReasonCode!;
+                if (string.IsNullOrWhiteSpace(engagement.AbortReasonCode))
+                {
+                    code = UnspecifiedCode;
+                    usedUnspecifiedFallback = true;
+                }
+                else
+                {
+                    code = engagement.AbortReasonCode!;
+                }
+
                 unitId = engagement.ShooterTargetId.Value;
                 break;
             case PolicyDenialRecord denial when entry.Kind == OrderLogEntryKind.PolicyDenial:
@@ -139,6 +150,12 @@ public static class CommitRefusalBarkBinder
             return false;
         }
 
+        var logLine = lines[0];
+        if (usedUnspecifiedFallback && !logLine.Text.Contains(UnspecifiedCode, StringComparison.Ordinal))
+        {
+            logLine = logLine with { Text = $"{logLine.Text.TrimEnd()} {UnspecifiedCode}" };
+        }
+
         bark = new CommitRefusalBark(
             CommitBarkKind.Dropped,
             code,
@@ -146,12 +163,16 @@ public static class CommitRefusalBarkBinder
             null,
             $"{unitId} DROPPED: {code}",
             CommitRefusalBarkCueClasses.Dropped,
-            lines[0],
+            logLine,
             IsFireOrder: false);
         return true;
     }
 
-    /// <summary>Drop barks for <paramref name="entries"/> in log order, optionally for one unit.</summary>
+    /// <summary>
+    /// Drop barks for <paramref name="entries"/> in log order, optionally for one unit.
+    /// Correlated <see cref="PolicyDenialRecord"/> + synthetic not-launched <see cref="EngagementRecord"/>
+    /// pairs for the same denied engage order coalesce into one <see cref="CommitBarkKind.Dropped"/> bark.
+    /// </summary>
     public static IReadOnlyList<CommitRefusalBark> ProjectDropped(
         IReadOnlyList<OrderLogEntry> entries,
         string? unitId = null)
@@ -161,9 +182,15 @@ public static class CommitRefusalBarkBinder
             throw new ArgumentNullException(nameof(entries));
         }
 
+        var coalescedDenialIndexes = FindCoalescedPolicyDenialIndexes(entries);
         var barks = new List<CommitRefusalBark>();
         for (var i = 0; i < entries.Count; i++)
         {
+            if (coalescedDenialIndexes is not null && coalescedDenialIndexes.Contains(i))
+            {
+                continue;
+            }
+
             if (TryDropped(entries[i], out var bark)
                 && (unitId is null || string.Equals(bark!.UnitId, unitId, StringComparison.Ordinal)))
             {
@@ -184,4 +211,107 @@ public static class CommitRefusalBarkBinder
 
         return new CommitRefusalBarkRow(BarkElementName, bark.BarkText, bark.CueClass);
     }
+
+    private static HashSet<int>? FindCoalescedPolicyDenialIndexes(IReadOnlyList<OrderLogEntry> entries)
+    {
+        HashSet<int>? coalesced = null;
+        HashSet<int>? matchedEngagements = null;
+
+        for (var i = 0; i < entries.Count; i++)
+        {
+            var denialEntry = entries[i];
+            if (denialEntry.Kind != OrderLogEntryKind.PolicyDenial
+                || denialEntry.Payload is not PolicyDenialRecord denial
+                || denial.AttemptedKind != OrderKind.Engage)
+            {
+                continue;
+            }
+
+            for (var j = i + 1; j < entries.Count; j++)
+            {
+                if (matchedEngagements is not null && matchedEngagements.Contains(j))
+                {
+                    continue;
+                }
+
+                var engEntry = entries[j];
+                if (engEntry.Kind != OrderLogEntryKind.Engagement
+                    || engEntry.Payload is not EngagementRecord { Launched: false } engagement)
+                {
+                    continue;
+                }
+
+                if (!IsCorrelatedPolicyDrop(denialEntry, denial, engEntry, engagement))
+                {
+                    continue;
+                }
+
+                (coalesced ??= new HashSet<int>()).Add(i);
+                (matchedEngagements ??= new HashSet<int>()).Add(j);
+                break;
+            }
+        }
+
+        return coalesced;
+    }
+
+    private static bool IsCorrelatedPolicyDrop(
+        OrderLogEntry denialEntry,
+        PolicyDenialRecord denial,
+        OrderLogEntry engagementEntry,
+        EngagementRecord engagement)
+    {
+        if (denial.SimTick != engagement.SimTick
+            || !denial.SimTime.Equals(engagement.SimTime)
+            || !string.Equals(denial.TargetId.Value, engagement.ShooterTargetId.Value, StringComparison.Ordinal))
+        {
+            return false;
+        }
+
+        if (denialEntry.SequenceId != 0
+            && engagementEntry.SequenceId != 0
+            && denialEntry.SequenceId >= engagementEntry.SequenceId)
+        {
+            return false;
+        }
+
+        return ReasonMatches(denial.Reason, engagement.AbortReasonCode);
+    }
+
+    private static bool ReasonMatches(FireAbortReason denialReason, string? engagementAbortCode)
+    {
+        if (string.IsNullOrWhiteSpace(engagementAbortCode))
+        {
+            return false;
+        }
+
+        if (string.Equals(denialReason.ToString(), engagementAbortCode, StringComparison.OrdinalIgnoreCase))
+        {
+            return true;
+        }
+
+        var mapped = MapToEngagementAbortReason(denialReason);
+        return mapped != EngagementAbortReason.None
+            && string.Equals(
+                EngagementAbortReasonCodes.ToLogCode(mapped),
+                engagementAbortCode,
+                StringComparison.Ordinal);
+    }
+
+    private static EngagementAbortReason MapToEngagementAbortReason(FireAbortReason reason) =>
+        reason switch
+        {
+            FireAbortReason.RoeHoldFire => EngagementAbortReason.RoeHoldFire,
+            FireAbortReason.WeaponsTight => EngagementAbortReason.WeaponsTight,
+            FireAbortReason.WraSalvo => EngagementAbortReason.WraSalvo,
+            FireAbortReason.EmconOff => EngagementAbortReason.EmconOff,
+            FireAbortReason.NoFireControlTrack => EngagementAbortReason.NoFireControlTrack,
+            FireAbortReason.AirAspectBlock => EngagementAbortReason.AirAspectBlock,
+            FireAbortReason.SurfaceAspectBlock => EngagementAbortReason.SurfaceAspectBlock,
+            FireAbortReason.SubsurfaceAspectBlock => EngagementAbortReason.SubsurfaceAspectBlock,
+            FireAbortReason.LandAspectBlock => EngagementAbortReason.LandAspectBlock,
+            FireAbortReason.MineAspectBlock => EngagementAbortReason.MineAspectBlock,
+            FireAbortReason.FacilityAspectBlock => EngagementAbortReason.FacilityAspectBlock,
+            _ => EngagementAbortReason.None,
+        };
 }

@@ -113,6 +113,74 @@ public sealed class CommitRefusalBarkBinderTests
 
         Assert.That(CommitRefusalBarkBinder.TryDropped(entry, out var bark), Is.True);
         Assert.That(bark!.ReasonCode, Is.EqualTo(CommitRefusalBarkBinder.UnspecifiedCode));
+        Assert.That(bark.BarkText, Is.EqualTo("u1 DROPPED: UNSPECIFIED"));
+        Assert.That(bark.LogLine.Text, Does.Contain(CommitRefusalBarkBinder.UnspecifiedCode),
+            "DRG-370: fallback UNSPECIFIED code must appear in both the bark and the MessageLogLine.");
+    }
+
+    [TestCase(null)]
+    [TestCase("")]
+    [TestCase("   ")]
+    public void Dropped_engagement_with_blank_code_puts_unspecified_in_both_bark_and_log_line(string? rawCode)
+    {
+        var entry = OrderLogEntryFactories.FromEngagement(
+            new EngagementRecord(2, 2.0, 20, new TargetId("u1"), 6, Launched: false, AbortReasonCode: rawCode),
+            sequenceId: 2);
+
+        Assert.That(CommitRefusalBarkBinder.TryDropped(entry, out var bark), Is.True);
+        Assert.That(bark!.ReasonCode, Is.EqualTo(CommitRefusalBarkBinder.UnspecifiedCode));
+        Assert.That(bark.BarkText, Does.Contain(CommitRefusalBarkBinder.UnspecifiedCode));
+        Assert.That(bark.LogLine.Text, Does.Contain(CommitRefusalBarkBinder.UnspecifiedCode));
+    }
+
+    [Test]
+    public void Project_dropped_coalesces_correlated_policy_denial_and_synthetic_engagement_into_one_bark()
+    {
+        var entries = new[]
+        {
+            OrderLogEntryFactories.FromPolicyDenial(
+                new PolicyDenialRecord(10, 5.0, 50, new AgentId("a1"), new TargetId("u1"), 1, FireAbortReason.WeaponsTight, OrderKind.Engage),
+                sequenceId: 10),
+            OrderLogEntryFactories.FromEngagement(
+                new EngagementRecord(11, 5.0, 50, new TargetId("u1"), EngagementId: 0, Launched: false, AbortReasonCode: AbortReasonCatalog.Engage.ROE_WEAPONS_TIGHT),
+                sequenceId: 11),
+        };
+
+        var barks = CommitRefusalBarkBinder.ProjectDropped(entries, unitId: "u1");
+
+        Assert.That(barks, Has.Count.EqualTo(1),
+            "DRG-370: correlated PolicyDenialRecord + synthetic not-launched EngagementRecord must coalesce into one DROPPED bark.");
+        Assert.That(barks[0].Kind, Is.EqualTo(CommitBarkKind.Dropped));
+        Assert.That(barks[0].ReasonCode, Is.EqualTo(AbortReasonCatalog.Engage.ROE_WEAPONS_TIGHT));
+        Assert.That(barks[0].BarkText, Is.EqualTo("u1 DROPPED: ROE_WEAPONS_TIGHT"));
+        Assert.That(barks[0].LogLine.SequenceId, Is.EqualTo(11UL));
+    }
+
+    [Test]
+    public void Project_dropped_does_not_coalesce_unrelated_denial_and_engagement()
+    {
+        var entries = new[]
+        {
+            OrderLogEntryFactories.FromPolicyDenial(
+                new PolicyDenialRecord(10, 5.0, 50, new AgentId("a1"), new TargetId("u1"), 1, FireAbortReason.WeaponsTight, OrderKind.Engage),
+                sequenceId: 10),
+            OrderLogEntryFactories.FromEngagement(
+                new EngagementRecord(11, 5.0, 50, new TargetId("u1"), EngagementId: 1, Launched: false, AbortReasonCode: AbortReasonCatalog.Engage.DLZ_OUT),
+                sequenceId: 11),
+            OrderLogEntryFactories.FromEngagement(
+                new EngagementRecord(12, 6.0, 60, new TargetId("u1"), EngagementId: 0, Launched: false, AbortReasonCode: AbortReasonCatalog.Engage.ROE_WEAPONS_TIGHT),
+                sequenceId: 12),
+        };
+
+        var barks = CommitRefusalBarkBinder.ProjectDropped(entries, unitId: "u1");
+
+        Assert.That(barks, Has.Count.EqualTo(3));
+        Assert.That(barks.Select(b => b.ReasonCode), Is.EqualTo(new[]
+        {
+            nameof(FireAbortReason.WeaponsTight),
+            AbortReasonCatalog.Engage.DLZ_OUT,
+            AbortReasonCatalog.Engage.ROE_WEAPONS_TIGHT,
+        }));
     }
 
     [Test]

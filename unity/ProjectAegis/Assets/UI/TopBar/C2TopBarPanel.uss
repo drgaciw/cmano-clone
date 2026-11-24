@@ -132,6 +132,28 @@
     color: rgb(160, 175, 190);
 }
 
+/* DRG-717: loop personality edit-policy chrome on the top bar. */
+.c2-topbar-item--edit {
+    -unity-font-style: bold;
+    font-size: 11px;
+}
+
+.c2-topbar-item--edit-anytime {
+    color: rgb(110, 200, 150);
+}
+
+.c2-topbar-item--edit-planning {
+    color: rgb(240, 180, 80);
+}
+
+.c2-topbar-item--edit-tiered {
+    color: rgb(180, 150, 240);
+}
+
+.c2-topbar-item--edit-unknown {
+    color: rgb(160, 175, 190);
+}
+
 .c2-topbar-item--comms {
     -unity-font-style: bold;
 }
@@ -206,4 +228,24 @@
 .c2-topbar-item--mode-observer {
     color: rgb(240, 180, 80);
     -unity-font-style: bold;
+}
+
+/* DRG-245: dual-side TEST SANDBOX banner — visible only when AllowDualSideControl && Mixed. */
+.c2-topbar-sandbox-banner {
+    display: none;
+    align-self: stretch;
+    margin-bottom: 4px;
+    padding: 2px 8px;
+    background-color: rgba(140, 84, 14, 0.92);
+    border-width: 1px;
+    border-color: rgb(245, 184, 65);
+    color: rgb(255, 240, 200);
+    font-size: 11px;
+    -unity-font-style: bold;
+    -unity-text-align: middle-center;
+    letter-spacing: 1px;
+}
+
+.c2-topbar-sandbox-banner--visible {
+    display: flex;
 }

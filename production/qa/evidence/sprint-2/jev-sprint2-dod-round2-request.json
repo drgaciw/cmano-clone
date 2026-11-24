@@ -1,0 +1,71 @@
+{
+  "model": "typesafe/jev-1.14",
+  "state": "Project Aegis Sprint 2 DoD Gate Round 2 (2026-11-22), branch sprint/s2-c2-combat-ux stacked on sprint/s1-hygiene-wiring (d0fde4af). Round 1 (gen-dec-1795376894-pxH7SSftfPg5oay0cR6N) passed verdict pass_owner_walk (0.97) and scored_s1_s6_pass (0.96), flagging 3 items needing verbatim test/breakdown detail: (A) H1/C1 BREAKDOWN: dotnet build ProjectAegis.sln -> Build succeeded, 0 Warning(s), 0 Error(s); Release/netstandard2.1 -> Build succeeded, 0 Warning(s), 0 Error(s); dotnet format 0 issues; dotnet test ProjectAegis.sln -v minimal -> 4,800/4,800 passed, 0 failed, 0 skipped across all 9 test assemblies (Ai.Contracts.Tests 18, Delegation.Demo.Tests 15, Sim.Tests 652, Ai.Host.Tests 80, Delegation.Tests 1524, Delegation.UnityAdapter.Tests 1368, Data.Excel.Tests 24, MissionEditor.Cli.Tests 168, Data.Tests 951; >=4,706 floor). (B) C15 REPLAY MUTATION REFUSAL PROOF ACROSS ALL 5 ISSUES: DRG-247 Control_commands_refuse_replay_viewer_and_uncommanded_target + Right_unit_panel_disables_control_buttons_with_reason_under_attach_replay_viewer (PlayMode); DRG-272 AttachReplayViewer_refuses_reclassify_and_drop_with_zero_log_writes + AttachReplayViewer_disables_override_controls_and_shows_reason_with_zero_log_writes (PlayMode); DRG-408 Evaluate_under_AttachReplayViewer_suppresses_pause_and_1x_commands_with_zero_mutations + ReplayViewer_attached_blocks_policy_edits_and_suppresses_fogged_alerts (PlayMode); DRG-398 AttachReplayViewer_refuses_C2ClockCommand_TrySetAcceleration_TryPause_TryResume_and_ApplyNotificationStop + TopBar_preserves_sandbox_banner_and_disables_clock_under_AttachReplayViewer (PlayMode); DRG-273 MessageLogBridge_InspectDecisionLogLive_matches_live_view_and_omits_fogged_decisions + InspectDecisionLogReplay strictly read-only. (C) C16 FOG & SELECTION HYGIENE PROOF: DRG-712 Selection_switch_clears_previous_contact_and_unit_cues_with_zero_leak + Selection_switch_clears_previous_contact_and_unit_badges_in_play_mode (PlayMode); DRG-408 Evaluate_consuming_ProjectLive_never_leaks_fogged_FullAutonomous_decisions + ReplayViewer_attached_blocks_policy_edits_and_suppresses_fogged_alerts (PlayerInfoModel.DelegationFog produces 0 alerts/balloons/pauses); DRG-273 MessageLogBridge.InspectDecisionLogLive omits fogged decisions (zero existence oracle). ATOMIC CODE COMMITS ON BRANCH: Commit 1 960007df (46 files, DRG-247/272), Commit 2 da173102 (21 files, DRG-712/245), Commit 3 738c6c1c (48 files, DRG-408/398/273); sprint/s1-hygiene-wiring untouched at d0fde4af. HELD ITEMS (hold:owner-go, 0 wiring): DRG-268 & DRG-269. INVARIANTS: ReplayGolden 17/17; PlayModeSmokeHarnessTests 27/27; Arch fences 61/61; Meta/UI integrity 6/6; Baltic v2 hash 17144800277401907079 (26 hits); hard-no 0 diff (DelegationBridge.cs, WriteGate/, SimulationSession.cs, GlobeMapProductHost.cs, MapPlaceholderPanelHost.cs, DelegationSmoke.unity); catalog DB SHA-256 identical (82d26212..., 75ea357a...); bash tools/copy-delegation-assemblies.sh 15 DLLs. LIVE UNITY (:8081): compile 0 errors & 0 Sprint-2 USS warnings; ProjectAegis.Unity.Tests 43/43 PASSED (27 Sprint 1 + 16 Sprint 2 across all 7 PlayMode classes); DelegationSmoke.unity UatHarness.cs sweep exercised all 7 features + 4 PNGs in production/qa/evidence/sprint-2/ (s2-drg247-unit-control.png, s2-drg272-contact-override.png, s2-drg712-drg245-cues-sandbox.png, s2-drg408-398-273-policy-safestop-deeplink.png); 0 Console Errors/Exceptions. GOVERNANCE: s2-c8-red-evidence.md + unity-csharp-architect pr-finish.md PASS in dod-rubric-sprint-s2.md (ADR-010/007/001/029/030, zero ADR-018); 7 Linear comments posted (status Backlog, never Done): DRG-247 e0ffd6ad, DRG-272 7eda1128, DRG-712 af5074e2, DRG-408 b790c762, DRG-398 57cff66d, DRG-273 0d5079ff, DRG-245 102b8a68; H6 owner PR/walk reserved; S1-S6 12/12 agent-owned.",
+  "questions": {
+    "h1_c1_build_and_suite": {
+      "type": "noul",
+      "instructions": "Does the evidence show zero build warnings/errors (net11.0 and Release/netstandard2.1) and full headless suite green (4,800/4,800 passed, 0 failed across all 9 test assemblies)?"
+    },
+    "h3_h4_invariants": {
+      "type": "noul",
+      "instructions": "Does the evidence show hard-no surfaces untouched (0 diff), DRG-268/DRG-269 hold:owner-go unimplemented, ReplayGolden 17/17 passing, and Baltic v2 hash 17144800277401907079 unchanged?"
+    },
+    "h5_c8_tdd_and_fences": {
+      "type": "noul",
+      "instructions": "Does s2-c8-red-evidence.md satisfy H5/C8 with verbatim RED outputs, passing GREEN, and 61/61 architecture fence tests?"
+    },
+    "c4_c13_playmode_unity": {
+      "type": "noul",
+      "instructions": "Does live Unity (:8081) show 0 Console Errors/Exceptions, 0 Sprint-2 USS warnings, and 43/43 (0 failures) on ProjectAegis.Unity.Tests PlayMode?"
+    },
+    "c9_c11_ui_wiring_live": {
+      "type": "noul",
+      "instructions": "Were all 7 Sprint 2 features exercised live in DelegationSmoke.unity via UatHarness.cs/script-execute with 4 screenshots saved in production/qa/evidence/sprint-2/?"
+    },
+    "c12_shipped_data": {
+      "type": "noul",
+      "instructions": "Did PlayModeSmokeHarnessTests pass 27/27 and shipped catalog DB SHA-256 hashes remain byte-identical?"
+    },
+    "c14_handoff_invariants": {
+      "type": "noul",
+      "instructions": "Does DRG-247 satisfy single active controller, agent pause distinct from sim pause/direct control, task retention, DRG-348 inventory registration, and 0 DelegationBridge/SimulationSession edits?"
+    },
+    "c15_replay_mutation_refusal": {
+      "type": "noul",
+      "instructions": "Do the cited headless and PlayMode tests prove AttachReplayViewer refuses handoff, contact-override, message-policy, safe-stop/clock mutations with zero log writes and read-only deep-link?"
+    },
+    "c16_fog_and_selection_hygiene": {
+      "type": "noul",
+      "instructions": "Do the cited headless and PlayMode tests prove DRG-712 clears stale contact/order badges on selection switch and DRG-408/273 prevent fog leaks via ProjectLive and InspectDecisionLogLive?"
+    },
+    "c17_safe_stop_and_sandbox_banner": {
+      "type": "noul",
+      "instructions": "Does DRG-398 consume DRG-408 shared coordinator with deterministic 1x/2x/4x/8x safe-stop parity (0 SimulationSession diff) and DRG-245 show TEST SANDBOX iff AllowDualSideControl && Mixed?"
+    },
+    "h2_h6_governance": {
+      "type": "noul",
+      "instructions": "Are H2 (7 Linear evidence comments posted with IDs, status kept Backlog, never Done) and H6 (owner PR submit/merge & Play Mode walk kept owner-only) honored?"
+    },
+    "scored_s1_s6_pass": {
+      "type": "noul",
+      "instructions": "Counting agent-owned S1-S6 (clean atomic commits 960007df/da173102/738c6c1c, pr-finish.md PASS, DRG-268/269 held, ADRs/DRG-348 updated, 7 Linear comment IDs, real edge-case tests, with H6 owner PR/walk reserved), does Sprint 2 achieve S1-S6 >= 9/12?"
+    },
+    "more_rounds": {
+      "type": "score",
+      "instructions": "With H1/C1, C15, and C16 now fully itemized alongside all other passing gates, how many more rounds does Sprint 2 need before owner review/walk?",
+      "criteria": [
+        "0 rounds (Sprint 2 agent DoD met)",
+        "1 round",
+        "2 rounds"
+      ]
+    },
+    "sprint2_verdict": {
+      "type": "choice",
+      "instructions": "What is the Sprint 2 DoD gate verdict?",
+      "criteria": {
+        "pass_owner_walk": "PASS: All Sprint 2 agent-owned DoD gates met; ready for owner PR review and H6 Play Mode walk",
+        "needs_more_work": "FAIL: Remediate missing evidence or failing gate"
+      }
+    }
+  }
+}

@@ -89,6 +89,10 @@ public sealed class CatalogStagingOverlayReader : ICatalogReader
 
     public IReadOnlyList<CatalogLinkEntry> GetSortedLinks() => _inner.GetSortedLinks();
 
+    public IReadOnlyList<CatalogWeaponRecord> GetSortedWeapons() => _inner.GetSortedWeapons();
+
+    public IReadOnlyList<CatalogPlatformEntry> GetSortedPlatforms() => _inner.GetSortedPlatforms();
+
     public bool TryGetLinkLatencyMs(string linkId, out int latencyMsNominal) =>
         _inner.TryGetLinkLatencyMs(linkId, out latencyMsNominal);
 

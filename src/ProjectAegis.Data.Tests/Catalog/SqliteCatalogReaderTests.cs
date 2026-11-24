@@ -47,4 +47,85 @@ public sealed class SqliteCatalogReaderTests
             }
         }
     }
+
+    [Test]
+    [NonParallelizable]
+    public void Sqlite_reader_resolves_migrations_from_base_directory_when_cwd_is_deleted()
+    {
+        var originalCwd = Directory.GetCurrentDirectory();
+        var doomedCwd = Path.Combine(Path.GetTempPath(), $"aegis-deleted-cwd-{Guid.NewGuid():N}");
+        var dbPath = Path.Combine(Path.GetTempPath(), $"aegis-catalog-deleted-cwd-{Guid.NewGuid():N}.db");
+        try
+        {
+            Directory.CreateDirectory(doomedCwd);
+            Directory.SetCurrentDirectory(doomedCwd);
+            Directory.Delete(doomedCwd);
+
+            using var reader = new SqliteCatalogReader(dbPath);
+            Assert.That(reader.GetSortedSensorBindings(), Is.Empty);
+        }
+        finally
+        {
+            Directory.SetCurrentDirectory(originalCwd);
+            SqliteConnection.ClearAllPools();
+            if (File.Exists(dbPath))
+            {
+                File.Delete(dbPath);
+            }
+
+            if (Directory.Exists(doomedCwd))
+            {
+                Directory.Delete(doomedCwd, recursive: true);
+            }
+        }
+    }
+
+    [Test]
+    public void ResolveMigrationPaths_walks_base_directory_lazily_and_catches_cwd_io_or_auth_errors()
+    {
+        var tempBase = Path.Combine(Path.GetTempPath(), $"aegis-mig-base-{Guid.NewGuid():N}");
+        var tempEmpty = Path.Combine(Path.GetTempPath(), $"aegis-mig-empty-{Guid.NewGuid():N}");
+        try
+        {
+            var migDir = Path.Combine(tempBase, "assets", "data", "catalog", "migrations");
+            Directory.CreateDirectory(migDir);
+            var sqlFile = Path.Combine(migDir, "001_sensor_base_pd.sql");
+            File.WriteAllText(sqlFile, "-- test");
+            Directory.CreateDirectory(tempEmpty);
+
+            var cwdCalled = false;
+            var fromBase = SqliteCatalogReader.ResolveMigrationPaths(
+                tempBase,
+                () =>
+                {
+                    cwdCalled = true;
+                    throw new IOException("CWD must not be queried when baseDirectory resolves.");
+                });
+
+            Assert.That(cwdCalled, Is.False);
+            Assert.That(fromBase, Is.EqualTo(new[] { sqlFile }));
+
+            var fallbackIo = SqliteCatalogReader.ResolveMigrationPaths(
+                tempEmpty,
+                () => throw new IOException("deleted cwd"));
+            Assert.That(fallbackIo, Is.EqualTo(new[] { Path.Combine("assets", "data", "catalog", "migrations", "001_sensor_base_pd.sql") }));
+
+            var fallbackAuth = SqliteCatalogReader.ResolveMigrationPaths(
+                tempEmpty,
+                () => throw new UnauthorizedAccessException("inaccessible cwd"));
+            Assert.That(fallbackAuth, Is.EqualTo(new[] { Path.Combine("assets", "data", "catalog", "migrations", "001_sensor_base_pd.sql") }));
+        }
+        finally
+        {
+            if (Directory.Exists(tempBase))
+            {
+                Directory.Delete(tempBase, recursive: true);
+            }
+
+            if (Directory.Exists(tempEmpty))
+            {
+                Directory.Delete(tempEmpty, recursive: true);
+            }
+        }
+    }
 }

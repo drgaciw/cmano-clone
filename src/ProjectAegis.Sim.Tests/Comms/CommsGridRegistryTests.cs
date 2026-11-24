@@ -145,4 +145,58 @@ public sealed class CommsGridRegistryTests
         Assert.That(CommsGridRegistry.TryCreate(null), Is.Null);
         Assert.That(CommsGridRegistry.TryCreate(new ScenarioPolicyProfile(EffectivePolicy.DefaultFree)), Is.Null);
     }
+
+    [Test]
+    public void IsOffGridAt_and_EvaluateAt_evaluate_at_sim_tick_without_mutating_registry_state()
+    {
+        var r = new CommsGridRegistry(new[]
+        {
+            new ScenarioCommsGridTransition(0, "u0", "OffGrid", "start-off"),
+            new ScenarioCommsGridTransition(10, "sub-1", "OffGrid", "submerged"),
+            new ScenarioCommsGridTransition(20, "sub-1", "OnGrid", "surfaced"),
+        });
+
+        var hash0 = r.ComputeHash();
+
+        // Before Advance(0): AtTick=0 transition applies to pure simTick=0 query without mutating IsOffGrid.
+        Assert.That(r.IsOffGridAt("u0", 0), Is.True);
+        Assert.That(OffGridOrderGate.EvaluateAt(r, "u0", 0), Is.EqualTo(FireAbortReason.OffGrid));
+        Assert.That(r.IsOffGrid("u0"), Is.False);
+        Assert.That(r.OffGridUnitIds, Is.Empty);
+        Assert.That(r.ComputeHash(), Is.EqualTo(hash0));
+
+        // Null / empty safety on EvaluateAt and IsOffGridAt.
+        Assert.That(OffGridOrderGate.EvaluateAt(null, "u0", 0), Is.Null);
+        Assert.That(OffGridOrderGate.EvaluateAt(r, null, 0), Is.Null);
+        Assert.That(OffGridOrderGate.EvaluateAt(r, string.Empty, 0), Is.Null);
+        Assert.That(r.IsOffGridAt(string.Empty, 0), Is.False);
+
+        // Advance to t=9: query at t=10 sees OffGrid without mutating live t=9 state.
+        r.Advance(9);
+        var hash9 = r.ComputeHash();
+        Assert.That(r.IsOffGrid("sub-1"), Is.False);
+        Assert.That(r.IsOffGridAt("sub-1", 9), Is.False);
+        Assert.That(r.IsOffGridAt("sub-1", 10), Is.True);
+        Assert.That(OffGridOrderGate.EvaluateAt(r, "sub-1", 10), Is.EqualTo(FireAbortReason.OffGrid));
+        Assert.That(r.IsOffGrid("sub-1"), Is.False);
+        Assert.That(r.ComputeHash(), Is.EqualTo(hash9));
+
+        // Advance to t=15 (OffGrid): past query at t=5 sees OnGrid; future query at t=20 sees OnGrid; live t=15 stays OffGrid.
+        r.Advance(15);
+        var hash15 = r.ComputeHash();
+        Assert.That(r.IsOffGrid("sub-1"), Is.True);
+        Assert.That(r.IsOffGridAt("sub-1", 5), Is.False);
+        Assert.That(OffGridOrderGate.EvaluateAt(r, "sub-1", 5), Is.Null);
+        Assert.That(r.IsOffGridAt("sub-1", 15), Is.True);
+        Assert.That(r.IsOffGridAt("sub-1", 20), Is.False);
+        Assert.That(OffGridOrderGate.EvaluateAt(r, "sub-1", 20), Is.Null);
+        Assert.That(r.IsOffGrid("sub-1"), Is.True);
+        Assert.That(r.ComputeHash(), Is.EqualTo(hash15));
+
+        // Advancing afterwards still emits the pending OnGrid transition at t=20 cleanly.
+        var changesAt20 = r.Advance(20);
+        var rejoin = AssertEx.Single(changesAt20);
+        Assert.That(rejoin.UnitId, Is.EqualTo("sub-1"));
+        Assert.That(rejoin.To, Is.EqualTo(CommsGridMembership.OnGrid));
+    }
 }

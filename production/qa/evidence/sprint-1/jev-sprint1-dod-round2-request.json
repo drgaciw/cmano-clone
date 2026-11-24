@@ -1,0 +1,54 @@
+{
+  "state": "Project Aegis Sprint 1 DoD Gate Round 2 (2026-11-22), branch sprint/s1-hygiene-wiring. Round 1 (gen-dec-1795368544-OxhxZyq3C44jjIHSHzZw) passed 6/8 criteria >= 0.89 with verdict pass_checkpoint_owner (0.91) and more_rounds=0 (0.81), but held h5_c8_tdd_and_fences (0.47) and scored_s1_s6_pass (0.78) because verbatim RED failure outputs and posted Linear comment IDs were not yet recorded. UPDATED VERBATIM EVIDENCE NOW ON DISK: (1) Saved production/qa/evidence/sprint-1/s1-c8-red-evidence.md with exact pre-fix RED outputs for EVERY code story: DRG-772 CsprojReferenceGraphPinTests failed RED ('Expected: not some item equal to ProjectAegis.Ai.Host.csproj, But was: <ProjectAegis.Ai.Host.csproj, ...>') and AiHostProcessBoundaryTests failed RED, now GREEN (168/168 Cli, 79/79 Ai.Host, 18/18 Ai.Contracts, 65/65 Arch gates, 0 Ai.Host/Microsoft.Extensions.AI DLLs in CLI output); DRG-773/717 C2TopBarLoopPolicyHostContractTests failed RED ('Expected: not String containing ProjectAegis.Sim.Scenario', 'Expected: String containing LoopPolicyChromeBinder.Project', 'Expected: String containing name=edit-policy-label'), now GREEN and UnitySimImportForbidTests ratcheted 3->2 hosts; DRG-370 CommitRefusalBarkBinderTests failed RED ('Expected: property Count equal to 1, But was: 2' for double DROPPED bark; 'Expected: String containing UNSPECIFIED, But was: Engagement aborted: ' for log parity), now GREEN with CommitStripProjectionFenceTests 7/7; DRG-351 RuntimeTooltipPresenter verified in Unity PlayMode via real Focus()/Blur() + MouseEnterEvent/MouseLeaveEvent; DRG-239 PlayModeSmokeCoordinationFixtureTests failed RED ('Expected: SPLIT, But was: NONE' for detached escort gap) and NamespaceSccBaselineTests failed RED until moved to CommandReview namespace, now 7/7 headless + 2/2 Unity PlayMode + NamespaceSccBaselineTests 2/2 GREEN; DRG-781 UnityPackageManifestMirrorTests 1/1 PASS (0 drift across manifest.json, manifest.template.json, packages-lock.json). (2) Posted concise evidence comments on ALL 7 Linear issues via live Linear MCP (keeping statuses unchanged, NEVER marked Done per H2): DRG-772 (comment a909fc64), DRG-773 (6856a054), DRG-717 (9e5561b8), DRG-370 (bd4658e1), DRG-351 (b5173b1d), DRG-239 (bf74be9b), DRG-781 (6413f1a8). (3) Both temporary waivers (waiver-mission-editor-cli-ai-host-2026-11-16.md and waiver-c2-topbar-sim-read-2026-11-16.md) marked Exited. (4) All mechanical gates GREEN: dotnet build 0 warnings / 0 errors; dotnet test ProjectAegis.sln 4,706 passed / 0 failed across 9 projects (+35 new tests); PlayModeSmokeHarnessTests 27/27; ReplayGolden 17/17; Baltic v2 hash 17144800277401907079 unchanged; zero Sprint 1 edits on hard-no files (DelegationBridge.cs 0 diff vs main, CatalogWriteGate, SimulationSession, MapPlaceholderPanelHost, GlobeMapProductHost); shipped catalog DB sha256 byte-identical (82d26212..., 75ea357a...); Unity PlayMode ProjectAegis.Unity.Tests 27/27 passed / 0 failed (+5 new PlayMode tests); live DelegationSmoke Play Mode 0 console errors with EDITS: ANYTIME, COMMIT: READY, COST: 1 rd | MAG 4 -> 3 and screenshot production/qa/evidence/sprint-1/s1-ui-wiring-playmode.png; H6 owner Play Mode walk preserved as owner-only.",
+  "questions": {
+    "h1_c1_build_and_suite": {
+      "type": "noul",
+      "instructions": "Does the evidence show zero build warnings/errors and full headless suite green (4,706/0 across 9 projects)?"
+    },
+    "h3_h4_invariants": {
+      "type": "noul",
+      "instructions": "Does the evidence show hard-no surfaces untouched in Sprint 1, ReplayGolden 17/17 passing, and Baltic v2 hash 17144800277401907079 unchanged?"
+    },
+    "h5_c8_tdd_and_fences": {
+      "type": "noul",
+      "instructions": "Does the verbatim RED evidence in s1-c8-red-evidence.md and passing GREEN + source-fence / arch-pin tests satisfy H5/C8 across all Sprint 1 stories?"
+    },
+    "c4_c13_playmode_unity": {
+      "type": "noul",
+      "instructions": "Does the evidence show 0 Unity Console errors in live Play Mode and 27/27 (0 failures) on ProjectAegis.Unity.Tests PlayMode?"
+    },
+    "c9_c11_ui_wiring_live": {
+      "type": "noul",
+      "instructions": "Does the evidence show the wired Sprint 1 UI controls verified live in Play Mode with screenshots?"
+    },
+    "c12_shipped_data": {
+      "type": "noul",
+      "instructions": "Does the evidence show shipped catalog DB files remained byte-identical?"
+    },
+    "h2_h6_governance": {
+      "type": "noul",
+      "instructions": "Does the evidence honor H2 (Linear evidence comments posted with IDs, status NOT marked Done before PR merge) and H6 (owner Play Mode walk preserved as owner-only)?"
+    },
+    "scored_s1_s6_pass": {
+      "type": "noul",
+      "instructions": "With verbatim RED evidence, exited waivers, 7 posted Linear evidence comment IDs, 0 warnings, and production-path PlayMode tests, does Sprint 1 pass Notion S1-S6 >= 9/12?"
+    },
+    "more_rounds": {
+      "type": "score",
+      "instructions": "How many more rounds does Sprint 1 need before checkpointing with the owner?",
+      "criteria": [
+        "0 rounds (Sprint 1 DoD met)",
+        "1 round",
+        "2 rounds"
+      ]
+    },
+    "sprint1_verdict": {
+      "type": "choice",
+      "instructions": "What is the Sprint 1 DoD gate verdict?",
+      "criteria": {
+        "pass_checkpoint_owner": "PASS: All Sprint 1 agent-owned DoD gates met; checkpoint with owner for commit/PR review and Sprint 2 GO",
+        "needs_more_tdd": "FAIL: Run another TDD round in Sprint 1"
+      }
+    }
+  }
+}

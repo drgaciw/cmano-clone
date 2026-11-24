@@ -1,7 +1,6 @@
 using System.Text;
 using System.Text.Json;
 using ProjectAegis.Ai.Contracts;
-using ProjectAegis.Ai.Host.Evidence;
 using NUnit.Framework;
 
 namespace ProjectAegis.MissionEditor.Cli.Tests;
@@ -92,29 +91,35 @@ public sealed class AarExplainCommittedFixtureTests
         Assert.That(committed, Does.Contain((byte)'\n'));
         AssertJsonlPinnedToLf(Path.GetDirectoryName(evidence)!);
 
-        var tempRoot = Path.Combine(Path.GetTempPath(), "aegis-aar-shape-" + Guid.NewGuid().ToString("N"));
-        try
+        var synthetic = SyntheticDocument();
+        var sb = new StringBuilder();
+        sb.Append(JsonSerializer.Serialize(synthetic.Header)).Append('\n');
+        foreach (var entry in synthetic.Entries)
         {
-            var writer = new JsonlEvidenceWriter();
-            var result = await writer.WriteAsync(SyntheticDocument(), tempRoot, "evidence.jsonl");
-            Assert.That(result.Published, Is.True);
-            var generated = await File.ReadAllBytesAsync(result.PublishedPath!);
-            Assert.That(committed, Is.EqualTo(generated));
-        }
-        finally
-        {
-            TryDeleteTree(tempRoot);
+            sb.Append(JsonSerializer.Serialize(entry)).Append('\n');
         }
 
-        var again = await JsonlEvidenceWriter.ReadRoundTripAsync(evidence);
-        Assert.That(again.Header.BuildIdentity, Is.EqualTo("build-cli"));
-        Assert.That(again.Header.ScenarioId, Is.EqualTo("scenario-cli"));
-        Assert.That(again.Header.EvidenceIds, Is.EqualTo(new[] { "fp:1", "fp:2" }));
-        Assert.That(again.Entries.Count, Is.EqualTo(2));
-        Assert.That(again.Entries[0].EvidenceId, Is.EqualTo("fp:1"));
-        Assert.That(again.Entries[0].Kind, Is.EqualTo(EvidenceEntryKind.Engagement));
-        Assert.That(again.Entries[1].EvidenceId, Is.EqualTo("fp:2"));
-        Assert.That(again.Entries[1].Kind, Is.EqualTo(EvidenceEntryKind.AgentDecision));
+        var generated = new UTF8Encoding(encoderShouldEmitUTF8Identifier: false).GetBytes(sb.ToString());
+        Assert.That(committed, Is.EqualTo(generated));
+
+        var lines = (await File.ReadAllTextAsync(evidence, Encoding.UTF8))
+            .Split('\n', StringSplitOptions.RemoveEmptyEntries);
+        Assert.That(lines.Length, Is.EqualTo(3));
+
+        var header = JsonSerializer.Deserialize<EvidenceHeader>(lines[0]);
+        Assert.That(header, Is.Not.Null);
+        var entries = lines.Skip(1)
+            .Select(line => JsonSerializer.Deserialize<EvidenceEntry>(line)!)
+            .ToArray();
+
+        Assert.That(header!.BuildIdentity, Is.EqualTo("build-cli"));
+        Assert.That(header.ScenarioId, Is.EqualTo("scenario-cli"));
+        Assert.That(header.EvidenceIds, Is.EqualTo(new[] { "fp:1", "fp:2" }));
+        Assert.That(entries.Length, Is.EqualTo(2));
+        Assert.That(entries[0].EvidenceId, Is.EqualTo("fp:1"));
+        Assert.That(entries[0].Kind, Is.EqualTo(EvidenceEntryKind.Engagement));
+        Assert.That(entries[1].EvidenceId, Is.EqualTo("fp:2"));
+        Assert.That(entries[1].Kind, Is.EqualTo(EvidenceEntryKind.AgentDecision));
         Assert.That(File.Exists(evidence), Is.True);
     }
 

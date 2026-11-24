@@ -1,0 +1,32 @@
+<ui:UXML xmlns:ui="UnityEngine.UIElements" editor-extension-mode="False">
+    <ui:VisualElement name="coordination-panel-root" class="coordination-panel">
+        <ui:Label name="coord-header-title" text="TASK GROUP COORDINATION" class="coord-title" />
+        <ui:Label name="coord-advisory-badge" text="COORDINATION · Read-only projection; group orders route via CoordinationCommandBridge" class="coord-advisory" />
+        <ui:DropdownField name="coord-group-dropdown" label="Group" class="coord-dropdown" />
+        <ui:Label name="coord-intent-line" text="No task groups registered." class="coord-line" />
+        <ui:Label name="coord-controller-line" text="Controller: —" class="coord-line" />
+        <ui:Label text="RESPONSIBILITY BOUNDARIES" class="coord-subtitle" />
+        <ui:ScrollView class="coord-scroll">
+            <ui:VisualElement name="coord-boundaries-list" class="coord-list" />
+        </ui:ScrollView>
+        <ui:Label text="GROUP-TO-UNIT COMMAND EFFECTS" class="coord-subtitle" />
+        <ui:ScrollView class="coord-scroll">
+            <ui:VisualElement name="coord-effects-list" class="coord-list" />
+        </ui:ScrollView>
+        <ui:Label name="coord-block-reason-line" text="Ready." class="coord-block-reason" />
+        <ui:VisualElement class="coord-actions">
+            <ui:Button name="coord-hold-button" text="Hold" class="coord-btn" />
+            <ui:Button name="coord-withdraw-button" text="Withdraw" class="coord-btn" />
+            <ui:Button name="coord-reattack-button" text="Reattack (Adv)" class="coord-btn" />
+        </ui:VisualElement>
+        <ui:VisualElement name="coord-assisted-confirm-box" class="coord-confirm-box">
+            <ui:Label name="coord-assisted-confirm-title" text="Confirm withdraw" class="coord-subtitle" />
+            <ui:Label name="coord-assisted-confirm-body" text="" class="coord-line" />
+            <ui:VisualElement class="coord-actions">
+                <ui:Button name="coord-assisted-confirm-accept" text="CONFIRM WITHDRAW" class="coord-btn" />
+                <ui:Button name="coord-assisted-confirm-cancel" text="CANCEL" class="coord-btn" />
+            </ui:VisualElement>
+        </ui:VisualElement>
+        <ui:Label name="coord-feedback-line" text="" class="coord-feedback" />
+    </ui:VisualElement>
+</ui:UXML>

@@ -127,4 +127,60 @@ public sealed class AgentDirectiveIssuanceTests
         Assert.That(rtb.OrderKind, Is.EqualTo(OrderKind.ReturnToBase));
         Assert.That((int)OrderKind.ReturnToBase, Is.EqualTo(4));
     }
+
+    [TestCase("pause_agent", AgentDirectiveAction.PauseAgent, true, null)]
+    [TestCase("resume_agent", AgentDirectiveAction.ResumeAgent, true, null)]
+    public void TryResolve_maps_pause_and_resume_agent_directives(
+        string directiveId,
+        AgentDirectiveAction expectedAction,
+        bool expectedModeChange,
+        OrderKind? expectedOrder)
+    {
+        Assert.That(AgentDirectiveIssuance.TryResolve(directiveId, out var request, out var reason), Is.True);
+        Assert.That(reason, Is.Null);
+        Assert.That(request.DirectiveId, Is.EqualTo(directiveId));
+        Assert.That(request.Action, Is.EqualTo(expectedAction));
+        Assert.That(request.IsModeChange, Is.EqualTo(expectedModeChange));
+        Assert.That(request.OrderKind, Is.EqualTo(expectedOrder));
+    }
+
+    [Test]
+    public void Validate_5arg_checks_paused_state_for_pause_and_resume()
+    {
+        var pauseNoAgent = AgentDirectiveIssuance.Validate(
+            AgentDirectiveIssuance.PauseAgentId,
+            hasSelection: true,
+            hasActiveAgent: false,
+            hasSuspendedAgent: false,
+            isAgentPaused: false);
+        Assert.That(pauseNoAgent.Ok, Is.False);
+        Assert.That(pauseNoAgent.FailureReason, Is.EqualTo(AgentDirectiveIssuance.ReasonNoActiveAgent));
+
+        var pauseAlreadyPaused = AgentDirectiveIssuance.Validate(
+            AgentDirectiveIssuance.PauseAgentId,
+            hasSelection: true,
+            hasActiveAgent: true,
+            hasSuspendedAgent: false,
+            isAgentPaused: true);
+        Assert.That(pauseAlreadyPaused.Ok, Is.False);
+        Assert.That(pauseAlreadyPaused.FailureReason, Is.EqualTo(AgentDirectiveIssuance.ReasonAgentAlreadyPaused));
+
+        var resumeNotPaused = AgentDirectiveIssuance.Validate(
+            AgentDirectiveIssuance.ResumeAgentId,
+            hasSelection: true,
+            hasActiveAgent: true,
+            hasSuspendedAgent: false,
+            isAgentPaused: false);
+        Assert.That(resumeNotPaused.Ok, Is.False);
+        Assert.That(resumeNotPaused.FailureReason, Is.EqualTo(AgentDirectiveIssuance.ReasonAgentNotPaused));
+
+        var resumeOk = AgentDirectiveIssuance.Validate(
+            AgentDirectiveIssuance.ResumeAgentId,
+            hasSelection: true,
+            hasActiveAgent: true,
+            hasSuspendedAgent: false,
+            isAgentPaused: true);
+        Assert.That(resumeOk.Ok, Is.True);
+        Assert.That(resumeOk.Request!.Action, Is.EqualTo(AgentDirectiveAction.ResumeAgent));
+    }
 }

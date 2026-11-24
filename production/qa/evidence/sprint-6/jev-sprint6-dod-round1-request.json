@@ -1,0 +1,115 @@
+{
+  "model": "typesafe/jev-1.14",
+  "state": {
+    "project": "Project Aegis (cmano-clone)",
+    "sprint": "Sprint 6 (Gauntlet Verification, Three-Layer Oracle, Slice G2 Integrated C2 UX & DRG-244 Owner Acceptance Pack)",
+    "branch": "sprint/s6-gauntlet-g2-gate",
+    "parent_branch": "sprint/s5-h6-save-resume (4b5b4ca1)",
+    "scope_delivered": {
+      "track_a_gauntlet_and_gates": [
+        "DRG-201: EvidenceLedger, MissionThreadEvidenceModels, RevisionBoundAcceptanceRecord, AcceptanceEvidenceValidator, EvidenceLedgerAdapter, GauntletOracleEvalBaselineLedgerTests",
+        "DRG-202: ThreeLayerCombatOracle (SimTruth + PresentationProjection + RenderedAccessibility fail-closed evaluator + SHA-256 digest, 4/4 tests)",
+        "DRG-195: AgentDecisionProvenance, DegradedModePolicy, DegradedModeAdviceVerificationTests, EvidenceProjectorProvenanceAndDegradedTests",
+        "DRG-205: CombatReleaseGateEvaluator (VER-04 multi-run seed invariance, VER-06 CI gate floor/golden/bridge, ACC-11 C2 & Platform Editor rules + C2CommsLegendTooltipBinder wired to C2TopBarPanelHost & C2TopBarPanel.uxml, 5/5 tests)",
+        "DRG-193: IfcMissionThreadVerifier & IfcMissionThreadVerificationTests",
+        "DRG-176: CombatPictureDeclutterBudget & CombatPictureDeclutterEvaluator (Theater/Operational/Tactical budgets, honest headless vs Unity frame provenance, 4/4 tests)",
+        "DRG-203: AgenticResilienceAndSaboteurTests & SaboteurCalibrationLedgerRecorder",
+        "DRG-204: BaselineRegressionSelectionPolicy & docs/engineering/baseline-regression-and-test-selection-policy.md",
+        "DRG-187: docs/architecture/kill-chain-traceability-matrix.md & KillChainTraceabilityMatrixPinsTests"
+      ],
+      "track_b_slice_g2_and_usability": [
+        "DRG-235 & DRG-177: CombatTutorialUsabilityRunner (7-stage degraded-comms walkthrough, 3/3 headless tests)",
+        "Sprint6SliceG2PlayModeTests.cs (5/5 passed in live Unity 6000.3.27f2 :8081 PlayMode: CMD-01/07/10, ACC-11 COMMS legend tooltip, keyboard/pointer NavigationSubmitEvent + MouseEnter/Leave + KeyDownEvent distinct from callbacks, 1600x979 & 1280x779 + 0.85/1.0/1.25 scale extremes, PlatformImportPanel text buttons, empty/unknown states)",
+        "Live Game View screenshot s6-g2-playmode-c2-live.png (1477x633) visually inspected, honest fixture/live distinction documented in s6-g2-c2-workflow-evidence.md"
+      ],
+      "track_c_owner_acceptance_pack": [
+        "DRG-244: s6-drg244-owner-acceptance-pack.md covering Sprints 1-6 SHAs, floors, PlayMode counts, Jev decisions, explicit H6 owner-walk & DRG-208 historical boundary, and all 5 untouched hold:owner-go issues (DRG-268, DRG-269, DRG-236, DRG-231, DRG-347)"
+      ]
+    },
+    "verified_measurements": {
+      "dotnet_build_errors": 0,
+      "dotnet_build_warnings": 0,
+      "netstandard2_1_publish_dlls_synced": 15,
+      "headless_tests_passed": 5083,
+      "headless_tests_failed": 0,
+      "headless_tests_skipped": 0,
+      "prior_floor": 4987,
+      "agents_md_floor": 4361,
+      "replay_golden_passed": 17,
+      "golden_hash_17144800277401907079_hits": 26,
+      "playmode_smoke_harness_passed": 27,
+      "architecture_fences_passed": 134,
+      "unity_playmode_total_passed": 66,
+      "unity_playmode_failed": 0,
+      "unity_playmode_console_errors": 0,
+      "unity_final_state": "isPlaying=False, scene=DelegationSmoke, isDirty=False",
+      "hard_no_diff_lines_vs_4b5b4ca1": 0,
+      "red_to_green_evidence": "production/qa/evidence/sprint-6/s6-c8-red-evidence.md (M1, M2, M3 Track A, Track B headless, Track B PlayMode)",
+      "linear_h2_compliance": "Comments posted on Sprint 6 issues; all kept Backlog until owner PR merge; all 5 hold:owner-go issues untouched",
+      "h6_owner_walk_boundary": "Preserved explicitly as owner-only pending; DRG-208 historical 9cd872c7 never claimed as current acceptance"
+    }
+  },
+  "questions": {
+    "h1_c1_build_and_suite": {
+      "type": "noul",
+      "instructions": "Verify H1/C1: 0 build errors/warnings, netstandard2.1 synced, 5,083/5,083 headless tests passing (>= 4,987 floor), 0 failed/skipped."
+    },
+    "h2_tracker_honesty": {
+      "type": "noul",
+      "instructions": "Verify H2: Sprint 6 evidence comments posted while keeping issues in Backlog prior to PR merge, and all 5 hold:owner-go issues (DRG-268, DRG-269, DRG-236, DRG-231, DRG-347) untouched."
+    },
+    "h3_c7_hard_no_surfaces": {
+      "type": "noul",
+      "instructions": "Verify H3/C7: 0 diff lines on DelegationBridge.cs, SimulationSession.cs, CatalogWriteGate, MapPlaceholderPanelHost.cs, GlobeMapProductHost.cs, tests/regression/, DelegationSmoke.unity, and catalog DBs."
+    },
+    "h4_c2_determinism": {
+      "type": "noul",
+      "instructions": "Verify H4/C2/VER-04: ReplayGolden 17/17 passing, Baltic v2 golden hash 17144800277401907079 preserved (26 hits), multi-run seed invariance verified."
+    },
+    "h5_c8_tdd_and_fences": {
+      "type": "noul",
+      "instructions": "Verify H5/C8: strict RED->GREEN->REFACTOR TDD with verbatim RED evidence across M1/M2/M3/Track B and architecture/oracle fences passing."
+    },
+    "h6_honest_evidence_and_owner_boundary": {
+      "type": "noul",
+      "instructions": "Verify H6: headless/proxy/fixture/EditorPlayMode/owner-only evidence classes honestly separated, DRG-208 historical boundary explicit, owner walk preserved."
+    },
+    "h8_c3_c4_unity_playmode": {
+      "type": "noul",
+      "instructions": "Verify H8/C3/C4/C12/C13: PlayModeSmokeHarnessTests 27/27, live Unity :8081 PlayMode 66/66 (5/5 Sprint6SliceG2PlayModeTests), 0 Console errors, visually inspected live Game View screenshot, clean Edit Mode."
+    },
+    "track_a_gauntlet_oracle_and_gates": {
+      "type": "noul",
+      "instructions": "Verify Track A: DRG-201 ledger, DRG-202 three-layer oracle, DRG-195 provenance/degraded, DRG-205 VER-04/VER-06/ACC-11 (incl. COMMS legend tooltip), DRG-193/176/203/204/187."
+    },
+    "track_b_slice_g2_and_usability": {
+      "type": "noul",
+      "instructions": "Verify Track B: DRG-235 Slice G2 integrated C2 UX workflows + 1600x979/1280x779 scale extremes + keyboard/pointer events distinct from callbacks + DRG-177 7-stage usability runner."
+    },
+    "track_c_drg244_acceptance_pack": {
+      "type": "noul",
+      "instructions": "Verify Track C: DRG-244 revision-bound Play Mode re-signoff evidence index covers Sprints 1-6 completely and accurately."
+    },
+    "scored_s1_s6_pass": {
+      "type": "noul",
+      "instructions": "Verify Notion Rubrics S1-S6 score >= 9/12 across Sprint 6 deliverables."
+    },
+    "more_rounds": {
+      "type": "score",
+      "instructions": "How many more agent remediation rounds are needed before Sprint 6 agent-owned DoD is met (ready for owner interactive Play Mode walk)?",
+      "criteria": [
+        "0 rounds (Sprint 6 agent DoD met)",
+        "1 round (minor gap remains)",
+        "2 rounds (major gap remains)"
+      ]
+    },
+    "sprint6_verdict": {
+      "type": "choice",
+      "instructions": "Final Sprint 6 agent-owned DoD gate verdict.",
+      "criteria": {
+        "pass_owner_walk": "All non-owner Sprint 6 DoD gates and 6-sprint acceptance pack criteria are met; ready for owner Play Mode walk and Graphite stack submit.",
+        "needs_more_work": "One or more agent-owned DoD gates failed or are incomplete."
+      }
+    }
+  }
+}

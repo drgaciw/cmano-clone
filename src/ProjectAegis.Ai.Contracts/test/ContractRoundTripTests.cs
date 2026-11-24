@@ -199,6 +199,67 @@ public sealed class ContractRoundTripTests
         Assert.That(again, Is.EqualTo(status));
     }
 
+    [Test]
+    public void AiHostAarExplainRequest_round_trip_preserves_property_order()
+    {
+        var req = new AiHostAarExplainRequest(
+            EvidencePath: "/tmp/evidence.jsonl",
+            Enabled: true,
+            ArtifactRoot: "/tmp/artifacts",
+            ScriptPath: null);
+
+        RoundTripAndAssertOrder(
+            req,
+            "EvidencePath",
+            "Enabled",
+            "ArtifactRoot",
+            "ScriptPath");
+    }
+
+    [Test]
+    public void AiHostMissionPlanSuggestRequest_round_trip_preserves_property_order()
+    {
+        var req = new AiHostMissionPlanSuggestRequest(
+            Intent: "Blue patrol u1",
+            FixtureCaseId: "valid-draft",
+            ScriptPath: null,
+            ExpectedEditVersion: 1,
+            CurrentEditVersion: 1,
+            AllowedUnitIds: new[] { "u1" },
+            AllowedTargetIds: new[] { "t1" },
+            SupportedMissionTypes: new[] { "Patrol" },
+            IdempotencyKey: "key-1",
+            DbRef: "baltic_patrol",
+            AdditionalFixtureRoots: new[] { "/tmp/fixtures" });
+
+        RoundTripAndAssertOrder(
+            req,
+            "Intent",
+            "FixtureCaseId",
+            "ScriptPath",
+            "ExpectedEditVersion",
+            "CurrentEditVersion",
+            "AllowedUnitIds",
+            "AllowedTargetIds",
+            "SupportedMissionTypes",
+            "IdempotencyKey",
+            "DbRef",
+            "AdditionalFixtureRoots");
+    }
+
+    [Test]
+    public void AiHostIpcResponse_round_trip_preserves_property_order()
+    {
+        var resp = new AiHostIpcResponse(
+            ExitCode: 0,
+            PayloadJson: "{\"ok\":true}");
+
+        RoundTripAndAssertOrder(
+            resp,
+            "ExitCode",
+            "PayloadJson");
+    }
+
     private static void RoundTripAndAssertOrder<T>(T value, params string[] expectedPropertyOrder)
     {
         var json = JsonSerializer.Serialize(value, Options);

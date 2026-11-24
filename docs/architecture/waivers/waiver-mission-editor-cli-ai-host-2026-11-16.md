@@ -2,12 +2,13 @@
 
 | Field | Value |
 |-------|-------|
-| **Status** | Temporary — active until exit ticket closes |
+| **Status** | **Exited** — closed by DRG-772 on branch `sprint/s1-hygiene-wiring` (2026-11-22) |
 | **Date** | 2026-11-16 (CT) |
+| **Exited** | 2026-11-22 — [DRG-772](https://linear.app/drgamtd-workspace/issue/DRG-772) (`sprint/s1-hygiene-wiring`) |
 | **Owner go** | 7:40 PM CT Nov 16 · phrase **Accept jev's calls** |
 | **ADR** | [ADR-030](../adr-030-ai-host-boundary.md) (status unchanged: **Accepted**) |
 | **Audit** | [DRG-771](https://linear.app/drgamtd-workspace/issue/DRG-771) §8 item 1 (CMA-31) |
-| **Exit ticket** | [DRG-772](https://linear.app/drgamtd-workspace/issue/DRG-772) |
+| **Exit ticket** | [DRG-772](https://linear.app/drgamtd-workspace/issue/DRG-772) (**Satisfied**) |
 | **Introduced by** | [#860](https://github.com/drgaciw/cmano-clone/pull/860) |
 | **Base tip** | `1552311d` |
 
@@ -24,11 +25,11 @@ ADR-030's rejected-alternatives table states that putting AI inside the Mission 
 - No live providers, credentials, or paid-provider CI paths under this waiver.
 - [DRG-728](https://linear.app/drgamtd-workspace/issue/DRG-728) (AI-DEC-2: provider, terms, cost ceiling) stays **open**. This waiver does not close or satisfy DRG-728.
 
-## Exit criteria (DRG-772)
+## Exit criteria (DRG-772) — Satisfied
 
-1. Replace the in-process reference with a **thin CLI verb calling a separate Ai.Host process** (IPC / process boundary).
-2. Complete that process split **before** any live-provider or credential wiring.
-3. Mark this waiver **exited** with the implementing PR link when DRG-772 Done.
+1. **Done:** Replaced the in-process `<ProjectReference>` to `ProjectAegis.Ai.Host.csproj` in `ProjectAegis.MissionEditor.Cli.csproj` with a thin CLI client (`AiHostProcessClient`) calling the standalone `ProjectAegis.Ai.Host` executable over stdin/stdout JSON using `ProjectAegis.Ai.Contracts` DTOs (`aar_explain` and `mission_plan_suggest --provider fake`).
+2. **Done:** Process split completed with fake/scripted clients only, before any live-provider or credential wiring (`DRG-728` remains open and out of scope).
+3. **Done:** Waiver marked **Exited** referencing [DRG-772](https://linear.app/drgamtd-workspace/issue/DRG-772) on `sprint/s1-hygiene-wiring`, enforced by `CsprojReferenceGraphPinTests` and `AiHostProcessBoundaryTests`.
 
 ## Non-goals (now)
 

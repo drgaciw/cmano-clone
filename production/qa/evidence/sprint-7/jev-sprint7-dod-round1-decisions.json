@@ -1,0 +1,74 @@
+{
+  "model": "typesafe/jev-1.14-20261014",
+  "answers": {
+    "h1_c1_build_and_suite": {
+      "type": "noul",
+      "noul": 0.94
+    },
+    "h2_tracker_honesty": {
+      "type": "noul",
+      "noul": 0.94
+    },
+    "h3_c7_hard_no_surfaces": {
+      "type": "noul",
+      "noul": 0.8
+    },
+    "h4_c2_determinism": {
+      "type": "noul",
+      "noul": 0.93
+    },
+    "h5_c8_tdd": {
+      "type": "noul",
+      "noul": 0.46
+    },
+    "h8_c4_unity_playmode": {
+      "type": "noul",
+      "noul": 0.83
+    },
+    "drg269_interrupt_and_dlz": {
+      "type": "noul",
+      "noul": 0.49
+    },
+    "drg268_fog_safe_deeplink": {
+      "type": "noul",
+      "noul": 0.73
+    },
+    "more_rounds": {
+      "type": "score",
+      "score": 0.19,
+      "legend": {
+        "0": "0 rounds (Sprint 7 agent DoD met)",
+        "1": "1 round (minor gap)",
+        "2": "2 rounds (major gap)"
+      },
+      "probabilities": {
+        "0": 0.84,
+        "1": 0.13,
+        "2": 0.03
+      },
+      "confidence": 0.72
+    },
+    "sprint7_verdict": {
+      "type": "choice",
+      "choice": "pass_submit_draft_pr",
+      "probabilities": {
+        "pass_submit_draft_pr": 0.99,
+        "needs_more_work": 0.01
+      },
+      "confidence": 0.98
+    }
+  },
+  "usage": {
+    "input_tokens": 1562,
+    "output_tokens": 246,
+    "cost": 6.5604e-05,
+    "is_byok": false,
+    "cost_details": {
+      "upstream_inference_cost": 6.5604e-05,
+      "upstream_inference_prompt_cost": 6.5604e-05,
+      "upstream_inference_completions_cost": 0
+    }
+  },
+  "id": "gen-dec-1795466126-020HOZN7sSz95yITj2Yh",
+  "provider": "TypeSafe"
+}

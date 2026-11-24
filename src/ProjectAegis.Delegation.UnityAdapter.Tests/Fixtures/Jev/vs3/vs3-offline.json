@@ -1,0 +1,17 @@
+{
+  "schema": "aegis.jev.vs3.state.v0",
+  "fixtureId": "vs3-offline",
+  "skillAvailability": {
+    "jevDecide": false
+  },
+  "proposal": {
+    "groupId": "tg-baltic-escort",
+    "decision": "Withdraw"
+  },
+  "jevDecision": {
+    "model": "typesafe/jev-1.13",
+    "suggest_ok_under_roe": "yes",
+    "roeNoul": 0.95,
+    "order_proposal_risk": "low"
+  }
+}
